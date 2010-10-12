@@ -30,11 +30,16 @@ public class LazyFunctionRepositoryCompiler extends CachingFunctionRepositoryCom
 
     @Override
     public CompiledFunctionDefinition getDefinition(final String uniqueIdentifier) {
-      final FunctionDefinition function = _uncompiled.get(uniqueIdentifier);
+      FunctionDefinition function = _uncompiled.get(uniqueIdentifier);
       if (function != null) {
-        final CompiledFunctionDefinition compiled = function.compile(getCompilationContext(), _atInstant);
-        addFunction(compiled);
-        _uncompiled.remove(uniqueIdentifier);
+        synchronized (this) {
+          function = _uncompiled.get(uniqueIdentifier);
+          if (function != null) {
+            final CompiledFunctionDefinition compiled = function.compile(getCompilationContext(), _atInstant);
+            addFunction(compiled);
+            _uncompiled.remove(uniqueIdentifier);
+          }
+        }
       }
       return super.getDefinition(uniqueIdentifier);
     }
@@ -43,11 +48,21 @@ public class LazyFunctionRepositoryCompiler extends CachingFunctionRepositoryCom
       _uncompiled.put(function.getUniqueIdentifier(), function);
     }
 
+    @Override
+    public Instant getEarliestInvocationTime() {
+      return _uncompiled.isEmpty() ? super.getEarliestInvocationTime() : _atInstant;
+    }
+
+    @Override
+    public Instant getLatestInvocationTime() {
+      return _uncompiled.isEmpty() ? super.getLatestInvocationTime() : _atInstant;
+    }
+
   }
 
   @Override
-  protected CompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant, final CompiledFunctionRepository before,
-      final CompiledFunctionRepository after, final ExecutorService executorService) {
+  protected InMemoryCompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant,
+      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final ExecutorService executorService) {
     final Repository compiled = new Repository(context, atInstant);
     for (final FunctionDefinition function : functions.getAllFunctions()) {
       if (addFunctionFromCachedRepository(before, after, compiled, function, atInstant)) {

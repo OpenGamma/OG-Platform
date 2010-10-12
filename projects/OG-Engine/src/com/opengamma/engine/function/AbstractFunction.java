@@ -59,12 +59,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     @Override
-    public final InstantProvider getEarliestInvocationTime() {
+    public final Instant getEarliestInvocationTime() {
       return _earliestInvocationTime;
     }
 
     @Override
-    public final InstantProvider getLatestInvocationTime() {
+    public final Instant getLatestInvocationTime() {
       return _latestInvocationTime;
     }
 
@@ -145,12 +145,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     @Override
-    public final InstantProvider getEarliestInvocationTime() {
+    public final Instant getEarliestInvocationTime() {
       return null;
     }
 
     @Override
-    public final InstantProvider getLatestInvocationTime() {
+    public final Instant getLatestInvocationTime() {
       return null;
     }
 

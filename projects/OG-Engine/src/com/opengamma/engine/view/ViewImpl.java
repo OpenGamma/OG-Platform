@@ -152,9 +152,9 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private void viewEvaluationModelValidFor(final long timestamp) {
     if (!getViewEvaluationModel().isValidFor(timestamp)) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {}", getDefinition().getName());
-      // [ENG-247] Incremental compilation??
+      // [ENG-247] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
       _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp));
-      // TODO instead of adding live data subscriptions we should remove ones no longer needed and only add new ones
+      // [ENG-247] instead of adding live data subscriptions we should remove ones no longer needed and only add new ones
       addLiveDataSubscriptions();
       timer.finished();
     }

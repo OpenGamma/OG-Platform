@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.Instant;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -46,9 +48,34 @@ public class ViewEvaluationModel {
     _graphsByConfiguration = graphsByConfiguration;
     _liveDataRequirements = processLiveDataRequirements(graphsByConfiguration);
     _securityTypes = processSecurityTypes(graphsByConfiguration);
-    // [ENG-247] Iterate over the dep graphs to determine the earliest and latest validities
-    _earliestValidity = 0;
-    _latestValidity = Long.MAX_VALUE;
+    Instant earliest = null;
+    Instant latest = null;
+    for (DependencyGraph graph : graphsByConfiguration.values()) {
+      for (DependencyNode node : graph.getDependencyNodes()) {
+        Instant time = node.getFunction().getFunction().getEarliestInvocationTime();
+        if (time != null) {
+          if (earliest != null) {
+            if (earliest.isBefore(time)) {
+              earliest = time;
+            }
+          } else {
+            earliest = time;
+          }
+        }
+        time = node.getFunction().getFunction().getLatestInvocationTime();
+        if (time != null) {
+          if (latest != null) {
+            if (latest.isAfter(time)) {
+              latest = time;
+            }
+          } else {
+            latest = time;
+          }
+        }
+      }
+    }
+    _earliestValidity = (earliest != null) ? earliest.toEpochMillisLong() : 0;
+    _latestValidity = (latest != null) ? latest.toEpochMillisLong() : Long.MAX_VALUE;
   }
 
   // --------------------------------------------------------------------------

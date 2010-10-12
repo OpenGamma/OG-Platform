@@ -26,7 +26,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class CachingFunctionRepositoryCompiler implements FunctionRepositoryCompiler {
 
-  private final TreeMap<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, CompiledFunctionRepository>();
+  private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>();
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
   private int _cacheSize = 16;
 
@@ -41,7 +41,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return _cacheSize;
   }
 
-  protected TreeMap<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> getCompilationCache() {
+  protected TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> getCompilationCache() {
     return _compilationCache;
   }
 
@@ -49,10 +49,10 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return _activeEntries;
   }
 
-  protected boolean addFunctionFromCachedRepository(final CompiledFunctionRepository before, final CompiledFunctionRepository after, final InMemoryCompiledFunctionRepository compiled,
+  protected boolean addFunctionFromCachedRepository(final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final InMemoryCompiledFunctionRepository compiled,
       final FunctionDefinition function, final Instant atInstant) {
     if (before != null) {
-      final CompiledFunctionDefinition compiledFunction = before.getDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueIdentifier());
       if (compiledFunction.getLatestInvocationTime() == null) {
         // previous one always valid
         compiled.addFunction(compiledFunction);
@@ -67,7 +67,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       }
     }
     if (after != null) {
-      final CompiledFunctionDefinition compiledFunction = after.getDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueIdentifier());
       if (compiledFunction.getEarliestInvocationTime() == null) {
         // next one always valid
         compiled.addFunction(compiledFunction);
@@ -84,8 +84,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return false;
   }
 
-  protected CompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant, final CompiledFunctionRepository before,
-      final CompiledFunctionRepository after, final ExecutorService executorService) {
+  protected InMemoryCompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant,
+      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final ExecutorService executorService) {
     final InMemoryCompiledFunctionRepository compiled = new InMemoryCompiledFunctionRepository(context);
     final ExecutorCompletionService<CompiledFunctionDefinition> completionService = new ExecutorCompletionService<CompiledFunctionDefinition>(executorService);
     int numCompiles = 0;
@@ -118,27 +118,27 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return compiled;
   }
 
-  protected synchronized CompiledFunctionRepository getCachedCompilation(final Pair<FunctionRepository, Instant> key) {
+  protected synchronized InMemoryCompiledFunctionRepository getCachedCompilation(final Pair<FunctionRepository, Instant> key) {
     return getCompilationCache().get(key);
   }
 
-  protected synchronized CompiledFunctionRepository getPreviousCompilation(final Pair<FunctionRepository, Instant> key) {
-    final Map.Entry<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> entry = getCompilationCache().lowerEntry(key);
+  protected synchronized InMemoryCompiledFunctionRepository getPreviousCompilation(final Pair<FunctionRepository, Instant> key) {
+    final Map.Entry<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> entry = getCompilationCache().lowerEntry(key);
     if ((entry != null) && (entry.getKey().getFirst() == key.getFirst())) {
       return entry.getValue();
     }
     return null;
   }
 
-  protected synchronized CompiledFunctionRepository getNextCompilation(final Pair<FunctionRepository, Instant> key) {
-    final Map.Entry<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> entry = getCompilationCache().higherEntry(key);
+  protected synchronized InMemoryCompiledFunctionRepository getNextCompilation(final Pair<FunctionRepository, Instant> key) {
+    final Map.Entry<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> entry = getCompilationCache().higherEntry(key);
     if ((entry != null) && (entry.getKey().getFirst() == key.getFirst())) {
       return entry.getValue();
     }
     return null;
   }
 
-  protected synchronized void cacheCompilation(final Pair<FunctionRepository, Instant> key, final CompiledFunctionRepository compiled) {
+  protected synchronized void cacheCompilation(final Pair<FunctionRepository, Instant> key, final InMemoryCompiledFunctionRepository compiled) {
     final Queue<Pair<FunctionRepository, Instant>> active = getActiveCacheEntries();
     if (active.size() >= getCacheSize()) {
       getCompilationCache().remove(active.remove());
@@ -151,12 +151,36 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   public CompiledFunctionRepository compile(final CompiledFunctionService context, final InstantProvider atInstantProvider) {
     final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(context.getFunctionRepository(), atInstant);
-    CompiledFunctionRepository compiled = getCachedCompilation(key);
-    if (compiled == null) {
-      // ENG-247 It's possible that the previous or next repository can be used as-is; check for this before creating a new one
-      compiled = compile(context.getFunctionCompilationContext(), context.getFunctionRepository(), atInstant, getPreviousCompilation(key), getNextCompilation(key), context.getExecutorService());
-      cacheCompilation(key, compiled);
+    // Try a previous compilation
+    final InMemoryCompiledFunctionRepository previous = getPreviousCompilation(key);
+    if (previous != null) {
+      if (previous.getLatestInvocationTime() == null) {
+        return previous;
+      } else {
+        if (!atInstant.isAfter(previous.getLatestInvocationTime())) {
+          return previous;
+        }
+      }
     }
+    // Try a future compilation
+    final InMemoryCompiledFunctionRepository next = getNextCompilation(key);
+    if (next != null) {
+      if (next.getEarliestInvocationTime() == null) {
+        return next;
+      } else {
+        if (!atInstant.isBefore(next.getEarliestInvocationTime())) {
+          return next;
+        }
+      }
+    }
+    // Try the exact timestamp
+    InMemoryCompiledFunctionRepository compiled = getCachedCompilation(key);
+    if (compiled != null) {
+      return compiled;
+    }
+    // Create a compilation, salvaging results from previous and next if possible
+    compiled = compile(context.getFunctionCompilationContext(), context.getFunctionRepository(), atInstant, previous, next, context.getExecutorService());
+    cacheCompilation(key, compiled);
     return compiled;
   }
 

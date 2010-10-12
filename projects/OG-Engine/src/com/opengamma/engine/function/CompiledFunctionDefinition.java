@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -94,7 +94,7 @@ public interface CompiledFunctionDefinition {
    * 
    * @return the earliest timestamp. 
    */
-  InstantProvider getEarliestInvocationTime();
+  Instant getEarliestInvocationTime();
 
   /**
    * States the latest time that this metadata and invoker will be valid for. If the definition is always
@@ -102,6 +102,6 @@ public interface CompiledFunctionDefinition {
    * 
    * @return the latest timestamp.
    */
-  InstantProvider getLatestInvocationTime();
+  Instant getLatestInvocationTime();
 
 }

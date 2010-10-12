@@ -15,7 +15,7 @@ import java.util.TreeMap;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -65,28 +65,21 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private final LocalDate _curveDate;
   private final Currency _curveCurrency;
   private final String _curveName;
   private final boolean _isYieldCurve;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
 
-  public SimpleInterpolatedYieldAndDiscountCurveFunction(final LocalDate curveDate, final Currency currency, final String name, final boolean isYieldCurve) {
-    Validate.notNull(curveDate, "curveDate");
+  public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(name, "Name");
     _definition = null;
-    _curveDate = curveDate;
     _curveCurrency = currency;
     _curveName = name;
     _isYieldCurve = isYieldCurve;
     _interpolator = null;
     _result = null;
     _results = null;
-  }
-
-  public LocalDate getCurveDate() {
-    return _curveDate;
   }
 
   public Currency getCurveCurrency() {
@@ -145,13 +138,14 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return marketDataMap;
   }
 
-  protected InterpolatedYieldCurveSpecification createSpecification() {
-    return _curveSpecificationBuilder.buildCurve(_curveDate, _definition);
+  protected InterpolatedYieldCurveSpecification createSpecification(final InstantProvider atInstantProvider) {
+    return _curveSpecificationBuilder.buildCurve(DateUtil.previousWeekDay(ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC).toLocalDate()), _definition);
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final InterpolatedYieldCurveSpecification specification = createSpecification();
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+    final Instant atInstant = Instant.of(atInstantProvider);
+    final InterpolatedYieldCurveSpecification specification = createSpecification(atInstant);
     final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(specification, context));
     Instant expiry = null;
     for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
@@ -169,7 +163,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       }
     }
     System.err.println("Compiling " + getShortName() + " with expiry " + expiry);
-    return new AbstractInvokingCompiledFunction(null, expiry) {
+    return new AbstractInvokingCompiledFunction(atInstant, expiry) {
 
       @Override
       public ComputationTargetType getTargetType() {

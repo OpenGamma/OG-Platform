@@ -68,8 +68,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -114,8 +113,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -153,11 +151,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
   public void discountCurveNotMatchingRequirements() {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
-    final LocalDate curveDate = DateUtil.previousWeekDay();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -179,11 +175,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
   public void yieldCurveNotMatchingRequirements() {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
-    final LocalDate curveDate = LocalDate.nowSystemClock();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
