@@ -22,7 +22,6 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
@@ -42,30 +41,54 @@ import com.opengamma.financial.world.region.RegionSource;
  * 
  */
 public abstract class FixedFloatSwapFunction extends AbstractFunction implements FunctionInvoker {
-  private final String _name;
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
+  private final String _forwardValueRequirementName;
+  private final String _fundingValueRequirementName;
   private final Currency _currency;
 
-  public FixedFloatSwapFunction(final String currency, final String name) {
-    this(Currency.getInstance(currency), name);
+  public FixedFloatSwapFunction(final String currency, final String curveName, final String valueRequirementName) {
+    this(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  //TODO this only works at the moment because we're using the same curve for forward and funding. Don't know how to get around this
-  // with the value requirements working as they do now because I can't see how to distinguish curves by name without needing 
-  // a load of extra strings in ValueRequirementName
-  public FixedFloatSwapFunction(final Currency currency, final String name) {
+  public FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
+    this(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
+  }
+
+  public FixedFloatSwapFunction(final Currency currency, final String name, final String valueRequirementName) {
+    this(currency, name, valueRequirementName, name, valueRequirementName);
+  }
+
+  public FixedFloatSwapFunction(final Currency currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
     Validate.notNull(currency, "currency");
-    Validate.notNull(name, "name");
+    Validate.notNull(forwardCurveName, "forward curve name");
+    Validate.notNull(forwardValueRequirementName, "forward value requirement name");
+    Validate.notNull(fundingCurveName, "funding curve name");
+    Validate.notNull(fundingValueRequirementName, "funding value requirement name");
     _currency = currency;
-    _name = name;
+    _forwardCurveName = forwardCurveName;
+    _forwardValueRequirementName = forwardValueRequirementName;
+    _fundingCurveName = fundingCurveName;
+    _fundingValueRequirementName = fundingValueRequirementName;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
-    final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
-    final Object yieldCurveObject = inputs.getValue(requirement);
-    if (yieldCurveObject == null) {
-      throw new NullPointerException("Could not get " + requirement);
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
+    if (forwardCurveObject == null) {
+      throw new NullPointerException("Could not get " + forwardCurveRequirement);
+    }
+    Object fundingCurveObject = null;
+    if (!_forwardCurveName.equals(_fundingCurveName)) {
+      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
+      if (fundingCurveObject == null) {
+        throw new NullPointerException("Could not get " + fundingCurveRequirement);
+      }
     }
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
@@ -83,9 +106,18 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction implements
       fixedRate = ((FixedInterestRateLeg) receiveLeg).getRate();
       initialFloatingRate = ((FloatingInterestRateLeg) payLeg).getInitialFloatingRate();
     }
-    final Swap swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _name, _name, fixedRate, initialFloatingRate, now);
-    final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) yieldCurveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_name}, new YieldAndDiscountCurve[] {curve});
+    if (fundingCurveObject == null) {
+      final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _forwardCurveName,
+          _forwardCurveName, fixedRate, initialFloatingRate, now);
+      final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) forwardCurveObject;
+      final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName}, new YieldAndDiscountCurve[] {curve});
+      return getComputedValues(security, swap, bundle);
+    }
+    final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _fundingCurveName,
+        _forwardCurveName, fixedRate, initialFloatingRate, now);
+    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
+    final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
     return getComputedValues(security, swap, bundle);
   }
 
@@ -98,7 +130,8 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction implements
         if (swap.getPayLeg() instanceof InterestRateLeg && swap.getReceiveLeg() instanceof InterestRateLeg) {
           final InterestRateLeg payLeg = (InterestRateLeg) swap.getPayLeg();
           final InterestRateLeg receiveLeg = (InterestRateLeg) swap.getReceiveLeg();
-          if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
+          if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg)
+              || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
             final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
             return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency()) && payLegCurrency.equals(_currency);
           }
@@ -113,10 +146,22 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction implements
     return ComputationTargetType.SECURITY;
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(Security security, Swap swap, YieldCurveBundle bundle);
+  protected abstract Set<ComputedValue> getComputedValues(Security security, Swap<?, ?> swap, YieldCurveBundle bundle);
 
-  protected String getName() {
-    return _name;
+  protected String getForwardCurveName() {
+    return _forwardCurveName;
+  }
+
+  protected String getForwardValueRequirementName() {
+    return _forwardValueRequirementName;
+  }
+
+  protected String getFundingCurveName() {
+    return _fundingCurveName;
+  }
+
+  protected String getFundingValueRequirementName() {
+    return _fundingValueRequirementName;
   }
 
   protected Currency getCurrency(final ComputationTarget target) {
