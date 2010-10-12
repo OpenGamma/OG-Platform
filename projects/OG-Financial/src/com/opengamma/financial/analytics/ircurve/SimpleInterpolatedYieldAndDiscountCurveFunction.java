@@ -152,7 +152,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         final FutureSecurity future = (FutureSecurity) context.getSecuritySource().getSecurity(IdentifierBundle.of(strip.getSecurity()));
         final Instant futureExpiry = future.getExpiry().toInstant();
-        System.err.println("Found security " + future + " with expiry " + futureExpiry);
         if (expiry == null) {
           expiry = futureExpiry;
         } else {
@@ -162,7 +161,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
         }
       }
     }
-    System.err.println("Compiling " + getShortName() + " with expiry " + expiry);
     return new AbstractInvokingCompiledFunction(atInstant, expiry) {
 
       @Override

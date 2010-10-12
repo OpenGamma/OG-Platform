@@ -110,7 +110,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
         throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
       }
       try {
-        compiled.addFunction(future.get());
+        CompiledFunctionDefinition compiledFunction = future.get();
+        compiled.addFunction(compiledFunction);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Exception thrown compiling function definitions.", e);
       }
