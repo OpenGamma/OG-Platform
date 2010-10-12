@@ -20,6 +20,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -40,6 +41,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private final FunctionCompilationContext _functionCompilationContext;
 
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext) {
+    ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
     _functionCompilationContext = functionCompilationContext;
   }
 
@@ -55,6 +57,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext, Collection<ResolutionRule> resolutionRules) {
     this(functionCompilationContext);
+    ArgumentChecker.notNull(resolutionRules, "resolutionRules");
     addRules(resolutionRules);
   }
 

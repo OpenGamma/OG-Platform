@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
  * Implements a {@link FunctionRepositoryCompiler} that caches the results of previous compilations so
  * that a minimal compilation is performed each time. 
  */
-public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryCompiler {
+public class CachingFunctionRepositoryCompiler implements FunctionRepositoryCompiler {
 
   private final TreeMap<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, CompiledFunctionRepository>();
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
@@ -49,41 +49,49 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
     return _activeEntries;
   }
 
+  protected boolean addFunctionFromCachedRepository(final CompiledFunctionRepository before, final CompiledFunctionRepository after, final InMemoryCompiledFunctionRepository compiled,
+      final FunctionDefinition function, final Instant atInstant) {
+    if (before != null) {
+      final CompiledFunctionDefinition compiledFunction = before.getDefinition(function.getUniqueIdentifier());
+      if (compiledFunction.getLatestInvocationTime() == null) {
+        // previous one always valid
+        compiled.addFunction(compiledFunction);
+        return true;
+      } else {
+        final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
+        if (!validUntil.isBefore(atInstant)) {
+          // previous one still valid
+          compiled.addFunction(compiledFunction);
+          return true;
+        }
+      }
+    }
+    if (after != null) {
+      final CompiledFunctionDefinition compiledFunction = after.getDefinition(function.getUniqueIdentifier());
+      if (compiledFunction.getEarliestInvocationTime() == null) {
+        // next one always valid
+        compiled.addFunction(compiledFunction);
+        return true;
+      } else {
+        final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
+        if (!validFrom.isAfter(atInstant)) {
+          // next one already valid
+          compiled.addFunction(compiledFunction);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   protected CompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant, final CompiledFunctionRepository before,
       final CompiledFunctionRepository after, final ExecutorService executorService) {
     final InMemoryCompiledFunctionRepository compiled = new InMemoryCompiledFunctionRepository(context);
     final ExecutorCompletionService<CompiledFunctionDefinition> completionService = new ExecutorCompletionService<CompiledFunctionDefinition>(executorService);
     int numCompiles = 0;
     for (final FunctionDefinition function : functions.getAllFunctions()) {
-      if (before != null) {
-        final CompiledFunctionDefinition compiledFunction = before.getDefinition(function.getUniqueIdentifier());
-        if (compiledFunction.getLatestInvocationTime() == null) {
-          // previous one always valid
-          compiled.addFunction(compiledFunction);
-          continue;
-        } else {
-          final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
-          if (!validUntil.isBefore(atInstant)) {
-            // previous one still valid
-            compiled.addFunction(compiledFunction);
-            continue;
-          }
-        }
-      }
-      if (after != null) {
-        final CompiledFunctionDefinition compiledFunction = after.getDefinition(function.getUniqueIdentifier());
-        if (compiledFunction.getEarliestInvocationTime() == null) {
-          // next one always valid
-          compiled.addFunction(compiledFunction);
-          continue;
-        } else {
-          final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
-          if (!validFrom.isAfter(atInstant)) {
-            // next one already valid
-            compiled.addFunction(compiledFunction);
-            continue;
-          }
-        }
+      if (addFunctionFromCachedRepository(before, after, compiled, function, atInstant)) {
+        continue;
       }
       completionService.submit(new Callable<CompiledFunctionDefinition>() {
         @Override
@@ -102,7 +110,7 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
         throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
       }
       try {
-        future.get();
+        compiled.addFunction(future.get());
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Exception thrown compiling function definitions.", e);
       }

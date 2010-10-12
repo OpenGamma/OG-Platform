@@ -6,9 +6,13 @@
 package com.opengamma.engine.function;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,8 +20,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepository {
 
-  private final Map<String, CompiledFunctionDefinition> _functionDefinitions = new ConcurrentHashMap<String, CompiledFunctionDefinition>();
-  private final Map<String, FunctionInvoker> _functionInvokers = new ConcurrentHashMap<String, FunctionInvoker>();
+  private static final FunctionInvoker MISSING = new FunctionInvoker() {
+    @Override
+    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+      return null;
+    }
+  };
+
+  private final ConcurrentMap<String, CompiledFunctionDefinition> _functionDefinitions = new ConcurrentHashMap<String, CompiledFunctionDefinition>();
+  private final ConcurrentMap<String, FunctionInvoker> _functionInvokers = new ConcurrentHashMap<String, FunctionInvoker>();
   private final FunctionCompilationContext _compilationContext;
 
   public InMemoryCompiledFunctionRepository(final FunctionCompilationContext compilationContext) {
@@ -28,7 +39,6 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
     ArgumentChecker.notNull(function, "Function definition");
     final String uid = function.getFunctionDefinition().getUniqueIdentifier();
     _functionDefinitions.put(uid, function);
-    _functionInvokers.put(uid, function.getFunctionInvoker());
   }
 
   @Override
@@ -42,8 +52,21 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
   }
 
   @Override
-  public FunctionInvoker getInvoker(String uniqueIdentifier) {
-    return _functionInvokers.get(uniqueIdentifier);
+  public FunctionInvoker getInvoker(final String uniqueIdentifier) {
+    FunctionInvoker invoker = _functionInvokers.get(uniqueIdentifier);
+    if (invoker == null) {
+      final CompiledFunctionDefinition definition = getDefinition(uniqueIdentifier);
+      if (definition == null) {
+        invoker = MISSING;
+      } else {
+        invoker = definition.getFunctionInvoker();
+      }
+      final FunctionInvoker previous = _functionInvokers.putIfAbsent(uniqueIdentifier, invoker);
+      if (previous != null) {
+        invoker = previous;
+      }
+    }
+    return (invoker == MISSING) ? null : invoker;
   }
 
   @Override

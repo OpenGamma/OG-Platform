@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
+import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -99,7 +99,7 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
     assertEquals(dependencyGraphExecutorFactory, _viewProcessor.getDependencyGraphExecutorFactory());
 
-    _viewProcessor.setFunctionCompilationService(new CompiledFunctionService(functionRepository, new DefaultFunctionRepositoryCompiler(), functionCompilationContext));
+    _viewProcessor.setFunctionCompilationService(new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
 
     TestLiveDataClient liveDataClient = new TestLiveDataClient();
     _viewProcessor.setLiveDataClient(liveDataClient);
