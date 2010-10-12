@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -19,36 +18,31 @@ import com.opengamma.math.matrix.Matrix;
  * 
  */
 public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
-  private final Map<Integer, DoubleMatrix1D> _mean;
+  private final DoubleMatrix1D _mean;
 
-  public ParametricWithMeanVaRDataBundle(final Map<Integer, DoubleMatrix1D> mean, final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix2D> covariances) {
-    super(sensitivities, covariances);
+  public ParametricWithMeanVaRDataBundle(final Matrix<?> sensitivities, final DoubleMatrix2D covarianceMatrix, final int order, final DoubleMatrix1D mean) {
+    super(sensitivities, covarianceMatrix, order);
+    Validate.notNull(mean, "mean");
     testData(sensitivities, mean);
     _mean = mean;
   }
 
-  public DoubleMatrix1D getMean(final int order) {
-    return _mean.get(order);
+  public ParametricWithMeanVaRDataBundle(final List<String> names, final Matrix<?> sensitivities, final DoubleMatrix2D covarianceMatrix, final int order, final DoubleMatrix1D mean) {
+    super(names, sensitivities, covarianceMatrix, order);
+    Validate.notNull(mean, "mean");
+    testData(sensitivities, mean);
+    _mean = mean;
   }
 
-  private void testData(final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix1D> mean) {
-    Validate.notNull(sensitivities, "sensitivities");
-    Validate.notNull(mean, "mean");
-    Matrix<?> m;
-    for (final Entry<Integer, Matrix<?>> entry : sensitivities.entrySet()) {
-      final int order = entry.getKey();
-      m = entry.getValue();
-      if (mean.containsKey(order)) {
-        if (m instanceof DoubleMatrix1D) {
-          if (((DoubleMatrix1D) m).getNumberOfElements() != mean.get(order).getNumberOfElements()) {
-            throw new IllegalArgumentException("Mean and sensitivity vector sizes were not equal");
-          }
-        } else if (m instanceof DoubleMatrix2D) {
-          if (((DoubleMatrix2D) m).getNumberOfColumns() != mean.get(order).getNumberOfElements()) {
-            throw new IllegalArgumentException("Mean and sensitivity matrix sizes were not equal");
-          }
-        }
-      }
+  public DoubleMatrix1D getMean() {
+    return _mean;
+  }
+
+  private void testData(final Matrix<?> sensitivities, final DoubleMatrix1D mean) {
+    if (sensitivities instanceof DoubleMatrix1D) {
+      Validate.isTrue(sensitivities.getNumberOfElements() == mean.getNumberOfElements());
+    } else {
+      Validate.isTrue(((DoubleMatrix2D) sensitivities).getNumberOfRows() == mean.getNumberOfElements());
     }
   }
 

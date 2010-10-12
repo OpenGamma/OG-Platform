@@ -45,9 +45,7 @@ public class MixedOrderUnderlying implements Underlying {
   }
 
   public MixedOrderUnderlying(final List<NthOrderUnderlying> underlyings) {
-    if (underlyings == null) {
-      throw new IllegalArgumentException("Set of nth order underlyings was null");
-    }
+    Validate.notNull(underlyings, "underlyings");
     if (underlyings.size() < 2) {
       throw new IllegalArgumentException("Must have at least two nth order underlyings to have mixed order");
     }

@@ -7,10 +7,13 @@ package com.opengamma.financial.pnl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -124,7 +127,12 @@ public class SensitivityAndReturnDataBundleTest {
     assertEquals(DATA.getSensitivity(), S1);
     assertEquals(DATA.getUnderlying(), S1.getUnderlying());
     assertEquals(DATA.getUnderlyingReturnTS(), M1);
-    assertEquals(DATA.getUnderlyingTypes(), M1.keySet());
+    final List<UnderlyingType> underlyings1 = DATA.getUnderlyingTypes();
+    final Set<UnderlyingType> underlyings2 = M1.keySet();
+    assertEquals(underlyings1.size(), underlyings2.size());
+    for (final UnderlyingType u : underlyings1) {
+      assertTrue(underlyings2.contains(u));
+    }
     assertEquals(DATA.getValue(), VALUE_GAMMA, 0);
   }
 }
