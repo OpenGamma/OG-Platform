@@ -151,7 +151,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   // Caller must already hold viewLock
   private void viewEvaluationModelValidFor(final long timestamp) {
     if (!getViewEvaluationModel().isValidFor(timestamp)) {
-      setCalculationState(ViewCalculationState.STOPPED);
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {}", getDefinition().getName());
       // [ENG-247] Incremental compilation??
       _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp));
