@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.greeks;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.NavigableMap;
 
 import org.apache.commons.lang.Validate;
 
@@ -18,17 +18,17 @@ import com.opengamma.financial.pnl.UnderlyingType;
  * 
  */
 public class MixedOrderUnderlying implements Underlying {
-  private final Set<NthOrderUnderlying> _orders;
-  private final Set<UnderlyingType> _underlyings;
+  private final List<NthOrderUnderlying> _orders;
+  private final List<UnderlyingType> _underlyings;
   private final int _totalOrder;
 
-  public MixedOrderUnderlying(final Map<Integer, UnderlyingType> underlyings) {
+  public MixedOrderUnderlying(final NavigableMap<Integer, UnderlyingType> underlyings) {
     Validate.notNull(underlyings, "underlyings");
     if (underlyings.size() < 2) {
       throw new IllegalArgumentException("Must have at least two underlying types to have mixed order");
     }
-    _orders = new HashSet<NthOrderUnderlying>();
-    _underlyings = new HashSet<UnderlyingType>();
+    _orders = new ArrayList<NthOrderUnderlying>();
+    _underlyings = new ArrayList<UnderlyingType>();
     int totalOrder = 0;
     UnderlyingType underlying;
     for (final Entry<Integer, UnderlyingType> entry : underlyings.entrySet()) {
@@ -44,15 +44,15 @@ public class MixedOrderUnderlying implements Underlying {
     _totalOrder = totalOrder;
   }
 
-  public MixedOrderUnderlying(final Set<NthOrderUnderlying> underlyings) {
+  public MixedOrderUnderlying(final List<NthOrderUnderlying> underlyings) {
     if (underlyings == null) {
       throw new IllegalArgumentException("Set of nth order underlyings was null");
     }
     if (underlyings.size() < 2) {
       throw new IllegalArgumentException("Must have at least two nth order underlyings to have mixed order");
     }
-    _orders = new HashSet<NthOrderUnderlying>(underlyings);
-    _underlyings = new HashSet<UnderlyingType>();
+    _orders = new ArrayList<NthOrderUnderlying>(underlyings);
+    _underlyings = new ArrayList<UnderlyingType>();
     int totalOrder = 0;
     for (final NthOrderUnderlying nth : underlyings) {
       if (nth.getOrder() < 1) {
@@ -69,12 +69,12 @@ public class MixedOrderUnderlying implements Underlying {
     return _totalOrder;
   }
 
-  public Set<NthOrderUnderlying> getUnderlyingOrders() {
+  public List<NthOrderUnderlying> getUnderlyingOrders() {
     return _orders;
   }
 
   @Override
-  public Set<UnderlyingType> getUnderlyings() {
+  public List<UnderlyingType> getUnderlyings() {
     return _underlyings;
   }
 

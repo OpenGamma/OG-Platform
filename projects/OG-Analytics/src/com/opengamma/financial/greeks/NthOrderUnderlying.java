@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.greeks;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.opengamma.financial.pnl.UnderlyingType;
 
@@ -15,7 +16,8 @@ import com.opengamma.financial.pnl.UnderlyingType;
  */
 public class NthOrderUnderlying implements Underlying {
   private final int _order;
-  private final Set<UnderlyingType> _underlying;
+  private final List<UnderlyingType> _underlyingSet;
+  private final UnderlyingType _underlying;
 
   public NthOrderUnderlying(final int order, final UnderlyingType underlying) {
     if (order < 0) {
@@ -26,15 +28,16 @@ public class NthOrderUnderlying implements Underlying {
     }
     _order = order;
     if (order == 0) {
-      _underlying = Collections.emptySet();
+      _underlyingSet = new ArrayList<UnderlyingType>(0);
     } else {
-      _underlying = Collections.singleton(underlying);
+      _underlyingSet = Arrays.asList(underlying);
     }
+    _underlying = underlying;
   }
 
   @Override
-  public Set<UnderlyingType> getUnderlyings() {
-    return _underlying;
+  public List<UnderlyingType> getUnderlyings() {
+    return _underlyingSet;
   }
 
   @Override
@@ -42,6 +45,9 @@ public class NthOrderUnderlying implements Underlying {
     return _order;
   }
 
+  public UnderlyingType getUnderlying() {
+    return _underlying;
+  }
   // NOTE: hashCode() and equals() are deliberately not overridden. Please do
   // not implement them unless you want to
   // break a load of code
