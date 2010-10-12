@@ -7,7 +7,6 @@ package com.opengamma.engine.function.resolver;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -18,6 +17,6 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public interface FunctionResolver {
 
-  CompiledFunctionResolver compile(FunctionCompilationContext context, InstantProvider atInstant);
+  CompiledFunctionResolver compile(InstantProvider atInstant);
 
 }

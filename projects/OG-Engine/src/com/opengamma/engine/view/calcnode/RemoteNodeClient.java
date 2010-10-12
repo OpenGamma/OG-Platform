@@ -196,7 +196,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   @Override
   public synchronized void start() {
     if (!_started) {
-      getFunctionCompilationService().initialize(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
+      getFunctionCompilationService().initialize();
       s_logger.info("Client starting");
       sendCapabilities();
       _started = true;

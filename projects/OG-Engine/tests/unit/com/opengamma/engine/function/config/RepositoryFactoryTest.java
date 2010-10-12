@@ -27,6 +27,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.DefaultFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionCompilationService;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -145,7 +146,7 @@ public class RepositoryFactoryTest {
     assertTrue(definition instanceof MockEmptyFunction);
     assertNotNull(definition.getUniqueIdentifier());
 
-    final CompiledFunctionRepository compiledRepo = new DefaultFunctionRepositoryCompiler().compile(new FunctionCompilationContext(), repo, Instant.nowSystemClock());
+    final CompiledFunctionRepository compiledRepo = new FunctionCompilationService (repo, new DefaultFunctionRepositoryCompiler (), new FunctionCompilationContext ()).compileFunctionRepository(System.currentTimeMillis ());
     assertNotNull(compiledRepo.getDefinition(definition.getUniqueIdentifier()));
     FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueIdentifier());
     assertNotNull(invoker);

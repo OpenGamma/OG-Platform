@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationService;
@@ -46,7 +45,6 @@ public class ViewProcessingContext {
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final CachingComputationTargetResolver _computationTargetResolver;
-  private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final ViewPermissionProvider _permissionProvider;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
@@ -54,8 +52,8 @@ public class ViewProcessingContext {
   public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionCompilationService functionCompilationService, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
       CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource, JobDispatcher computationJobDispatcher,
-      ViewProcessorQueryReceiver viewProcessorQueryReceiver, ExecutorService executorService, DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      ViewPermissionProvider permissionProvider, GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver, DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider,
+      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -66,7 +64,6 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
-    ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
@@ -84,7 +81,6 @@ public class ViewProcessingContext {
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
-    _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _permissionProvider = permissionProvider;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
@@ -196,15 +192,6 @@ public class ViewProcessingContext {
   }
 
   /**
-   * Gets the executor service.
-   * 
-   * @return the executor service, not null
-   */
-  public ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
-  /**
    * Gets the dependency graph executor factory.
    * 
    * @return  the dependency graph executor factory, not null
@@ -233,8 +220,8 @@ public class ViewProcessingContext {
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices() {
-    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(),
-        getComputationTargetResolver(), getExecutorService(), getSecuritySource(), getPositionSource());
+    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
+        getFunctionCompilationService().getExecutorService(), getSecuritySource(), getPositionSource());
   }
 
 }

@@ -81,9 +81,9 @@ public class ViewTestUtils {
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
 
     ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionCompilation,
-        new DefaultFunctionResolver(functionRepo, functionCompilation.getFunctionRepositoryCompiler()), positionSource, securitySource, new DefaultCachingComputationTargetResolver(
-            new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager), computationCache, jobDispatcher, viewProcessorQueryReceiver, executor,
-        new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
+        new DefaultFunctionResolver(functionCompilation), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource,
+            positionSource), cacheManager), computationCache, jobDispatcher, viewProcessorQueryReceiver, new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(),
+        new DiscardingGraphStatisticsGathererProvider());
 
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

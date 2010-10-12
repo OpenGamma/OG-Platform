@@ -9,10 +9,15 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -45,9 +50,11 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   protected CompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant, final CompiledFunctionRepository before,
-      final CompiledFunctionRepository after) {
+      final CompiledFunctionRepository after, final ExecutorService executorService) {
     final InMemoryCompiledFunctionRepository compiled = new InMemoryCompiledFunctionRepository(context);
-    for (FunctionDefinition function : functions.getAllFunctions()) {
+    final ExecutorCompletionService<CompiledFunctionDefinition> completionService = new ExecutorCompletionService<CompiledFunctionDefinition>(executorService);
+    int numCompiles = 0;
+    for (final FunctionDefinition function : functions.getAllFunctions()) {
       if (before != null) {
         final CompiledFunctionDefinition compiledFunction = before.getDefinition(function.getUniqueIdentifier());
         if (compiledFunction.getLatestInvocationTime() == null) {
@@ -78,16 +85,36 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
           }
         }
       }
-      compiled.addFunction(function.compile(context, atInstant));
+      completionService.submit(new Callable<CompiledFunctionDefinition>() {
+        @Override
+        public CompiledFunctionDefinition call() throws Exception {
+          return function.compile(context, atInstant);
+        }
+      });
+      numCompiles++;
+    }
+    for (int i = 0; i < numCompiles; i++) {
+      Future<CompiledFunctionDefinition> future;
+      try {
+        future = completionService.take();
+      } catch (InterruptedException e1) {
+        Thread.interrupted();
+        throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
+      }
+      try {
+        future.get();
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Exception thrown compiling function definitions.", e);
+      }
     }
     return compiled;
   }
 
-  protected CompiledFunctionRepository getCachedCompilation(final Pair<FunctionRepository, Instant> key) {
+  protected synchronized CompiledFunctionRepository getCachedCompilation(final Pair<FunctionRepository, Instant> key) {
     return getCompilationCache().get(key);
   }
 
-  protected CompiledFunctionRepository getPreviousCompilation(final Pair<FunctionRepository, Instant> key) {
+  protected synchronized CompiledFunctionRepository getPreviousCompilation(final Pair<FunctionRepository, Instant> key) {
     final Map.Entry<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> entry = getCompilationCache().lowerEntry(key);
     if ((entry != null) && (entry.getKey().getFirst() == key.getFirst())) {
       return entry.getValue();
@@ -95,7 +122,7 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
     return null;
   }
 
-  protected CompiledFunctionRepository getNextCompilation(final Pair<FunctionRepository, Instant> key) {
+  protected synchronized CompiledFunctionRepository getNextCompilation(final Pair<FunctionRepository, Instant> key) {
     final Map.Entry<Pair<FunctionRepository, Instant>, CompiledFunctionRepository> entry = getCompilationCache().higherEntry(key);
     if ((entry != null) && (entry.getKey().getFirst() == key.getFirst())) {
       return entry.getValue();
@@ -103,7 +130,7 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
     return null;
   }
 
-  protected void cacheCompilation(final Pair<FunctionRepository, Instant> key, final CompiledFunctionRepository compiled) {
+  protected synchronized void cacheCompilation(final Pair<FunctionRepository, Instant> key, final CompiledFunctionRepository compiled) {
     final Queue<Pair<FunctionRepository, Instant>> active = getActiveCacheEntries();
     if (active.size() >= getCacheSize()) {
       getCompilationCache().remove(active.remove());
@@ -113,12 +140,12 @@ public class DefaultFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public synchronized CompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final InstantProvider atInstantProvider) {
+  public CompiledFunctionRepository compile(final FunctionCompilationService context, final InstantProvider atInstantProvider) {
     final Instant atInstant = Instant.of(atInstantProvider);
-    final Pair<FunctionRepository, Instant> key = Pair.of(functions, atInstant);
+    final Pair<FunctionRepository, Instant> key = Pair.of(context.getFunctionRepository(), atInstant);
     CompiledFunctionRepository compiled = getCachedCompilation(key);
     if (compiled == null) {
-      compiled = compile(context, functions, atInstant, getPreviousCompilation(key), getNextCompilation(key));
+      compiled = compile(context.getFunctionCompilationContext(), context.getFunctionRepository(), atInstant, getPreviousCompilation(key), getNextCompilation(key), context.getExecutorService());
       cacheCompilation(key, compiled);
     }
     return compiled;

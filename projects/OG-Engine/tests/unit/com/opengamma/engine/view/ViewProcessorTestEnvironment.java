@@ -60,7 +60,6 @@ public class ViewProcessorTestEnvironment {
   private static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
 
   // Settings
-  private boolean _localExecutorService;
   private LiveDataSnapshotProvider _userSnapshotProvider;
   private LiveDataAvailabilityProvider _userAvailabilityProvider;
 
@@ -131,12 +130,6 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setViewProcessorQueryReceiver(calcNodeQueryReceiver);
     assertEquals(calcNodeQueryReceiver, _viewProcessor.getViewProcessorQueryReceiver());
 
-    if (isLocalExecutorService()) {
-      _viewProcessor.setLocalExecutorService(true);
-    } else {
-      _viewProcessor.setExecutorService(Executors.newSingleThreadExecutor());
-    }
-
     FunctionExecutionContext functionExecutionContext = new FunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
@@ -148,14 +141,6 @@ public class ViewProcessorTestEnvironment {
 
   // Pre-init configuration
   // -------------------------------------------------------------------------
-  public boolean isLocalExecutorService() {
-    return _localExecutorService;
-  }
-
-  public void setLocalExecutorService(boolean localExecutorService) {
-    _localExecutorService = localExecutorService;
-  }
-
   public LiveDataSnapshotProvider getUserSnapshotProvider() {
     return _userSnapshotProvider;
   }

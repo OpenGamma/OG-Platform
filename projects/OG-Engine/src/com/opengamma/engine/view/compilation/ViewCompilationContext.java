@@ -47,7 +47,7 @@ public class ViewCompilationContext {
   // --------------------------------------------------------------------------
   private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant atInstant) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
-    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(compilationServices.getFunctionCompilationContext(), atInstant);
+    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(atInstant);
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       DependencyGraphBuilder builder = new DependencyGraphBuilder();
       builder.setCalculationConfigurationName(configName);

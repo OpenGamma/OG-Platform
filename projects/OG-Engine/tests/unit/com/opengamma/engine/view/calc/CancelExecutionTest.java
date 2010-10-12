@@ -138,23 +138,22 @@ public class CancelExecutionTest {
     functionRepository.addFunction(mockFunction);
     final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     final FunctionCompilationService compilationService = new FunctionCompilationService(functionRepository, new DefaultFunctionRepositoryCompiler(), compilationContext);
-    final FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository, compilationService.getFunctionRepositoryCompiler());
+    final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
     final MockSecuritySource securitySource = new MockSecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();
     final ViewComputationCacheSource computationCacheSource = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
-    final ExecutorService executorService = Executors.newCachedThreadPool();
     final FunctionInvocationStatisticsGatherer functionInvocationStatistics = new DiscardingInvocationStatisticsGatherer();
     final ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     final ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
-        viewProcessorQuerySender, executorService, functionInvocationStatistics)));
+        viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, executorService, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
