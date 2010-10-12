@@ -153,6 +153,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     final Pair<FunctionRepository, Instant> key = Pair.of(context.getFunctionRepository(), atInstant);
     CompiledFunctionRepository compiled = getCachedCompilation(key);
     if (compiled == null) {
+      // ENG-247 It's possible that the previous or next repository can be used as-is; check for this before creating a new one
       compiled = compile(context.getFunctionCompilationContext(), context.getFunctionRepository(), atInstant, getPreviousCompilation(key), getNextCompilation(key), context.getExecutorService());
       cacheCompilation(key, compiled);
     }
