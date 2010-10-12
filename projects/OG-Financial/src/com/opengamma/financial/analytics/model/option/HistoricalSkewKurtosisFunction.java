@@ -74,8 +74,8 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction implements 
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final Security security = target.getSecurity();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsObject = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, now
-        .toLocalDate());
+    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsObject = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
+        .toLocalDate(), false);
     if (tsObject == null) {
       throw new NullPointerException("Could not get time series for " + security.getIdentifiers());
     }

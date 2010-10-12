@@ -74,7 +74,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction implements Fu
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> benchmarkTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     if (benchmarkTSObject == null) {
       throw new NullPointerException("Benchmark time series was null");
     }

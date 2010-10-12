@@ -57,7 +57,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction implements Fun
     LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueIdentifier());
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName, _startDate, now);
+    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName, _startDate, true, now, false);
     //TODO can the pair ever be null?
     final LocalDateDoubleTimeSeries ts = tsPair.getSecond();
     //TODO can the series ever be null?

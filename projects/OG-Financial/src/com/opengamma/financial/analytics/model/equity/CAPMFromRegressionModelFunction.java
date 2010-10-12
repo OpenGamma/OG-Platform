@@ -66,9 +66,9 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction i
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (marketTSObject != null && assetPnLObject != null && assetFairValueObject != null && riskFreeTSObject != null) {
       final double fairValue = (Double) assetFairValueObject;
       DoubleTimeSeries<?> marketReturn = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.CONTINUOUS_STRICT).evaluate(
