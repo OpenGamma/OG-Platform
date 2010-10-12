@@ -6,6 +6,7 @@
 package com.opengamma.engine.function;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A function configured to be invoked with certain parameters.
@@ -15,6 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * You could then have two {@code ParameterizedFunctions}, one where
  * IterationCount = 20000 and another where IterationCount = 50000. 
  */
+@PublicAPI
 public class ParameterizedFunction {
   
   private String _uniqueId;

@@ -5,6 +5,12 @@
  */
 package com.opengamma.financial;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A currency.
  */
-public final class Currency implements UniqueIdentifiable {
+public final class Currency implements UniqueIdentifiable, Serializable {
 
   /**
    * A scheme for the unique identifier.
@@ -81,6 +87,13 @@ public final class Currency implements UniqueIdentifiable {
 
   //-------------------------------------------------------------------------
   public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof Currency)) {
+      return false;
+    }
+    _identifier.equals(obj);
     return (this == obj);  // relies on caching of instances
   }
 
@@ -92,4 +105,8 @@ public final class Currency implements UniqueIdentifiable {
     return getISOCode();
   }
 
+  // this means if the object is deserialized, it's always replaced with one that's in the cache and the deserialized one is available for GC.
+  public Object readResolve() throws ObjectStreamException {
+    return getInstance(getISOCode());
+  }
 }

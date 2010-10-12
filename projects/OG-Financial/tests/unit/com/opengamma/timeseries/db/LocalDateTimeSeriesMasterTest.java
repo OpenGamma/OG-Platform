@@ -38,7 +38,7 @@ public class LocalDateTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDat
   @Override
   protected TimeSeriesMaster<LocalDate> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
     return new LocalDateRowStoreTimeSeriesMaster(
-        getTransactionManager(), 
+        getDbSource(), 
         namedSQLMap,
         false);
   }

@@ -10,6 +10,7 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.PublicSPI;
 
 
 /**
@@ -19,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirement;
  * {@link FunctionDefinition} as it's entirely possible that certain functions may require
  * native libraries that are not supported on every node.
  */
+@PublicSPI
 public interface FunctionInvoker {
 
   /**

@@ -85,6 +85,8 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
+  
+  // [ENG-242] Need an optional callback mechanism so requests for "private" data can result in a "pull" request sent to the other nodes
 
   @Override
   public Object getValue(final ValueSpecification specification) {
@@ -112,8 +114,7 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
     _valueSizeCache.put(specification, data.length);
-    final Object value = deserializeValue(context, data);
-    return value;
+    return deserializeValue(context, data);
   }
 
   @Override

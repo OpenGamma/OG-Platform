@@ -72,6 +72,7 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
     final CacheMessage message = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
+    // [ENG-242] Replace with a proper visitor to the messages, allowing both release and the "send to shared"
     if (message instanceof ReleaseCacheMessage) {
       handleReleaseCache((ReleaseCacheMessage) message);
     } else {

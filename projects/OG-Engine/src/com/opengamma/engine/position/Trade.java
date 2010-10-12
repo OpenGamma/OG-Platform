@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.position;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * A position of a single trade against a particular {@code Counterparty}.
  */
+@PublicSPI
 public interface Trade extends Position {
 
   Counterparty getCounterparty();

@@ -1,0 +1,55 @@
+<project name="common-ivy" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+	<available file="${ivy.jar.file}" property="skip.download"/>
+	
+	<target name="download-ivy" unless="skip.download">
+		<mkdir dir="${ivy.jar.dir}" />
+		<!--
+			download Ivy from web site so that it can be used even without any
+			special installation
+		-->
+		<echo message="installing ivy..." />
+		<get src="http://ivyrepo.opengamma.com/org.apache.ant/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
+			 dest="${ivy.jar.file}" username="opengamma" password="opengamma" usetimestamp="true" />
+	</target>
+	
+	<target name="taskdef-ivy" depends="download-ivy" unless="og.build.invoked">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+	</target>
+	
+	<target name="load-ivy" depends="taskdef-ivy">
+		<mkdir dir="${lib.dir}" />
+		<ivy:settings file="${common.dir}/ivysettings.xml" />
+	</target>
+	
+	<path id="lib.path.id">
+		<fileset dir="${lib.dir}/jar">
+			<exclude name="org.apache.ant/ant/*.jar" />
+		</fileset>
+	</path>
+	<path id="run.path.id">
+		<path refid="lib.path.id" />
+		<path location="${classes.dir}" />
+	</path>
+	
+	
+	<!-- setup ivy default configuration with some custom info -->
+	<property name="ivy.local.default.root" value="${repository.dir}/local" />
+	<property name="ivy.shared.default.root" value="${repository.dir}/shared" />
+	
+	<target name="resolve" depends="clean-lib, load-ivy"
+		description="--> resolve and retrieve dependencies with ivy">
+		<!--
+			the call to resolve is not mandatory, retrieve makes an implicit call
+			if we don't
+		-->
+		<ivy:resolve file="${ivy.file}" />
+		<ivy:retrieve
+			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
+	</target>
+</project>

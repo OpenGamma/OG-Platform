@@ -1,0 +1,29 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-integration" status="integration"/>
+    <configurations>
+      <conf name="core"/>
+      <conf name="opengamma" extends="core"/>
+    </configurations>
+    <dependencies>
+        <dependency name="og-security" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-analytics" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-bloomberg" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-timeseriesstorage" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-reuters" rev="latest.integration" conf="opengamma->*"/>
+        
+        <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
+        <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
+        <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
+        <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
+        <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm,web"/>
+        <dependency org="org.eclipse" name="jetty" rev="7.0.1+" conf="*->jsp,servlets,start"/>
+        <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server,client"/>
+        
+        <exclude org="org.apache.log4j" module="log4j" />
+    </dependencies>
+</ivy-module>
+

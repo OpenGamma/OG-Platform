@@ -17,6 +17,7 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A single node in a {@link DependencyGraph}. A node represents
@@ -26,6 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * The same DependencyNode can belong to multiple DependencyGraphs
  * due to the possibility of sub-graphing.
  */
+@PublicAPI
 public class DependencyNode {
 
   // BELOW: COMPLETELY IMMUTABLE VARIABLES

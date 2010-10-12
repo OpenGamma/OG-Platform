@@ -25,6 +25,8 @@ public class CurveSpecificationBuilderConfiguration {
   private Map<Tenor, CurveInstrumentProvider> _rateInstrumentProviders;
   private Map<Tenor, CurveInstrumentProvider> _futureInstrumentProviders;
   private Map<Tenor, CurveInstrumentProvider> _swapInstrumentProviders;
+  private Map<Tenor, CurveInstrumentProvider> _basisSwapInstrumentProviders;
+  private Map<Tenor, CurveInstrumentProvider> _tenorSwapInstrumentProviders;
 
   /**
    * A curve specification builder configuration for a particular currency
@@ -38,12 +40,16 @@ public class CurveSpecificationBuilderConfiguration {
                                                 Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders,
                                                 Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders,
                                                 Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders,
-                                                Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders) {
+                                                Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders,
+                                                Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
+                                                Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders) {
     _cashInstrumentProviders = cashInstrumentProviders;
     _fraInstrumentProviders = fraInstrumentProviders;
     _rateInstrumentProviders = rateInstrumentProviders;
     _futureInstrumentProviders = futureInstrumentProviders;
     _swapInstrumentProviders = swapInstrumentProviders;
+    _basisSwapInstrumentProviders = basisSwapInstrumentProviders;
+    _tenorSwapInstrumentProviders = tenorSwapInstrumentProviders;
   }
   
   private Identifier getStaticSecurity(Map<Tenor, CurveInstrumentProvider> instrumentMappers, LocalDate curveDate, Tenor tenor) {
@@ -83,6 +89,26 @@ public class CurveSpecificationBuilderConfiguration {
    */
   public Identifier getSwapSecurity(LocalDate curveDate, Tenor tenor) {
     return getStaticSecurity(_swapInstrumentProviders, curveDate, tenor);
+  }
+  
+  /**
+   * Build a Basis Swap security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return identifier of the security to use
+   */
+  public Identifier getBasisSwapSecurity(LocalDate curveDate, Tenor tenor) {
+    return getStaticSecurity(_basisSwapInstrumentProviders, curveDate, tenor);
+  }
+
+  /**
+   * Build a Tenor Swap security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return identifier of the security to use
+   */
+  public Identifier getTenorSwapSecurity(LocalDate curveDate, Tenor tenor) {
+    return getStaticSecurity(_tenorSwapInstrumentProviders, curveDate, tenor);
   }
   
   /**
@@ -151,6 +177,22 @@ public class CurveSpecificationBuilderConfiguration {
     return _swapInstrumentProviders;
   }
   
+  /**
+   * Gets the basisSwapInstrumentProviders field for serialisation
+   * @return the basisSwapInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getBasisSwapInstrumentProviders() {
+    return _basisSwapInstrumentProviders;
+  }
+  
+  /**
+   * Gets the tenorSwapInstrumentProviders field for serialisation
+   * @return the swapInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getTenorSwapInstrumentProviders() {
+    return _tenorSwapInstrumentProviders;
+  }
+  
   public boolean equals(Object o) {
     if (o == null) {
       return false;
@@ -163,7 +205,9 @@ public class CurveSpecificationBuilderConfiguration {
             ObjectUtils.equals(getFraInstrumentProviders(), other.getFraInstrumentProviders()) &&
             ObjectUtils.equals(getFutureInstrumentProviders(), other.getFutureInstrumentProviders()) &&
             ObjectUtils.equals(getRateInstrumentProviders(), other.getRateInstrumentProviders()) &&
-            ObjectUtils.equals(getSwapInstrumentProviders(), other.getSwapInstrumentProviders()));
+            ObjectUtils.equals(getSwapInstrumentProviders(), other.getSwapInstrumentProviders()) &&
+            ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders()) &&
+            ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders()));
   }
   
   public int hashCode() {

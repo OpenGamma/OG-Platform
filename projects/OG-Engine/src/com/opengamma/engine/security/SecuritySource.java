@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A source of securities as accessed by the engine.
@@ -16,6 +17,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This interface provides a simple view of securities as needed by the engine.
  * This may be backed by a full-featured security master, or by a much simpler data structure.
  */
+@PublicSPI
 public interface SecuritySource {
 
   /**

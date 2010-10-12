@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.PublicSPI;
 
 // REVIEW kirk 2009-12-30 -- When we're done with the great refactor, we can actually
 // collapse everything down to this interface and FunctionInvoker since we have a
@@ -21,6 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * A single unit of work capable of operating on inputs to produce results. 
  *
  */
+@PublicSPI
 public interface FunctionDefinition {
   
   /**

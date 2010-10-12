@@ -172,6 +172,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
     return _fundingCurveSpecification;
   }
+  
+  public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
+    return _forwardCurveSpecification;
+  }
 
   // just for debugging.
   public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
@@ -274,8 +278,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
           derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+        //} else if (strip.getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
+          //derivative = basisSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
+          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 10000., now);
         } else {
           throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
         }
@@ -325,6 +331,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
       return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
     }
+    
+    
+    
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities = builder.resolveToSecurity(_forwardCurveSpecification, buildMarketDataMap(inputs));
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
@@ -350,13 +359,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
         derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
-        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
+        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
+        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue, now);
       } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
-        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-        derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
+        derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 10000., now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
       }
@@ -381,13 +390,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
         derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
-        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100., now);
+        derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
+        derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue, now);
       } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
-        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+        derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
       } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-        derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
+        derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 10000., now);
       } else {
         throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
       }
@@ -441,9 +450,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
     }
-
-    final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, yields, fundingInterpolator);
-    final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, yields, forwardInterpolator);
+    //TODO duh the yields have to be split up
+    double[] fundingYields = Arrays.copyOfRange(yields, 0,fundingNodeTimes.length);
+    double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
+    final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, fundingInterpolator);
+    final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, forwardYields, forwardInterpolator);
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
     return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
   }

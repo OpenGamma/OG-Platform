@@ -66,6 +66,18 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
       context.objectToFudgeMsg(swapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("swapInstrumentProviders", swapInstrumentProvidersMessage);
+    
+    MutableFudgeFieldContainer basisSwapInstrumentProvidersMessage = context.newMessage();
+    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getBasisSwapInstrumentProviders().entrySet()) {
+      context.objectToFudgeMsg(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    }
+    message.add("basisSwapInstrumentProviders", basisSwapInstrumentProvidersMessage);
+    
+    MutableFudgeFieldContainer tenorSwapInstrumentProvidersMessage = context.newMessage();
+    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getTenorSwapInstrumentProviders().entrySet()) {
+      context.objectToFudgeMsg(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    }
+    message.add("tenorSwapInstrumentProviders", tenorSwapInstrumentProvidersMessage);
     return message; 
   }
 
@@ -100,7 +112,19 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
     for (FudgeField field : swapInstrumentProvidersMessage.getAllFields()) {
       swapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
-    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders, swapInstrumentProviders);
+    
+    FudgeFieldContainer basisSwapInstrumentProvidersMessage = message.getMessage("basisSwapInstrumentProviders");
+    Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    for (FudgeField field : basisSwapInstrumentProvidersMessage.getAllFields()) {
+      basisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
+    }
+    
+    FudgeFieldContainer tenorSwapInstrumentProvidersMessage = message.getMessage("tenorSwapInstrumentProviders");
+    Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    for (FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
+      tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
+    }
+    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders, swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders);
   }
 
 }

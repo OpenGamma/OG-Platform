@@ -16,6 +16,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable unique identifier for an item.
@@ -38,6 +39,7 @@ import com.opengamma.util.CompareUtils;
  *   <li>Database key - SecurityDB::123456::1</li>
  * </ul>
  */
+@PublicAPI
 public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Serializable, UniqueIdentifiable {
 
   /**

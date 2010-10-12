@@ -6,11 +6,13 @@
 package com.opengamma.engine.function;
 
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Contains objects useful to {@link FunctionDefinition} instances
  * during expression compilation.
  */
+@PublicAPI
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**

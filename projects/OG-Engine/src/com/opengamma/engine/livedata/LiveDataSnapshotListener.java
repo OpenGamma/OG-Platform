@@ -6,10 +6,12 @@
 package com.opengamma.engine.livedata;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.PublicSPI;
 
 /**
- *  
+ * A listener interface for live data snapshots
  */
+@PublicSPI
 public interface LiveDataSnapshotListener {
   
   /**

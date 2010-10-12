@@ -9,10 +9,12 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The result of a single target across all configurations of a view calculation. 
  */
+@PublicAPI
 public interface ViewTargetResultModel {
 
   Collection<String> getCalculationConfigurationNames();

@@ -52,7 +52,8 @@ import com.opengamma.util.monitor.OperationTimer;
    */
   public static Portfolio execute(ViewCompilationContext compilationContext) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
-    // wherever possible, to prevent needless dependencies when a view never really has them.
+    // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
+    // really has them.
     
     if (!hasPortfolioOutput(compilationContext.getViewDefinition())) {
       // Doesn't even matter if the portfolio can't be resolved - we're not outputting anything at the portfolio level

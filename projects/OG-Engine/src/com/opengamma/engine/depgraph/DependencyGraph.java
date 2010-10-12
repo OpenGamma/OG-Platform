@@ -22,11 +22,13 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
+@PublicAPI
 public class DependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
   

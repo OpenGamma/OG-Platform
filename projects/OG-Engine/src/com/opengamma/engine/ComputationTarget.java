@@ -16,10 +16,12 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A fully resolved target, sufficient for computation invocation.
  */
+@PublicAPI
 public class ComputationTarget implements Serializable {
 
   /**

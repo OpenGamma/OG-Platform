@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.cash;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
@@ -40,6 +41,9 @@ public class CashSecurityToCashConverter {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
     final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
+    if (startDate.isAfter(maturityDate)) {
+      throw new OpenGammaRuntimeException("startDate "+startDate+" is after maturity date "+maturityDate+" probably caused by market holiday, so no data anyway");
+    }
     return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
   }
 }
