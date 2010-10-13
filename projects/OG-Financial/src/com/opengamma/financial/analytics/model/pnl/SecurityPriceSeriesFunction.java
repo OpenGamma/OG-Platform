@@ -27,7 +27,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.timeseries.Schedule;
+import com.opengamma.financial.analytics.timeseries.ScheduleCalculatorFactory;
+import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
+import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -39,30 +44,57 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   private final String _dataSourceName;
   private final String _fieldName;
   private final LocalDate _startDate;
+  private final Schedule _scheduleCalculator;
+  private final TimeSeriesSamplingFunction _samplingFunction;
 
-  //TODO this is probably the place to get the schedule right
   public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate) {
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), null, null);
+  }
+
+  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String scheduleName, final String samplingFunctionName) {
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getSchedule(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
+  }
+
+  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate) {
+    this(dataSourceName, fieldName, startDate, null, null);
+  }
+
+  public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate, final Schedule scheduleCalculator,
+      final TimeSeriesSamplingFunction samplingFunction) {
     Validate.notNull(dataSourceName, "data source name");
     Validate.notNull(fieldName, "field name");
     Validate.notNull(startDate, "start date");
     _dataSourceName = dataSourceName;
     _fieldName = fieldName;
-    _startDate = LocalDate.parse(startDate);
+    _startDate = startDate;
+    _scheduleCalculator = scheduleCalculator;
+    _samplingFunction = samplingFunction;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getSnapshotClock();
-    LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueIdentifier());
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName, _startDate, now);
-    //TODO can the pair ever be null?
-    final LocalDateDoubleTimeSeries ts = tsPair.getSecond();
-    //TODO can the series ever be null?
-    //TODO what about equity dividends?
-    final ComputedValue result = new ComputedValue(valueSpecification, ts);
+    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName,
+        _startDate, now);
+    if (tsPair == null) {
+      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
+    }
+    final DoubleTimeSeries<?> ts = tsPair.getSecond();
+    if (ts == null) {
+      throw new NullPointerException("Could not get price series for security " + security);
+    }
+    final DoubleTimeSeries<?> resultTS;
+    if (_scheduleCalculator != null && _samplingFunction != null) {
+      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true); //REVIEW emcleod should "fromEnd" be hard-coded?
+      resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
+    } else {
+      resultTS = ts;
+    }
+    final ComputedValue result = new ComputedValue(valueSpecification, resultTS);
     return Sets.newHashSet(result);
   }
 
@@ -93,5 +125,4 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;
   }
-
 }
