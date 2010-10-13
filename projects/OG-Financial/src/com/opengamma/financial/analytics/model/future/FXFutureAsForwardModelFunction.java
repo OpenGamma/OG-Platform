@@ -20,7 +20,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -40,7 +39,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  * 
  */
-public class FXFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
+public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final FutureModel<FXFutureDataBundle> _model = new FXFutureAsForwardModel();
   private static final Map<String, Greek> AVAILABLE_GREEKS;
 

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.swap;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -34,6 +37,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
@@ -57,7 +61,21 @@ public class FixedFloatSwapSecurityToSwapConverter {
 
   }
 
-
+  // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
+  protected Calendar getCalendar(Identifier regionId) {
+    if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
+      String[] regions = regionId.getValue().split("\\+");
+      Set<Region> resultRegions = new HashSet<Region>();
+      for (String region : regions) {
+        resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));
+      }
+      return new HolidaySourceCalendarAdapter(_holidaySource, resultRegions);
+    } else {
+      final Region payRegion = _regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
+      return new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
+    }
+  }
+    
   public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,  
       final double initialRate, final ZonedDateTime now) {
 
@@ -80,8 +98,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
     } else {
       throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps");
     }
-    final Region payRegion = _regionSource.getHighestLevelRegion(payLeg.getRegionIdentifier()); // we've checked that they are the same.
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
+    final Identifier regionId = payLeg.getRegionIdentifier();
+    final Calendar calendar = getCalendar(regionId);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 

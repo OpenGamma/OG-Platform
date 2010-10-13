@@ -154,7 +154,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
-    int endPos = Arrays.binarySearch(_times, endTime);
+    int endPos = (endTime == Long.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endTime);
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -startPos - 1;
     endPos = endPos >= 0 ? endPos : -endPos - 1;

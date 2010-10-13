@@ -11,6 +11,7 @@ import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented
@@ -19,6 +20,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * Always call {@link #close()} to allow resources associated with the managed view to be released when the client is
  * no longer required.
  */
+@PublicAPI
 public interface ViewClient {
 
   /**

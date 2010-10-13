@@ -26,6 +26,7 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable bundle of identifiers.
@@ -33,6 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  * Each identifier in the bundle will typically refer to the same physical item.
  * The identifiers represent different ways to represent the item, for example in multiple schemes.
  */
+@PublicAPI
 public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
 
   /**

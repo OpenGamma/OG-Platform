@@ -45,20 +45,10 @@ public class WebTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private String _uriTimeSeriesId;
   /**
-   * The version id from the URI.
-   */
-  @PropertyDefinition
-  private String _uriVersionId;
-  /**
    * The time series.
    */
   @PropertyDefinition
   private TimeSeriesDocument<?> _timeSeries;
-  /**
-   * The versioned time series.
-   */
-  @PropertyDefinition
-  private TimeSeriesDocument<?> _versioned;
   
   /**
    * Gets the best available security id.
@@ -96,12 +86,8 @@ public class WebTimeSeriesData extends DirectBean {
         return getUriInfo();
       case -377735317:  // uriTimeSeriesId
         return getUriTimeSeriesId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
       case 779431844:  // timeSeries
         return getTimeSeries();
-      case -1407102089:  // versioned
-        return getVersioned();
     }
     return super.propertyGet(propertyName);
   }
@@ -119,14 +105,8 @@ public class WebTimeSeriesData extends DirectBean {
       case -377735317:  // uriTimeSeriesId
         setUriTimeSeriesId((String) newValue);
         return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
       case 779431844:  // timeSeries
         setTimeSeries((TimeSeriesDocument<?>) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((TimeSeriesDocument<?>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -209,31 +189,6 @@ public class WebTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the version id from the URI.
-   * @return the value of the property
-   */
-  public String getUriVersionId() {
-    return _uriVersionId;
-  }
-
-  /**
-   * Sets the version id from the URI.
-   * @param uriVersionId  the new value of the property
-   */
-  public void setUriVersionId(String uriVersionId) {
-    this._uriVersionId = uriVersionId;
-  }
-
-  /**
-   * Gets the the {@code uriVersionId} property.
-   * @return the property, not null
-   */
-  public final Property<String> uriVersionId() {
-    return metaBean().uriVersionId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the time series.
    * @return the value of the property
    */
@@ -255,31 +210,6 @@ public class WebTimeSeriesData extends DirectBean {
    */
   public final Property<TimeSeriesDocument<?>> timeSeries() {
     return metaBean().timeSeries().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the versioned time series.
-   * @return the value of the property
-   */
-  public TimeSeriesDocument<?> getVersioned() {
-    return _versioned;
-  }
-
-  /**
-   * Sets the versioned time series.
-   * @param versioned  the new value of the property
-   */
-  public void setVersioned(TimeSeriesDocument<?> versioned) {
-    this._versioned = versioned;
-  }
-
-  /**
-   * Gets the the {@code versioned} property.
-   * @return the property, not null
-   */
-  public final Property<TimeSeriesDocument<?>> versioned() {
-    return metaBean().versioned().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -306,19 +236,10 @@ public class WebTimeSeriesData extends DirectBean {
      */
     private final MetaProperty<String> _uriTimeSeriesId = DirectMetaProperty.ofReadWrite(this, "uriTimeSeriesId", String.class);
     /**
-     * The meta-property for the {@code uriVersionId} property.
-     */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
-    /**
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings("unchecked")
     private final MetaProperty<TimeSeriesDocument<?>> _timeSeries = DirectMetaProperty.ofReadWrite(this, "timeSeries", (Class) TimeSeriesDocument.class);
-    /**
-     * The meta-property for the {@code versioned} property.
-     */
-    @SuppressWarnings("unchecked")
-    private final MetaProperty<TimeSeriesDocument<?>> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", (Class) TimeSeriesDocument.class);
     /**
      * The meta-properties.
      */
@@ -330,9 +251,7 @@ public class WebTimeSeriesData extends DirectBean {
       temp.put("timeSeriesMaster", _timeSeriesMaster);
       temp.put("uriInfo", _uriInfo);
       temp.put("uriTimeSeriesId", _uriTimeSeriesId);
-      temp.put("uriVersionId", _uriVersionId);
       temp.put("timeSeries", _timeSeries);
-      temp.put("versioned", _versioned);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -377,27 +296,11 @@ public class WebTimeSeriesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriVersionId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> uriVersionId() {
-      return _uriVersionId;
-    }
-
-    /**
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<TimeSeriesDocument<?>> timeSeries() {
       return _timeSeries;
-    }
-
-    /**
-     * The meta-property for the {@code versioned} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<TimeSeriesDocument<?>> versioned() {
-      return _versioned;
     }
 
   }

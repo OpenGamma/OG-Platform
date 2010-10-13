@@ -10,12 +10,14 @@ import java.util.Collection;
 import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A base interface for the common structures for whole and delta result models. The result
  * model can be queried by target (giving a configuration/value space) or by configuration
  * (giving a target/value space).
  */
+@PublicAPI
 public interface ViewResultModel {
   
   String getViewName();

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -15,11 +18,8 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-//TODO this needs to be changed to a FirstOrderCMSDC
-//similarly for the other classes in this package
-public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D<ParametricVaRDataBundle, Double> {
+public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D<Map<Integer, ParametricVaRDataBundle>, Double> {
   private final MatrixAlgebra _algebra;
-  private static final int ORDER = 1;
 
   public DeltaCovarianceMatrixStandardDeviationCalculator(final MatrixAlgebra algebra) {
     Validate.notNull(algebra, "algebra");
@@ -27,14 +27,14 @@ public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D
   }
 
   @Override
-  public Double evaluate(final ParametricVaRDataBundle data) {
+  public Double evaluate(final Map<Integer, ParametricVaRDataBundle> data) {
     Validate.notNull(data, "data");
-    final Matrix<?> delta = data.getSensitivityData(ORDER);
+    final ParametricVaRDataBundle firstOrderData = data.get(1);
+    Validate.notNull(firstOrderData, "first order data");
+    final Matrix<?> delta = firstOrderData.getSensitivities();
     final int s1 = delta.getNumberOfElements();
-    if (s1 == 0) {
-      throw new IllegalArgumentException("Value delta vector contained no data");
-    }
-    final DoubleMatrix2D covariance = data.getCovarianceMatrix(ORDER);
+    Validate.isTrue(s1 > 0, "Value delta vector contained no data");
+    final DoubleMatrix2D covariance = firstOrderData.getCovarianceMatrix();
     return Math.sqrt(_algebra.getInnerProduct(delta, _algebra.multiply(covariance, delta)));
   }
 
@@ -47,7 +47,7 @@ public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -57,15 +57,8 @@ public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeltaCovarianceMatrixStandardDeviationCalculator other = (DeltaCovarianceMatrixStandardDeviationCalculator) obj;
-    if (_algebra == null) {
-      if (other._algebra != null) {
-        return false;
-      }
-    } else if (!_algebra.equals(other._algebra)) {
-      return false;
-    }
-    return true;
+    final DeltaCovarianceMatrixStandardDeviationCalculator other = (DeltaCovarianceMatrixStandardDeviationCalculator) obj;
+    return ObjectUtils.equals(_algebra, other._algebra);
   }
 
 }

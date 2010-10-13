@@ -22,6 +22,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -32,6 +33,7 @@ import com.opengamma.util.tuple.Pair;
 public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
 
+  private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
   private static final boolean INCLUDE_LAST_DAY = true;
   private static final String CACHE_NAME = "HistoricalDataCache";
   private final HistoricalDataSource _underlying;
@@ -84,14 +86,19 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
         s_logger.debug("retrieved UID: {} from cache", uid);
         LocalDateDoubleTimeSeries timeSeries = getHistoricalData(uid);
         return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeSeries);
+      } else if (value == null) {
+        s_logger.debug("cached miss on {}", identifiers);
+        return Pair.of(null, EMPTY_TIMESERIES);
       } else {
         s_logger.warn("returned object {} from cache, not a UniqueIdentifier", value);
-        return null;
+        return Pair.of(null, EMPTY_TIMESERIES);
       }
     } else {
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers, dataSource, dataProvider, field);
       _cache.put(new Element(key, tsPair.getFirst()));
-      _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      if (tsPair.getFirst() != null) {
+        _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      }
       return tsPair;
     }
   }
@@ -103,7 +110,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, true, end, INCLUDE_LAST_DAY);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
-      return null;
+      return Pair.of(null, EMPTY_TIMESERIES);
     }
   }
 
@@ -118,7 +125,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
         return ts;
       } else {
         s_logger.error("returned object {} from cache, not a LocalDateDoubleTimeSeries", value);
-        return null;
+        return EMPTY_TIMESERIES;
       }
     } else {
       LocalDateDoubleTimeSeries ts = _underlying.getHistoricalData(uid);
@@ -133,7 +140,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
     if (ts != null) {
       return (LocalDateDoubleTimeSeries) ts.subSeries(start, true, end, INCLUDE_LAST_DAY);
     } else {
-      return null;
+      return EMPTY_TIMESERIES;
     }
   }
 
@@ -152,7 +159,21 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
     @Override
     public int hashCode() {
-      return _dsids.hashCode() ^ _field.hashCode();
+      final int shift = 17;
+      int hc = _dsids.hashCode();
+      hc *= shift;
+      if (_dataSource != null) {
+        hc += _dataSource.hashCode();
+      }
+      hc *= shift;
+      if (_dataProvider != null) {
+        hc += _dataProvider.hashCode();
+      }
+      hc *= shift;
+      if (_field != null) {
+        hc += _field.hashCode();
+      }
+      return hc;
     }
 
     @Override
@@ -201,7 +222,30 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return getHistoricalData(identifiers, null, null, null);
+    MetaDataKey key = new MetaDataKey(identifiers, null, null, null);
+    Element element = _cache.get(key);
+    if (element != null) {
+      Serializable value = element.getValue();
+      if (value instanceof UniqueIdentifier) {
+        UniqueIdentifier uid = (UniqueIdentifier) value;
+        s_logger.debug("retrieved UID: {} from cache", uid);
+        LocalDateDoubleTimeSeries timeSeries = getHistoricalData(uid);
+        return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeSeries);
+      } else if (value == null) {
+        s_logger.debug("cached miss on {}", identifiers);
+        return Pair.of(null, EMPTY_TIMESERIES);
+      } else {
+        s_logger.warn("returned object {} from cache, not a UniqueIdentifier", value);
+        return Pair.of(null, EMPTY_TIMESERIES);
+      }
+    } else {
+      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers);
+      _cache.put(new Element(key, tsPair.getFirst()));
+      if (tsPair.getFirst() != null) {
+        _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      }
+      return tsPair;
+    }
   }
 
   @Override
@@ -211,18 +255,18 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, true, end, INCLUDE_LAST_DAY);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
-      return null;
+      return Pair.of(null, EMPTY_TIMESERIES);
     }
   }
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
-    if (tsPair != null && tsPair.getValue() != null) {
+    if (tsPair != null) {
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
-      return null;
+      return Pair.of(null, EMPTY_TIMESERIES);
     }
   }
 
@@ -230,21 +274,21 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, dataSource, dataProvider, field);
-    if (tsPair != null && tsPair.getValue() != null) {
+    if (tsPair != null) {
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
-      return null;
+      return Pair.of(null, EMPTY_TIMESERIES);
     }
   }
 
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
-    if (timeseries != null) {
+    if (!timeseries.isEmpty()) {
       return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, !exclusiveEnd);
     } else {
-      return null;
+      return timeseries;
     }
   }
 

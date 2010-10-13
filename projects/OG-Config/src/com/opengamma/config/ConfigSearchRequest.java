@@ -20,11 +20,13 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.util.PublicAPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for configuration documents.
  */
+@PublicAPI
 @BeanDefinition
 public class ConfigSearchRequest extends DirectBean {
 

@@ -6,10 +6,12 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicAPI;
 
 /**
- * 
+ * Interface to get view's user and inform a listener of losing/gaining access to a view due to user permission changes.  The latter is not yet implemented.
  */
+@PublicAPI
 public interface ComputationListener {
   
   /**

@@ -1,13 +1,18 @@
 package com.opengamma.engine.value;
 
 import org.apache.commons.lang.ObjectUtils;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
+
 /**
- *  * Representation of a ValueSpecification 
- *   */
+ * Representation of a ValueSpecification, which ties a @see ValueRequirement to a specific function and so it is more specific
+ * For example, think: Requirement = YIELD_CURVE on USD, Specification = YIELD_CURVE on USD computed by MarketInstrumentImpliedYieldCurveFunction.
+ */
+@PublicAPI
 public class ValueSpecification implements java.io.Serializable {
   private final ValueRequirement _requirementSpecification;
   private final String _functionUniqueId;

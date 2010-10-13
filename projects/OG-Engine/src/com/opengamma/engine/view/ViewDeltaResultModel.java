@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import javax.time.Instant;
 
+import com.opengamma.util.PublicAPI;
+
 
 
 /**
@@ -27,6 +29,7 @@ import javax.time.Instant;
  *
  * @author kirk
  */
+@PublicAPI
 public interface ViewDeltaResultModel extends ViewResultModel {
 
   /**

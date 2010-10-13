@@ -16,7 +16,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -34,7 +33,8 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * 
  *
  */
-public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction implements FunctionInvoker {
+public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final double ONE_YEAR = DateUtil.DAYS_PER_YEAR;
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator;

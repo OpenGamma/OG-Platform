@@ -79,6 +79,8 @@ public class DbSource {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(helper, "helper");
+    ArgumentChecker.notNull(transactionDefinition, "transactionDefinition");
+    ArgumentChecker.notNull(transactionManager, "transactionManager");
     _name = name;
     _dataSource = dataSource;
     _dialect = helper;

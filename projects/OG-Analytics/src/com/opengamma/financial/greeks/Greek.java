@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.google.common.collect.Sets;
 import com.opengamma.financial.pnl.UnderlyingType;
 
 /**
@@ -18,7 +18,7 @@ import com.opengamma.financial.pnl.UnderlyingType;
  */
 public abstract class Greek implements Comparable<Greek> {
   /**
-   * First-order sensitivity with respect to  cost of carry
+   * First-order sensitivity with respect to cost of carry
    */
   public static final Greek CARRY_RHO = new Greek(new NthOrderUnderlying(1, UnderlyingType.COST_OF_CARRY), "CarryRho") {
 
@@ -29,7 +29,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  spot 
+   * First-order sensitivity with respect to spot 
    */
   public static final Greek DELTA = new Greek(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), "Delta") {
 
@@ -40,9 +40,10 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * Second-order sensitivity with respect to  spot and time
+   * Second-order sensitivity with respect to spot and time
    */
-  public static final Greek DELTA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1, UnderlyingType.TIME))),
+  public static final Greek DELTA_BLEED = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
+      UnderlyingType.TIME))),
       "DeltaBleed") {
 
     @Override
@@ -65,7 +66,7 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to implied volatility, second with respect to spot
    */
-  public static final Greek DVANNA_DVOL = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(2,
+  public static final Greek DVANNA_DVOL = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(2,
       UnderlyingType.SPOT_PRICE))), "DVannaDVol") {
 
     @Override
@@ -108,7 +109,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * Second-order sensitivity with respect to  spot
+   * Second-order sensitivity with respect to spot
    */
   public static final Greek GAMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE), "Gamma") {
 
@@ -121,7 +122,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek GAMMA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))),
+  public static final Greek GAMMA_BLEED = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2,
+      UnderlyingType.SPOT_PRICE))),
       "GammaBleed") {
 
     @Override
@@ -153,7 +155,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  yield
+   * First-order sensitivity with respect to yield
    */
   public static final Greek PHI = new Greek(new NthOrderUnderlying(1, UnderlyingType.YIELD), "Phi") {
 
@@ -164,7 +166,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  interest rate
+   * First-order sensitivity with respect to interest rate
    */
   public static final Greek RHO = new Greek(new NthOrderUnderlying(1, UnderlyingType.INTEREST_RATE), "Rho") {
 
@@ -197,7 +199,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  strike
+   * First-order sensitivity with respect to strike
    */
   public static final Greek STRIKE_DELTA = new Greek(new NthOrderUnderlying(1, UnderlyingType.STRIKE), "StrikeDelta") {
 
@@ -208,7 +210,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * Second-order sensitivity with respect to  strike
+   * Second-order sensitivity with respect to strike
    */
   public static final Greek STRIKE_GAMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.STRIKE), "StrikeGamma") {
 
@@ -243,7 +245,7 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Second-order sensitivity with respect to spot and implied volatility
    */
-  public static final Greek VANNA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
+  public static final Greek VANNA = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
       UnderlyingType.IMPLIED_VOLATILITY))), "Vanna") {
 
     @Override
@@ -266,7 +268,7 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Second-order sensitivity with respect to spot and implied variance
    */
-  public static final Greek VARIANCE_VANNA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
+  public static final Greek VARIANCE_VANNA = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
       UnderlyingType.IMPLIED_VARIANCE))), "VarianceVanna") {
 
     @Override
@@ -276,7 +278,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  implied variance
+   * First-order sensitivity with respect to implied variance
    */
   public static final Greek VARIANCE_VEGA = new Greek(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VARIANCE), "VarianceVega") {
 
@@ -287,7 +289,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * Second-order sensitivity with respect to  implied variance
+   * Second-order sensitivity with respect to implied variance
    */
   public static final Greek VARIANCE_VOMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.IMPLIED_VARIANCE), "VarianceVomma") {
 
@@ -298,7 +300,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to  implied volatility
+   * First-order sensitivity with respect to implied volatility
    */
   public static final Greek VEGA = new Greek(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), "Vega") {
 
@@ -311,7 +313,7 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Second-order sensitivity with respect to implied volatility and time
    */
-  public static final Greek VEGA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY),
+  public static final Greek VEGA_BLEED = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY),
       new NthOrderUnderlying(1, UnderlyingType.TIME))), "VegaBleed") {
 
     @Override
@@ -378,7 +380,7 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), 
+  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.TIME),
       new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))), "Zomma") {
 
     @Override

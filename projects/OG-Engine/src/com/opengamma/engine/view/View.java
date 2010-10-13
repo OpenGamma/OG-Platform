@@ -13,6 +13,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
@@ -22,6 +23,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * only have it receive one notification. After repeated calls to add, a single call to remove the listener should stop any
  * further notifications.
  */
+@PublicAPI
 public interface View {
 
   /**

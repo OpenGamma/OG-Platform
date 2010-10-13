@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 // NOTE kirk 2009-12-30 -- This is VERY intentionally NOT generified. Having actually
 // worked with the old version of ComputedValue with generics in the engine, the number
@@ -25,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A value computed by the engine.
  */
+@PublicAPI
 public class ComputedValue implements Serializable {
   /**
    * The specification of the value.

@@ -6,10 +6,12 @@
 package com.opengamma.engine.view.permission;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Used to indicate that a user does not have a necessary permission.
  */
+@PublicAPI
 public class ViewPermissionException extends OpenGammaRuntimeException {
   
   public ViewPermissionException(String message) {

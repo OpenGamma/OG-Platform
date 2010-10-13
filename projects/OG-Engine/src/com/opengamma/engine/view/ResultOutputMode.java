@@ -8,10 +8,12 @@ package com.opengamma.engine.view;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Enumerates the different output modes that can apply to categories of results.
  */
+@PublicAPI
 public enum ResultOutputMode {
 
   /**

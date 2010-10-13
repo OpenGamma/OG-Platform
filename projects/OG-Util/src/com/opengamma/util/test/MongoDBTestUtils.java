@@ -22,7 +22,7 @@ public final class MongoDBTestUtils {
     MongoDBConnectionSettings settings = new MongoDBConnectionSettings();
     settings.setHost(TEST_DB_HOST);
     settings.setPort(27017);
-    String dbName = System.getProperty("user.name") + "-unit";
+    String dbName = System.getProperty("user.name").replace('.','_') + "-unit";
     String collectionName = testName;
     if (makeUnique) {
       collectionName += "-" + System.currentTimeMillis();

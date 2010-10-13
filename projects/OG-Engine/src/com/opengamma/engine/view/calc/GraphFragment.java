@@ -293,7 +293,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       }
     }
   }
-  
+
   public CalculationJob createCalculationJob() {
     final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
@@ -303,8 +303,8 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getUniqueIdentifier(), node.getFunction().getParameters(), node.getComputationTarget().toSpecification(),
-          inputs, node.getOutputRequirements());
+      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
+          .getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
     }

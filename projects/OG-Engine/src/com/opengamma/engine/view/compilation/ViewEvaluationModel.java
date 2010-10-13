@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -30,7 +32,9 @@ public class ViewEvaluationModel {
   private final Map<String, DependencyGraph> _graphsByConfiguration;
   private final Set<ValueSpecification> _liveDataRequirements;
   private final Set<String> _securityTypes;
-    
+  private final long _earliestValidity;
+  private final long _latestValidity;
+
   /**
    * Constructs an instance.
    * 
@@ -39,38 +43,66 @@ public class ViewEvaluationModel {
    */
   public ViewEvaluationModel(Map<String, DependencyGraph> graphsByConfiguration, Portfolio portfolio) {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    
+
     _portfolio = portfolio;
     _graphsByConfiguration = graphsByConfiguration;
     _liveDataRequirements = processLiveDataRequirements(graphsByConfiguration);
     _securityTypes = processSecurityTypes(graphsByConfiguration);
+    Instant earliest = null;
+    Instant latest = null;
+    for (DependencyGraph graph : graphsByConfiguration.values()) {
+      for (DependencyNode node : graph.getDependencyNodes()) {
+        Instant time = node.getFunction().getFunction().getEarliestInvocationTime();
+        if (time != null) {
+          if (earliest != null) {
+            if (earliest.isBefore(time)) {
+              earliest = time;
+            }
+          } else {
+            earliest = time;
+          }
+        }
+        time = node.getFunction().getFunction().getLatestInvocationTime();
+        if (time != null) {
+          if (latest != null) {
+            if (latest.isAfter(time)) {
+              latest = time;
+            }
+          } else {
+            latest = time;
+          }
+        }
+      }
+    }
+    _earliestValidity = (earliest != null) ? earliest.toEpochMillisLong() : Long.MIN_VALUE;
+    _latestValidity = (latest != null) ? latest.toEpochMillisLong() : Long.MAX_VALUE;
   }
 
-  //--------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   public Map<String, DependencyGraph> getDependencyGraphsByConfiguration() {
     return Collections.unmodifiableMap(_graphsByConfiguration);
   }
-  
+
   public Collection<DependencyGraph> getAllDependencyGraphs() {
     return Collections.unmodifiableCollection(_graphsByConfiguration.values());
   }
-  
+
   public DependencyGraph getDependencyGraph(String name) {
     return _graphsByConfiguration.get(name);
   }
-  
+
   public Portfolio getPortfolio() {
     return _portfolio;
   }
-  
+
   public Set<ValueSpecification> getAllLiveDataRequirements() {
     return Collections.unmodifiableSet(_liveDataRequirements);
   }
-  
+
   public Set<String> getAllSecurityTypes() {
     return Collections.unmodifiableSet(_securityTypes);
   }
-  
+
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
     Set<ComputationTargetSpecification> targets = new HashSet<ComputationTargetSpecification>();
     for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
@@ -79,18 +111,18 @@ public class ViewEvaluationModel {
     }
     return targets;
   }
-  
+
   public Set<String> getAllOutputValueNames() {
-    Set<String> valueNames = new HashSet<String>(); 
+    Set<String> valueNames = new HashSet<String>();
     for (DependencyGraph graph : getAllDependencyGraphs()) {
       for (ValueSpecification spec : graph.getOutputValues()) {
-        valueNames.add(spec.getRequirementSpecification().getValueName());        
+        valueNames.add(spec.getRequirementSpecification().getValueName());
       }
     }
     return valueNames;
   }
-  
-  //--------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
   private static Set<ValueSpecification> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
     Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
@@ -99,7 +131,7 @@ public class ViewEvaluationModel {
     }
     return result;
   }
-  
+
   private static Set<String> processSecurityTypes(Map<String, DependencyGraph> graphsByConfiguration) {
     Set<String> securityTypes = new TreeSet<String>();
     for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
@@ -112,5 +144,9 @@ public class ViewEvaluationModel {
     }
     return securityTypes;
   }
-  
+
+  public boolean isValidFor(final long timestamp) {
+    return (timestamp >= _earliestValidity) && (timestamp <= _latestValidity);
+  }
+
 }

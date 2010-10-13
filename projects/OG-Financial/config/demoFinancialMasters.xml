@@ -12,8 +12,6 @@
     </property>
   </bean>
 
-  <import resource="common.xml" />
-
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
@@ -36,7 +34,24 @@
     <property name="dataSource" ref="finDataSource"/>
     <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
   </bean>
-
+  
+  <bean id="tssDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.tss.jdbc.driver}" />
+	<property name="url" value="${opengamma.tss.jdbc.url}" />
+	<property name="username" value="${opengamma.tss.jdbc.username}" />
+	<property name="password" value="${opengamma.tss.jdbc.password}" />
+  </bean>
+  
+  <bean id="tssDbSource" class="com.opengamma.util.db.DbSourceFactoryBean">
+    <property name="name" value="TimeSeries"/>
+    <property name="dataSource" ref="tssDataSource"/>
+    <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
+  </bean>
+  
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  
   <bean id="mongoDBConfigurationSettings" class="com.opengamma.util.MongoDBConnectionSettings">
     <property name="host" value="${mongoDB.host}" />
     <property name="database" value="${mongoDB.config.database}" />
@@ -77,18 +92,7 @@
   <!-- TimeSeries database -->
   <import resource="classpath:com/opengamma/financial/timeseries/db/tssQueries.xml" />
   <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource">
-          <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-            <property name="driverClassName" value="${opengamma.tss.jdbc.driver}" />
-            <property name="url" value="${opengamma.tss.jdbc.url}" />
-            <property name="username" value="${opengamma.tss.jdbc.username}" />
-            <property name="password" value="${opengamma.tss.jdbc.password}" />
-          </bean>
-        </property>
-      </bean>
-    </constructor-arg>
+    <constructor-arg ref="tssDbSource"/>
     <constructor-arg ref="tssNamedSQLMap"/>
     <constructor-arg value="false"/>
   </bean>

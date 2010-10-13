@@ -19,6 +19,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Encapsulates view-level configuration to describe the types of values required in the calculation results. This
@@ -28,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * This configuration acts as a filter on the outputs that have been requested through
  * {@link ViewCalculationConfiguration}. In a sense, it is a view-view.
  */
+@PublicAPI
 public class ResultModelDefinition implements Serializable {
   
   private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";
@@ -105,7 +107,7 @@ public class ResultModelDefinition implements Serializable {
    * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
    * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
    * positions through this method could speed up the computation cycle significantly. This is beneficial for
-   * calculations, such as VaR, which are be performed at the aggregate level without requiring the complete result of
+   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
    * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
    * although disabling the individual position outputs will still hide them from the user even though they will be
    * calculated.

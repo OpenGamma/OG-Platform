@@ -186,7 +186,7 @@ public class PV01CalculatorTest {
   }
 
   private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> ana = PV01.getValue(ird, curves);
+    final Map<String, Double> ana = PV01.calculate(ird, curves);
     final Map<String, Double> fd = finiteDifferancePV01(ird, curves);
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {

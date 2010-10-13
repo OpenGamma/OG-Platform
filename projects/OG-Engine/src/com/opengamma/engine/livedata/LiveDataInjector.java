@@ -6,10 +6,12 @@
 package com.opengamma.engine.livedata;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Provides mutator methods for live data, allowing customisation of live data.
  */
+@PublicSPI
 public interface LiveDataInjector {
   
   /**

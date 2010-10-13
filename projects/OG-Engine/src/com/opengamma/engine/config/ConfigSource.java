@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A source of config documents as accessed by the engine.
@@ -16,6 +17,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This interface provides a simple view of config documents as needed by the engine.
  * This may be backed by a full-featured config master, or by a much simpler data structure.
  */
+@PublicAPI
 public interface ConfigSource {
   
   /**
