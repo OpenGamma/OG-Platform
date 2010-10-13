@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.timeseries.db;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -343,7 +343,8 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
       TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
-      request.setIdentifierValue(expectedTSDoc.getIdentifiers().getIdentifiers().iterator().next().getValue());
+      IdentifierWithDates identifierWithDates = expectedTSDoc.getIdentifiers().getIdentifiers().iterator().next();
+      request.setIdentifierValue(identifierWithDates.asIdentifier().getValue());
       request.setDataField(expectedTSDoc.getDataField());
       request.setDataProvider(expectedTSDoc.getDataProvider());
       request.setDataSource(expectedTSDoc.getDataSource());
