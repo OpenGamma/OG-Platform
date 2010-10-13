@@ -867,5 +867,5 @@ CREATE TABLE tss_identifier (
 	valid_from date,
 	valid_to date
 );
-CREATE INDEX idx_identifier on tss_identifier (identification_scheme_id, identifier_value);
-CREATE INDEX idx_dsi_identifier ON tss_identifier(identifier_value);
+CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
