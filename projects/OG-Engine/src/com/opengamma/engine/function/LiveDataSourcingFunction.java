@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  *
  */
-public class LiveDataSourcingFunction extends AbstractFunction implements FunctionInvoker {
+public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoker {
   
   /**
    * Function unique ID

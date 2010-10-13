@@ -22,7 +22,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecuritySource;
@@ -56,9 +55,10 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * a series of P&L based on {@link SensitivityPnLCalculator}.
  * 
  */
-public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction implements FunctionInvoker {
+public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _dataSourceName;
   private final LocalDate _startDate;
+
   private final Set<ValueGreek> _valueGreeks;
   private final Set<String> _valueGreekRequirementNames;
   private final TimeSeriesReturnCalculator _returnCalculator;

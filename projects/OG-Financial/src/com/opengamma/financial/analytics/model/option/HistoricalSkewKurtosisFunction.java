@@ -20,7 +20,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -41,7 +40,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  *
  */
-public class HistoricalSkewKurtosisFunction extends AbstractFunction implements FunctionInvoker {
+public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _skewCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _kurtosisCalculator;

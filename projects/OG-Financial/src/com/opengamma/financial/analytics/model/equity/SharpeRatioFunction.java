@@ -18,7 +18,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -45,7 +44,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class SharpeRatioFunction extends AbstractFunction implements FunctionInvoker {
+public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final double WORKING_DAYS_PER_YEAR = 252; //TODO this should not be hard-coded
   private final SharpeRatioCalculator _sharpeRatio;
   private final LocalDate _startDate;

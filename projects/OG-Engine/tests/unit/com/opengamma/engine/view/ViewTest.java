@@ -8,7 +8,9 @@ package com.opengamma.engine.view;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -17,6 +19,7 @@ import org.junit.Test;
 
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 
 /**
  * Tests View
@@ -95,6 +98,37 @@ public class ViewTest {
     
     // Should automatically shut down the client
     assertEquals(ViewClientState.TERMINATED, client.getState());
+  }
+  
+  @Test
+  public void testGraphRebuild () {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment ();
+    env.init ();
+    final ViewProcessorImpl vp = env.getViewProcessor ();
+    vp.start ();
+    final ViewImpl view = (ViewImpl)vp.getView(env.getViewDefinition ().getName (), ViewProcessorTestEnvironment.TEST_USER);
+    view.init ();
+    final ViewEvaluationModel originalModel = view.getViewEvaluationModel();
+    assertNotNull (originalModel);
+    final long time0 = System.currentTimeMillis ();
+    view.runOneCycle (time0);
+    view.runOneCycle (time0 + 10);
+    // The test graph doesn't refer to functions which expire, so there should have been no re-build of the graphs
+    assertSame (originalModel, view.getViewEvaluationModel ());
+    // Trick the view into thinking it needs to rebuild after time0 + 20
+    final ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio()) {
+      @Override
+      public boolean isValidFor (final long timestamp) {
+        return (timestamp <= time0 + 20);
+      }
+    };
+    view.setViewEvaluationModel(dummy);
+    // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
+    view.runOneCycle (time0 + 20);
+    assertSame (dummy, view.getViewEvaluationModel ());
+    // time0 + 30 requires a rebuild
+    view.runOneCycle (time0 + 30);
+    assertNotSame (dummy, view.getViewEvaluationModel ());
   }
   
 }

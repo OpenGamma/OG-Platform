@@ -15,7 +15,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -29,7 +28,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public class EquityPnLFunction extends AbstractFunction implements FunctionInvoker {
+public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final TimeSeriesReturnCalculator _returnCalculator;
 
   public EquityPnLFunction(final String returnCalculatorName) {

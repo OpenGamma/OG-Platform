@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -47,9 +43,8 @@ import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -80,7 +75,6 @@ import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
@@ -165,7 +159,7 @@ public class BatchJob {
   /**
    * Used to load Functions (needed for building the dependency graph)
    */
-  private FunctionRepository _functionRepository;
+  private CompiledFunctionService _functionCompilationService;
 
   /**
    * Used to create the SecuritySource if none is explicitly specified. Use this
@@ -200,11 +194,6 @@ public class BatchJob {
    * Stores instances of all the various interfaces required by functions during execution
    */
   private FunctionExecutionContext _functionExecutionContext;
-
-  /**
-   * Stores instances of all the various interfaces required by functions during compilation
-   */
-  private FunctionCompilationContext _functionCompilationContext;
 
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
@@ -386,12 +375,12 @@ public class BatchJob {
     _configDbConnectionSettings = configDbConnectionSettings;
   }
 
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  public CompiledFunctionService getFunctionCompilationService() {
+    return _functionCompilationService;
   }
 
-  public void setFunctionRepository(FunctionRepository functionRepository) {
-    _functionRepository = functionRepository;
+  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
+    _functionCompilationService = functionCompilationService;
   }
 
   public SecurityMaster getSecurityMaster() {
@@ -454,14 +443,6 @@ public class BatchJob {
 
   public void setFunctionExecutionContext(FunctionExecutionContext executionContext) {
     _functionExecutionContext = executionContext;
-  }
-
-  public FunctionCompilationContext getFunctionCompilationContext() {
-    return _functionCompilationContext;
-  }
-
-  public void setFunctionCompilationContext(FunctionCompilationContext compilationContext) {
-    _functionCompilationContext = compilationContext;
   }
 
   public UserPrincipal getUser() {
@@ -549,18 +530,15 @@ public class BatchJob {
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionRepository(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
+    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
-    ThreadFactory threadFactory = new NamedThreadPoolFactory("BatchJob-" + System.currentTimeMillis(), true);
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
-
     DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(run);
 
-    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionRepository(), new DefaultFunctionResolver(
-        getFunctionRepository()), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager),
-        computationCache, jobDispatcher, viewProcessorQueryReceiver, getFunctionCompilationContext(), executor, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
+    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionCompilationService(), new DefaultFunctionResolver(
+        getFunctionCompilationService()), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
+        cacheManager), computationCache, jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
         new DiscardingGraphStatisticsGathererProvider());
 
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));

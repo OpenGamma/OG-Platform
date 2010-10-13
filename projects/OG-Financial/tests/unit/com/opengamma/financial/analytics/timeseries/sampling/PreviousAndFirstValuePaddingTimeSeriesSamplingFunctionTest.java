@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * 
  */
 public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
-  //TODO test for start date = holiday
+  //TODO test start date = holiday
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
   private static final LocalDate END = LocalDate.of(2010, 10, 1);
   private static final DailyScheduleCalculator DAILY = new DailyScheduleCalculator();

@@ -18,11 +18,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.CompiledFunctionRepository;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
@@ -45,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
 public abstract class AbstractCalculationNode implements CalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
-  private final FunctionRepository _functionRepository;
+  private final CompiledFunctionService _functionCompilationService;
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
@@ -53,11 +54,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private String _nodeId;
   private final ExecutorService _writeBehindExecutorService;
 
-  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, FunctionRepository functionRepository, FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId, final ExecutorService writeBehindExecutorService,
-      FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
+  protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
+      FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
+      final ExecutorService writeBehindExecutorService, FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
     ArgumentChecker.notNull(cacheSource, "Cache Source");
-    ArgumentChecker.notNull(functionRepository, "Function repository");
+    ArgumentChecker.notNull(functionCompilationService, "Function compilation service");
     ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
@@ -66,7 +67,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     ArgumentChecker.notNull(functionInvocationStatistics, "function invocation statistics");
 
     _cacheSource = cacheSource;
-    _functionRepository = functionRepository;
+    _functionCompilationService = functionCompilationService;
     // Take a copy of the execution context as we will modify it during execution which isn't good if there are other CalcNodes in our JVM
     _functionExecutionContext = functionExecutionContext.clone();
     _targetResolver = targetResolver;
@@ -80,8 +81,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return _cacheSource;
   }
 
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  public CompiledFunctionService getFunctionCompilationService() {
+    return _functionCompilationService;
   }
 
   public FunctionExecutionContext getFunctionExecutionContext() {
@@ -120,6 +121,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
     getFunctionExecutionContext().setSnapshotEpochTime(spec.getIterationTimestamp());
     getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(spec.getIterationTimestamp()));
+    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getIterationTimestamp());
     final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
     long executionTime = System.nanoTime();
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
@@ -130,7 +132,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       }
       CalculationJobResultItem resultItem;
       try {
-        invoke(jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));
+        invoke(functions, jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));
         resultItem = new CalculationJobResultItem(jobItem);
       } catch (MissingInputException e) {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
@@ -156,14 +158,14 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return cache;
   }
 
-  private void invoke(final CalculationJobItem jobItem, final WriteBehindViewComputationCache cache, final DeferredInvocationStatistics statistics) {
+  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final WriteBehindViewComputationCache cache, final DeferredInvocationStatistics statistics) {
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     final ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
     if (target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + jobItem.getComputationTargetSpecification());
     }
     s_logger.debug("Invoking {} on target {}", functionUniqueId, target);
-    final FunctionInvoker invoker = getFunctionRepository().getInvoker(functionUniqueId);
+    final FunctionInvoker invoker = functions.getInvoker(functionUniqueId);
     if (invoker == null) {
       throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
     }

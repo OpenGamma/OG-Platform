@@ -7,7 +7,6 @@ package com.opengamma.engine.position;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.PublicAPI;
 import com.opengamma.util.PublicSPI;
 
 /**

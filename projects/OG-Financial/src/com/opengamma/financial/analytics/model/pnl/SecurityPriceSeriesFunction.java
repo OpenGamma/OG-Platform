@@ -20,7 +20,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -40,7 +39,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class SecurityPriceSeriesFunction extends AbstractFunction implements FunctionInvoker {
+public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final String _dataSourceName;
   private final String _fieldName;
   private final LocalDate _startDate;

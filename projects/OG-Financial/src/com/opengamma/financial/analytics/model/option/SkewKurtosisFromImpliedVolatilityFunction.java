@@ -19,7 +19,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -38,7 +37,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  *
  */
-public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction implements FunctionInvoker {
+public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final Function2D<Double, Double> SKEW_CALCULATOR = new LognormalSkewnessFromVolatilityCalculator();
   private static final Function2D<Double, Double> KURTOSIS_CALCULATOR = new LognormalPearsonKurtosisFromVolatilityCalculator();
 
