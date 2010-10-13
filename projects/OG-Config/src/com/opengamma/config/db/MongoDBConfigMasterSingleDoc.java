@@ -7,6 +7,7 @@ package com.opengamma.config.db;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -24,14 +25,13 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.mongodb.BasicDBObject;
-import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.WriteResult;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
@@ -55,12 +55,11 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * 
  * @param <T>  the configuration document type
  */
-public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
-  // this implementation uses multiple Mongo documents
-  // without transactions, this means that it is not fully safe under load
+public class MongoDBConfigMasterSingleDoc<T> implements ConfigMaster<T> {
+  // this implementation uses one document per version
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMasterSingleDoc.class);
   /**
    * The maximum instant for use in date ranges.
    */
@@ -70,9 +69,13 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    */
   private static final String ID_FIELD_NAME = "_id";
   /**
-   * Mongo key for the oid.
+   * Mongo key for the versions array.
    */
-  private static final String OID_FIELD_NAME = "oid";
+  private static final String VERSIONS_FIELD_NAME = "versions";
+  /**
+   * Mongo key for the version count.
+   */
+  private static final String VERSIONS_COUNT_FIELD_NAME = "versionsCount";
   /**
    * Mongo key for the version.
    */
@@ -101,7 +104,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * Mongo indices.
    */
   private static final String[] INDICES = {
-    OID_FIELD_NAME, NAME_FIELD_NAME, VERSION_FROM_INSTANT_FIELD_NAME, VERSION_TO_INSTANT_FIELD_NAME};
+    NAME_FIELD_NAME, VERSION_FROM_INSTANT_FIELD_NAME, VERSION_TO_INSTANT_FIELD_NAME};
 
   /**
    * The scheme used by the master by default.
@@ -138,7 +141,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * @param documentClazz  the element type, not null
    * @param mongoSettings  the Mongo connection settings, not null
    */
-  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
+  public MongoDBConfigMasterSingleDoc(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
     this(documentClazz, mongoSettings, true);
   }
 
@@ -148,7 +151,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * @param mongoSettings  the Mongo connection settings, not null
    * @param updateLastRead  whether to update the last read flag
    */
-  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
+  public MongoDBConfigMasterSingleDoc(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
     
@@ -195,6 +198,14 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    */
   protected MongoDBConnectionSettings getMongoConnectionSettings() {
     return _mongoSettings;
+  }
+
+  /**
+   * Gets whether this instance updates the last read instant.
+   * @return the last read flag
+   */
+  protected boolean isUpdateLastRead() {
+    return _updateLastReadTime;
   }
 
   /**
@@ -266,20 +277,46 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   //-------------------------------------------------------------------------
   @Override
   public ConfigSearchResult<T> search(final ConfigSearchRequest request) {
+    // TODO
+    
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     
-    Instant now = Instant.now(getTimeSource());
-    Instant versionAsOf = Objects.firstNonNull(request.getVersionAsOfInstant(), now);
+//    Instant now = Instant.now(getTimeSource());
     String name = request.getName();
     DBObject queryObj = new BasicDBObject();
-    if (name != null) {
-      queryObj.put(NAME_FIELD_NAME, createPattern(name));
+    DBObject filterObj = new BasicDBObject();
+    if (request.getVersionAsOfInstant() == null) {
+      if (name != null) {
+        queryObj.put(NAME_FIELD_NAME, createPattern(name));
+      }
+      filterObj = new BasicDBObject(VERSIONS_FIELD_NAME, new BasicDBObject("$slice", -1));
+    } else {
+      if (name != null) {
+        queryObj.put("$elemMatch", new BasicDBObject(NAME_FIELD_NAME, createPattern(name)));
+      }
+//      
+//      
+//      if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
+//        queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
+//        queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
+//      } else {
+//        String search = "";
+//        if (request.getVersionsFromInstant() != null) {
+//          String searchFrom = "new Date(" + request.getVersionAsOfInstant().toEpochMillisLong() + ")";
+//          search += "((this." + VERSIONS_FIELD_NAME +  + VERSION_FROM_INSTANT_FIELD_NAME + " <= " + searchFrom + " && " +
+//                      "this." + VERSION_TO_INSTANT_FIELD_NAME + " > " + searchFrom + ") || " +
+//                     "this." + VERSION_FROM_INSTANT_FIELD_NAME + " >= " + searchFrom + ") ";
+//        }
+//        queryObj.put("$where", search);
+//      }
+//      Instant versionAsOf = Objects.firstNonNull(request.getVersionAsOfInstant(), now);
+//      queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(request.getVersionAsOfInstant().toEpochMillisLong())));
+//      queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(request.getVersionAsOfInstant().toEpochMillisLong())));
     }
-    queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(versionAsOf.toEpochMillisLong())));
-    queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(versionAsOf.toEpochMillisLong())));
+    
     BasicDBObject sortObj = new BasicDBObject(NAME_FIELD_NAME, 1);
-    return find(queryObj, sortObj, request.getPagingRequest());
+    return doSearch(queryObj, filterObj, sortObj, request.getPagingRequest());
   }
 
   /**
@@ -316,33 +353,29 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   public ConfigDocument<T> get(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     checkScheme(uid);
-    
-    DBObject queryObj = new BasicDBObject();
-    BasicDBObject sortObj = null;
-    if (uid.isVersioned()) {
-      queryObj.put(ID_FIELD_NAME, extractRowId(uid));
-    } else {
-      queryObj.put(OID_FIELD_NAME, uid.getValue());
-      queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
-      sortObj = new BasicDBObject(VERSION_FROM_INSTANT_FIELD_NAME, -1);  // gets correct one during updates
-    }
     Instant now = Instant.now(getTimeSource());
-    DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
-    DBCollection dbCollection = createDBCollection();
-    DBObject matched;
-    if (_updateLastReadTime) {
-      matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
-      if (matched == null) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
+    DBCollection dbColl = createDBCollection();
+    
+    DBObject queryObj = new BasicDBObject(ID_FIELD_NAME, extractOid(uid));
+    BasicDBObject filterObj = null;
+    if (uid.isVersioned()) {
+      queryObj.put(VERSIONS_FIELD_NAME, new BasicDBObject("$elemMatch", new BasicDBObject(VERSION_FIELD_NAME, extractVersion(uid))));
     } else {
-      DBCursor cursor = dbCollection.find(queryObj).sort(sortObj).skip(0).limit(1);
-      if (cursor.hasNext()) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
-      matched = cursor.next();
+      queryObj.put(VERSIONS_FIELD_NAME + "." + VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
+      filterObj = new BasicDBObject(VERSIONS_FIELD_NAME, new BasicDBObject("$slice", -1));
     }
-    return convertFromDb(matched);
+    DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
+    DBObject matchedObj;
+    s_logger.debug("Config get, query={} filter={}", queryObj, filterObj);
+    if (isUpdateLastRead()) {
+      matchedObj = dbColl.findAndModify(queryObj, filterObj, null, false, updateObj, true, false);
+    } else {
+      matchedObj = dbColl.findOne(queryObj, filterObj);
+    }
+    if (matchedObj == null) {
+      throw new DataNotFoundException("Configuration not found: " + uid);
+    }
+    return convertFromDb(matchedObj, 0);
   }
 
   //-------------------------------------------------------------------------
@@ -351,17 +384,27 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
-    
     Instant now = Instant.now(getTimeSource());
-    String id = ObjectId.get().toString();
-    document.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id, id));
+    DBCollection dbColl = createDBCollection();
+    
+    // prepare
+    ObjectId id = ObjectId.get();
+    document.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id.toString(), "1"));
     document.setVersionNumber(1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setLastReadInstant(now);
-    DBObject insertDoc = convertToDb(document);
-    s_logger.debug("Config add, insert={}", insertDoc);
-    createDBCollection().insert(insertDoc).getLastError().throwOnError();
+    
+    // insert
+    DBObject mainObj = new BasicDBObject();
+    mainObj.put(ID_FIELD_NAME, id);
+    mainObj.put(VERSION_FIELD_NAME, 1);
+    mainObj.put(VERSIONS_COUNT_FIELD_NAME, 1);
+    mainObj.put(NAME_FIELD_NAME, document.getName());
+    mainObj.put(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong()));
+    mainObj.put(VERSIONS_FIELD_NAME, Collections.singletonList(convertToDbVersion(document)));
+    s_logger.debug("Config add, main={}", mainObj);
+    dbColl.insert(mainObj).getLastError().throwOnError();
     return document;
   }
 
@@ -373,45 +416,75 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     ArgumentChecker.notNull(document.getValue(), "document.value");
     ArgumentChecker.notNull(document.getConfigId(), "document.configId");
     checkScheme(document.getConfigId());
-    
-    // load old row
-    ConfigDocument<T> oldDoc = get(document.getConfigId());  // checks uid exists
-    if (oldDoc.getVersionToInstant() != null) {
-      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + document.getConfigId());
-    }
-    // not possible to do a transactional update in Mongo as there are two documents
-    // http://groups.google.com/group/mongodb-user/browse_thread/thread/51765eae8c337b8c
-    // main alternative of a single document for all versions is poor in other ways
-    
-    // prepare to insert new row
     Instant now = Instant.now(getTimeSource());
-    ObjectId id = ObjectId.get();
-    document.setConfigId(document.getConfigId().withVersion(id.toString()));
-    document.setVersionNumber(oldDoc.getVersionNumber() + 1);
+    DBCollection dbColl = createDBCollection();
+    
+    // find document to update
+    UniqueIdentifier uid = document.getConfigId();
+    DBObject queryObj = new BasicDBObject(ID_FIELD_NAME, extractOid(uid));
+    DBObject matchedObj = dbColl.findOne(queryObj);
+    if (matchedObj == null) {
+      throw new DataNotFoundException("Configuration not found: " + uid);
+    }
+    @SuppressWarnings("unchecked")
+    List<DBObject> versionsObj = (List<DBObject>) matchedObj.get(VERSIONS_FIELD_NAME);
+    if (versionsObj.get(0).get(VERSION_TO_INSTANT_FIELD_NAME).equals(new Date(MAX_INSTANT.toEpochMillisLong())) == false) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
+    }
+    
+    // makes changes locally and update
+    int newVersion = ((Integer) matchedObj.get(VERSION_FIELD_NAME)) + 1;
+    document.setConfigId(uid.withVersion(Integer.toString(newVersion)));
+    document.setVersionNumber(newVersion);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setLastReadInstant(now);
-    DBObject insertDoc = convertToDb(document);
-    s_logger.debug("Config update, insert={}", insertDoc);
-    // prepare to update old row
-    DBObject updateQueryObj = new BasicDBObject();
-    updateQueryObj.put(ID_FIELD_NAME, extractRowId(oldDoc.getConfigId()));
-    updateQueryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
-    BasicDBObject updateObj = new BasicDBObject("$set", new BasicDBObject(VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
-    s_logger.debug("Config update, find={} action={}", updateQueryObj, updateObj);
-    // insert then update, as close as possible in Java, but still not transactional
-    DBCollection dbCollection = createDBCollection();
-    dbCollection.insert(insertDoc).getLastError().throwOnError();
-    CommandResult lastError = dbCollection.update(updateQueryObj, updateObj).getLastError();
-    if (lastError.ok() == false) {
-      // remove invalid document
-      DBObject removeQueryObj = new BasicDBObject();
-      removeQueryObj.put(ID_FIELD_NAME, id);
-      s_logger.debug("Config update, update={} action={}", updateQueryObj, updateObj);
-      createDBCollection().remove(removeQueryObj).getLastError().throwOnError();  // rollback failure leaves DB invalid
-      lastError.throwOnError();  // problem during update, but rollback OK
+    matchedObj.put(VERSION_FIELD_NAME, newVersion);
+    matchedObj.put(VERSIONS_COUNT_FIELD_NAME, ((Integer) matchedObj.get(VERSIONS_COUNT_FIELD_NAME)) + 1);
+    matchedObj.put(NAME_FIELD_NAME, document.getName());
+    versionsObj.get(0).put(VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong()));
+    versionsObj.add(convertToDbVersion(document));
+    WriteResult result = dbColl.update(queryObj, matchedObj);
+    if (result.getN() != 1) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
     }
+    result.getLastError().throwOnError();
     return document;
+    
+//    ConfigDocument<T> oldDoc = get(uid);  // checks uid exists
+//    if (oldDoc.getVersionToInstant() != null) {
+//      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
+//    }
+//    int newVersion = oldDoc.getVersionNumber() + 1;
+//    Instant now = Instant.now(getTimeSource());
+//    document.setConfigId(uid.withVersion(Integer.toString(newVersion)));
+//    document.setVersionNumber(newVersion);
+//    document.setVersionFromInstant(now);
+//    document.setVersionToInstant(null);
+//    document.setLastReadInstant(now);
+//    
+//    // update
+//    DBObject queryObj = new BasicDBObject(ID_FIELD_NAME, extractOid(uid));
+//    int version = extractVersion(uid);
+//    queryObj.put(VERSION_FIELD_NAME, version);
+//    queryObj.put(VERSIONS_FIELD_NAME + "." + VERSION_FIELD_NAME, version);
+////    queryObj.put(VERSIONS_FIELD_NAME, new BasicDBObject("$elemMatch", new BasicDBObject(VERSION_FIELD_NAME, version)));
+//    DBObject updateObj = new BasicDBObject();
+//    BasicDBObject setObj = new BasicDBObject();
+//    setObj.put(VERSION_FIELD_NAME, newVersion);
+//    setObj.put(NAME_FIELD_NAME, document.getName());
+//    setObj.put(VERSIONS_FIELD_NAME + ".$." + VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong()));
+//    updateObj.put("$set", setObj);
+//    updateObj.put("$inc", new BasicDBObject(VERSIONS_COUNT_FIELD_NAME, 1));
+//    updateObj.put("$push", new BasicDBObject(VERSIONS_FIELD_NAME, convertToDbVersion(document)));
+//    s_logger.debug("Config update, query={} update={}", queryObj, updateObj);
+//    WriteResult result = createDBCollection().update(queryObj, updateObj);
+//    if (result.getN() != 1) {
+//      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
+//    }
+//    result.getLastError().throwOnError();
+//    return document;
+//////updateObj.put(VERSIONS_FIELD_NAME + ".$." + VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject());
   }
 
   //-------------------------------------------------------------------------
@@ -419,34 +492,40 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
   public void remove(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     checkScheme(uid);
+    Instant now = Instant.now(getTimeSource());
+    DBCollection dbColl = createDBCollection();
     
     // load old row
     ConfigDocument<T> oldDoc = get(uid);  // checks uid exists
     if (oldDoc.getVersionToInstant() != null) {
       throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
     }
-    // update latest row, even during updates
-    Instant now = Instant.now(getTimeSource());
+    // update latest row
     DBObject queryObj = new BasicDBObject();
-    queryObj.put(OID_FIELD_NAME, uid.getValue());
-    queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
-    BasicDBObject sortObj = new BasicDBObject(VERSION_FROM_INSTANT_FIELD_NAME, -1);  // gets correct one during updates
-    DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
-    DBCollection dbCollection = createDBCollection();
+    queryObj.put(ID_FIELD_NAME, extractOid(uid));
+    queryObj.put(VERSION_FIELD_NAME, extractVersion(uid));
+    queryObj.put(VERSIONS_FIELD_NAME + "." + VERSION_FIELD_NAME, extractVersion(uid));
+    DBObject updateObj = new BasicDBObject("$set",
+        new BasicDBObject(VERSIONS_FIELD_NAME + ".$." + VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
     s_logger.debug("Config remove, find={} action={}", queryObj, updateObj);
-    dbCollection.findAndModify(queryObj, sortObj, updateObj);
-    dbCollection.getDB().getLastError().throwOnError();
+    WriteResult result = dbColl.update(queryObj, updateObj);
+    if (result.getN() != 1) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uid);
+    }
+    result.getLastError().throwOnError();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
+    // TODO
+    
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getConfigId(), "request.configId");
     checkScheme(request.getConfigId());
     
     DBObject queryObj = new BasicDBObject();
-    queryObj.put(OID_FIELD_NAME, request.getConfigId().getValue());
+//    queryObj.put(OID_FIELD_NAME, request.getConfigId().getValue());
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
       queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
@@ -473,7 +552,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     }
     BasicDBObject sortObj = new BasicDBObject(VERSION_FROM_INSTANT_FIELD_NAME, -1);
     
-    ConfigSearchResult<T> configSearchResult = find(queryObj, sortObj, request.getPagingRequest());
+    ConfigSearchResult<T> configSearchResult = doSearch(queryObj, null, sortObj, request.getPagingRequest());
     ConfigSearchHistoricResult<T> result = new ConfigSearchHistoricResult<T>();
     result.setPaging(configSearchResult.getPaging());
     result.setDocuments(configSearchResult.getDocuments());
@@ -482,122 +561,124 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
 
   //-------------------------------------------------------------------------
   /**
-   * Extracts the row id.
+   * Extracts the oid.
    * @param id  the identifier to extract from, not null
-   * @return the extracted row id
+   * @return the extracted oid
    */
-  protected ObjectId extractRowId(final UniqueIdentifier id) {
+  protected ObjectId extractOid(final UniqueIdentifier id) {
     try {
-      return new ObjectId(id.getVersion());
+      return new ObjectId(id.getValue());
     } catch (IllegalArgumentException ex) {
       throw new DataNotFoundException("Config not found: " + id);
     }
   }
 
   /**
-   * Extracts the oid.
+   * Extracts the version id.
    * @param id  the identifier to extract from, not null
-   * @return the extracted oid
+   * @return the extracted version id
    */
-  protected String extractOid(final UniqueIdentifier id) {
-    return id.getValue();
+  protected int extractVersion(final UniqueIdentifier id) {
+    return Integer.parseInt(id.getVersion());
   }
 
   /**
    * Finds documents.
    * @param queryObj  the query, not null
+   * @param filterObj  the filter, not null
    * @param sortObj  the sort, may be null
    * @param pagingRequest  the paging request, not null
    * @return the search results, not null
    */
-  protected ConfigSearchResult<T> find(DBObject queryObj, DBObject sortObj, PagingRequest pagingRequest) {
+  protected ConfigSearchResult<T> doSearch(final DBObject queryObj, final DBObject filterObj, final DBObject sortObj, final PagingRequest pagingRequest) {
     s_logger.debug("Config find, query={} sort={}", queryObj, sortObj);
+    DBCollection dbColl = createDBCollection();
     
     ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    Instant now = Instant.now(getTimeSource());
-    DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
+//    Instant now = Instant.now(getTimeSource());
+//    DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
     
-    // get
-    DBCollection dbCollection = createDBCollection();
-    if (pagingRequest.getPage() == 1 && pagingRequest.getPagingSize() == 1) {
-      DBObject matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
-      if (matched == null) {
-        result.setPaging(Paging.of(Collections.emptyList(), pagingRequest));
-      }
-      return result;
-    }
+//    // get
+//    if (pagingRequest.getPage() == 1 && pagingRequest.getPagingSize() == 1) {
+//      DBObject matched = dbCollection.findAndModify(queryObj, filterObj, sortObj, false, updateObj, true, false);
+//      if (matched == null) {
+//        result.setPaging(Paging.of(Collections.emptyList(), pagingRequest));
+//      }
+//      return result;
+//    }
     
     // search
-    int count = dbCollection.find(queryObj).count();
-    DBCursor cursor = dbCollection.find(queryObj).sort(sortObj).skip(pagingRequest.getFirstItemIndex()).limit(pagingRequest.getPagingSize());
+    int count = dbColl.find(queryObj).count();
+    DBCursor cursor = dbColl.find(queryObj, filterObj).sort(sortObj).skip(pagingRequest.getFirstItemIndex()).limit(pagingRequest.getPagingSize());
     result.setPaging(new Paging(pagingRequest, count));
     for (DBObject dbObject : cursor) {
-      result.getDocuments().add(convertFromDb(dbObject));
+      result.getDocuments().add(convertFromDb(dbObject, 0));
     }
-    if (_updateLastReadTime) {
-      for (ConfigDocument<T> doc : result.getDocuments()) {
-        DBObject updateQueryObj = new BasicDBObject();
-        updateQueryObj.put(ID_FIELD_NAME, extractRowId(doc.getConfigId()));
-        updateQueryObj.put(LAST_READ_INSTANT_FIELD_NAME, new Date(doc.getLastReadInstant().toEpochMillisLong()));
-        dbCollection.update(updateQueryObj, updateObj).getLastError().throwOnError();
-        doc.setLastReadInstant(now);
-      }
-    }
+//    if (isUpdateLastRead()) {
+//      for (ConfigDocument<T> doc : result.getDocuments()) {
+//        DBObject updateQueryObj = new BasicDBObject();
+//        updateQueryObj.put(ID_FIELD_NAME, extractOid(doc.getConfigId()));
+//        updateQueryObj.put(LAST_READ_INSTANT_FIELD_NAME, new Date(doc.getLastReadInstant().toEpochMillisLong()));
+//        dbCollection.update(updateQueryObj, updateObj).getLastError().throwOnError();
+//        doc.setLastReadInstant(now);
+//      }
+//    }
     return result;
   }
 
   /**
    * Converts a Mongo DB object to a document.
    * @param dbObject  the DB object, not null
+   * @param index  the index to parse
    * @return the document, not null
    */
-  protected ConfigDocument<T> convertFromDb(DBObject dbObject) {
-    s_logger.trace("Config converting dbOject to config doc={}", dbObject);
-    DBObject valueData = (DBObject) dbObject.get(VALUE_FIELD_NAME);
+  protected ConfigDocument<T> convertFromDb(DBObject dbObject, int index) {
+    s_logger.debug("Config converting dbOject to config doc={}", dbObject);
+    ConfigDocument<T> doc = new ConfigDocument<T>();
+    ObjectId id = (ObjectId) dbObject.get(ID_FIELD_NAME);
+    doc.setName((String) dbObject.get(NAME_FIELD_NAME));
+    Date lastRead = (Date) dbObject.get(LAST_READ_INSTANT_FIELD_NAME);
+    doc.setLastReadInstant(Instant.ofEpochMillis(lastRead.getTime()));
+    
+    @SuppressWarnings("unchecked")
+    List<DBObject> versionsData = (List<DBObject>) dbObject.get(VERSIONS_FIELD_NAME);
+    DBObject versionData = versionsData.get(index);
+    Integer version = (Integer) versionData.get(VERSION_FIELD_NAME);
+    doc.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id.toString(), version.toString()));
+    doc.setVersionNumber(version);
+    DBObject valueData = (DBObject) versionData.get(VALUE_FIELD_NAME);
     FudgeSerializationContext fsc = new FudgeSerializationContext(getFudgeContext());
     MutableFudgeFieldContainer dbObjecToFudge = fsc.objectToFudgeMsg(valueData);
     FudgeDeserializationContext fdc = new FudgeDeserializationContext(getFudgeContext());
     T value = fdc.fudgeMsgToObject(_entityClazz, dbObjecToFudge);
-    ConfigDocument<T> doc = new ConfigDocument<T>();
-    ObjectId id = (ObjectId) dbObject.get("_id");
-    String oid = (String) dbObject.get(OID_FIELD_NAME);
-    doc.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), oid, id.toString()));
-    doc.setVersionNumber((Integer) dbObject.get(VERSION_FIELD_NAME));
-    doc.setName((String) dbObject.get(NAME_FIELD_NAME));
-    Date versionFromTime = (Date) dbObject.get(VERSION_FROM_INSTANT_FIELD_NAME);
-    doc.setVersionFromInstant(Instant.ofEpochMillis(versionFromTime.getTime()));
-    Date versionToTime = (Date) dbObject.get(VERSION_TO_INSTANT_FIELD_NAME);
-    Instant versionToInstant = Instant.ofEpochMillis(versionToTime.getTime());
+    Date versionFrom = (Date) versionData.get(VERSION_FROM_INSTANT_FIELD_NAME);
+    doc.setVersionFromInstant(Instant.ofEpochMillis(versionFrom.getTime()));
+    Date versionTo = (Date) versionData.get(VERSION_TO_INSTANT_FIELD_NAME);
+    Instant versionToInstant = Instant.ofEpochMillis(versionTo.getTime());
     doc.setVersionToInstant(versionToInstant.equals(MAX_INSTANT) ? null : versionToInstant);
-    Date lastRead = (Date) dbObject.get(LAST_READ_INSTANT_FIELD_NAME);
-    doc.setLastReadInstant(Instant.ofEpochMillis(lastRead.getTime()));
     doc.setValue(value);
     return doc;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Converts a document to a Mongo DB object.
+   * Converts a document version to a Mongo DB object.
    * @param document  the document, not null
    * @return the DB object, not null
    */
-  protected DBObject convertToDb(final ConfigDocument<T> document) {
-    FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(document.getValue());
-    DBObject insertDoc = new BasicDBObject();
-    insertDoc.put(ID_FIELD_NAME, extractRowId(document.getConfigId()));
-    insertDoc.put(OID_FIELD_NAME, extractOid(document.getConfigId()));
-    insertDoc.put(VERSION_FIELD_NAME, document.getVersionNumber());
-    insertDoc.put(NAME_FIELD_NAME, document.getName());
-    insertDoc.put(VERSION_FROM_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
+  protected DBObject convertToDbVersion(final ConfigDocument<T> document) {
+    DBObject obj = new BasicDBObject();
+    obj.put(VERSION_FIELD_NAME, document.getVersionNumber());
+    obj.put(VERSION_FROM_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     if (document.getVersionToInstant() != null) {
-      insertDoc.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(document.getVersionToInstant().toEpochMillisLong()));
+      obj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(document.getVersionToInstant().toEpochMillisLong()));
     } else {
-      insertDoc.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
+      obj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
     }
-    insertDoc.put(LAST_READ_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
-    insertDoc.put(VALUE_FIELD_NAME, getFudgeContext().fromFudgeMsg(DBObject.class, msg.getMessage()));
-    s_logger.trace("Config converted config doc to object={}", insertDoc);
-    return insertDoc;
+    obj.put(NAME_FIELD_NAME, document.getName());
+    FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(document.getValue());
+    obj.put(VALUE_FIELD_NAME, getFudgeContext().fromFudgeMsg(DBObject.class, msg.getMessage()));
+    return obj;
   }
 
   //-------------------------------------------------------------------------

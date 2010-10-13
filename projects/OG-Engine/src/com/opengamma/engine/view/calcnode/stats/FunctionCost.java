@@ -22,7 +22,6 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -84,7 +83,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
         } else {
           // We created function statistics, so poke it into storage
           if (getPersistence() != null) {
-            final DefaultConfigDocument<FunctionInvocationStatistics> doc = new DefaultConfigDocument<FunctionInvocationStatistics>();
+            final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
             doc.setValue(stats);
             doc.setName(getDocumentName(functionIdentifier));
             getConfigDocuments().add(doc);
@@ -138,7 +137,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
       }
     } else {
       s_logger.debug("No initial statistics");
-      final DefaultConfigDocument<FunctionInvocationStatistics> doc = new DefaultConfigDocument<FunctionInvocationStatistics>();
+      final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
       doc.setName(MEAN_INVOCATION_DOCUMENT_NAME);
       doc.setValue(new FunctionInvocationStatistics(MEAN_INVOCATION_DOCUMENT_NAME));
       _meanStatisticsDocument = doc;
@@ -172,9 +171,9 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
         double dataOutputCost = getMeanStatistics().getDataOutputCost();
         for (int i = getConfigDocuments().size(); i > 0; i--) {
           final ConfigDocument<FunctionInvocationStatistics> configDocument = getConfigDocuments().poll();
-          if (configDocument.getUniqueIdentifier() != null) {
+          if (configDocument.getConfigId() != null) {
             if (configDocument.getValue().getLastUpdateNanos() > lastUpdate) {
-              s_logger.debug("Updating document {} with {}", configDocument.getUniqueIdentifier(), configDocument.getName());
+              s_logger.debug("Updating document {} with {}", configDocument.getConfigId(), configDocument.getName());
               getConfigDocuments().add(getPersistence().update(configDocument));
               invocationCost += configDocument.getValue().getInvocationCost();
               dataInputCost += configDocument.getValue().getDataInputCost();
@@ -194,7 +193,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
         }
         _meanStatistics.setCosts(invocationCost / (double) count, dataInputCost / (double) count, dataOutputCost / (double) count);
         if (count > 1) {
-          if (_meanStatisticsDocument.getUniqueIdentifier() != null) {
+          if (_meanStatisticsDocument.getConfigId() != null) {
             s_logger.debug("Updating mean statistics {}", _meanStatistics);
             _meanStatisticsDocument = getPersistence().update(_meanStatisticsDocument);
           } else {

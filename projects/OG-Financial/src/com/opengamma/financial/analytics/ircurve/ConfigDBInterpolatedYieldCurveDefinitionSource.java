@@ -43,7 +43,7 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   public YieldCurveDefinition getDefinition(Currency ccy, String name, Instant version, Instant correction) {
     ConfigSearchRequest configSearchRequest = new ConfigSearchRequest();
     configSearchRequest.setName(name + "_" + ccy.getISOCode());
-    configSearchRequest.setEffectiveTime(version);
+    configSearchRequest.setVersionAsOfInstant(version);
     List<YieldCurveDefinition> definitions = _curveSource.search(YieldCurveDefinition.class, configSearchRequest);
     if (definitions.size() > 0) {
       YieldCurveDefinition curveDefinition = definitions.iterator().next();

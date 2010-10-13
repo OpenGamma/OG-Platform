@@ -14,8 +14,8 @@ import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
 
-import com.opengamma.config.DefaultConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.db.MongoDBConfigMasterSingleDoc;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -92,8 +92,8 @@ public class BatchJobTest {
     ViewInternal testView = ViewTestUtils.getMockView();
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
-    MongoDBConfigMaster<ViewDefinition> configRepo = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
-    DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
+    MongoDBConfigMasterSingleDoc<ViewDefinition> configRepo = new MongoDBConfigMasterSingleDoc<ViewDefinition>(ViewDefinition.class, settings, true);
+    ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>();
     configDocument.setName("MyView");
     configDocument.setValue(testView.getDefinition());
     configRepo.add(configDocument);

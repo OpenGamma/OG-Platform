@@ -13,8 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.config.test.MongoDBConfigMasterTestCase;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -22,33 +20,23 @@ import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 
-
 /**
- * Test that TimeSeriesMetaDataDefinition can be serialized
+ * Test that TimeSeriesMetaDataDefinition can be serialized.
  */
 public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<TimeSeriesMetaDataConfiguration>{
 
   private MongoDBConnectionSettings _mongoSettings;
   private Random _random = new Random();
-  
-  /**
-   * @param entityType
-   */
+
   public MongoTimeSeriesMetaDataTest() {
     super(TimeSeriesMetaDataConfiguration.class);
   }
   
-  /**
-   * @throws java.lang.Exception
-   */
   @Before
   public void setUp() throws Exception {
     super.setUp();
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
   @After
   public void tearDown() throws Exception {
     super.tearDown();
@@ -66,8 +54,8 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
   }
 
   @Override
-  protected ConfigMaster<TimeSeriesMetaDataConfiguration> createMongoConfigMaster() {
-    //use className as collection so do not set collectionName
+  protected MongoDBConfigMaster<TimeSeriesMetaDataConfiguration> createMongoConfigMaster() {
+    // use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
     return new MongoDBConfigMaster<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class, settings, true);
@@ -94,7 +82,7 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
 
   @Override
   protected ConfigDocument<TimeSeriesMetaDataConfiguration> makeTestConfigDoc(int version) {
-    DefaultConfigDocument<TimeSeriesMetaDataConfiguration> doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
+    ConfigDocument<TimeSeriesMetaDataConfiguration> doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     doc.setName("TestName" + version);
     doc.setValue(makeRandomConfigDoc());
     return doc;

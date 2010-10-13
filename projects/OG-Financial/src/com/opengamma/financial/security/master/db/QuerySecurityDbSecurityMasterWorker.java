@@ -103,7 +103,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param uid  the unique identifier
    * @return the security document, null if not found
    */
-  @SuppressWarnings("unchecked")
   protected SecurityDocument getById(final UniqueIdentifier uid) {
     s_logger.debug("getSecurityById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -111,7 +110,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     
     final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<SecurityDocument> docs = (List<SecurityDocument>) namedJdbc.query(sqlGetSecurityById(), args, extractor);
+    final List<SecurityDocument> docs = namedJdbc.query(sqlGetSecurityById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
@@ -128,7 +127,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected SecuritySearchResult search(SecuritySearchRequest request) {
     s_logger.debug("searchSecurities: {}", request);
@@ -156,7 +154,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
-      result.getDocuments().addAll((List<SecurityDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       if (request.isFullDetail()) {
         loadDetail(result.getDocuments());
       }
@@ -203,7 +201,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
     s_logger.debug("searchSecurityHistoric: {}", request);
@@ -284,14 +281,14 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   /**
    * Mapper from SQL rows to a SecurityDocument.
    */
-  protected final class SecurityDocumentExtractor implements ResultSetExtractor {
+  protected final class SecurityDocumentExtractor implements ResultSetExtractor<List<SecurityDocument>> {
     private long _lastSecurityId = -1;
     private DefaultSecurity _security;
     private List<SecurityDocument> _documents = new ArrayList<SecurityDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
     @Override
-    public Object extractData(final ResultSet rs) throws SQLException, DataAccessException {
+    public List<SecurityDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long securityId = rs.getLong("SECURITY_ID");
         if (_lastSecurityId != securityId) {

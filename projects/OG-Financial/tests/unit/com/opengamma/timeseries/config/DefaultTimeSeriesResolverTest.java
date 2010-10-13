@@ -24,7 +24,7 @@ import com.google.common.collect.Sets;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
-import com.opengamma.config.DefaultConfigDocument;
+import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
@@ -81,7 +81,7 @@ public class DefaultTimeSeriesResolverTest {
   private ConfigSource setUpConfigSource() {
     MongoDBConfigMaster<TimeSeriesMetaDataConfiguration> tsMetaDataConfigMaster = new MongoDBConfigMaster<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class, _mongoSettings);
     //add tsmetadata configuration
-    DefaultConfigDocument<TimeSeriesMetaDataConfiguration> doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
+    ConfigDocument<TimeSeriesMetaDataConfiguration> doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     //set up config for equity security
     TimeSeriesMetaDataConfiguration definition = new TimeSeriesMetaDataConfiguration("EQUITY", "BLOOMBERG", "PX_LAST", "EXCH");
     definition.addDataSource("REUTERS");
@@ -90,7 +90,7 @@ public class DefaultTimeSeriesResolverTest {
     doc.setValue(definition);
     tsMetaDataConfigMaster.add(doc);
     //set up config for bond security
-    doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
+    doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     definition = new TimeSeriesMetaDataConfiguration("BOND", "BLOOMBERG", "PX_LAST", "CMPL");
     definition.addDataSource("REUTERS");
     definition.addDataField("VOLUME");

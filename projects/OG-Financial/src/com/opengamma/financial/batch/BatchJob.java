@@ -44,7 +44,7 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.db.MongoDBConfigMasterSingleDoc;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -324,11 +324,11 @@ public class BatchJob {
   }
 
   public String getViewOid() {
-    return _viewDefinitionConfig.getOid();
+    return _viewDefinitionConfig.getConfigId().getValue();
   }
 
   public int getViewVersion() {
-    return _viewDefinitionConfig.getVersion();
+    return _viewDefinitionConfig.getVersionNumber();
   }
 
   public boolean isForceNewRun() {
@@ -519,7 +519,7 @@ public class BatchJob {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");
     }
-    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
+    _configDb = new MongoDBConfigMasterSingleDoc<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
 
     _viewDefinitionConfig = getViewByNameWithTime();
     if (_viewDefinitionConfig == null) {
@@ -575,10 +575,9 @@ public class BatchJob {
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
     ConfigSearchRequest searchRequest = new ConfigSearchRequest();
     searchRequest.setName(getViewName());
-    searchRequest.setEffectiveTime(_viewDateTime.toInstant());
+    searchRequest.setVersionAsOfInstant(_viewDateTime.toInstant());
     ConfigSearchResult<ViewDefinition> searchResult = _configDb.search(searchRequest);
-    List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
-    return documents.get(0);
+    return searchResult.getFirstDocument();
   }
 
   public Options getOptions() {
