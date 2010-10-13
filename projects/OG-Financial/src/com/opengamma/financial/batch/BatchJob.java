@@ -44,7 +44,7 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.db.MongoDBConfigMasterSingleDoc;
+import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -519,7 +519,7 @@ public class BatchJob {
     if (_configDbConnectionSettings == null) {
       throw new IllegalStateException("Config DB connection settings not given.");
     }
-    _configDb = new MongoDBConfigMasterSingleDoc<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
+    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
 
     _viewDefinitionConfig = getViewByNameWithTime();
     if (_viewDefinitionConfig == null) {
