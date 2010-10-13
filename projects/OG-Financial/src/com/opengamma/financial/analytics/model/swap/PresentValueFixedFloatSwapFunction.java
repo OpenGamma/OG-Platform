@@ -27,16 +27,26 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
 
-  public PresentValueFixedFloatSwapFunction(final String currency, final String name) {
-    super(currency, name);
+  public PresentValueFixedFloatSwapFunction(final String currency, final String curveName, final String valueRequirementName) {
+    super(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  public PresentValueFixedFloatSwapFunction(final Currency currency, final String name) {
-    super(currency, name);
+  public PresentValueFixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
+    super(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
+  }
+
+  public PresentValueFixedFloatSwapFunction(final Currency currency, final String name, final String valueRequirementName) {
+    super(currency, name, valueRequirementName, name, valueRequirementName);
+  }
+
+  public PresentValueFixedFloatSwapFunction(final Currency currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
+    super(currency, forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Security security, final Swap swap, final YieldCurveBundle bundle) {
+  protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
     final Double presentValue = CALCULATOR.getValue(swap, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, presentValue));
@@ -45,7 +55,11 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+      if (getForwardCurveName().equals(getFundingCurveName())) {
+        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
+      }
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()),
+          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
     }
     return null;
   }

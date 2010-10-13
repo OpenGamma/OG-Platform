@@ -27,10 +27,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToHistoricalTimeSeries;
-import com.opengamma.financial.pnl.PnLDataBundle;
+import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
 import com.opengamma.financial.pnl.SensitivityPnLCalculator;
 import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.riskfactor.RiskFactorResult;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.financial.sensitivity.ValueGreek;
@@ -82,17 +81,15 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
-    final Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
-    final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> tsReturns = new HashMap<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>>();
+    SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
+    int i = 0;
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
       final Object valueObj = inputs.getValue(valueGreekRequirementName);
       if (valueObj instanceof Double) {
         final Double value = (Double) valueObj;
         final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
         final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
-        final RiskFactorResult riskFactorResult = new RiskFactorResult(value);
-        sensitivities.put(sensitivity, riskFactorResult);
-        final Map<Object, DoubleTimeSeries<?>> underlyings = new HashMap<Object, DoubleTimeSeries<?>>();
+        final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
         LocalDateDoubleTimeSeries intersection = null;
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
           final LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
@@ -105,16 +102,15 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
           LocalDateDoubleTimeSeries timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, securitySource, underlyingType, position.getSecurity());
           timeSeries = (LocalDateDoubleTimeSeries) timeSeries.intersectionFirstValue(intersection);
-          underlyings.put(underlyingType, _returnCalculator.evaluate(timeSeries));
+          tsReturns.put(underlyingType, _returnCalculator.evaluate(timeSeries));
         }
-        tsReturns.put(sensitivity, underlyings);
+        dataBundleArray[i++] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
       } else {
         throw new IllegalArgumentException("Got a value for greek " + valueObj + " that wasn't a Double");
       }
     }
-    final PnLDataBundle dataBundle = new PnLDataBundle(sensitivities, tsReturns);
     final SensitivityPnLCalculator calculator = new SensitivityPnLCalculator();
-    final DoubleTimeSeries<?> result = calculator.evaluate(dataBundle);
+    final DoubleTimeSeries<?> result = calculator.evaluate(dataBundleArray);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }
