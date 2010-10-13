@@ -586,15 +586,15 @@ public class BatchJob {
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext().clone();
     functionExecutionContext.setSecuritySource(securitySource);
     
-    FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext().clone();
-    functionCompilationContext.setSecuritySource(securitySource);
+    // this needs to be fixed, at the moment because of this line you can't run multiple days in parallel
+    getFunctionCompilationService().getFunctionCompilationContext().setSecuritySource(securitySource);
 
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
+    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), functionExecutionContext, targetResolver, viewProcessorQuerySender, Executors
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
