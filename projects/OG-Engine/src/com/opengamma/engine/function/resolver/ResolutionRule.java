@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -73,7 +73,7 @@ public class ResolutionRule {
    * the desired output, a valid ValueSpecification otherwise
    */
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
-    FunctionDefinition function = _parameterizedFunction.getFunction();
+    CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
     ComputationTarget target = atNode.getComputationTarget();
     
     // First check that the function can produce the output 

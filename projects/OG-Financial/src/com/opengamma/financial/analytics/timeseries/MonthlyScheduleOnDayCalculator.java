@@ -13,6 +13,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * 
  */
@@ -25,7 +27,7 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
   }
 
   @Override
-  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
+  public LocalDate[] getScheduleWorkingDaysOnly(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final Calendar holidayCalendar) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
@@ -42,7 +44,9 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
         date = date.minusMonths(1, DateResolvers.strict());
       }
       while (!date.isBefore(startDate)) {
-        dates.add(date);
+        if (holidayCalendar.isWorkingDay(date)) {
+          dates.add(date);
+        }
         date = date.minusMonths(1, DateResolvers.strict()); //TODO have to work out what to do for things like 31-2
       }
       return getReversedDates(dates);
@@ -53,10 +57,12 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
       date = date.plusMonths(1, DateResolvers.strict());
     }
     while (!date.isAfter(endDate)) {
-      dates.add(date);
+      if (holidayCalendar.isWorkingDay(date)) {
+        dates.add(date);
+      }
       date = date.plusMonths(1, DateResolvers.strict());
     }
     return dates.toArray(EMPTY_ARRAY);
-  };
+  }
 
 }

@@ -12,13 +12,15 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * 
  */
 public class DailyScheduleCalculator extends Schedule {
 
   @Override
-  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
+  public LocalDate[] getScheduleWorkingDaysOnly(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final Calendar holidayCalendar) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
@@ -26,14 +28,18 @@ public class DailyScheduleCalculator extends Schedule {
     if (fromEnd) {
       LocalDate date = endDate;
       while (!date.isBefore(startDate)) {
-        dates.add(date);
+        if (holidayCalendar.isWorkingDay(date)) {
+          dates.add(date);
+        }
         date = date.minusDays(1);
       }
       return getReversedDates(dates);
     }
     LocalDate date = startDate;
     while (!date.isAfter(endDate)) {
-      dates.add(date);
+      if (holidayCalendar.isWorkingDay(date)) {
+        dates.add(date);
+      }
       date = date.plusDays(1);
     }
     return dates.toArray(EMPTY_ARRAY);

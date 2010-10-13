@@ -11,16 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -45,20 +41,15 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class OptionGreekToValueGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(OptionGreekToValueGreekConverterFunction.class);
+public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.NonCompiledInvoker {
   private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();
   private final String _requirementName;
 
-  //TODO rewrite 
   public OptionGreekToValueGreekConverterFunction(final String requirementName) {
     ArgumentChecker.notNull(requirementName, "requirement name");
     _requirementName = requirementName;
   }
 
-  /**
-   * @return the requirementName
-   */
   public String getRequirementName() {
     return _requirementName;
   }
@@ -76,24 +67,17 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     final Double greekResult = (Double) inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
     greek = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName);
     greekResultCollection.put(greek, greekResult);
-
-    // TODO check that there isn't already a value for the greek? can't see how it could happen but
-    // overwriting silently in that situation would be bad
-    // TODO kirk 2010-05-13 -- Once we have the point value from the security,
-    // swap these two lines.
-    OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), getPointValue(security));
-    // underlyingData.put(TradeData.POINT_VALUE, security instanceof ExchangeTradedOptionSecurity ? ((ExchangeTradedOptionSecurity) security).getPointValue() : 1);
+    final OptionTradeData tradeData = new OptionTradeData(position.getQuantity().doubleValue(), getPointValue(security));
     order = greek.getUnderlying();
     underlyings = order.getUnderlyings();
     for (final UnderlyingType underlying : underlyings) {
-      Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecuritySource(), underlying, security));
+      final Double underlyingValue = (Double) inputs.getValue(UnderlyingTypeToValueRequirementMapper.getValueRequirement(executionContext.getSecuritySource(), underlying, security));
       if (underlyingValue == null) {
-        s_logger.warn("Could not get value for " + underlying + " for security " + security);
+        throw new NullPointerException("Could not get value for " + underlying + " for security " + security);
       } else {
         underlyingData.put(underlying, underlyingValue);
       }
     }
-
     final GreekDataBundle dataBundle = new GreekDataBundle(greekResultCollection, underlyingData, tradeData);
     final Map<ValueGreek, Double> sensitivities = _converter.evaluate(dataBundle);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
@@ -168,7 +152,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
   }
 
   //TODO this will need changing but these are the only two options with point values
-  private double getPointValue(OptionSecurity option) {
+  private double getPointValue(final OptionSecurity option) {
     if (option instanceof EquityOptionSecurity) {
       return ((EquityOptionSecurity) option).getPointValue();
     }

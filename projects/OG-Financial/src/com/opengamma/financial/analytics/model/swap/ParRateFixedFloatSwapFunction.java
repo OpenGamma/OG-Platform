@@ -19,7 +19,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -47,7 +46,8 @@ import com.opengamma.financial.world.region.RegionSource;
 /**
  * 
  */
-public class ParRateFixedFloatSwapFunction extends AbstractFunction implements FunctionInvoker {
+public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
   private final Currency _currency;
   private final String _forwardCurveName;

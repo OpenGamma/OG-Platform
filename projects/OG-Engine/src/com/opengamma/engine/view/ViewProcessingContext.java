@@ -6,11 +6,9 @@
 package com.opengamma.engine.view;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.CombiningLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -39,7 +37,7 @@ public class ViewProcessingContext {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final LiveDataInjector _liveDataOverrideInjector;
-  private final FunctionRepository _functionRepository;
+  private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
@@ -47,29 +45,25 @@ public class ViewProcessingContext {
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final CachingComputationTargetResolver _computationTargetResolver;
-  private final FunctionCompilationContext _compilationContext;
-  private final ExecutorService _executorService;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final ViewPermissionProvider _permissionProvider;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
   public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
-      FunctionRepository functionRepository, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
+      CompiledFunctionService functionCompilationService, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
       CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource, JobDispatcher computationJobDispatcher,
-      ViewProcessorQueryReceiver viewProcessorQueryReceiver, FunctionCompilationContext compilationContext, ExecutorService executorService,
-      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider, GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver, DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider,
+      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
     ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
-    ArgumentChecker.notNull(functionRepository, "functionRepository");
+    ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
-    ArgumentChecker.notNull(compilationContext, "compilationContext");
-    ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
@@ -79,7 +73,7 @@ public class ViewProcessingContext {
     InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider();
     _liveDataOverrideInjector = liveDataOverrideSnapshotProvider;
     _liveDataSnapshotProvider = new CombiningLiveDataSnapshotProvider(Arrays.asList(liveDataOverrideSnapshotProvider, liveDataSnapshotProvider));
-    _functionRepository = functionRepository;
+    _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
     _positionSource = positionSource;
     _securitySource = securitySource;
@@ -87,8 +81,6 @@ public class ViewProcessingContext {
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
-    _compilationContext = compilationContext;
-    _executorService = executorService;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _permissionProvider = permissionProvider;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
@@ -131,13 +123,8 @@ public class ViewProcessingContext {
     return _liveDataOverrideInjector;
   }
 
-  /**
-   * Gets the function repository.
-   * 
-   * @return the function repository, not null
-   */
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  public CompiledFunctionService getFunctionCompilationService() {
+    return _functionCompilationService;
   }
 
   /**
@@ -205,24 +192,6 @@ public class ViewProcessingContext {
   }
 
   /**
-   * Gets the compilation context.
-   * 
-   * @return the compilation context, not null
-   */
-  public FunctionCompilationContext getCompilationContext() {
-    return _compilationContext;
-  }
-
-  /**
-   * Gets the executor service.
-   * 
-   * @return the executor service, not null
-   */
-  public ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
-  /**
    * Gets the dependency graph executor factory.
    * 
    * @return  the dependency graph executor factory, not null
@@ -251,8 +220,8 @@ public class ViewProcessingContext {
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices() {
-    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getCompilationContext(), getComputationTargetResolver(), getExecutorService(), getSecuritySource(),
-        getPositionSource());
+    return new ViewCompilationServices(getLiveDataAvailabilityProvider(), getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
+        getFunctionCompilationService().getExecutorService(), getSecuritySource(), getPositionSource());
   }
 
 }

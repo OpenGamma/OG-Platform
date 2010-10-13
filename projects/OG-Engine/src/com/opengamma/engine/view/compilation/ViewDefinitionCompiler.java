@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -8,6 +8,9 @@ package com.opengamma.engine.view.compilation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,41 +31,44 @@ import com.opengamma.util.monitor.OperationTimer;
  * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each
  * {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements, is collected along
  * the way and exposed after compilation.
+ * 
+ * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the
+ * referenced functions may not be valid at other timestamps.
  */
 public final class ViewDefinitionCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionCompiler.class);
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
-  
+
   private ViewDefinitionCompiler() {
   }
-  
-  //--------------------------------------------------------------------------
-  public static ViewEvaluationModel compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices) {
+
+  // --------------------------------------------------------------------------
+  public static ViewEvaluationModel compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, InstantProvider atInstant) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
-        
+
     OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
-    ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices);
-    
+    ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, Instant.of(atInstant));
+
     Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext);
     SpecificRequirementsCompiler.execute(viewCompilationContext);
-    
+
     Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
     timer.finished();
-    
+
     if (OUTPUT_DEPENDENCY_GRAPHS) {
       outputDependencyGraphs(graphsByConfiguration);
     }
     if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
       outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
     }
-    
+
     return new ViewEvaluationModel(graphsByConfiguration, portfolio);
   }
-  
-  //--------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
     Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     for (DependencyGraphBuilder builder : context.getBuilders().values()) {
@@ -72,13 +78,13 @@ public final class ViewDefinitionCompiler {
     }
     return result;
   }
-  
+
   private static void outputDependencyGraphs(Map<String, DependencyGraph> graphsByConfiguration) {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       String configName = entry.getKey();
       sb.append("DepGraph for ").append(configName);
-      
+
       DependencyGraph depGraph = entry.getValue();
       sb.append("\tProducing values ").append(depGraph.getOutputValues());
       for (DependencyNode depNode : depGraph.getDependencyNodes()) {
@@ -87,7 +93,7 @@ public final class ViewDefinitionCompiler {
     }
     s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
-  
+
   private static void outputLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration, SecuritySource secMaster) {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
@@ -104,5 +110,5 @@ public final class ViewDefinitionCompiler {
     }
     s_logger.warn("Live data requirements -- \n{}", sb);
   }
-  
+
 }

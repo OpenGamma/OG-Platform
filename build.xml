@@ -174,7 +174,6 @@
 			<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
-			<cloverDb span="30 mins"  initstring="projects/OG-TimeSeriesStorage/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db/clover-db-" />
 		</clover-merge>

@@ -18,7 +18,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -45,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class CAPMBetaModelFunction extends AbstractFunction implements FunctionInvoker {
+public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiledInvoker {
   private static final DoubleTimeSeriesStatisticsCalculator COVARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleCovarianceCalculator());
   private static final DoubleTimeSeriesStatisticsCalculator VARIANCE_CALCULATOR = new DoubleTimeSeriesStatisticsCalculator(new SampleVarianceCalculator());
   private final TimeSeriesReturnCalculator _returnCalculator;
