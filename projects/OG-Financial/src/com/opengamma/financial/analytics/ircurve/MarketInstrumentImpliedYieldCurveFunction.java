@@ -463,7 +463,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   private static Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
-    // ENG-247 Andrew -- this is broken
+    // ENG-253 Andrew -- this is broken
     for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
@@ -490,7 +490,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     // Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    // ENG-247 Valid only on the local date requested
+    // ENG-253 Valid only on the local date requested
     Instant validFrom = curveDate.withTime(0, 0).toInstant();
     Instant expiry = validFrom.plus(1L, TimeUnit.DAYS).minusMillis(1L);
     return new Compiled(validFrom, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
