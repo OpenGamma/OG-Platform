@@ -74,7 +74,7 @@ public class ViewEvaluationModel {
         }
       }
     }
-    _earliestValidity = (earliest != null) ? earliest.toEpochMillisLong() : 0;
+    _earliestValidity = (earliest != null) ? earliest.toEpochMillisLong() : Long.MIN_VALUE;
     _latestValidity = (latest != null) ? latest.toEpochMillisLong() : Long.MAX_VALUE;
   }
 

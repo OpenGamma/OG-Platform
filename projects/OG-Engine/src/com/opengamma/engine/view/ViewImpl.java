@@ -133,7 +133,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
 
-      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.nowSystemClock());
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.nowSystemClock()));
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -141,7 +141,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       // Reset the state
       setCalculationState(ViewCalculationState.NOT_INITIALIZED);
       _processingContext = null;
-      _viewEvaluationModel = null;
+      setViewEvaluationModel(null);
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
     } finally {
       _viewLock.unlock();
@@ -153,7 +153,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     if (!getViewEvaluationModel().isValidFor(timestamp)) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {}", getDefinition().getName());
       // [ENG-247] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
-      _viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp));
+      // [ENG-247] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp)));
       // [ENG-247] instead of adding live data subscriptions we should remove ones no longer needed and only add new ones
       addLiveDataSubscriptions();
       timer.finished();
@@ -346,6 +347,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public ViewEvaluationModel getViewEvaluationModel() {
     assertInitialized();
     return _viewEvaluationModel;
+  }
+
+  protected void setViewEvaluationModel(final ViewEvaluationModel viewEvaluationModel) {
+    _viewEvaluationModel = viewEvaluationModel;
   }
 
   @Override
