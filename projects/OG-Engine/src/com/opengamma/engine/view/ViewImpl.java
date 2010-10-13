@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataInjector;
@@ -151,13 +152,15 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   // Caller must already hold viewLock
   private void viewEvaluationModelValidFor(final long timestamp) {
     if (!getViewEvaluationModel().isValidFor(timestamp)) {
-      final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {}", getDefinition().getName());
+      final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(timestamp));
       // [ENG-247] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
       // [ENG-247] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
+      final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp)));
-      // [ENG-247] instead of adding live data subscriptions we should remove ones no longer needed and only add new ones
-      addLiveDataSubscriptions();
+      updateLiveDataSubscriptions(previousRequirement);
       timer.finished();
+    } else {
+      s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(timestamp));
     }
   }
 
@@ -181,6 +184,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       Set<ViewClient> currentClients = new HashSet<ViewClient>(_clientMap.values());
       for (ViewClient client : currentClients) {
         client.shutdown();
+      }
+      if (getViewEvaluationModel() != null) {
+        removeLiveDataSubscriptions();
+        setViewEvaluationModel(null);
       }
       // Shutting down every client should have removed all live computation clients and stopped live computation
       setCalculationState(ViewCalculationState.TERMINATED);
@@ -464,11 +471,47 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * Part of initialization. Adds live data subscriptions to the view.
    */
   private void addLiveDataSubscriptions() {
-    Set<ValueRequirement> liveDataRequirements = getRequiredLiveData();
-    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
-    LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
-    snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
+    addLiveDataSubscriptions(getRequiredLiveData());
+  }
+
+  /**
+   * Part of shutdown. Removes live data subscriptions for the view.
+   */
+  private void removeLiveDataSubscriptions() {
+    final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    // [ENG-251] TODO snapshotProvider.removeListener(this);
+    removeLiveDataSubscriptions(getRequiredLiveData());
+  }
+
+  /**
+   * Part of recompilation of functions. Changes live data subscriptions for the view.
+   */
+  private void updateLiveDataSubscriptions(final Set<ValueRequirement> previousLiveData) {
+    final Set<ValueRequirement> newLiveDataRequirements = getRequiredLiveData();
+    final Set<ValueRequirement> unusedLiveData = Sets.difference(previousLiveData, newLiveDataRequirements);
+    if (!unusedLiveData.isEmpty()) {
+      s_logger.debug("{} unused data requirements: {}", unusedLiveData.size(), unusedLiveData);
+      removeLiveDataSubscriptions(unusedLiveData);
+    }
+    final Set<ValueRequirement> newLiveData = Sets.difference(newLiveDataRequirements, previousLiveData);
+    if (!newLiveData.isEmpty()) {
+      s_logger.debug("{} new live data requirements: {}", newLiveData.size(), newLiveData);
+      // [ENG-250] TODO asserting permissions on live subscribers or force them to pause
+      addLiveDataSubscriptions(newLiveData);
+    }
+  }
+
+  private void addLiveDataSubscriptions(final Set<ValueRequirement> requiredLiveData) {
+    final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", requiredLiveData.size(), getDefinition().getPortfolioId());
+    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
+    timer.finished();
+  }
+
+  private void removeLiveDataSubscriptions(final Set<ValueRequirement> requiredLiveData) {
+    final OperationTimer timer = new OperationTimer(s_logger, "Removing {} live data subscriptions for portfolio {}", requiredLiveData.size(), getDefinition().getPortfolioId());
+    // [ENG-251] TODO getProcessingContext().getLiveDataSnapshotProvider().removeSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
     timer.finished();
   }
 
