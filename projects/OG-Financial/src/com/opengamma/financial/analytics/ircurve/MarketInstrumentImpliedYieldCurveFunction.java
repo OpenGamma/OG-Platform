@@ -105,9 +105,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private Set<ValueSpecification> _results;
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
+    this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
+  }
+
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String fundingCurveValueRequirementName, String forwardCurveDefinitionName,
       String forwardCurveValueRequirementName) {
     this(Currency.getInstance(currency), fundingCurveDefinitionName, fundingCurveValueRequirementName, forwardCurveDefinitionName, forwardCurveValueRequirementName);
+  }
+
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, final String curveValueRequirementName) {
+    this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String fundingValueRequirementName, String forwardCurveDefinitionName,
