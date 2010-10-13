@@ -185,12 +185,12 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       for (ViewClient client : currentClients) {
         client.shutdown();
       }
+      // Shutting down every client should have removed all live computation clients and stopped live computation
+      setCalculationState(ViewCalculationState.TERMINATED);
       if (getViewEvaluationModel() != null) {
         removeLiveDataSubscriptions();
         setViewEvaluationModel(null);
       }
-      // Shutting down every client should have removed all live computation clients and stopped live computation
-      setCalculationState(ViewCalculationState.TERMINATED);
     } finally {
       _viewLock.unlock();
     }
