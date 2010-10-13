@@ -13,11 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -163,23 +163,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   @Override
   public String getShortName() {
     return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
-  }
-
-  private Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
-    for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
-        final Instant futureExpiry = future.getExpiry().toInstant();
-        if (expiry == null) {
-          expiry = futureExpiry;
-        } else {
-          if (futureExpiry.isBefore(expiry)) {
-            expiry = futureExpiry;
-          }
-        }
-      }
-    }
-    return expiry;
   }
 
   /**
@@ -479,17 +462,38 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   }
 
+  private static Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
+    // ENG-247 Andrew -- this is broken
+    for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
+      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
+        final Instant futureExpiry = future.getExpiry().getExpiry().toInstant().minusMillis(1L);
+        if (expiry == null) {
+          expiry = futureExpiry;
+        } else {
+          if (futureExpiry.isBefore(expiry)) {
+            expiry = futureExpiry;
+          }
+        }
+      }
+    }
+    return expiry;
+  }
+
   @Override
   public Compiled compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final LocalDate curveDate = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC).toLocalDate();
-    final InterpolatedYieldCurveSpecification fundingCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _fundingCurveDefinition);
-    final InterpolatedYieldCurveSpecification forwardCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _forwardCurveDefinition);
+    final ZonedDateTime curveDate = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC);
+    final InterpolatedYieldCurveSpecification fundingCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate.toLocalDate(), _fundingCurveDefinition);
+    final InterpolatedYieldCurveSpecification forwardCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate.toLocalDate(), _forwardCurveDefinition);
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
-    Instant expiry = null;
-    expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
-    expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    return new Compiled(atInstant, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
+    // Instant expiry = null;
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
+    // ENG-247 Valid only on the local date requested
+    Instant validFrom = curveDate.withTime(0, 0).toInstant();
+    Instant expiry = validFrom.plus(1L, TimeUnit.DAYS).minusMillis(1L);
+    return new Compiled(validFrom, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
   }
 
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {

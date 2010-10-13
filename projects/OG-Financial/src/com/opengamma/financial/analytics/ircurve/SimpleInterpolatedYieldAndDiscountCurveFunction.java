@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -43,7 +43,6 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -138,30 +137,17 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return marketDataMap;
   }
 
-  protected InterpolatedYieldCurveSpecification createSpecification(final InstantProvider atInstantProvider) {
-    return _curveSpecificationBuilder.buildCurve(DateUtil.previousWeekDay(ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC).toLocalDate()), _definition);
+  protected InterpolatedYieldCurveSpecification createSpecification(final LocalDate curveDate) {
+    return _curveSpecificationBuilder.buildCurve(DateUtil.previousWeekDay(curveDate), _definition);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final Instant atInstant = Instant.of(atInstantProvider);
-    final InterpolatedYieldCurveSpecification specification = createSpecification(atInstant);
+    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+    final InterpolatedYieldCurveSpecification specification = createSpecification(atInstant.toLocalDate());
     final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(specification, context));
-    Instant expiry = null;
-    for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        final FutureSecurity future = (FutureSecurity) context.getSecuritySource().getSecurity(IdentifierBundle.of(strip.getSecurity()));
-        final Instant futureExpiry = future.getExpiry().toInstant();
-        if (expiry == null) {
-          expiry = futureExpiry;
-        } else {
-          if (futureExpiry.isBefore(expiry)) {
-            expiry = futureExpiry;
-          }
-        }
-      }
-    }
-    return new AbstractInvokingCompiledFunction(atInstant, expiry) {
+    // ENG-247 see MarkingInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
+    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
