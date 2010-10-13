@@ -10,11 +10,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
@@ -22,10 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.function.FunctionCompilationService;
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -41,7 +34,6 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -54,7 +46,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private CachingComputationTargetResolver _computationTargetResolver;
-  private FunctionCompilationService _functionCompilationService;
+  private CompiledFunctionService _functionCompilationService;
   private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
@@ -69,8 +61,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final Timer _clientResultTimer = new Timer("ViewProcessor client result timer");
   private boolean _isStarted /* = false */;
-  private ExecutorService _executorService;
-  private boolean _localExecutorService /* = false */;
 
   public ViewProcessorImpl() {
   }
@@ -122,7 +112,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   }
 
   @Override
-  public FunctionCompilationService getFunctionCompilationService() {
+  public CompiledFunctionService getFunctionCompilationService() {
     return _functionCompilationService;
   }
 
@@ -131,7 +121,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
    * 
    * @param functionCompilationService  the function compilation service
    */
-  public void setFunctionCompilationService(final FunctionCompilationService functionCompilationService) {
+  public void setFunctionCompilationService(final CompiledFunctionService functionCompilationService) {
     assertNotStarted();
     _functionCompilationService = functionCompilationService;
   }
@@ -264,34 +254,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     _viewPermissionProvider = viewPermissionProvider;
   }
 
-  @Override
-  public ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
-  /**
-   * @param executorService the executorService to set
-   */
-  public void setExecutorService(ExecutorService executorService) {
-    assertNotStarted();
-    _executorService = executorService;
-  }
-
-  /**
-   * @return the localExecutorService
-   */
-  public boolean isLocalExecutorService() {
-    return _localExecutorService;
-  }
-
-  /**
-   * @param localExecutorService the localExecutorService to set
-   */
-  public void setLocalExecutorService(boolean localExecutorService) {
-    assertNotStarted();
-    _localExecutorService = localExecutorService;
-  }
-
   /**
    * Sets the graphExecutionStatistics field.
    * @param graphExecutionStatistics  the graphExecutionStatistics
@@ -329,11 +291,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     try {
       s_logger.info("Starting on lifecycle call.");
       checkInjectedInputs();
-      initializeExecutorService();
-      getFunctionCompilationService().initialize(getExecutorService());
+      getFunctionCompilationService().initialize();
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
-
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
@@ -355,17 +315,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
       }
       _viewsByName.clear();
       s_logger.info("All views terminated.");
-      if (isLocalExecutorService()) {
-        s_logger.info("Shutting down local executor service.");
-        getExecutorService().shutdown();
-        try {
-          getExecutorService().awaitTermination(90, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          s_logger.info("Interrupted while attempting to shutdown local executor service");
-          Thread.interrupted();
-        }
-        s_logger.info("Executor service shut down.");
-      }
       _isStarted = false;
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
     } finally {
@@ -377,25 +326,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   // INITIALIZATION METHODS
   // For all methods that are ultimately called from start()
   // --------------------------------------------------------------------------
-
-  protected void initializeExecutorService() {
-    if (getExecutorService() == null) {
-      OperationTimer timer = new OperationTimer(s_logger, "Initializing View Processor");
-      ThreadFactory tf = new NamedThreadPoolFactory("ViewProcessor", true);
-      int nThreads = Runtime.getRuntime().availableProcessors() - 1;
-      if (nThreads == 0) {
-        nThreads = 1;
-      }
-      s_logger.info("No injected executor service; starting one with {} max threads", nThreads);
-      // REVIEW kirk 2010-03-07 -- Is this the right queue to use here?
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
-      setExecutorService(executor);
-      setLocalExecutorService(true);
-      timer.finished();
-    } else {
-      setLocalExecutorService(false);
-    }
-  }
 
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -411,12 +341,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   }
 
   private ViewProcessingContext createViewProcessingContext() {
-    FunctionRepository functionRepository = getFunctionCompilationService().getFunctionRepository();
-    FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
-
-    return new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider(), functionRepository, functionResolver, getPositionSource(),
-        getSecuritySource(), getComputationTargetResolver(), getComputationCacheSource(), getComputationJobDispatcher(), getViewProcessorQueryReceiver(), getFunctionCompilationService()
-            .getFunctionCompilationContext(), getExecutorService(), getDependencyGraphExecutorFactory(), getViewPermissionProvider(), getGraphExecutionStatistics());
+    return new ViewProcessingContext(getLiveDataClient(), getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider(), getFunctionCompilationService(), new DefaultFunctionResolver(
+        getFunctionCompilationService()), getPositionSource(), getSecuritySource(), getComputationTargetResolver(), getComputationCacheSource(), getComputationJobDispatcher(),
+        getViewProcessorQueryReceiver(), getDependencyGraphExecutorFactory(), getViewPermissionProvider(), getGraphExecutionStatistics());
   }
 
 }

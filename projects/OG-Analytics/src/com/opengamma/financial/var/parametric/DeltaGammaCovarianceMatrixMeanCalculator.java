@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -15,10 +18,8 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class DeltaGammaCovarianceMatrixMeanCalculator extends Function1D<ParametricVaRDataBundle, Double> {
+public class DeltaGammaCovarianceMatrixMeanCalculator extends Function1D<Map<Integer, ParametricVaRDataBundle>, Double> {
   private final MatrixAlgebra _algebra;
-  private static final int FIRST_ORDER = 1;
-  private static final int SECOND_ORDER = 2;
 
   public DeltaGammaCovarianceMatrixMeanCalculator(final MatrixAlgebra algebra) {
     Validate.notNull(algebra, "algebra");
@@ -26,13 +27,19 @@ public class DeltaGammaCovarianceMatrixMeanCalculator extends Function1D<Paramet
   }
 
   @Override
-  public Double evaluate(final ParametricVaRDataBundle data) {
+  public Double evaluate(final Map<Integer, ParametricVaRDataBundle> data) {
     Validate.notNull(data, "data");
-    final Matrix<?> gamma = data.getSensitivityData(SECOND_ORDER);
-    final DoubleMatrix2D covariance = data.getCovarianceMatrix(FIRST_ORDER);
+    final ParametricVaRDataBundle firstOrderData = data.get(1);
+    Validate.notNull(firstOrderData, "first order data");
+    final ParametricVaRDataBundle secondOrderData = data.get(2);
+    if (secondOrderData == null) {
+      return 0.;
+    }
+    final Matrix<?> gamma = secondOrderData.getSensitivities();
     if (gamma == null || gamma.getNumberOfElements() == 0) {
       return 0.;
     }
+    final DoubleMatrix2D covariance = firstOrderData.getCovarianceMatrix();
     return 0.5 * _algebra.getTrace(_algebra.multiply(gamma, covariance));
   }
 
@@ -45,7 +52,7 @@ public class DeltaGammaCovarianceMatrixMeanCalculator extends Function1D<Paramet
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -55,15 +62,8 @@ public class DeltaGammaCovarianceMatrixMeanCalculator extends Function1D<Paramet
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeltaGammaCovarianceMatrixMeanCalculator other = (DeltaGammaCovarianceMatrixMeanCalculator) obj;
-    if (_algebra == null) {
-      if (other._algebra != null) {
-        return false;
-      }
-    } else if (!_algebra.equals(other._algebra)) {
-      return false;
-    }
-    return true;
+    final DeltaGammaCovarianceMatrixMeanCalculator other = (DeltaGammaCovarianceMatrixMeanCalculator) obj;
+    return ObjectUtils.equals(_algebra, other._algebra);
   }
 
 }

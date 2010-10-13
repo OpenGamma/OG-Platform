@@ -5,9 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.concurrent.ExecutorService;
-
-import com.opengamma.engine.function.FunctionCompilationService;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
@@ -40,7 +38,7 @@ public interface ViewProcessorInternal extends ViewProcessor {
    * 
    * @return the function compilation service
    */
-  FunctionCompilationService getFunctionCompilationService();
+  CompiledFunctionService getFunctionCompilationService();
   
   /**
    * Gets the live data client
@@ -97,13 +95,6 @@ public interface ViewProcessorInternal extends ViewProcessor {
    * @return the view processor query receiver
    */
   ViewProcessorQueryReceiver getViewProcessorQueryReceiver();
-  
-  /**
-   * Gets the executor service
-   * 
-   * @return the executor service
-   */
-  ExecutorService getExecutorService();
   
   /**
    * Gets the dependency graph executor factory

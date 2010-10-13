@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swap;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,32 +29,47 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
 
-  public PV01FixedFloatSwapFunction(final String currency, final String name) {
-    super(currency, name);
+  public PV01FixedFloatSwapFunction(final String currency, final String curveName, final String valueRequirementName) {
+    super(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  //TODO this only works at the moment because we're using the same curve for forward and funding. Don't know how to get around this
-  // with the value requirements working as they do now because I can't see how to distinguish curves by name without needing 
-  // a load of extra strings in ValueRequirementName
-  public PV01FixedFloatSwapFunction(final Currency currency, final String name) {
-    super(currency, name);
+  public PV01FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
+    super(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
+  }
+
+  public PV01FixedFloatSwapFunction(final Currency currency, final String name, final String valueRequirementName) {
+    super(currency, name, valueRequirementName, name, valueRequirementName);
+  }
+
+  public PV01FixedFloatSwapFunction(final Currency currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
+      final String fundingValueRequirementName) {
+    super(currency, forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Security security, final Swap swap, final YieldCurveBundle bundle) {
+  protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
     final Map<String, Double> pv01ForCurve = CALCULATOR.calculate(swap, bundle);
-    final String name = getName();
-    if (pv01ForCurve.size() == 1 && pv01ForCurve.keySet().contains(name)) {
-      final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01, security), getUniqueIdentifier());
-      return Sets.newHashSet(new ComputedValue(specification, pv01ForCurve.get(name)));
+    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    if (!(pv01ForCurve.containsKey(getForwardCurveName()) && pv01ForCurve.containsKey(getFundingCurveName()))) {
+      throw new NullPointerException("Could not get PV01 for " + getForwardCurveName() + " and " + getFundingCurveName());
     }
-    throw new NullPointerException("Could not get PV01 for curve " + name);
+    for (final Map.Entry<String, Double> entry : pv01ForCurve.entrySet()) {
+      final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + entry.getKey() + "_" + getCurrency().getISOCode(), security),
+          getUniqueIdentifier());
+      result.add(new ComputedValue(specification, entry.getValue()));
+    }
+    return result;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()));
+      if (getForwardCurveName().equals(getFundingCurveName())) {
+        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
+      }
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()),
+          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
     }
     return null;
   }
@@ -61,7 +77,14 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01, target.getSecurity()), getUniqueIdentifier()));
+      if (getForwardCurveName().equals(getFundingCurveName())) {
+        return Sets.newHashSet(new ValueSpecification(
+            new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), getUniqueIdentifier()));
+      }
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
+          getUniqueIdentifier()),
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getFundingCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
+              getUniqueIdentifier()));
     }
     return null;
   }

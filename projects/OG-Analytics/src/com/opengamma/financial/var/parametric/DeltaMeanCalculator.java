@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -16,7 +17,6 @@ import com.opengamma.math.matrix.MatrixAlgebra;
  */
 public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBundle, Double> {
   private final MatrixAlgebra _algebra;
-  private static final int FIRST_ORDER = 1;
 
   public DeltaMeanCalculator(final MatrixAlgebra algebra) {
     Validate.notNull(algebra, "algebra");
@@ -26,19 +26,14 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   @Override
   public Double evaluate(final ParametricWithMeanVaRDataBundle data) {
     Validate.notNull(data, "data");
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(FIRST_ORDER);
+    Validate.isTrue(data.getOrder() == 1, "Must have first order sensitivities");
+    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivities();
     final int s1 = delta.getNumberOfElements();
-    if (s1 == 0) {
-      throw new IllegalArgumentException("Value delta vector contained no data");
-    }
-    final DoubleMatrix1D mean = data.getMean(FIRST_ORDER);
+    Validate.isTrue(s1 > 0, "Value delta vector contained no data");
+    final DoubleMatrix1D mean = data.getMean();
     final int s2 = mean.getNumberOfElements();
-    if (s2 == 0) {
-      throw new IllegalArgumentException("Mean vector contained no data");
-    }
-    if (s1 != s2) {
-      throw new IllegalArgumentException("Value delta and mean vectors were of different size");
-    }
+    Validate.isTrue(s1 > 0, "Mean vector contained no data");
+    Validate.isTrue(s1 == s2, "Value delta and mean vectors were of different size");
     return _algebra.getInnerProduct(delta, mean);
   }
 
@@ -51,7 +46,7 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -61,15 +56,8 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeltaMeanCalculator other = (DeltaMeanCalculator) obj;
-    if (_algebra == null) {
-      if (other._algebra != null) {
-        return false;
-      }
-    } else if (!_algebra.equals(other._algebra)) {
-      return false;
-    }
-    return true;
+    final DeltaMeanCalculator other = (DeltaMeanCalculator) obj;
+    return ObjectUtils.equals(_algebra, other._algebra);
   }
 
 }

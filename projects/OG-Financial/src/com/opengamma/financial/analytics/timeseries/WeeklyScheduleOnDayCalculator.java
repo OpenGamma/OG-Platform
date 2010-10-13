@@ -14,6 +14,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * 
  */
@@ -25,7 +27,7 @@ public class WeeklyScheduleOnDayCalculator extends Schedule {
   }
 
   @Override
-  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
+  public LocalDate[] getScheduleWorkingDaysOnly(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final Calendar holidayCalendar) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
@@ -41,7 +43,9 @@ public class WeeklyScheduleOnDayCalculator extends Schedule {
       LocalDate date = endDate;
       date = date.with(DateAdjusters.previousOrCurrent(_dayOfWeek));
       while (!date.isBefore(startDate)) {
-        dates.add(date);
+        if (holidayCalendar.isWorkingDay(date)) {
+          dates.add(date);
+        }
         date = date.with(DateAdjusters.previous(_dayOfWeek));
       }
       return getReversedDates(dates);
@@ -49,7 +53,9 @@ public class WeeklyScheduleOnDayCalculator extends Schedule {
     LocalDate date = startDate;
     date = date.with(DateAdjusters.nextOrCurrent(_dayOfWeek));
     while (!date.isAfter(endDate)) {
-      dates.add(date);
+      if (holidayCalendar.isWorkingDay(date)) {
+        dates.add(date);
+      }
       date = date.with(DateAdjusters.next(_dayOfWeek));
     }
     return dates.toArray(EMPTY_ARRAY);
