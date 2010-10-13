@@ -20,7 +20,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  */
-public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
+public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
 
   @Override
   public DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule) {
@@ -30,22 +30,27 @@ public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSerie
     final List<LocalDate> tsDates = localDateTS.times();
     final List<LocalDate> scheduledDates = Arrays.asList(schedule);
     final List<Double> scheduledData = new ArrayList<Double>();
+    final double firstValue = localDateTS.getEarliestValue();
+    final LocalDate firstDate = localDateTS.getEarliestTime();
     for (final LocalDate date : schedule) {
       if (tsDates.contains(date)) {
         scheduledData.add(localDateTS.getValue(date));
+      } else if (firstDate.isAfter(date)) {
+        scheduledData.add(firstValue);
       } else {
-        if (localDateTS.getEarliestTime().isAfter(date)) {
-          throw new IllegalArgumentException("Could not get any data for date " + date);
+        LocalDate temp = date.minusDays(1);
+        if (firstDate.isAfter(temp)) {
+          scheduledData.add(firstValue);
         } else {
-          LocalDate temp = date.minusDays(1);
           while (!tsDates.contains(temp)) {
             temp = temp.minusDays(1);
             if (temp.isBefore(schedule[0]) || temp.isBefore(tsDates.get(0))) {
-              throw new IllegalArgumentException("Could not get any data for date " + date);
+              scheduledData.add(firstValue);
+              break;
             }
           }
-          scheduledData.add(localDateTS.getValue(temp));
         }
+        scheduledData.add(localDateTS.getValue(temp));
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
