@@ -9,14 +9,14 @@ import java.util.Collection;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.PublicAPI;
 
 /**
  * All inputs that are being passed into a {@link FunctionInvoker} during invocation.
  * It is the responsibility of the Engine to ensure that the instance of
  * {@code FunctionInputs} provided contains all required values for invocation.
- *
- * @author kirk
  */
+@PublicAPI
 public interface FunctionInputs {
   /**
    * Obtain all values required by the function.

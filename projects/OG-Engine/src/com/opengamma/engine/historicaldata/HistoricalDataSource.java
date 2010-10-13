@@ -9,6 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -17,6 +18,7 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This interface provides a simple view of TimeSeries as needed by the engine.
  */
+@PublicSPI
 public interface HistoricalDataSource {
   /**
    * Finds a timeseries with all the available data points 

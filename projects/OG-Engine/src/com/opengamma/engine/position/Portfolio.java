@@ -7,6 +7,8 @@ package com.opengamma.engine.position;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicAPI;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A portfolio of positions, typically having business-level meaning.
@@ -16,6 +18,7 @@ import com.opengamma.id.UniqueIdentifier;
  * <p>
  * A portfolio typically has meta-data.
  */
+@PublicSPI
 public interface Portfolio extends UniqueIdentifiable {
 
   /**

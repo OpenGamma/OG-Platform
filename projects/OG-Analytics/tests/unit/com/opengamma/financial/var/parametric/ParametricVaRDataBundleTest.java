@@ -1,17 +1,15 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -23,49 +21,45 @@ import com.opengamma.math.matrix.Matrix;
  * 
  */
 public class ParametricVaRDataBundleTest {
-  private final Map<Integer, Matrix<?>> VECTOR = Collections.<Integer, Matrix<?>>singletonMap(1, new DoubleMatrix1D(new double[] {4}));
-  private final Map<Integer, DoubleMatrix2D> MATRIX = Collections.<Integer, DoubleMatrix2D>singletonMap(1, new DoubleMatrix2D(new double[][] {new double[] {2}}));
-  private final ParametricVaRDataBundle DATA = new ParametricVaRDataBundle(VECTOR, MATRIX);
+  private static final List<String> NAMES = Arrays.asList("A", "B", "C");
+  private static final DoubleMatrix1D DELTA = new DoubleMatrix1D(new double[] {1, 2, 3});
+  private static final DoubleMatrix2D GAMMA = new DoubleMatrix2D(new double[][] {new double[] {1, 0, 0}, new double[] {0, 2, 0}, new double[] {0, 0, 3}});
+  private static final DoubleMatrix2D COV = new DoubleMatrix2D(new double[][] {new double[] {0.1, 0.2, 0.3}, new double[] {0.2, 0.4, 0.5}, new double[] {0.3, 0.6, 0.5}});
+  private static final int ORDER = 1;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullSensitivities() {
-    new ParametricVaRDataBundle(null, MATRIX);
+  public void testNullSensitivities1() {
+    new ParametricVaRDataBundle(null, COV, ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullCovariances() {
-    new ParametricVaRDataBundle(VECTOR, null);
+  public void testNullSensitivities2() {
+    new ParametricVaRDataBundle(NAMES, null, COV, ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testMoreCovariances() {
-    final Map<Integer, DoubleMatrix2D> covariances = new HashMap<Integer, DoubleMatrix2D>();
-    covariances.put(1, new DoubleMatrix2D(new double[][] {new double[] {2}}));
-    covariances.put(2, new DoubleMatrix2D(new double[][] {new double[] {2}}));
-    new ParametricVaRDataBundle(VECTOR, covariances);
+  public void testNullCovariance1() {
+    new ParametricVaRDataBundle(DELTA, null, ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullSensitivity() {
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(1, null);
-    new ParametricVaRDataBundle(sensitivities, MATRIX);
+  public void testNullCovariance2() {
+    new ParametricVaRDataBundle(NAMES, DELTA, null, ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBadFirstOrderSensitivity() {
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(1, new DoubleMatrix2D(new double[][] {new double[] {2}}));
-    new ParametricVaRDataBundle(sensitivities, MATRIX);
+  public void testNegativeOrder1() {
+    new ParametricVaRDataBundle(DELTA, COV, -ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNonSquareSensitivityMatrix() {
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(2, new DoubleMatrix2D(new double[][] {new double[] {2, 1}}));
-    new ParametricVaRDataBundle(sensitivities, MATRIX);
+  public void testNegativeOrder2() {
+    new ParametricVaRDataBundle(NAMES, DELTA, COV, -ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void test3DMatrix() {
-    final Matrix<?> m = new Matrix<Double>() {
+  public void testWrongMatrixDimension() {
+    final Matrix<double[]> m = new Matrix<double[]>() {
 
       @Override
       public int getNumberOfElements() {
@@ -73,66 +67,61 @@ public class ParametricVaRDataBundleTest {
       }
 
       @Override
-      public Double getEntry(int... indices) {
-        return 0.;
+      public double[] getEntry(final int... indices) {
+        return null;
       }
 
     };
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(1, m);
-    new ParametricVaRDataBundle(sensitivities, MATRIX);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullCovarianceMatrix() {
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(1, null);
-    new ParametricVaRDataBundle(sensitivities, MATRIX);
+    new ParametricVaRDataBundle(m, COV, ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonSquareCovarianceMatrix() {
-    final Map<Integer, DoubleMatrix2D> m = Collections.<Integer, DoubleMatrix2D>singletonMap(1, new DoubleMatrix2D(new double[][] {new double[] {1, 2}}));
-    new ParametricVaRDataBundle(VECTOR, m);
+    new ParametricVaRDataBundle(DELTA, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}), ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNonMatchingSensitivityAndCovarianceMatrices() {
-    final Map<Integer, DoubleMatrix2D> m = Collections.<Integer, DoubleMatrix2D>singletonMap(1, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}}));
-    new ParametricVaRDataBundle(VECTOR, m);
+  public void testWrongCovarianceMatrixSize1() {
+    new ParametricVaRDataBundle(DELTA, new DoubleMatrix2D(new double[][] {new double[] {1}}), 1);
   }
 
-  @Test
-  public void testConversionToMatrix() {
-    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>>singletonMap(2, new DoubleMatrix1D(new double[] {2, 1}));
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(sensitivities, MATRIX);
-    final Matrix<?> m = data.getSensitivityData(2);
-    assertTrue(m instanceof DoubleMatrix2D);
-    final double[][] diagonal = new double[][] {new double[] {2, 0}, new double[] {0, 1}};
-    final double[][] converted = ((DoubleMatrix2D) m).getData();
-    assertTrue(converted.length == 2);
-    assertTrue(converted[0].length == 2);
-    final double eps = 1e-15;
-    assertEquals(diagonal[0][0], converted[0][0], eps);
-    assertEquals(diagonal[0][1], converted[0][1], eps);
-    assertEquals(diagonal[1][0], converted[1][0], eps);
-    assertEquals(diagonal[1][1], converted[1][1], eps);
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongCovarianceMatrixSize2() {
+    new ParametricVaRDataBundle(GAMMA, new DoubleMatrix2D(new double[][] {new double[] {1}}), 2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongNamesSize1() {
+    new ParametricVaRDataBundle(Arrays.asList("A"), DELTA, COV, ORDER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongNamesSize2() {
+    new ParametricVaRDataBundle(Arrays.asList("A"), GAMMA, COV, ORDER);
   }
 
   @Test
   public void test() {
-    assertEquals(VECTOR.get(1), DATA.getSensitivityData(1));
-    assertEquals(MATRIX.get(1), DATA.getCovarianceMatrix(1));
-  }
-
-  @Test
-  public void testEqualsAndHashCode() {
-    final Map<Integer, Matrix<?>> vector = Collections.<Integer, Matrix<?>>singletonMap(1, new DoubleMatrix1D(new double[] {5}));
-    final Map<Integer, DoubleMatrix2D> matrix = Collections.<Integer, DoubleMatrix2D>singletonMap(1, new DoubleMatrix2D(new double[][] {new double[] {6}}));
-    ParametricVaRDataBundle data1 = new ParametricVaRDataBundle(VECTOR, MATRIX);
-    assertEquals(data1, DATA);
-    assertEquals(data1.hashCode(), DATA.hashCode());
-    data1 = new ParametricVaRDataBundle(vector, MATRIX);
-    assertFalse(data1.equals(DATA));
-    data1 = new ParametricVaRDataBundle(VECTOR, matrix);
-    assertFalse(data1.equals(DATA));
+    ParametricVaRDataBundle data = new ParametricVaRDataBundle(DELTA, COV, ORDER);
+    ParametricVaRDataBundle other = new ParametricVaRDataBundle(null, DELTA, COV, ORDER);
+    assertEquals(data, other);
+    assertEquals(data.hashCode(), other.hashCode());
+    assertEquals(data.getNames(), null);
+    data = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER);
+    other = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER);
+    assertEquals(data, other);
+    assertEquals(data.hashCode(), other.hashCode());
+    other = new ParametricVaRDataBundle(Arrays.asList("A", "B", "D"), DELTA, COV, ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, new DoubleMatrix1D(new double[] {5, 6, 7}), COV, ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, DELTA, new DoubleMatrix2D(new double[][] {new double[] {0, 0, 0}, new double[] {0, 0, 0}, new double[] {0, 0, 0}}), ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER + 1);
+    assertFalse(data.equals(other));
+    assertEquals(data.getNames(), NAMES);
+    assertEquals(data.getSensitivities(), DELTA);
+    assertEquals(data.getCovarianceMatrix(), COV);
+    assertEquals(data.getOrder(), ORDER);
   }
 }

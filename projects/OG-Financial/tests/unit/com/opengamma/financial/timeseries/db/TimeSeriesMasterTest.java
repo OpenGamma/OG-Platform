@@ -339,6 +339,31 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   }
   
   @Test
+  public void searchByIdentifierValue() throws Exception {
+    List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
+    for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
+      TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
+      request.setIdentifierValue(expectedTSDoc.getIdentifiers().getIdentifiers().iterator().next().getValue());
+      request.setDataField(expectedTSDoc.getDataField());
+      request.setDataProvider(expectedTSDoc.getDataProvider());
+      request.setDataSource(expectedTSDoc.getDataSource());
+      request.setObservationTime(expectedTSDoc.getObservationTime());
+      request.setLoadTimeSeries(true);
+      
+      TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(request);
+      assertNotNull(searchResult);
+      List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+      assertNotNull(documents);
+      assertTrue(documents.size() == 1);
+      
+      TimeSeriesDocument<T> searchedDoc = documents.get(0);
+      assertNotNull(searchedDoc);
+      
+      assertEqualTimeSeriesDocument(expectedTSDoc, searchedDoc);
+    }
+  }
+  
+  @Test
   public void searchByFieldProviderSource() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {

@@ -27,7 +27,7 @@ public class AvailableGreeks {
     AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA, Greek.DELTA);
     AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
     AVAILABLE_GREEKS.put(ValueRequirementNames.STRIKE_DELTA, Greek.STRIKE_DELTA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DRIFTLESS_DELTA, Greek.DRIFTLESS_THETA);
+    AVAILABLE_GREEKS.put(ValueRequirementNames.DRIFTLESS_THETA, Greek.DRIFTLESS_THETA);
 
     AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA, Greek.GAMMA);
     AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA_P, Greek.GAMMA_P);

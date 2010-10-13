@@ -53,29 +53,4 @@ public class WebTimeSeriesUris {
     return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueIdentifier());
   }
 
-  /**
-   * Gets the URI.
-   * @return the URI
-   */
-  public URI timeSeriesVersions() {
-    return WebTimeSeriesVersionsResource.uri(_data);
-  }
-
-  /**
-   * Gets the URI.
-   * @return the URI
-   */
-  public URI timeSeriesVersion() {
-    return WebTimeSeriesVersionResource.uri(_data);
-  }
-
-  /**
-   * Gets the URI.
-   * @param timeSeries  the time series, not null
-   * @return the URI
-   */
-  public URI timeSeriesVersion(final TimeSeriesDocument<?> timeSeries) {
-    return WebTimeSeriesVersionResource.uri(_data, timeSeries.getUniqueIdentifier());
-  }
-
 }

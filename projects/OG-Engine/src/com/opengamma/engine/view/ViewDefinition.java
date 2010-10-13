@@ -19,11 +19,13 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The encapsulated logic that controls how precisely a view is to be constructed
  * and computed.
  */
+@PublicAPI
 public class ViewDefinition implements Serializable {
    
   private final String _name;

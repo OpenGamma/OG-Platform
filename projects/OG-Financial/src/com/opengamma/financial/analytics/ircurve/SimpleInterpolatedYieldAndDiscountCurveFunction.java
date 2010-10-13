@@ -45,6 +45,8 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.time.DateUtil;
@@ -82,6 +84,23 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _results = null;
   }
 
+  public LocalDate getCurveDate() {
+    return _curveDate;
+  }
+
+  public Currency getCurveCurrency() {
+    return _curveCurrency;
+  }
+
+  public String getCurveName() {
+    return _curveName;
+  }
+
+  public boolean isYieldCurve() {
+    return _isYieldCurve;
+  }
+
+  @SuppressWarnings("rawtypes")
   @Override
   public void init(final FunctionCompilationContext context) {
     ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -89,7 +108,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _definition = curveDefinitionSource.getDefinition(_curveCurrency, _curveName);
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _specification = curveSpecBuilder.buildCurve(_curveDate, _definition);
-    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+    _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
     _requirements = Collections.unmodifiableSet(buildRequirements(_specification, context));
     _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()), getUniqueIdentifier());
     _results = Collections.singleton(_result);

@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -63,13 +64,27 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount swapFixedLegDayCount,
-      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final DayCount swapFloatingLegDayCount,
-      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final Identifier swapFloatingLegInitialRate) {
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion, 
+      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
     final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
-        swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate);
+        swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion);
     final UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
+    return uid;
+  }
+  
+  @Override
+  public UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention,
+      Frequency basisSwapPayFloatingLegFrequency, Integer basisSwapPayFloatingLegSettlementDays, Identifier basisSwapPayFloatingLegInitialRate, Identifier basisSwapPayFloatingLegRegion,
+      DayCount basisSwapReceiveFloatingLegDayCount, BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, Frequency basisSwapReceiveFloatingLegFrequency,
+      Integer basisSwapReceiveFloatingLegSettlementDays, Identifier basisSwapReceiveFloatingLegInitialRate, Identifier basisSwapReceiveFloatingLegRegion) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, basisSwapPayFloatingLegDayCount, basisSwapPayFloatingLegBusinessDayConvention, basisSwapPayFloatingLegFrequency,
+                                                                    basisSwapPayFloatingLegSettlementDays, basisSwapPayFloatingLegInitialRate, basisSwapPayFloatingLegRegion,
+                                                                    basisSwapReceiveFloatingLegDayCount, basisSwapReceiveFloatingLegBusinessDayConvention, basisSwapReceiveFloatingLegFrequency,
+                                                                    basisSwapReceiveFloatingLegSettlementDays, basisSwapReceiveFloatingLegInitialRate, basisSwapReceiveFloatingLegRegion);
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueIdentifier(uid);
     return uid;
   }
 
@@ -132,11 +147,51 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 11m")), "USD LIBOR 11m", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 12m")), "USD LIBOR 12m", act360, following, freq, 2);
 
+    //TODO need to check that these are right for deposit rates
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR1T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1d")), "USD DEPOSIT 1d", act360, following, freq, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2d")), "USD DEPOSIT 2d", act360, following, freq, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3d")), "USD DEPOSIT 3d", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR7D Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1w")), "USD DEPOSIT 1w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRJ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 10m")), "USD DEPOSIT 10m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following, freq, 2);
+    
+    
+    //TODO check that this is ok for FRA
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR00C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 3x3")), "USD FRA 3x3", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0CF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x9")), "USD FRA 6x9", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0FI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 9x12")), "USD FRA 9x12", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR011C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 15x18")), "USD FRA 15x18", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1C1F Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 18x21")), "USD FRA 18x21", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1F1I Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 21x24")), "USD FRA 21x24", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following, freq, 2);
+
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
     // holiday for swap should be NY+LON
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, modified, semiAnnual, 2, act360, modified, quarterly, 2, Identifier.of(
-        SIMPLE_NAME_SCHEME, "USD LIBOR 3m"));
+    Identifier usgb = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "US+GB");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2, Identifier.of(
+        SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb, 
+                                                                                                                    act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, null, 2);
 
@@ -170,10 +225,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "EU0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m")), "EUR LIBOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with EUR swaps is TARGET
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360, modified, annual, 2, act360, modified, semiAnnual, 2, Identifier.of(
-        SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, act360, modified, quarterly, 2, Identifier.of(
-        SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"));
+    Identifier eu = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "EU");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360, modified, annual, 2, eu, act360, modified, semiAnnual, 2, Identifier.of(
+        SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2, Identifier.of(
+        SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
   }
 
   private void addJPYFixedIncomeInstruments() {
@@ -201,8 +257,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "JY0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m")), "JPY LIBOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with JPY swaps is Tokyo
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, act360, modified, semiAnnual, 2, Identifier.of(
-        SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"));
+    Identifier jp = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "JP");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2, Identifier.of(
+        SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
   }
 
   private void addCADFixedIncomeInstruments() {
@@ -222,10 +279,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "CDOR12M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 12m")), "CDOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with CAD swaps is Toronto
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_SWAP")), "CAD_SWAP", act365, modified, semiAnnual, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "CDOR 3m"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_1Y_SWAP")), "CAD_1Y_SWAP", act365, modified, annual, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "CDOR 3m"));
+    Identifier ca = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "CA");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_SWAP")), "CAD_SWAP", act365, modified, semiAnnual, 0, ca, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "CDOR 3m"), ca);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_1Y_SWAP")), "CAD_1Y_SWAP", act365, modified, annual, 0, ca, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "CDOR 3m"), ca);
     //TODO according to my information:
     //"Floating leg compounded quarterly at CDOR Flat paid semi-annually or annually for 1y"
     //Don't know how we're going to put that in
@@ -256,10 +314,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "BP0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m")), "GBP LIBOR 12m", act365, following, null, 2);
 
     //TODO holiday associated with GBP swaps is London
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, act365, modified, semiAnnual, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"));
+    Identifier gb = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "GB");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365, modified, semiAnnual, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, gb, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb);
   }
 
   private void addAUDFixedIncomeInstruments() {
@@ -273,14 +332,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "AU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill")), "AUD 3m Bill", act365, following, null, 2);
 
     //TODO holiday associated with AUD swaps is Sydney
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "AUD 3m Bill"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_1Y_SWAP")), "AUD_1Y_SWAP", act365, modified, quarterly, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "AUD 3m Bill"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_2Y_SWAP")), "AUD_2Y_SWAP", act365, modified, quarterly, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "AUD 3m Bill"));
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_3Y_SWAP")), "AUD_3Y_SWAP", act365, modified, quarterly, 0, act365, modified, quarterly, 0, Identifier.of(
-        SIMPLE_NAME_SCHEME, "AUD 3m Bill"));
+    Identifier au = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "AU");
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 0, au, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_1Y_SWAP")), "AUD_1Y_SWAP", act365, modified, quarterly, 0, au, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_2Y_SWAP")), "AUD_2Y_SWAP", act365, modified, quarterly, 0, au, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_3Y_SWAP")), "AUD_3Y_SWAP", act365, modified, quarterly, 0, au, act365, modified, quarterly, 0, Identifier.of(
+        SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
   }
 
   private void addCHFFixedIncomeInstruments() {
@@ -307,15 +367,18 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "SF0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 10m")), "CHF LIBOR 10m", act360, following, null, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "SF0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 11m")), "CHF LIBOR 11m", act360, following, null, 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "SF0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 12m")), "CHF LIBOR 12m", act360, following, null, 2);
-
+    
     //TODO holiday associated with CHF swaps is Zurich
+    Identifier ch = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "CH");
     //TODO check reference rate
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, act360, modified, semiAnnual, 2, Identifier.of(
-        SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"));
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360, modified, semiAnnual, 2, Identifier.of(
+        SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
   }
 
   private void addUSDCAPMDefinition() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_CAPM")), "USD_CAPM", "US0003M Index", "SPX Index");
   }
+
+
 
 }

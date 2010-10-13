@@ -14,7 +14,7 @@ import com.opengamma.util.MongoDBConnectionSettings;
  * @author kirk
  */
 public final class MongoDBTestUtils {
-  public static final String TEST_DB_HOST = "mongodb-lx-1.hq.opengamma.com";
+  public static final String TEST_DB_HOST = "mongodb.hq.opengamma.com";
   //public static final String TEST_DB_HOST = "localhost";
   
   private MongoDBTestUtils() {
@@ -24,7 +24,7 @@ public final class MongoDBTestUtils {
     MongoDBConnectionSettings settings = new MongoDBConnectionSettings();
     settings.setHost(TEST_DB_HOST);
     settings.setPort(27017);
-    String dbName = System.getProperty("user.name") + "-unit";
+    String dbName = System.getProperty("user.name").replace('.','_') + "-unit";
     String collectionName = testName;
     if(makeUnique) {
       collectionName += "-" + System.currentTimeMillis();

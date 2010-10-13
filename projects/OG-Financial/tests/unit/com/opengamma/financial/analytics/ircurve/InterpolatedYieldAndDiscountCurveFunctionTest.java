@@ -80,7 +80,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
-    assertEquals(28, requirements.size());
+    assertEquals(18, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -89,7 +89,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(28, foundKeys.size());
+    assertEquals(18, foundKeys.size());
     
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
@@ -122,7 +122,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("USD")));
     assertNotNull(requirements);
-    assertEquals(28, requirements.size());
+    assertEquals(18, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -131,7 +131,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(28, foundKeys.size());
+    assertEquals(18, foundKeys.size());
 
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);

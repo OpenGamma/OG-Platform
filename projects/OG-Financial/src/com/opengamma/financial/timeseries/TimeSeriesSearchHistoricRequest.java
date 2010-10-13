@@ -58,6 +58,9 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
   @PropertyDefinition
   private String _observationTime;
   
+  /**
+   * Regardless of what the time stamp is, you will get
+   */
   @PropertyDefinition
   private Instant _timeStamp;
   
@@ -342,7 +345,7 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the timeStamp.
+   * Gets regardless of what the time stamp is, you will get
    * @return the value of the property
    */
   public Instant getTimeStamp() {
@@ -350,7 +353,7 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
   }
 
   /**
-   * Sets the timeStamp.
+   * Sets regardless of what the time stamp is, you will get
    * @param timeStamp  the new value of the property
    */
   public void setTimeStamp(Instant timeStamp) {

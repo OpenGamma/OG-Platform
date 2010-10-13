@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.value;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -14,8 +17,10 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
-public interface ValueRequirementNames {
+public class ValueRequirementNames {
 
+  private static final Map<String, Class<?>> TYPE_MAP = new HashMap<String, Class<?>>();
+  
   // CSOFF: Because they're names that should be known by industry practitioners.
   
   // Standard Analytic Models:
@@ -33,7 +38,6 @@ public interface ValueRequirementNames {
   public static final String DELTA = "Delta";
   public static final String DELTA_BLEED = "DeltaBleed";
   public static final String STRIKE_DELTA = "StrikeDelta";
-  public static final String DRIFTLESS_DELTA = "DriftlessTheta";
   
   public static final String GAMMA = "Gamma";
   public static final String GAMMA_P = "GammaP";
@@ -47,7 +51,8 @@ public interface ValueRequirementNames {
   public static final String VEGA_BLEED = "VegaBleed";
   
   public static final String THETA = "Theta";
-  
+  public static final String DRIFTLESS_THETA = "DriftlessTheta";
+
   public static final String RHO = "Rho";
   public static final String CARRY_RHO = "CarryRho";
   
@@ -219,4 +224,21 @@ public interface ValueRequirementNames {
   public static final String TREYNOR_RATIO = "Treynor Ratio";
   public static final String JENSENS_ALPHA = "Jensen's Alpha";
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
+  
+  //CSON
+  
+  static {
+    // Add non-scalars to the map
+    TYPE_MAP.put(YIELD_CURVE_JACOBIAN, double[][].class);
+  }
+  
+  public static Class<?> getValueRequirementType(String valueRequirementName) {
+    Class<?> type = TYPE_MAP.get(valueRequirementName);
+    if (type == null) {
+      // If no exception registered, assume it's a scalar
+      type = double.class;
+    }
+    return type;
+  }
+  
 }

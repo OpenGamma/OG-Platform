@@ -10,10 +10,12 @@ import javax.time.calendar.Clock;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Holds values that will be provided to a {@link FunctionInvoker} during invocation.
  */
+@PublicAPI
 public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
    * The name under which an instance of {@link ViewProcessor} should be bound.

@@ -41,6 +41,22 @@ public class ConventionBundleImpl implements ConventionBundle {
   //Equity models
   private String _capmRiskFreeRateName;
   private String _capmMarketName;
+  
+  // basis swaos
+  private DayCount _basisSwapPayFloatingLegDayCount;
+  private BusinessDayConvention _basisSwapPayFloatingLegBusinessDayConvention;
+  private Frequency _basisSwapPayFloatingLegFrequency;
+  private Integer _basisSwapPayFloatingLegSettlementDays;
+  private Identifier _basisSwapPayFloatingLegInitialRate;
+  private Identifier _basisSwapPayFloatingLegRegion;
+  private DayCount _basisSwapReceiveFloatingLegDayCount;
+  private BusinessDayConvention _basisSwapReceiveFloatingLegBusinessDayConvention;
+  private Frequency _basisSwapReceiveFloatingLegFrequency;
+  private Integer _basisSwapReceiveFloatingLegSettlementDays;
+  private Identifier _basisSwapReceiveFloatingLegInitialRate;
+  private Identifier _basisSwapReceiveFloatingLegRegion;
+  private Identifier _swapFixedLegRegion;
+  private Identifier _swapFloatingLegRegion;
 
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
@@ -67,9 +83,9 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   // swaps
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
-      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion,
       final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency,
-      final Integer swapFloatingLegSettlementDays, final Identifier swapFloatingLegInitialRate) {
+      final Integer swapFloatingLegSettlementDays, final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -80,12 +96,40 @@ public class ConventionBundleImpl implements ConventionBundle {
     _swapFixedLegBusinessDayConvention = swapFixedLegBusinessDayConvention;
     _swapFixedLegFrequency = swapFixedLegFrequency;
     _swapFixedLegSettlementDays = swapFixedLegSettlementDays;
+    _swapFixedLegRegion = swapFixedLegRegion;
     _swapFloatingLegDayCount = swapFloatingLegDayCount;
     _swapFloatingLegBusinessDayConvention = swapFloatingLegBusinessDayConvention;
     _swapFloatingLegFrequency = swapFloatingLegFrequency;
     _swapFloatingLegSettlementDays = swapFloatingLegSettlementDays;
     _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
+    _swapFloatingLegRegion = swapFloatingLegRegion;
   }
+  
+  // basis swaps
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, 
+      final DayCount basisSwapPayFloatingLegDayCount, final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency,
+      final Integer basisSwapPayFloatingLegSettlementDays, final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion,
+      final DayCount basisSwapReceiveFloatingLegDayCount, final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency,
+      final Integer basisSwapReceiveFloatingLegSettlementDays, final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = null;
+    _businessDayConvention = null;
+    _frequency = null;
+    _settlementDays = null;
+    _basisSwapPayFloatingLegDayCount = basisSwapPayFloatingLegDayCount;
+    _basisSwapPayFloatingLegBusinessDayConvention = basisSwapPayFloatingLegBusinessDayConvention;
+    _basisSwapPayFloatingLegFrequency = basisSwapPayFloatingLegFrequency;
+    _basisSwapPayFloatingLegSettlementDays = basisSwapPayFloatingLegSettlementDays;
+    _basisSwapPayFloatingLegInitialRate = basisSwapPayFloatingLegInitialRate;
+    _basisSwapPayFloatingLegRegion = basisSwapPayFloatingLegRegion;
+    _basisSwapReceiveFloatingLegDayCount = basisSwapReceiveFloatingLegDayCount;
+    _basisSwapReceiveFloatingLegBusinessDayConvention = basisSwapReceiveFloatingLegBusinessDayConvention;
+    _basisSwapReceiveFloatingLegFrequency = basisSwapReceiveFloatingLegFrequency;
+    _basisSwapReceiveFloatingLegSettlementDays = basisSwapReceiveFloatingLegSettlementDays;
+    _basisSwapReceiveFloatingLegInitialRate = basisSwapReceiveFloatingLegInitialRate;
+    _basisSwapReceiveFloatingLegRegion = basisSwapReceiveFloatingLegRegion;
+  }  
 
   //equity CAPM
   public ConventionBundleImpl(final String name, final String capmRiskFreeRateName, final String capmMarketName) {
@@ -173,6 +217,14 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   /**
+   * Gets the region identifier for the fixed leg
+   * @return the region identifier for the fixed leg
+   */
+  public Identifier getSwapFixedLegRegion() {
+    return _swapFixedLegRegion;
+  }
+  
+  /**
    * Gets the swapFloatingLegDayCount field.
    * @return the swapFloatingLegDayCount
    */
@@ -211,6 +263,14 @@ public class ConventionBundleImpl implements ConventionBundle {
   public Identifier getSwapFloatingLegInitialRate() {
     return _swapFloatingLegInitialRate;
   }
+  
+  /**
+   * Gets the region identifier for the floating leg
+   * @return the region identifier for the floating leg
+   */
+  public Identifier getSwapFloatingLegRegion() {
+    return _swapFloatingLegRegion;
+  }
 
   /**
    * Gets the pointValue field.
@@ -234,5 +294,65 @@ public class ConventionBundleImpl implements ConventionBundle {
    */
   public String getCAPMMarketName() {
     return _capmMarketName;
+  }
+
+  @Override
+  public DayCount getBasisSwapPayFloatingLegDayCount() {
+    return _basisSwapPayFloatingLegDayCount;
+  }
+
+  @Override
+  public BusinessDayConvention getBasisSwapPayFloatingLegBusinessDayConvention() {
+    return _basisSwapPayFloatingLegBusinessDayConvention;
+  }
+
+  @Override
+  public Frequency getBasisSwapPayFloatingLegFrequency() {
+    return _basisSwapPayFloatingLegFrequency;
+  }
+
+  @Override
+  public Integer getBasisSwapPayFloatingLegSettlementDays() {
+    return _basisSwapPayFloatingLegSettlementDays;
+  }
+
+  @Override
+  public Identifier getBasisSwapPayFloatingLegInitialRate() {
+    return _basisSwapPayFloatingLegInitialRate;
+  }
+  
+  @Override
+  public Identifier getBasisSwapPayFloatingLegRegion() {
+    return _basisSwapPayFloatingLegRegion;
+  }
+
+  @Override
+  public DayCount getBasisSwapReceiveFloatingLegDayCount() {
+    return _basisSwapReceiveFloatingLegDayCount;
+  }
+
+  @Override
+  public BusinessDayConvention getBasisSwapReceiveFloatingLegBusinessDayConvention() {
+    return _basisSwapReceiveFloatingLegBusinessDayConvention;
+  }
+
+  @Override
+  public Frequency getBasisSwapReceiveFloatingLegFrequency() {
+    return _basisSwapReceiveFloatingLegFrequency;
+  }
+
+  @Override
+  public Integer getBasisSwapReceiveFloatingLegSettlementDays() {
+    return _basisSwapReceiveFloatingLegSettlementDays;
+  }
+
+  @Override
+  public Identifier getBasisSwapReceiveFloatingLegInitialRate() {
+    return _basisSwapReceiveFloatingLegInitialRate;
+  }
+  
+  @Override
+  public Identifier getBasisSwapReceiveFloatingLegRegion() {
+    return _basisSwapReceiveFloatingLegRegion;
   }
 }

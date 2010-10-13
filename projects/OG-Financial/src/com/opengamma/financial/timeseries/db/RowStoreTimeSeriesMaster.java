@@ -63,7 +63,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.sql.DataSource;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.CalendricalParseException;
@@ -79,7 +78,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,6 +104,7 @@ import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.DbSource;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -175,20 +174,22 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
   
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
-  private DataSourceTransactionManager _transactionManager;
-  private SimpleJdbcTemplate _simpleJdbcTemplate;
+  
+  /**
+   * The database source.
+   */
+  private final DbSource _dbSource;
+  
   private Map<String, String> _namedSQLMap;
   private final boolean _isTriggerSupported;
 
-  public RowStoreTimeSeriesMaster(DataSourceTransactionManager transactionManager, 
+  public RowStoreTimeSeriesMaster(DbSource dbSource, 
       Map<String, String> namedSQLMap,
       boolean isTriggerSupported) {
 
-    ArgumentChecker.notNull(transactionManager, "transactionManager");
+    ArgumentChecker.notNull(dbSource, "dbSource");
     
-    _transactionManager = transactionManager;
-    DataSource dataSource = _transactionManager.getDataSource();
-    _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
+    _dbSource = dbSource;
     
     checkNamedSQLMap(namedSQLMap);
     
@@ -235,10 +236,18 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     return _isTriggerSupported;
   }
   
+  public SimpleJdbcTemplate getJdbcTemplate() {
+    return _dbSource.getJdbcTemplate();
+  }
+  
+  public DbSource getDbSource() {
+    return _dbSource;
+  }
+  
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     IdentifierBundleHandler identifierBundleHandler = new IdentifierBundleHandler();
-    JdbcOperations jdbcOperations = _simpleJdbcTemplate.getJdbcOperations();
+    JdbcOperations jdbcOperations = getJdbcTemplate().getJdbcOperations();
     jdbcOperations.query(_namedSQLMap.get(LOAD_ALL_IDENTIFIERS), identifierBundleHandler);
     List<IdentifierBundleWithDates> result = new ArrayList<IdentifierBundleWithDates>();
     Map<Long, List<IdentifierWithDates>> identifierBundles = identifierBundleHandler.getResult();
@@ -289,9 +298,9 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       batchArgs[index++] = parameterSource;
     }
     if (!isTriggerSupported()) {
-      _simpleJdbcTemplate.batchUpdate(insertDelta, batchArgs);
+      getJdbcTemplate().batchUpdate(insertDelta, batchArgs);
     }
-    _simpleJdbcTemplate.batchUpdate(insertSQL, batchArgs);
+    getJdbcTemplate().batchUpdate(insertSQL, batchArgs);
   }
 
   private long getOrCreateTimeSeriesKey(long bundleId, String dataSource, String dataProvider, String field, String observationTime) {
@@ -314,7 +323,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("name", name, Types.VARCHAR)
       .addValue("description", description, Types.VARCHAR);
-    _simpleJdbcTemplate.update(sql, parameters);
+    getJdbcTemplate().update(sql, parameters);
   }
 
   private long createDataSource(String dataSource, String description) {
@@ -323,40 +332,64 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     return getDataSourceId(dataSource);
   }
 
-  private Map<Long, List<IdentifierWithDates>> searchIdentifierBundles(final Collection<Identifier> identifiers, final Date currentDate) {
-    IdentifierBundleHandler identifierBundleHandler = new IdentifierBundleHandler();
+  private Map<Long, List<IdentifierWithDates>> searchIdentifierBundles(final Collection<Identifier> identifiers, String identifierValue, final Date currentDate) {
+    IdentifierBundleHandler rowHandler = new IdentifierBundleHandler();
     String namedSql = _namedSQLMap.get(SELECT_BUNDLE_FROM_IDENTIFIERS);
     StringBuilder bundleWhereCondition = new StringBuilder(" ");
-    List<Object> parameters = new ArrayList<Object>();
+    Object[] parameters = null;
     String findIdentifiersSql = null;
-    if (!identifiers.isEmpty()) {
+    
+    if ((identifiers == null || identifiers.isEmpty()) && identifierValue == null) {
+      findIdentifiersSql = _namedSQLMap.get(LOAD_ALL_IDENTIFIERS);
+    } else {
       int orCounter = 1;
-      for (Identifier identifier : identifiers) {
-        if (currentDate != null) {
-          bundleWhereCondition.append("(d.name = ? AND dsi.identifier_value = ? " +
-          		"AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
-          		"AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL) )");
-          parameters.add(identifier.getScheme().getName());
-          parameters.add(identifier.getValue());
-          parameters.add(currentDate);
-          parameters.add(currentDate);
-        } else {
-          bundleWhereCondition.append("(d.name = ? AND dsi.identifier_value = ?)");
-          parameters.add(identifier.getScheme().getName());
-          parameters.add(identifier.getValue());
+      ArrayList<Object> parametersList = new ArrayList<Object>();
+      if (identifiers != null) {
+        for (Identifier identifier : identifiers) {
+          bundleWhereCondition.append("( ");
+          bundleWhereCondition.append("d.name = ? AND dsi.identifier_value = ? ");
+          parametersList.add(identifier.getScheme().getName());
+          parametersList.add(identifier.getValue());
+          
+          if (currentDate != null) {
+            bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
+                "AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
+            parametersList.add(currentDate);
+            parametersList.add(currentDate);
+          } 
+          
+          bundleWhereCondition.append(" )");
+          if (orCounter++ != identifiers.size()) {
+            bundleWhereCondition.append(" OR ");
+          }
         }
-        if (orCounter++ != identifiers.size()) {
+      }
+      if (identifierValue != null) {
+        if (!parametersList.isEmpty()) {
           bundleWhereCondition.append(" OR ");
+        }
+        String identifierValueQuery = getDbSource().getDialect().sqlWildcardQuery("dsi.identifier_value ", "?", identifierValue);
+        bundleWhereCondition.append(identifierValueQuery);
+        String adjustedIdentifierValue = getDbSource().getDialect().sqlWildcardAdjustValue(identifierValue);
+        parametersList.add(adjustedIdentifierValue);
+        
+        if (currentDate != null) {
+          bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
+          		"AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
+          parametersList.add(currentDate);
+          parametersList.add(currentDate);
         }
       }
       bundleWhereCondition.append(" ");
       findIdentifiersSql = StringUtils.replace(namedSql, ":identifierBundleClause", bundleWhereCondition.toString());
-    } else {
-      findIdentifiersSql = _namedSQLMap.get(LOAD_ALL_IDENTIFIERS);
+      
+      parameters = parametersList.toArray();
     }
-    JdbcOperations jdbcOperations = _simpleJdbcTemplate.getJdbcOperations();
-    jdbcOperations.query(findIdentifiersSql, parameters.toArray(), identifierBundleHandler);
-    return identifierBundleHandler.getResult();
+    
+    JdbcOperations jdbcOperations = getJdbcTemplate().getJdbcOperations();
+    jdbcOperations.query(findIdentifiersSql, parameters, rowHandler);
+    
+    return rowHandler.getResult();
   }
 
   private long createObservationTime(String observationTime, String description) {
@@ -389,7 +422,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
 
     long result = INVALID_KEY;
     try {
-      result = _simpleJdbcTemplate.queryForInt(sql, parameters);
+      result = getJdbcTemplate().queryForInt(sql, parameters);
     } catch (EmptyResultDataAccessException e) {
       s_logger.debug("Empty row return for name = {} from sql = {}", name, sql);
       result = INVALID_KEY;
@@ -454,11 +487,11 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       .addValue("dataFieldId", dataFieldBean.getId())
       .addValue("observationTimeId", observationTimeBean.getId());
     
-    _simpleJdbcTemplate.update(sql, parameterSource);
+    getJdbcTemplate().update(sql, parameterSource);
     
     return getTimeSeriesKey(bundleId, dataSourceBean.getId(), dataProviderBean.getId(), dataFieldBean.getId(), observationTimeBean.getId());
   }
-   
+
   private long getTimeSeriesKey(long quotedObjId, long dataSourceId, long dataProviderId, long dataFieldId, long observationTimeId) {
     long result = INVALID_KEY;
     s_logger.debug("looking up timeSeriesKey quotedObjId={}, dataSourceId={}, dataProviderId={}, dataFieldId={}, observationTimeId={}", 
@@ -471,7 +504,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       .addValue("dfid", dataFieldId, Types.BIGINT)
       .addValue("otid", observationTimeId, Types.BIGINT);
     try {
-      result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
+      result = getJdbcTemplate().queryForInt(sql, parameterSource);
     } catch (EmptyResultDataAccessException e) {
       s_logger.debug("Empty row returned for timeSeriesKeyID");
       result = INVALID_KEY;
@@ -489,7 +522,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     
     if (!isTriggerSupported()) {
       String selectTSSQL = _namedSQLMap.get(GET_TIME_SERIES_BY_ID);
-      List<Pair<T, Double>> queryResult = _simpleJdbcTemplate.query(selectTSSQL, new ParameterizedRowMapper<Pair<T, Double>>() {
+      List<Pair<T, Double>> queryResult = getJdbcTemplate().query(selectTSSQL, new ParameterizedRowMapper<Pair<T, Double>>() {
   
         @Override
         public Pair<T, Double> mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -514,10 +547,10 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         batchArgs[i++] = parameterSource;
       }
       
-      _simpleJdbcTemplate.batchUpdate(insertDelta, batchArgs);
+      getJdbcTemplate().batchUpdate(insertDelta, batchArgs);
     }
       
-    _simpleJdbcTemplate.update(deleteSql, tsIDParameter);
+    getJdbcTemplate().update(deleteSql, tsIDParameter);
     
   }
     
@@ -540,7 +573,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     final List<T> dates = new LinkedList<T>();
     final List<Double> values = new LinkedList<Double>();
     
-    NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    NamedParameterJdbcOperations parameterJdbcOperations = getJdbcTemplate().getNamedParameterJdbcOperations();
     parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
       
       @Override
@@ -560,7 +593,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       .addValue("tsID", tsID, Types.BIGINT)
       .addValue("date", getSqlDate(date), getSqlDateType());
     
-    Double oldValue = _simpleJdbcTemplate.queryForObject(selectSQL, Double.class, parameters);
+    Double oldValue = getJdbcTemplate().queryForObject(selectSQL, Double.class, parameters);
     
     String updateSql = _namedSQLMap.get(UPDATE_TIME_SERIES);
     String insertDelta = _namedSQLMap.get(INSERT_TIME_SERIES_DELTA_U);
@@ -572,9 +605,9 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     parameters.addValue("newValue", value, Types.DOUBLE);
     
     if (!isTriggerSupported()) {
-      _simpleJdbcTemplate.update(insertDelta, parameters);
+      getJdbcTemplate().update(insertDelta, parameters);
     }
-    _simpleJdbcTemplate.update(updateSql, parameters);
+    getJdbcTemplate().update(updateSql, parameters);
   }
   
   private void removeDataPoint(long tsID, T date) {
@@ -582,7 +615,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("tsID", tsID, Types.INTEGER);
     parameters.addValue("date", getSqlDate(date), getSqlDateType());
     
-    Double oldValue = _simpleJdbcTemplate.queryForObject(selectTSSQL, Double.class, parameters);
+    Double oldValue = getJdbcTemplate().queryForObject(selectTSSQL, Double.class, parameters);
     
     String deleteSql = _namedSQLMap.get(DELETE_DATA_POINT);
     String insertDelta = _namedSQLMap.get(INSERT_TIME_SERIES_DELTA_D);
@@ -596,9 +629,9 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     deltaParameters.addValue("timeStamp", now, Types.TIMESTAMP);
     
     if (!isTriggerSupported()) {
-      _simpleJdbcTemplate.update(insertDelta, deltaParameters);
+      getJdbcTemplate().update(insertDelta, deltaParameters);
     }
-    _simpleJdbcTemplate.update(deleteSql, parameters);
+    getJdbcTemplate().update(deleteSql, parameters);
   }
     
   private DoubleTimeSeries<T> getTimeSeriesSnapshot(Instant timeStamp, long tsID) {
@@ -612,7 +645,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     final List<Double> deltaValues = new ArrayList<Double>();
     final List<String> deltaOperations = new ArrayList<String>();
     
-    NamedParameterJdbcOperations jdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    NamedParameterJdbcOperations jdbcOperations = getJdbcTemplate().getNamedParameterJdbcOperations();
     
     jdbcOperations.query(selectDeltaSql, parameterSource, new RowCallbackHandler() {
       @Override
@@ -740,7 +773,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     
     String sql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_OID);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("oid", tsId, Types.BIGINT);
-    NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    NamedParameterJdbcOperations parameterJdbcOperations = getJdbcTemplate().getNamedParameterJdbcOperations();
     parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -970,7 +1003,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     Long tsId = validateAndGetTimeSeriesId(uid);
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("tsKey", tsId, Types.BIGINT);
-    _simpleJdbcTemplate.update(_namedSQLMap.get(DEACTIVATE_META_DATA), parameters);
+    getJdbcTemplate().update(_namedSQLMap.get(DEACTIVATE_META_DATA), parameters);
     deleteDataPoints(tsId);
   }
 
@@ -1008,20 +1041,23 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       String dataField = request.getDataField();
       String observationTime = request.getObservationTime();
       String metaDataSql = null;
-      Set<Identifier> requestIdentifiers = request.getIdentifiers();
+      Collection<Identifier> requestIdentifiers = request.getIdentifiers();
       Date currentDate = null;
       if (request.getCurrentDate() != null) {
         currentDate = DbDateUtils.toSqlDate(request.getCurrentDate());
       }
-      Map<Long, List<IdentifierWithDates>> bundles = searchIdentifierBundles(requestIdentifiers, currentDate);
+      Map<Long, List<IdentifierWithDates>> bundles = searchIdentifierBundles(requestIdentifiers, request.getIdentifierValue(), currentDate);
+      
+      boolean useBundleIds = (requestIdentifiers != null && !requestIdentifiers.isEmpty()) || request.getIdentifierValue() != null;
+      
       if (request.isLoadDates()) {
-        if (!requestIdentifiers.isEmpty()) {
+        if (useBundleIds) {
           metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS);
         } else {
           metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES);
         }
       } else {
-        if (!requestIdentifiers.isEmpty()) {
+        if (useBundleIds) {
           if (bundles.isEmpty()) {
             return result;
           }
@@ -1048,13 +1084,13 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         parameters.addValue("observationTime", observationTime, Types.VARCHAR);
       }
       
-      if (requestIdentifiers != null && !requestIdentifiers.isEmpty()) {
+      if (useBundleIds) {
         parameters.addValue("bundleIds", bundles.keySet());
       }
       TimeSeriesMetaDataRowMapper<T> rowMapper = new TimeSeriesMetaDataRowMapper<T>(this);
       rowMapper.setLoadDates(request.isLoadDates());
       
-      List<MetaData<T>> tsMetaDataList = _simpleJdbcTemplate.query(metaDataSql, rowMapper, parameters);
+      List<MetaData<T>> tsMetaDataList = getJdbcTemplate().query(metaDataSql, rowMapper, parameters);
       for (MetaData<T> tsMetaData : tsMetaDataList) {
         TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
         Long bundleId = tsMetaData.getIdentifierBundleId();
@@ -1084,7 +1120,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
 
   private Map<String, T> getTimeSeriesDateRange(long tsId) {
     final Map<String, T> result = new HashMap<String, T>();
-    NamedParameterJdbcOperations jdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    NamedParameterJdbcOperations jdbcOperations = getJdbcTemplate().getNamedParameterJdbcOperations();
     MapSqlParameterSource parameters = new MapSqlParameterSource();
     parameters.addValue("oid", tsId, Types.BIGINT);
     jdbcOperations.query(_namedSQLMap.get(GET_TS_DATE_RANGE_BY_OID), parameters, new RowCallbackHandler() {
@@ -1185,9 +1221,9 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     parameterSource.addValue("timeStamp", now, Types.TIMESTAMP);
     
     if (!isTriggerSupported()) {
-      _simpleJdbcTemplate.update(insertDelta, parameterSource);
+      getJdbcTemplate().update(insertDelta, parameterSource);
     } 
-    _simpleJdbcTemplate.update(insertSQL, parameterSource);
+    getJdbcTemplate().update(insertSQL, parameterSource);
     String uid = new StringBuilder(String.valueOf(tsId)).append("/").append(printDate(document.getDate())).toString();
     document.setDataPointId(UniqueIdentifier.of(_identifierScheme, uid));
     return document;
@@ -1209,7 +1245,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     Long tsId = tsIdDatePair.getFirst();
     T date = tsIdDatePair.getSecond();
     
-    NamedParameterJdbcOperations jdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    NamedParameterJdbcOperations jdbcOperations = getJdbcTemplate().getNamedParameterJdbcOperations();
     MapSqlParameterSource paramSource = new MapSqlParameterSource();
     paramSource.addValue("tsID", tsId, Types.BIGINT);
     paramSource.addValue("date", getSqlDate(date), getSqlDateType());
@@ -1298,7 +1334,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     bundleWhereCondition.append(" ");
     
     findIdentifiersSql = StringUtils.replace(namedSql, ":identifierBundleClause", bundleWhereCondition.toString());
-    JdbcOperations jdbcOperations = _simpleJdbcTemplate.getJdbcOperations();
+    JdbcOperations jdbcOperations = getJdbcTemplate().getJdbcOperations();
     IdentifierBundleHandler rowHandler = new IdentifierBundleHandler();
     jdbcOperations.query(findIdentifiersSql, parameters.toArray(), rowHandler);
     Map<Long, List<IdentifierWithDates>> bundleResult = rowHandler.getResult();
@@ -1322,7 +1358,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         valueMap.put("valid_to", validTo);
         batchArgs.add(new MapSqlParameterSource(valueMap));
       }
-      _simpleJdbcTemplate.batchUpdate(_namedSQLMap.get(INSERT_IDENTIFIER), batchArgs.toArray(new SqlParameterSource[0]));
+      getJdbcTemplate().batchUpdate(_namedSQLMap.get(INSERT_IDENTIFIER), batchArgs.toArray(new SqlParameterSource[0]));
       result = bundleId;
     } else {
       s_logger.warn("{} has more than one bundle ids associated to identifiers {}", identifierBundleWithDates);
@@ -1342,7 +1378,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   private List<EnumWithDescriptionBean> loadEnumWithDescription(String sql) {
     List<EnumWithDescriptionBean> result = new ArrayList<EnumWithDescriptionBean>();
     SqlParameterSource parameterSource = null;
-    List<Map<String, Object>> sqlResult = _simpleJdbcTemplate.queryForList(sql, parameterSource);
+    List<Map<String, Object>> sqlResult = getJdbcTemplate().queryForList(sql, parameterSource);
     for (Map<String, Object> element : sqlResult) {
       Long id = (Long) element.get("id");
       String name = (String) element.get("name");
@@ -1400,7 +1436,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("tsID", tsId, Types.INTEGER);
       parameters.addValue("date", getSqlDate(firstDateToRetain), getSqlDateType());
       
-      _simpleJdbcTemplate.update(deleteSql, parameters);
+      getJdbcTemplate().update(deleteSql, parameters);
     
     }
 

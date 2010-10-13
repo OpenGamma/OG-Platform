@@ -44,7 +44,17 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _timeSeriesId;
   /**
-   * List of Identifiers to search
+   * Identifier value, will match against the <b>value</b> of the identifiers
+   * (see Identifier.getValue());
+   * wildcards allowed; 
+   * will not match on the <b>key</b> of any of the identifiers;
+   * null to search all identifiers
+   */
+  @PropertyDefinition
+  private String _identifierValue;
+  /**
+   * List of Identifiers to search. Unlike _identifierValue, requires exact match
+   * - no wildcards are allowed
    */
   @PropertyDefinition
   private final Set<Identifier> _identifiers = new HashSet<Identifier>();
@@ -121,6 +131,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         return getPagingRequest();
       case 1709694943:  // timeSeriesId
         return getTimeSeriesId();
+      case 2085582408:  // identifierValue
+        return getIdentifierValue();
       case 1368189162:  // identifiers
         return getIdentifiers();
       case 600751303:  // currentDate
@@ -154,6 +166,9 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         return;
       case 1709694943:  // timeSeriesId
         setTimeSeriesId((UniqueIdentifier) newValue);
+        return;
+      case 2085582408:  // identifierValue
+        setIdentifierValue((String) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((Set<Identifier>) newValue);
@@ -244,7 +259,45 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets list of Identifiers to search
+   * Gets identifier value, will match against the <b>value</b> of the identifiers
+   * (see Identifier.getValue());
+   * wildcards allowed;
+   * will not match on the <b>key</b> of any of the identifiers;
+   * null to search all identifiers
+   * @return the value of the property
+   */
+  public String getIdentifierValue() {
+    return _identifierValue;
+  }
+
+  /**
+   * Sets identifier value, will match against the <b>value</b> of the identifiers
+   * (see Identifier.getValue());
+   * wildcards allowed;
+   * will not match on the <b>key</b> of any of the identifiers;
+   * null to search all identifiers
+   * @param identifierValue  the new value of the property
+   */
+  public void setIdentifierValue(String identifierValue) {
+    this._identifierValue = identifierValue;
+  }
+
+  /**
+   * Gets the the {@code identifierValue} property.
+   * (see Identifier.getValue());
+   * wildcards allowed;
+   * will not match on the <b>key</b> of any of the identifiers;
+   * null to search all identifiers
+   * @return the property, not null
+   */
+  public final Property<String> identifierValue() {
+    return metaBean().identifierValue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets list of Identifiers to search. Unlike _identifierValue, requires exact match
+   * - no wildcards are allowed
    * @return the value of the property
    */
   public Set<Identifier> getIdentifiers() {
@@ -252,7 +305,8 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets list of Identifiers to search
+   * Sets list of Identifiers to search. Unlike _identifierValue, requires exact match
+   * - no wildcards are allowed
    * @param identifiers  the new value of the property
    */
   public void setIdentifiers(Set<Identifier> identifiers) {
@@ -262,6 +316,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   /**
    * Gets the the {@code identifiers} property.
+   * - no wildcards are allowed
    * @return the property, not null
    */
   public final Property<Set<Identifier>> identifiers() {
@@ -513,6 +568,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _timeSeriesId = DirectMetaProperty.ofReadWrite(this, "timeSeriesId", UniqueIdentifier.class);
     /**
+     * The meta-property for the {@code identifierValue} property.
+     */
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(this, "identifierValue", String.class);
+    /**
      * The meta-property for the {@code identifiers} property.
      */
     @SuppressWarnings("unchecked")
@@ -565,6 +624,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
       temp.put("timeSeriesId", _timeSeriesId);
+      temp.put("identifierValue", _identifierValue);
       temp.put("identifiers", _identifiers);
       temp.put("currentDate", _currentDate);
       temp.put("dataSource", _dataSource);
@@ -609,6 +669,14 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     public final MetaProperty<UniqueIdentifier> timeSeriesId() {
       return _timeSeriesId;
+    }
+
+    /**
+     * The meta-property for the {@code identifierValue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> identifierValue() {
+      return _identifierValue;
     }
 
     /**

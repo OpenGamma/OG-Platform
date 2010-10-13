@@ -16,8 +16,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.HSQLDbHelper;
+import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.test.DBTool.TableCreationCallback;
 
 /**
@@ -28,6 +35,12 @@ import com.opengamma.util.test.DBTool.TableCreationCallback;
 abstract public class DBTest implements TableCreationCallback {
   
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
+  
+  private static final Map<String, DbHelper> s_dbHelpers = new HashMap<String, DbHelper>();
+  static {
+    s_dbHelpers.put("hsqldb", new HSQLDbHelper());
+    s_dbHelpers.put("postgres", new PostgreSQLDbHelper());
+  }
   
   private final String _databaseType;
   private final String _databaseVersion;
@@ -80,7 +93,7 @@ abstract public class DBTest implements TableCreationCallback {
   protected static Collection<Object[]> getParameters (final int previousVersionCount) {
     String databaseType = System.getProperty("test.database.type");
     if (databaseType == null) {
-      databaseType = "hsqldb"; // If you run from Eclipse, use Derby only
+      databaseType = "all";
     }
     return getParameters (databaseType, previousVersionCount);
   }
@@ -112,6 +125,22 @@ abstract public class DBTest implements TableCreationCallback {
   public DataSourceTransactionManager getTransactionManager() {
     return getDbTool().getTransactionManager();
   }
+  
+  public DbSource getDbSource() {
+    DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+    transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+    DbHelper dbHelper = s_dbHelpers.get(getDatabaseType());
+    if (dbHelper == null) {
+      throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
+    }
+    
+    DbSource dbSource = new DbSource("DBTest", getTransactionManager().getDataSource(),
+        dbHelper, null, transactionDefinition, getTransactionManager());
+    return dbSource;
+  }
+    
 
   /**
    * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data

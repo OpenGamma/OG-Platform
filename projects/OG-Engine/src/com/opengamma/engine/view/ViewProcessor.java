@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Set;
 
 import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A view processor manages the computation of views, and is responsible for initializing the computation context of
@@ -18,6 +19,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * {@link #stopProcessing(String)}, and is designed for internal use by the engine. The {@link ViewProcessorClient}
  * interface is designed to provide more restricted access to a {@link ViewProcessor} for external use.
  */
+@PublicAPI
 public interface ViewProcessor {
 
   /**

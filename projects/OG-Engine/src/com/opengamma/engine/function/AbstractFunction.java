@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.PublicSPI;
 
 /**
  * The base class from which most {@link FunctionDefinition} implementations
@@ -16,6 +17,7 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  * @author kirk
  */
+@PublicSPI
 public abstract class AbstractFunction implements FunctionDefinition {
   private String _uniqueIdentifier;
 
