@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.time.Instant;
 
@@ -21,7 +20,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
@@ -285,7 +283,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     private long _lastSecurityId = -1;
     private DefaultSecurity _security;
     private List<SecurityDocument> _documents = new ArrayList<SecurityDocument>();
-    private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
     @Override
     public List<SecurityDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
@@ -313,7 +310,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = rs.getString("NAME");
       final String type = rs.getString("SEC_TYPE");
-      UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId, _deduplicate);
+      UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId);
       _security = new DefaultSecurity(uid, name, type, IdentifierBundle.EMPTY);
       SecurityDocument doc = new SecurityDocument(_security);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));

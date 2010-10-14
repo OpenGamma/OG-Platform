@@ -8,7 +8,6 @@ package com.opengamma.financial.security.master.db;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import javax.time.TimeSource;
 
@@ -139,41 +138,21 @@ public class DbSecurityMasterWorker {
   //-------------------------------------------------------------------------
   /**
    * Creates an object identifier.
-   * @param oid  the portfolio object identifier
-   * @param deduplicate  the deduplication map, may be null
+   * @param oid  the security object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createObjectIdentifier(final long oid, Map<UniqueIdentifier, UniqueIdentifier> deduplicate) {
-    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
-    if (deduplicate == null) {
-      return uid;
-    }
-    UniqueIdentifier stored = deduplicate.get(uid);
-    if (stored != null) {
-      return stored;
-    }
-    deduplicate.put(uid, uid);
-    return uid;
+  protected UniqueIdentifier createObjectIdentifier(final long oid) {
+    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
   }
 
   /**
    * Creates a unique identifier.
-   * @param oid  the portfolio object identifier
+   * @param oid  the security object identifier
    * @param rowId  the node unique row identifier, null if object identifier
-   * @param deduplicate  the deduplication map, may be null
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId, Map<UniqueIdentifier, UniqueIdentifier> deduplicate) {
-    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
-    if (deduplicate == null) {
-      return uid;
-    }
-    UniqueIdentifier stored = deduplicate.get(uid);
-    if (stored != null) {
-      return stored;
-    }
-    deduplicate.put(uid, uid);
-    return uid;
+  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
+    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 
   //-------------------------------------------------------------------------
