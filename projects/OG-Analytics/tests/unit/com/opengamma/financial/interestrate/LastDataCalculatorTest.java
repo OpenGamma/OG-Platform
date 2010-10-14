@@ -90,18 +90,14 @@ public class LastDataCalculatorTest {
   public void testBond() {
     final int n = 20;
     final double tau = 0.5;
-    final double yearFrac = 180 / 365.0;
+    final double yearFrac = 0.5;
     final double coupon = 0.06;
-    final double[] coupons = new double[n];
-    final double[] yearFracs = new double[n];
     final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
-      coupons[i] = coupon;
-      yearFracs[i] = yearFrac;
     }
 
-    Bond bond = new Bond(paymentTimes, coupons, yearFracs, "dummy");
+    Bond bond = new Bond(paymentTimes, coupon, yearFrac, 0.0, "dummy");
     assertEquals(n * tau, LDC.getValue(bond), 1e-12);
   }
 

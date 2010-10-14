@@ -90,9 +90,9 @@ public class ParRateCalculatorTest {
       paymentTimes[i] = tau * (i + 1);
       yearFracs[i] = yearFrac;
     }
-    Bond bond = new Bond(paymentTimes, 0.0, yearFracs, FIVE_PC_CURVE_NAME);
+    Bond bond = new Bond(paymentTimes, 0.0, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     final double rate = PRC.getValue(bond, CURVES);
-    bond = new Bond(paymentTimes, rate, yearFracs, FIVE_PC_CURVE_NAME);
+    bond = new Bond(paymentTimes, rate, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     assertEquals(1.0, PVC.getValue(bond, CURVES), 1e-12);
   }
 

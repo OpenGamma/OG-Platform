@@ -97,20 +97,19 @@ public class PresentValueCouponSensitivityCalculatorTest {
   @Test
   public void testBond() {
     final int n = 20;
-    final double tau = 0.5;
-    final double yearFrac = 180 / 365.0;
+    final double tau = 0.52;
+    final double yearFrac = 0.5;
 
     final double coupon = 0.07;
-    final double[] yearFracs = new double[n];
     final double[] paymentTimes = new double[n];
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = tau * (i + 1);
-      yearFracs[i] = yearFrac;
+
     }
 
-    final Bond bond = new Bond(paymentTimes, coupon, yearFracs, FIVE_PC_CURVE_NAME);
-    final Bond bondUp = new Bond(paymentTimes, coupon + DELTA, yearFracs, FIVE_PC_CURVE_NAME);
-    final Bond bondDown = new Bond(paymentTimes, coupon - DELTA, yearFracs, FIVE_PC_CURVE_NAME);
+    final Bond bond = new Bond(paymentTimes, coupon, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    final Bond bondUp = new Bond(paymentTimes, coupon + DELTA, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    final Bond bondDown = new Bond(paymentTimes, coupon - DELTA, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
 
     final double pvUp = PVC.getValue(bondUp, CURVES);
     final double pvDown = PVC.getValue(bondDown, CURVES);
