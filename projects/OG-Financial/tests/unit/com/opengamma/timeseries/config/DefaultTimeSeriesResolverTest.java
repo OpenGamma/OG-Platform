@@ -25,7 +25,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
 import com.opengamma.engine.security.MockSecuritySource;

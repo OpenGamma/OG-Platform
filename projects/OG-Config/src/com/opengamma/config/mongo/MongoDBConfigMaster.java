@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.config.db;
+package com.opengamma.config.mongo;
 
 import java.util.Collections;
 import java.util.Date;

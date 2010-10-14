@@ -15,7 +15,7 @@ import javax.time.calendar.LocalDate;
 import org.junit.Test;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;

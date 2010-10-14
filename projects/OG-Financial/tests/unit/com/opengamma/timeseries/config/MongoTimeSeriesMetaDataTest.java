@@ -13,8 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
-import com.opengamma.config.test.MongoDBConfigMasterTestCase;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
+import com.opengamma.config.mongo.test.MongoDBConfigMasterTestCase;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration;
 import com.opengamma.util.MongoDBConnectionSettings;

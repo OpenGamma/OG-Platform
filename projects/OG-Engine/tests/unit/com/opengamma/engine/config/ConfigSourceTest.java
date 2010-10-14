@@ -28,7 +28,7 @@ import com.mongodb.Mongo;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;

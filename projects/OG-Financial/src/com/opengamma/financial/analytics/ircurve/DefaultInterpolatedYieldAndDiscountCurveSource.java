@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
 import com.opengamma.financial.Currency;
 
