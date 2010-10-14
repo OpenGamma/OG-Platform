@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.resolver;
@@ -24,31 +24,29 @@ import com.opengamma.util.ArgumentChecker;
  * Advertises a function to a FunctionResolver. 
  */
 public class ResolutionRule {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(ResolutionRule.class);
-  
+
   private final ParameterizedFunction _parameterizedFunction;
   private final ComputationTargetFilter _computationTargetFilter;
   private final int _priority;
-  
-  public ResolutionRule(ParameterizedFunction function,
-                        ComputationTargetFilter computationTargetFilter,
-                        int priority) {
+
+  public ResolutionRule(ParameterizedFunction function, ComputationTargetFilter computationTargetFilter, int priority) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(computationTargetFilter, "computationTargetFilter");
-    
+
     _parameterizedFunction = function;
     _computationTargetFilter = computationTargetFilter;
     _priority = priority;
   }
-  
+
   /**
    * @return The function this rule is advertising
    */
   public ParameterizedFunction getFunction() {
     return _parameterizedFunction;
   }
-  
+
   /**
    * The function advertised by this rule can validly produce the desired
    * output only if:
@@ -75,47 +73,46 @@ public class ResolutionRule {
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
     CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
     ComputationTarget target = atNode.getComputationTarget();
-    
-    // First check that the function can produce the output 
-    
+
+    // First check that the function can produce the output
+
     if (!function.canApplyTo(context, target)) {
       return null;
     }
-    
+
     Set<ValueSpecification> resultSpecs = function.getResults(context, target);
     if (resultSpecs == null) {
       s_logger.error("For function {} can apply to {} but results are null", function.getClass(), target);
       throw new NullPointerException("For function " + function.getClass() + " can apply to target but results are null");
     }
-    
+
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {
       if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), output)) {
         validSpec = resultSpec;
       }
     }
-    
+
     if (validSpec == null) {
       return null;
     }
-       
+
     // Then check that he function (applied to the same computation target) is not already
     // in the dep graph above the current node (i.e., no cycles)
-    
+
     DependencyNode parent = atNode.getDependentNode();
     while (parent != null) {
-      if (parent.getFunction().equals(getFunction()) 
-          && parent.getComputationTarget().equals(target)) { 
-        return null;        
+      if (parent.getFunction().equals(getFunction()) && parent.getComputationTarget().equals(target)) {
+        return null;
       }
       parent = parent.getDependentNode();
     }
-    
+
     // Finally check that the computation target is a valid computation target for this rule
     if (!_computationTargetFilter.accept(atNode)) {
       return null;
     }
-    
+
     return validSpec;
   }
 
@@ -127,6 +124,11 @@ public class ResolutionRule {
    */
   public int getPriority() {
     return _priority;
+  }
+
+  @Override
+  public String toString() {
+    return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";
   }
 
 }
