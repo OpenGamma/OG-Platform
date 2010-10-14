@@ -132,6 +132,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _forwardCurveValueRequirementName = forwardValueRequirementName;
   }
 
+  public String getFundingCurveDefinitionName() {
+    return _fundingCurveDefinitionName;
+  }
+
+  public String getForwardCurveDefinitionName() {
+    return _forwardCurveDefinitionName;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
