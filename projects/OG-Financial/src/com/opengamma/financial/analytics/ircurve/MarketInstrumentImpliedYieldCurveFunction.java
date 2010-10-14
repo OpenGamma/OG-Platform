@@ -347,11 +347,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
           derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue, now);
+          derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
-          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
+          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 10000., now);
+          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, _fundingCurveDefinitionName,  marketValue / 10000., now);
         } else {
           throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
         }
@@ -374,7 +374,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
-          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
           derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -404,7 +404,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
       final Interpolator1D fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
       final Interpolator1D forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_forwardCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
