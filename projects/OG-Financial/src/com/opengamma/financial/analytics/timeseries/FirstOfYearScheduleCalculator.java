@@ -15,13 +15,15 @@ import javax.time.calendar.MonthOfYear;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * 
  */
 public class FirstOfYearScheduleCalculator extends Schedule {
 
   @Override
-  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
+  public LocalDate[] getScheduleWorkingDaysOnly(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final Calendar holidayCalendar) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
@@ -36,7 +38,9 @@ public class FirstOfYearScheduleCalculator extends Schedule {
       LocalDate date = endDate;
       date = date.with(DateAdjusters.firstDayOfYear());
       while (!date.isBefore(startDate)) {
-        dates.add(date);
+        if (holidayCalendar.isWorkingDay(date)) {
+          dates.add(date);
+        }
         date = date.minusYears(1, DateResolvers.previousValid());
       }
       return getReversedDates(dates);
@@ -47,7 +51,9 @@ public class FirstOfYearScheduleCalculator extends Schedule {
       date = date.plusYears(1, DateResolvers.nextValid());
     }
     while (!date.isAfter(endDate)) {
-      dates.add(date);
+      if (holidayCalendar.isWorkingDay(date)) {
+        dates.add(date);
+      }
       date = date.plusYears(1, DateResolvers.nextValid());
     }
     return dates.toArray(EMPTY_ARRAY);

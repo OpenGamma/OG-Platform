@@ -109,8 +109,7 @@ public class BatchJobTest {
     job.setBatchDbManager(dbManager);
     job.setPositionSource(testView.getProcessingContext().getPositionSource());
     job.setSecuritySource(testView.getProcessingContext().getSecuritySource());
-    job.setFunctionRepository(testView.getProcessingContext().getFunctionRepository());
-    job.setFunctionCompilationContext(new FunctionCompilationContext());
+    job.setFunctionCompilationService(testView.getProcessingContext().getFunctionCompilationService());
     job.setFunctionExecutionContext(new FunctionExecutionContext());
     job.setConfigDbConnectionSettings(settings);
     

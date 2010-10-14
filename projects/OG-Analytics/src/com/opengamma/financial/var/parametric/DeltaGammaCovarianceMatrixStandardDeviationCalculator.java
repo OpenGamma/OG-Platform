@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -16,10 +19,8 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Function1D<ParametricVaRDataBundle, Double> {
+public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Function1D<Map<Integer, ParametricVaRDataBundle>, Double> {
   private final MatrixAlgebra _algebra;
-  private static final int FIRST_ORDER = 1;
-  private static final int SECOND_ORDER = 2;
 
   public DeltaGammaCovarianceMatrixStandardDeviationCalculator(final MatrixAlgebra algebra) {
     Validate.notNull(algebra);
@@ -27,16 +28,22 @@ public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Funct
   }
 
   @Override
-  public Double evaluate(final ParametricVaRDataBundle data) {
+  public Double evaluate(final Map<Integer, ParametricVaRDataBundle> data) {
     Validate.notNull(data);
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(FIRST_ORDER);
-    final Matrix<?> gamma = data.getSensitivityData(SECOND_ORDER);
-    final DoubleMatrix2D covariance = data.getCovarianceMatrix(FIRST_ORDER);
-    final double deltaStd = _algebra.getInnerProduct(delta, _algebra.multiply(covariance, delta));
-    if (gamma == null || gamma.getNumberOfElements() == 0) {
-      return Math.sqrt(deltaStd);
+    final ParametricVaRDataBundle firstOrderData = data.get(1);
+    final ParametricVaRDataBundle secondOrderData = data.get(2);
+    double deltaStd = 0;
+    double gammaStd = 0;
+    if (firstOrderData != null) {
+      final DoubleMatrix1D delta = (DoubleMatrix1D) firstOrderData.getSensitivities();
+      final DoubleMatrix2D deltaCovariance = firstOrderData.getCovarianceMatrix();
+      deltaStd = _algebra.getInnerProduct(delta, _algebra.multiply(deltaCovariance, delta));
     }
-    final double gammaStd = 0.5 * _algebra.getTrace(_algebra.getPower(_algebra.multiply(gamma, covariance), 2));
+    if (secondOrderData != null) {
+      final Matrix<?> gamma = secondOrderData.getSensitivities();
+      final DoubleMatrix2D gammaCovariance = secondOrderData.getCovarianceMatrix();
+      gammaStd = 0.5 * _algebra.getTrace(_algebra.getPower(_algebra.multiply(gamma, gammaCovariance), 2));
+    }
     return Math.sqrt(deltaStd + gammaStd);
   }
 
@@ -49,7 +56,7 @@ public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Funct
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -59,15 +66,8 @@ public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Funct
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeltaGammaCovarianceMatrixStandardDeviationCalculator other = (DeltaGammaCovarianceMatrixStandardDeviationCalculator) obj;
-    if (_algebra == null) {
-      if (other._algebra != null) {
-        return false;
-      }
-    } else if (!_algebra.equals(other._algebra)) {
-      return false;
-    }
-    return true;
+    final DeltaGammaCovarianceMatrixStandardDeviationCalculator other = (DeltaGammaCovarianceMatrixStandardDeviationCalculator) obj;
+    return ObjectUtils.equals(_algebra, other._algebra);
   }
 
 }

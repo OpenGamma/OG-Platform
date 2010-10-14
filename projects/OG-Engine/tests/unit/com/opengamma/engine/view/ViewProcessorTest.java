@@ -34,16 +34,6 @@ public class ViewProcessorTest {
     vp.stop();
   }
   
-  @Test
-  public void testCreateViewProcessorLocalExecutor() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.setLocalExecutorService(true);
-    env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    vp.stop();
-  }
-  
   @Test(expected = IllegalStateException.class)
   public void testAssertNotStarted() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();

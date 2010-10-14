@@ -10,6 +10,8 @@ import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
 
+import com.opengamma.util.db.DbSource;
+
 public abstract class HibernateTest extends DBTest {
   
   private SessionFactory _sessionFactory;
@@ -50,6 +52,18 @@ public abstract class HibernateTest extends DBTest {
       _sessionFactory.close();
     }
     super.tearDown();
+  }
+  
+  @Override
+  public DbSource getDbSource() {
+    DbSource source = super.getDbSource();
+    return new DbSource(
+        source.getName(),
+        source.getDataSource(),
+        source.getDialect(),
+        getSessionFactory(),
+        source.getTransactionDefinition(),
+        source.getTransactionManager());
   }
   
 }

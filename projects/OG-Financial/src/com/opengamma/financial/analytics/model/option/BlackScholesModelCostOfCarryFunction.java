@@ -16,7 +16,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -31,7 +30,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
  */
-public class BlackScholesModelCostOfCarryFunction extends AbstractFunction implements FunctionInvoker {
+public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {

@@ -20,7 +20,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -47,7 +46,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 /**
  * 
  */
-public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
+public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction.NonCompiledInvoker {
+
   private final FutureModel<StandardFutureDataBundle> _model = new CostOfCarryFutureAsForwardModel();
   private final FutureSecurityVisitor<Identifier> _visitor = new UnderlyingFutureSecurityVisitor();
   private static final Set<Class<? extends FutureSecurity>> SUPPORTED_FUTURES = new HashSet<Class<? extends FutureSecurity>>();

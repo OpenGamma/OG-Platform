@@ -29,8 +29,8 @@ public class CalculationNodeUtils {
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
 
-    InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionRepository();
-    functionRepo.addFunction(mockFunction, mockFunction);
+    InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepository();
+    functionRepo.addFunction(mockFunction);
 
     return calcNode;
   }
@@ -41,7 +41,7 @@ public class CalculationNodeUtils {
   }
 
   public static MockFunction getMockFunction(ComputationTarget target, Object output) {
-    return MockFunction.getMockFunction(target, output, new ValueRequirement("INPUT", target.toSpecification()));
+    return MockFunction.getMockFunction(MockFunction.UNIQUE_ID, target, output, new ValueRequirement("INPUT", target.toSpecification()));
   }
 
   public static CalculationJob getCalculationJob(MockFunction function) {

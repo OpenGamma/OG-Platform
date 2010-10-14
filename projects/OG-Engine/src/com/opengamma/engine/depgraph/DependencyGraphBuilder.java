@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -33,7 +33,7 @@ public class DependencyGraphBuilder {
   private String _calculationConfigurationName;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private ComputationTargetResolver _targetResolver;
-  private FunctionResolver _functionResolver;
+  private CompiledFunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   // State:
   private DependencyGraph _graph;
@@ -70,14 +70,14 @@ public class DependencyGraphBuilder {
   /**
    * @return the functionResolver
    */
-  public FunctionResolver getFunctionResolver() {
+  public CompiledFunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
 
   /**
    * @param functionResolver the functionResolver to set
    */
-  public void setFunctionResolver(FunctionResolver functionResolver) {
+  public void setFunctionResolver(CompiledFunctionResolver functionResolver) {
     _functionResolver = functionResolver;
   }
 
@@ -158,13 +158,13 @@ public class DependencyGraphBuilder {
 
     } else {
 
-      resolvedFunction = getFunctionResolver().resolveFunction(requirement, node, getCompilationContext());
+      resolvedFunction = getFunctionResolver().resolveFunction(requirement, node);
 
     }
 
     node.setFunction(resolvedFunction.getFirst());
 
-    FunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+    CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
     Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
     node.addOutputValues(outputValues);
 

@@ -12,6 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ import com.opengamma.util.test.Timeout;
  */
 public class SingleComputationCycleTest {
 
-  private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis();
   
   @Test
   public void testInterruptCycle() throws InterruptedException {
@@ -52,7 +53,7 @@ public class SingleComputationCycleTest {
     client.startLive();  // Performs an initial cycle
     
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
-    executor.awaitFirstRun(TIMEOUT);
+    assertTrue (executor.awaitFirstRun(TIMEOUT));
     
     // We're now blocked in the execution of the initial cycle
     assertFalse(executor.wasInterrupted());
@@ -63,6 +64,10 @@ public class SingleComputationCycleTest {
     recalcJob.terminate();
     recalcThread.interrupt();
     recalcThread.join(TIMEOUT);
+    for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted (); i++) {
+      System.out.println ("waiting for executor interrupt");
+      Thread.sleep (10);
+    }
     assertTrue(executor.wasInterrupted());
   }
   
@@ -89,18 +94,18 @@ public class SingleComputationCycleTest {
 
     private final long _timeout;
     private final CountDownLatch _firstRunLatch = new CountDownLatch(1);
-    private volatile boolean _wasInterrupted;
+    private final AtomicBoolean _wasInterrupted = new AtomicBoolean ();
     
     public BlockingDependencyGraphExecutor(long timeoutMillis) {
       _timeout = timeoutMillis;
     }
     
-    public void awaitFirstRun(long timeoutMillis) throws InterruptedException {
-      _firstRunLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+    public boolean awaitFirstRun(long timeoutMillis) throws InterruptedException {
+      return _firstRunLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
     }
     
     public boolean wasInterrupted() {
-      return _wasInterrupted;
+      return _wasInterrupted.get ();
     }
     
     @Override
@@ -112,7 +117,7 @@ public class SingleComputationCycleTest {
           try {
             Thread.sleep(_timeout);
           } catch (InterruptedException e) {
-            _wasInterrupted = true;
+            _wasInterrupted.set (true);
           }
         }
       }, null);

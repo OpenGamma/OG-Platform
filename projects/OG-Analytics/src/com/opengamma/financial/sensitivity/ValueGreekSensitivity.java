@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import java.util.Set;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
@@ -42,7 +42,7 @@ public class ValueGreekSensitivity implements Sensitivity<ValueGreek> {
   }
 
   @Override
-  public Set<UnderlyingType> getUnderlyingTypes() {
+  public List<UnderlyingType> getUnderlyingTypes() {
     return _valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings();
   }
 
