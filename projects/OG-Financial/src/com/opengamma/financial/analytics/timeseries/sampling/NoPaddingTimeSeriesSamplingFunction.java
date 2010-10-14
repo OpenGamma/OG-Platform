@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -20,7 +19,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  */
-public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
+public class NoPaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
 
   @Override
   public DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule) {
@@ -28,26 +27,15 @@ public class PreviousValuePaddingTimeSeriesSamplingFunction implements TimeSerie
     Validate.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final List<LocalDate> tsDates = localDateTS.times();
-    final List<LocalDate> scheduledDates = Arrays.asList(schedule);
+    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
     final List<Double> scheduledData = new ArrayList<Double>();
     for (final LocalDate date : schedule) {
       if (tsDates.contains(date)) {
+        scheduledDates.add(date);
         scheduledData.add(localDateTS.getValue(date));
-      } else {
-        if (localDateTS.getEarliestTime().isAfter(date)) {
-          throw new IllegalArgumentException("Could not get any data for date " + date);
-        } else {
-          LocalDate temp = date.minusDays(1);
-          while (!tsDates.contains(temp)) {
-            temp = temp.minusDays(1);
-            if (temp.isBefore(schedule[0]) || temp.isBefore(tsDates.get(0))) {
-              throw new IllegalArgumentException("Could not get any data for date " + date);
-            }
-          }
-          scheduledData.add(localDateTS.getValue(temp));
-        }
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
   }
+
 }

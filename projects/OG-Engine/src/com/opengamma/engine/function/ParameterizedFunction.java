@@ -47,4 +47,9 @@ public class ParameterizedFunction {
     return _parameters;
   }
 
+  @Override
+  public String toString() {
+    return "ParameterizedFunction[" + getFunction() + ", " + getParameters() + "]";
+  }
+
 }

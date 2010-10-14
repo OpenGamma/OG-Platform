@@ -20,11 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.sql.DataSource;
-
-import org.fudgemsg.mapping.FudgeTransient;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -36,7 +32,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
@@ -57,7 +53,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.test.DBTool;
+import com.opengamma.util.db.DbSource;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -78,22 +74,12 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   private final ResultModelDefinition _resultModelDefinition;
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration;
   
+  /**
+   * DB configuration
+   */
+  private final DbSource _dbSource;
+  
   // Variables YOU must set before calling initialize()
-  
-  /**
-   * E.g., jdbc:postgresql://postgresql.foo.com
-   */
-  private String _jdbcUrl;
-  
-  /**
-   * Database username
-   */
-  private String _username;
-  
-  /**
-   * Database password
-   */
-  private String _password;
   
   /**
    * References rsk_run(id)
@@ -158,23 +144,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   // Variables set in initialize()
   
   /**
-   * Writing into the risk tables and into the status table must happen
-   * in a single transaction for consistency reasons. Therefore we need
-   * a transaction manager.
-   */
-  private transient DataSourceTransactionManager _transactionManager;
-  
-  /**
-   * Executes batch inserts into the risk tables
-   */
-  private transient SimpleJdbcTemplate _jdbcTemplate;
-
-  /**
-   * We use Hibernate to generate unique IDs
-   */
-  private transient SessionFactory _sessionFactory;
-  
-  /**
    * We use Hibernate to generate unique IDs
    */
   private transient SequenceStyleGenerator _idGenerator;
@@ -189,23 +158,29 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    */
   private transient boolean _initialized; // = false;
   
-  public BatchResultWriter(DependencyGraphExecutor<CalculationJobResult> delegate,
+  public BatchResultWriter(DbSource dbSource,
+      DependencyGraphExecutor<CalculationJobResult> delegate,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration) {
-    this(delegate, 
+    this(dbSource,
+        delegate, 
         Executors.newSingleThreadExecutor(), 
         resultModelDefinition,
         cachesByCalculationConfiguration);
   }
   
-  public BatchResultWriter(DependencyGraphExecutor<CalculationJobResult> delegate, 
+  public BatchResultWriter(
+      DbSource dbSource,
+      DependencyGraphExecutor<CalculationJobResult> delegate, 
       ExecutorService executor,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration) {
+    ArgumentChecker.notNull(dbSource, "dbSource");
     ArgumentChecker.notNull(delegate, "Dep graph executor");
     ArgumentChecker.notNull(executor, "Task executor");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
+    _dbSource = dbSource;
     _delegate = delegate;
     _executor = executor;
     _resultModelDefinition = resultModelDefinition;
@@ -213,43 +188,14 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
   
   public void initialize() {
-    DBTool tool = new DBTool();
-    tool.setJdbcUrl(_jdbcUrl);
-    tool.setUser(_username);
-    tool.setPassword(_password);
-    tool.initialize();
-    
-    initialize(tool);
-  }
-  
-  void initialize(DBTool tool) {
-    ArgumentChecker.notNull(tool, "DB tool");
-    
     if (_riskRunId == null ||
         _computationTarget2Id == null ||
         _calculationConfiguration2Id == null ||
-        _riskValueName2Id == null ||
-        _jdbcUrl == null ||
-        _username == null ||
-        _password == null) {
+        _riskValueName2Id == null) {
       throw new IllegalStateException("Not all required arguments are set");
     }
     
-    if (_sessionFactory == null) {
-      Configuration configuration = tool.getHibernateConfiguration();
-      for (Class<?> clazz : BatchDbManagerImpl.getHibernateMappingClasses()) {
-        configuration.addClass(clazz);
-      }
-  
-      SessionFactory sessionFactory = configuration.buildSessionFactory();
-      setSessionFactory(sessionFactory);
-    }
-    
-    if (_transactionManager == null) {
-      setTransactionManager(tool.getTransactionManager());
-    }
-    
-    SessionFactoryImplementor implementor = (SessionFactoryImplementor) _sessionFactory;
+    SessionFactoryImplementor implementor = (SessionFactoryImplementor) getSessionFactory();
     IdentifierGenerator idGenerator = implementor.getIdentifierGenerator(RiskValue.class.getName());
     if (idGenerator == null || !(idGenerator instanceof SequenceStyleGenerator)) {
       throw new IllegalArgumentException("The given SessionFactory must contain a RiskValue mapping with a SequenceStyleGenerator");      
@@ -269,7 +215,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
   
   /*package*/ void openSession() {
-    _session = (StatelessSessionImpl) _sessionFactory.openStatelessSession();
+    _session = (StatelessSessionImpl) getSessionFactory().openStatelessSession();
   }
   
   /*package*/ void closeSession() {
@@ -277,60 +223,18 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     _session = null;
   }
   
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    ArgumentChecker.notNull(sessionFactory, "Session factory");
-    if (_sessionFactory != null) {
-      throw new IllegalStateException("Already set");
-    }
-    
-    _sessionFactory = sessionFactory;
-  }
-  
-  @FudgeTransient
   public SessionFactory getSessionFactory() {
-    return _sessionFactory;
+    return _dbSource.getHibernateSessionFactory();
   }
 
-  @FudgeTransient
-  public DataSourceTransactionManager getTransactionManager() {
-    return _transactionManager;
-  }
-
-  public void setTransactionManager(DataSourceTransactionManager transactionManager) {
-    ArgumentChecker.notNull(transactionManager, "Transaction manager");
-    
-    _transactionManager = transactionManager;
-    DataSource dataSource = _transactionManager.getDataSource();
-    _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-  }
-
-  public String getJdbcUrl() {
-    return _jdbcUrl;
-  }
-
-  public void setJdbcUrl(String jdbcUrl) {
-    ArgumentChecker.notNull(jdbcUrl, "jdbcUrl");
-    _jdbcUrl = jdbcUrl;
-  }
-
-  public String getUsername() {
-    return _username;
-  }
-
-  public void setUsername(String username) {
-    ArgumentChecker.notNull(username, "username");
-    _username = username;
-  }
-
-  public String getPassword() {
-    return _password;
-  }
-
-  public void setPassword(String password) {
-    ArgumentChecker.notNull(password, "password");
-    _password = password;
+  public PlatformTransactionManager getTransactionManager() {
+    return _dbSource.getTransactionManager();
   }
   
+  public SimpleJdbcTemplate getJdbcTemplate() {
+    return _dbSource.getJdbcTemplate();
+  }
+
   public boolean isWriteErrors() {
     return _writeErrors;
   }
@@ -424,7 +328,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     Integer dbId = _computeNodeId2Id.get(nodeId);
     if (dbId == null) {
       BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
-      dbManager.setSessionFactory(getSessionFactory());
+      dbManager.setDbSource(_dbSource);
       try {
         getSessionFactory().getCurrentSession().beginTransaction();
         dbId = dbManager.getComputeNode(nodeId).getId();
@@ -561,6 +465,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         successfulTargets.remove(target);
         failedTargets.add(target);
       }
+    
     }
     
     List<SqlParameterSource> successes = new ArrayList<SqlParameterSource>();
@@ -706,7 +611,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       }
     }
     
-    TransactionStatus transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
+    TransactionStatus transaction = getTransactionManager().getTransaction(new DefaultTransactionDefinition());
     try {
       
       insertRows("risk", RiskValue.sqlInsertRisk(), successes);
@@ -716,9 +621,9 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       upsertStatusEntries(result.getSpecification(), StatusEntry.Status.SUCCESS, successfulTargets);
       upsertStatusEntries(result.getSpecification(), StatusEntry.Status.FAILURE, failedTargets);
       
-      _transactionManager.commit(transaction);
+      getTransactionManager().commit(transaction);
     } catch (RuntimeException e) {
-      _transactionManager.rollback(transaction);
+      getTransactionManager().rollback(transaction);
       throw e;
     }
   }
@@ -738,7 +643,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
     
     try {
-      int id = _jdbcTemplate.queryForInt(ComputeFailure.sqlGet(), computeFailure.toSqlParameterSource());
+      int id = getJdbcTemplate().queryForInt(ComputeFailure.sqlGet(), computeFailure.toSqlParameterSource());
       
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
@@ -765,7 +670,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
     computeFailure.setStackTrace(computeFailureKey.getStackTrace());
     
-    int rowCount = _jdbcTemplate.update(ComputeFailure.sqlInsert(), computeFailure.toSqlParameterSource());
+    int rowCount = getJdbcTemplate().update(ComputeFailure.sqlInsert(), computeFailure.toSqlParameterSource());
     if (rowCount == 1) {
       _key2ComputeFailure.put(computeFailureKey, computeFailure);
       return computeFailure;
@@ -783,7 +688,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     
     SqlParameterSource[] batchArgsArray = rows.toArray(new SqlParameterSource[0]);
 
-    int[] counts = _jdbcTemplate.batchUpdate(sql, batchArgsArray);
+    int[] counts = getJdbcTemplate().batchUpdate(sql, batchArgsArray);
 
     checkCount(rowType, batchArgsArray, counts);
     s_logger.info("Inserted {} {} rows into DB", rows.size(), rowType);
@@ -844,11 +749,11 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         new Object[] {inserts.size(), updates.size(), status});
     
     SqlParameterSource[] batchArgsArray = inserts.toArray(new SqlParameterSource[0]);
-    int[] counts = _jdbcTemplate.batchUpdate(StatusEntry.sqlInsert(), batchArgsArray);
+    int[] counts = getJdbcTemplate().batchUpdate(StatusEntry.sqlInsert(), batchArgsArray);
     checkCount(status + " insert", batchArgsArray, counts);
     
     batchArgsArray = updates.toArray(new SqlParameterSource[0]);
-    counts = _jdbcTemplate.batchUpdate(StatusEntry.sqlUpdate(), batchArgsArray);
+    counts = getJdbcTemplate().batchUpdate(StatusEntry.sqlUpdate(), batchArgsArray);
     checkCount(status + " update", batchArgsArray, counts);
     
     s_logger.info("Inserted {} and updated {} {} status entries", 
@@ -1021,7 +926,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     args.addValue("computation_target_id", computationTargetId);
     
     try {
-      StatusEntry statusEntry = _jdbcTemplate.queryForObject(
+      StatusEntry statusEntry = getJdbcTemplate().queryForObject(
           StatusEntry.sqlGet(),
           StatusEntry.ROW_MAPPER,
           args);
@@ -1043,7 +948,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    * @return Number of successful risk values in the database
    */
   public int getNumRiskRows() {
-    return _jdbcTemplate.queryForInt(RiskValue.sqlCount(), Collections.EMPTY_MAP);
+    return getJdbcTemplate().queryForInt(RiskValue.sqlCount());
   }
   
   /**
@@ -1051,7 +956,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    * @return Number of risk failures in the database
    */
   public int getNumRiskFailureRows() {
-    return _jdbcTemplate.queryForInt(RiskFailure.sqlCount(), Collections.EMPTY_MAP);
+    return getJdbcTemplate().queryForInt(RiskFailure.sqlCount());
   }
   
   /**
@@ -1059,7 +964,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    * @return Number of risk failure reasons in the database
    */
   public int getNumRiskFailureReasonRows() {
-    return _jdbcTemplate.queryForInt(FailureReason.sqlCount(), Collections.EMPTY_MAP);
+    return getJdbcTemplate().queryForInt(FailureReason.sqlCount());
   }
   
   /**
@@ -1067,7 +972,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    * @return Number of risk compute failures in the database
    */
   public int getNumRiskComputeFailureRows() {
-    return _jdbcTemplate.queryForInt(ComputeFailure.sqlCount(), Collections.EMPTY_MAP);
+    return getJdbcTemplate().queryForInt(ComputeFailure.sqlCount());
   }
   
   
@@ -1090,7 +995,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     params.addValue("computation_target_id", computationTargetId);
     
     try {
-      return (RiskValue) _jdbcTemplate.queryForObject(RiskValue.sqlGet(),
+      return (RiskValue) getJdbcTemplate().queryForObject(RiskValue.sqlGet(),
           RiskValue.ROW_MAPPER,
           params);
     } catch (IncorrectResultSizeDataAccessException e) {

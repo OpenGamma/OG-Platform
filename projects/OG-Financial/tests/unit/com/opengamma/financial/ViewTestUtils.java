@@ -16,11 +16,12 @@ import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -64,7 +65,7 @@ public class ViewTestUtils {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
 
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
+    CachingComputationTargetResolver targetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
 
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
 
@@ -81,9 +82,8 @@ public class ViewTestUtils {
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
 
     ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionCompilation,
-        new DefaultFunctionResolver(functionCompilation), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource,
-            positionSource), cacheManager), computationCache, jobDispatcher, viewProcessorQueryReceiver, new SingleNodeExecutorFactory(), new DefaultViewPermissionProvider(),
-        new DiscardingGraphStatisticsGathererProvider());
+        new DefaultFunctionResolver(functionCompilation), positionSource, securitySource, targetResolver, computationCache, jobDispatcher, viewProcessorQueryReceiver, new SingleNodeExecutorFactory(),
+        new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
 
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
 

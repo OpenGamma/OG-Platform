@@ -92,28 +92,28 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
-    F.getPaddedTimeSeries(null, DAILY_SCHEDULE);
+    F.getSampledTimeSeries(null, DAILY_SCHEDULE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSchedule() {
-    F.getPaddedTimeSeries(TS_NO_MISSING_DATA, null);
+    F.getSampledTimeSeries(TS_NO_MISSING_DATA, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonOverlappingSchedule() {
-    F.getPaddedTimeSeries(TS_MISSING_MONTH, new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2)});
+    F.getSampledTimeSeries(TS_MISSING_MONTH, new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2)});
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingDataOnFirstDay() {
-    F.getPaddedTimeSeries(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {1, 2, 3}),
+    F.getSampledTimeSeries(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {1, 2, 3}),
         new LocalDate[] {LocalDate.of(1999, 12, 31), LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)});
   }
 
   @Test
   public void testNoMissingDataDaily() {
-    final LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_NO_MISSING_DATA, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_NO_MISSING_DATA, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
@@ -124,7 +124,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testNoMissingDataWeekly() {
-    LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_NO_MISSING_DATA, TUESDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_NO_MISSING_DATA, TUESDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), TUESDAY_SCHEDULE.length);
     int i = 0, j = 3;
     for (final Entry<LocalDate, Double> entry : result) {
@@ -132,7 +132,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
       assertEquals(entry.getValue(), j, 0);
       j += 5;
     }
-    result = F.getPaddedTimeSeries(TS_ONE_MISSING_DATA_POINT, TUESDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    result = F.getSampledTimeSeries(TS_ONE_MISSING_DATA_POINT, TUESDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), TUESDAY_SCHEDULE.length);
     i = 0;
     j = 3;
@@ -145,7 +145,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testOneDayMissingDataDaily() {
-    final LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_ONE_MISSING_DATA_POINT, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_ONE_MISSING_DATA_POINT, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
@@ -161,7 +161,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testMissingDataWeekly() {
-    LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_ONE_MISSING_DATA_POINT, FRIDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_ONE_MISSING_DATA_POINT, FRIDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), FRIDAY_SCHEDULE.length);
     int i = 0, j = 1;
     for (final Entry<LocalDate, Double> entry : result) {
@@ -173,7 +173,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
       }
       j += 5;
     }
-    result = F.getPaddedTimeSeries(TS_THREE_MISSING_DATA_POINTS, MONDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    result = F.getSampledTimeSeries(TS_THREE_MISSING_DATA_POINTS, MONDAY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), MONDAY_SCHEDULE.length);
     i = 0;
     j = 2;
@@ -192,7 +192,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testThreeDaysMissingDataDaily() {
-    final LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_THREE_MISSING_DATA_POINTS, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_THREE_MISSING_DATA_POINTS, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
@@ -212,7 +212,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testMissingMonth() {
-    final LocalDateDoubleTimeSeries result = F.getPaddedTimeSeries(TS_MISSING_MONTH, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_MISSING_MONTH, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {

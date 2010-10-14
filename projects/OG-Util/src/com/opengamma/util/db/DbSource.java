@@ -97,6 +97,11 @@ public class DbSource {
   }
 
   //-------------------------------------------------------------------------
+  
+  public String getName() {
+    return _name;
+  }
+
   /**
    * Gets the data source.
    * @return the data source, not null

@@ -13,6 +13,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public interface TimeSeriesSamplingFunction {
-
-  DoubleTimeSeries<?> getPaddedTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule);
+  
+  DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule);
 }

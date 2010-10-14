@@ -15,6 +15,7 @@ import java.util.Timer;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDateTime;
@@ -34,6 +35,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
@@ -46,6 +49,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
+import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.SecuritySource;
@@ -66,10 +70,12 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
+import com.opengamma.financial.Currency;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -195,6 +201,26 @@ public class BatchJob {
    */
   private FunctionExecutionContext _functionExecutionContext;
 
+  /**
+   * Given a range of days, used to decide which days to run the batch for. Optional.
+   * If not given, all days for which there is a snapshot are used.
+   */
+  private HolidaySource _holidaySource;
+  
+  /**
+   * Given a range of days, used to decide which days to run the batch for. Optional.
+   * If not given, all days for which there is a snapshot are used.
+   */
+  private Currency _holidayCurrency;
+  
+  /**
+   * Used to populate the batch DB with market data in real time while the batch is running.
+   * This means you don't need to pre-populate the batch DB with market data.
+   * Optional. If not given, you need to pre-populate the
+   * batch DB with all necessary market data.   
+   */
+  private HistoricalLiveDataSnapshotProvider _historicalDataProvider;
+
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
@@ -258,7 +284,7 @@ public class BatchJob {
    * securities from security master, etc.
    */
   private ViewInternal _view;
-
+  
   // --------------------------------------------------------------------------
 
   public BatchJob() {
@@ -445,6 +471,30 @@ public class BatchJob {
     _functionExecutionContext = executionContext;
   }
 
+  public HolidaySource getHolidaySource() {
+    return _holidaySource;
+  }
+
+  public void setHolidaySource(HolidaySource holidaySource) {
+    _holidaySource = holidaySource;
+  }
+  
+  public Currency getHolidayCurrency() {
+    return _holidayCurrency;
+  }
+
+  public void setHolidayCurrency(Currency holidayCurrency) {
+    _holidayCurrency = holidayCurrency;
+  }
+  
+  public HistoricalLiveDataSnapshotProvider getHistoricalDataProvider() {
+    return _historicalDataProvider;
+  }
+
+  public void setHistoricalDataProvider(HistoricalLiveDataSnapshotProvider historicalDataProvider) {
+    _historicalDataProvider = historicalDataProvider;
+  }
+
   public UserPrincipal getUser() {
     return _user;
   }
@@ -472,17 +522,25 @@ public class BatchJob {
   // --------------------------------------------------------------------------
 
   public InMemoryLKVSnapshotProvider getSnapshotProvider(BatchJobRun run) {
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
-
+    InMemoryLKVSnapshotProvider provider;
+    if (_historicalDataProvider != null) {
+      provider = new BatchLiveDataSnapshotProvider(run, _batchDbManager, _historicalDataProvider);
+    } else {
+      provider = new InMemoryLKVSnapshotProvider();
+    }
+    
+    // Initialize provider with values from batch DB
+    
     Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(run.getSnapshotId());
 
     for (LiveDataValue value : liveDataValues) {
       ValueRequirement valueRequirement = new ValueRequirement(value.getFieldName(), value.getComputationTargetSpecification());
-      snapshotProvider.addValue(valueRequirement, value.getValue());
+      provider.addValue(valueRequirement, value.getValue());
     }
 
-    snapshotProvider.snapshot(run.getValuationTime().toInstant().toEpochMillisLong());
-    return snapshotProvider;
+    provider.snapshot(run.getValuationTime().toInstant().toEpochMillisLong());
+    
+    return provider;
   }
 
   // --------------------------------------------------------------------------
@@ -524,13 +582,19 @@ public class BatchJob {
     if (positionSource == null) {
       positionSource = new MasterPositionSource(getPositionMaster(), getPositionMasterTime(), getPositionMasterAsViewedAtTime());
     }
+    
+    FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext().clone();
+    functionExecutionContext.setSecuritySource(securitySource);
+    
+    // this needs to be fixed, at the moment because of this line you can't run multiple days in parallel
+    getFunctionCompilationService().getFunctionCompilationContext().setSecuritySource(securitySource);
 
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), getFunctionExecutionContext(), targetResolver, viewProcessorQuerySender, Executors
+    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), functionExecutionContext, targetResolver, viewProcessorQuerySender, Executors
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
@@ -558,33 +622,35 @@ public class BatchJob {
     return searchResult.getFirstDocument();
   }
 
-  public Options getOptions() {
+  public static Options getOptions() {
     Options options = new Options();
 
-    options.addOption("reason", "reason", true, "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
+    options.addOption("reason", true, "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
 
-    options.addOption("observationtime", "observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
-    options.addOption("observationdate", "observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
-    options.addOption("valuationtime", "valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
+    options.addOption("observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
+    options.addOption("observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
+    options.addOption("valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
         + "is given, the system time zone is used. Default - system clock on observation date.");
 
-    options.addOption("view", "view", true, "View name in configuration database. You must specify this.");
-    options.addOption("viewdatetime", "viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+    options.addOption("view", true, "View name in configuration database. You must specify this.");
+    options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
 
-    options.addOption("snapshotobservationtime", "snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
-    options.addOption("snapshotobservationdate", "snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
+    options.addOption("snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
+    options.addOption("snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
 
-    options.addOption("forcenewrun", "forcenewrun", false, "If specified, a new run is always created "
+    options.addOption("forcenewrun", false, "If specified, a new run is always created "
         + "- no existing results are used. If not specified, the system first checks if there is already a run "
         + "in the database for the given view (including the same version) with the same observation date and time. " + "If there is, that run is reused.");
 
-    options.addOption("positionmastertime", "positionmastertime", true, "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
+    options.addOption("positionmastertime", true, "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
 
-    options.addOption("daterangestart", "daterangestart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
+    options.addOption("daterangestart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
         + "observationdate and snapshotobservationdate are calculated from the range and " + "must not be given explicitly. In addition, valuationtime must be a time, "
-        + "HHmmss[Z], instead of a datetime as shown above. The batch will be run " + "for those dates within the range for which there is a snapshot in the database. "
-        + "If there is no snapshot, that date is simply ignored.");
-    options.addOption("daterangeend", "daterangeend", true, "Last valuation date (inclusive). Optional.");
+        + "HHmmss[Z], instead of a datetime. 1. If holidaySource/holidayCurrency are not given: The batch will be run " 
+        + "for those dates within the range for which there is a snapshot in the database. "
+        + "If there is no snapshot, that date is simply ignored. " 
+        + "2. If holidaySource and holidayCurrency are given: The batch will be run for those dates which are not weekends or holidays.");
+    options.addOption("daterangeend", true, "Last valuation date (inclusive). Optional.");
 
     return options;
   }
@@ -657,17 +723,29 @@ public class BatchJob {
 
         run.init();
 
-        boolean snapshotExists = true;
-        try {
-          _batchDbManager.getSnapshotValues(run.getSnapshotId());
-        } catch (IllegalArgumentException e) {
-          snapshotExists = false;
+        String whyNotRunReason = null;
+        
+        if (getHolidaySource() == null || getHolidayCurrency() == null) {
+          try {
+            _batchDbManager.getSnapshotValues(run.getSnapshotId());
+          } catch (IllegalArgumentException e) {
+            whyNotRunReason = "there is no market data snapshot for this day";
+          }
+        } else {
+          if (runDate.getDayOfWeek() == DayOfWeek.SATURDAY || runDate.getDayOfWeek() == DayOfWeek.SUNDAY) { 
+            whyNotRunReason = "this day is a weekend"; 
+          } else {
+            boolean isHoliday = getHolidaySource().isHoliday(getHolidayCurrency(), runDate);
+            if (isHoliday) {
+              whyNotRunReason = "this day is a holiday";
+            }
+          }
         }
 
-        if (snapshotExists) {
+        if (whyNotRunReason == null) {
           addRun(run);
         } else {
-          s_logger.info("Not running for day {} because there is no snapshot", runDate);
+          s_logger.info("Not running for day {} because {}", runDate, whyNotRunReason);
         }
       }
 
@@ -686,46 +764,71 @@ public class BatchJob {
 
   public void execute() {
     for (BatchJobRun run : _runs) {
-      s_logger.info("Running {}", run);
+      try {
+        s_logger.info("Running {}", run);
+  
+        createView(run);
+  
+        _batchDbManager.startBatch(run);
 
-      createView(run);
+        getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
 
-      _batchDbManager.startBatch(run);
-
-      getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
-
-      _batchDbManager.endBatch(run);
-
-      s_logger.info("Completed {}", run);
+        _batchDbManager.endBatch(run);
+        
+        s_logger.info("Completed {}", run);
+      
+      } catch (Exception e) {
+        run.setFailed(true);
+        s_logger.error("Failed " + run, e);                        
+      }
     }
   }
 
-  public static void usage(Options options) {
+  public static void usage() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [args]", options);
+    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [args] {springfile.xml}", getOptions());
   }
 
   public static void main(String[] args) { // CSIGNORE
-    BatchJob job = new BatchJob();
+    if (args.length == 0) {
+      usage();
+      System.exit(-1);
+    }
+    
+    String springContextFile = args[args.length - 1];
+    ApplicationContext context = new FileSystemXmlApplicationContext(springContextFile);
+    BatchJob job = (BatchJob) context.getBean("batchJob");
 
     try {
       job.parse(args);
     } catch (Exception e) {
       s_logger.error("Failed to parse command line", e);
-      usage(job.getOptions());
+      usage();
       System.exit(-1);
     }
 
     try {
       job.createViewDefinition();
-      job.execute();
     } catch (Exception e) {
       s_logger.error("Failed to run batch", e);
-      usage(job.getOptions());
+      usage();
       System.exit(-1);
     }
+    
+    job.execute();
 
-    System.exit(0);
+    boolean failed = false;
+    for (BatchJobRun run : job._runs) {
+      if (run.isFailed()) {
+        failed = true;
+      }
+    }
+    
+    if (failed) {
+      System.exit(-1);
+    } else {
+      System.exit(0);
+    }
   }
 
 }
