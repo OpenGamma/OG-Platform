@@ -218,6 +218,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
       final Clock snapshotClock = executionContext.getSnapshotClock();
       final ZonedDateTime now = snapshotClock.zonedDateTime();
+
+      // REVIEW 2010-10-14 Andrew -- This block of stuff doesn't change during execution; we could/should do it at initialisation stage and store in the object
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
       final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
