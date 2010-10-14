@@ -51,7 +51,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
       final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
       if (!pnlSeriesLD.isEmpty()) {
         final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, 1, _confidenceLevel); //TODO number of periods per year depends on sampling frequency of P&L series
-        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(_meanCalculator, _stdCalculator, pnlSeries);
+        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(null, _stdCalculator, pnlSeries);
         final double var = varCalculator.evaluate(normalStats);
         return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
             getUniqueIdentifier()), var));

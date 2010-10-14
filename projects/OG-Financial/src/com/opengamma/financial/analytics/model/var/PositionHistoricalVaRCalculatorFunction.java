@@ -33,28 +33,28 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator;
-  private final double _confidenceLevel;
+  private final NormalLinearVaRCalculator _varCalculator;
 
   public PositionHistoricalVaRCalculatorFunction(final String meanCalculatorName, final String standardDeviationCalculatorName, final String confidenceLevel) {
     final Function<double[], Double> meanCalculator = StatisticsCalculatorFactory.getCalculator(meanCalculatorName);
     final Function<double[], Double> stdCalculator = StatisticsCalculatorFactory.getCalculator(standardDeviationCalculatorName);
     _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(meanCalculator);
     _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(stdCalculator);
-    _confidenceLevel = Double.valueOf(confidenceLevel);
+    _varCalculator = new NormalLinearVaRCalculator(1, 1, Double.valueOf(confidenceLevel)); //TODO see note in portfolio VaR function
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
-    if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
-      final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
-      final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
-      if (!pnlSeriesLD.isEmpty()) {
-        final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, 1, _confidenceLevel); //TODO see note in portfolio VaR function
-        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(_meanCalculator, _stdCalculator, pnlSeries);
-        final double var = varCalculator.evaluate(normalStats);
-        return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()), var));
-      }
+    if (pnlSeriesObj == null) {
+      throw new NullPointerException("Could not get P&L series for " + target.getPosition());
+    }
+    final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
+    final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
+    if (!pnlSeriesLD.isEmpty()) {
+      final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(null, _stdCalculator, pnlSeries);
+      final double var = _varCalculator.evaluate(normalStats);
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()), var));
     }
     return null;
   }

@@ -1,9 +1,9 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.pnl;
+package com.opengamma.financial.analytics.model.var;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,8 +37,10 @@ import com.opengamma.financial.analytics.timeseries.Schedule;
 import com.opengamma.financial.analytics.timeseries.ScheduleCalculatorFactory;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.covariance.CovarianceCalculator;
+import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
+import com.opengamma.financial.covariance.HistoricalCovarianceCalculator;
 import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
-import com.opengamma.financial.pnl.SensitivityPnLCalculator;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.sensitivity.Sensitivity;
@@ -45,17 +48,19 @@ import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.util.CalculationMode;
+import com.opengamma.financial.var.NormalLinearVaRCalculator;
+import com.opengamma.financial.var.NormalStatistics;
+import com.opengamma.financial.var.parametric.DeltaCovarianceMatrixStandardDeviationCalculator;
+import com.opengamma.financial.var.parametric.ParametricVaRDataBundle;
+import com.opengamma.financial.var.parametric.VaRCovarianceMatrixCalculator;
+import com.opengamma.math.matrix.ColtMatrixAlgebra;
+import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Computes a Profit and Loss time series for a position based on value greeks.
- * Takes in a set of specified value greeks (which will be part of configuration),
- * converts to sensitivities, loads the underlying time series, and calculates
- * a series of P&L based on {@link SensitivityPnLCalculator}.
  * 
  */
-public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _dataSourceName;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
@@ -63,15 +68,23 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final Schedule _scheduleCalculator;
   private final TimeSeriesSamplingFunction _samplingCalculator;
-  private static final SensitivityPnLCalculator PNL_CALCULATOR = new SensitivityPnLCalculator();
+  private final int _maxOrder;
+  //TODO none of this should be hard-coded
+  private final NormalLinearVaRCalculator _normalVaRCalculator;
+  private final VaRCovarianceMatrixCalculator _covarianceMatrixCalculator;
+  private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
+  private final DeltaCovarianceMatrixStandardDeviationCalculator _stdCalculator = new DeltaCovarianceMatrixStandardDeviationCalculator(_algebra);
 
-  public PositionValueGreekSensitivityPnLFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
-      final String scheduleName, final String samplingFunctionName, final String valueGreekRequirementNames) {
-    this(dataSourceName, startDate, returnCalculatorName, scheduleName, samplingFunctionName, new String[] {valueGreekRequirementNames});
+  public OptionPositionParametricVaRCalculatorFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
+      final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
+      final String valueGreekRequirementNames) {
+    this(dataSourceName, startDate, returnCalculatorName, scheduleName, samplingFunctionName, confidenceLevel, maxOrder,
+        new String[] {valueGreekRequirementNames});
   }
 
-  public PositionValueGreekSensitivityPnLFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
-      final String scheduleName, final String samplingFunctionName, final String... valueGreekRequirementNames) {
+  public OptionPositionParametricVaRCalculatorFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
+      final String scheduleName, final String samplingFunctionName, final String confidenceLevel, final String maxOrder,
+      final String... valueGreekRequirementNames) {
     Validate.notNull(dataSourceName, "data source name");
     Validate.notNull(startDate, "start date");
     _dataSourceName = dataSourceName;
@@ -82,9 +95,13 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       _valueGreekRequirementNames.add(valueGreekRequirementName);
       _valueGreeks.add(AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName));
     }
-    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName, CalculationMode.STRICT);
+    _maxOrder = Integer.parseInt(maxOrder);
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
+    final CovarianceCalculator covarianceCalculator = new HistoricalCovarianceCalculator();
+    _covarianceMatrixCalculator = new VaRCovarianceMatrixCalculator(new CovarianceMatrixCalculator(covarianceCalculator));
     _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
+    _normalVaRCalculator = new NormalLinearVaRCalculator(1, 1, Double.valueOf(confidenceLevel)); //TODO
   }
 
   @Override
@@ -94,7 +111,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueIdentifier());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
     int i = 0;
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -103,22 +120,32 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
         final Double value = (Double) valueObj;
         final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
         final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
-        final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
-        for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
-          final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
-              position.getSecurity());
-          final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true);
-          final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
-          tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
+        if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
+          final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+          for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
+            final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
+                position.getSecurity());
+            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true);
+            final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
+            tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
+          }
+          dataBundleArray[i++] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
         }
-        dataBundleArray[i++] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
       } else {
         throw new IllegalArgumentException("Got a value for greek " + valueObj + " that wasn't a Double");
       }
     }
-    final DoubleTimeSeries<?> result = PNL_CALCULATOR.evaluate(dataBundleArray);
+    final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
+    @SuppressWarnings("unchecked")
+    final NormalStatistics<Map<Integer, ParametricVaRDataBundle>> statistics = new NormalStatistics<Map<Integer, ParametricVaRDataBundle>>(null, _stdCalculator, data);
+    final Double result = _normalVaRCalculator.evaluate(statistics);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.POSITION;
   }
 
   @Override
@@ -128,34 +155,27 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
+    if (canApplyTo(context, target)) {
+      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
+        requirements.add(new ValueRequirement(valueGreekRequirementName, target.getPosition()));
+      }
+      return requirements;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
-      requirements.add(new ValueRequirement(valueGreekRequirementName, target.getPosition()));
-    }
-    return requirements;
+    return null;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPosition()), getUniqueIdentifier()));
     }
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueIdentifier()));
-    return results;
+    return null;
   }
 
   @Override
   public String getShortName() {
-    return "PositionValueGreekSensitivityPnL";
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return "PositionParametricVaRCalculatorFunction";
   }
 
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.var;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function;
@@ -14,20 +13,23 @@ import com.opengamma.math.function.Function;
  * @param <T> Type of the data
  */
 public class NormalStatistics<T> {
-  private final Double _mean;
+  private final double _mean;
   private final double _standardDeviation;
 
   // TODO data shouldn't go here - need to have ability to change and
   // recalculate
   public NormalStatistics(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator, final T... data) {
-    Validate.notNull(meanCalculator, "mean calculator");
     Validate.notNull(stdCalculator, "standard deviation calculator");
     Validate.notNull(data, "data");
-    _mean = meanCalculator.evaluate(data);
+    if (meanCalculator != null) {
+      _mean = meanCalculator.evaluate(data);
+    } else {
+      _mean = 0;
+    }
     _standardDeviation = stdCalculator.evaluate(data);
   }
 
-  public Double getMean() {
+  public double getMean() {
     return _mean;
   }
 
@@ -39,8 +41,9 @@ public class NormalStatistics<T> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_mean == null) ? 0 : _mean.hashCode());
     long temp;
+    temp = Double.doubleToLongBits(_mean);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_standardDeviation);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -57,8 +60,8 @@ public class NormalStatistics<T> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NormalStatistics<?> other = (NormalStatistics<?>) obj;
-    if (!ObjectUtils.equals(_mean, other._mean)) {
+    final NormalStatistics other = (NormalStatistics) obj;
+    if (Double.doubleToLongBits(_mean) != Double.doubleToLongBits(other._mean)) {
       return false;
     }
     if (Double.doubleToLongBits(_standardDeviation) != Double.doubleToLongBits(other._standardDeviation)) {
