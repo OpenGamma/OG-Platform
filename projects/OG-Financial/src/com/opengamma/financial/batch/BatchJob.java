@@ -623,35 +623,35 @@ public class BatchJob {
     return documents.get(0);
   }
 
-  public Options getOptions() {
+  public static Options getOptions() {
     Options options = new Options();
 
-    options.addOption("reason", "reason", true, "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
+    options.addOption("reason", true, "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
 
-    options.addOption("observationtime", "observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
-    options.addOption("observationdate", "observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
-    options.addOption("valuationtime", "valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
+    options.addOption("observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
+    options.addOption("observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
+    options.addOption("valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
         + "is given, the system time zone is used. Default - system clock on observation date.");
 
-    options.addOption("view", "view", true, "View name in configuration database. You must specify this.");
-    options.addOption("viewdatetime", "viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+    options.addOption("view", true, "View name in configuration database. You must specify this.");
+    options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
 
-    options.addOption("snapshotobservationtime", "snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
-    options.addOption("snapshotobservationdate", "snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
+    options.addOption("snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
+    options.addOption("snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
 
-    options.addOption("forcenewrun", "forcenewrun", false, "If specified, a new run is always created "
+    options.addOption("forcenewrun", false, "If specified, a new run is always created "
         + "- no existing results are used. If not specified, the system first checks if there is already a run "
         + "in the database for the given view (including the same version) with the same observation date and time. " + "If there is, that run is reused.");
 
-    options.addOption("positionmastertime", "positionmastertime", true, "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
+    options.addOption("positionmastertime", true, "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
 
-    options.addOption("daterangestart", "daterangestart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
+    options.addOption("daterangestart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
         + "observationdate and snapshotobservationdate are calculated from the range and " + "must not be given explicitly. In addition, valuationtime must be a time, "
-        + "HHmmss[Z], instead of a datetime as shown above. 1. If holidaySource/holidayCurrency are not given: The batch will be run " 
+        + "HHmmss[Z], instead of a datetime. 1. If holidaySource/holidayCurrency are not given: The batch will be run " 
         + "for those dates within the range for which there is a snapshot in the database. "
         + "If there is no snapshot, that date is simply ignored. " 
-        + "2. If holidaySource/holidayCurrency are given: The batch will be run for those dates which are not weekends or holidays.");
-    options.addOption("daterangeend", "daterangeend", true, "Last valuation date (inclusive). Optional.");
+        + "2. If holidaySource and holidayCurrency are given: The batch will be run for those dates which are not weekends or holidays.");
+    options.addOption("daterangeend", true, "Last valuation date (inclusive). Optional.");
 
     return options;
   }
@@ -785,20 +785,26 @@ public class BatchJob {
     }
   }
 
-  public static void usage(Options options) {
+  public static void usage() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [args]", options);
+    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [args] {springfile.xml}", getOptions());
   }
 
   public static void main(String[] args) { // CSIGNORE
-    ApplicationContext context = new FileSystemXmlApplicationContext("batchJob.xml");
+    if (args.length == 0) {
+      usage();
+      System.exit(-1);
+    }
+    
+    String springContextFile = args[args.length - 1];
+    ApplicationContext context = new FileSystemXmlApplicationContext(springContextFile);
     BatchJob job = (BatchJob) context.getBean("batchJob");
 
     try {
       job.parse(args);
     } catch (Exception e) {
       s_logger.error("Failed to parse command line", e);
-      usage(job.getOptions());
+      usage();
       System.exit(-1);
     }
 
@@ -806,7 +812,7 @@ public class BatchJob {
       job.createViewDefinition();
     } catch (Exception e) {
       s_logger.error("Failed to run batch", e);
-      usage(job.getOptions());
+      usage();
       System.exit(-1);
     }
     
