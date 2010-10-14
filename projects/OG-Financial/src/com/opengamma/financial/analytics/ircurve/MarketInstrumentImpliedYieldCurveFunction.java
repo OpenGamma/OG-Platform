@@ -102,6 +102,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
+  private InterpolatedYieldCurveSpecification _forwardCurveSpecification;
+  private InterpolatedYieldCurveSpecification _fundingCurveSpecification;
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
@@ -200,23 +202,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _fundingCurveRequirements = fundingCurveRequirements;
       _forwardCurveSpecification = forwardCurveSpecification;
       _forwardCurveRequirements = forwardCurveRequirements;
-    }
-
-    // just for debugging.
-    public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
-      return _identifierToFundingNodeTimes;
-    }
-
-    public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
-      return _identifierToForwardNodeTimes;
-    }
-
-    public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
-      return _fundingCurveSpecification;
-    }
-
-    public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
-      return _forwardCurveSpecification;
     }
 
     @SuppressWarnings("unchecked")
@@ -436,7 +421,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
       }
-      // TODO duh the yields have to be split up
       double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
       double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
       final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, fundingInterpolator);
@@ -490,6 +474,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     Instant expiry = null;
     expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
+    _fundingCurveSpecification = fundingCurveSpecification;
+    _forwardCurveSpecification = forwardCurveSpecification;
     return new Compiled(atInstant, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
   }
 
@@ -504,4 +490,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     return marketDataMap;
   }
 
+  // just for debugging.
+//  public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
+//    return _identifierToFundingNodeTimes;
+//  }
+//
+//  public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
+//    return _identifierToForwardNodeTimes;
+//  }
+
+  public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
+    return _fundingCurveSpecification;
+  }
+
+  public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
+    return _forwardCurveSpecification;
+  }
 }
