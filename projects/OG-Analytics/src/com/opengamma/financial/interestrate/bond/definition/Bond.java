@@ -22,6 +22,7 @@ public class Bond implements InterestRateDerivativeWithRate {
 
   private final GenericAnnuity<FixedCouponPayment> _coupons;
   private final FixedPayment _principle;
+  private final double _accruedInterestFraction;
 
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
@@ -37,49 +38,47 @@ public class Bond implements InterestRateDerivativeWithRate {
     }
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _accruedInterestFraction = 0.0;
   }
 
-  public Bond(final double[] paymentTimes, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
+  public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accuralFraction, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
-    Validate.notNull(yearFractions, "year fractions");
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    ArgumentChecker.notEmpty(yearFractions, "year fractions");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-    if (n != yearFractions.length) {
-      throw new IllegalArgumentException("Must have a year fraction for each payment time");
-    }
 
     final FixedCouponPayment[] payments = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFractions[i], couponRate, yieldCurveName);
+      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, couponRate, yieldCurveName);
     }
 
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _accruedInterestFraction = accuralFraction;
   }
 
-  public Bond(final double[] paymentTimes, final double[] coupons, final String yieldCurveName) {
-    Validate.notNull(paymentTimes, "payment times");
-    Validate.notNull(coupons, "coupons");
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    ArgumentChecker.notEmpty(coupons, "coupons");
-    Validate.notNull(yieldCurveName, "yield curve name");
-    if (paymentTimes.length != coupons.length) {
-      throw new IllegalArgumentException("Must have a payment for each payment time");
-    }
-    final int n = paymentTimes.length;
-    double yearFraction;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
-    for (int i = 0; i < n; i++) {
-      yearFraction = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
-      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, coupons[i], yieldCurveName);
-    }
-    _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
-    _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
-  }
+  // public Bond(final double[] paymentTimes, final double[] coupons, final String yieldCurveName) {
+  // Validate.notNull(paymentTimes, "payment times");
+  // Validate.notNull(coupons, "coupons");
+  // ArgumentChecker.notEmpty(paymentTimes, "payment times");
+  // ArgumentChecker.notEmpty(coupons, "coupons");
+  // Validate.notNull(yieldCurveName, "yield curve name");
+  // if (paymentTimes.length != coupons.length) {
+  // throw new IllegalArgumentException("Must have a payment for each payment time");
+  // }
+  // final int n = paymentTimes.length;
+  // double yearFraction;
+  // final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+  // for (int i = 0; i < n; i++) {
+  // yearFraction = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
+  // payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, coupons[i], yieldCurveName);
+  // }
+  // _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
+  // _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+  // _accruedInterestFraction = 0.0;
+  // }
 
-  public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final String yieldCurveName) {
+  public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final double accuralFraction, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.notNull(coupons, "coupons");
     Validate.notNull(yearFractions, "year fractions");
@@ -100,6 +99,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     }
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _accruedInterestFraction = accuralFraction;
   }
 
   /**
@@ -155,20 +155,25 @@ public class Bond implements InterestRateDerivativeWithRate {
     FixedCouponPayment[] payments = _coupons.getPayments();
     int n = payments.length;
     double[] times = new double[n];
+    double[] coupons = new double[n];
     double[] yearFrac = new double[n];
     for (int i = 0; i < n; i++) {
       FixedCouponPayment temp = payments[i];
       times[i] = temp.getPaymentTime();
+      coupons[i] = rate;
       yearFrac[i] = temp.getYearFraction();
     }
 
-    return new Bond(times, rate, yearFrac, payments[0].getFundingCurveName());
+    return new Bond(times, coupons, yearFrac, getAccruedInterestFraction(), payments[0].getFundingCurveName());
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_accruedInterestFraction);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_coupons == null) ? 0 : _coupons.hashCode());
     result = prime * result + ((_principle == null) ? 0 : _principle.hashCode());
     return result;
@@ -186,14 +191,24 @@ public class Bond implements InterestRateDerivativeWithRate {
       return false;
     }
     Bond other = (Bond) obj;
+    if (Double.doubleToLongBits(_accruedInterestFraction) != Double.doubleToLongBits(other._accruedInterestFraction)) {
+      return false;
+    }
     if (!ObjectUtils.equals(this._coupons, other._coupons)) {
       return false;
     }
     if (!ObjectUtils.equals(this._principle, other._principle)) {
       return false;
     }
-
     return true;
+  }
+
+  /**
+   * Gets the accruedInterestFraction field.
+   * @return the accruedInterestFraction
+   */
+  public double getAccruedInterestFraction() {
+    return _accruedInterestFraction;
   }
 
   @Override

@@ -226,10 +226,10 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
             }
           }
         }
-      }
-      final CountDownLatch latch = _waitForNextWrite.getAndSet(null);
-      if (latch != null) {
-        latch.countDown();
+        final CountDownLatch latch = _waitForNextWrite.getAndSet(null);
+        if (latch != null) {
+          latch.countDown();
+        }
       }
     }
     

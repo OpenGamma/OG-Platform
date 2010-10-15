@@ -103,6 +103,11 @@ public class BatchJobRun {
    * Set by _batchDbManager
    */
   private Object _dbHandle;
+  
+  /**
+   * Whether the run failed due to unexpected exception
+   */
+  private boolean _failed;
 
   //--------------------------------------------------------------------------
   
@@ -193,6 +198,14 @@ public class BatchJobRun {
     _dbHandle = dbHandle;
   }
   
+  public boolean isFailed() {
+    return _failed;
+  }
+
+  public void setFailed(boolean failed) {
+    _failed = failed;
+  }
+
   public BatchJob getJob() {
     return _job;
   }

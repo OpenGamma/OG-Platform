@@ -77,4 +77,37 @@ public class PeriodFrequency implements Frequency {
   public String toString() {
     return "Frequency[" + "name =  " + _name + " period = " + _period + "]";
   }
+  
+//REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 
+  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely 
+  public SimpleFrequency toSimpleFrequency() {
+    if (_name == ANNUAL_NAME) {
+      return SimpleFrequency.ANNUAL;
+    }
+    if (_name == BIMONTHLY_NAME) {
+      return SimpleFrequency.BIMONTHLY;
+    }
+    if (_name == BIWEEKLY_NAME) {
+      return SimpleFrequency.BIWEEKLY;
+    }
+    if (_name == CONTINUOUS_NAME) {
+      return SimpleFrequency.CONTINUOUS;
+    }
+    if (_name == DAILY_NAME) {
+      return SimpleFrequency.DAILY;
+    }
+    if (_name == MONTHLY_NAME) {
+      return SimpleFrequency.MONTHLY;
+    }
+    if (_name == QUARTERLY_NAME) {
+      return SimpleFrequency.QUARTERLY;
+    }
+    if (_name == SEMI_ANNUAL_NAME) {
+      return SimpleFrequency.SEMI_ANNUAL;
+    }
+    if (_name == WEEKLY_NAME) {
+      return SimpleFrequency.WEEKLY;
+    }
+    throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
+  }
 }
