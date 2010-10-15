@@ -103,4 +103,16 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     _configMasterMap = configMasterMap;
   }
 
+  @Override
+  public <T> T searchLatest(Class<T> clazz, String name) {
+    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setName(name);
+    List<T> results = search(clazz, searchRequest);
+    if (results.size() == 0) {
+      return null;
+    } else {
+      return results.get(0);
+    }
+  }
+
 }
