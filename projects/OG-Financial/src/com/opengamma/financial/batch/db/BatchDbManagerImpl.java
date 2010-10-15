@@ -683,21 +683,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   public static Class<?>[] getHibernateMappingClasses() {
-    return new Class[] {
-      CalculationConfiguration.class,
-      ComputeHost.class,
-      ComputeNode.class,
-      LiveDataField.class,
-      LiveDataSnapshot.class,
-      LiveDataSnapshotEntry.class,
-      ObservationDateTime.class,
-      ObservationTime.class,
-      OpenGammaVersion.class,
-      RiskRun.class,
-      RiskValueName.class,
-      ComputationTarget.class,
-      RiskValue.class
-    };
+    return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
   
 }

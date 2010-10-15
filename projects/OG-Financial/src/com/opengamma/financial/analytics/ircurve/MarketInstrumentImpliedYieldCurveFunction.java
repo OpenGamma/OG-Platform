@@ -204,6 +204,22 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _forwardCurveRequirements = forwardCurveRequirements;
     }
 
+    public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
+      return _fundingCurveSpecification;
+    }
+
+    public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
+      return _forwardCurveSpecification;
+    }
+
+    public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
+      return _identifierToFundingNodeTimes;
+    }
+
+    public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
+      return _identifierToForwardNodeTimes;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {

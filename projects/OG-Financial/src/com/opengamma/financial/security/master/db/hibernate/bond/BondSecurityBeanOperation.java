@@ -59,32 +59,38 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
 
       @Override
       public BondSecurity visitCorporateBondSecurity(CorporateBondSecurity bond) {
-        return new CorporateBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
-            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), bean.getGuaranteeType().getName(), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
-                .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), businessDayConventionBeanToBusinessDayConvention(bean
-                .getBusinessDayConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
+        BondSecurity bondSecurity = new CorporateBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
+            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
+                .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
                 .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        return bondSecurity;
       }
 
       @Override
       public BondSecurity visitGovernmentBondSecurity(GovernmentBondSecurity bond) {
-        return new GovernmentBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
-            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), bean.getGuaranteeType().getName(), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
-                .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), businessDayConventionBeanToBusinessDayConvention(bean
-                .getBusinessDayConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
+        BondSecurity bondSecurity = new GovernmentBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
+            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
+              .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
-                .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+              .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        return bondSecurity;
       }
 
       @Override
       public BondSecurity visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
-        return new MunicipalBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
-            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), bean.getGuaranteeType().getName(), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
-                .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), businessDayConventionBeanToBusinessDayConvention(bean
-                .getBusinessDayConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
+        BondSecurity bondSecurity = new MunicipalBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
+            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean
+              .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
-                .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+              .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        return bondSecurity;
       }
 
     });
@@ -120,14 +126,14 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setMarket(secMasterSession.getOrCreateMarketBean(security.getMarket()));
     bond.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
     bond.setYieldConvention(secMasterSession.getOrCreateYieldConventionBean(security.getYieldConvention().getConventionName()));
-    bond.setGuaranteeType(secMasterSession.getOrCreateGuaranteeTypeBean(security.getGuaranteeType()));
+    bond.setGuaranteeType(security.getGuaranteeType() != null ? secMasterSession.getOrCreateGuaranteeTypeBean(security.getGuaranteeType()) : null);
     bond.setMaturity(expiryToExpiryBean(security.getMaturity()));
     bond.setCouponType(secMasterSession.getOrCreateCouponTypeBean(security.getCouponType()));
     bond.setCouponRate(security.getCouponRate());
     bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
     bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCountConvention().getConventionName()));
-    bond.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
-    bond.setAnnouncementDate(dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()));
+    bond.setBusinessDayConvention(security.getBusinessDayConvention() != null ? secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()) : null);
+    bond.setAnnouncementDate(security.getAnnouncementDate() != null ? dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()) : null);
     bond.setInterestAccrualDate(dateTimeWithZoneToZonedDateTimeBean(security.getInterestAccrualDate()));
     bond.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bond.setFirstCouponDate(dateTimeWithZoneToZonedDateTimeBean(security.getFirstCouponDate()));
