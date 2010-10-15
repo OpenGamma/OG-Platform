@@ -133,7 +133,7 @@ public class ModifyConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T>
       .addTimestamp("last_read_instant", document.getLastReadInstant())
       .addValue("name", document.getName())
       .addValue("config_type", getMaster().getReifiedType().getName())
-      .addValue("config", new SqlLobValue(bytes), Types.BLOB);
+      .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(configOid, configId);

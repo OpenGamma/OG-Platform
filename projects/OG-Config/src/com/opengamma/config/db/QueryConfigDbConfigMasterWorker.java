@@ -5,7 +5,7 @@
  */
 package com.opengamma.config.db;
 
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -14,12 +14,12 @@ import java.util.List;
 
 import javax.time.Instant;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
@@ -234,20 +234,9 @@ public class QueryConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T> 
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp lastRead = rs.getTimestamp("LAST_READ");
       final String name = rs.getString("NAME");
-//      DefaultLobHandler lob = new DefaultLobHandler();
-//      if (getDbHelper().getName().startsWith("H")) {
-//        lob.setWrapAsLob(true);
-//      }
-//      byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
-//      T value = FUDGE_CONTEXT.readObject(getMaster().getReifiedType(), new ByteArrayInputStream(bytes));
-      
-      InputStream bytes = null;
-      T value;
-      try {
-        value = FUDGE_CONTEXT.readObject(getMaster().getReifiedType(), rs.getBinaryStream("CONFIG"));
-      } finally {
-        IOUtils.closeQuietly(bytes);
-      }
+      LobHandler lob = getDbHelper().getLobHandler();
+      byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
+      T value = FUDGE_CONTEXT.readObject(getMaster().getReifiedType(), new ByteArrayInputStream(bytes));
       
       ConfigDocument<T> doc = new ConfigDocument<T>();
       doc.setConfigId(createUniqueIdentifier(configOid, configId));
