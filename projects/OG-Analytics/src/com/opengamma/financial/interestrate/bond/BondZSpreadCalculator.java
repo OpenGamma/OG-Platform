@@ -18,7 +18,7 @@ public class BondZSpreadCalculator {
   public double calculate(final Bond bond, final YieldCurveBundle curves, final Double dirtyPrice) {
     Validate.notNull(bond, "bond");
     Validate.isTrue(dirtyPrice > 0.0, "need dirtyPrice greater than zero");
-    return ZSpreadCalculator.getInstance().calculateSpread(bond.getAnnuity(), curves, dirtyPrice);
+    return ZSpreadCalculator.getInstance().calculateZSpread(bond.getAnnuity(), curves, dirtyPrice);
   }
 
 }

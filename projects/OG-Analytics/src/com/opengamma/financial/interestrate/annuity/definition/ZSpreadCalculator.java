@@ -5,15 +5,22 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -32,14 +39,14 @@ public final class ZSpreadCalculator {
     return s_instance;
   }
 
-  public double calculateSpread(final GenericAnnuity<? extends FixedPayment> annuity, final YieldCurveBundle curves, final double price) {
+  public double calculateZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double price) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double y) {
-        return calculatePriceForSpread(annuity, curves, y) - price;
+        return calculatePriceForZSpread(annuity, curves, y) - price;
       }
     };
 
@@ -47,19 +54,55 @@ public final class ZSpreadCalculator {
     return s_root.getRoot(f, range[0], range[1]);
   }
 
-  public double calculatePriceForSpread(final GenericAnnuity<? extends FixedPayment> annuity, final YieldCurveBundle curves, final double spread) {
+  public double calculatePriceForZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
     double sum = 0;
 
     final int n = annuity.getNumberOfpayments();
-    FixedPayment payment;
+    Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
       double temp = s_pvc.getValue(payment, curves);
-      sum += temp * Math.exp(-spread * payment.getPaymentTime());
+      sum += temp * Math.exp(-zSpread * payment.getPaymentTime());
     }
     return sum;
+  }
+
+  public double calculatePriceSensitivityToZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+    Validate.notNull(annuity, "annuity");
+    Validate.notNull(curves, "curves");
+
+    double sum = 0;
+
+    final int n = annuity.getNumberOfpayments();
+    Payment payment;
+    for (int i = 0; i < n; i++) {
+      payment = annuity.getNthPayment(i);
+      double temp = s_pvc.getValue(payment, curves);
+      double time = payment.getPaymentTime();
+      sum -= time * temp * Math.exp(-zSpread * time);
+    }
+    return sum;
+  }
+
+  public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+
+    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
+    if (zSpread == 0.0) {
+      return temp;
+    }
+    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (String name : temp.keySet()) {
+      List<DoublesPair> unadjusted = temp.get(name);
+      ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
+      for (DoublesPair pair : unadjusted) {
+        DoublesPair newPair = new DoublesPair(pair.first, pair.second * Math.exp(-zSpread * pair.first));
+        adjusted.add(newPair);
+      }
+      result.put(name, adjusted);
+    }
+    return result;
   }
 }
