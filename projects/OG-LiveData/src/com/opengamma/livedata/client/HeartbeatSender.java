@@ -35,10 +35,6 @@ public class HeartbeatSender {
   private final ValueDistributor _valueDistributor;
   private final FudgeContext _fudgeContext;
   
-  public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor) {
-    this(messageSender, valueDistributor, new FudgeContext(), new Timer("HeartbeatSender Thread"), DEFAULT_PERIOD);
-  }
-  
   public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor, FudgeContext fudgeContext, Timer timer, long period) {
     ArgumentChecker.notNull(messageSender, "Message Sender");
     ArgumentChecker.notNull(valueDistributor, "Value Distributor");

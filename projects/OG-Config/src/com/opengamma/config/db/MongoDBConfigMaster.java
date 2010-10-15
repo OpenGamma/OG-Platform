@@ -483,4 +483,8 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
 //  return result;
 //}
 
+  public void close() {
+    getMongo().close();
+  }
+
 }

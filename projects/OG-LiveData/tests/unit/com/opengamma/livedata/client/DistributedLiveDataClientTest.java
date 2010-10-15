@@ -16,6 +16,7 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -69,6 +70,11 @@ public class DistributedLiveDataClientTest {
     _client = LiveDataClientTestUtils.getInMemoryConduitClient(_server);
   }
   
+  @After
+  public void closeClient() {
+    _client.close();
+  }
+
   @Test
   public void connectionToMarketDataApiDown() {
     // don't start server
