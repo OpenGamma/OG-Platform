@@ -88,6 +88,8 @@ public final class ZSpreadCalculator {
   }
 
   public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+    Validate.notNull(annuity, "annuity");
+    Validate.notNull(curves, "curves");
 
     Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
     if (zSpread == 0.0) {
@@ -99,6 +101,28 @@ public final class ZSpreadCalculator {
       ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
       for (DoublesPair pair : unadjusted) {
         DoublesPair newPair = new DoublesPair(pair.first, pair.second * Math.exp(-zSpread * pair.first));
+        adjusted.add(newPair);
+      }
+      result.put(name, adjusted);
+    }
+    return result;
+  }
+
+  public Map<String, List<DoublesPair>> calculateZSpreadSensitivityToCurve(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+    Validate.notNull(annuity, "annuity");
+    Validate.notNull(curves, "curves");
+
+    double dPrice_dz = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
+    Validate.isTrue(dPrice_dz != 0.0, "Price Sensitivity To ZSpread is zero");
+
+    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
+
+    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (String name : temp.keySet()) {
+      List<DoublesPair> unadjusted = temp.get(name);
+      ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
+      for (DoublesPair pair : unadjusted) {
+        DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPrice_dz);
         adjusted.add(newPair);
       }
       result.put(name, adjusted);
