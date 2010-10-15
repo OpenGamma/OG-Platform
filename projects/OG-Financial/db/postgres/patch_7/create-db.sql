@@ -213,7 +213,7 @@ create table sec_bond (
     market_id bigint not null,
     currency_id bigint not null,
     yieldconvention_id bigint not null,
-    guaranteetype_id bigint not null,
+    guaranteetype_id bigint,
     maturity_date timestamp not null,
     maturity_zone varchar(50) not null,
     maturity_accuracy smallint not null,
