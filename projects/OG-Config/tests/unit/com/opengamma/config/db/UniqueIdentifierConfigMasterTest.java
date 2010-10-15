@@ -13,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.test.MongoDBConfigMasterTestCase;
 import com.opengamma.id.UniqueIdentifier;
@@ -53,7 +52,7 @@ public class UniqueIdentifierConfigMasterTest extends MongoDBConfigMasterTestCas
   }
 
   @Override
-  public ConfigMaster<UniqueIdentifier> createMongoConfigMaster() {
+  public MongoDBConfigMaster<UniqueIdentifier> createMongoConfigMaster() {
     //use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;

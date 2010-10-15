@@ -52,7 +52,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public DistributedLiveDataClient(
       FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender) {
-    this(subscriptionRequestSender, entitlementRequestSender, new FudgeContext());
+    this(subscriptionRequestSender, entitlementRequestSender, FudgeContext.GLOBAL_DEFAULT);
   }
 
   public DistributedLiveDataClient(
