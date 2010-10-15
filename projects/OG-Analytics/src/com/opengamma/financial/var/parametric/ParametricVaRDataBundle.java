@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.var.parametric;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -20,83 +18,62 @@ import com.opengamma.math.matrix.Matrix;
  * 
  */
 public class ParametricVaRDataBundle {
-  private final Map<Integer, Matrix<?>> _sensitivities;
-  private final Map<Integer, DoubleMatrix2D> _covariances;
+  private final List<String> _names;
+  private final Matrix<?> _sensitivities;
+  private final DoubleMatrix2D _covarianceMatrix;
+  private final int _order;
 
-  //TODO rewrite in the same way as SensitivityPnLCalculator
-  public ParametricVaRDataBundle(final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix2D> covariances) {
-    Validate.notNull(sensitivities, "sensitivites");
-    Validate.notNull(covariances, "covariances");
-    Validate.noNullElements(sensitivities.keySet(), "sensitivities key set");
-    Validate.noNullElements(sensitivities.values(), "sensitivities values");
-    Validate.noNullElements(covariances.keySet(), "covariances key set");
-    Validate.noNullElements(covariances.values(), "covariances values");
-    _sensitivities = new HashMap<Integer, Matrix<?>>();
-    _covariances = new HashMap<Integer, DoubleMatrix2D>();
-    testData(sensitivities, covariances);
+  public ParametricVaRDataBundle(final Matrix<?> sensitivities, final DoubleMatrix2D covarianceMatrix, final int order) {
+    this(null, sensitivities, covarianceMatrix, order);
   }
 
-  public Matrix<?> getSensitivityData(final int order) {
-    return _sensitivities.get(order);
-  }
-
-  public DoubleMatrix2D getCovarianceMatrix(final int order) {
-    return _covariances.get(order);
-  }
-
-  private void testData(final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix2D> covariances) {
-    if (sensitivities.size() < covariances.size()) {
-      throw new IllegalArgumentException("Have more covariance matrices than sensitivity types");
-    }
-    for (final Entry<Integer, Matrix<?>> entry : sensitivities.entrySet()) {
-      final int order = entry.getKey();
-      final Matrix<?> m1 = entry.getValue();
-      if (order == 1) {
-        if (!(m1 instanceof DoubleMatrix1D)) {
-          throw new IllegalArgumentException("First order sensitivities must be a vector, not a matrix (have matrix for order " + order + ")");
-        }
-        _sensitivities.put(order, m1);
-      } else {
-        if (m1 instanceof DoubleMatrix2D) {
-          final DoubleMatrix2D m2 = (DoubleMatrix2D) m1;
-          if (m2.getNumberOfColumns() != m2.getNumberOfRows()) {
-            throw new IllegalArgumentException("Sensitivity matrix is not square for order " + order);
-          }
-          _sensitivities.put(order, m2);
-        } else if (m1 instanceof DoubleMatrix1D) {
-          _sensitivities.put(order, getDiagonalMatrix((DoubleMatrix1D) m1));
-        } else {
-          throw new IllegalArgumentException("Can only handle 1D and 2D matrices");
-        }
+  public ParametricVaRDataBundle(final List<String> names, final Matrix<?> sensitivities, final DoubleMatrix2D covarianceMatrix, final int order) {
+    Validate.notNull(sensitivities, "sensitivities");
+    Validate.notNull(covarianceMatrix, "covariance matrix");
+    Validate.isTrue(order > 0);
+    Validate.isTrue(covarianceMatrix.getNumberOfRows() == covarianceMatrix.getNumberOfColumns());
+    if (sensitivities instanceof DoubleMatrix1D) {
+      Validate.isTrue(sensitivities.getNumberOfElements() == covarianceMatrix.getNumberOfRows());
+      if (names != null) {
+        Validate.isTrue(sensitivities.getNumberOfElements() == names.size());
       }
-      if (covariances.containsKey(order)) {
-        final DoubleMatrix2D m2 = covariances.get(order);
-        if (m2.getNumberOfColumns() != m2.getNumberOfRows()) {
-          throw new IllegalArgumentException("Covariance matrix for order " + order + " was not square");
-        }
-        if (m2.getNumberOfColumns() != (m1 instanceof DoubleMatrix1D ? m1.getNumberOfElements() : ((DoubleMatrix2D) m1).getNumberOfRows())) {
-          throw new IllegalArgumentException("Covariance matrix and sensitivity matrix sizes do not match for order " + order);
-        }
-        _covariances.put(order, m2);
+    } else if (sensitivities instanceof DoubleMatrix2D) {
+      Validate.isTrue(((DoubleMatrix2D) sensitivities).getNumberOfRows() == covarianceMatrix.getNumberOfRows());
+      if (names != null) {
+        Validate.isTrue(((DoubleMatrix2D) sensitivities).getNumberOfRows() == names.size());
       }
+    } else {
+      throw new IllegalArgumentException("Can only handle 1- and 2- sensitivity matrices");
     }
+    _names = names;
+    _sensitivities = sensitivities;
+    _covarianceMatrix = covarianceMatrix;
+    _order = order;
   }
 
-  private DoubleMatrix2D getDiagonalMatrix(final DoubleMatrix1D secondOrder) {
-    final double[] data = secondOrder.getData();
-    final int n = data.length;
-    final double[][] matrix = new double[n][n];
-    for (int i = 0; i < n; i++) {
-      matrix[i][i] = data[i];
-    }
-    return new DoubleMatrix2D(matrix);
+  public Matrix<?> getSensitivities() {
+    return _sensitivities;
+  }
+
+  public DoubleMatrix2D getCovarianceMatrix() {
+    return _covarianceMatrix;
+  }
+
+  public List<String> getNames() {
+    return _names;
+  }
+
+  public int getOrder() {
+    return _order;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_covariances == null) ? 0 : _covariances.hashCode());
+    result = prime * result + ((_covarianceMatrix == null) ? 0 : _covarianceMatrix.hashCode());
+    result = prime * result + ((_names == null) ? 0 : _names.hashCode());
+    result = prime * result + _order;
     result = prime * result + ((_sensitivities == null) ? 0 : _sensitivities.hashCode());
     return result;
   }
@@ -113,7 +90,16 @@ public class ParametricVaRDataBundle {
       return false;
     }
     final ParametricVaRDataBundle other = (ParametricVaRDataBundle) obj;
-    return ObjectUtils.equals(_covariances, other._covariances) && ObjectUtils.equals(_sensitivities, other._sensitivities);
+    if (!ObjectUtils.equals(_covarianceMatrix, other._covarianceMatrix)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_names, other._names)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_sensitivities, other._sensitivities)) {
+      return false;
+    }
+    return _order == other._order;
   }
 
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import java.util.Map;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -16,11 +19,9 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function1D<ParametricVaRDataBundle, Double> {
+public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function1D<Map<Integer, ParametricVaRDataBundle>, Double> {
   private final MatrixAlgebra _algebra;
-  private final Function1D<ParametricVaRDataBundle, Double> _std;
-  private static final int FIRST_ORDER = 1;
-  private static final int SECOND_ORDER = 2;
+  private final Function1D<Map<Integer, ParametricVaRDataBundle>, Double> _std;
 
   public DeltaGammaCovarianceMatrixFisherKurtosisCalculator(final MatrixAlgebra algebra) {
     Validate.notNull(algebra, "algebra");
@@ -29,15 +30,21 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function
   }
 
   @Override
-  public Double evaluate(final ParametricVaRDataBundle data) {
+  public Double evaluate(final Map<Integer, ParametricVaRDataBundle> data) {
     Validate.notNull(data, "data");
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(FIRST_ORDER);
-    final Matrix<?> gamma = data.getSensitivityData(SECOND_ORDER);
+    final ParametricVaRDataBundle firstOrderData = data.get(1);
+    Validate.notNull(firstOrderData, "first order data");
+    final ParametricVaRDataBundle secondOrderData = data.get(2);
+    if (secondOrderData == null) {
+      return 0.;
+    }
+    final DoubleMatrix1D delta = (DoubleMatrix1D) firstOrderData.getSensitivities();
+    final Matrix<?> gamma = secondOrderData.getSensitivities();
     if (gamma == null || gamma.getNumberOfElements() == 0) {
       return 0.;
     }
     final DoubleMatrix2D gammaMatrix = (DoubleMatrix2D) gamma;
-    final DoubleMatrix2D deltaCovariance = data.getCovarianceMatrix(FIRST_ORDER);
+    final DoubleMatrix2D deltaCovariance = firstOrderData.getCovarianceMatrix();
     if (gammaMatrix.getNumberOfColumns() != deltaCovariance.getNumberOfColumns()) {
       throw new IllegalArgumentException("Gamma matrix and covariance matrix were incompatible sizes");
     }
@@ -59,7 +66,7 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -69,21 +76,7 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DeltaGammaCovarianceMatrixFisherKurtosisCalculator other = (DeltaGammaCovarianceMatrixFisherKurtosisCalculator) obj;
-    if (_algebra == null) {
-      if (other._algebra != null) {
-        return false;
-      }
-    } else if (!_algebra.equals(other._algebra)) {
-      return false;
-    }
-    if (_std == null) {
-      if (other._std != null) {
-        return false;
-      }
-    } else if (!_std.equals(other._std)) {
-      return false;
-    }
-    return true;
+    final DeltaGammaCovarianceMatrixFisherKurtosisCalculator other = (DeltaGammaCovarianceMatrixFisherKurtosisCalculator) obj;
+    return ObjectUtils.equals(_algebra, other._algebra) && ObjectUtils.equals(_std, other._std);
   }
 }

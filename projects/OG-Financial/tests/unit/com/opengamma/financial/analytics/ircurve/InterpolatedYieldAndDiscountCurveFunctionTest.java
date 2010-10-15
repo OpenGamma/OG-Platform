@@ -13,7 +13,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
@@ -66,8 +69,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
@@ -75,12 +77,14 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     context.setSecuritySource(_configHelper.getSecSource());
+
     function.init(context);
-    
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
-    assertEquals(18, requirements.size());
+    assertEquals(12, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -89,7 +93,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(18, foundKeys.size());
+    assertEquals(12, foundKeys.size());
     
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
@@ -110,19 +114,20 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
-    function.init(context);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
+    function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("USD")));
     assertNotNull(requirements);
-    assertEquals(18, requirements.size());
+    assertEquals(12, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -131,7 +136,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(18, foundKeys.size());
+    assertEquals(12, foundKeys.size());
 
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
@@ -147,23 +152,23 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
   public void discountCurveNotMatchingRequirements() {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
-    final LocalDate curveDate = DateUtil.previousWeekDay();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
+
     function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 
@@ -171,24 +176,24 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
   public void yieldCurveNotMatchingRequirements() {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
-    final LocalDate curveDate = LocalDate.nowSystemClock();
     
     YieldCurveConfigPopulator.populateCurveConfigSource((MongoDBMasterConfigSource)_configHelper.getConfigSource());
-    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveDate,
-        curveCurrency, curveName, false);
+    SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
-    function.init(context);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
+    function.init(context);
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("EUR")));
     assertNull(requirements);
 
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE,
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE,
         new PortfolioNodeImpl()));
     assertNull(requirements);
   }

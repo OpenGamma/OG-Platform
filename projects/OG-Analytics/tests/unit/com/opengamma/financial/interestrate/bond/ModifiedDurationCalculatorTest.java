@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.bond.ModifiedDurationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
@@ -70,17 +69,16 @@ public class ModifiedDurationCalculatorTest {
     int n = 10;
     int m = 2;
     double[] paymentTimes = new double[n];
-    double[] yearFrac = new double[n];
     double tau = 0.5;
     double alpha = 0.5;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      yearFrac[i] = alpha;
+
     }
 
     double yield = 0.5;
     double coupon = (Math.pow(1 + yield / m, m * tau) - 1) / alpha;
-    Bond bond = new Bond(paymentTimes, coupon, yearFrac, CURVE_NAME);
+    Bond bond = new Bond(paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
     double duration = MDC.calculate(bond, 1.0, m);
 
     double sum = 0.0;

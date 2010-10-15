@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.master;
@@ -10,6 +10,8 @@ import java.util.Collection;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
@@ -79,17 +81,56 @@ public class MasterSecuritySource implements SecuritySource {
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public Security getSecurity(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(uid, _versionAsOfInstant, _correctedToInstant);
-    request.setFullDetail(true);
-    SecuritySearchHistoricResult result = _securityMaster.searchHistoric(request);
-    if (result.getDocuments().size() == 1) {
-      return result.getDocuments().get(0).getSecurity();
+    if ((_versionAsOfInstant != null) || (_correctedToInstant != null)) {
+      // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
+      // versions and then pick one. Perhaps we should not use the "full detail" mode in this case depending on what comes back.
+      SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(uid, _versionAsOfInstant, _correctedToInstant);
+      request.setFullDetail(true);
+      SecuritySearchHistoricResult result = _securityMaster.searchHistoric(request);
+      if (result.getDocuments().isEmpty()) {
+        return null;
+      }
+      if (uid.isLatest()) {
+        if (result.getDocuments().size() == 1) {
+          return result.getDocuments().get(0).getSecurity();
+        } else {
+          Instant bestInstant = null;
+          SecurityDocument bestDocument = null;
+          for (SecurityDocument document : result.getDocuments()) {
+            final Instant documentInstant = document.getVersionFromInstant();
+            if ((bestInstant == null) || bestInstant.isBefore(documentInstant)) {
+              bestInstant = documentInstant;
+              bestDocument = document;
+            }
+          }
+          if (bestDocument != null) {
+            return bestDocument.getSecurity();
+          } else {
+            throw new OpenGammaRuntimeException("Securities returned from historic search without valid version dates");
+          }
+        }
+      } else {
+        for (SecurityDocument document : result.getDocuments()) {
+          if (uid.getVersion().equals(document.getSecurityId().getVersion())) {
+            return document.getSecurity();
+          }
+        }
+        // Securities found, but not matching the version we asked for
+        return null;
+      }
+    } else {
+      // Just want the latest (or version) asked for, so don't use the more costly historic search operation
+      try {
+        final SecurityDocument document = _securityMaster.get(uid);
+        return document.getSecurity();
+      } catch (DataNotFoundException e) {
+        return null;
+      }
     }
-    return null;
   }
 
   @SuppressWarnings("unchecked")

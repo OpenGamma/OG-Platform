@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,6 +35,8 @@ import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -69,12 +70,13 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.Timeout;
 
 @RunWith(Parameterized.class)
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;
-  private static final int JOB_FINISH_TIME = 1000;
+  private static final int JOB_FINISH_TIME = (int)Timeout.standardTimeoutMillis();
   private static final int SLEEP_TIME = JOB_FINISH_TIME / 10;
   private static final Logger s_logger = LoggerFactory.getLogger(CancelExecutionTest.class);
 
@@ -133,25 +135,25 @@ public class CancelExecutionTest {
       }
 
     };
-    functionRepository.addFunction(mockFunction, mockFunction);
-    final FunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
+    functionRepository.addFunction(mockFunction);
+    final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    final CompiledFunctionService compilationService = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), compilationContext);
+    final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
     final MockSecuritySource securitySource = new MockSecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();
     final ViewComputationCacheSource computationCacheSource = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
-    final ExecutorService executorService = Executors.newCachedThreadPool();
     final FunctionInvocationStatisticsGatherer functionInvocationStatistics = new DiscardingInvocationStatisticsGatherer();
     final ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     final ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, functionRepository, executionContext, targetResolver,
-        viewProcessorQuerySender, executorService, functionInvocationStatistics)));
-    final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
+        viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
-    final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, functionRepository, functionResolver, positionSource, securitySource,
+    final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, compilationContext, executorService, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {

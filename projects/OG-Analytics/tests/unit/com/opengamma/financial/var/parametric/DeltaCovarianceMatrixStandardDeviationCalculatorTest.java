@@ -9,14 +9,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
 /**
@@ -24,7 +23,7 @@ import com.opengamma.math.matrix.MatrixAlgebra;
  */
 public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
-  private static final Function1D<ParametricVaRDataBundle, Double> F = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
+  private static final DeltaCovarianceMatrixStandardDeviationCalculator F = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
   private static final DoubleMatrix1D VECTOR = new DoubleMatrix1D(new double[] {3});
   private static final DoubleMatrix2D MATRIX = new DoubleMatrix2D(new double[][] {new double[] {5}});
 
@@ -35,13 +34,13 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    F.evaluate((ParametricWithMeanVaRDataBundle) null);
+    F.evaluate((Map<Integer, ParametricVaRDataBundle>) null);
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    final Function1D<ParametricVaRDataBundle, Double> f1 = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
-    final Function1D<ParametricVaRDataBundle, Double> f2 = new DeltaCovarianceMatrixStandardDeviationCalculator(new ColtMatrixAlgebra());
+    final DeltaCovarianceMatrixStandardDeviationCalculator f1 = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
+    final DeltaCovarianceMatrixStandardDeviationCalculator f2 = new DeltaCovarianceMatrixStandardDeviationCalculator(new ColtMatrixAlgebra());
     assertEquals(f1, F);
     assertEquals(f1.hashCode(), F.hashCode());
     assertFalse(f1.equals(f2));
@@ -49,8 +48,8 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, VECTOR), Collections.<Integer, Matrix<?>> singletonMap(1,
-        VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, MATRIX));
-    assertEquals(F.evaluate(data), Math.sqrt(45), 1e-9);
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(VECTOR, MATRIX, 1, VECTOR);
+    final Map<Integer, ParametricVaRDataBundle> m = Collections.<Integer, ParametricVaRDataBundle> singletonMap(1, data);
+    assertEquals(F.evaluate(m), Math.sqrt(45), 1e-9);
   }
 }

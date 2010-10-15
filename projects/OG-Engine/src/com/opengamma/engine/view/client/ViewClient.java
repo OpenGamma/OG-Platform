@@ -12,7 +12,6 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.PublicSPI;
 
 /**
  * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented

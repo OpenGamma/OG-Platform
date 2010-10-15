@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.greeks;
 
-import java.util.Set;
+import java.util.List;
 
 import com.opengamma.financial.pnl.UnderlyingType;
 
@@ -16,5 +16,5 @@ public interface Underlying {
 
   int getOrder();
 
-  Set<UnderlyingType> getUnderlyings();
+  List<UnderlyingType> getUnderlyings();
 }

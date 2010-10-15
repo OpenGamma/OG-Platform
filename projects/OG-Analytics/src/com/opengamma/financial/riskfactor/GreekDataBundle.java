@@ -12,39 +12,47 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.financial.trade.OptionTradeData;
 
 /**
  * 
  */
 public class GreekDataBundle {
   private final GreekResultCollection _greekValues;
-  private final Map<Object, Double> _underlyingData;
+  private final Map<UnderlyingType, Double> _underlyingData;
+  private final OptionTradeData _tradeData;
 
-  public GreekDataBundle(final GreekResultCollection greekValues, final Map<Object, Double> underlyingData) {
-    Validate.notNull(greekValues, "GreekResultCollection");
-    Validate.notNull(underlyingData, "Underlying data");
-    ArgumentChecker.notEmpty(underlyingData, "Underlying data");
+  public GreekDataBundle(final GreekResultCollection greekValues, final Map<UnderlyingType, Double> underlyingData, final OptionTradeData tradeData) {
+    Validate.notNull(greekValues, "greek result collection");
     if (greekValues.isEmpty()) {
-      throw new IllegalArgumentException("GreekResultCollection was empty");
+      throw new IllegalArgumentException("Greek result collection was empty");
     }
+    Validate.notNull(underlyingData, "underlying data");
+    Validate.notEmpty(underlyingData, "underlying data");
+    Validate.notNull(tradeData, "trade data");
     _greekValues = greekValues;
     _underlyingData = underlyingData;
+    _tradeData = tradeData;
+  }
+
+  public OptionTradeData getOptionTradeData() {
+    return _tradeData;
   }
 
   public GreekResultCollection getGreekResults() {
     return _greekValues;
   }
 
-  public Map<Object, Double> getUnderlyingData() {
+  public Map<UnderlyingType, Double> getUnderlyingData() {
     return _underlyingData;
   }
 
-  public double getUnderlyingDataForObject(final Object o) {
-    if (_underlyingData.containsKey(o)) {
-      return _underlyingData.get(o);
+  public double getUnderlyingDataForType(final UnderlyingType type) {
+    if (_underlyingData.containsKey(type)) {
+      return _underlyingData.get(type);
     }
-    throw new IllegalArgumentException("Underlying data map did not contain a value for " + o);
+    throw new IllegalArgumentException("Underlying data map did not contain a value for " + type);
   }
 
   public Double getGreekResultForGreek(final Greek greek) {
@@ -60,6 +68,7 @@ public class GreekDataBundle {
     int result = 1;
     result = prime * result + ((_greekValues == null) ? 0 : _greekValues.hashCode());
     result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
+    result = prime * result + ((_tradeData == null) ? 0 : _tradeData.hashCode());
     return result;
   }
 
@@ -75,6 +84,6 @@ public class GreekDataBundle {
       return false;
     }
     final GreekDataBundle other = (GreekDataBundle) obj;
-    return ObjectUtils.equals(_greekValues, other._greekValues) && ObjectUtils.equals(_underlyingData, other._underlyingData);
+    return ObjectUtils.equals(_greekValues, other._greekValues) && ObjectUtils.equals(_underlyingData, other._underlyingData) && ObjectUtils.equals(_tradeData, other._tradeData);
   }
 }

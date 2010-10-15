@@ -7,11 +7,10 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,38 +20,33 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class InMemoryFunctionRepository implements FunctionRepository {
-  private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier = new HashMap<String, FunctionInvoker>();
+
   private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
 
   public InMemoryFunctionRepository() {
   }
 
-  public synchronized void addFunction(AbstractFunction function, FunctionInvoker invoker) {
+  public synchronized void addFunction(AbstractFunction function) {
     ArgumentChecker.notNull(function, "Function definition");
-    ArgumentChecker.notNull(invoker, "Function invoker");
-    _functions.add(function);
     if (function.getUniqueIdentifier() == null) {
-      function.setUniqueIdentifier(Integer.toString(_functions.size()) + " (" + function.getClass().getSimpleName() + ")");
+      function.setUniqueIdentifier(Integer.toString(_functions.size() + 1) + " (" + function.getClass().getSimpleName() + ")");
     }
-    _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);
+    _functions.add(function);
+  }
+
+  public synchronized void replaceFunction(FunctionDefinition searchFor, AbstractFunction replaceWith) {
+    ArgumentChecker.notNull(searchFor, "searchFor");
+    ArgumentChecker.notNull(replaceWith, "replaceWith");
+    _functions.remove(searchFor);
+    if (replaceWith.getUniqueIdentifier() == null) {
+      replaceWith.setUniqueIdentifier(searchFor.getUniqueIdentifier());
+    }
+    _functions.add(replaceWith);
   }
 
   @Override
   public Collection<FunctionDefinition> getAllFunctions() {
     return Collections.unmodifiableCollection(_functions);
-  }
-
-  @Override
-  public FunctionInvoker getInvoker(String uniqueIdentifier) {
-    return _invokersByUniqueIdentifier.get(uniqueIdentifier);
-  }
-  
-  /* Temporary method so we can swap in new versions of date-specific curve functions until the engine can do it */
-  public void replace(AbstractFunction originalFunction, AbstractFunction replacementFunction) {
-    _functions.remove(originalFunction);
-    _functions.add(replacementFunction);
-    replacementFunction.setUniqueIdentifier(originalFunction.getUniqueIdentifier());
-    _invokersByUniqueIdentifier.put(originalFunction.getUniqueIdentifier(), (FunctionInvoker) replacementFunction);
   }
 
   /**

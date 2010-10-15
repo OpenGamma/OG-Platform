@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
@@ -60,6 +61,10 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
    * The Hibernate configuration to show the SQL.
    */
   private boolean _hibernateShowSql;
+  /**
+   * Set to true if you want to use Hibernate thread-bound auto-create sessions 
+   */
+  private boolean _allowHibernateThreadBoundSession;
   /**
    * The transaction isolation level.
    * See {@link DefaultTransactionDefinition}.
@@ -143,6 +148,14 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   public void setHibernateShowSql(boolean hibernateShowSql) {
     _hibernateShowSql = hibernateShowSql;
   }
+  
+  public boolean isAllowHibernateThreadBoundSession() {
+    return _allowHibernateThreadBoundSession;
+  }
+
+  public void setAllowHibernateThreadBoundSession(boolean allowHibernateThreadBoundSession) {
+    _allowHibernateThreadBoundSession = allowHibernateThreadBoundSession;
+  }
 
   public String getTransactionIsolationLevelName() {
     return _transactionIsolationLevelName;
@@ -225,6 +238,12 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
       Properties props = new Properties();
       props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
       props.setProperty("hibernate.show_sql", String.valueOf(isHibernateShowSql()));
+      
+      if (isAllowHibernateThreadBoundSession()) {
+        props.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+        props.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
+      }
+
       factory.setHibernateProperties(props);
     }
     try {

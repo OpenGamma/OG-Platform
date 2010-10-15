@@ -12,6 +12,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
@@ -20,8 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PrimitiveTestFunction extends AbstractFunction {
+public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
+  
   private final String _requirementName;
+  
+  private FunctionInvoker _functionInvoker;
   
   public PrimitiveTestFunction(String requirementName) {
     ArgumentChecker.notNull(requirementName, "Requirement name");
@@ -57,6 +61,15 @@ public class PrimitiveTestFunction extends AbstractFunction {
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
+  }
+  
+  public void setFunctionInvoker (final FunctionInvoker functionInvoker) {
+    _functionInvoker = functionInvoker;
+  }
+  
+  @Override
+  public FunctionInvoker getFunctionInvoker () {
+    return _functionInvoker;
   }
 
 }

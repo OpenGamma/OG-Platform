@@ -315,7 +315,7 @@ public class DBTool extends Task {
   }
   
   public static String getTestCatalogStatic() {
-    return "test_" + System.getProperty("user.name");
+    return "test_" + System.getProperty("user.name").replace('.','_');
   }
   
   public String getTestCatalog() {

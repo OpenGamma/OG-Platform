@@ -180,6 +180,7 @@
 			<sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
 			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
 			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
+			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
 		</junit>
 	</target>
 
