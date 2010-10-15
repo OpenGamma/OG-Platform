@@ -54,6 +54,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
      _configHelper = new CurveConfigurationSetupHelper();
   }
 
+  
+  
+  
   /**
    * @throws java.lang.Exception
    */
