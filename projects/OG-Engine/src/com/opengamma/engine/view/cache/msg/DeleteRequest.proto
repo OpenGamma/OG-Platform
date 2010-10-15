@@ -11,6 +11,10 @@ namespace com.opengamma.engine.view.cache.msg {
     required string viewName;
     required string calculationConfigurationName;
     required long snapshotTimestamp;
+    
+    binding Java {
+      body "public void accept (BinaryDataStoreRequestVisitor visitor) {  visitor.visitDelete (this); }";
+    }
   
   }
 

@@ -8,6 +8,10 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message IdentifierMapResponse extends CacheMessage {
   
+    binding Java {
+      body "public void accept (IdentifierMapResponseVisitor visitor) { throw new UnsupportedOperationException (); }";
+    }
+    
   }
 
 }

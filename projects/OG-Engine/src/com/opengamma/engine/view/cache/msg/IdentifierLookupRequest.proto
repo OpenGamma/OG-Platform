@@ -10,6 +10,10 @@ namespace com.opengamma.engine.view.cache.msg {
   
     required repeated value.ValueSpecification specification;
   
+    binding Java {
+      body "public void accept (IdentifierLookupRequestVisitor visitor) {  visitor.visitIdentifierLookup (this); }";
+    }
+    
   }
 
 }

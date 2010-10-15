@@ -15,6 +15,10 @@ namespace com.opengamma.engine.view.cache.msg {
     required repeated long identifier;
     required repeated byte[] data;
   
+    binding Java {
+      body "public void accept (BinaryDataStoreRequestVisitor visitor) {  visitor.visitPut (this); }";
+    }
+    
   }
 
 }

@@ -22,7 +22,10 @@ import com.opengamma.transport.FudgeSynchronousClient;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * {@link FudgeSynchronousClient} implementation for the remote cache component clients.
+ * {@link FudgeSynchronousClient} implementation for the remote cache component clients. The client
+ * has a "get" and "put" channel. Although equal priority, this gives two blocking queues to isolate
+ * operations that query the cache from those that update or control it. This allows, for example,
+ * cache writes from a previous job to not delay loads needed by the next job.
  */
 public class RemoteCacheClient {
 

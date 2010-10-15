@@ -11,6 +11,10 @@ namespace com.opengamma.engine.view.cache.msg {
     required string viewName;
     required long timestamp;
     
+    binding Java {
+      body "public void accept (BinaryDataStoreResponseVisitor visitor) {  visitor.visitReleaseCache (this); }";
+    }
+    
   }
 
 }

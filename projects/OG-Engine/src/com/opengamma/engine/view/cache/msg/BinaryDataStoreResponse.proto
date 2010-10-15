@@ -8,6 +8,10 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message BinaryDataStoreResponse extends CacheMessage {
   
+    binding Java {
+      body "public void accept (BinaryDataStoreResponseVisitor visitor) { throw new UnsupportedOperationException (); }";
+    }
+    
   }
 
 }
