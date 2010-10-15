@@ -15,30 +15,37 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- * @param <T> Type of the data
+ * @param <T> The type of the data
  */
-public class NormalLinearVaRCalculator<T> implements Function<T, Double> {
+public class NormalWithMeanLinearVaRCalculator<T> implements Function<T, Double> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private final double _mult;
   private final double _z;
+  private final Function<T, Double> _meanCalculator;
   private final Function<T, Double> _stdCalculator;
   private final double _horizon;
   private final double _periods;
   private final double _quantile;
 
-  public NormalLinearVaRCalculator(final double horizon, final double periods, final double quantile, final Function<T, Double> stdCalculator) {
+  public NormalWithMeanLinearVaRCalculator(final double horizon, final double periods, final double quantile, final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator) {
     Validate.isTrue(horizon > 0, "horizon");
     Validate.isTrue(periods > 0, "periods");
     if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
     }
+    Validate.notNull(meanCalculator, "mean calculator");
     Validate.notNull(stdCalculator, "standard deviation calculator");
     _horizon = horizon;
     _periods = periods;
     _quantile = quantile;
-    _mult = Math.sqrt(horizon / periods);
     _z = NORMAL.getInverseCDF(quantile);
+    _mult = Math.sqrt(horizon / periods);
+    _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
+  }
+
+  public Function<T, Double> getMeanCalculator() {
+    return _meanCalculator;
   }
 
   public Function<T, Double> getStandardDeviationCalculator() {
@@ -60,7 +67,7 @@ public class NormalLinearVaRCalculator<T> implements Function<T, Double> {
   @Override
   public Double evaluate(final T... data) {
     Validate.notNull(data, "data");
-    return _z * _mult * _stdCalculator.evaluate(data);
+    return _z * _mult * _stdCalculator.evaluate(data) - _mult * _mult * _meanCalculator.evaluate(data);
   }
 
   @Override
@@ -70,6 +77,7 @@ public class NormalLinearVaRCalculator<T> implements Function<T, Double> {
     long temp;
     temp = Double.doubleToLongBits(_horizon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_meanCalculator == null) ? 0 : _meanCalculator.hashCode());
     temp = Double.doubleToLongBits(_periods);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
@@ -89,7 +97,7 @@ public class NormalLinearVaRCalculator<T> implements Function<T, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NormalLinearVaRCalculator<?> other = (NormalLinearVaRCalculator<?>) obj;
+    final NormalWithMeanLinearVaRCalculator<?> other = (NormalWithMeanLinearVaRCalculator<?>) obj;
     if (Double.doubleToLongBits(_horizon) != Double.doubleToLongBits(other._horizon)) {
       return false;
     }
@@ -99,7 +107,7 @@ public class NormalLinearVaRCalculator<T> implements Function<T, Double> {
     if (Double.doubleToLongBits(_quantile) != Double.doubleToLongBits(other._quantile)) {
       return false;
     }
-    return ObjectUtils.equals(_stdCalculator, other._stdCalculator);
+    return ObjectUtils.equals(_meanCalculator, other._meanCalculator) && ObjectUtils.equals(_stdCalculator, other._stdCalculator);
   }
 
 }

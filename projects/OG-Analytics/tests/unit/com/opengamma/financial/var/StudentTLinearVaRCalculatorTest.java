@@ -6,12 +6,11 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
@@ -22,60 +21,47 @@ public class StudentTLinearVaRCalculatorTest {
   private static final double PERIODS = 250;
   private static final double QUANTILE = new NormalDistribution(0, 1).getCDF(3.);
   private static final double DOF = 4;
-  private static final Function1D<NormalStatistics<?>, Double> NORMAL = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
-  private static final Function1D<NormalStatistics<?>, Double> HIGH_DOF = new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, 1000000);
-  private static final Function1D<NormalStatistics<?>, Double> STUDENT_T = new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, DOF);
+  private static final Function<Double, Double> MEAN = new Function<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double... x) {
+      return 0.4;
+    }
+
+  };
+  private static final Function<Double, Double> STD = new Function<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double... x) {
+      return 1.;
+    }
+
+  };
+  private static final NormalWithMeanLinearVaRCalculator<Double> NORMAL = new NormalWithMeanLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD);
+  private static final StudentTLinearVaRCalculator<Double> HIGH_DOF = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, 1000000, MEAN, STD);
+  private static final StudentTLinearVaRCalculator<Double> STUDENT_T = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, STD);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeDOF() {
-    new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, -DOF);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testSetDOF() {
-    ((StudentTLinearVaRCalculator) STUDENT_T).setDegreesOfFreedom(-4);
+    new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, -DOF, MEAN, STD);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    NORMAL.evaluate((NormalStatistics<?>) null);
+    STUDENT_T.evaluate((Double[]) null);
   }
 
   @Test
   public void test() {
-    final NormalStatistics<Double> stats = new NormalStatistics<Double>(new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return 0.4;
-      }
-    }, new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return 1.;
-      }
-
-    }, 0.);
-    assertEquals(NORMAL.evaluate(stats), HIGH_DOF.evaluate(stats), 1e-6);
-    assertTrue(STUDENT_T.evaluate(stats) > NORMAL.evaluate(stats));
+    final Double[] data = new Double[0];
+    assertEquals(NORMAL.evaluate(data), HIGH_DOF.evaluate(data), 1e-6);
+    assertTrue(STUDENT_T.evaluate(data) > NORMAL.evaluate(data));
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    StudentTLinearVaRCalculator studentT = new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, DOF);
+    final StudentTLinearVaRCalculator<Double> studentT = new StudentTLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, DOF, MEAN, STD);
     assertEquals(studentT, STUDENT_T);
     assertEquals(studentT.hashCode(), STUDENT_T.hashCode());
-    studentT.setHorizon(HORIZON - 1);
-    assertFalse(studentT.equals(STUDENT_T));
-    studentT.setHorizon(HORIZON);
-    studentT.setPeriods(PERIODS - 1);
-    assertFalse(studentT.equals(STUDENT_T));
-    studentT.setPeriods(PERIODS);
-    studentT.setQuantile(0.95);
-    assertFalse(studentT.equals(STUDENT_T));
-    studentT.setQuantile(QUANTILE);
-    studentT.setDegreesOfFreedom(DOF + 1);
-    assertFalse(studentT.equals(STUDENT_T));
   }
 }

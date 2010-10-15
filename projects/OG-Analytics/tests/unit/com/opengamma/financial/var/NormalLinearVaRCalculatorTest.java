@@ -10,7 +10,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
@@ -20,44 +20,82 @@ public class NormalLinearVaRCalculatorTest {
   private static final double HORIZON = 10;
   private static final double PERIODS = 250;
   private static final double QUANTILE = new NormalDistribution(0, 1).getCDF(3.);
-  private static final Function1D<NormalStatistics<?>, Double> CALCULATOR = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
+  // private static final Function<Double, Double> MEAN_CALCULATOR = new Function<Double, Double>() {
+  //
+  // @Override
+  // public Double evaluate(Double... x) {
+  // return 0.4;
+  // }
+  //
+  // };
+  private static final Function<Double, Double> STD_CALCULATOR = new Function<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double... x) {
+      return 1.;
+    }
+
+  };
+  private static final NormalLinearVaRCalculator<Double> CALCULATOR = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeHorizon() {
+    new NormalLinearVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePeriod() {
+    new NormalLinearVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, STD_CALCULATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeQuantile() {
+    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, STD_CALCULATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighQuantile() {
+    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, STD_CALCULATOR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCalculator() {
+    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null);
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.evaluate((NormalStatistics<?>) null);
+    CALCULATOR.evaluate((Double[]) null);
   }
 
   @Test
   public void test() {
-    final NormalStatistics<Double> stats = new NormalStatistics<Double>(new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return 0.4;
-      }
-    }, new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return 1.;
-      }
-
-    }, 0.);
-    assertEquals(CALCULATOR.evaluate(stats), 3 * 0.2 - 0.016, 1e-9);
+    assertEquals(CALCULATOR.evaluate(0.), 3 * 0.2, 1e-9);// - 0.016, 1e-9);
   }
 
   @Test
-  public void testEqualsAndHashCode() {
-    NormalLinearVaRCalculator calculator = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
-    assertEquals(calculator, CALCULATOR);
-    assertEquals(calculator.hashCode(), CALCULATOR.hashCode());
-    calculator.setHorizon(HORIZON - 1);
-    assertFalse(calculator.equals(CALCULATOR));
-    calculator.setHorizon(HORIZON);
-    calculator.setPeriods(PERIODS - 1);
-    assertFalse(calculator.equals(CALCULATOR));
-    calculator.setPeriods(PERIODS);
-    calculator.setQuantile(0.95);
-    assertFalse(calculator.equals(CALCULATOR));
+  public void testEqualsHashCodeAndGetters() {
+    assertEquals(CALCULATOR.getHorizon(), HORIZON, 0);
+    assertEquals(CALCULATOR.getPeriods(), PERIODS, 0);
+    assertEquals(CALCULATOR.getQuantile(), QUANTILE, 0);
+    assertEquals(CALCULATOR.getStandardDeviationCalculator(), STD_CALCULATOR);
+    NormalLinearVaRCalculator<Double> other = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
+    assertEquals(other, CALCULATOR);
+    assertEquals(other.hashCode(), CALCULATOR.hashCode());
+    other = new NormalLinearVaRCalculator<Double>(HORIZON + 1, PERIODS, QUANTILE, STD_CALCULATOR);
+    assertFalse(CALCULATOR.equals(other));
+    other = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS + 1, QUANTILE, STD_CALCULATOR);
+    assertFalse(CALCULATOR.equals(other));
+    other = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE * 0.01, STD_CALCULATOR);
+    assertFalse(CALCULATOR.equals(other));
+    other = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double... x) {
+        return null;
+      }
+
+    });
+    assertFalse(CALCULATOR.equals(other));
   }
 }

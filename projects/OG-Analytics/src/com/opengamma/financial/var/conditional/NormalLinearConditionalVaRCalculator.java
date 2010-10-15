@@ -5,64 +5,59 @@
  */
 package com.opengamma.financial.var.conditional;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.var.NormalStatistics;
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ * @param <T> The type of the data
  */
-public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStatistics<?>, Double> {
-  private double _horizon;
-  private double _periods;
-  private double _quantile;
-  private double _mult;
+public class NormalLinearConditionalVaRCalculator<T> implements Function<T, Double> {
+  private final double _horizon;
+  private final double _periods;
+  private final double _quantile;
+  private final double _mult;
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
+  private final Function<T, Double> _stdCalculator;
 
-  public NormalLinearConditionalVaRCalculator(final double horizon, final double periods, final double quantile) {
-    ArgumentChecker.notNegative(horizon, "horizon");
-    ArgumentChecker.notNegative(periods, "periods");
+  public NormalLinearConditionalVaRCalculator(final double horizon, final double periods, final double quantile, final Function<T, Double> stdCalculator) {
+    Validate.isTrue(horizon > 0, "horizon");
+    Validate.isTrue(periods > 0, "periods");
     if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
     }
     _horizon = horizon;
     _periods = periods;
     _quantile = quantile;
-    setMultiplier();
-  }
-
-  public void setHorizon(final double horizon) {
-    ArgumentChecker.notNegative(horizon, "horizon");
-    _horizon = horizon;
-    setMultiplier();
-  }
-
-  public void setPeriods(final double periods) {
-    ArgumentChecker.notNegative(periods, "periods");
-    _periods = periods;
-    setMultiplier();
-  }
-
-  public void setQuantile(final double quantile) {
-    if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    }
-    _quantile = quantile;
-    setMultiplier();
-  }
-
-  private void setMultiplier() {
     _mult = _normal.getPDF(_normal.getInverseCDF(_quantile)) * Math.sqrt(_horizon / _periods) / (1 - _quantile);
+    _stdCalculator = stdCalculator;
+  }
+
+  public Function<T, Double> getStandardDeviationCalculator() {
+    return _stdCalculator;
+  }
+
+  public double getHorizon() {
+    return _horizon;
+  }
+
+  public double getPeriods() {
+    return _periods;
+  }
+
+  public double getQuantile() {
+    return _quantile;
   }
 
   @Override
-  public Double evaluate(final NormalStatistics<?> statistics) {
-    Validate.notNull(statistics, "statistics");
-    return _mult * statistics.getStandardDeviation();
+  public Double evaluate(final T... data) {
+    Validate.notNull(data, "data");
+    return _mult * _stdCalculator.evaluate(data);
   }
 
   @Override
@@ -76,6 +71,7 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_stdCalculator == null) ? 0 : _stdCalculator.hashCode());
     return result;
   }
 
@@ -90,7 +86,7 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final NormalLinearConditionalVaRCalculator other = (NormalLinearConditionalVaRCalculator) obj;
+    final NormalLinearConditionalVaRCalculator<?> other = (NormalLinearConditionalVaRCalculator<?>) obj;
     if (Double.doubleToLongBits(_horizon) != Double.doubleToLongBits(other._horizon)) {
       return false;
     }
@@ -100,6 +96,6 @@ public class NormalLinearConditionalVaRCalculator extends Function1D<NormalStati
     if (Double.doubleToLongBits(_quantile) != Double.doubleToLongBits(other._quantile)) {
       return false;
     }
-    return true;
+    return ObjectUtils.equals(_stdCalculator, other._stdCalculator);
   }
 }

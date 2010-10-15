@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -22,11 +20,11 @@ public class EmpiricalDistributionVaRCalculatorTest {
   private static final double HORIZON = 10;
   private static final double PERIODS = 250;
   private static final double QUANTILE = 0.9;
-  private static final Function1D<DoubleTimeSeries<?>, Double> CALCULATOR = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
+  private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
-    CALCULATOR.evaluate((DoubleTimeSeries<?>) null);
+    CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
   @Test
@@ -44,16 +42,8 @@ public class EmpiricalDistributionVaRCalculatorTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    EmpiricalDistributionVaRCalculator calculator = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    final EmpiricalDistributionVaRCalculator calculator = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
     assertEquals(calculator, CALCULATOR);
     assertEquals(calculator.hashCode(), CALCULATOR.hashCode());
-    calculator.setHorizon(HORIZON - 1);
-    assertFalse(calculator.equals(CALCULATOR));
-    calculator.setHorizon(HORIZON);
-    calculator.setPeriods(PERIODS - 1);
-    assertFalse(calculator.equals(CALCULATOR));
-    calculator.setPeriods(PERIODS);
-    calculator.setQuantile(0.95);
-    assertFalse(calculator.equals(CALCULATOR));
   }
 }
