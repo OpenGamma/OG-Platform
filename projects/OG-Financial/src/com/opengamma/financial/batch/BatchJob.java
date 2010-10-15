@@ -620,6 +620,10 @@ public class BatchJob {
     searchRequest.setEffectiveTime(_viewDateTime.toInstant());
     ConfigSearchResult<ViewDefinition> searchResult = _configDb.search(searchRequest);
     List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
+    if (documents.isEmpty()) {
+      throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
+          _viewDateTime.toInstant() + " in config db");
+    }
     return documents.get(0);
   }
 
