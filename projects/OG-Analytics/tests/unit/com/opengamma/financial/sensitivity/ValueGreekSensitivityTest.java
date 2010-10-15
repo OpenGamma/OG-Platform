@@ -8,7 +8,7 @@ package com.opengamma.financial.sensitivity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class ValueGreekSensitivityTest {
     assertEquals(VALUE_GREEK, SENSITIVITY.getSensitivity());
     assertEquals(NAME, SENSITIVITY.getIdentifier());
     assertEquals(1, SENSITIVITY.getOrder());
-    assertEquals(Collections.singleton(UnderlyingType.SPOT_PRICE), SENSITIVITY.getUnderlyingTypes());
+    assertEquals(Arrays.asList(UnderlyingType.SPOT_PRICE), SENSITIVITY.getUnderlyingTypes());
   }
 
   @Test

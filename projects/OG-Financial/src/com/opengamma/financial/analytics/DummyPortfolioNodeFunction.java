@@ -15,7 +15,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -24,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
-public class DummyPortfolioNodeFunction extends AbstractFunction implements FunctionInvoker {
+public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirement;
   private final Double _value;
 

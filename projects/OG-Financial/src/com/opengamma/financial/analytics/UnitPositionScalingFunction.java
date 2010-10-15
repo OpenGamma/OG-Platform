@@ -17,7 +17,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -27,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
-public class UnitPositionScalingFunction extends AbstractFunction implements FunctionInvoker {
+public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _requirementName;
 
   public UnitPositionScalingFunction(final String requirementName) {

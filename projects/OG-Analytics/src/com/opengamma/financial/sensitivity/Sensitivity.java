@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import java.util.Set;
+import java.util.List;
 
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
@@ -22,7 +22,7 @@ public interface Sensitivity<T> {
 
   int getOrder();
 
-  Set<UnderlyingType> getUnderlyingTypes();
+  List<UnderlyingType> getUnderlyingTypes();
 
   Underlying getUnderlying();
 }

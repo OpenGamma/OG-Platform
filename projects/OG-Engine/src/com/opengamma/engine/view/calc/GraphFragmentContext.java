@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
@@ -102,8 +102,8 @@ import com.opengamma.util.Cancellable;
     return _maxConcurrency.get();
   }
 
-  public FunctionInvocationStatistics getFunctionStatistics(final FunctionDefinition function) {
-    return _functionCost.getStatistics(function.getUniqueIdentifier());
+  public FunctionInvocationStatistics getFunctionStatistics(final CompiledFunctionDefinition function) {
+    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueIdentifier());
   }
 
   @Override

@@ -186,7 +186,7 @@ public class PresentValueCalculatorTest {
     double pv = PVC.getValue(bond, CURVES);
     assertEquals(1.0, pv, 1e-12);
 
-    bond = new Bond(paymentTimes, coupons, yearFracs, FIVE_PC_CURVE_NAME);
+    bond = new Bond(paymentTimes, coupons, yearFracs, 0.3, FIVE_PC_CURVE_NAME);
     pv = PVC.getValue(bond, CURVES);
     assertEquals(1.0, pv, 1e-12);
   }

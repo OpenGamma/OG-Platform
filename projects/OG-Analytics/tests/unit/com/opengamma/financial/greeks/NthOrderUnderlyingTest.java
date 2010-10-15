@@ -6,8 +6,9 @@
 package com.opengamma.financial.greeks;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -31,6 +32,8 @@ public class NthOrderUnderlyingTest {
     final UnderlyingType type = UnderlyingType.SPOT_PRICE;
     final Underlying underlying = new NthOrderUnderlying(order, type);
     assertEquals(underlying.getOrder(), order);
-    assertEquals(underlying.getUnderlyings(), Collections.singleton(type));
+    assertEquals(underlying.getUnderlyings(), Arrays.asList(type));
+    final Underlying other = new NthOrderUnderlying(order, type);
+    assertFalse(other.equals(type));
   }
 }

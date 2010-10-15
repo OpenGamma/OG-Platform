@@ -14,8 +14,8 @@ import java.util.concurrent.ExecutorService;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculationNode> implements InitializingBean {
 
   private ViewComputationCacheSource _viewComputationCache;
-  private FunctionRepository _functionRepository;
+  private CompiledFunctionService _functionCompilationService;
   private FunctionExecutionContext _functionExecutionContext;
   private ComputationTargetResolver _computationTargetResolver;
   private ViewProcessorQuerySender _viewProcessorQuery;
@@ -57,21 +57,13 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     _viewComputationCache = viewComputationCache;
   }
 
-  /**
-   * Gets the functionRepository field.
-   * @return the functionRepository
-   */
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+  public CompiledFunctionService getFunctionCompilationService() {
+    return _functionCompilationService;
   }
 
-  /**
-   * Sets the functionRepository field.
-   * @param functionRepository  the functionRepository
-   */
-  public void setFunctionRepository(FunctionRepository functionRepository) {
-    ArgumentChecker.notNull(functionRepository, "functionRepository");
-    _functionRepository = functionRepository;
+  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
+    ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
+    _functionCompilationService = functionCompilationService;
   }
 
   /**
@@ -194,7 +186,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   @Override
   public void afterPropertiesSet() throws Exception {
     ArgumentChecker.notNull(getViewComputationCache(), "viewComputationCache");
-    ArgumentChecker.notNull(getFunctionRepository(), "functionRepository");
+    ArgumentChecker.notNull(getFunctionCompilationService(), "functionCompilationService");
     ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
     ArgumentChecker.notNull(getComputationTargetResolver(), "computationTargetResolver");
     ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
@@ -210,7 +202,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     }
     _nodes = new ArrayList<LocalCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
-      final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionRepository(), getFunctionExecutionContext(), getComputationTargetResolver(),
+      final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
           getViewProcessorQuery(), getWriteBehindExecutorService(), getStatisticsGatherer());
       if (getNodeIdentifier() != null) {
         if (nodes > 1) {

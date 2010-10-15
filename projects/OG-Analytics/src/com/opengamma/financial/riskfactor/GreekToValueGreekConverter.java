@@ -13,8 +13,9 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.Underlying;
-import com.opengamma.financial.pnl.TradeData;
+import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.ValueGreek;
+import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.Pair;
 
@@ -28,19 +29,20 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
     Validate.notNull(data, "data");
     final GreekResultCollection greeks = data.getGreekResults();
     final Map<ValueGreek, Double> riskFactors = new HashMap<ValueGreek, Double>();
-    final Map<Object, Double> underlyingData = data.getUnderlyingData();
+    final Map<UnderlyingType, Double> underlyingData = data.getUnderlyingData();
+    final OptionTradeData tradeData = data.getOptionTradeData();
     for (final Pair<Greek, Double> entry : greeks) {
-      Greek key = entry.getKey();
-      Double value = entry.getValue();
-      riskFactors.put(new ValueGreek(key), getValueGreek(key, underlyingData, value));
+      final Greek key = entry.getKey();
+      final Double value = entry.getValue();
+      riskFactors.put(new ValueGreek(key), getValueGreek(key, value, underlyingData, tradeData));
     }
     return riskFactors;
   }
 
   // TODO handle theta separately?
-  Double getValueGreek(final Greek greek, final Map<Object, Double> underlyings, final Double greekValue) {
+  private Double getValueGreek(final Greek greek, final double greekValue, final Map<UnderlyingType, Double> underlyings, final OptionTradeData tradeData) {
     final Underlying order = greek.getUnderlying();
-    return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue * underlyings.get(TradeData.NUMBER_OF_CONTRACTS)
-        * underlyings.get(TradeData.POINT_VALUE) / TaylorExpansionMultiplierCalculator.getMultiplier(order);
+    return TaylorExpansionMultiplierCalculator.getValue(underlyings, order) * greekValue * tradeData.getNumberOfContracts()
+        * tradeData.getPointValue() / TaylorExpansionMultiplierCalculator.getMultiplier(order);
   }
 }
