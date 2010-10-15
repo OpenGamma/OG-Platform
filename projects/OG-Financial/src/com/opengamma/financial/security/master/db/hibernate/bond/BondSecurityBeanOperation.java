@@ -64,8 +64,9 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
                 .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
                 .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setBusinessDayConvention(businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()));
         bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
-        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null);
         return bondSecurity;
       }
 
@@ -76,8 +77,9 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
               .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
               .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setBusinessDayConvention(businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()));
         bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
-        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null);
         return bondSecurity;
       }
 
@@ -88,8 +90,9 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
               .getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean
               .getMinimumAmount(), bean.getMinimumIncrement(), bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setBusinessDayConvention(businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()));
         bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
-        bondSecurity.setGuaranteeType(bean.getGuaranteeType().getName());
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null);
         return bondSecurity;
       }
 
@@ -102,7 +105,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
         && ObjectUtils.equals(bean.getIssuerType().getName(), security.getIssuerType()) && ObjectUtils.equals(bean.getIssuerDomicile(), security.getIssuerDomicile())
         && ObjectUtils.equals(bean.getMarket().getName(), security.getMarket()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
         && ObjectUtils.equals(yieldConventionBeanToYieldConvention(bean.getYieldConvention()), security.getYieldConvention())
-        && ObjectUtils.equals(bean.getGuaranteeType().getName(), security.getGuaranteeType()) && ObjectUtils.equals(expiryBeanToExpiry(bean.getMaturity()), security.getMaturity())
+        && ObjectUtils.equals(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null, security.getGuaranteeType()) && ObjectUtils.equals(expiryBeanToExpiry(bean.getMaturity()), security.getMaturity())
         && ObjectUtils.equals(bean.getCouponType().getName(), security.getCouponType()) && ObjectUtils.equals(bean.getCouponRate(), security.getCouponRate())
         && ObjectUtils.equals(frequencyBeanToFrequency(bean.getCouponFrequency()), security.getCouponFrequency())
         && ObjectUtils.equals(dayCountBeanToDayCount(bean.getDayCountConvention()), security.getDayCountConvention())
