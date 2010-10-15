@@ -26,8 +26,6 @@ public class LiveDataSnapshot {
   private Set<LiveDataSnapshotEntry> _snapshotEntries = new HashSet<LiveDataSnapshotEntry>();
   private Map<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>> _ct2FieldName2Entry; 
     
-  private boolean _complete;
-  
   public int getId() {
     return _id;
   }
@@ -89,14 +87,6 @@ public class LiveDataSnapshot {
       return null;
     }
     return fieldName2Entry.get(fieldName);
-  }
-  
-  public boolean isComplete() {
-    return _complete;
-  }
-  
-  public void setComplete(boolean complete) {
-    _complete = complete;
   }
   
   @Override

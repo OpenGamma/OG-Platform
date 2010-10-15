@@ -1,0 +1,1 @@
+alter table rsk_live_data_snapshot drop column complete;
