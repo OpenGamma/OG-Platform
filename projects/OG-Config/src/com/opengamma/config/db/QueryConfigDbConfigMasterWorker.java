@@ -86,7 +86,6 @@ public class QueryConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T> 
     s_logger.debug("getConfigByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
     final ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, now);
-    request.setFullDetail(true);
     final ConfigSearchHistoricResult<T> result = getMaster().searchHistoric(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Config not found: " + uid);

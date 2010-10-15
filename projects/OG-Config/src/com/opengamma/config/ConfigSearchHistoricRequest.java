@@ -61,14 +61,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
    */
   @PropertyDefinition
   private Instant _versionsToInstant;
-  /**
-   * The depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   */
-  @PropertyDefinition
-  private boolean _fullDetail;
 
   /**
    * Creates an instance.
@@ -126,8 +118,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
         return getVersionsFromInstant();
       case 288644747:  // versionsToInstant
         return getVersionsToInstant();
-      case -1233600576:  // fullDetail
-        return isFullDetail();
     }
     return super.propertyGet(propertyName);
   }
@@ -146,9 +136,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
         return;
       case 288644747:  // versionsToInstant
         setVersionsToInstant((Instant) newValue);
-        return;
-      case -1233600576:  // fullDetail
-        setFullDetail((boolean) (Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -268,40 +255,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @return the value of the property
-   */
-  public boolean isFullDetail() {
-    return _fullDetail;
-  }
-
-  /**
-   * Sets the depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @param fullDetail  the new value of the property
-   */
-  public void setFullDetail(boolean fullDetail) {
-    this._fullDetail = fullDetail;
-  }
-
-  /**
-   * Gets the the {@code fullDetail} property.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @return the property, not null
-   */
-  public final Property<Boolean> fullDetail() {
-    return metaBean().fullDetail().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code ConfigSearchHistoricRequest}.
    */
   public static class Meta extends BasicMetaBean {
@@ -327,10 +280,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<Instant> _versionsToInstant = DirectMetaProperty.ofReadWrite(this, "versionsToInstant", Instant.class);
     /**
-     * The meta-property for the {@code fullDetail} property.
-     */
-    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(this, "fullDetail", Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -342,7 +291,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
       temp.put("configId", _configId);
       temp.put("versionsFromInstant", _versionsFromInstant);
       temp.put("versionsToInstant", _versionsToInstant);
-      temp.put("fullDetail", _fullDetail);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -392,14 +340,6 @@ public class ConfigSearchHistoricRequest extends DirectBean {
      */
     public final MetaProperty<Instant> versionsToInstant() {
       return _versionsToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code fullDetail} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> fullDetail() {
-      return _fullDetail;
     }
 
   }

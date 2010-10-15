@@ -38,7 +38,7 @@ import com.opengamma.util.test.MongoDBTestUtils;
 /**
  *
  */
-public class ConfigSourceTest {
+public class MongoConfigSourceTest {
   
   private static final String EQUITY_OPTION = "EQUITY_OPTION";
   private static final int DATA_SIZE = 10;
