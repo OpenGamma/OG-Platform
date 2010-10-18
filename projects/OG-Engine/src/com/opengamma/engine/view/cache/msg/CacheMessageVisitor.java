@@ -14,11 +14,11 @@ public abstract class CacheMessageVisitor {
   protected abstract <T extends CacheMessage> T visitUnexpectedMessage(CacheMessage message);
 
   protected <T extends CacheMessage> T visitBinaryDataStoreMessage(final CacheMessage message) {
-    return visitUnexpectedMessage(message);
+    return this.<T>visitUnexpectedMessage(message);
   }
 
   protected <T extends CacheMessage> T visitIdentifierMapMessage(final CacheMessage message) {
-    return visitUnexpectedMessage(message);
+    return this.<T>visitUnexpectedMessage(message);
   }
 
   protected CacheMessage visitDeleteRequest(final DeleteRequest message) {

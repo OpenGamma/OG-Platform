@@ -209,12 +209,12 @@ public class PrivateToSharedTransferTest {
     assertEquals(1, conduit2.getAndResetMessages2To1());
     assertEquals(1, conduit3.getAndResetMessages1To2());
     assertEquals(0, conduit3.getAndResetMessages2To1());
-    // Query for a non-existant single value
+    // Query for a non-existent single value
     value = serverCache.getValue (specs[8]);
     assertNull (value);
     assertEquals (1, conduit3.getAndResetMessages1To2());
     assertEquals (0, conduit3.getAndResetMessages2To1());
-    // Query for one existing and one non-existant value
+    // Query for one existing and one non-existent value
     values = serverCache.getValues (Arrays.asList (specs[7], specs[8]));
     assertEquals (1, values.size ());
     assertTrue (values.contains (Pair.of (specs[7], "Seven")));

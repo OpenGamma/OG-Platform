@@ -199,13 +199,13 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
           continue;
         }
         s_logger.debug("Waiting for missing value ID {} to appear (of {} remaining values)", identifier, identifierCount);
-        if (!search.waitFor(identifierArray[0], getFindValueTimeout())) {
+        if (!search.waitFor(identifier, getFindValueTimeout())) {
           s_logger.warn("{}ms timeout exceeded waiting for value ID {}", getFindValueTimeout(), identifier);
           for (int i = 0; i < identifierCount; i++) {
             data = store.get(identifierArray[i]);
             if (data != null) {
               s_logger.debug("Value for {} found and transferred to shared data store", identifierArray[i]);
-              map.put(identifier, data);
+              map.put(identifierArray[i], data);
             }
           }
           break;
