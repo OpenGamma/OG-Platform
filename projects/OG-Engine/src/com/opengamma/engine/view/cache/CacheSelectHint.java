@@ -19,6 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class CacheSelectHint {
 
+  private static final CacheSelectHint ALL_SHARED_INSTANCE = new CacheSelectHint(null, null, true);
+  private static final CacheSelectHint ALL_PRIVATE_INSTANCE = new CacheSelectHint(null, null, false);
+
   private final Set<ValueSpecification> _valueSpecifications;
   private long[] _valueIdentifiers;
   private final boolean _isPrivate;
@@ -44,11 +47,11 @@ public final class CacheSelectHint {
   }
 
   public static CacheSelectHint allShared() {
-    return new CacheSelectHint(null, null, true);
+    return ALL_SHARED_INSTANCE;
   }
 
   public static CacheSelectHint allPrivate() {
-    return new CacheSelectHint(null, null, false);
+    return ALL_PRIVATE_INSTANCE;
   }
 
   /**
@@ -89,7 +92,7 @@ public final class CacheSelectHint {
       return !_valueSpecifications.contains(valueSpecification);
     }
   }
-  
+
   /**
    * Gets the valueIdentifiers field.
    * @return the valueIdentifiers
