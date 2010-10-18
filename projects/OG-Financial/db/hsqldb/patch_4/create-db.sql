@@ -557,7 +557,6 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete boolean not null,
 	
 	primary key (id),
 	

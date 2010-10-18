@@ -324,9 +324,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
     ZonedDateTime now = job.getCreationTime();
     
     LiveDataSnapshot snapshot = getLiveDataSnapshot(job);
-    if (!snapshot.isComplete()) {
-      throw new IllegalStateException(snapshot + " is not yet complete.");
-    }
     
     RiskRun riskRun = new RiskRun();
     riskRun.setOpenGammaVersion(getOpenGammaVersion(job.getJob()));
@@ -428,9 +425,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       if (snapshot == null) {
         throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
-      if (snapshot.isComplete()) {
-        throw new IllegalStateException("Snapshot " + snapshotId + " is already complete.");
-      }
       
       Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
       for (LiveDataValue value : values) {
@@ -474,7 +468,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       }
       
       snapshot = new LiveDataSnapshot();
-      snapshot.setComplete(false);
       
       ObservationDateTime snapshotTime = getObservationDateTime(
           snapshotId.getObservationDate(), 
@@ -530,33 +523,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
   }
 
-  @Override
-  public void markLiveDataSnapshotComplete(SnapshotId snapshotId) {
-    s_logger.info("Marking LiveData snapshot {} complete", snapshotId);
-    
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-      
-      if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
-      }
-      
-      if (snapshot.isComplete()) {
-        throw new IllegalStateException(snapshot + " is already complete.");
-      }
-      
-      snapshot.setComplete(true);
-      getHibernateTemplate().update(snapshot);
-      
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-  }
-  
   @Override
   public Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId) {
     s_logger.info("Getting LiveData snapshot {}", snapshotId);

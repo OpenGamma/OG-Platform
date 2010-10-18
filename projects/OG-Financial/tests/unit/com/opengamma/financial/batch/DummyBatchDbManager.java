@@ -39,10 +39,6 @@ public class DummyBatchDbManager implements BatchDbManager {
   }
 
   @Override
-  public void markLiveDataSnapshotComplete(SnapshotId snapshotId) {
-  }
-
-  @Override
   public void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values) {
   }
 

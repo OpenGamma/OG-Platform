@@ -114,7 +114,6 @@ public class BatchResultWriterTest extends HibernateTest {
     _hibernateTemplate.save(_computeNode);
     
     _liveDataSnapshot = new LiveDataSnapshot();
-    _liveDataSnapshot.setComplete(true);
     _liveDataSnapshot.setSnapshotTime(_observationDateTime);
     _hibernateTemplate.save(_liveDataSnapshot);
     
