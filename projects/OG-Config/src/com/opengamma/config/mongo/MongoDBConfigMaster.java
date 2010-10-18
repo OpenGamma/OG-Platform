@@ -7,8 +7,6 @@ package com.opengamma.config.mongo;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.StringTokenizer;
-import java.util.regex.Pattern;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -43,6 +41,7 @@ import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
@@ -274,41 +273,12 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
     String name = request.getName();
     DBObject queryObj = new BasicDBObject();
     if (name != null) {
-      queryObj.put(NAME_FIELD_NAME, createPattern(name));
+      queryObj.put(NAME_FIELD_NAME, RegexUtils.wildcardsToPattern(name));
     }
     queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(versionAsOf.toEpochMillisLong())));
     queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(versionAsOf.toEpochMillisLong())));
     BasicDBObject sortObj = new BasicDBObject(NAME_FIELD_NAME, 1);
     return find(queryObj, sortObj, request.getPagingRequest());
-  }
-
-  /**
-   * Creates a suitable regex pattern to wildcard match the input.
-   * @param text  the text to match, not null
-   * @return the pattern, not null
-   */
-  protected Pattern createPattern(String text) {
-    StringTokenizer tkn = new StringTokenizer(text, "?*", true);
-    StringBuilder buf = new StringBuilder(text.length() + 10);
-    buf.append('^');
-    boolean lastStar = false;
-    while (tkn.hasMoreTokens()) {
-      String str = tkn.nextToken();
-      if (str.equals("?")) {
-        buf.append('.');
-        lastStar = false;
-      } else if (str.equals("*")) {
-        if (lastStar == false) {
-          buf.append(".*");
-        }
-        lastStar = true;
-      } else {
-        buf.append(Pattern.quote(str));
-        lastStar = false;
-      }
-    }
-    buf.append('$');
-    return Pattern.compile(buf.toString(), Pattern.CASE_INSENSITIVE);
   }
 
   //-------------------------------------------------------------------------
