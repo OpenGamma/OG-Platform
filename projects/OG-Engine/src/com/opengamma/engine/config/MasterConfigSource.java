@@ -129,6 +129,18 @@ public class MasterConfigSource implements ConfigSource {
   }
 
   @Override
+  public <T> T searchLatest(final Class<T> clazz, final String name) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(name, "name");
+    ConfigMaster<T> configMaster = getMaster(clazz);
+    ConfigSearchRequest request = new ConfigSearchRequest();
+    request.setName(name);
+    request.setVersionAsOfInstant(_versionAsOfInstant);
+    ConfigSearchResult<T> searchResult = configMaster.search(request);
+    return searchResult.getFirstValue();
+  }
+
+  @Override
   public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
@@ -144,7 +156,7 @@ public class MasterConfigSource implements ConfigSource {
       }
       return result.getFirstValue();
     } else {
-      // Just want the latest (or version) asked for, so don't use the more costly historic search operation
+      // just want the latest (or version) asked for, so don't use the more costly historic search operation
       try {
         return configMaster.get(uid).getValue();
       } catch (DataNotFoundException ex) {

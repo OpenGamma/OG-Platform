@@ -61,6 +61,20 @@ public class MockConfigSource implements ConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
+  public <T> T searchLatest(final Class<T> clazz, final String name) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(name, "name");
+    Pattern matchName = RegexUtils.wildcardsToPattern(name);
+    for (ConfigDocument<?> doc : _configs.values()) {
+      if (matchName.matcher(doc.getName()).matches() && clazz.isInstance(doc.getValue())) {
+        return (T) doc.getValue();
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
   public <T> T get(Class<T> clazz, UniqueIdentifier uid) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
