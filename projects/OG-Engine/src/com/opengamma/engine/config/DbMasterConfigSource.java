@@ -21,6 +21,10 @@ public class DbMasterConfigSource extends MasterConfigSource {
    * The source of database connections.
    */
   private final DbSource _dbSource;
+  /**
+   * The scheme in use for UniqueIdentifier, null for default.
+   */
+  private String _identifierScheme;
 
   /**
    * Creates an instance.
@@ -32,9 +36,31 @@ public class DbMasterConfigSource extends MasterConfigSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the scheme in use for UniqueIdentifier.
+   * @return the scheme, not null
+   */
+  public String getIdentifierScheme() {
+    return _identifierScheme;
+  }
+
+  /**
+   * Sets the scheme in use for UniqueIdentifier.
+   * @param scheme  the scheme, not null
+   */
+  public void setIdentifierScheme(final String scheme) {
+    ArgumentChecker.notNull(scheme, "scheme");
+    _identifierScheme = scheme;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected <T> ConfigMaster<T> createMaster(final Class<T> clazz) {
-    return new DbConfigMaster<T>(clazz, _dbSource);
+    DbConfigMaster<T> master = new DbConfigMaster<T>(clazz, _dbSource);
+    if (getIdentifierScheme() != null) {
+      master.setIdentifierScheme(getIdentifierScheme());
+    }
+    return master;
   }
 
 }

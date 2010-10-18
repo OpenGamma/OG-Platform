@@ -7,21 +7,21 @@ package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
-import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.config.MasterConfigSource;
 
 /**
- * 
+ * Populates the yield curve configuration.
  */
 public class YieldCurveConfigPopulator {
-  
-  public static MongoDBMasterConfigSource populateCurveConfigSource(MongoDBMasterConfigSource masterConfigSource) {
-    ConfigMaster<YieldCurveDefinition> curveDefinitionMaster = masterConfigSource.getConfigMasterFor(YieldCurveDefinition.class);
+
+  public static MasterConfigSource populateCurveConfigSource(MasterConfigSource masterConfigSource) {
+    ConfigMaster<YieldCurveDefinition> curveDefinitionMaster = masterConfigSource.getMaster(YieldCurveDefinition.class);
     populateCurveDefinitionConfigMaster(curveDefinitionMaster);
-    ConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = masterConfigSource.getConfigMasterFor(CurveSpecificationBuilderConfiguration.class);
+    ConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = masterConfigSource.getMaster(CurveSpecificationBuilderConfiguration.class);
     populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
     return masterConfigSource;
   }
-  
+
   public static void populateCurveDefinitionConfigMaster(ConfigMaster<YieldCurveDefinition> configRepo) {
     ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>();
     forwardUSD.setName("FORWARD_USD");
@@ -48,7 +48,7 @@ public class YieldCurveConfigPopulator {
     singleUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSingleCurveDefinition());
     configRepo.add(singleUSD);
   }
-  
+
   public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {
     ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
     doc.setName("DEFAULT_USD");

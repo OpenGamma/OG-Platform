@@ -7,7 +7,7 @@ package com.opengamma.engine.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -36,7 +36,7 @@ public class MasterConfigSource implements ConfigSource {
   /**
    * Map of masters by class.
    */
-  private Map<Class<?>, ConfigMaster<?>> _configMasterMap = new MapMaker().makeComputingMap(new Function<Class<?>, ConfigMaster<?>>() {
+  private ConcurrentMap<Class<?>, ConfigMaster<?>> _configMasterMap = new MapMaker().makeComputingMap(new Function<Class<?>, ConfigMaster<?>>() {
     public ConfigMaster<?> apply(final Class<?> clazz) {
       return createMaster(clazz);
     }
@@ -86,7 +86,7 @@ public class MasterConfigSource implements ConfigSource {
    * @return the master, not null
    */
   @SuppressWarnings("unchecked")
-  protected <T> ConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
+  public <T> ConfigMaster<T> getMaster(Class<T> clazz) {
     try {
       return (ConfigMaster<T>) _configMasterMap.get(clazz);
     } catch (ComputationException ex) {
@@ -97,12 +97,27 @@ public class MasterConfigSource implements ConfigSource {
     }
   }
 
+  /**
+   * Finds a config master for the type specified.
+   * @param <T>  the type
+   * @param clazz  the class to create a master for, not null
+   * @param master  the master to add, not null
+   */
+  public <T> void addMaster(Class<T> clazz, ConfigMaster<T> master) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(master, "master");
+    ConfigMaster<?> old = _configMasterMap.putIfAbsent(clazz, master);
+    if (old != null) {
+      throw new IllegalStateException("Master already exists for " + clazz.getName());
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public <T> List<T> search(final Class<T> clazz, final ConfigSearchRequest request) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(request, "request");
-    ConfigMaster<T> configMaster = getConfigMasterFor(clazz);
+    ConfigMaster<T> configMaster = getMaster(clazz);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     ConfigSearchResult<T> searchResult = configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
@@ -117,7 +132,7 @@ public class MasterConfigSource implements ConfigSource {
   public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
-    ConfigMaster<T> configMaster = getConfigMasterFor(clazz);
+    ConfigMaster<T> configMaster = getMaster(clazz);
     if (_versionAsOfInstant != null) {
       ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, _versionAsOfInstant);
       ConfigSearchHistoricResult<T> result = configMaster.searchHistoric(request);

@@ -12,44 +12,59 @@ import javax.time.Instant;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.financial.Currency;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A source of yield curve definitions based on configuration.
+ * <p>
+ * This supplies curve definitions from a {@link ConfigSource}.
  */
 public class ConfigDBInterpolatedYieldCurveDefinitionSource implements InterpolatedYieldCurveDefinitionSource {
-  
-  private ConfigSource _curveSource;
 
-  public ConfigDBInterpolatedYieldCurveDefinitionSource(ConfigSource curveSource) {
-    _curveSource = curveSource;
+  /**
+   * The config source for the data.
+   */
+  private final ConfigSource _configSource;
+
+  /**
+   * Creates an instance backed by a config source.
+   * @param configSource  the source, not null
+   */
+  public ConfigDBInterpolatedYieldCurveDefinitionSource(final ConfigSource configSource) {
+    ArgumentChecker.notNull(configSource, "configSource");
+    _configSource = configSource;
   }
-  
+
+  /**
+   * Gets the config source.
+   * @return the config source, not null
+   */
   protected ConfigSource getConfigSource() {
-    return _curveSource;
+    return _configSource;
   }
 
-  public YieldCurveDefinition getDefinition(Currency ccy, String name) {
+  //-------------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinition getDefinition(final Currency ccy, final String name) {
     ConfigSearchRequest configSearchRequest = new ConfigSearchRequest();
     configSearchRequest.setName(name + "_" + ccy.getISOCode());
-    List<YieldCurveDefinition> definitions = _curveSource.search(YieldCurveDefinition.class, configSearchRequest);
-    if (definitions.size() > 0) {
-      YieldCurveDefinition curveDefinition = definitions.iterator().next();
-      return curveDefinition;
-    } else {
+    List<YieldCurveDefinition> definitions = _configSource.search(YieldCurveDefinition.class, configSearchRequest);
+    if (definitions.size() == 0) {
       return null;
     }
+    return definitions.get(0);
   }
-  
-  public YieldCurveDefinition getDefinition(Currency ccy, String name, Instant version, Instant correction) {
+
+  @Override
+  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final Instant version) {
     ConfigSearchRequest configSearchRequest = new ConfigSearchRequest();
     configSearchRequest.setName(name + "_" + ccy.getISOCode());
     configSearchRequest.setVersionAsOfInstant(version);
-    List<YieldCurveDefinition> definitions = _curveSource.search(YieldCurveDefinition.class, configSearchRequest);
-    if (definitions.size() > 0) {
-      YieldCurveDefinition curveDefinition = definitions.iterator().next();
-      return curveDefinition;
-    } else {
+    List<YieldCurveDefinition> definitions = _configSource.search(YieldCurveDefinition.class, configSearchRequest);
+    if (definitions.size() == 0) {
       return null;
     }
+    return definitions.get(0);
   }
+
 }

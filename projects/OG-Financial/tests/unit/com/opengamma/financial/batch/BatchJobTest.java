@@ -7,29 +7,34 @@ package com.opengamma.financial.batch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.mongo.MongoDBConfigMaster;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.test.MongoDBTestUtils;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
+ * Test batchJob.
  */
 public class BatchJobTest {
+
   @Test
   public void minimumCommandLine() {
     BatchJob job = new BatchJob();
@@ -49,7 +54,7 @@ public class BatchJobTest {
         job.getCreationTime() + " by " + 
         System.getProperty("user.name"), run.getRunReason());
   }
-  
+
   @Test
   public void dateRangeCommandLine() {
     SnapshotId snapshotId1 = new SnapshotId(LocalDate.of(2010, 9, 1), "LDN_CLOSE");
@@ -86,17 +91,22 @@ public class BatchJobTest {
     
     assertEquals(observationDates, snapshotObservationDates);
   }
-  
+
   @Test
-  public void initViewFromMongo() {
+  public void initView() {
     ViewInternal testView = ViewTestUtils.getMockView();
     
-    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
-    MongoDBConfigMaster<ViewDefinition> configRepo = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
-    ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>();
-    configDocument.setName("MyView");
-    configDocument.setValue(testView.getDefinition());
-    configRepo.add(configDocument);
+    final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
+    cfgDocument.setConfigId(UniqueIdentifier.of("BatchJobTest", "1"));
+    cfgDocument.setName("MyView");
+    cfgDocument.setValue(testView.getDefinition());
+    ConfigSearchResult<ViewDefinition> cfgResult = new ConfigSearchResult<ViewDefinition>();
+    cfgResult.getDocuments().add(cfgDocument);
+    @SuppressWarnings("unchecked")
+    ConfigMaster<ViewDefinition> cfgMaster = mock(ConfigMaster.class);
+    when(cfgMaster.search(Mockito.<ConfigSearchRequest>anyObject())).thenReturn(cfgResult);
+    MasterConfigSource cfgSource = mock(MasterConfigSource.class);
+    when(cfgSource.getMaster(ViewDefinition.class)).thenReturn(cfgMaster);
     
     SnapshotId snapshotId = new SnapshotId(LocalDate.of(9999, 9, 1), "AD_HOC_RUN");
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
@@ -111,14 +121,11 @@ public class BatchJobTest {
     job.setSecuritySource(testView.getProcessingContext().getSecuritySource());
     job.setFunctionCompilationService(testView.getProcessingContext().getFunctionCompilationService());
     job.setFunctionExecutionContext(new FunctionExecutionContext());
-    job.setConfigDbConnectionSettings(settings);
+    job.setConfigSource(cfgSource);
     
     job.parse("-view MyView -observationdate 99990901".split(" "));
     job.createViewDefinition();
     job.createView(job.getRuns().get(0));
-    
   }
-  
-  
-  
+
 }
