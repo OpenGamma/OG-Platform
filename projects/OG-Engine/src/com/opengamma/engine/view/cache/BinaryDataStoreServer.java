@@ -13,8 +13,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -24,11 +27,12 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.MissingValueLoader;
 import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.ReleaseCachesCallback;
-import com.opengamma.engine.view.cache.msg.BinaryDataStoreRequest;
-import com.opengamma.engine.view.cache.msg.BinaryDataStoreResponse;
 import com.opengamma.engine.view.cache.msg.CacheMessage;
+import com.opengamma.engine.view.cache.msg.CacheMessageVisitor;
 import com.opengamma.engine.view.cache.msg.DeleteRequest;
+import com.opengamma.engine.view.cache.msg.FindMessage;
 import com.opengamma.engine.view.cache.msg.GetRequest;
 import com.opengamma.engine.view.cache.msg.GetResponse;
 import com.opengamma.engine.view.cache.msg.PutRequest;
@@ -44,19 +48,57 @@ import com.opengamma.util.ArgumentChecker;
  * Server for {@link RemoteBinaryDataStore} clients created by a {@link RemoteBinaryDataStoreFactory}.
  * The underlying is the shared data store component of a {@link DefaultViewComputationCache}.
  */
-public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCachesCallback, FudgeConnectionStateListener {
+public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCachesCallback, MissingValueLoader, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BinaryDataStoreServer.class);
   private static final byte[] EMPTY_ARRAY = new byte[0];
 
+  private static class ValueSearch {
+
+    private final ConcurrentMap<Long, CountDownLatch> _pending = new ConcurrentHashMap<Long, CountDownLatch>();
+    private int _refCount = 1;
+
+    public void incrementRefCount() {
+      _refCount++;
+    }
+
+    public int decrementAndGetRefCount() {
+      return --_refCount;
+    }
+
+    public void found(final Long identifier) {
+      final CountDownLatch sync = _pending.remove(identifier);
+      if (sync != null) {
+        sync.countDown();
+      }
+    }
+
+    public boolean waitFor(final Long identifier, final long timeout) throws InterruptedException {
+      if (timeout <= 0) {
+        return false;
+      }
+      CountDownLatch latch = new CountDownLatch(1);
+      final CountDownLatch previousLatch = _pending.putIfAbsent(identifier, latch);
+      if (previousLatch != null) {
+        latch = previousLatch;
+      }
+      return latch.await(timeout, TimeUnit.MILLISECONDS);
+    }
+
+  }
+
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
   private final DefaultViewComputationCacheSource _underlying;
   private final Map<FudgeConnection, Object> _connections = new ConcurrentHashMap<FudgeConnection, Object>();
+  private final Map<ViewComputationCacheKey, ValueSearch> _searching = new HashMap<ViewComputationCacheKey, ValueSearch>();
+
+  private long _findValueTimeout = 5000L; // 5s default timeout
 
   public BinaryDataStoreServer(final DefaultViewComputationCacheSource underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
     underlying.setReleaseCachesCallback(this);
+    underlying.setMissingValueLoader(this);
   }
 
   protected DefaultViewComputationCacheSource getUnderlying() {
@@ -67,117 +109,242 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     return _connections;
   }
 
-  protected void handleDelete(final DeleteRequest request) {
-    getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
-  }
-
-  protected GetResponse handleGet(final GetRequest request) {
-    final List<Long> identifiers = request.getIdentifier();
-    final Collection<byte[]> response;
-    if (identifiers.size() == 1) {
-      byte[] data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers.get(0));
-      if (data == null) {
-        data = EMPTY_ARRAY;
-      }
-      response = Collections.singleton(data);
-    } else {
-      response = new ArrayList<byte[]>(identifiers.size());
-      final Map<Long, byte[]> data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers);
-      for (Long identifier : identifiers) {
-        byte[] value = data.get(identifier);
-        if (value == null) {
-          value = EMPTY_ARRAY;
-        }
-        response.add(value);
-      }
-    }
-    return new GetResponse(response);
-  }
-
-  protected void handlePut(final PutRequest request) {
-    final List<Long> identifiers = request.getIdentifier();
-    final List<byte[]> data = request.getData();
-    if (identifiers.size() == 1) {
-      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(identifiers.get(0), data.get(0));
-    } else {
-      final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
-      final Iterator<Long> i = identifiers.iterator();
-      final Iterator<byte[]> j = data.iterator();
-      while (i.hasNext()) {
-        map.put(i.next(), j.next());
-      }
-      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(map);
-    }
-  }
-
-  protected void handleSlaveChannel(final SlaveChannelMessage request, final FudgeConnection connection) {
-    getConnections().remove(connection);
-  }
-
   /**
-   * Handles the request. 
+   * Asynchronously sends a message to all open connections.
    * 
-   * @param request the request
-   * @param connection the connection
-   * @return a response, or {@code null} for an asynchronous message
+   * @param message the message to send, not {@code null}.
    */
-  protected BinaryDataStoreResponse handleBinaryDataStoreRequest(final BinaryDataStoreRequest request, final FudgeConnection connection) {
-    BinaryDataStoreResponse response = null;
-    if (request instanceof GetRequest) {
-      response = handleGet((GetRequest) request);
-    } else if (request instanceof PutRequest) {
-      handlePut((PutRequest) request);
-    } else if (request instanceof DeleteRequest) {
-      handleDelete((DeleteRequest) request);
-    } else if (request instanceof SlaveChannelMessage) {
-      handleSlaveChannel((SlaveChannelMessage) request, connection);
-    } else {
-      s_logger.warn("Unexpected message - {}", request);
-    }
-    if (response == null) {
-      if (request.getCorrelationId() != null) {
-        response = new BinaryDataStoreResponse();
-      }
-    }
-    return response;
-  }
-
-  @Override
-  public void onReleaseCaches(final String viewName, final long timestamp) {
-    final MutableFudgeFieldContainer message = getUnderlying().getFudgeContext().newMessage();
-    new ReleaseCacheMessage(viewName, timestamp).toFudgeMsg(getUnderlying().getFudgeContext(), message);
-    FudgeSerializationContext.addClassHeader(message, ReleaseCacheMessage.class, CacheMessage.class);
+  protected void broadcast(final CacheMessage message) {
+    final MutableFudgeFieldContainer msg = getUnderlying().getFudgeContext().newMessage();
+    message.toFudgeMsg(getUnderlying().getFudgeContext(), msg);
+    FudgeSerializationContext.addClassHeader(msg, message.getClass(), CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
       final FudgeConnection connection = connectionEntry.getKey();
-      s_logger.debug("onReleaseCaches - {}/{} on {}", new Object[] {viewName, timestamp, connection});
       _executorService.execute(new Runnable() {
-
         @Override
         public void run() {
-          s_logger.debug("Releasing {}/{} on connection {}", new Object[] {viewName, timestamp, connection});
-          connection.getFudgeMessageSender().send(message);
+          connection.getFudgeMessageSender().send(msg);
         }
-
       });
     }
   }
 
-  protected void handleMessage(final FudgeConnection connection, final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
-    final BinaryDataStoreRequest request = dctx.fudgeMsgToObject(BinaryDataStoreRequest.class, msgEnvelope.getMessage());
-    final BinaryDataStoreResponse response = handleBinaryDataStoreRequest(request, connection);
-    if (response != null) {
-      response.setCorrelationId(request.getCorrelationId());
-      final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
-      final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
-      // We have only one response for each request type, so don't really need the headers
-      // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
-      connection.getFudgeMessageSender().send(responseMsg);
+  @Override
+  public void onReleaseCaches(final String viewName, final long timestamp) {
+    s_logger.debug("onReleaseCaches - {}/{}", new Object[] {viewName, timestamp});
+    broadcast(new ReleaseCacheMessage(viewName, timestamp));
+  }
+
+  public long getFindValueTimeout() {
+    return _findValueTimeout;
+  }
+
+  /**
+   * Set the timeout for any given value wait when retrieving data from the clients' private
+   * caches. Set to {@code 0} for no timeout.
+   * 
+   * @param findValueTimeout the timeout in milliseconds.
+   */
+  public void setFindValueTimeout(final long findValueTimeout) {
+    _findValueTimeout = findValueTimeout;
+  }
+
+  @Override
+  public byte[] findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
+    s_logger.debug("findMissing value {}", identifier);
+    broadcast(new FindMessage(cache.getViewName(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), Collections.singleton(identifier)));
+    final BinaryDataStore store = getUnderlying().getCache(cache).getSharedDataStore();
+    byte[] data = store.get(identifier);
+    if (data == null) {
+      final ValueSearch search = getOrCreateValueSearch(cache);
+      try {
+        s_logger.debug("Waiting for missing value {} to appear", identifier);
+        if (!search.waitFor(identifier, getFindValueTimeout())) {
+          s_logger.warn("{}ms timeout exceeded waiting for value {}", getFindValueTimeout(), identifier);
+          // don't try to avoid the store.get call as data may yet arrive
+        }
+      } catch (InterruptedException e) {
+        s_logger.warn("Thread interrupted waiting for missing value response");
+        // don't try to avoid the store.get call as data may yet arrive
+      }
+      data = store.get(identifier);
+      releaseValueSearch(cache, search);
+    }
+    if (data != null) {
+      s_logger.debug("Value for {} found and transferred to shared data store", identifier);
+    }
+    return data;
+  }
+
+  @Override
+  public Map<Long, byte[]> findMissingValues(final ViewComputationCacheKey cache, final Collection<Long> identifiers) {
+    s_logger.debug("findMissing values {}", identifiers);
+    broadcast(new FindMessage(cache.getViewName(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), identifiers));
+    final ValueSearch search = getOrCreateValueSearch(cache);
+    final BinaryDataStore store = getUnderlying().getCache(cache).getSharedDataStore();
+    final Long[] identifierArray = new Long[identifiers.size()];
+    int identifierCount = 0;
+    for (Long identifier : identifiers) {
+      identifierArray[identifierCount++] = identifier;
+    }
+    final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+    try {
+      while (identifierCount > 0) {
+        final Long identifier = identifierArray[0];
+        byte[] data = store.get(identifier);
+        if (data != null) {
+          s_logger.debug("Value for {} found and transferred to shared data store", identifier);
+          map.put(identifier, data);
+          identifierArray[0] = identifierArray[--identifierCount];
+          continue;
+        }
+        s_logger.debug("Waiting for missing value ID {} to appear (of {} remaining values)", identifier, identifierCount);
+        if (!search.waitFor(identifierArray[0], getFindValueTimeout())) {
+          s_logger.warn("{}ms timeout exceeded waiting for value ID {}", getFindValueTimeout(), identifier);
+          for (int i = 0; i < identifierCount; i++) {
+            data = store.get(identifierArray[i]);
+            if (data != null) {
+              s_logger.debug("Value for {} found and transferred to shared data store", identifierArray[i]);
+              map.put(identifier, data);
+            }
+          }
+          break;
+        }
+      }
+    } catch (InterruptedException e) {
+      s_logger.warn("Thread interrupted waiting for missing value response - {} outstanding", identifierCount);
+    }
+    releaseValueSearch(cache, search);
+    return map;
+  }
+
+  protected synchronized ValueSearch getOrCreateValueSearch(final ViewComputationCacheKey key) {
+    ValueSearch search = _searching.get(key);
+    if (search == null) {
+      search = new ValueSearch();
+      _searching.put(key, search);
+    } else {
+      search.incrementRefCount();
+    }
+    return search;
+  }
+
+  protected synchronized void releaseValueSearch(final ViewComputationCacheKey key, final ValueSearch search) {
+    if (search.decrementAndGetRefCount() == 0) {
+      _searching.remove(key);
     }
   }
 
-  protected void onNewConnection(final FudgeConnection connection) {
+  protected synchronized ValueSearch getValueSearch(final ViewComputationCacheKey key) {
+    return _searching.get(key);
+  }
+
+  private class MessageHandler extends CacheMessageVisitor implements FudgeMessageReceiver {
+
+    private final FudgeConnection _connection;
+
+    public MessageHandler(final FudgeConnection connection) {
+      _connection = connection;
+    }
+
+    private FudgeConnection getConnection() {
+      return _connection;
+    }
+
+    @Override
+    protected <T extends CacheMessage> T visitUnexpectedMessage(final CacheMessage message) {
+      s_logger.warn("Unexpected message {}", message);
+      return null;
+    }
+
+    @Override
+    protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
+      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
+      return null;
+    }
+
+    @Override
+    protected GetResponse visitGetRequest(final GetRequest request) {
+      final List<Long> identifiers = request.getIdentifier();
+      final Collection<byte[]> response;
+      final BinaryDataStore store = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore();
+      if (identifiers.size() == 1) {
+        byte[] data = store.get(identifiers.get(0));
+        if (data == null) {
+          data = EMPTY_ARRAY;
+        }
+        response = Collections.singleton(data);
+      } else {
+        response = new ArrayList<byte[]>(identifiers.size());
+        final Map<Long, byte[]> data = store.get(identifiers);
+        for (Long identifier : identifiers) {
+          byte[] value = data.get(identifier);
+          if (value == null) {
+            value = EMPTY_ARRAY;
+          }
+          response.add(value);
+        }
+      }
+      return new GetResponse(response);
+    }
+
+    @Override
+    protected CacheMessage visitPutRequest(final PutRequest request) {
+      final List<Long> identifiers = request.getIdentifier();
+      final List<byte[]> data = request.getData();
+      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final BinaryDataStore store = getUnderlying().getCache(key).getSharedDataStore();
+      if (identifiers.size() == 1) {
+        store.put(identifiers.get(0), data.get(0));
+      } else {
+        final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+        final Iterator<Long> i = identifiers.iterator();
+        final Iterator<byte[]> j = data.iterator();
+        while (i.hasNext()) {
+          map.put(i.next(), j.next());
+        }
+        store.put(map);
+      }
+      final ValueSearch searching = getValueSearch(key);
+      if (searching != null) {
+        for (Long identifier : identifiers) {
+          searching.found(identifier);
+        }
+      }
+      return null;
+    }
+
+    @Override
+    protected CacheMessage visitSlaveChannelMessage(final SlaveChannelMessage message) {
+      getConnections().remove(getConnection());
+      return null;
+    }
+
+    @Override
+    public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
+      final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
+      final CacheMessage request = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
+      CacheMessage response = request.accept(this);
+      if (response == null) {
+        if (request.getCorrelationId() != null) {
+          response = new CacheMessage();
+        }
+      }
+      if (response != null) {
+        response.setCorrelationId(request.getCorrelationId());
+        final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
+        final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
+        // We have only one response for each request type, so don't really need the headers
+        // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
+        getConnection().getFudgeMessageSender().send(responseMsg);
+      }
+    }
+
+  };
+
+  protected MessageHandler onNewConnection(final FudgeConnection connection) {
     getConnections().put(connection, EMPTY_ARRAY);
+    return new MessageHandler(connection);
   }
 
   protected void onDroppedConnection(final FudgeConnection connection) {
@@ -188,16 +355,9 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     s_logger.info("New connection from {}", connection);
     connection.setConnectionStateListener(this);
-    onNewConnection(connection);
-    handleMessage(connection, fudgeContext, message);
-    connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
-
-      @Override
-      public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-        handleMessage(connection, fudgeContext, msgEnvelope);
-      }
-
-    });
+    final MessageHandler handler = onNewConnection(connection);
+    handler.messageReceived(fudgeContext, message);
+    connection.setFudgeMessageReceiver(handler);
   }
 
   @Override

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.engine.view.cache.msg.BinaryDataStoreResponse;
+import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.DeleteRequest;
 import com.opengamma.engine.view.cache.msg.GetRequest;
 import com.opengamma.engine.view.cache.msg.GetResponse;
@@ -42,7 +42,7 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
   @Override
   public void delete() {
     final DeleteRequest request = new DeleteRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp());
-    getRemoteCacheClient().sendPutMessage(request, BinaryDataStoreResponse.class);
+    getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
   public void put(long identifier, byte[] data) {
     final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier),
         Collections.singleton(data));
-    getRemoteCacheClient().sendPutMessage(request, BinaryDataStoreResponse.class);
+    getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
       values.add(entry.getValue());
     }
     final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers, values);
-    getRemoteCacheClient().sendPutMessage(request, BinaryDataStoreResponse.class);
+    getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
 }

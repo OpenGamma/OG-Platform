@@ -19,7 +19,7 @@ public interface ViewComputationCache {
 
   /**
    * Retrieves a value from the cache. The private data store should be checked first, falling back to
-   * the shared data store.
+   * the shared data store if the value isn't available locally.
    * 
    * @param specification the value to look up, not {@code null}.
    * @return the value from the cache, or {@code null} if not found.
