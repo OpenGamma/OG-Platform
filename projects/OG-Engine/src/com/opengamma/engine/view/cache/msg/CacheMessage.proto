@@ -10,6 +10,10 @@ namespace com.opengamma.engine.view.cache.msg {
   
     optional long correlationId;
     
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { throw new UnsupportedOperationException (); }";
+    }
+    
   }
 
 }

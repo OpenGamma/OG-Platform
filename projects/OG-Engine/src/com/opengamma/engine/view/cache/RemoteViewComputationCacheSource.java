@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.msg.CacheMessage;
+import com.opengamma.engine.view.cache.msg.CacheMessageVisitor;
 import com.opengamma.engine.view.cache.msg.ReleaseCacheMessage;
 import com.opengamma.transport.FudgeMessageReceiver;
 
@@ -63,21 +64,28 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     }
   }
 
-  protected void handleReleaseCache(final ReleaseCacheMessage message) {
-    s_logger.debug("Releasing cache {}/{}", message.getViewName(), message.getTimestamp());
-    releaseCaches(message.getViewName(), message.getTimestamp());
-  }
+  private final CacheMessageVisitor _messageReceiver = new CacheMessageVisitor() {
+
+    @Override
+    protected CacheMessage visitReleaseCacheMessage(final ReleaseCacheMessage message) {
+      s_logger.debug("Releasing cache {}/{}", message.getViewName(), message.getTimestamp());
+      releaseCaches(message.getViewName(), message.getTimestamp());
+      return null;
+    }
+
+    @Override
+    protected <T extends CacheMessage> T visitUnexpectedMessage(final CacheMessage message) {
+      s_logger.warn("Unexpected message {}", message);
+      return null;
+    }
+
+  };
 
   @Override
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
     final CacheMessage message = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
-    // [ENG-242] Replace with a proper visitor to the messages, allowing both release and the "send to shared"
-    if (message instanceof ReleaseCacheMessage) {
-      handleReleaseCache((ReleaseCacheMessage) message);
-    } else {
-      s_logger.warn("Unexpected message {}", message);
-    }
+    message.accept(_messageReceiver);
   }
 
 }

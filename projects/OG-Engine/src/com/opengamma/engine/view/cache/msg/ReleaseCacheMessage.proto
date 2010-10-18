@@ -6,13 +6,13 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message ReleaseCacheMessage extends BinaryDataStoreResponse {
+  message ReleaseCacheMessage extends CacheMessage {
   
     required string viewName;
     required long timestamp;
     
     binding Java {
-      body "public void accept (BinaryDataStoreResponseVisitor visitor) {  visitor.visitReleaseCache (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitReleaseCacheMessage (this); }";
     }
     
   }

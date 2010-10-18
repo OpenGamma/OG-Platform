@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message PutRequest extends BinaryDataStoreRequest {
+  message PutRequest extends CacheMessage {
   
     required string viewName;
     required string calculationConfigurationName;
@@ -16,7 +16,7 @@ namespace com.opengamma.engine.view.cache.msg {
     required repeated byte[] data;
   
     binding Java {
-      body "public void accept (BinaryDataStoreRequestVisitor visitor) {  visitor.visitPut (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitPutRequest (this); }";
     }
     
   }

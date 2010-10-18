@@ -12,10 +12,10 @@ namespace com.opengamma.engine.view.cache.msg {
    * one for "put" and one for "get" so that a big "put" from the previous calculation can't delay a
    * "get" needed for the next. One of these is then nominated a slave. 
    */
-  message SlaveChannelMessage extends BinaryDataStoreRequest {
+  message SlaveChannelMessage extends CacheMessage {
   
     binding Java {
-      body "public void accept (BinaryDataStoreRequestVisitor visitor) {  visitor.visitSlaveChannel (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitSlaveChannelMessage (this); }";
     }
     
   }

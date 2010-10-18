@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message GetResponse extends BinaryDataStoreResponse {
+  message GetResponse extends CacheMessage {
   
     /**
      * Data items in the same order as requested. If an item is not available,
@@ -15,7 +15,7 @@ namespace com.opengamma.engine.view.cache.msg {
     repeated required byte[] data;
   
     binding Java {
-      body "public void accept (BinaryDataStoreResponseVisitor visitor) {  visitor.visitGet (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitGetResponse (this); }";
     }
     
   }

@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.ReleaseCachesCallback;
-import com.opengamma.engine.view.cache.msg.BinaryDataStoreRequest;
-import com.opengamma.engine.view.cache.msg.BinaryDataStoreResponse;
 import com.opengamma.engine.view.cache.msg.CacheMessage;
+import com.opengamma.engine.view.cache.msg.CacheMessageVisitor;
 import com.opengamma.engine.view.cache.msg.DeleteRequest;
 import com.opengamma.engine.view.cache.msg.GetRequest;
 import com.opengamma.engine.view.cache.msg.GetResponse;
@@ -67,81 +66,6 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     return _connections;
   }
 
-  protected void handleDelete(final DeleteRequest request) {
-    getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
-  }
-
-  protected GetResponse handleGet(final GetRequest request) {
-    final List<Long> identifiers = request.getIdentifier();
-    final Collection<byte[]> response;
-    if (identifiers.size() == 1) {
-      byte[] data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers.get(0));
-      if (data == null) {
-        data = EMPTY_ARRAY;
-      }
-      response = Collections.singleton(data);
-    } else {
-      response = new ArrayList<byte[]>(identifiers.size());
-      final Map<Long, byte[]> data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers);
-      for (Long identifier : identifiers) {
-        byte[] value = data.get(identifier);
-        if (value == null) {
-          value = EMPTY_ARRAY;
-        }
-        response.add(value);
-      }
-    }
-    return new GetResponse(response);
-  }
-
-  protected void handlePut(final PutRequest request) {
-    final List<Long> identifiers = request.getIdentifier();
-    final List<byte[]> data = request.getData();
-    if (identifiers.size() == 1) {
-      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(identifiers.get(0), data.get(0));
-    } else {
-      final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
-      final Iterator<Long> i = identifiers.iterator();
-      final Iterator<byte[]> j = data.iterator();
-      while (i.hasNext()) {
-        map.put(i.next(), j.next());
-      }
-      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(map);
-    }
-  }
-
-  protected void handleSlaveChannel(final SlaveChannelMessage request, final FudgeConnection connection) {
-    getConnections().remove(connection);
-  }
-
-  /**
-   * Handles the request. 
-   * 
-   * @param request the request
-   * @param connection the connection
-   * @return a response, or {@code null} for an asynchronous message
-   */
-  protected BinaryDataStoreResponse handleBinaryDataStoreRequest(final BinaryDataStoreRequest request, final FudgeConnection connection) {
-    BinaryDataStoreResponse response = null;
-    if (request instanceof GetRequest) {
-      response = handleGet((GetRequest) request);
-    } else if (request instanceof PutRequest) {
-      handlePut((PutRequest) request);
-    } else if (request instanceof DeleteRequest) {
-      handleDelete((DeleteRequest) request);
-    } else if (request instanceof SlaveChannelMessage) {
-      handleSlaveChannel((SlaveChannelMessage) request, connection);
-    } else {
-      s_logger.warn("Unexpected message - {}", request);
-    }
-    if (response == null) {
-      if (request.getCorrelationId() != null) {
-        response = new BinaryDataStoreResponse();
-      }
-    }
-    return response;
-  }
-
   @Override
   public void onReleaseCaches(final String viewName, final long timestamp) {
     final MutableFudgeFieldContainer message = getUnderlying().getFudgeContext().newMessage();
@@ -162,22 +86,103 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     }
   }
 
-  protected void handleMessage(final FudgeConnection connection, final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
-    final BinaryDataStoreRequest request = dctx.fudgeMsgToObject(BinaryDataStoreRequest.class, msgEnvelope.getMessage());
-    final BinaryDataStoreResponse response = handleBinaryDataStoreRequest(request, connection);
-    if (response != null) {
-      response.setCorrelationId(request.getCorrelationId());
-      final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
-      final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
-      // We have only one response for each request type, so don't really need the headers
-      // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
-      connection.getFudgeMessageSender().send(responseMsg);
-    }
-  }
+  private class MessageHandler extends CacheMessageVisitor implements FudgeMessageReceiver {
 
-  protected void onNewConnection(final FudgeConnection connection) {
+    private final FudgeConnection _connection;
+
+    public MessageHandler(final FudgeConnection connection) {
+      _connection = connection;
+    }
+
+    private FudgeConnection getConnection() {
+      return _connection;
+    }
+
+    @Override
+    protected <T extends CacheMessage> T visitUnexpectedMessage(final CacheMessage message) {
+      s_logger.warn("Unexpected message {}", message);
+      return null;
+    }
+
+    @Override
+    protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
+      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
+      return null;
+    }
+
+    @Override
+    protected GetResponse visitGetRequest(final GetRequest request) {
+      final List<Long> identifiers = request.getIdentifier();
+      final Collection<byte[]> response;
+      if (identifiers.size() == 1) {
+        byte[] data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers.get(0));
+        if (data == null) {
+          data = EMPTY_ARRAY;
+        }
+        response = Collections.singleton(data);
+      } else {
+        response = new ArrayList<byte[]>(identifiers.size());
+        final Map<Long, byte[]> data = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().get(identifiers);
+        for (Long identifier : identifiers) {
+          byte[] value = data.get(identifier);
+          if (value == null) {
+            value = EMPTY_ARRAY;
+          }
+          response.add(value);
+        }
+      }
+      return new GetResponse(response);
+    }
+
+    @Override
+    protected CacheMessage visitPutRequest(final PutRequest request) {
+      final List<Long> identifiers = request.getIdentifier();
+      final List<byte[]> data = request.getData();
+      if (identifiers.size() == 1) {
+        getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(identifiers.get(0), data.get(0));
+      } else {
+        final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+        final Iterator<Long> i = identifiers.iterator();
+        final Iterator<byte[]> j = data.iterator();
+        while (i.hasNext()) {
+          map.put(i.next(), j.next());
+        }
+        getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().put(map);
+      }
+      return null;
+    }
+
+    @Override
+    protected CacheMessage visitSlaveChannelMessage(final SlaveChannelMessage message) {
+      getConnections().remove(getConnection());
+      return null;
+    }
+
+    @Override
+    public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
+      final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
+      final CacheMessage request = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
+      CacheMessage response = request.accept(this);
+      if (response == null) {
+        if (request.getCorrelationId() != null) {
+          response = new CacheMessage();
+        }
+      }
+      if (response != null) {
+        response.setCorrelationId(request.getCorrelationId());
+        final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
+        final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
+        // We have only one response for each request type, so don't really need the headers
+        // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
+        getConnection().getFudgeMessageSender().send(responseMsg);
+      }
+    }
+
+  };
+
+  protected MessageHandler onNewConnection(final FudgeConnection connection) {
     getConnections().put(connection, EMPTY_ARRAY);
+    return new MessageHandler(connection);
   }
 
   protected void onDroppedConnection(final FudgeConnection connection) {
@@ -188,16 +193,9 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     s_logger.info("New connection from {}", connection);
     connection.setConnectionStateListener(this);
-    onNewConnection(connection);
-    handleMessage(connection, fudgeContext, message);
-    connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
-
-      @Override
-      public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-        handleMessage(connection, fudgeContext, msgEnvelope);
-      }
-
-    });
+    final MessageHandler handler = onNewConnection(connection);
+    handler.messageReceived(fudgeContext, message);
+    connection.setFudgeMessageReceiver(handler);
   }
 
   @Override

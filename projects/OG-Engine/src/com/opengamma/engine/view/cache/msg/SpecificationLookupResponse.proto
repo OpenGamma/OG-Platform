@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message SpecificationLookupResponse extends IdentifierMapResponse {
+  message SpecificationLookupResponse extends CacheMessage {
   
     /**
      * The specifications for each identifier in the order that they were
@@ -15,7 +15,7 @@ namespace com.opengamma.engine.view.cache.msg {
     repeated required value.ValueSpecification specification;
   
     binding Java {
-      body "public void accept (IdentifierMapResponseVisitor visitor) {  visitor.visitSpecificationLookup (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitSpecificationLookupResponse (this); }";
     }
     
   }
