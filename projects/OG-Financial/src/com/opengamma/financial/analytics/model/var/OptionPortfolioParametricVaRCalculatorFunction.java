@@ -17,8 +17,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -54,8 +52,8 @@ import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.financial.var.parametric.DeltaCovarianceMatrixStandardDeviationCalculator;
+import com.opengamma.financial.var.parametric.DeltaMeanCalculator;
 import com.opengamma.financial.var.parametric.ParametricVaRDataBundle;
 import com.opengamma.financial.var.parametric.VaRCovarianceMatrixCalculator;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
@@ -66,7 +64,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(OptionPortfolioParametricVaRCalculatorFunction.class);
   private final String _dataSourceName;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;
@@ -76,9 +73,10 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   private final TimeSeriesSamplingFunction _samplingCalculator;
   private final int _maxOrder;
   //TODO none of this should be hard-coded
-  private final NormalLinearVaRCalculator _normalVaRCalculator;
+  private final NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>> _normalVaRCalculator;
   private final VaRCovarianceMatrixCalculator _covarianceMatrixCalculator;
   private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
+  private final DeltaMeanCalculator _meanCalculator = new DeltaMeanCalculator(_algebra);
   private final DeltaCovarianceMatrixStandardDeviationCalculator _stdCalculator = new DeltaCovarianceMatrixStandardDeviationCalculator(_algebra);
 
   public OptionPortfolioParametricVaRCalculatorFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
@@ -107,7 +105,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
     _covarianceMatrixCalculator = new VaRCovarianceMatrixCalculator(new CovarianceMatrixCalculator(covarianceCalculator));
     _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
-    _normalVaRCalculator = new NormalLinearVaRCalculator(1, 1, Double.valueOf(confidenceLevel)); //TODO
+    _normalVaRCalculator = new NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>>(1, 1, Double.valueOf(confidenceLevel), _meanCalculator, _stdCalculator); //TODO
   }
 
   @Override
@@ -119,7 +117,6 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueIdentifier());
     final List<Position> positions = getAllPositions(new ArrayList<Position>(), portfolio);
-    s_logger.warn("" + positions.size());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[positions.size() * _valueGreekRequirementNames.size()];
     int i = 0;
     for (final Position position : positions) {
@@ -147,8 +144,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
     }
     final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
     @SuppressWarnings("unchecked")
-    final NormalStatistics<Map<Integer, ParametricVaRDataBundle>> statistics = new NormalStatistics<Map<Integer, ParametricVaRDataBundle>>(null, _stdCalculator, data);
-    final Double result = _normalVaRCalculator.evaluate(statistics);
+    final Double result = _normalVaRCalculator.evaluate(data);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }

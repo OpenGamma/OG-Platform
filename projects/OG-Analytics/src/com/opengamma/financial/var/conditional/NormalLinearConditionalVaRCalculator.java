@@ -31,6 +31,7 @@ public class NormalLinearConditionalVaRCalculator<T> implements Function<T, Doub
     if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
     }
+    Validate.notNull(stdCalculator, "standard deviation calculator");
     _horizon = horizon;
     _periods = periods;
     _quantile = quantile;
@@ -71,7 +72,7 @@ public class NormalLinearConditionalVaRCalculator<T> implements Function<T, Doub
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_stdCalculator == null) ? 0 : _stdCalculator.hashCode());
+    result = prime * result + _stdCalculator.hashCode();
     return result;
   }
 

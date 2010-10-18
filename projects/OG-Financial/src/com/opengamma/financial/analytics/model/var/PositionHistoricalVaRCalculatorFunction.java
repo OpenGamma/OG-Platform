@@ -20,11 +20,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -33,14 +31,14 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.NonCompiledInvoker {
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator;
-  private final NormalLinearVaRCalculator _varCalculator;
+  private final NormalLinearVaRCalculator<DoubleTimeSeries<?>> _varCalculator;
 
   public PositionHistoricalVaRCalculatorFunction(final String meanCalculatorName, final String standardDeviationCalculatorName, final String confidenceLevel) {
     final Function<double[], Double> meanCalculator = StatisticsCalculatorFactory.getCalculator(meanCalculatorName);
     final Function<double[], Double> stdCalculator = StatisticsCalculatorFactory.getCalculator(standardDeviationCalculatorName);
     _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(meanCalculator);
     _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(stdCalculator);
-    _varCalculator = new NormalLinearVaRCalculator(1, 1, Double.valueOf(confidenceLevel)); //TODO see note in portfolio VaR function
+    _varCalculator = new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(1, 1, Double.valueOf(confidenceLevel), _meanCalculator, _stdCalculator); //TODO see note in portfolio VaR function
   }
 
   @Override
@@ -50,10 +48,8 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
       throw new NullPointerException("Could not get P&L series for " + target.getPosition());
     }
     final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
-    final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
-    if (!pnlSeriesLD.isEmpty()) {
-      final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(null, _stdCalculator, pnlSeries);
-      final double var = _varCalculator.evaluate(normalStats);
+    if (!pnlSeries.isEmpty()) {
+      final double var = _varCalculator.evaluate(pnlSeries);
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()), var));
     }
     return null;

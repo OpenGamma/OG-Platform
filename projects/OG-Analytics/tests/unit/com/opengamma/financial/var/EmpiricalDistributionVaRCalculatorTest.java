@@ -6,6 +6,7 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -23,8 +24,38 @@ public class EmpiricalDistributionVaRCalculatorTest {
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullTS() {
+  public void testNegativeHorizon() {
+    new EmpiricalDistributionVaRCalculator(-HORIZON, PERIODS, QUANTILE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePeriods() {
+    new EmpiricalDistributionVaRCalculator(HORIZON, -PERIODS, QUANTILE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighQuantile() {
+    new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE + 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLowQuantile() {
+    new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE - 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTS1() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyArray() {
+    CALCULATOR.evaluate(new DoubleTimeSeries<?>[0]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTS2() {
+    CALCULATOR.evaluate(new DoubleTimeSeries<?>[] {null});
   }
 
   @Test
@@ -42,8 +73,17 @@ public class EmpiricalDistributionVaRCalculatorTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    final EmpiricalDistributionVaRCalculator calculator = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
-    assertEquals(calculator, CALCULATOR);
-    assertEquals(calculator.hashCode(), CALCULATOR.hashCode());
+    assertEquals(CALCULATOR.getHorizon(), HORIZON, 0);
+    assertEquals(CALCULATOR.getPeriods(), PERIODS, 0);
+    assertEquals(CALCULATOR.getQuantile(), QUANTILE, 0);
+    EmpiricalDistributionVaRCalculator other = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(other, CALCULATOR);
+    assertEquals(other.hashCode(), CALCULATOR.hashCode());
+    other = new EmpiricalDistributionVaRCalculator(HORIZON + 1, PERIODS, QUANTILE);
+    assertFalse(other.equals(CALCULATOR));
+    other = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS + 1, QUANTILE);
+    assertFalse(other.equals(CALCULATOR));
+    other = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE * 0.5);
+    assertFalse(other.equals(CALCULATOR));
   }
 }

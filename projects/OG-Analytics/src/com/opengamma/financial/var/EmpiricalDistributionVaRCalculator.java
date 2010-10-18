@@ -52,6 +52,7 @@ public class EmpiricalDistributionVaRCalculator implements Function<DoubleTimeSe
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... ts) {
     Validate.notNull(ts, "time series");
+    Validate.notEmpty(ts, "ts");
     final DoubleTimeSeries<?> returns = ts[0];
     Validate.notNull(returns, "returns");
     final double[] data = returns.toFastLongDoubleTimeSeries().valuesArrayFast();

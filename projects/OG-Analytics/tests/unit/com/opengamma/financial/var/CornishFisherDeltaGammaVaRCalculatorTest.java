@@ -53,7 +53,7 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
     }
 
   };
-  private static final Function<Double, Double> NORMAL = new NormalWithMeanLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD);
+  private static final Function<Double, Double> NORMAL = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD);
   private static final CornishFisherDeltaGammaVaRCalculator<Double> CF1 = new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD, ZERO, ZERO);
   private static final CornishFisherDeltaGammaVaRCalculator<Double> CF2 = new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD, SKEW, KURTOSIS);
 
@@ -137,4 +137,5 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
     other = new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD, SKEW, ZERO);
     assertFalse(other.equals(CF2));
   }
+
 }

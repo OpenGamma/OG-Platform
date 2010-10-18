@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,8 @@ import com.opengamma.math.matrix.Matrix;
  */
 public class ParametricVaRDataBundleTest {
   private static final List<String> NAMES = Arrays.asList("A", "B", "C");
+  private static final DoubleMatrix1D ZERO = new DoubleMatrix1D(new double[] {0, 0, 0});
+  private static final DoubleMatrix1D R = new DoubleMatrix1D(new double[] {1, 0, 0});
   private static final DoubleMatrix1D DELTA = new DoubleMatrix1D(new double[] {1, 2, 3});
   private static final DoubleMatrix2D GAMMA = new DoubleMatrix2D(new double[][] {new double[] {1, 0, 0}, new double[] {0, 2, 0}, new double[] {0, 0, 3}});
   private static final DoubleMatrix2D COV = new DoubleMatrix2D(new double[][] {new double[] {0.1, 0.2, 0.3}, new double[] {0.2, 0.4, 0.5}, new double[] {0.3, 0.6, 0.5}});
@@ -96,32 +99,88 @@ public class ParametricVaRDataBundleTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testWrongReturnSize1() {
+    new ParametricVaRDataBundle(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5}), DELTA, COV, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongReturnSize2() {
+    new ParametricVaRDataBundle(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5}), GAMMA, COV, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testWrongNamesSize2() {
     new ParametricVaRDataBundle(Arrays.asList("A"), GAMMA, COV, ORDER);
   }
 
   @Test
-  public void test() {
-    ParametricVaRDataBundle data = new ParametricVaRDataBundle(DELTA, COV, ORDER);
-    ParametricVaRDataBundle other = new ParametricVaRDataBundle(null, DELTA, COV, ORDER);
+  public void testHashCodeAndEquals() {
+    ParametricVaRDataBundle data = new ParametricVaRDataBundle(NAMES, R, DELTA, COV, ORDER);
+    ParametricVaRDataBundle other = new ParametricVaRDataBundle(NAMES, R, DELTA, COV, ORDER);
     assertEquals(data, other);
     assertEquals(data.hashCode(), other.hashCode());
-    assertEquals(data.getNames(), null);
-    data = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER);
-    other = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER);
+    other = new ParametricVaRDataBundle(Arrays.asList("A", "B", "D"), R, DELTA, COV, ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, DELTA, DELTA, COV, ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, R, R, COV, ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, R, DELTA, new DoubleMatrix2D(new double[][] {new double[] {0, 0, 0}, new double[] {0, 0, 0}, new double[] {0, 0, 0}}), ORDER);
+    assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, R, DELTA, COV, ORDER + 1);
+    assertFalse(data.equals(other));
+    data = new ParametricVaRDataBundle(NAMES, R, GAMMA, COV, ORDER);
+    other = new ParametricVaRDataBundle(NAMES, R, GAMMA, COV, ORDER);
     assertEquals(data, other);
     assertEquals(data.hashCode(), other.hashCode());
-    other = new ParametricVaRDataBundle(Arrays.asList("A", "B", "D"), DELTA, COV, ORDER);
+    other = new ParametricVaRDataBundle(Arrays.asList("A", "B", "D"), R, GAMMA, COV, ORDER);
     assertFalse(data.equals(other));
-    other = new ParametricVaRDataBundle(NAMES, new DoubleMatrix1D(new double[] {5, 6, 7}), COV, ORDER);
+    other = new ParametricVaRDataBundle(NAMES, DELTA, GAMMA, COV, ORDER);
     assertFalse(data.equals(other));
-    other = new ParametricVaRDataBundle(NAMES, DELTA, new DoubleMatrix2D(new double[][] {new double[] {0, 0, 0}, new double[] {0, 0, 0}, new double[] {0, 0, 0}}), ORDER);
+    other = new ParametricVaRDataBundle(NAMES, R, R, COV, ORDER);
     assertFalse(data.equals(other));
-    other = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER + 1);
+    other = new ParametricVaRDataBundle(NAMES, R, GAMMA, new DoubleMatrix2D(new double[][] {new double[] {0, 0, 0}, new double[] {0, 0, 0}, new double[] {0, 0, 0}}), ORDER);
     assertFalse(data.equals(other));
+    other = new ParametricVaRDataBundle(NAMES, R, GAMMA, COV, ORDER + 1);
+    assertFalse(data.equals(other));
+  }
+
+  @Test
+  public void testConstructors() {
+    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(null, ZERO, DELTA, COV, ORDER);
+    ParametricVaRDataBundle other = new ParametricVaRDataBundle(DELTA, COV, ORDER);
+    assertEquals(data, other);
+    other = new ParametricVaRDataBundle(ZERO, DELTA, COV, ORDER);
+    assertEquals(data, other);
+    other = new ParametricVaRDataBundle((List<String>) null, DELTA, COV, ORDER);
+    assertEquals(data, other);
+  }
+
+  @Test
+  public void testGetters() {
+    ParametricVaRDataBundle data = new ParametricVaRDataBundle(NAMES, R, DELTA, COV, ORDER);
     assertEquals(data.getNames(), NAMES);
     assertEquals(data.getSensitivities(), DELTA);
     assertEquals(data.getCovarianceMatrix(), COV);
     assertEquals(data.getOrder(), ORDER);
+    assertEquals(data.getExpectedReturn(), R);
+    data = new ParametricVaRDataBundle(DELTA, COV, ORDER);
+    assertNull(data.getNames());
+    assertEquals(data.getSensitivities(), DELTA);
+    assertEquals(data.getCovarianceMatrix(), COV);
+    assertEquals(data.getOrder(), ORDER);
+    assertEquals(data.getExpectedReturn(), ZERO);
+    data = new ParametricVaRDataBundle(R, DELTA, COV, ORDER);
+    assertNull(data.getNames());
+    assertEquals(data.getSensitivities(), DELTA);
+    assertEquals(data.getCovarianceMatrix(), COV);
+    assertEquals(data.getOrder(), ORDER);
+    assertEquals(data.getExpectedReturn(), R);
+    data = new ParametricVaRDataBundle(NAMES, DELTA, COV, ORDER);
+    assertEquals(data.getNames(), NAMES);
+    assertEquals(data.getSensitivities(), DELTA);
+    assertEquals(data.getCovarianceMatrix(), COV);
+    assertEquals(data.getOrder(), ORDER);
+    assertEquals(data.getExpectedReturn(), ZERO);
   }
 }

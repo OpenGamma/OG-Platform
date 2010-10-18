@@ -35,6 +35,7 @@ public class StudentTLinearVaRCalculator<T> implements Function<T, Double> {
     if (!ArgumentChecker.isInRangeInclusive(0, 1, quantile)) {
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
     }
+    Validate.notNull(meanCalculator, "mean calculator");
     Validate.notNull(stdCalculator, "standard deviation calculator");
     Validate.isTrue(dof > 0, "degrees of freedom");
     _horizon = horizon;
@@ -54,7 +55,7 @@ public class StudentTLinearVaRCalculator<T> implements Function<T, Double> {
     return _mult * _stdCalculator.evaluate(data) - _scale * _meanCalculator.evaluate(data);
   }
 
-  public double getDof() {
+  public double getDegreesOfFreedom() {
     return _dof;
   }
 
@@ -62,7 +63,7 @@ public class StudentTLinearVaRCalculator<T> implements Function<T, Double> {
     return _meanCalculator;
   }
 
-  public Function<T, Double> getStdCalculator() {
+  public Function<T, Double> getStandardDeviationCalculator() {
     return _stdCalculator;
   }
 
@@ -87,12 +88,12 @@ public class StudentTLinearVaRCalculator<T> implements Function<T, Double> {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_horizon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_meanCalculator == null) ? 0 : _meanCalculator.hashCode());
+    result = prime * result + _meanCalculator.hashCode();
     temp = Double.doubleToLongBits(_periods);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_stdCalculator == null) ? 0 : _stdCalculator.hashCode());
+    result = prime * result + _stdCalculator.hashCode();
     return result;
   }
 

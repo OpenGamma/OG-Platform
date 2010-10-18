@@ -186,10 +186,9 @@ public class ValueRequirementNames {
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
   public static final String PEARSON_KURTOSIS = "Pearson Kurtosis";
   
-  // Risk Aggregates:
+  // VaR:
   public static final String HISTORICAL_VAR = "HistoricalVaR";
-  public static final String ISOLATED_VAR = "IsolatedVaR";
-  public static final String INCREMENTAL_VAR = "IncrementalVaR";
+  public static final String PARAMETRIC_VAR = "ParametricVaR"; 
 
   //Yield curve specifics
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";

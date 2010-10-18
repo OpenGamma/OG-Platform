@@ -49,8 +49,8 @@ import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.financial.var.parametric.DeltaCovarianceMatrixStandardDeviationCalculator;
+import com.opengamma.financial.var.parametric.DeltaMeanCalculator;
 import com.opengamma.financial.var.parametric.ParametricVaRDataBundle;
 import com.opengamma.financial.var.parametric.VaRCovarianceMatrixCalculator;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
@@ -70,9 +70,10 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
   private final TimeSeriesSamplingFunction _samplingCalculator;
   private final int _maxOrder;
   //TODO none of this should be hard-coded
-  private final NormalLinearVaRCalculator _normalVaRCalculator;
+  private final NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>> _normalVaRCalculator;
   private final VaRCovarianceMatrixCalculator _covarianceMatrixCalculator;
   private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
+  private final DeltaMeanCalculator _meanCalculator = new DeltaMeanCalculator(_algebra);
   private final DeltaCovarianceMatrixStandardDeviationCalculator _stdCalculator = new DeltaCovarianceMatrixStandardDeviationCalculator(_algebra);
 
   public OptionPositionParametricVaRCalculatorFunction(final String dataSourceName, final String startDate, final String returnCalculatorName,
@@ -101,7 +102,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     _covarianceMatrixCalculator = new VaRCovarianceMatrixCalculator(new CovarianceMatrixCalculator(covarianceCalculator));
     _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
-    _normalVaRCalculator = new NormalLinearVaRCalculator(1, 1, Double.valueOf(confidenceLevel)); //TODO
+    _normalVaRCalculator = new NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>>(1, 1, Double.valueOf(confidenceLevel), _meanCalculator, _stdCalculator); //TODO
   }
 
   @Override
@@ -136,9 +137,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
       }
     }
     final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
-    @SuppressWarnings("unchecked")
-    final NormalStatistics<Map<Integer, ParametricVaRDataBundle>> statistics = new NormalStatistics<Map<Integer, ParametricVaRDataBundle>>(null, _stdCalculator, data);
-    final Double result = _normalVaRCalculator.evaluate(statistics);
+    final Double result = _normalVaRCalculator.evaluate(data);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }

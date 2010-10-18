@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.math.function.Function;
 
 /**
@@ -32,27 +31,27 @@ public class NormalLinearConditionalVaRCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeHorizon() {
-    new NormalLinearVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
+    new NormalLinearConditionalVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativePeriod() {
-    new NormalLinearVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, STD_CALCULATOR);
+    new NormalLinearConditionalVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, STD_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeQuantile() {
-    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, STD_CALCULATOR);
+    new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, STD_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighQuantile() {
-    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, STD_CALCULATOR);
+    new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, STD_CALCULATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null);
+    new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

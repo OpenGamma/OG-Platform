@@ -47,8 +47,7 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculator extends Function1D<Map
       throw new IllegalArgumentException("Gamma matrix and covariance matrix were incompatible sizes");
     }
     final Matrix<?> product = _algebra.multiply(gammaMatrix, deltaCovariance);
-    final double numerator = _algebra.getTrace(_algebra.getPower(product, 3)) + 3
-        * _algebra.getInnerProduct(delta, _algebra.multiply(_algebra.multiply(deltaCovariance, product), delta));
+    final double numerator = _algebra.getTrace(_algebra.getPower(product, 3)) + 3 * _algebra.getInnerProduct(delta, _algebra.multiply(_algebra.multiply(deltaCovariance, product), delta));
     final double denominator = Math.pow(0.5 * _algebra.getTrace(_algebra.getPower(product, 2)) + _algebra.getInnerProduct(delta, _algebra.multiply(deltaCovariance, delta)), 1.5);
     return numerator / denominator;
   }
@@ -57,7 +56,7 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculator extends Function1D<Map
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_algebra == null) ? 0 : _algebra.hashCode());
+    result = prime * result + _algebra.hashCode();
     return result;
   }
 

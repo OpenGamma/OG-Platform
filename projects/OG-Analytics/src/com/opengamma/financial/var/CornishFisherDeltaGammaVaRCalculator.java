@@ -98,14 +98,14 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements Function<T, Doub
     long temp;
     temp = Double.doubleToLongBits(_horizon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_kurtosisCalculator == null) ? 0 : _kurtosisCalculator.hashCode());
-    result = prime * result + ((_meanCalculator == null) ? 0 : _meanCalculator.hashCode());
+    result = prime * result + _kurtosisCalculator.hashCode();
+    result = prime * result + _meanCalculator.hashCode();
     temp = Double.doubleToLongBits(_periods);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantile);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_skewCalculator == null) ? 0 : _skewCalculator.hashCode());
-    result = prime * result + ((_stdCalculator == null) ? 0 : _stdCalculator.hashCode());
+    result = prime * result + _skewCalculator.hashCode();
+    result = prime * result + _stdCalculator.hashCode();
     return result;
   }
 
@@ -124,7 +124,6 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements Function<T, Doub
     if (Double.doubleToLongBits(_horizon) != Double.doubleToLongBits(other._horizon)) {
       return false;
     }
-
     if (Double.doubleToLongBits(_periods) != Double.doubleToLongBits(other._periods)) {
       return false;
     }
