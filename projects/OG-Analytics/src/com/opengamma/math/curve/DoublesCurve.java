@@ -20,52 +20,52 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 //TODO test for distinctness of nodes?
 //TODO add list of pair and lists of Double
-public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
+public abstract class DoublesCurve extends Curve<Double, Double> {
   private final int _n;
   private final double[] _xData;
   private final double[] _yData;
 
-  public DoubleDoubleCurve(final double[] xData, final double[] yData) {
+  public DoublesCurve(final double[] xData, final double[] yData) {
     this(xData, yData, false);
   }
 
-  public DoubleDoubleCurve(final Double[] xData, final Double[] yData) {
+  public DoublesCurve(final Double[] xData, final Double[] yData) {
     this(xData, yData, false);
   }
 
-  public DoubleDoubleCurve(final Map<Double, Double> data) {
+  public DoublesCurve(final Map<Double, Double> data) {
     this(data, false);
   }
 
-  public DoubleDoubleCurve(final DoublesPair[] data) {
+  public DoublesCurve(final DoublesPair[] data) {
     this(data, false);
   }
 
-  public DoubleDoubleCurve(final Set<DoublesPair> data) {
+  public DoublesCurve(final Set<DoublesPair> data) {
     this(data, false);
   }
 
-  public DoubleDoubleCurve(final double[] xData, final double[] yData, final String name) {
+  public DoublesCurve(final double[] xData, final double[] yData, final String name) {
     this(xData, yData, false, name);
   }
 
-  public DoubleDoubleCurve(final Double[] xData, final Double[] yData, final String name) {
+  public DoublesCurve(final Double[] xData, final Double[] yData, final String name) {
     this(xData, yData, false, name);
   }
 
-  public DoubleDoubleCurve(final Map<Double, Double> data, final String name) {
+  public DoublesCurve(final Map<Double, Double> data, final String name) {
     this(data, false, name);
   }
 
-  public DoubleDoubleCurve(final DoublesPair[] data, final String name) {
+  public DoublesCurve(final DoublesPair[] data, final String name) {
     this(data, false, name);
   }
 
-  public DoubleDoubleCurve(final Set<DoublesPair> data, final String name) {
+  public DoublesCurve(final Set<DoublesPair> data, final String name) {
     this(data, false, name);
   }
 
-  public DoubleDoubleCurve(final double[] xData, final double[] yData, final boolean isSorted) {
+  public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -78,7 +78,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
+  public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -97,7 +97,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Map<Double, Double> data, final boolean isSorted) {
+  public DoublesCurve(final Map<Double, Double> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
     _n = data.size();
@@ -115,7 +115,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final DoublesPair[] data, final boolean isSorted) {
+  public DoublesCurve(final DoublesPair[] data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
     _n = data.length;
@@ -131,7 +131,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Set<DoublesPair> data, final boolean isSorted) {
+  public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
     _n = data.size();
@@ -148,7 +148,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
+  public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -161,7 +161,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
+  public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     _n = xData.length;
@@ -180,7 +180,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
+  public DoublesCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
     _n = data.size();
@@ -198,7 +198,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
+  public DoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
     _n = data.length;
@@ -214,7 +214,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     }
   }
 
-  public DoubleDoubleCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
+  public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
     _n = data.size();
@@ -284,7 +284,7 @@ public abstract class DoubleDoubleCurve extends Curve<Double, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final DoubleDoubleCurve other = (DoubleDoubleCurve) obj;
+    final DoublesCurve other = (DoublesCurve) obj;
     return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
   }
 

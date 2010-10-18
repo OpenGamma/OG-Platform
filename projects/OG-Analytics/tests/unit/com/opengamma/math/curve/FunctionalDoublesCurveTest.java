@@ -21,7 +21,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class FunctionalDoubleDoubleCurveTest {
+public class FunctionalDoublesCurveTest {
   private static final String NAME1 = "a";
   private static final String NAME2 = "b";
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
@@ -32,7 +32,7 @@ public class FunctionalDoubleDoubleCurveTest {
     }
 
   };
-  private static final FunctionalDoubleDoubleCurve CURVE = new FunctionalDoubleDoubleCurve(F, NAME1);
+  private static final FunctionalDoublesCurve CURVE = new FunctionalDoublesCurve(F, NAME1);
 
   @Test(expected = UnsupportedOperationException.class)
   public void testGetXData() {
@@ -51,7 +51,7 @@ public class FunctionalDoubleDoubleCurveTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    FunctionalDoubleDoubleCurve other = new FunctionalDoubleDoubleCurve(F, NAME1);
+    FunctionalDoublesCurve other = new FunctionalDoublesCurve(F, NAME1);
     assertEquals(CURVE, other);
     assertEquals(CURVE.hashCode(), other.hashCode());
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
@@ -62,11 +62,11 @@ public class FunctionalDoubleDoubleCurveTest {
       }
 
     };
-    other = new FunctionalDoubleDoubleCurve(f, NAME1);
+    other = new FunctionalDoublesCurve(f, NAME1);
     assertFalse(CURVE.equals(other));
-    other = new FunctionalDoubleDoubleCurve(F, NAME2);
+    other = new FunctionalDoublesCurve(F, NAME2);
     assertFalse(CURVE.equals(other));
-    other = new FunctionalDoubleDoubleCurve(F);
+    other = new FunctionalDoublesCurve(F);
     assertFalse(CURVE.equals(other));
   }
 
@@ -78,12 +78,12 @@ public class FunctionalDoubleDoubleCurveTest {
 
   @Test
   public void testStaticConstruction() {
-    FunctionalDoubleDoubleCurve curve = new FunctionalDoubleDoubleCurve(F);
-    FunctionalDoubleDoubleCurve other = FunctionalDoubleDoubleCurve.from(F);
+    FunctionalDoublesCurve curve = new FunctionalDoublesCurve(F);
+    FunctionalDoublesCurve other = FunctionalDoublesCurve.from(F);
     assertEquals(curve.getFunction(), other.getFunction());
     assertFalse(curve.getName().equals(other.getName()));
-    curve = new FunctionalDoubleDoubleCurve(F, NAME1);
-    other = FunctionalDoubleDoubleCurve.from(F, NAME1);
+    curve = new FunctionalDoublesCurve(F, NAME1);
+    other = FunctionalDoublesCurve.from(F, NAME1);
     assertEquals(curve, other);
   }
 
@@ -92,7 +92,7 @@ public class FunctionalDoubleDoubleCurveTest {
     final double eps = 1e-15;
     final double[] x = new double[] {0, 1, 2};
     final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    DoubleDoubleCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    DoublesCurve other = CURVE.toNodalDoubleDoubleCurve(x);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), new double[] {F.evaluate(x[0]), F.evaluate(x[1]), F.evaluate(x[2])}, eps);
     other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);

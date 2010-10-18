@@ -17,15 +17,15 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * A curve that is defined by a function 
  */
-public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
+public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
    * @param function The function that defines the curve
    * @return A functional curve with an automatically-generated name
    */
-  public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function) {
-    return new FunctionalDoubleDoubleCurve(function);
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function) {
+    return new FunctionalDoublesCurve(function);
   }
 
   /**
@@ -34,8 +34,8 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * @param name Name of the curve 
    * @return A functional curve
    */
-  public static FunctionalDoubleDoubleCurve from(final Function1D<Double, Double> function, final String name) {
-    return new FunctionalDoubleDoubleCurve(function, name);
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final String name) {
+    return new FunctionalDoublesCurve(function, name);
   }
 
   private final Function1D<Double, Double> _function;
@@ -44,7 +44,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * 
    * @param function The function that defines the curve
    */
-  public FunctionalDoubleDoubleCurve(final Function1D<Double, Double> function) {
+  public FunctionalDoublesCurve(final Function1D<Double, Double> function) {
     super();
     Validate.notNull(function, "function");
     _function = function;
@@ -55,7 +55,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * @param function The function that defines the curve
    * @param name The name of the curve
    */
-  public FunctionalDoubleDoubleCurve(final Function1D<Double, Double> function, final String name) {
+  public FunctionalDoublesCurve(final Function1D<Double, Double> function, final String name) {
     super(name);
     Validate.notNull(function, "function");
     _function = function;
@@ -100,7 +100,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * @param interpolator An interpolator
    * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
    */
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolator);
     final int n = x.length;
@@ -108,7 +108,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return InterpolatedDoubleDoubleCurve.from(x, y, interpolator);
+    return InterpolatedDoublesCurve.from(x, y, interpolator);
   }
 
   /**
@@ -118,7 +118,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
    */
 
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolators);
     final int n = x.length;
@@ -126,7 +126,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return InterpolatedDoubleDoubleCurve.from(x, y, interpolators);
+    return InterpolatedDoublesCurve.from(x, y, interpolators);
   }
 
   /**
@@ -134,14 +134,14 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
    * @param x An array of x values
    * @return A nodal curve with values {@latex.inline $(x, F(x))$} 
    */
-  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(final double[] x) {
+  public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
     Validate.notNull(x, "x");
     final int n = x.length;
     final double[] y = new double[n];
     for (int i = 0; i < n; i++) {
       y[i] = _function.evaluate(x[i]);
     }
-    return NodalDoubleDoubleCurve.from(x, y);
+    return NodalDoublesCurve.from(x, y);
   }
 
   /**
@@ -171,7 +171,7 @@ public class FunctionalDoubleDoubleCurve extends Curve<Double, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final FunctionalDoubleDoubleCurve other = (FunctionalDoubleDoubleCurve) obj;
+    final FunctionalDoublesCurve other = (FunctionalDoublesCurve) obj;
     return ObjectUtils.equals(_function, other._function);
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 /**
  * 
  */
-public class DoubleDoubleCurveTestCase {
+public class DoublesCurveTestCase {
   protected static final String NAME1 = "a";
   protected static final String NAME2 = "b";
   protected static final double[] X_PRIMITIVE;

@@ -21,78 +21,78 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  * 
  */
 @SuppressWarnings("unchecked")
-public class SpreadDoubleDoubleCurveTest {
+public class SpreadDoublesCurveTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED1 = InterpolatedDoubleDoubleCurve.from(X, Y1, new LinearInterpolator1D(), "a");
-  private static final InterpolatedDoubleDoubleCurve INTERPOLATED2 = InterpolatedDoubleDoubleCurve.from(X, Y2, new LinearInterpolator1D(), "b");
+  private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.from(X, Y1, new LinearInterpolator1D(), "a");
+  private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.from(X, Y2, new LinearInterpolator1D(), "b");
   private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
   private static final CurveSpreadFunction SUBTRACT = new SubtractCurveSpreadFunction();
   private static final String NAME1 = "X";
   private static final String NAME2 = "Y";
   private static final String NAME3 = "Z";
   private static final Curve<Double, Double>[] CURVES1 = new Curve[] {INTERPOLATED1, INTERPOLATED2};
-  private static final SpreadDoubleDoubleCurve SPREAD1 = SpreadDoubleDoubleCurve.from(CURVES1, ADD, NAME1);
+  private static final SpreadDoublesCurve SPREAD1 = SpreadDoublesCurve.from(CURVES1, ADD, NAME1);
   private static final Curve<Double, Double>[] CURVES2 = new Curve[] {SPREAD1, INTERPOLATED1};
-  private static final SpreadDoubleDoubleCurve SPREAD2 = SpreadDoubleDoubleCurve.from(CURVES2, SUBTRACT, NAME2);
+  private static final SpreadDoublesCurve SPREAD2 = SpreadDoublesCurve.from(CURVES2, SUBTRACT, NAME2);
   private static final Curve<Double, Double>[] CURVES3 = new Curve[] {INTERPOLATED1, INTERPOLATED1, INTERPOLATED1};
-  private static final SpreadDoubleDoubleCurve SPREAD3 = SpreadDoubleDoubleCurve.from(CURVES3, ADD, NAME3);
+  private static final SpreadDoublesCurve SPREAD3 = SpreadDoublesCurve.from(CURVES3, ADD, NAME3);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurves1() {
-    new SpreadDoubleDoubleCurve(null, ADD);
+    new SpreadDoublesCurve(null, ADD);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testTooFewCurves1() {
-    new SpreadDoubleDoubleCurve(new Curve[] {INTERPOLATED1}, ADD);
+    new SpreadDoublesCurve(new Curve[] {INTERPOLATED1}, ADD);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSpreadFunction1() {
-    new SpreadDoubleDoubleCurve(CURVES1, null);
+    new SpreadDoublesCurve(CURVES1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurves2() {
-    new SpreadDoubleDoubleCurve(null, ADD, NAME1);
+    new SpreadDoublesCurve(null, ADD, NAME1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testTooFewCurves2() {
-    new SpreadDoubleDoubleCurve(new Curve[] {INTERPOLATED1}, ADD, NAME1);
+    new SpreadDoublesCurve(new Curve[] {INTERPOLATED1}, ADD, NAME1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSpreadFunction2() {
-    new SpreadDoubleDoubleCurve(CURVES1, null, NAME1);
+    new SpreadDoublesCurve(CURVES1, null, NAME1);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    SpreadDoubleDoubleCurve other = SpreadDoubleDoubleCurve.from(CURVES1, ADD, NAME1);
+    SpreadDoublesCurve other = SpreadDoublesCurve.from(CURVES1, ADD, NAME1);
     assertEquals(other, SPREAD1);
     assertEquals(other.hashCode(), SPREAD1.hashCode());
-    other = SpreadDoubleDoubleCurve.from(CURVES2, ADD, NAME1);
+    other = SpreadDoublesCurve.from(CURVES2, ADD, NAME1);
     assertFalse(other.equals(SPREAD1));
-    other = SpreadDoubleDoubleCurve.from(CURVES1, SUBTRACT, NAME1);
+    other = SpreadDoublesCurve.from(CURVES1, SUBTRACT, NAME1);
     assertFalse(other.equals(SPREAD1));
-    other = SpreadDoubleDoubleCurve.from(CURVES1, ADD, NAME2);
+    other = SpreadDoublesCurve.from(CURVES1, ADD, NAME2);
     assertFalse(other.equals(SPREAD1));
-    other = SpreadDoubleDoubleCurve.from(CURVES1, ADD);
+    other = SpreadDoublesCurve.from(CURVES1, ADD);
     assertFalse(other.equals(SPREAD1));
-    other = SpreadDoubleDoubleCurve.from(CURVES1, ADD);
+    other = SpreadDoublesCurve.from(CURVES1, ADD);
     assertFalse(other.equals(SPREAD1));
-    other = new SpreadDoubleDoubleCurve(CURVES1, ADD);
+    other = new SpreadDoublesCurve(CURVES1, ADD);
     assertFalse(other.equals(SPREAD1));
-    other = new SpreadDoubleDoubleCurve(CURVES1, ADD);
+    other = new SpreadDoublesCurve(CURVES1, ADD);
     assertFalse(other.equals(SPREAD1));
   }
 
   @Test
   public void testStaticConstructors() {
-    assertEquals(new SpreadDoubleDoubleCurve(CURVES1, ADD, NAME1), SPREAD1);
+    assertEquals(new SpreadDoublesCurve(CURVES1, ADD, NAME1), SPREAD1);
   }
 
   @Test(expected = UnsupportedOperationException.class)

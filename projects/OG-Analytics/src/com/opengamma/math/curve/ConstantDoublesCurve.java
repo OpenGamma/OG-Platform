@@ -14,14 +14,14 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * Defines a constant curve 
  */
-public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
+public class ConstantDoublesCurve extends Curve<Double, Double> {
 
   /**
    * @param y Level of the curve
    * @return A constant curve with automatically-generated name
    */
-  public static ConstantDoubleDoubleCurve from(final double y) {
-    return new ConstantDoubleDoubleCurve(y);
+  public static ConstantDoublesCurve from(final double y) {
+    return new ConstantDoublesCurve(y);
   }
 
   /**
@@ -30,8 +30,8 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * @param name Name of the curve
    * @return A constant curve
    */
-  public static ConstantDoubleDoubleCurve from(final double y, final String name) {
-    return new ConstantDoubleDoubleCurve(y, name);
+  public static ConstantDoublesCurve from(final double y, final String name) {
+    return new ConstantDoublesCurve(y, name);
   }
 
   private final double _y;
@@ -40,7 +40,7 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * 
    * @param y The level of the curve
    */
-  public ConstantDoubleDoubleCurve(final double y) {
+  public ConstantDoublesCurve(final double y) {
     super();
     _y = y;
   }
@@ -50,7 +50,7 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * @param y The level of the curve
    * @param name The name of the curve
    */
-  public ConstantDoubleDoubleCurve(final double y, final String name) {
+  public ConstantDoublesCurve(final double y, final String name) {
     super(name);
     _y = y;
   }
@@ -87,10 +87,10 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * @param interpolator An interpolator
    * @return An interpolated curve with constant value 
    */
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return InterpolatedDoubleDoubleCurve.from(x, y, interpolator);
+    return InterpolatedDoublesCurve.from(x, y, interpolator);
   }
 
   /**
@@ -99,10 +99,10 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * @param interpolators A map of (time valid -> interpolator)
    * @return An interpolated curve with constant value
    */
-  public InterpolatedDoubleDoubleCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
+  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return InterpolatedDoubleDoubleCurve.from(x, y, interpolators);
+    return InterpolatedDoublesCurve.from(x, y, interpolators);
   }
 
   /**
@@ -110,10 +110,10 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
    * @param x An array of x values
    * @return A nodal curve with constant value
    */
-  public NodalDoubleDoubleCurve toNodalDoubleDoubleCurve(final double[] x) {
+  public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
-    return NodalDoubleDoubleCurve.from(x, y);
+    return NodalDoublesCurve.from(x, y);
   }
 
   /**
@@ -145,7 +145,7 @@ public class ConstantDoubleDoubleCurve extends Curve<Double, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ConstantDoubleDoubleCurve other = (ConstantDoubleDoubleCurve) obj;
+    final ConstantDoublesCurve other = (ConstantDoublesCurve) obj;
     if (Double.doubleToLongBits(_y) != Double.doubleToLongBits(other._y)) {
       return false;
     }

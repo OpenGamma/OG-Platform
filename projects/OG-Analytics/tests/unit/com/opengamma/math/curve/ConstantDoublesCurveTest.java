@@ -20,12 +20,12 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class ConstantDoubleDoubleCurveTest {
+public class ConstantDoublesCurveTest {
   private static final double Y1 = 20;
   private static final double Y2 = 21;
   private static final String NAME1 = "a";
   private static final String NAME2 = "b";
-  private static final ConstantDoubleDoubleCurve CURVE = new ConstantDoubleDoubleCurve(Y1, NAME1);
+  private static final ConstantDoublesCurve CURVE = new ConstantDoublesCurve(Y1, NAME1);
 
   @Test(expected = UnsupportedOperationException.class)
   public void testGetXData() {
@@ -34,14 +34,14 @@ public class ConstantDoubleDoubleCurveTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    ConstantDoubleDoubleCurve other = new ConstantDoubleDoubleCurve(Y1, NAME1);
+    ConstantDoublesCurve other = new ConstantDoublesCurve(Y1, NAME1);
     assertEquals(CURVE, other);
     assertEquals(CURVE.hashCode(), other.hashCode());
-    other = new ConstantDoubleDoubleCurve(Y2, NAME1);
+    other = new ConstantDoublesCurve(Y2, NAME1);
     assertFalse(CURVE.equals(other));
-    other = new ConstantDoubleDoubleCurve(Y1);
+    other = new ConstantDoublesCurve(Y1);
     assertFalse(CURVE.equals(other));
-    other = new ConstantDoubleDoubleCurve(Y1, NAME2);
+    other = new ConstantDoublesCurve(Y1, NAME2);
     assertFalse(CURVE.equals(other));
   }
 
@@ -55,12 +55,12 @@ public class ConstantDoubleDoubleCurveTest {
 
   @Test
   public void testStaticConstruction() {
-    ConstantDoubleDoubleCurve curve = new ConstantDoubleDoubleCurve(Y1);
-    ConstantDoubleDoubleCurve other = ConstantDoubleDoubleCurve.from(Y1);
+    ConstantDoublesCurve curve = new ConstantDoublesCurve(Y1);
+    ConstantDoublesCurve other = ConstantDoublesCurve.from(Y1);
     assertArrayEquals(curve.getYData(), other.getYData());
     assertFalse(curve.getName().equals(other.getName()));
-    curve = new ConstantDoubleDoubleCurve(Y1, NAME1);
-    other = ConstantDoubleDoubleCurve.from(Y1, NAME1);
+    curve = new ConstantDoublesCurve(Y1, NAME1);
+    other = ConstantDoublesCurve.from(Y1, NAME1);
     assertEquals(curve, other);
   }
 
@@ -70,7 +70,7 @@ public class ConstantDoubleDoubleCurveTest {
     final double[] x = new double[] {0, 1, 2};
     final double[] y = new double[] {Y1, Y1, Y1};
     final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    DoubleDoubleCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    DoublesCurve other = CURVE.toNodalDoubleDoubleCurve(x);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
     other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);
