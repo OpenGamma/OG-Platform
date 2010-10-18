@@ -218,7 +218,7 @@ public class BatchJob {
    * batch DB with all necessary market data.   
    */
   private HistoricalLiveDataSnapshotProvider _historicalDataProvider;
-
+  
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
@@ -524,7 +524,21 @@ public class BatchJob {
     
     // Initialize provider with values from batch DB
     
-    Set<LiveDataValue> liveDataValues = _batchDbManager.getSnapshotValues(run.getSnapshotId());
+    Set<LiveDataValue> liveDataValues;
+    try {
+      liveDataValues = _batchDbManager.getSnapshotValues(run.getSnapshotId());
+    } catch (IllegalArgumentException e) {
+      if (_historicalDataProvider != null) {
+        // if there is a historical data provider, that provider
+        // may potentially provide all market data to run the batch,
+        // so no pre-existing snapshot is required
+        s_logger.info("Auto-creating snapshot " + run.getSnapshotId());
+        _batchDbManager.createLiveDataSnapshot(run.getSnapshotId());
+        liveDataValues = Collections.emptySet();
+      } else {
+        throw e;
+      }
+    }
 
     for (LiveDataValue value : liveDataValues) {
       ValueRequirement valueRequirement = new ValueRequirement(value.getFieldName(), value.getComputationTargetSpecification());
@@ -614,6 +628,11 @@ public class BatchJob {
     searchRequest.setName(getViewName());
     searchRequest.setVersionAsOfInstant(_viewDateTime.toInstant());
     ConfigSearchResult<ViewDefinition> searchResult = _configSource.getMaster(ViewDefinition.class).search(searchRequest);
+    List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
+    if (documents.isEmpty()) {
+      throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
+          _viewDateTime.toInstant() + " in config db");
+    }
     return searchResult.getFirstDocument();
   }
 

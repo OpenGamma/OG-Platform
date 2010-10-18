@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.bond.MacaulayDurationCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
@@ -56,17 +55,15 @@ public class MacaulayDurationCalculatorTest {
   public void testMultiplePayment() {
     int n = 10;
     double[] paymentTimes = new double[n];
-    double[] yearFrac = new double[n];
     double tau = 0.5;
     double alpha = 0.48;
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
-      yearFrac[i] = alpha;
     }
 
     double yield = 0.05;
     double coupon = (Math.exp(yield * tau) - 1) / alpha;
-    Bond bond = new Bond(paymentTimes, coupon, yearFrac, CURVE_NAME);
+    Bond bond = new Bond(paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
     double duration = MDC.calculate(bond, 1.0);
 
     double sum = 0.0;

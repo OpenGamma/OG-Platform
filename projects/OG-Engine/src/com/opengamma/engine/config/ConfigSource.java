@@ -19,6 +19,15 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public interface ConfigSource {
+  /**
+   * Search for config document by providing fields in ConfigSearchRequest
+   * 
+   * @param <T> The type of config document
+   * @param clazz The config document class, not-null
+   * @param name The name for the name search field, not-null
+   * @return the latest config document matching the request
+   */  
+  <T> T searchLatest(Class<T> clazz, String name);
   
   /**
    * Search for config document by providing fields in ConfigSearchRequest

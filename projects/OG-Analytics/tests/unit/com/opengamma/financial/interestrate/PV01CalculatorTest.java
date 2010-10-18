@@ -139,7 +139,7 @@ public class PV01CalculatorTest {
       coupons[i] = initalCoupon + i * ramp;
       yearFracs[i] = yearFrac;
     }
-    final Bond bond = new Bond(paymentTimes, coupons, yearFracs, FUNDING_CURVE_NAME);
+    final Bond bond = new Bond(paymentTimes, coupons, yearFracs, 0.0, FUNDING_CURVE_NAME);
     doTest(bond, CURVES);
   }
 
