@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.List;
+import java.util.Map;
+
 import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
@@ -15,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.CacheMessageVisitor;
+import com.opengamma.engine.view.cache.msg.FindMessage;
 import com.opengamma.engine.view.cache.msg.ReleaseCacheMessage;
 import com.opengamma.transport.FudgeMessageReceiver;
 
@@ -70,6 +74,34 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     protected CacheMessage visitReleaseCacheMessage(final ReleaseCacheMessage message) {
       s_logger.debug("Releasing cache {}/{}", message.getViewName(), message.getTimestamp());
       releaseCaches(message.getViewName(), message.getTimestamp());
+      return null;
+    }
+
+    @Override
+    protected CacheMessage visitFindMessage(final FindMessage message) {
+      final DefaultViewComputationCache cache = findCache(message.getViewName(), message.getCalculationConfigurationName(), message.getSnapshotTimestamp());
+      if (cache != null) {
+        final List<Long> identifiers = message.getIdentifier();
+        s_logger.debug("Searching for {} identifiers to send to shared cache", identifiers.size());
+        if (identifiers.size() == 1) {
+          final long identifier = identifiers.get(0);
+          final byte[] data = cache.getPrivateDataStore().get(identifier);
+          if (data != null) {
+            s_logger.debug("Found identifier {} in private cache", identifier);
+            cache.getSharedDataStore().put(identifier, data);
+          }
+        } else {
+          final Map<Long, byte[]> data = cache.getPrivateDataStore().get(identifiers);
+          if (data.size() == 1) {
+            s_logger.debug("Found 1 of {} identifiers in private cache", identifiers.size());
+            final Map.Entry<Long, byte[]> entry = data.entrySet().iterator().next();
+            cache.getSharedDataStore().put(entry.getKey(), entry.getValue());
+          } else if (data.size() > 1) {
+            s_logger.debug("Found {} of {} identifiers in private cache", data.size(), identifiers.size());
+            cache.getSharedDataStore().put(data);
+          }
+        }
+      }
       return null;
     }
 

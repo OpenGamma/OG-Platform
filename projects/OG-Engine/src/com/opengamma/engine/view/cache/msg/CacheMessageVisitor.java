@@ -24,6 +24,10 @@ public abstract class CacheMessageVisitor {
   protected CacheMessage visitDeleteRequest(final DeleteRequest message) {
     return visitBinaryDataStoreMessage(message);
   }
+  
+  protected CacheMessage visitFindMessage(final FindMessage message) {
+    return visitBinaryDataStoreMessage(message);
+  }
 
   protected GetResponse visitGetRequest(final GetRequest message) {
     return visitBinaryDataStoreMessage(message);

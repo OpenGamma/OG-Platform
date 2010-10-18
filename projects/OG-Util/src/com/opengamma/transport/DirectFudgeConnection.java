@@ -5,6 +5,8 @@
  */
 package com.opengamma.transport;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -16,6 +18,9 @@ import org.fudgemsg.FudgeMsgEnvelope;
 public class DirectFudgeConnection {
 
   private final FudgeContext _fudgeContext;
+
+  private final AtomicInteger _messages1To2 = new AtomicInteger();
+  private final AtomicInteger _messages2To1 = new AtomicInteger();
 
   private FudgeMessageReceiver _end1Receiver;
   private FudgeConnectionReceiver _end1Connection;
@@ -29,6 +34,7 @@ public class DirectFudgeConnection {
 
     @Override
     public void send(FudgeFieldContainer message) {
+      _messages1To2.incrementAndGet();
       if (_end2Receiver != null) {
         _end2Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));
       } else {
@@ -71,6 +77,7 @@ public class DirectFudgeConnection {
 
     @Override
     public void send(FudgeFieldContainer message) {
+      _messages2To1.incrementAndGet();
       if (_end1Receiver != null) {
         _end1Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));
       } else {
@@ -119,6 +126,14 @@ public class DirectFudgeConnection {
 
   public void connectEnd2(final FudgeConnectionReceiver receiver) {
     _end2Connection = receiver;
+  }
+
+  public int getAndResetMessages1To2() {
+    return _messages1To2.getAndSet(0);
+  }
+
+  public int getAndResetMessages2To1() {
+    return _messages2To1.getAndSet(0);
   }
 
 }
