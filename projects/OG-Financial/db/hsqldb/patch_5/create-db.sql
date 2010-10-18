@@ -9,6 +9,36 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
+
+-- create-db-config.sql: Config Master
+
+-- design has one document
+--  config
+-- unitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+create sequence cfg_config_seq as bigint
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby/HSQL, not accepted by Postgresql
+
+create table cfg_config (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    last_read_instant timestamp not null,
+    name varchar(255) not null,
+    config_type varchar(255) not null,
+    config blob not null,
+    primary key (id),
+    constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant)
+);
+
+create index ix_cfg_config_oid on cfg_config(oid);
+create index ix_cfg_config_config_type on cfg_config(config_type);
+
+
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -212,7 +242,7 @@ create table sec_bond (
     market_id bigint not null,
     currency_id bigint not null,
     yieldconvention_id bigint not null,
-    guaranteetype_id bigint not null,
+    guaranteetype_id bigint,
     maturity_date timestamp not null,
     maturity_zone varchar(50) not null,
     maturity_accuracy smallint not null,
@@ -220,9 +250,9 @@ create table sec_bond (
     couponrate double precision not null,
     couponfrequency_id bigint not null,
     daycountconvention_id bigint not null,
-    businessdayconvention_id bigint not null,
-    announcement_date timestamp not null,
-    announcement_zone varchar(50) not null,
+    businessdayconvention_id bigint,
+    announcement_date timestamp,
+    announcement_zone varchar(50),
     interestaccrual_date timestamp not null,
     interestaccrual_zone varchar(50) not null,
     settlement_date timestamp not null,
@@ -560,7 +590,6 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete boolean not null,
 	
 	primary key (id),
 	
