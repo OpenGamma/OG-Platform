@@ -491,7 +491,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     // Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    return new Compiled(atInstant.withTime(0, 0), atInstant.plusDays(1).minusNanos(1000000), fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
+    return new Compiled(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification,
+        forwardCurveRequirements);
   }
 
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
