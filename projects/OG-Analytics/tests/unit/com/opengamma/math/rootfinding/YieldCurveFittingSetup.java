@@ -25,10 +25,10 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -161,10 +161,10 @@ public abstract class YieldCurveFittingSetup {
       bundle.addAll(data.getKnownCurves());
     }
 
-    // this is possibly a redundant test, especially if we are working in par-rate space (vs present value) as the very fact that
+    // this is possibly a redundant test, as the very fact that
     // the root finder converged (and modelMarketValueDiff are within EPS of 0) means this will also pass
     for (int i = 0; i < data.getMarketRates().length; i++) {
-      assertEquals(data.getMarketRates()[i], ParRateCalculator.getInstance().getValue(data.getDerivative(i), bundle), EPS);
+      assertEquals(data.getMarketRates()[i], data.getMarketValueCalculator().getValue(data.getDerivative(i), bundle), EPS);
     }
 
     // for (int i = 0; i < 40; i++) {
@@ -221,8 +221,9 @@ public abstract class YieldCurveFittingSetup {
     return new InterpolatedYieldCurve(times, yields, interpolator);
   }
 
-  protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments) {
-    return new MultipleYieldCurveFinderDataBundle(instruments, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
+  protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments, double[] marketRates) {
+    Validate.isTrue(instruments.size() == marketRates.length);
+    return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
         .getUnknownCurveNodeSensitivityCalculators());
   }
 
@@ -318,6 +319,19 @@ public abstract class YieldCurveFittingSetup {
 
     final ForwardLiborAnnuity floatingLeg = new ForwardLiborAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
+  }
+
+  protected static Bond makeBond(final double maturity, final String curveName, final double coupon) {
+
+    int n = (int) (2.0 * maturity);
+    double[] paymentTimes = new double[n];
+    paymentTimes[n - 1] = maturity;
+    for (int i = n - 2; i >= 0; i--) {
+      paymentTimes[i] = paymentTimes[i + 1] - 0.5;
+    }
+    double accuralFraction = 1.0 - 2.0 * paymentTimes[0];
+
+    return new Bond(paymentTimes, coupon, 0.5, accuralFraction, curveName);
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
