@@ -66,7 +66,7 @@ public class BondSecurityToBondConverter {
       
     //for a seasoned bond, find out the next coupon
     int index = 0;
-    while (!now.isBefore(couponDates[index])) {//if now is on or after couponDates[index], assume coupon has been paid
+    while (!now.isBefore(couponDates[index])) { //if now is on or after couponDates[index], assume coupon has been paid
       index++;
     }
     
