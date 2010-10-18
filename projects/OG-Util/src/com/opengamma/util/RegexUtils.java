@@ -32,6 +32,7 @@ public final class RegexUtils {
    * @return the pattern, not null
    */
   public static Pattern wildcardsToPattern(final String text) {
+    ArgumentChecker.notNull(text, "text");
     StringTokenizer tkn = new StringTokenizer(text, "?*", true);
     StringBuilder buf = new StringBuilder(text.length() + 10);
     buf.append('^');
