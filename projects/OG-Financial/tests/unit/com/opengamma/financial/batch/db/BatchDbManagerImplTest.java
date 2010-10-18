@@ -6,7 +6,6 @@
 package com.opengamma.financial.batch.db;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -150,38 +149,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _dbManager.getLiveDataSnapshot(_batchJobRun);
   }
   
-  @Test
-  public void markSnapshotComplete() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId()); 
-    
-    LiveDataSnapshot snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
-    assertNotNull(snapshot);
-    assertEquals(DbDateUtils.toSqlDate(_batchJobRun.getSnapshotObservationDate()), 
-        snapshot.getSnapshotTime().getDate());
-    assertEquals(_batchJobRun.getSnapshotObservationTime(), 
-        snapshot.getSnapshotTime().getObservationTime().getLabel());
-    assertFalse(snapshot.isComplete());
-    assertTrue(snapshot.getSnapshotEntries().isEmpty());
-
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-
-    assertTrue(snapshot.isComplete());
-  }
-  
-  @Test(expected=IllegalArgumentException.class) 
-  public void tryToMarkNonExistentSnapshotComplete() {
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-  }
-  
-  @Test(expected=IllegalStateException.class) 
-  public void tryToMarkSnapshotCompleteTwice() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-    
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-  }
-  
   @Test 
   public void getLiveDataField() {
     // create
@@ -197,23 +164,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test(expected=IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
     _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
-  }
-  
-  @Test(expected=IllegalStateException.class)
-  public void addValuesToCompleteSnapshot() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-          
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-    
-    LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
-        Identifier.of("BUID", "EQ12345")), "BID", 11.22);
-    Set<LiveDataValue> values = Collections.singleton(value);
-    
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
-    
-    Set<LiveDataValue> returnedValues = _dbManager.getSnapshotValues(_batchJobRun.getSnapshotId());
-    
-    assertEquals(values, returnedValues);
   }
   
   @Test
@@ -267,24 +217,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void fixLiveDataSnapshotTime() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    
     _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.nowSystemClock());
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void tryToFixNonexistentLiveDataSnapshotTime() {
-    _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
-        OffsetTime.nowSystemClock());
-  }
-  
-  @Test
-  public void fixCompleteLiveDataSnapshotTime() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
-    
-    // this is OK
     _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.nowSystemClock());
   }
@@ -301,7 +239,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void createThenGetRiskRun() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
     RiskRun run = _dbManager.createRiskRun(_batchJobRun);
     
     assertNotNull(run);
@@ -327,16 +264,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _dbManager.startBatch(_batchJobRun);
   }
   
-  @Test(expected=IllegalStateException.class)
-  public void tryToStartBatchWithoutMarkingSnapshotComplete() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
-  }
-  
   @Test
   public void startAndEndBatch() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
     _dbManager.startBatch(_batchJobRun);
     
     RiskRun run1 = _dbManager.getRiskRunFromDb(_batchJobRun);
@@ -362,7 +292,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void startBatchTwice() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.markLiveDataSnapshotComplete(_batchJobRun.getSnapshotId());
     _dbManager.startBatch(_batchJobRun);
     
     RiskRun run = _dbManager.getRiskRunFromDb(_batchJobRun);

@@ -37,9 +37,6 @@ public interface BatchDbManager {
   /**
    * Creates a LiveData snapshot in the database. 
    * If the snapshot already exists, does nothing.
-   * The LiveData snapshot will be incomplete.
-   * Before it is actually used, you must add entries to it
-   * and then mark it complete.
    * 
    * @param snapshotId The date and time of the snapshot, not null
    */
@@ -54,14 +51,6 @@ public interface BatchDbManager {
    * @param fix The time to which the observation time was fixed, not null
    */
   void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix);
-  
-  /**
-   * Marks a LiveData snapshot complete. This releases the snapshot
-   * for use in batches.
-   * 
-   * @param snapshotId The date and time of the snapshot, not null
-   */
-  void markLiveDataSnapshotComplete(SnapshotId snapshotId);
   
   /**
    * Adds market data fixings to an existing LiveData snapshot. The

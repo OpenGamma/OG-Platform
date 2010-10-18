@@ -138,7 +138,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   }
 
   protected InterpolatedYieldCurveSpecification createSpecification(final LocalDate curveDate) {
-    return _curveSpecificationBuilder.buildCurve(DateUtil.previousWeekDay(curveDate), _definition);
+    return _curveSpecificationBuilder.buildCurve(curveDate, _definition);
   }
 
   @Override
@@ -194,6 +194,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
         final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
         boolean isFirst = true;
         for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {
+          System.err.println("security = " + strip.getSecurityIdentifier() + ", " + strip.getMaturity());
           final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
           Double price = (Double) inputs.getValue(stripRequirement);
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -221,7 +222,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
             timeInYearsToRates.put(years, Math.exp(-price * years));
           }
         }
-        // System.err.println("Time in years to rates: " + timeInYearsToRates);
+        System.err.println("Time in years to rates: " + timeInYearsToRates);
         // Bootstrap the yield curve
         final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
         final ComputedValue resultValue = new ComputedValue(_result, curve);

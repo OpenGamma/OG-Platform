@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +55,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
      _configHelper = new CurveConfigurationSetupHelper();
   }
 
+  
+  
+  
   /**
    * @throws java.lang.Exception
    */
@@ -78,7 +82,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     context.setSecuritySource(_configHelper.getSecSource());
 
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
@@ -121,7 +125,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
 
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("USD")));

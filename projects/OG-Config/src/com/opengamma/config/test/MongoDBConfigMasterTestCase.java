@@ -25,7 +25,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
@@ -42,7 +41,7 @@ import com.opengamma.util.MongoDBConnectionSettings;
  */
 public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
   
-  private ConfigMaster<T> _configMaster;
+  private MongoDBConfigMaster<T> _configMaster;
   private Class<?> _entityType;
   private Random _random = new Random();
   
@@ -63,15 +62,17 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
    */
   @After
   public void tearDown() throws Exception {
+    _configMaster.close();
     MongoDBConnectionSettings settings = getMongoDBConnectionSettings();
     Mongo mongo = new Mongo(settings.getHost(), settings.getPort());
     DB db = mongo.getDB(settings.getDatabase());
     String collectionName =  settings.getCollectionName() == null ? _entityType.getSimpleName() : settings.getCollectionName();
     DBCollection collection = db.getCollection(collectionName);
     collection.drop();
+    mongo.close();
   }
   
-  protected abstract ConfigMaster<T> createMongoConfigMaster();
+  protected abstract MongoDBConfigMaster<T> createMongoConfigMaster();
   protected abstract ConfigDocument<T> makeTestConfigDoc(int version);
   protected abstract MongoDBConnectionSettings getMongoDBConnectionSettings();
   protected abstract T makeRandomConfigDoc();

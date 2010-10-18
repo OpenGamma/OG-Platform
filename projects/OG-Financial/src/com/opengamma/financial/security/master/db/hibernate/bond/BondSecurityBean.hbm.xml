@@ -11,7 +11,7 @@
 		<many-to-one name="market" column="market_id" class="MarketBean" not-null="true" />
 		<many-to-one name="currency" column="currency_id" class="com.opengamma.financial.security.master.db.hibernate.CurrencyBean" not-null="true" />
 		<many-to-one name="yieldConvention" column="yieldconvention_id" class="YieldConventionBean" not-null="true" />
-		<many-to-one name="guaranteeType" column="guaranteetype_id" class="GuaranteeTypeBean" not-null="true" />
+		<many-to-one name="guaranteeType" column="guaranteetype_id" class="GuaranteeTypeBean" />
 		<component name="maturity" class="com.opengamma.financial.security.master.db.hibernate.ExpiryBean">
 			<component name="expiry" class="com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean">
 				<property name="date" column="maturity_date" type="timestamp" not-null="true" />
@@ -23,10 +23,10 @@
 		<property name="couponRate" column="couponrate" type="double" not-null="true" />
 		<many-to-one name="couponFrequency" column="couponfrequency_id" class="com.opengamma.financial.security.master.db.hibernate.FrequencyBean" not-null="true" />
 		<many-to-one name="dayCountConvention" column="daycountconvention_id" class="com.opengamma.financial.security.master.db.hibernate.DayCountBean" not-null="true" />
-		<many-to-one name="businessDayConvention" column="businessdayconvention_id" class="com.opengamma.financial.security.master.db.hibernate.BusinessDayConventionBean" not-null="true" />
+		<many-to-one name="businessDayConvention" column="businessdayconvention_id" class="com.opengamma.financial.security.master.db.hibernate.BusinessDayConventionBean" />
 		<component name="announcementDate" class="com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean">
-			<property name="date" column="announcement_date" type="timestamp" not-null="true" />
-			<property name="zone" column="announcement_zone" type="string" not-null="true" />
+			<property name="date" column="announcement_date" type="timestamp" />
+			<property name="zone" column="announcement_zone" type="string" />
 		</component>
 		<component name="interestAccrualDate" class="com.opengamma.financial.security.master.db.hibernate.ZonedDateTimeBean">
 			<property name="date" column="interestaccrual_date" type="timestamp" not-null="true" />

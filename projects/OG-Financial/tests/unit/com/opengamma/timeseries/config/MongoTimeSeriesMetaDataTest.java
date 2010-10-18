@@ -13,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.config.test.MongoDBConfigMasterTestCase;
@@ -66,7 +65,7 @@ public class MongoTimeSeriesMetaDataTest extends MongoDBConfigMasterTestCase<Tim
   }
 
   @Override
-  protected ConfigMaster<TimeSeriesMetaDataConfiguration> createMongoConfigMaster() {
+  protected MongoDBConfigMaster<TimeSeriesMetaDataConfiguration> createMongoConfigMaster() {
     //use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
