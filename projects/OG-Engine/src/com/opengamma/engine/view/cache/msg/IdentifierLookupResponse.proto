@@ -6,7 +6,7 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message IdentifierLookupResponse extends IdentifierMapResponse {
+  message IdentifierLookupResponse extends CacheMessage {
   
     /**
      * The identifiers allocated for each value specification in the order that they were
@@ -14,6 +14,10 @@ namespace com.opengamma.engine.view.cache.msg {
      */
     repeated required long identifier;
   
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitIdentifierLookupResponse (this); }";
+    }
+    
   }
 
 }

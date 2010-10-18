@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -90,7 +90,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateDifferenceCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();

@@ -6,17 +6,16 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message PutRequest extends CacheMessage {
+  message FindMessage extends CacheMessage {
   
     required string viewName;
     required string calculationConfigurationName;
     required long snapshotTimestamp;
   
     required repeated long identifier;
-    required repeated byte[] data;
   
     binding Java {
-      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitPutRequest (this); }";
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitFindMessage (this); }";
     }
     
   }
