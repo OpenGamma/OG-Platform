@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
 
-import java.util.Map;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -24,7 +22,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * @param function The function that defines the curve
    * @return A functional curve with an automatically-generated name
    */
-  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function) {
+  public static FunctionalDoublesCurve from(final Function<Double, Double> function) {
     return new FunctionalDoublesCurve(function);
   }
 
@@ -34,17 +32,17 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * @param name Name of the curve 
    * @return A functional curve
    */
-  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final String name) {
+  public static FunctionalDoublesCurve from(final Function<Double, Double> function, final String name) {
     return new FunctionalDoublesCurve(function, name);
   }
 
-  private final Function1D<Double, Double> _function;
+  private final Function<Double, Double> _function;
 
   /**
    * 
    * @param function The function that defines the curve
    */
-  public FunctionalDoublesCurve(final Function1D<Double, Double> function) {
+  public FunctionalDoublesCurve(final Function<Double, Double> function) {
     super();
     Validate.notNull(function, "function");
     _function = function;
@@ -55,7 +53,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * @param function The function that defines the curve
    * @param name The name of the curve
    */
-  public FunctionalDoublesCurve(final Function1D<Double, Double> function, final String name) {
+  public FunctionalDoublesCurve(final Function<Double, Double> function, final String name) {
     super(name);
     Validate.notNull(function, "function");
     _function = function;
@@ -114,24 +112,6 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
   /**
    * 
    * @param x An array of x values
-   * @param interpolators A map of (time valid -> interpolator)
-   * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
-   */
-
-  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
-    Validate.notNull(x, "x");
-    Validate.notNull(interpolators);
-    final int n = x.length;
-    final double[] y = new double[n];
-    for (int i = 0; i < n; i++) {
-      y[i] = _function.evaluate(x[i]);
-    }
-    return InterpolatedDoublesCurve.from(x, y, interpolators);
-  }
-
-  /**
-   * 
-   * @param x An array of x values
    * @return A nodal curve with values {@latex.inline $(x, F(x))$} 
    */
   public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
@@ -148,7 +128,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * 
    * @return The function
    */
-  public Function1D<Double, Double> getFunction() {
+  public Function<Double, Double> getFunction() {
     return _function;
   }
 
@@ -156,7 +136,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_function == null) ? 0 : _function.hashCode());
+    result = prime * result + _function.hashCode();
     return result;
   }
 

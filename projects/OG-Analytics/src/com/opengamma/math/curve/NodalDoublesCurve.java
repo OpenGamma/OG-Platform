@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +39,14 @@ public class NodalDoublesCurve extends DoublesCurve {
     return new NodalDoublesCurve(data, false);
   }
 
+  public static NodalDoublesCurve from(final List<Double> xData, final List<Double> yData) {
+    return new NodalDoublesCurve(xData, yData, false);
+  }
+
+  public static NodalDoublesCurve from(final List<DoublesPair> data) {
+    return new NodalDoublesCurve(data, false);
+  }
+
   public static NodalDoublesCurve from(final double[] xData, final double[] yData, final String name) {
     return new NodalDoublesCurve(xData, yData, false, name);
   }
@@ -55,6 +64,14 @@ public class NodalDoublesCurve extends DoublesCurve {
   }
 
   public static NodalDoublesCurve from(final Set<DoublesPair> data, final String name) {
+    return new NodalDoublesCurve(data, false, name);
+  }
+
+  public static NodalDoublesCurve from(final List<Double> xData, final List<Double> yData, final String name) {
+    return new NodalDoublesCurve(xData, yData, false, name);
+  }
+
+  public static NodalDoublesCurve from(final List<DoublesPair> data, final String name) {
     return new NodalDoublesCurve(data, false, name);
   }
 
@@ -78,6 +95,14 @@ public class NodalDoublesCurve extends DoublesCurve {
     return new NodalDoublesCurve(data, true);
   }
 
+  public static NodalDoublesCurve fromSorted(final List<DoublesPair> data) {
+    return new NodalDoublesCurve(data, true);
+  }
+
+  public static NodalDoublesCurve fromSorted(final List<Double> xData, final List<Double> yData) {
+    return new NodalDoublesCurve(xData, yData, true);
+  }
+
   public static NodalDoublesCurve fromSorted(final double[] xData, final double[] yData, final String name) {
     return new NodalDoublesCurve(xData, yData, true, name);
   }
@@ -95,6 +120,14 @@ public class NodalDoublesCurve extends DoublesCurve {
   }
 
   public static NodalDoublesCurve fromSorted(final Set<DoublesPair> data, final String name) {
+    return new NodalDoublesCurve(data, true, name);
+  }
+
+  public static NodalDoublesCurve fromSorted(final List<Double> xData, final List<Double> yData, final String name) {
+    return new NodalDoublesCurve(xData, yData, true, name);
+  }
+
+  public static NodalDoublesCurve fromSorted(final List<DoublesPair> data, final String name) {
     return new NodalDoublesCurve(data, true, name);
   }
 
@@ -118,6 +151,14 @@ public class NodalDoublesCurve extends DoublesCurve {
     super(data, isSorted);
   }
 
+  public NodalDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
+    super(xData, yData, isSorted);
+  }
+
+  public NodalDoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
+    super(data, isSorted);
+  }
+
   public NodalDoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(xData, yData, isSorted, name);
   }
@@ -135,6 +176,14 @@ public class NodalDoublesCurve extends DoublesCurve {
   }
 
   public NodalDoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
+    super(data, isSorted, name);
+  }
+
+  public NodalDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
+    super(xData, yData, isSorted, name);
+  }
+
+  public NodalDoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(data, isSorted, name);
   }
 

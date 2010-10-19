@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.curve;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +41,14 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
     return new InterpolatedDoublesCurve(data, interpolator, false);
   }
 
+  public static InterpolatedDoublesCurve from(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    return new InterpolatedDoublesCurve(xData, yData, interpolator, false);
+  }
+
+  public static InterpolatedDoublesCurve from(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    return new InterpolatedDoublesCurve(data, interpolator, false);
+  }
+
   public static InterpolatedDoublesCurve from(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoublesCurve(xData, yData, interpolator, false, name);
   }
@@ -57,6 +66,14 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   }
 
   public static InterpolatedDoublesCurve from(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoublesCurve(data, interpolator, false, name);
+  }
+
+  public static InterpolatedDoublesCurve from(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoublesCurve(xData, yData, interpolator, false, name);
+  }
+
+  public static InterpolatedDoublesCurve from(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoublesCurve(data, interpolator, false, name);
   }
 
@@ -80,6 +97,14 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
     return new InterpolatedDoublesCurve(data, interpolator, true);
   }
 
+  public static InterpolatedDoublesCurve fromSorted(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    return new InterpolatedDoublesCurve(xData, yData, interpolator, true);
+  }
+
+  public static InterpolatedDoublesCurve fromSorted(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    return new InterpolatedDoublesCurve(data, interpolator, true);
+  }
+
   public static InterpolatedDoublesCurve fromSorted(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoublesCurve(xData, yData, interpolator, true, name);
   }
@@ -97,6 +122,14 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   }
 
   public static InterpolatedDoublesCurve fromSorted(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoublesCurve(data, interpolator, true, name);
+  }
+
+  public static InterpolatedDoublesCurve fromSorted(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+    return new InterpolatedDoublesCurve(xData, yData, interpolator, true, name);
+  }
+
+  public static InterpolatedDoublesCurve fromSorted(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
     return new InterpolatedDoublesCurve(data, interpolator, true, name);
   }
 
@@ -128,6 +161,16 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
     init(interpolator);
   }
 
+  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+    super(xData, yData, isSorted);
+    init(interpolator);
+  }
+
+  public InterpolatedDoublesCurve(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+    super(data, isSorted);
+    init(interpolator);
+  }
+
   public InterpolatedDoublesCurve(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
     super(xData, yData, isSorted, name);
     init(interpolator);
@@ -149,6 +192,16 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   }
 
   public InterpolatedDoublesCurve(final Set<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+    super(data, isSorted, name);
+    init(interpolator);
+  }
+
+  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+    super(xData, yData, isSorted, name);
+    init(interpolator);
+  }
+
+  public InterpolatedDoublesCurve(final List<DoublesPair> data, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
     super(data, isSorted, name);
     init(interpolator);
   }

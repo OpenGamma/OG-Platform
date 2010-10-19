@@ -71,6 +71,19 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
     other = new InterpolatedDoublesCurve(PAIR_SET_SORTED, LINEAR, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new InterpolatedDoublesCurve(X_LIST, Y_LIST, LINEAR, false, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new InterpolatedDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, LINEAR, true, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new InterpolatedDoublesCurve(PAIR_LIST, LINEAR, false, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new InterpolatedDoublesCurve(PAIR_LIST_SORTED, LINEAR, true, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
   }
 
   @Test
@@ -104,6 +117,18 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
     assertEquals(curve, other);
     curve = new InterpolatedDoublesCurve(PAIR_SET_SORTED, LINEAR, true, NAME1);
     other = InterpolatedDoublesCurve.fromSorted(PAIR_SET_SORTED, LINEAR, NAME1);
+    assertEquals(curve, other);
+    curve = new InterpolatedDoublesCurve(X_LIST, Y_LIST, LINEAR, false, NAME1);
+    other = InterpolatedDoublesCurve.from(X_LIST, Y_LIST, LINEAR, NAME1);
+    assertEquals(curve, other);
+    curve = new InterpolatedDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, LINEAR, true, NAME1);
+    other = InterpolatedDoublesCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED, LINEAR, NAME1);
+    assertEquals(curve, other);
+    curve = new InterpolatedDoublesCurve(PAIR_LIST, LINEAR, false, NAME1);
+    other = InterpolatedDoublesCurve.from(PAIR_LIST, LINEAR, NAME1);
+    assertEquals(curve, other);
+    curve = new InterpolatedDoublesCurve(PAIR_LIST_SORTED, LINEAR, true, NAME1);
+    other = InterpolatedDoublesCurve.fromSorted(PAIR_LIST_SORTED, LINEAR, NAME1);
     assertEquals(curve, other);
     curve = new InterpolatedDoublesCurve(X_PRIMITIVE, Y_PRIMITIVE, LINEAR, false);
     other = InterpolatedDoublesCurve.from(X_PRIMITIVE, Y_PRIMITIVE, LINEAR);
@@ -145,6 +170,22 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
     other = InterpolatedDoublesCurve.fromSorted(PAIR_SET_SORTED, LINEAR);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new InterpolatedDoublesCurve(X_LIST, Y_LIST, LINEAR, false);
+    other = InterpolatedDoublesCurve.from(X_LIST, Y_LIST, LINEAR);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new InterpolatedDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, LINEAR, true);
+    other = InterpolatedDoublesCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED, LINEAR);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new InterpolatedDoublesCurve(PAIR_LIST, LINEAR, false);
+    other = InterpolatedDoublesCurve.from(PAIR_LIST, LINEAR);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new InterpolatedDoublesCurve(PAIR_LIST_SORTED, LINEAR, true);
+    other = InterpolatedDoublesCurve.fromSorted(PAIR_LIST_SORTED, LINEAR);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
   }
 
   @Test
@@ -155,7 +196,7 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
     assertArrayEquals(curve.getXDataAsPrimitive(), X_PRIMITIVE_SORTED, 0);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
     assertArrayEquals(curve.getYDataAsPrimitive(), Y_PRIMITIVE_SORTED, 0);
-
+    assertEquals(curve.getInterpolator(), EXPONENTIAL);
   }
 
   @Test(expected = IllegalArgumentException.class)

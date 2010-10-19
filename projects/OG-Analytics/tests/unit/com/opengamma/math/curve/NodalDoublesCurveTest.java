@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
@@ -59,6 +59,18 @@ public class NodalDoublesCurveTest extends DoublesCurveTestCase {
     other = new NodalDoublesCurve(PAIR_SET_SORTED, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
+    other = new NodalDoublesCurve(X_LIST, Y_LIST, false, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new NodalDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, true, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new NodalDoublesCurve(PAIR_LIST, false, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
+    other = new NodalDoublesCurve(PAIR_LIST_SORTED, true, NAME1);
+    assertEquals(curve, other);
+    assertEquals(curve.hashCode(), other.hashCode());
   }
 
   @Test
@@ -92,6 +104,18 @@ public class NodalDoublesCurveTest extends DoublesCurveTestCase {
     assertEquals(curve, other);
     curve = new NodalDoublesCurve(PAIR_SET_SORTED, true, NAME1);
     other = NodalDoublesCurve.fromSorted(PAIR_SET_SORTED, NAME1);
+    assertEquals(curve, other);
+    curve = new NodalDoublesCurve(X_LIST, Y_LIST, false, NAME1);
+    other = NodalDoublesCurve.from(X_LIST, Y_LIST, NAME1);
+    assertEquals(curve, other);
+    curve = new NodalDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, true, NAME1);
+    other = NodalDoublesCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED, NAME1);
+    assertEquals(curve, other);
+    curve = new NodalDoublesCurve(PAIR_LIST, false, NAME1);
+    other = NodalDoublesCurve.from(PAIR_LIST, NAME1);
+    assertEquals(curve, other);
+    curve = new NodalDoublesCurve(PAIR_LIST_SORTED, true, NAME1);
+    other = NodalDoublesCurve.fromSorted(PAIR_LIST_SORTED, NAME1);
     assertEquals(curve, other);
     curve = new NodalDoublesCurve(X_PRIMITIVE, Y_PRIMITIVE, false);
     other = NodalDoublesCurve.from(X_PRIMITIVE, Y_PRIMITIVE);
@@ -131,6 +155,22 @@ public class NodalDoublesCurveTest extends DoublesCurveTestCase {
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
     curve = new NodalDoublesCurve(PAIR_SET_SORTED, true);
     other = NodalDoublesCurve.fromSorted(PAIR_SET_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoublesCurve(X_LIST, Y_LIST, false);
+    other = NodalDoublesCurve.from(X_LIST, Y_LIST);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoublesCurve(X_LIST_SORTED, Y_LIST_SORTED, true);
+    other = NodalDoublesCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoublesCurve(PAIR_LIST, false);
+    other = NodalDoublesCurve.from(PAIR_LIST);
+    assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
+    assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
+    curve = new NodalDoublesCurve(PAIR_LIST_SORTED, true);
+    other = NodalDoublesCurve.fromSorted(PAIR_LIST_SORTED);
     assertArrayEquals(curve.getXDataAsPrimitive(), other.getXDataAsPrimitive(), 0);
     assertArrayEquals(curve.getYDataAsPrimitive(), other.getYDataAsPrimitive(), 0);
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
@@ -163,7 +163,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + Arrays.hashCode(_curves);
-    result = prime * result + ((_spreadFunction == null) ? 0 : _spreadFunction.hashCode());
+    result = prime * result + _spreadFunction.hashCode();
     return result;
   }
 

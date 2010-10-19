@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,52 +19,11 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-//TODO test for distinctness of nodes?
-//TODO add list of pair and lists of Double
+// TODO test for distinctness of nodes?
 public abstract class DoublesCurve extends Curve<Double, Double> {
   private final int _n;
   private final double[] _xData;
   private final double[] _yData;
-
-  public DoublesCurve(final double[] xData, final double[] yData) {
-    this(xData, yData, false);
-  }
-
-  public DoublesCurve(final Double[] xData, final Double[] yData) {
-    this(xData, yData, false);
-  }
-
-  public DoublesCurve(final Map<Double, Double> data) {
-    this(data, false);
-  }
-
-  public DoublesCurve(final DoublesPair[] data) {
-    this(data, false);
-  }
-
-  public DoublesCurve(final Set<DoublesPair> data) {
-    this(data, false);
-  }
-
-  public DoublesCurve(final double[] xData, final double[] yData, final String name) {
-    this(xData, yData, false, name);
-  }
-
-  public DoublesCurve(final Double[] xData, final Double[] yData, final String name) {
-    this(xData, yData, false, name);
-  }
-
-  public DoublesCurve(final Map<Double, Double> data, final String name) {
-    this(data, false, name);
-  }
-
-  public DoublesCurve(final DoublesPair[] data, final String name) {
-    this(data, false, name);
-  }
-
-  public DoublesCurve(final Set<DoublesPair> data, final String name) {
-    this(data, false, name);
-  }
 
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
     super();
@@ -142,6 +102,41 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
       Validate.notNull(entry, "element " + i + " of data");
       _xData[i] = entry.first;
       _yData[i++] = entry.second;
+    }
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
+  public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
+    super();
+    Validate.notNull(xData, "x data");
+    Validate.notNull(yData, "y data");
+    Validate.isTrue(xData.size() == yData.size());
+    _n = xData.size();
+    _xData = new double[_n];
+    _yData = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      Validate.notNull(xData.get(i), "element " + i + " of data");
+      Validate.notNull(yData.get(i), "element " + i + " of data");
+      _xData[i] = xData.get(i);
+      _yData[i] = yData.get(i);
+    }
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
+  public DoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
+    super();
+    Validate.notNull(data, "data");
+    _n = data.size();
+    _xData = new double[_n];
+    _yData = new double[_n];
+    int i = 0;
+    for (final DoublesPair pair : data) {
+      _xData[i] = pair.first;
+      _yData[i++] = pair.second;
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -231,7 +226,42 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
-  //TODO not ideal
+  public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
+    super(name);
+    Validate.notNull(xData, "x data");
+    Validate.notNull(yData, "y data");
+    Validate.isTrue(xData.size() == yData.size());
+    _n = xData.size();
+    _xData = new double[_n];
+    _yData = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      Validate.notNull(xData.get(i), "element " + i + " of data");
+      Validate.notNull(yData.get(i), "element " + i + " of data");
+      _xData[i] = xData.get(i);
+      _yData[i] = yData.get(i);
+    }
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
+  public DoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
+    super(name);
+    Validate.notNull(data, "data");
+    _n = data.size();
+    _xData = new double[_n];
+    _yData = new double[_n];
+    int i = 0;
+    for (final DoublesPair pair : data) {
+      _xData[i] = pair.first;
+      _yData[i++] = pair.second;
+    }
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
+  // TODO not ideal
   @Override
   public Double[] getXData() {
     final Double[] result = new Double[_n];
@@ -241,7 +271,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     return result;
   }
 
-  //TODO not ideal
+  // TODO not ideal
   @Override
   public Double[] getYData() {
     final Double[] result = new Double[_n];

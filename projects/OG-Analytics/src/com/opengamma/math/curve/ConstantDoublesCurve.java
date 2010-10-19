@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -96,18 +95,6 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
   /**
    * 
    * @param x An array of x values
-   * @param interpolators A map of (time valid -> interpolator)
-   * @return An interpolated curve with constant value
-   */
-  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Map<Double, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators) {
-    final double[] y = new double[x.length];
-    Arrays.fill(y, _y);
-    return InterpolatedDoublesCurve.from(x, y, interpolators);
-  }
-
-  /**
-   * 
-   * @param x An array of x values
    * @return A nodal curve with constant value
    */
   public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
@@ -146,10 +133,11 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
       return false;
     }
     final ConstantDoublesCurve other = (ConstantDoublesCurve) obj;
-    if (Double.doubleToLongBits(_y) != Double.doubleToLongBits(other._y)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_y) == Double.doubleToLongBits(other._y);
   }
 
+  @Override
+  public String toString() {
+    return "ConstantDoublesCurve[name=" + getName() + ", y=" + _y + "]";
+  }
 }
