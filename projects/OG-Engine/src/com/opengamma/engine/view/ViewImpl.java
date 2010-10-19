@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +120,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   // -------------------------------------------------------------------------
   @Override
   public void init() {
+    init(Instant.nowSystemClock());
+  }
+
+  public void init(final InstantProvider initialisationInstant) {
     _viewLock.lock();
     try {
       if (getCalculationState() != ViewCalculationState.NOT_INITIALIZED) {
@@ -134,7 +139,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
 
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.nowSystemClock()));
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initialisationInstant));
       addLiveDataSubscriptions();
 
       timer.finished();

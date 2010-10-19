@@ -49,6 +49,8 @@ public final class ViewDefinitionCompiler {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
 
+    s_logger.debug("Compiling {} for use at {}", viewDefinition.getName(), atInstant);
+
     OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
     ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, Instant.of(atInstant));
 

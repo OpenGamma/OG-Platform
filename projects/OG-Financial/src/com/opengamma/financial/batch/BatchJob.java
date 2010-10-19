@@ -617,7 +617,7 @@ public class BatchJob {
 
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.setPopulateResultModel(false);
-    view.init();
+    view.init(run.getValuationTime());
     _view = view;
   }
 
