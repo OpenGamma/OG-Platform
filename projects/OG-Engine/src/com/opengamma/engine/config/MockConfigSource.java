@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.time.Instant;
+
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.id.UniqueIdentifier;
@@ -61,7 +63,24 @@ public class MockConfigSource implements ConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T searchLatest(final Class<T> clazz, final String name) {
+  public <T> T get(Class<T> clazz, UniqueIdentifier uid) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(uid, "uid");
+    ConfigDocument<?> config = _configs.get(uid);
+    if (clazz.isInstance(config.getValue())) {
+      return (T) config.getValue();
+    }
+    return null;
+  }
+
+  @Override
+  public <T> T getLatestByName(final Class<T> clazz, final String name) {
+    return getByName(clazz, name, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
     Pattern matchName = RegexUtils.wildcardsToPattern(name);
@@ -69,18 +88,6 @@ public class MockConfigSource implements ConfigSource {
       if (matchName.matcher(doc.getName()).matches() && clazz.isInstance(doc.getValue())) {
         return (T) doc.getValue();
       }
-    }
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T get(Class<T> clazz, UniqueIdentifier uid) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uid, "uid");
-    ConfigDocument<?> config = _configs.get(uid);
-    if (clazz.isInstance(config.getValue())) {
-      return (T) config.getValue();
     }
     return null;
   }

@@ -104,7 +104,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
   }
 
   @Override
-  public <T> T searchLatest(Class<T> clazz, String name) {
+  public <T> T getLatestByName(Class<T> clazz, String name) {
     ConfigSearchRequest searchRequest = new ConfigSearchRequest();
     searchRequest.setName(name);
     List<T> results = search(clazz, searchRequest);

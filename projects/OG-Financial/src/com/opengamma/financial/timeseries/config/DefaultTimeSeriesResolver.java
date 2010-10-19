@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
@@ -298,15 +297,11 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     //get latest config document
     TimeSeriesMetaDataConfiguration definition = _timeSeriesDefinitionMap.get(securityType);
     if (definition == null) {
-      ConfigSearchRequest request = new ConfigSearchRequest();
-      request.setName(securityType);
-      List<TimeSeriesMetaDataConfiguration> searchResult = _configSource.search(TimeSeriesMetaDataConfiguration.class, request);
-      //should return the lastest configuration
-      if (searchResult.isEmpty()) {
+      definition = _configSource.getLatestByName(TimeSeriesMetaDataConfiguration.class, securityType);
+      if (definition == null) {
         s_logger.warn("Unable to look up config document for securityType {}", securityType);
         throw new OpenGammaRuntimeException("TimeSeriesMetaData configration error");
       }
-      definition = searchResult.get(0);
       _timeSeriesDefinitionMap.put(securityType, definition);
     }
     return definition;

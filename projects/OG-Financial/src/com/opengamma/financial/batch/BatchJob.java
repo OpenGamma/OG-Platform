@@ -79,6 +79,7 @@ import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
@@ -621,10 +622,11 @@ public class BatchJob {
   }
 
   /**
-   * 
+   * Finds the configuration.
    */
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
     ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setName(getViewName());
     searchRequest.setVersionAsOfInstant(_viewDateTime.toInstant());
     ConfigSearchResult<ViewDefinition> searchResult = _configSource.getMaster(ViewDefinition.class).search(searchRequest);

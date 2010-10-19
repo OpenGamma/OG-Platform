@@ -5,11 +5,8 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.List;
-
 import javax.time.Instant;
 
-import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.financial.Currency;
 import com.opengamma.util.ArgumentChecker;
@@ -46,25 +43,12 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(final Currency ccy, final String name) {
-    ConfigSearchRequest configSearchRequest = new ConfigSearchRequest();
-    configSearchRequest.setName(name + "_" + ccy.getISOCode());
-    List<YieldCurveDefinition> definitions = _configSource.search(YieldCurveDefinition.class, configSearchRequest);
-    if (definitions.size() == 0) {
-      return null;
-    }
-    return definitions.get(0);
+    return _configSource.getLatestByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode());
   }
 
   @Override
   public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final Instant version) {
-    ConfigSearchRequest configSearchRequest = new ConfigSearchRequest();
-    configSearchRequest.setName(name + "_" + ccy.getISOCode());
-    configSearchRequest.setVersionAsOfInstant(version);
-    List<YieldCurveDefinition> definitions = _configSource.search(YieldCurveDefinition.class, configSearchRequest);
-    if (definitions.size() == 0) {
-      return null;
-    }
-    return definitions.get(0);
+    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode(), version);
   }
 
 }

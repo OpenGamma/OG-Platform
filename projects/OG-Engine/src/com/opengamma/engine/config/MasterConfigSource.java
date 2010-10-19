@@ -24,12 +24,17 @@ import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.
  * <p>
  * The {@link ConfigSource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link ConfigMaster}.
+ * <p>
+ * This implementation supports the concept of fixing the version.
+ * This allows the version to be set in the constructor, and applied automatically to the methods.
+ * Some methods on {@code ConfigSource} specify their own version requirements, whcih are respected.
  */
 public class MasterConfigSource implements ConfigSource {
 
@@ -129,18 +134,6 @@ public class MasterConfigSource implements ConfigSource {
   }
 
   @Override
-  public <T> T searchLatest(final Class<T> clazz, final String name) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(name, "name");
-    ConfigMaster<T> configMaster = getMaster(clazz);
-    ConfigSearchRequest request = new ConfigSearchRequest();
-    request.setName(name);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    ConfigSearchResult<T> searchResult = configMaster.search(request);
-    return searchResult.getFirstValue();
-  }
-
-  @Override
   public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
@@ -163,6 +156,24 @@ public class MasterConfigSource implements ConfigSource {
         return null;
       }
     }
+  }
+
+  @Override
+  public <T> T getLatestByName(final Class<T> clazz, final String name) {
+    return getByName(clazz, name, null);
+  }
+
+  @Override
+  public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(name, "name");
+    ConfigMaster<T> configMaster = getMaster(clazz);
+    ConfigSearchRequest request = new ConfigSearchRequest();
+    request.setPagingRequest(PagingRequest.ONE);
+    request.setVersionAsOfInstant(versionAsOf);
+    request.setName(name);
+    ConfigSearchResult<T> searchResult = configMaster.search(request);
+    return searchResult.getFirstValue();
   }
 
 }
