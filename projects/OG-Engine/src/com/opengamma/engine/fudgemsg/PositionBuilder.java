@@ -26,10 +26,22 @@ import com.opengamma.id.UniqueIdentifier;
 @GenericFudgeBuilderFor(Position.class)
 public class PositionBuilder implements FudgeBuilder<Position> {
 
-  private static final String FIELD_QUANTITY = "quantity";
-  private static final String FIELD_SECURITYKEY = "securityKey";
-  private static final String FIELD_IDENTIFIER = "identifier";
-  private static final String FIELD_PARENT = "parent";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_QUANTITY = "quantity";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_SECURITYKEY = "securityKey";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_IDENTIFIER = "identifier";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_PARENT = "parent";
 
   protected static MutableFudgeFieldContainer buildMessageImpl(final FudgeSerializationContext context, final Position position) {
     final MutableFudgeFieldContainer message = context.newMessage();

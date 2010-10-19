@@ -90,7 +90,9 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;
     }
-    return new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
+    final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
+    position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
+    return position;
   }
 
   //-------------------------------------------------------------------------

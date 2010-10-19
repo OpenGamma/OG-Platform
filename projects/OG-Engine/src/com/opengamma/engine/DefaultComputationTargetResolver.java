@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine;
@@ -55,7 +55,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   public DefaultComputationTargetResolver() {
     this(null, null);
   }
-  
+
   /**
    * Creates a resolver using a security source only. This will not be able to resolve POSITION and PORTFOLIO_NODE
    * computation target types.
@@ -66,7 +66,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _securitySource = securitySource;
     _positionSource = null;
   }
-  
+
   /**
    * Creates a resolver using a security and position source, for resolving any type of computation target.
    * 
@@ -78,7 +78,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _positionSource = positionSource;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the recursive resolver.
    * @return the recursive resolver, not null
@@ -97,7 +97,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     _recursiveResolver = recursiveResolver;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the security source which provides access to the securities.
    * @return the security source, not null
@@ -114,7 +114,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     return _positionSource;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Resolves the specification using the security and position sources.
    * @param specification  the specification to resolve, not null
@@ -152,8 +152,9 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
-            position = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position
-                .getSecurityKey(), security);
+            final PositionImpl newPosition = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
+            newPosition.setPortfolioNode(position.getPortfolioNode());
+            position = newPosition;
           }
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
@@ -169,8 +170,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         if (portfolio != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
           node = portfolio.getRootNode();
-          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio
-              .getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
+          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
         }
         s_logger.info("Unable to resolve multiple-position UID {}", uid);
         return null;
@@ -180,38 +180,35 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
     }
   }
-  
+
   private PortfolioNodeImpl resolvePortfolioNode(final UniqueIdentifier uid, final PortfolioNode node) {
     final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueIdentifier(), node.getName());
+    newNode.setParentNode(node.getParentNode());
     for (PortfolioNode child : node.getChildNodes()) {
-      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(
-          new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueIdentifier()));
+      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueIdentifier()));
       if (resolvedChild == null) {
-        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}",
-            child.getUniqueIdentifier(), uid);
+        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier(), uid);
       } else {
         newNode.addChildNode(resolvedChild.getPortfolioNode());
       }
     }
     for (Position position : node.getPositions()) {
-      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(
-          new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       if (resolvedPosition == null) {
-        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(),
-            uid);
+        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(), uid);
       } else {
         newNode.addPosition(resolvedPosition.getPosition());
       }
     }
     return newNode;
   }
-  
+
   private void checkSecuritySource(ComputationTargetType attemptedTargetType) {
     if (getSecuritySource() == null) {
       throw new OpenGammaRuntimeException("Access to a security source is required in order to resolve computation targets of type " + attemptedTargetType);
     }
   }
-  
+
   private void checkPositionSource(ComputationTargetType attemptedTargetType) {
     if (getPositionSource() == null) {
       throw new OpenGammaRuntimeException("Access to a position source is required in order to resolve computation targets of type " + attemptedTargetType);

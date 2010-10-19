@@ -29,11 +29,26 @@ import com.opengamma.id.UniqueIdentifier;
 @GenericFudgeBuilderFor(PortfolioNode.class)
 public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
-  private static final String FIELD_POSITIONS = "positions";
-  private static final String FIELD_SUBNODES = "subNodes";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_IDENTIFIER = "identifier";
-  private static final String FIELD_PARENT = "parent";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_POSITIONS = "positions";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_SUBNODES = "subNodes";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_NAME = "name";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_IDENTIFIER = "identifier";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_PARENT = "parent";
 
   // -------------------------------------------------------------------------
   private static FudgeFieldContainer encodePositions(final FudgeSerializationContext context, final Collection<Position> collection) {
