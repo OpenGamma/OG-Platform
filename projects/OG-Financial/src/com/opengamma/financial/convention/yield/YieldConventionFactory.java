@@ -31,6 +31,10 @@ public final class YieldConventionFactory {
    */
   private YieldConventionFactory() {
     store(SimpleYieldConvention.US_STREET);
+    store(SimpleYieldConvention.US_IL_REAL);
+    store(SimpleYieldConvention.US_IL_REAL);
+    store(SimpleYieldConvention.US_IL_REAL, "U.S. I/L REAL YLD");
+    store(SimpleYieldConvention.US_STREET, "STREET CONVENTION");
     store(SimpleYieldConvention.US_TREASURY_EQUIVILANT);
     store(SimpleYieldConvention.JGB_SIMPLE);
     store(SimpleYieldConvention.MONEY_MARKET);
@@ -44,6 +48,16 @@ public final class YieldConventionFactory {
   private void store(final YieldConvention convention) {
     ArgumentChecker.notNull(convention, "YieldConvention");
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
+  }
+  
+  /**
+   * Stores the convention with an alternative string name
+   * @param convention  the convention to store, not null
+   * @param name the alternative name for the convention, not null
+   */
+  private void store(final YieldConvention convention, final String name) {
+    ArgumentChecker.notNull(convention, "YieldConvention");
+    _conventionMap.put(name.toLowerCase(Locale.ENGLISH), convention);
   }
 
   //-------------------------------------------------------------------------

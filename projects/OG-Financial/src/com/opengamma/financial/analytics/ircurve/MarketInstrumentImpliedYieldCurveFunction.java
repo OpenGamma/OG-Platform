@@ -102,8 +102,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
-  private InterpolatedYieldCurveSpecification _forwardCurveSpecification;
-  private InterpolatedYieldCurveSpecification _fundingCurveSpecification;
   private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
@@ -166,6 +164,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
   }
 
+  // ENG-252 This logic doesn't seem to work
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
     for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -202,6 +201,22 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _fundingCurveRequirements = fundingCurveRequirements;
       _forwardCurveSpecification = forwardCurveSpecification;
       _forwardCurveRequirements = forwardCurveRequirements;
+    }
+
+    public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
+      return _fundingCurveSpecification;
+    }
+
+    public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
+      return _forwardCurveSpecification;
+    }
+
+    public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
+      return _identifierToFundingNodeTimes;
+    }
+
+    public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
+      return _identifierToForwardNodeTimes;
     }
 
     @SuppressWarnings("unchecked")
@@ -465,18 +480,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   @Override
-  public Compiled compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final LocalDate curveDate = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC).toLocalDate();
+  public Compiled compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+    final LocalDate curveDate = atInstant.toLocalDate();
     final InterpolatedYieldCurveSpecification fundingCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _fundingCurveDefinition);
     final InterpolatedYieldCurveSpecification forwardCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _forwardCurveDefinition);
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
-    Instant expiry = null;
-    expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
-    expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    _fundingCurveSpecification = fundingCurveSpecification;
-    _forwardCurveSpecification = forwardCurveSpecification;
-    return new Compiled(atInstant, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
+    // ENG-252 expiry logic is flawed so make it valid for the current day only
+    // Instant expiry = null;
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
+    return new Compiled(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification,
+        forwardCurveRequirements);
   }
 
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
@@ -490,20 +506,4 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     return marketDataMap;
   }
 
-  // just for debugging.
-//  public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
-//    return _identifierToFundingNodeTimes;
-//  }
-//
-//  public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
-//    return _identifierToForwardNodeTimes;
-//  }
-
-  public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
-    return _fundingCurveSpecification;
-  }
-
-  public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
-    return _forwardCurveSpecification;
-  }
 }

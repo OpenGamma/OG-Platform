@@ -19,14 +19,14 @@ namespace com.opengamma.financial.security.bond {
     required string market;
     required Currency currency;
     required convention.yield.YieldConvention yieldConvention;
-    required string guaranteeType;
+    string guaranteeType;
     required util.time.Expiry maturity;
     required string couponType;
     required double couponRate;
     required convention.frequency.Frequency couponFrequency;
     required convention.daycount.DayCount dayCountConvention;
-    required convention.businessday.BusinessDayConvention businessDayConvention;
-    required DateTimeWithZone announcementDate;
+    convention.businessday.BusinessDayConvention businessDayConvention;
+    DateTimeWithZone announcementDate;
     required DateTimeWithZone interestAccrualDate;
     required DateTimeWithZone settlementDate;
     required DateTimeWithZone firstCouponDate;

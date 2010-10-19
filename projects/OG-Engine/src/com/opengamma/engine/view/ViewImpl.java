@@ -309,7 +309,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _viewLock.lock();
     try {
       assertInitialized();
-      viewEvaluationModelValidFor(valuationTime);
       SingleComputationCycle cycle = createCycle(valuationTime);
       cycle.prepareInputs();
 
@@ -391,6 +390,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   @Override
   public SingleComputationCycle createCycle(long valuationTime) {
+    viewEvaluationModelValidFor(valuationTime);
     SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
   }

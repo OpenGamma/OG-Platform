@@ -176,7 +176,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   }
 
   @Override
-  public synchronized void stop() {
+  public synchronized void close() {
     try {
       for (Session session : _sessions) {
         s_logger.info("Shutting down session {}", session);
@@ -184,7 +184,6 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
       }
       _sessions.clear();
       _messageConsumersBySpec.clear();
-      
       if (_connection != null) {
         _connection.close();
         _connection = null;
@@ -192,7 +191,12 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to close JMS connection", e);
     }
-    
+    super.close();
+  }
+
+  @Override
+  public synchronized void stop() {
+    close();
     _running.set(false);
   }
 

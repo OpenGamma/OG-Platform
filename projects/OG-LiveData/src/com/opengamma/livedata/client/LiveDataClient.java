@@ -97,6 +97,11 @@ public interface LiveDataClient extends LiveDataEntitlementChecker {
    */
   String getDefaultNormalizationRuleSetId();
   
+  /**
+   * Shut down the client, releasing any underlying resources used to connect to the server.
+   */
+  void close();
+
   // REVIEW kirk 2009-09-29 -- Once I figure out a cleaner way to implement these than the
   // original version, these will be re-added.
   /*

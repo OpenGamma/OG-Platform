@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +55,9 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
      _configHelper = new CurveConfigurationSetupHelper();
   }
 
+  
+  
+  
   /**
    * @throws java.lang.Exception
    */
@@ -78,12 +82,12 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     context.setSecuritySource(_configHelper.getSecSource());
 
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
-    assertEquals(18, requirements.size());
+    assertEquals(12, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -92,7 +96,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(18, foundKeys.size());
+    assertEquals(12, foundKeys.size());
     
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
@@ -121,12 +125,12 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
 
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency
         .getInstance("USD")));
     assertNotNull(requirements);
-    assertEquals(18, requirements.size());
+    assertEquals(12, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -135,7 +139,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(18, foundKeys.size());
+    assertEquals(12, foundKeys.size());
 
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
     YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);

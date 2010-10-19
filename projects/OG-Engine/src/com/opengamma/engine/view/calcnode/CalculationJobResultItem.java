@@ -27,7 +27,7 @@ public class CalculationJobResultItem {
 
   private final Set<ValueSpecification> _missingInputs;
 
-  public CalculationJobResultItem(CalculationJobItem item, Exception exception) {
+  public CalculationJobResultItem(CalculationJobItem item, Throwable exception) {
     ArgumentChecker.notNull(item, "Calculation job item");
     ArgumentChecker.notNull(exception, "Result");
 

@@ -18,7 +18,6 @@
     <many-to-one name="snapshotTime" 
     	column="observation_datetime_id" 
     	not-null="true"/>
-    <property name="complete" not-null="true"/>
   </class>
   
   <query name="LiveDataSnapshot.one.byDateAndTime">

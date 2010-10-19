@@ -12,7 +12,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SimpleYieldConvention implements YieldConvention {
   // TODO: should be an enum?
-
+  /**
+   * Dunno what this represents.
+   * 
+   */
+  public static final YieldConvention US_IL_REAL = new SimpleYieldConvention("US I/L real");
   /**
    * The US street yield convention.
    */

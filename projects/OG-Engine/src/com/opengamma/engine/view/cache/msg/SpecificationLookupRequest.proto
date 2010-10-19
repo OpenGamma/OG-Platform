@@ -6,10 +6,14 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message SpecificationLookupRequest extends IdentifierMapRequest {
+  message SpecificationLookupRequest extends CacheMessage {
   
     required repeated long identifier;
   
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitSpecificationLookupRequest (this); }";
+    }
+    
   }
 
 }
