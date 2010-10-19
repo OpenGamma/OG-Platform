@@ -6,6 +6,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -83,8 +84,6 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 

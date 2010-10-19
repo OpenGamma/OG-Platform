@@ -602,6 +602,8 @@ public class BatchJob {
     
     // this needs to be fixed, at the moment because of this line you can't run multiple days in parallel
     getFunctionCompilationService().getFunctionCompilationContext().setSecuritySource(securitySource);
+    
+    getFunctionCompilationService().initialize();
 
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
