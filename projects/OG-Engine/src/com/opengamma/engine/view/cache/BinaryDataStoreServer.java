@@ -259,6 +259,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
 
     @Override
     protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
+      // [ENG-256] Remove/replace this. Propogate the overall "releaseCache" message only rather than the component "delete" operations.
       getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
       return null;
     }
