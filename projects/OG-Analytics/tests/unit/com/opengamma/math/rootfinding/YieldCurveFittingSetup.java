@@ -35,9 +35,9 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -213,17 +213,17 @@ public abstract class YieldCurveFittingSetup {
 
   }
 
-  protected static InterpolatedYieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new InterpolatedYieldCurve(times, yields, interpolator);
+    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments) {
-    return new MultipleYieldCurveFinderDataBundle(instruments, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
-        .getUnknownCurveNodeSensitivityCalculators());
+    return new MultipleYieldCurveFinderDataBundle(instruments, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
+        old.getUnknownCurveNodeSensitivityCalculators());
   }
 
   protected static InterestRateDerivativeWithRate makeIRD(final String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {

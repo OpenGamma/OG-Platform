@@ -13,12 +13,13 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SimpleChooserOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -33,7 +34,7 @@ public class SimpleChooserOptionModelTest {
   private static final double STRIKE = 50;
   private static final double SPOT = 50;
   private static final SimpleChooserOptionDefinition DEFINITION = new SimpleChooserOptionDefinition(CHOOSE_DATE, STRIKE, UNDERLYING_EXPIRY);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.25), SPOT, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new ConstantVolatilitySurface(0.25), SPOT, DATE);
   private static final AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> MODEL = new SimpleChooserOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
 

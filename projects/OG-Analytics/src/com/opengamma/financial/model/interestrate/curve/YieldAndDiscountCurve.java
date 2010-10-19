@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
  * A DiscountCurve contains discount factors <i>e<sup>-r(t)t</sup></i> (where
@@ -18,6 +20,12 @@ import com.opengamma.financial.model.interestrate.InterestRateModel;
  */
 
 public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
+  private final Curve<Double, Double> _curve;
+
+  public YieldAndDiscountCurve(final Curve<Double, Double> curve) {
+    Validate.notNull(curve, "curve");
+    _curve = curve;
+  }
 
   /**
    * @param t The time 
@@ -36,11 +44,43 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   public abstract double getDiscountFactor(final Double t);
 
-  public abstract Set<Double> getMaturities();
+  public Curve<Double, Double> getCurve() {
+    return _curve;
+  }
 
-  public abstract YieldAndDiscountCurve withParallelShift(final Double shift);
+  public YieldAndDiscountCurve withParallelShift(final double shift) {
+    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, shift));
+  }
 
-  public abstract YieldAndDiscountCurve withSingleShift(final Double t, Double shift);
+  public YieldAndDiscountCurve withSingleShift(final double t, final double shift) {
+    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, t, shift));
+  }
 
-  public abstract YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts);
+  public YieldAndDiscountCurve withMultipleShifts(final double[] xShifts, final double[] yShifts) {
+    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, xShifts, yShifts));
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _curve.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final YieldAndDiscountCurve other = (YieldAndDiscountCurve) obj;
+    return ObjectUtils.equals(_curve, other._curve);
+  }
+
 }

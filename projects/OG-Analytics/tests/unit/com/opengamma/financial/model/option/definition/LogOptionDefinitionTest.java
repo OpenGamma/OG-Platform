@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,8 +12,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -25,7 +26,7 @@ public class LogOptionDefinitionTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final LogOptionDefinition DEFINITION = new LogOptionDefinition(STRIKE, EXPIRY);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.05), 0.05, new ConstantVolatilitySurface(0.1), STRIKE, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new ConstantVolatilitySurface(0.1), STRIKE, DATE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testPayoffWithNullData() {

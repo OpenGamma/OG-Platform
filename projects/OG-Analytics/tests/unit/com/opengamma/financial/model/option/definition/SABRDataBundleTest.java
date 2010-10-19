@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,16 +12,17 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class SABRDataBundleTest {
-  private static final ConstantYieldCurve CURVE = new ConstantYieldCurve(0.03);
-  private static final ConstantYieldCurve OTHER_CURVE = new ConstantYieldCurve(0.035);
+  private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.03));
+  private static final YieldCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.035));
   private static final double B = 0.01;
   private static final double OTHER_B = 0.02;
   private static final ConstantVolatilitySurface SURFACE = new ConstantVolatilitySurface(0.4);

@@ -18,7 +18,7 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.BoyleTrinomialOptionModelDefinition;
@@ -37,6 +37,7 @@ import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TreeOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TrinomialOptionModel;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -44,7 +45,7 @@ public class VanillaOptionCrossModelPricingTest {
   private static final double SPOT = 10;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.08), 0.0, new ConstantVolatilitySurface(0.2), SPOT, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.0, new ConstantVolatilitySurface(0.2), SPOT, DATE);
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
@@ -55,7 +56,7 @@ public class VanillaOptionCrossModelPricingTest {
 
   @Test
   public void testEuropeanOption() {
-    int n = 1001;
+    final int n = 1001;
     final OptionDefinition call1 = new EuropeanVanillaOptionDefinition(SPOT * .9, EXPIRY, true);
     final OptionDefinition put1 = new EuropeanVanillaOptionDefinition(SPOT * .9, EXPIRY, false);
     final OptionDefinition call2 = new EuropeanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, true);
@@ -90,7 +91,7 @@ public class VanillaOptionCrossModelPricingTest {
 
   @Test
   public void testAmericanOption() {
-    int n = 1001;
+    final int n = 1001;
     final AmericanVanillaOptionDefinition call1 = new AmericanVanillaOptionDefinition(SPOT * .9, EXPIRY, true);
     final AmericanVanillaOptionDefinition put1 = new AmericanVanillaOptionDefinition(SPOT * .9, EXPIRY, false);
     final AmericanVanillaOptionDefinition call2 = new AmericanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, true);
@@ -120,7 +121,7 @@ public class VanillaOptionCrossModelPricingTest {
     testGreeks(call1, treeModel, bs);
     testGreeks(put1, treeModel, bs);
     testGreeks(call2, treeModel, bs);
-    //testGreeks(put2, treeModel, bs);
+    // testGreeks(put2, treeModel, bs);
   }
 
   @SuppressWarnings("unchecked")

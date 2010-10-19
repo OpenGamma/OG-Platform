@@ -208,7 +208,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
 
   private void init(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(size() > 2);
+    Validate.isTrue(size() >= 2);
     _dataBundle = interpolator.getDataBundleFromSortedArrays(getXDataAsPrimitive(), getYDataAsPrimitive());
     _interpolator = interpolator;
   }
@@ -223,6 +223,10 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   @SuppressWarnings("unchecked")
   public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolator() {
     return _interpolator;
+  }
+
+  public Interpolator1DDataBundle getDataBundle() {
+    return _dataBundle;
   }
 
   @Override

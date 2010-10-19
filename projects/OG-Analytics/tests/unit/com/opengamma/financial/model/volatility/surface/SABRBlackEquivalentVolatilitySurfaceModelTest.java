@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.surface;
@@ -11,10 +11,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -32,7 +33,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final double RHO = -0.4;
   private static final double VOL_OF_VOL = 0.5;
   private static final double R = 0.05;
-  private static final ConstantYieldCurve CURVE = new ConstantYieldCurve(R);
+  private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final double B = R;
   private static final double S = 100 * Math.exp(-B * T);
   private static final VolatilitySurface ATM_VOL = new ConstantVolatilitySurface(0.3);

@@ -39,4 +39,62 @@ public class CurveShiftFunctionFactory {
     }
     return f;
   }
+
+  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double shift) {
+    if (curve instanceof ConstantDoublesCurve) {
+      return CONSTANT.evaluate((ConstantDoublesCurve) curve, shift);
+    }
+    if (curve instanceof FunctionalDoublesCurve) {
+      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, shift);
+    }
+    if (curve instanceof InterpolatedDoublesCurve) {
+      return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, shift);
+    }
+    if (curve instanceof NodalDoublesCurve) {
+      return NODAL.evaluate((NodalDoublesCurve) curve, shift);
+    }
+    if (curve instanceof SpreadDoublesCurve) {
+      return SPREAD.evaluate((SpreadDoublesCurve) curve, shift);
+    }
+    throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
+  }
+
+  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift) {
+    if (curve instanceof ConstantDoublesCurve) {
+      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift);
+    }
+    if (curve instanceof FunctionalDoublesCurve) {
+      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, shift);
+    }
+    if (curve instanceof InterpolatedDoublesCurve) {
+      return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, shift);
+    }
+    if (curve instanceof NodalDoublesCurve) {
+      return NODAL.evaluate((NodalDoublesCurve) curve, x, shift);
+    }
+    if (curve instanceof SpreadDoublesCurve) {
+      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, shift);
+    }
+    throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
+  }
+
+  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y) {
+    if (curve instanceof ConstantDoublesCurve) {
+      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y);
+    }
+    if (curve instanceof FunctionalDoublesCurve) {
+      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, y);
+    }
+    if (curve instanceof InterpolatedDoublesCurve) {
+      return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, y);
+    }
+    if (curve instanceof NodalDoublesCurve) {
+      return NODAL.evaluate((NodalDoublesCurve) curve, x, y);
+    }
+    if (curve instanceof SpreadDoublesCurve) {
+      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, y);
+    }
+    throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
+  }
+
 }

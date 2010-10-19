@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate.definition;
@@ -12,15 +12,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class VasicekDataBundleTest {
-  private static final ConstantYieldCurve SHORT_RATE = new ConstantYieldCurve(0.02);
+  private static final YieldCurve SHORT_RATE = new YieldCurve(ConstantDoublesCurve.from(0.02));
   private static final double LONG_RATE = 0.05;
   private static final double SPEED = 0.1;
   private static final ConstantVolatilityCurve SIGMA = new ConstantVolatilityCurve(0.4);
@@ -64,7 +65,7 @@ public class VasicekDataBundleTest {
     VasicekDataBundle other = new VasicekDataBundle(SHORT_RATE, SIGMA, DATE, LONG_RATE, SPEED);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new VasicekDataBundle(new ConstantYieldCurve(SHORT_RATE.getInterestRate(0.) + 1), SIGMA, DATE, LONG_RATE, SPEED);
+    other = new VasicekDataBundle(new YieldCurve(ConstantDoublesCurve.from(SHORT_RATE.getInterestRate(0.) + 1)), SIGMA, DATE, LONG_RATE, SPEED);
     assertFalse(other.equals(DATA));
     other = new VasicekDataBundle(SHORT_RATE, new ConstantVolatilityCurve(SIGMA.getVolatility(0.) + 0.2), DATE, LONG_RATE, SPEED);
     assertFalse(other.equals(DATA));

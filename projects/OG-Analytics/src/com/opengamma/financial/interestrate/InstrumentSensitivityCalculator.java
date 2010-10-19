@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -32,18 +32,18 @@ public class InstrumentSensitivityCalculator {
    * the i,j element is dx_i/dy_j where x_i is the PV of the ith instrument and y_j is the jth yield 
    * @return bucked delta
    */
-  public DoubleMatrix1D calculateFromPresentValue(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> interpolatedCurves,
-      DoubleMatrix1D dollarDurations, DoubleMatrix2D pvJacobian) {
-    NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
-    DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
-    int n = nodeSense.getNumberOfElements();
+  public DoubleMatrix1D calculateFromPresentValue(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
+      final DoubleMatrix1D dollarDurations, final DoubleMatrix2D pvJacobian) {
+    final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
+    final DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
+    final int n = nodeSense.getNumberOfElements();
     Validate.isTrue(n == dollarDurations.getNumberOfElements());
     Validate.isTrue(n == pvJacobian.getNumberOfColumns());
     Validate.isTrue(n == pvJacobian.getNumberOfRows());
 
-    DoubleMatrix2D invJac = _ma.getInverse(pvJacobian);
+    final DoubleMatrix2D invJac = _ma.getInverse(pvJacobian);
 
-    double[] res = new double[n];
+    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       double sum = 0;
       for (int j = 0; j < n; j++) {
@@ -63,18 +63,18 @@ public class InstrumentSensitivityCalculator {
    * the i,j element is dr_i/dy_j where r_i is the par-rate of the ith instrument and y_j is the jth yield 
    * @return bucked delta
    */
-  public DoubleMatrix1D calculateFromParRate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> interpolatedCurves,
-      DoubleMatrix2D parRateJacobian) {
-    NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
-    DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
-    int n = nodeSense.getNumberOfElements();
+  public DoubleMatrix1D calculateFromParRate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
+      final DoubleMatrix2D parRateJacobian) {
+    final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
+    final DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
+    final int n = nodeSense.getNumberOfElements();
 
     Validate.isTrue(n == parRateJacobian.getNumberOfColumns());
     Validate.isTrue(n == parRateJacobian.getNumberOfRows());
 
-    DoubleMatrix2D invJac = _ma.getInverse(parRateJacobian);
+    final DoubleMatrix2D invJac = _ma.getInverse(parRateJacobian);
 
-    double[] res = new double[n];
+    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       double sum = 0;
       for (int j = 0; j < n; j++) {

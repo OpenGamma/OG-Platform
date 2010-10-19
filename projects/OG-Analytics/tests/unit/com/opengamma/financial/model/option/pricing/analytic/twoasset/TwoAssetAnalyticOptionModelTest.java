@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
@@ -17,11 +17,12 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -49,7 +50,7 @@ public class TwoAssetAnalyticOptionModelTest {
   };
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DATE), true);
-  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new ConstantYieldCurve(0.1), 0, 0, new ConstantVolatilitySurface(0.1),
+  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0, 0, new ConstantVolatilitySurface(0.1),
       new ConstantVolatilitySurface(0.15), 100, 90, 1, DATE);
   private static final Set<Greek> REQUIRED_GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
 

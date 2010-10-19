@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate;
@@ -11,11 +11,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -30,7 +31,7 @@ public class HullWhiteOneFactorInterestRateModelTest {
   private static final double RATE = 0.056;
   private static final double VOL = 0.01;
   private static final double SPEED = 0.13;
-  private static final YieldAndDiscountCurve R = new ConstantYieldCurve(RATE);
+  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final VolatilityCurve SIGMA = new ConstantVolatilityCurve(VOL);
   private static final HullWhiteOneFactorInterestRateModel MODEL = new HullWhiteOneFactorInterestRateModel();
   private static final double EPS = 1e-8;

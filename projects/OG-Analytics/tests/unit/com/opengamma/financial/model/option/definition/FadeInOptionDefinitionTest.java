@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -34,7 +35,7 @@ public class FadeInOptionDefinitionTest {
       new double[] {SPOT, SPOT, SPOT, SPOT, SPOT});
   private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT + 2 * DIFF, SPOT + 3 * DIFF, SPOT, SPOT - 1.5 * DIFF, SPOT - 4 * DIFF});
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.06);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.4);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 6);
