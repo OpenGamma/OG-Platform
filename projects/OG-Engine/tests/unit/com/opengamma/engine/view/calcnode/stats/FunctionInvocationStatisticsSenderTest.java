@@ -65,7 +65,7 @@ public class FunctionInvocationStatisticsSenderTest {
     t = (System.nanoTime () - t) / 1000000000;
     sender.flush ();
     if ((messages.get () < t) || (messages.get () > t + 2)) {
-      fail ("Unexpected number of messages (" + messages.get () + ") from " + t + "s execution"); 
+      fail ("Unexpected number of messages (" + messages.get () + ") from " + t + "s execution");
     }
     assertEquals (2.0, _cost.getStatistics ("A", "1").getInvocationCost (), 1e-5);
     assertEquals (3.0, _cost.getStatistics ("A", "1").getDataInputCost (), 1e-5);

@@ -23,7 +23,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -185,8 +184,9 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
       final double[] times = maturities.get(name);
       for (final double t : times) {
         ird = makeIRD(name, t, curveNames.get(0), curveNames.get(0), 0.0);
-        marketValues[index] = ParRateCalculator.getInstance().getValue(ird, bundle);
-        instruments.add(ird.withRate(marketValues[index]));
+        ird = ird.withRate(ParRateCalculator.getInstance().getValue(ird, bundle));
+        instruments.add(ird);
+        marketValues[index] = calculator.getValue(ird, bundle);
         index++;
       }
     }
@@ -232,7 +232,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateDifferenceCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> fundingMaturities = new LinkedHashMap<String, double[]>();

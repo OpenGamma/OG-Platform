@@ -335,7 +335,7 @@ public class WebSecuritiesData extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("securityMaster", _securityMaster);

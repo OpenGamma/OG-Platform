@@ -5,8 +5,6 @@
  */
 package com.opengamma.timeseries.config;
 
-
-import static com.opengamma.timeseries.config.TimeseriesMasterTestUtils.makeExpectedAAPLEquitySecurity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,13 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
-import com.opengamma.config.DefaultConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.ConfigDocument;
 import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.config.MockConfigSource;
 import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.TimeSeriesMetaData;
@@ -37,60 +31,44 @@ import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.util.MongoDBConnectionSettings;
-import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
- * 
+ * Test DefaultTimeSeriesResolver.
  */
 public class DefaultTimeSeriesResolverTest {
+
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesResolverTest.class);
   private TimeSeriesMetaDataResolver _metaDataResolver;
   private MockSecuritySource _mockSecuritySource;
-  private MongoDBConnectionSettings _mongoSettings;
 
-  /**
-   * @throws java.lang.Exception
-   */
   @Before
   public void setUp() throws Exception {
-    //use className as collection so do not set collectionName
-    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
-    _mongoSettings = settings; 
-    MockSecuritySource mockSecuritySource = new MockSecuritySource();
-    _mockSecuritySource = mockSecuritySource;
+    _mockSecuritySource = new MockSecuritySource();
     ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
     ConfigSource configsource = setUpConfigSource();
     DefaultTimeSeriesResolver defaultResolver = new DefaultTimeSeriesResolver(_mockSecuritySource, exchangeDataProvider, configsource);
     _metaDataResolver = defaultResolver;
   }
-  
-  /**
-   * @throws java.lang.Exception
-   */
+
   @After
   public void tearDown() throws Exception {
     _metaDataResolver = null;
     _mockSecuritySource = null;
-    deleteConfigCollections();
   }
 
-  /**
-   * @return
-   */
   private ConfigSource setUpConfigSource() {
-    MongoDBConfigMaster<TimeSeriesMetaDataConfiguration> tsMetaDataConfigMaster = new MongoDBConfigMaster<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class, _mongoSettings);
+    MockConfigSource cfgSource = new MockConfigSource();
     //add tsmetadata configuration
-    DefaultConfigDocument<TimeSeriesMetaDataConfiguration> doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
+    ConfigDocument<TimeSeriesMetaDataConfiguration> doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     //set up config for equity security
     TimeSeriesMetaDataConfiguration definition = new TimeSeriesMetaDataConfiguration("EQUITY", "BLOOMBERG", "PX_LAST", "EXCH");
     definition.addDataSource("REUTERS");
     definition.addDataField("VOLUME");
     doc.setName("EQUITY");
     doc.setValue(definition);
-    tsMetaDataConfigMaster.add(doc);
+    cfgSource.add(doc);
     //set up config for bond security
-    doc = new DefaultConfigDocument<TimeSeriesMetaDataConfiguration>();
+    doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     definition = new TimeSeriesMetaDataConfiguration("BOND", "BLOOMBERG", "PX_LAST", "CMPL");
     definition.addDataSource("REUTERS");
     definition.addDataField("VOLUME");
@@ -98,24 +76,13 @@ public class DefaultTimeSeriesResolverTest {
     definition.addDataProvider("CMPT");
     doc.setName("BOND");
     doc.setValue(definition);
-    tsMetaDataConfigMaster.add(doc);
-    
-    MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
-    mongoDBMasterConfigSource.addConfigMaster(TimeSeriesMetaDataConfiguration.class, tsMetaDataConfigMaster);
-    return mongoDBMasterConfigSource;
-  }
-  
-  private void deleteConfigCollections() throws Exception {
-    Mongo mongo = new Mongo(_mongoSettings.getHost(), _mongoSettings.getPort());
-    DB db = mongo.getDB(_mongoSettings.getDatabase());
-    String collectionName =  TimeSeriesMetaDataConfiguration.class.getSimpleName();
-    DBCollection collection = db.getCollection(collectionName);
-    collection.drop();
+    cfgSource.add(doc);
+    return cfgSource;
   }
 
-  @Test
-  public void testBondSecurity() {
-//    CorporateBondSecurity security = makeExpectedCorporateBondSecurity();
+//  @Test
+//  public void testBondSecurity() {
+//    CorporateBondSecurity security = TimeseriesMasterTestUtils.makeExpectedCorporateBondSecurity();
 //    IdentifierBundle identifierBundle = security.getIdentifiers();
 //    TimeSeriesMetaData metaData = _metaDataResolver.getDefaultMetaData(identifierBundle);
 //    assertEquals("BLOOMBERG", metaData.getDataSource());
@@ -137,11 +104,11 @@ public class DefaultTimeSeriesResolverTest {
 //      String expectedObservationTime = DefaultTimeSeriesResolver.NON_EXCHANGE_DATA_MAP.get(dataProvider);
 //      assertEquals(expectedObservationTime, timeSeriesMetaData.getObservationTime());
 //    }
-  }
+//  }
 
   @Test
   public void testEquitySecurity() {
-    EquitySecurity equitySecurity = makeExpectedAAPLEquitySecurity();
+    EquitySecurity equitySecurity = TimeseriesMasterTestUtils.makeExpectedAAPLEquitySecurity();
     _mockSecuritySource.addSecurity(equitySecurity);
     IdentifierBundle identifierBundle = equitySecurity.getIdentifiers();
     s_logger.debug("sec exchange={} for ID={}", equitySecurity.getExchangeCode(), identifierBundle);
@@ -165,4 +132,5 @@ public class DefaultTimeSeriesResolverTest {
       assertEquals("NEWYORK_CLOSE", metaData.getObservationTime());
     }
   }
+
 }

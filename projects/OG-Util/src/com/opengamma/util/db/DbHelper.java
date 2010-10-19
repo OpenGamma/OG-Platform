@@ -9,6 +9,8 @@ import java.sql.Driver;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 /**
  * Helper for working with databases with subclasses for different databases.
@@ -171,6 +173,16 @@ public abstract class DbHelper {
     // Postgres uses nextval(seq_name)
     // Oracle uses seq_name.NEXTVAL
     return "NEXT VALUE FOR " + sequenceName + " ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the LOB handler used for BLOBs and CLOBs.
+   * Subclasses will return different handlers for different dialects.
+   * @return the LOB handler, not null
+   */
+  public LobHandler getLobHandler() {
+    return new DefaultLobHandler();
   }
 
   //-------------------------------------------------------------------------

@@ -9,80 +9,91 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * General Configuration Document Repository
+ * A general-purpose configuration master.
+ * <p>
+ * The configuration master provides a uniform view over storage of configuration elements.
+ * This interface provides methods that allow the master to be searched and updated.
+ * <p>
+ * Many different kinds of configuration element may be stored using this interface.
+ * Each element type will be stored using a different instance where the generic
+ * parameter represents the type of the element.
  * 
- * @param <T> Type of Document 
- *
- * 
+ * @param <T>  the configuration element type
  */
 public interface ConfigMaster<T> {
-  
+
   /**
-   * Searches for config document matching the specified search criteria.
+   * Searches for configuration documents matching the specified search criteria.
    * 
    * @param request  the search request, not null
    * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   ConfigSearchResult<T> search(ConfigSearchRequest request);
-  
+
   /**
-   * Gets a config doc by unique identifier.
-   *  
+   * Gets a configuration document by unique identifier.
+   * <p>
+   * A full configuration master will store detailed historic information, including a full version history.
+   * The version in the identifier allows access to these historic versions.
+   * 
    * @param uid  the unique identifier, not null
-   * @return the config document, not null
-   * @throws IllegalArgumentException if the identifier is not from this config master
-   * @throws DataNotFoundException if there is no config doc with that unique identifier
+   * @return the configuration document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no configuration document with that unique identifier
    */
   ConfigDocument<T> get(UniqueIdentifier uid);
 
   /**
-   * Adds a config doc to the data store.
+   * Adds a configuration document to the data store.
    * <p>
-   * The specified document must contain the config document.
-   * It must not contain the object identifier
+   * The specified document must contain the configuration element.
    * 
    * @param document  the document, not null
-   * @return the updated config document, not null
+   * @return the updated configuration document, not null
    * @throws IllegalArgumentException if the request is invalid
    */
   ConfigDocument<T> add(ConfigDocument<T> document);
 
   /**
-   * Updates a config doc in the data store.
+   * Updates a configuration document in the data store.
    * <p>
-   * The specified document must contain the config doc and the unique identifier.
+   * The specified document must contain the element and the unique identifier.
    * If the identifier has a version it must be the latest version.
+   * <p>
+   * A full configuration master will store detailed historic information, including a full version history.
+   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
    * 
    * @param document  the document, not null
-   * @return the updated config doc document, not null
+   * @return the updated document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if there is no security with that unique identifier
+   * @throws DataNotFoundException if there is no configuration document with that unique identifier
    */
   ConfigDocument<T> update(ConfigDocument<T> document);
 
   /**
-   * Removes a config doc from the data store.
+   * Removes a configuration document from the data store.
+   * <p>
+   * A full configuration master will store detailed historic information.
+   * Thus, a removal does not prevent retrieval of an earlier version.
+   * <p>
+   * If the identifier has a version it must be the latest version.
    * 
-   * @param uid  the config unique identifier to remove, not null
+   * @param uid  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if there is no security with that unique identifier
+   * @throws DataNotFoundException if there is no configuration document with that unique identifier
    */
   void remove(final UniqueIdentifier uid);
 
-  //-------------------------------------------------------------------------
   /**
-   * Searches for config docs matching the specified search criteria.
+   * Searches for configuration documents matching the specified search criteria.
    * <p>
    * The request must contain an object identifier that must not have a version.
    * 
    * @param request  the search request, not null
    * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   ConfigSearchHistoricResult<T> searchHistoric(ConfigSearchHistoricRequest request);
-  
-  /**
-   * @return all names for config documents
-   */
-//  Set<String> getNames();
-  
+
 }

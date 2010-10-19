@@ -189,7 +189,7 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
         setCorrectionsToInstant((Instant) newValue);
         return;
       case -1233600576:  // fullDetail
-        setFullDetail((boolean) (Boolean) newValue);
+        setFullDetail((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -446,7 +446,7 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);

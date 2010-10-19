@@ -65,7 +65,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.sql.DataSource;
 import javax.time.Instant;
 import javax.time.calendar.format.CalendricalParseException;
 
@@ -75,12 +74,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -563,8 +561,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     
     if (!isTriggerSupported()) {
       String selectTSSQL = _namedSQLMap.get(GET_TIME_SERIES_BY_ID);
-      List<Pair<T, Double>> queryResult = getJdbcTemplate().query(selectTSSQL, new ParameterizedRowMapper<Pair<T, Double>>() {
-  
+      List<Pair<T, Double>> queryResult = getJdbcTemplate().query(selectTSSQL, new RowMapper<Pair<T, Double>>() {
         @Override
         public Pair<T, Double> mapRow(ResultSet rs, int rowNum) throws SQLException {
           double tsValue = rs.getDouble("value");

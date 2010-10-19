@@ -6,7 +6,6 @@
 package com.opengamma.financial.timeseries;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ import com.opengamma.util.db.PagingRequest;
  */
 @BeanDefinition
 public class TimeSeriesSearchRequest<T> extends DirectBean {
+
   /**
    * The request for paging.
    * By default all matching items will be returned.
@@ -38,66 +38,74 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
-   * The timeseries identifier for loading specific data points range
+   * The time series identifier for loading specific data points range.
    */
   @PropertyDefinition
   private UniqueIdentifier _timeSeriesId;
   /**
-   * Identifier value, will match against the <b>value</b> of the identifiers
-   * (see Identifier.getValue());
-   * wildcards allowed; 
-   * will not match on the <b>key</b> of any of the identifiers;
-   * null to search all identifiers
+   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
    */
   @PropertyDefinition
   private String _identifierValue;
   /**
-   * List of Identifiers to search. Unlike _identifierValue, requires exact match
-   * - no wildcards are allowed
+   * The identifiers to match, null to not match on identifiers.
+   * This will return time series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
    */
   @PropertyDefinition
   private final List<Identifier> _identifiers = new ArrayList<Identifier>();
   /**
-   * The dataSource, null to search all dataSource.
+   * The data source, null to search all data sources.
    */
   @PropertyDefinition
   private String _dataSource;
   /**
-   * The dataProvider, null to search all dataProvider.
+   * The data provider, null to search all data providers.
    */
   @PropertyDefinition
   private String _dataProvider; 
   /**
-   * The dataField, null to search all dataField.
+   * The data field to search, null to search all data fields.
    */
   @PropertyDefinition
   private String _dataField;
   /**
-   * The observationTime, null to search all observationTime
+   * The observation time, null to search all observation times.
    */
   @PropertyDefinition
   private String _observationTime;
   /**
-   * The start date, null to search from start date in datastore.
+   * The start date, null to search from start date in data store.
    */
   @PropertyDefinition
   private T _start; 
   /**
-   * The end date, null to search till end date in datastore.
+   * The end date, null to search until the end date in data store.
    */
   @PropertyDefinition
   private T _end;
   /**
-   * Set to true if to load datapoints, otherwise return just meta data
+   * Set to true to load data points, otherwise return just meta data.
    */
   @PropertyDefinition
   private boolean _loadTimeSeries;
   /**
-   * Set to true if to load the start and end date for timeseries
+   * Set to true to load the start and end date for time series.
    */
   @PropertyDefinition
   private boolean _loadDates;
-  
+
+  /**
+   * Creates an instance.
+   */
   public TimeSeriesSearchRequest() {
   }
 
@@ -185,10 +193,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         setEnd((T) newValue);
         return;
       case 1833789738:  // loadTimeSeries
-        setLoadTimeSeries((boolean) (Boolean) newValue);
+        setLoadTimeSeries((Boolean) newValue);
         return;
       case 1364095295:  // loadDates
-        setLoadDates((boolean) (Boolean) newValue);
+        setLoadDates((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -224,7 +232,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the timeseries identifier for loading specific data points range
+   * Gets the time series identifier for loading specific data points range.
    * @return the value of the property
    */
   public UniqueIdentifier getTimeSeriesId() {
@@ -232,7 +240,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the timeseries identifier for loading specific data points range
+   * Sets the time series identifier for loading specific data points range.
    * @param timeSeriesId  the new value of the property
    */
   public void setTimeSeriesId(UniqueIdentifier timeSeriesId) {
@@ -249,11 +257,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets identifier value, will match against the <b>value</b> of the identifiers
-   * (see Identifier.getValue());
-   * wildcards allowed;
-   * will not match on the <b>key</b> of any of the identifiers;
-   * null to search all identifiers
+   * Gets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
    * @return the value of the property
    */
   public String getIdentifierValue() {
@@ -261,11 +270,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets identifier value, will match against the <b>value</b> of the identifiers
-   * (see Identifier.getValue());
-   * wildcards allowed;
-   * will not match on the <b>key</b> of any of the identifiers;
-   * null to search all identifiers
+   * Sets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
    * @param identifierValue  the new value of the property
    */
   public void setIdentifierValue(String identifierValue) {
@@ -274,10 +284,11 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   /**
    * Gets the the {@code identifierValue} property.
-   * (see Identifier.getValue());
-   * wildcards allowed;
-   * will not match on the <b>key</b> of any of the identifiers;
-   * null to search all identifiers
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
    * @return the property, not null
    */
   public final Property<String> identifierValue() {
@@ -286,8 +297,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets list of Identifiers to search. Unlike _identifierValue, requires exact match
-   * - no wildcards are allowed
+   * Gets the identifiers to match, null to not match on identifiers.
+   * This will return time series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
    * @return the value of the property
    */
   public List<Identifier> getIdentifiers() {
@@ -295,18 +310,26 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets list of Identifiers to search. Unlike _identifierValue, requires exact match
-   * - no wildcards are allowed
+   * Sets the identifiers to match, null to not match on identifiers.
+   * This will return time series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
    * @param identifiers  the new value of the property
    */
-  public void setIdentifiers(Collection<Identifier> identifiers) {
+  public void setIdentifiers(List<Identifier> identifiers) {
     this._identifiers.clear();
     this._identifiers.addAll(identifiers);
   }
 
   /**
    * Gets the the {@code identifiers} property.
-   * - no wildcards are allowed
+   * This will return time series where at least one complete identifier in the series matches
+   * at least one complete identifier in this bundle. Note that an empty bundle will not match
+   * anything, whereas a null bundle places no restrictions on the result.
+   * This method is suitable for exact machine searching, whereas the {@code identifierValue}
+   * search is useful for human searching.
    * @return the property, not null
    */
   public final Property<List<Identifier>> identifiers() {
@@ -315,7 +338,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the dataSource, null to search all dataSource.
+   * Gets the data source, null to search all data sources.
    * @return the value of the property
    */
   public String getDataSource() {
@@ -323,7 +346,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the dataSource, null to search all dataSource.
+   * Sets the data source, null to search all data sources.
    * @param dataSource  the new value of the property
    */
   public void setDataSource(String dataSource) {
@@ -340,7 +363,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the dataProvider, null to search all dataProvider.
+   * Gets the data provider, null to search all data providers.
    * @return the value of the property
    */
   public String getDataProvider() {
@@ -348,7 +371,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the dataProvider, null to search all dataProvider.
+   * Sets the data provider, null to search all data providers.
    * @param dataProvider  the new value of the property
    */
   public void setDataProvider(String dataProvider) {
@@ -365,7 +388,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the dataField, null to search all dataField.
+   * Gets the data field to search, null to search all data fields.
    * @return the value of the property
    */
   public String getDataField() {
@@ -373,7 +396,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the dataField, null to search all dataField.
+   * Sets the data field to search, null to search all data fields.
    * @param dataField  the new value of the property
    */
   public void setDataField(String dataField) {
@@ -390,7 +413,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the observationTime, null to search all observationTime
+   * Gets the observation time, null to search all observation times.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -398,7 +421,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the observationTime, null to search all observationTime
+   * Sets the observation time, null to search all observation times.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
@@ -415,7 +438,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date, null to search from start date in datastore.
+   * Gets the start date, null to search from start date in data store.
    * @return the value of the property
    */
   public T getStart() {
@@ -423,7 +446,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the start date, null to search from start date in datastore.
+   * Sets the start date, null to search from start date in data store.
    * @param start  the new value of the property
    */
   public void setStart(T start) {
@@ -440,7 +463,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end date, null to search till end date in datastore.
+   * Gets the end date, null to search until the end date in data store.
    * @return the value of the property
    */
   public T getEnd() {
@@ -448,7 +471,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets the end date, null to search till end date in datastore.
+   * Sets the end date, null to search until the end date in data store.
    * @param end  the new value of the property
    */
   public void setEnd(T end) {
@@ -465,7 +488,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set to true if to load datapoints, otherwise return just meta data
+   * Gets set to true to load data points, otherwise return just meta data.
    * @return the value of the property
    */
   public boolean isLoadTimeSeries() {
@@ -473,7 +496,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets set to true if to load datapoints, otherwise return just meta data
+   * Sets set to true to load data points, otherwise return just meta data.
    * @param loadTimeSeries  the new value of the property
    */
   public void setLoadTimeSeries(boolean loadTimeSeries) {
@@ -490,7 +513,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set to true if to load the start and end date for timeseries
+   * Gets set to true to load the start and end date for time series.
    * @return the value of the property
    */
   public boolean isLoadDates() {
@@ -498,7 +521,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
   }
 
   /**
-   * Sets set to true if to load the start and end date for timeseries
+   * Sets set to true to load the start and end date for time series.
    * @param loadDates  the new value of the property
    */
   public void setLoadDates(boolean loadDates) {
@@ -521,7 +544,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -539,7 +562,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<Identifier>> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", (Class) List.class);
     /**
      * The meta-property for the {@code dataSource} property.
@@ -560,12 +583,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The meta-property for the {@code start} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _start = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "start", Object.class);
     /**
      * The meta-property for the {@code end} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _end = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "end", Object.class);
     /**
      * The meta-property for the {@code loadTimeSeries} property.
@@ -580,7 +603,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
@@ -603,7 +626,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       return new TimeSeriesSearchRequest<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends TimeSeriesSearchRequest<T>> beanType() {
       return (Class) TimeSeriesSearchRequest.class;

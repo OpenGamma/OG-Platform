@@ -24,12 +24,12 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for config document.
+ * Request for searching for configuration documents.
  */
 @PublicAPI
 @BeanDefinition
 public class ConfigSearchRequest extends DirectBean {
-  
+
   /**
    * The request for paging.
    * By default all matching items will be returned.
@@ -41,11 +41,11 @@ public class ConfigSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private String _name;
-  /**
-   * The effective instant.
+  /** 
+   * The instant to search for a version at, null treated as the latest version.
    */
   @PropertyDefinition
-  private Instant _effectiveTime;
+  private Instant _versionAsOfInstant;
   /**
    * A flexible set of attributes allowing the object to be extended.
    */
@@ -80,8 +80,8 @@ public class ConfigSearchRequest extends DirectBean {
         return getPagingRequest();
       case 3373707:  // name
         return getName();
-      case -929905388:  // effectiveTime
-        return getEffectiveTime();
+      case 598802432:  // versionAsOfInstant
+        return getVersionAsOfInstant();
       case 405645655:  // attributes
         return getAttributes();
     }
@@ -97,8 +97,8 @@ public class ConfigSearchRequest extends DirectBean {
       case 3373707:  // name
         setName((String) newValue);
         return;
-      case -929905388:  // effectiveTime
-        setEffectiveTime((Instant) newValue);
+      case 598802432:  // versionAsOfInstant
+        setVersionAsOfInstant((Instant) newValue);
         return;
       case 405645655:  // attributes
         setAttributes((FlexiBean) newValue);
@@ -162,27 +162,27 @@ public class ConfigSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the effective instant.
+   * Gets the instant to search for a version at, null treated as the latest version.
    * @return the value of the property
    */
-  public Instant getEffectiveTime() {
-    return _effectiveTime;
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
   }
 
   /**
-   * Sets the effective instant.
-   * @param effectiveTime  the new value of the property
+   * Sets the instant to search for a version at, null treated as the latest version.
+   * @param versionAsOfInstant  the new value of the property
    */
-  public void setEffectiveTime(Instant effectiveTime) {
-    this._effectiveTime = effectiveTime;
+  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
+    this._versionAsOfInstant = versionAsOfInstant;
   }
 
   /**
-   * Gets the the {@code effectiveTime} property.
+   * Gets the the {@code versionAsOfInstant} property.
    * @return the property, not null
    */
-  public final Property<Instant> effectiveTime() {
-    return metaBean().effectiveTime().createProperty(this);
+  public final Property<Instant> versionAsOfInstant() {
+    return metaBean().versionAsOfInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -230,9 +230,9 @@ public class ConfigSearchRequest extends DirectBean {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
     /**
-     * The meta-property for the {@code effectiveTime} property.
+     * The meta-property for the {@code versionAsOfInstant} property.
      */
-    private final MetaProperty<Instant> _effectiveTime = DirectMetaProperty.ofReadWrite(this, "effectiveTime", Instant.class);
+    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
@@ -242,12 +242,12 @@ public class ConfigSearchRequest extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
       temp.put("name", _name);
-      temp.put("effectiveTime", _effectiveTime);
+      temp.put("versionAsOfInstant", _versionAsOfInstant);
       temp.put("attributes", _attributes);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -285,11 +285,11 @@ public class ConfigSearchRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code effectiveTime} property.
+     * The meta-property for the {@code versionAsOfInstant} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Instant> effectiveTime() {
-      return _effectiveTime;
+    public final MetaProperty<Instant> versionAsOfInstant() {
+      return _versionAsOfInstant;
     }
 
     /**

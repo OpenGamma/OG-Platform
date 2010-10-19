@@ -83,7 +83,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     assertNotNull(uid);
     assertEquals("DbSec", uid.getScheme());
     assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
