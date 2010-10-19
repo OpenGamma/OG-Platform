@@ -13,10 +13,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +28,7 @@ import com.mongodb.Mongo;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.DefaultConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
@@ -39,7 +38,7 @@ import com.opengamma.util.test.MongoDBTestUtils;
 /**
  *
  */
-public class ConfigSourceTest {
+public class MongoConfigSourceTest {
   
   private static final String EQUITY_OPTION = "EQUITY_OPTION";
   private static final int DATA_SIZE = 10;
@@ -90,7 +89,7 @@ public class ConfigSourceTest {
       definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
       definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
       
-      DefaultConfigDocument<ViewDefinition> configDocument = new DefaultConfigDocument<ViewDefinition>();
+      ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>();
       configDocument.setName(name);
       configDocument.setValue(definition);
       viewDefinitionsMap.put(name, repo.add(configDocument));
@@ -118,7 +117,7 @@ public class ConfigSourceTest {
   public void get() throws Exception {
     for (Entry<String, ConfigDocument<ViewDefinition>> entry : _viewDefinitions.entrySet()) {
       ConfigDocument<ViewDefinition> configDocument = entry.getValue();
-      UniqueIdentifier uniqueIdentifier = configDocument.getUniqueIdentifier();
+      UniqueIdentifier uniqueIdentifier = configDocument.getConfigId();
       ViewDefinition viewDefinition = _configSource.get(ViewDefinition.class, uniqueIdentifier);
       assertNotNull(viewDefinition);
       assertEquals(configDocument.getValue(), viewDefinition);

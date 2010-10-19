@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.config.DefaultConfigDocument;
+import com.opengamma.config.ConfigDocument;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.ViewDefinition;
@@ -65,8 +65,14 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.setBatchDbManager(_dbManager);
     _batchJob.setViewName("test_view");
     _batchJob.setView(ViewTestUtils.getMockView());
-    _batchJob.setViewDefinitionConfig(new DefaultConfigDocument<ViewDefinition>(
-        "1", "1", 1, "Name", Instant.EPOCH, Instant.EPOCH, _batchJob.getView().getDefinition()));
+    ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
+    doc.setConfigId(UniqueIdentifier.of("Test", "1", "1"));
+    doc.setVersionNumber(1);
+    doc.setName("Name");
+    doc.setVersionFromInstant(Instant.EPOCH);
+    doc.setVersionFromInstant(Instant.EPOCH);
+    doc.setValue(_batchJob.getView().getDefinition());
+    _batchJob.setViewDefinitionConfig(doc);
     
     _batchJobRun = new BatchJobRun(_batchJob);
     _batchJobRun.init();

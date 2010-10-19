@@ -31,12 +31,25 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DefaultViewComputationCache implements ViewComputationCache, Iterable<Pair<ValueSpecification, byte[]>> {
 
+  /**
+   * Callback to locate missing data.
+   */
+  public static interface MissingValueLoader {
+
+    byte[] findMissingValue(long identifier);
+
+    Map<Long, byte[]> findMissingValues(Collection<Long> identifiers);
+
+  };
+
   private static final int NATIVE_FIELD_INDEX = -1;
 
   private final IdentifierMap _identifierMap;
   private final BinaryDataStore _privateDataStore;
   private final BinaryDataStore _sharedDataStore;
   private final FudgeContext _fudgeContext;
+
+  private MissingValueLoader _missingValueLoader;
 
   /**
    * The size of recent values that have gone into or come out of this cache.
@@ -56,6 +69,14 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     _privateDataStore = privateDataStore;
     _sharedDataStore = sharedDataStore;
     _fudgeContext = fudgeContext;
+  }
+
+  public void setMissingValueLoader(final MissingValueLoader missingValueLoader) {
+    _missingValueLoader = missingValueLoader;
+  }
+
+  public MissingValueLoader getMissingValueLoader() {
+    return _missingValueLoader;
   }
 
   /**
@@ -85,8 +106,6 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
-  // [ENG-242] Need an optional callback mechanism so requests for "private" data can result in a "pull" request sent to the other nodes
 
   @Override
   public Object getValue(final ValueSpecification specification) {
@@ -97,7 +116,14 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
       data = getSharedDataStore().get(identifier);
     }
     if (data == null) {
-      return null;
+      final MissingValueLoader loader = getMissingValueLoader();
+      if (loader == null) {
+        return null;
+      }
+      data = loader.findMissingValue(identifier);
+      if (data == null) {
+        return null;
+      }
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
     _valueSizeCache.put(specification, data.length);
@@ -123,9 +149,9 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
     final Map<ValueSpecification, Long> identifiers = getIdentifierMap().getIdentifiers(specifications);
     final Collection<Pair<ValueSpecification, Object>> returnValues = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
     final Collection<Long> identifierValues = identifiers.values();
+    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
     Map<Long, byte[]> rawValues = getPrivateDataStore().get(identifierValues);
     if (!rawValues.isEmpty()) {
-      final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
       final Iterator<Map.Entry<ValueSpecification, Long>> identifierIterator = identifiers.entrySet().iterator();
       while (identifierIterator.hasNext()) {
         final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
@@ -136,15 +162,40 @@ public class DefaultViewComputationCache implements ViewComputationCache, Iterab
           identifierIterator.remove();
         }
       }
-      if (returnValues.size() == specifications.size()) {
+      if (identifiers.isEmpty()) {
         return returnValues;
       }
     }
     rawValues = getSharedDataStore().get(identifierValues);
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(getFudgeContext());
-    for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
-      final byte[] data = rawValues.get(identifier.getValue());
-      returnValues.add(Pair.of(identifier.getKey(), (data != null) ? deserializeValue(context, data) : null));
+    if (!rawValues.isEmpty()) {
+      final Iterator<Map.Entry<ValueSpecification, Long>> identifierIterator = identifiers.entrySet().iterator();
+      while (identifierIterator.hasNext()) {
+        final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
+        final byte[] data = rawValues.get(identifier.getValue());
+        if (data != null) {
+          _valueSizeCache.put(identifier.getKey(), data.length);
+          returnValues.add(Pair.of(identifier.getKey(), deserializeValue(context, data)));
+          identifierIterator.remove();
+        }
+      }
+      if (identifiers.isEmpty()) {
+        return returnValues;
+      }
+    }
+    final MissingValueLoader loader = getMissingValueLoader();
+    if (loader != null) {
+      rawValues = loader.findMissingValues(identifierValues);
+      if (!rawValues.isEmpty()) {
+        final Iterator<Map.Entry<ValueSpecification, Long>> identifierIterator = identifiers.entrySet().iterator();
+        while (identifierIterator.hasNext()) {
+          final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
+          final byte[] data = rawValues.get(identifier.getValue());
+          if (data != null) {
+            _valueSizeCache.put(identifier.getKey(), data.length);
+            returnValues.add(Pair.of(identifier.getKey(), deserializeValue(context, data)));
+          }
+        }
+      }
     }
     return returnValues;
   }

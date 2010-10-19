@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,11 +28,22 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultViewComputationCacheSource implements ViewComputationCacheSource {
 
   /**
-   * Callback to receive notification of the {@link #releaseCaches} method.
+   * Callback to receive notification of the releaseCaches message.
    */
   public static interface ReleaseCachesCallback {
 
     void onReleaseCaches(String viewName, long timestamp);
+
+  }
+
+  /**
+   * Callback to locate missing data.
+   */
+  public static interface MissingValueLoader {
+
+    byte[] findMissingValue(ViewComputationCacheKey cache, long identifier);
+
+    Map<Long, byte[]> findMissingValues(ViewComputationCacheKey cache, Collection<Long> identifier);
 
   }
 
@@ -45,6 +57,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final BinaryDataStoreFactory _sharedDataStoreFactory;
 
   private ReleaseCachesCallback _releaseCachesCallback;
+  private MissingValueLoader _missingValueLoader;
 
   protected DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory dataStoreFactory) {
     this(identifierMap, fudgeContext, dataStoreFactory, dataStoreFactory);
@@ -92,7 +105,10 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
 
   @Override
   public DefaultViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp) {
-    ViewComputationCacheKey key = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
+    return getCache(new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp));
+  }
+
+  public DefaultViewComputationCache getCache(final ViewComputationCacheKey key) {
     DefaultViewComputationCache cache = _cachesByKey.get(key);
     if (cache == null) {
       cache = constructCache(key);
@@ -100,7 +116,11 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     return cache;
   }
 
-  protected DefaultViewComputationCache constructCache(ViewComputationCacheKey key) {
+  protected DefaultViewComputationCache findCache(String viewName, String calculationConfigurationName, long timestamp) {
+    return _cachesByKey.get(new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp));
+  }
+
+  protected DefaultViewComputationCache constructCache(final ViewComputationCacheKey key) {
     DefaultViewComputationCache cache = null;
     _cacheManagementLock.lock();
     try {
@@ -118,6 +138,22 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
           _activeCaches.put(releaseKey, caches);
         }
         caches.add(key);
+        final MissingValueLoader loader = getMissingValueLoader();
+        if (loader != null) {
+          cache.setMissingValueLoader(new DefaultViewComputationCache.MissingValueLoader() {
+
+            @Override
+            public byte[] findMissingValue(final long identifier) {
+              return loader.findMissingValue(key, identifier);
+            }
+
+            @Override
+            public Map<Long, byte[]> findMissingValues(Collection<Long> identifiers) {
+              return loader.findMissingValues(key, identifiers);
+            }
+
+          });
+        }
       }
     } finally {
       _cacheManagementLock.unlock();
@@ -142,8 +178,9 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   @Override
   public void releaseCaches(String viewName, long timestamp) {
     ArgumentChecker.notNull(viewName, "View name");
-    if (getReleaseCachesCallback() != null) {
-      getReleaseCachesCallback().onReleaseCaches(viewName, timestamp);
+    final ReleaseCachesCallback callback = getReleaseCachesCallback();
+    if (callback != null) {
+      callback.onReleaseCaches(viewName, timestamp);
     }
     DefaultViewComputationCache[] caches;
     _cacheManagementLock.lock();
@@ -164,13 +201,21 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       cache.delete();
     }
   }
-  
+
   public void setReleaseCachesCallback(final ReleaseCachesCallback releaseCachesCallback) {
     _releaseCachesCallback = releaseCachesCallback;
   }
 
   public ReleaseCachesCallback getReleaseCachesCallback() {
     return _releaseCachesCallback;
+  }
+
+  public void setMissingValueLoader(final MissingValueLoader missingValueLoader) {
+    _missingValueLoader = missingValueLoader;
+  }
+
+  public MissingValueLoader getMissingValueLoader() {
+    return _missingValueLoader;
   }
 
 }

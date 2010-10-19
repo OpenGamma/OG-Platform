@@ -147,7 +147,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final InterpolatedYieldCurveSpecification specification = createSpecification(atInstant.toLocalDate());
     final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(specification, context));
     // ENG-252 see MarkingInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).minusNanos(1000000)) {
+    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
