@@ -41,6 +41,7 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
 
   @Override
   public void delete() {
+    // [ENG-256] Don't need the delete messages if we propogate at the releaseCaches level
     final DeleteRequest request = new DeleteRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp());
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
