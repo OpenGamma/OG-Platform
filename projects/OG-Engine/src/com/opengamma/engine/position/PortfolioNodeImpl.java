@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -29,6 +29,10 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   private UniqueIdentifier _identifier;
   /**
+   * Identifier of the parent node
+   */
+  private UniqueIdentifier _parentNode;
+  /**
    * The name.
    */
   private String _name;
@@ -47,7 +51,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   public PortfolioNodeImpl() {
     _name = "";
   }
-  
+
   /**
    * Creates a portfolio node with a given name.
    * @param name the name of the portfolio node.
@@ -67,7 +71,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _name = StringUtils.defaultString(name);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the node.
    * @return the identifier, not null
@@ -86,7 +90,16 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _identifier = identifier;
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  public UniqueIdentifier getParentNode() {
+    return _parentNode;
+  }
+
+  public void setParentNode(final UniqueIdentifier parentNode) {
+    _parentNode = parentNode;
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the name of the node intended for display purposes.
    * @return the name, not null
@@ -105,7 +118,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _name = name;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the total size of the children, including nodes and positions.
    * @return the size of the nodes and position
@@ -115,7 +128,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     return _childNodes.size() + _positions.size();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the nodes which are immediate children of this node.
    * @return the child nodes, unmodifiable, not null
@@ -151,7 +164,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _childNodes.remove(childNode);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the positions which are immediate children of this node.
    * @return the positions, unmodifiable, not null
@@ -187,7 +200,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _positions.remove(position);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
@@ -250,7 +263,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     }
     return null;
   }
-  
+
   public String toLongString() {
     StringBuffer childString = new StringBuffer();
     childString.append("[");
@@ -266,31 +279,17 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
       }
     }
     childString.append("]");
-    return new StrBuilder()
-      .append("PortfolioNode[uniqueIdentifier=")
-      .append(getUniqueIdentifier())
-      .append(",childNodes=")
-      .append(childString)
-      .append(",positions=")
-      .append(_positions)
-      .append("]")
-      .toString();
+    return new StrBuilder().append("PortfolioNode[uniqueIdentifier=").append(getUniqueIdentifier()).append(",childNodes=").append(childString).append(",positions=").append(_positions).append("]")
+        .toString();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public String toString() {
-    return new StrBuilder()
-      .append("PortfolioNode[")
-      .append(getUniqueIdentifier())
-      .append(", ")
-      .append(_childNodes.size())
-      .append(" child-nodes, ")
-      .append(_positions.size())
-      .append(" positions]")
-      .toString();
+    return new StrBuilder().append("PortfolioNode[").append(getUniqueIdentifier()).append(", ").append(_childNodes.size()).append(" child-nodes, ").append(_positions.size()).append(" positions]")
+        .toString();
   }
-  
+
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
@@ -300,8 +299,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
       return false;
     }
     final PortfolioNodeImpl other = (PortfolioNodeImpl) o;
-    if (!ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
-        || !ObjectUtils.equals(getName(), other.getName())) {
+    if (!ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier()) || !ObjectUtils.equals(getName(), other.getName())) {
       return false;
     }
     final List<PortfolioNode> otherChildNodes = other.getChildNodes();
@@ -330,10 +328,15 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     int result = 0;
     int prime = 31;
     if (getUniqueIdentifier() != null) {
-      result = result * prime + getUniqueIdentifier().hashCode();
+      result += getUniqueIdentifier().hashCode();
     }
+    result *= prime;
     if (getName() != null) {
-      result = result * prime + getName().hashCode(); 
+      result += getName().hashCode();
+    }
+    result *= prime;
+    if (getParentNode() != null) {
+      result += getParentNode().hashCode();
     }
     // Intentionally skip the contained children and positions
     return result;

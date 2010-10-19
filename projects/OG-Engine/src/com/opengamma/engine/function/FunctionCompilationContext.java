@@ -20,6 +20,11 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
 
+  /**
+   * The name under which an instance of {@link ParentNodeResolver} should be bound.
+   */
+  public static final String PARENT_NODE_RESOLVER_NAME = "parentNodeResolver";
+
   public FunctionCompilationContext() {
   }
 
@@ -41,6 +46,22 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setSecuritySource(SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
+  }
+
+  /**
+   * Gets the source of portfolio structure information.
+   * @return the {@link ParentNodeResolver} instance
+   */
+  public ParentNodeResolver getParentNodeResolver() {
+    return (ParentNodeResolver) get(PARENT_NODE_RESOLVER_NAME);
+  }
+
+  /**
+   * Sets the source of portfolio structure information.
+   * @param parentNodeResolver the {@link ParentNodeResolver} instance
+   */
+  public void setParentNodeResolver(final ParentNodeResolver parentNodeResolver) {
+    put(PARENT_NODE_RESOLVER_NAME, parentNodeResolver);
   }
 
   @Override
