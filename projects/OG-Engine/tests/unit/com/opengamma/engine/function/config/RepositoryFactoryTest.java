@@ -16,18 +16,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
