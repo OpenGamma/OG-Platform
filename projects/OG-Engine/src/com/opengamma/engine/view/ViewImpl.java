@@ -485,7 +485,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * Part of shutdown. Removes live data subscriptions for the view.
    */
   private void removeLiveDataSubscriptions() {
-    final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    // final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     // [ENG-251] TODO snapshotProvider.removeListener(this);
     removeLiveDataSubscriptions(getRequiredLiveData());
   }

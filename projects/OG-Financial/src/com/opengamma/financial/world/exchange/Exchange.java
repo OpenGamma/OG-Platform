@@ -304,14 +304,14 @@ public class Exchange extends DirectBean {
     /**
      * The meta-property for the {@code calendarEntries} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<ExchangeCalendarEntry>> _calendarEntries = DirectMetaProperty.ofReadWrite(this, "calendarEntries", (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("uniqueIdentifier", _uniqueIdentifier);

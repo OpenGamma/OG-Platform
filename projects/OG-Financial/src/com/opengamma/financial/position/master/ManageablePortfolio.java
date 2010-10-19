@@ -221,7 +221,7 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("uniqueIdentifier", _uniqueIdentifier);

@@ -145,7 +145,7 @@ public class ConfigDocument<T> extends DirectBean {
         setConfigId((UniqueIdentifier) newValue);
         return;
       case 632283713:  // versionNumber
-        setVersionNumber((int) (Integer) newValue);
+        setVersionNumber((Integer) newValue);
         return;
       case 2006263519:  // versionFromInstant
         setVersionFromInstant((Instant) newValue);
@@ -370,7 +370,7 @@ public class ConfigDocument<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -400,14 +400,14 @@ public class ConfigDocument<T> extends DirectBean {
     /**
      * The meta-property for the {@code value} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _value = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "value", Object.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("configId", _configId);
@@ -425,7 +425,7 @@ public class ConfigDocument<T> extends DirectBean {
       return new ConfigDocument<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends ConfigDocument<T>> beanType() {
       return (Class) ConfigDocument.class;

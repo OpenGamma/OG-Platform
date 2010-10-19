@@ -111,7 +111,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
         setCorrectedToInstant((Instant) newValue);
         return;
       case 95472323:  // depth
-        setDepth((int) (Integer) newValue);
+        setDepth((Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -289,7 +289,7 @@ public class PortfolioTreeSearchRequest extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
