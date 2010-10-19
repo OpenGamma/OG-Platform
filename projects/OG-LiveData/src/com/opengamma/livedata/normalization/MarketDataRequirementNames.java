@@ -75,4 +75,14 @@ public interface MarketDataRequirementNames {
    */
   String MID_IMPLIED_VOLATILITY = "Market_OptImpliedVolatilityMid";
   
+  /**
+   * An average of yield and the convention (?)
+   */
+  String YIELD_CONVENTION_MID = "Market_YieldConventionMid";
+
+  /**
+   * An average of yield and yield to maturity
+   */
+  String YIELD_YIELD_TO_MATURITY_MID = "Market_YieldYieldToMaturityMid";
+    
 }
