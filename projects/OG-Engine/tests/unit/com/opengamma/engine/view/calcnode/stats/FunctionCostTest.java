@@ -21,7 +21,6 @@ import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.DefaultConfigDocument;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -77,10 +76,10 @@ public class FunctionCostTest {
     @Override
     public ConfigDocument<T> add(ConfigDocument<T> document) {
       _addOperations++;
-      DefaultConfigDocument<T> newDocument = new DefaultConfigDocument<T>();
+      ConfigDocument<T> newDocument = new ConfigDocument<T>();
       newDocument.setName(document.getName());
       newDocument.setValue(document.getValue());
-      newDocument.setUniqueIdentifier(UniqueIdentifier.of("Test", "" + _data.size()));
+      newDocument.setConfigId(UniqueIdentifier.of("Test", "" + _data.size()));
       _data.put(newDocument.getName(), newDocument);
       return newDocument;
     }
@@ -113,10 +112,10 @@ public class FunctionCostTest {
     @Override
     public ConfigDocument<T> update(ConfigDocument<T> document) {
       _updateOperations++;
-      DefaultConfigDocument<T> newDocument = new DefaultConfigDocument<T>();
+      ConfigDocument<T> newDocument = new ConfigDocument<T>();
       newDocument.setName(document.getName());
       newDocument.setValue(document.getValue());
-      newDocument.setUniqueIdentifier(document.getUniqueIdentifier());
+      newDocument.setConfigId(document.getConfigId());
       _data.put(newDocument.getName(), newDocument);
       return newDocument;
     }

@@ -10,7 +10,8 @@ tests/output/
 build/
 lib/
 derby.log
-/db/
+db/derby/test_*
+db/hsqldb/test_*
 !src/com/opengamma/util/db/
 !tests/unit/com/opengamma/util/db/
 !db/*/create-db.sql

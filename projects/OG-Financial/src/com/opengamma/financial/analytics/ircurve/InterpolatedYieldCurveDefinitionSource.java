@@ -10,10 +10,28 @@ import javax.time.Instant;
 import com.opengamma.financial.Currency;
 
 /**
- * 
- *
+ * A source of yield curve definitions.
+ * <p>
+ * This interface provides a simple view of yield curve definitions.
+ * This may be backed by a full-featured master, or by a much simpler data structure.
  */
 public interface InterpolatedYieldCurveDefinitionSource {
+
+  /**
+   * Gets a yield curve definition for a currency and name.
+   * @param currency  the currency, not null
+   * @param name  the name, not null
+   * @return the definition, null if not found
+   */
   YieldCurveDefinition getDefinition(Currency currency, String name);
-  YieldCurveDefinition getDefinition(Currency currency, String name, Instant version, Instant correction);
+
+  /**
+   * Gets a yield curve definition for a currency, name and version.
+   * @param currency  the currency, not null
+   * @param name  the name, not null
+   * @param version  the version instant, not null
+   * @return the definition, null if not found
+   */
+  YieldCurveDefinition getDefinition(Currency currency, String name, Instant version);
+
 }
