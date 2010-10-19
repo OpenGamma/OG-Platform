@@ -200,6 +200,12 @@ public class ValueRequirementNames {
   public static final String PAR_RATE = "Par Rate";
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
   
+  //Bond analytics
+  public static final String YTM = "Yield To Maturity";
+  public static final String CURRENT_YIELD = "Current Yield";
+  public static final String DURATION = "Duration";
+  public static final String CONVEXITY = "Convexity";
+  
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 

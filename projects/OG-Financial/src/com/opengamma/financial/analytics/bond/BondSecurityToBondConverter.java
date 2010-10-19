@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.analytics.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -54,7 +55,7 @@ public class BondSecurityToBondConverter {
    
     //these are the remaining payment dates after the firstCouponDate - they could fall on non-business days 
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, frequency);  
-    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, security.getBusinessDayConvention(), calendar);
+    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), calendar);
     int n = temp.length; 
     final ZonedDateTime[] couponDates = new ZonedDateTime[n + 1];
     couponDates[0] = firstCouponDate;
