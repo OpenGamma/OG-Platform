@@ -93,7 +93,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
         return Pair.of(null, EMPTY_TIMESERIES);
       }
     } else {
-      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers, dataSource, dataProvider, dataField);
+      Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField);
       _cache.put(new Element(key, tsPair.getFirst()));
       if (tsPair.getFirst() != null) {
         _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));

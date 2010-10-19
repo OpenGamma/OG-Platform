@@ -82,7 +82,6 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     }
     final FudgeField uniqueIdentifierField = message.getByName(HISTORICALDATASOURCE_UNIQUEIDENTIFIER);
     if (uniqueIdentifierField == null) {
-      System.err.println(message);
       throw new IllegalArgumentException(HISTORICALDATASOURCE_UNIQUEIDENTIFIER + " not present in message");
     }
     final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
@@ -110,6 +109,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
+    System.err.println("calling rhds with id:" + identifiers + " date:" + currentDate + " ds:" + dataSource + " dp:" + dataProvider + " df:" + dataField);
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
@@ -173,7 +173,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID_BY_DATE).resolveBase(uid.toString())
       .resolveBase(start.toString())
       .resolveBase(String.valueOf(inclusiveStart))
-      .resolve(end.toString())
+      .resolveBase(end.toString())
       .resolveBase(String.valueOf(exclusiveEnd));
     return decodeTimeSeriesMessage(getRestClient().getMsg(target));
   }
@@ -190,9 +190,9 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL_BY_DATE)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE).resolveBase(dataField)
-      .resolveBase((start != null) ? start.toString() : NULL_VALUE)
+      .resolveBase(start.toString())
       .resolveBase(String.valueOf(inclusiveStart))
-      .resolveBase((end != null) ? end.toString() : NULL_VALUE)
+      .resolveBase(end.toString())
       .resolveBase(String.valueOf(exclusiveEnd))
       .resolveQuery("id", identifiers.toStringList());
     return decodePairMessage(getRestClient().getMsg(target));

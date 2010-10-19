@@ -31,7 +31,7 @@ import com.opengamma.id.IdentifierBundle;
 
   @Override
   public int hashCode() {
-    return _dsids.hashCode() ^ _field.hashCode();
+    return ObjectUtils.hashCode(_dsids) ^ ObjectUtils.hashCode(_field) ^ ObjectUtils.hashCode(_dataProvider) ^ ObjectUtils.hashCode(_dataSource);
   }
 
   @Override

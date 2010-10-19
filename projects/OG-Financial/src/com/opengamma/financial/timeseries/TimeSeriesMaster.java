@@ -200,5 +200,5 @@ public interface TimeSeriesMaster<T> {
    * @param firstDateToRetain Remove all data points before this date
    */
   void removeDataPoints(UniqueIdentifier timeSeriesUid, T firstDateToRetain);
-
+  
 }
