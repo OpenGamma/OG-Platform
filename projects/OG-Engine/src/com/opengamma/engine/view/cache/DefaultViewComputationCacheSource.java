@@ -129,7 +129,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     _cacheManagementLock.lock();
     try {
       // Have to double-check. Too expensive to construct otherwise.
-      cache = _cachesByKey.get(key);
+      cache = findCache(key);
       if (cache == null) {
         final BinaryDataStore privateDataStore = _privateDataStoreFactory.createDataStore(key);
         final BinaryDataStore sharedDataStore = (_privateDataStoreFactory == _sharedDataStoreFactory) ? privateDataStore : _sharedDataStoreFactory.createDataStore(key);

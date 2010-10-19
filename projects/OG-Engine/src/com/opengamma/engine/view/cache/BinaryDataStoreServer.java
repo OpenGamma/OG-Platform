@@ -262,7 +262,10 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     @Override
     protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
       // [ENG-256] Remove/replace this. Propogate the overall "releaseCache" message only rather than the component "delete" operations.
-      getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      if (cache != null) {
+        cache.getSharedDataStore().delete();
+      }
       return null;
     }
 
@@ -274,24 +277,25 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
       if (cache == null) {
         // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
         s_logger.warn("Get request on invalid cache - {}", request);
-        return null;
-      }
-      final BinaryDataStore store = cache.getSharedDataStore();
-      if (identifiers.size() == 1) {
-        byte[] data = store.get(identifiers.get(0));
-        if (data == null) {
-          data = EMPTY_ARRAY;
-        }
-        response = Collections.singleton(data);
+        response = Collections.singleton(EMPTY_ARRAY);
       } else {
-        response = new ArrayList<byte[]>(identifiers.size());
-        final Map<Long, byte[]> data = store.get(identifiers);
-        for (Long identifier : identifiers) {
-          byte[] value = data.get(identifier);
-          if (value == null) {
-            value = EMPTY_ARRAY;
+        final BinaryDataStore store = cache.getSharedDataStore();
+        if (identifiers.size() == 1) {
+          byte[] data = store.get(identifiers.get(0));
+          if (data == null) {
+            data = EMPTY_ARRAY;
           }
-          response.add(value);
+          response = Collections.singleton(data);
+        } else {
+          response = new ArrayList<byte[]>(identifiers.size());
+          final Map<Long, byte[]> data = store.get(identifiers);
+          for (Long identifier : identifiers) {
+            byte[] value = data.get(identifier);
+            if (value == null) {
+              value = EMPTY_ARRAY;
+            }
+            response.add(value);
+          }
         }
       }
       return new GetResponse(response);
@@ -302,12 +306,8 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
       final List<Long> identifiers = request.getIdentifier();
       final List<byte[]> data = request.getData();
       final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
-      final DefaultViewComputationCache cache = getUnderlying().findCache(key);
-      if (cache == null) {
-        s_logger.warn("Put request on invalid cache - {}", request);
-        return null;
-      }
-      final BinaryDataStore store = cache.getSharedDataStore();
+      // Review 2010-10-19 Andrew -- This causes cache creation. This is bad if messages were delayed and the cache has already been released.
+      final BinaryDataStore store = getUnderlying().getCache(key).getSharedDataStore();
       if (identifiers.size() == 1) {
         store.put(identifiers.get(0), data.get(0));
       } else {
