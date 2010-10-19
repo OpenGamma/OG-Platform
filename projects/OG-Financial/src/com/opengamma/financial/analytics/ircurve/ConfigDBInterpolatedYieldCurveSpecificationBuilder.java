@@ -19,6 +19,7 @@ import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * 
@@ -42,6 +43,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       return _specBuilderCache.get(conventionName);
     } else {
       ConfigSearchRequest search = new ConfigSearchRequest();
+      search.setPagingRequest(PagingRequest.ONE);
       search.setName(conventionName);
       List<CurveSpecificationBuilderConfiguration> builderSpecDoc = _configSource.search(CurveSpecificationBuilderConfiguration.class, search);
       if (builderSpecDoc.size() > 0) {

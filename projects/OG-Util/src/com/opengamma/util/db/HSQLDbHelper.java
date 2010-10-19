@@ -9,6 +9,8 @@ import java.sql.Driver;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 /**
  * Helper for working with the Hypersonic SQL database.
@@ -43,5 +45,11 @@ public class HSQLDbHelper extends DbHelper {
     return "CALL NEXT VALUE FOR " + sequenceName;
   }
 
+  @Override
+  public LobHandler getLobHandler() {
+    DefaultLobHandler handler = new DefaultLobHandler();
+    handler.setWrapAsLob(true);
+    return handler;
+  }
 
 }

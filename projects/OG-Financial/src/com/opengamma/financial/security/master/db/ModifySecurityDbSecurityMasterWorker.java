@@ -136,7 +136,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
   //-------------------------------------------------------------------------
   /**
    * Gets the next database id.
-   * @param sequenceName TODO
+   * @param sequenceName  the name of the sequence to query, not null
    * @return the next database id
    */
   protected long nextId(String sequenceName) {
@@ -183,7 +183,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     getJdbcTemplate().batchUpdate(sqlInsertIdKey(), (DbMapSqlParameterSource[]) idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), (DbMapSqlParameterSource[]) assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId, null);
+    final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId);
     document.getSecurity().setUniqueIdentifier(uid);
     document.setSecurityId(uid);
     // store the detail

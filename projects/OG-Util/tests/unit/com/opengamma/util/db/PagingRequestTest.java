@@ -25,6 +25,20 @@ public final class PagingRequestTest {
     assertEquals(Integer.MAX_VALUE, test.getPagingSize());
   }
 
+  @Test
+  public void test_FIRST_PAGE() {
+    PagingRequest test = PagingRequest.FIRST_PAGE;
+    assertEquals(1, test.getPage());
+    assertEquals(20, test.getPagingSize());
+  }
+
+  @Test
+  public void test_OEN() {
+    PagingRequest test = PagingRequest.ONE;
+    assertEquals(1, test.getPage());
+    assertEquals(1, test.getPagingSize());
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_factory_of() {
