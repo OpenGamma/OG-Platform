@@ -150,13 +150,14 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   }
 
   @Override
-  public byte[] findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
+  public byte[] findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
     s_logger.debug("findMissing value {}", identifier);
-    broadcast(new FindMessage(cache.getViewName(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), Collections.singleton(identifier)));
-    final BinaryDataStore store = getUnderlying().getCache(cache).getSharedDataStore();
+    broadcast(new FindMessage(cacheKey.getViewName(), cacheKey.getCalculationConfigurationName(), cacheKey.getSnapshotTimestamp(), Collections.singleton(identifier)));
+    // We're in the callback so we know the cache must exist
+    final BinaryDataStore store = getUnderlying().findCache(cacheKey).getSharedDataStore();
     byte[] data = store.get(identifier);
     if (data == null) {
-      final ValueSearch search = getOrCreateValueSearch(cache);
+      final ValueSearch search = getOrCreateValueSearch(cacheKey);
       try {
         s_logger.debug("Waiting for missing value {} to appear", identifier);
         if (!search.waitFor(identifier, getFindValueTimeout())) {
@@ -168,7 +169,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
         // don't try to avoid the store.get call as data may yet arrive
       }
       data = store.get(identifier);
-      releaseValueSearch(cache, search);
+      releaseValueSearch(cacheKey, search);
     }
     if (data != null) {
       s_logger.debug("Value for {} found and transferred to shared data store", identifier);
@@ -181,7 +182,8 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     s_logger.debug("findMissing values {}", identifiers);
     broadcast(new FindMessage(cache.getViewName(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), identifiers));
     final ValueSearch search = getOrCreateValueSearch(cache);
-    final BinaryDataStore store = getUnderlying().getCache(cache).getSharedDataStore();
+    // We're in the callback so we know the cache must exist
+    final BinaryDataStore store = getUnderlying().findCache(cache).getSharedDataStore();
     final Long[] identifierArray = new Long[identifiers.size()];
     int identifierCount = 0;
     for (Long identifier : identifiers) {
@@ -260,7 +262,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     @Override
     protected CacheMessage visitDeleteRequest(final DeleteRequest request) {
       // [ENG-256] Remove/replace this. Propogate the overall "releaseCache" message only rather than the component "delete" operations.
-      getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
+      getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore().delete();
       return null;
     }
 
@@ -268,7 +270,13 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     protected GetResponse visitGetRequest(final GetRequest request) {
       final List<Long> identifiers = request.getIdentifier();
       final Collection<byte[]> response;
-      final BinaryDataStore store = getUnderlying().getCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp()).getSharedDataStore();
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      if (cache == null) {
+        // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
+        s_logger.warn("Get request on invalid cache - {}", request);
+        return null;
+      }
+      final BinaryDataStore store = cache.getSharedDataStore();
       if (identifiers.size() == 1) {
         byte[] data = store.get(identifiers.get(0));
         if (data == null) {
@@ -294,7 +302,12 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
       final List<Long> identifiers = request.getIdentifier();
       final List<byte[]> data = request.getData();
       final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
-      final BinaryDataStore store = getUnderlying().getCache(key).getSharedDataStore();
+      final DefaultViewComputationCache cache = getUnderlying().findCache(key);
+      if (cache == null) {
+        s_logger.warn("Put request on invalid cache - {}", request);
+        return null;
+      }
+      final BinaryDataStore store = cache.getSharedDataStore();
       if (identifiers.size() == 1) {
         store.put(identifiers.get(0), data.get(0));
       } else {
