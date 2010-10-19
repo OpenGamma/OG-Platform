@@ -66,13 +66,9 @@
   </bean>
 
   <!-- ConfigSource -->
-  <bean id="sharedConfigSource" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator" factory-method="populateCurveConfigSource">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.config.DbMasterConfigSource">
-        <constructor-arg ref="cfgDbSource" />
-        <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
-      </bean>
-    </constructor-arg>
+  <bean id="sharedConfigSource" class="com.opengamma.engine.config.DbMasterConfigSource">
+    <constructor-arg ref="cfgDbSource" />
+    <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
 
   <!-- SecurityMaster -->
