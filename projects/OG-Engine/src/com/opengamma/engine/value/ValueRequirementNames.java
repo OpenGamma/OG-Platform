@@ -5,9 +5,7 @@
  */
 package com.opengamma.engine.value;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -17,10 +15,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
-public class ValueRequirementNames {
+public interface ValueRequirementNames {
 
-  private static final Map<String, Class<?>> TYPE_MAP = new HashMap<String, Class<?>>();
-  
   // CSOFF: Because they're names that should be known by industry practitioners.
   
   // Standard Analytic Models:
@@ -232,19 +228,5 @@ public class ValueRequirementNames {
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   
   //CSON
-  
-  static {
-    // Add non-scalars to the map
-    TYPE_MAP.put(YIELD_CURVE_JACOBIAN, double[][].class);
-  }
-  
-  public static Class<?> getValueRequirementType(String valueRequirementName) {
-    Class<?> type = TYPE_MAP.get(valueRequirementName);
-    if (type == null) {
-      // If no exception registered, assume it's a scalar
-      type = double.class;
-    }
-    return type;
-  }
   
 }

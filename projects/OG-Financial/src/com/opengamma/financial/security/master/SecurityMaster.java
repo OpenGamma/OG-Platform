@@ -47,7 +47,6 @@ public interface SecurityMaster {
    * @param document  the document, not null
    * @return the updated security document, not null
    * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if there is no parent node with the specified identifier
    */
   SecurityDocument add(SecurityDocument document);
 

@@ -78,6 +78,8 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
   /**
    * Separate "find" operation that can be used to bypass a sub-class implementation that may
    * be doing some form of lazy compilation of function definitions.
+   * @param uniqueIdentifier  the definition identifier, not null
+   * @return the definition
    */
   public CompiledFunctionDefinition findDefinition(final String uniqueIdentifier) {
     return _functionDefinitions.get(uniqueIdentifier);

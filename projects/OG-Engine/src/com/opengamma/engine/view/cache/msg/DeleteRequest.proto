@@ -6,6 +6,8 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
+  // [ENG-256] Don't need this if we work at the releaseCaches level
+
   message DeleteRequest extends CacheMessage {
   
     required string viewName;

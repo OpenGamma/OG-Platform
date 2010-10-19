@@ -40,12 +40,11 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -80,7 +79,7 @@ import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
@@ -160,7 +159,7 @@ public class BatchJob {
   /**
    * Used to load a ViewDefinition (whose name will be given on the command line)
    */
-  private MongoDBConnectionSettings _configDbConnectionSettings;
+  private MasterConfigSource _configSource;
 
   /**
    * Used to load Functions (needed for building the dependency graph)
@@ -269,11 +268,6 @@ public class BatchJob {
   // --------------------------------------------------------------------------
 
   /**
-   * Used to load a ViewDefinition
-   */
-  private ConfigMaster<ViewDefinition> _configDb;
-
-  /**
    * The ViewDefinition (more precisely, a representation of it in the config DB)
    */
   private ConfigDocument<ViewDefinition> _viewDefinitionConfig;
@@ -339,11 +333,11 @@ public class BatchJob {
   }
 
   public String getViewOid() {
-    return _viewDefinitionConfig.getOid();
+    return _viewDefinitionConfig.getConfigId().getValue();
   }
 
   public int getViewVersion() {
-    return _viewDefinitionConfig.getVersion();
+    return _viewDefinitionConfig.getVersionNumber();
   }
 
   public boolean isForceNewRun() {
@@ -393,12 +387,12 @@ public class BatchJob {
     return getPositionMasterAsViewedAtTime(); // assume this for now
   }
 
-  public MongoDBConnectionSettings getConfigDbConnectionSettings() {
-    return _configDbConnectionSettings;
+  public MasterConfigSource getConfigSource() {
+    return _configSource;
   }
 
-  public void setConfigDbConnectionSettings(MongoDBConnectionSettings configDbConnectionSettings) {
-    _configDbConnectionSettings = configDbConnectionSettings;
+  public void setConfigSource(MasterConfigSource configSource) {
+    _configSource = configSource;
   }
 
   public CompiledFunctionService getFunctionCompilationService() {
@@ -568,12 +562,11 @@ public class BatchJob {
     if (_viewDateTime == null) {
       _viewDateTime = getLastValuationTime();
     }
-
-    if (_configDbConnectionSettings == null) {
-      throw new IllegalStateException("Config DB connection settings not given.");
+    
+    if (_configSource == null) {
+      throw new IllegalStateException("Config Source not given.");
     }
-    _configDb = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, getConfigDbConnectionSettings(), true);
-
+    
     _viewDefinitionConfig = getViewByNameWithTime();
     if (_viewDefinitionConfig == null) {
       throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);
@@ -613,32 +606,36 @@ public class BatchJob {
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
     DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(run);
-
-    ViewProcessingContext vpc = new ViewProcessingContext(new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider, getFunctionCompilationService(), new DefaultFunctionResolver(
-        getFunctionCompilationService()), positionSource, securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
-        cacheManager), computationCache, jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
+    
+    DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(getFunctionCompilationService());
+    ViewProcessingContext vpc = new ViewProcessingContext(
+        new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider,
+        getFunctionCompilationService(), functionResolver, positionSource, securitySource, computationTargetResolver, computationCache,
+        jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
         new DiscardingGraphStatisticsGathererProvider());
 
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.setPopulateResultModel(false);
-    view.init();
+    view.init(run.getValuationTime());
     _view = view;
   }
 
   /**
-   * 
+   * Finds the configuration.
    */
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
     ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setName(getViewName());
-    searchRequest.setEffectiveTime(_viewDateTime.toInstant());
-    ConfigSearchResult<ViewDefinition> searchResult = _configDb.search(searchRequest);
+    searchRequest.setVersionAsOfInstant(_viewDateTime.toInstant());
+    ConfigSearchResult<ViewDefinition> searchResult = _configSource.getMaster(ViewDefinition.class).search(searchRequest);
     List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
     if (documents.isEmpty()) {
       throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
           _viewDateTime.toInstant() + " in config db");
     }
-    return documents.get(0);
+    return searchResult.getFirstDocument();
   }
 
   public static Options getOptions() {
