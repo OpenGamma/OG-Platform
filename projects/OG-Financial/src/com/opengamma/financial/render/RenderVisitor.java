@@ -6,7 +6,7 @@
 package com.opengamma.financial.render;
 
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -17,11 +17,11 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 public interface RenderVisitor<T> {
 
   /**
-   * Visit discount curve.
-   * @param discountCurve  the curve, not null
+   * Visit yield / discount curve.
+   * @param curve  the curve, not null
    * @return the visitor type
    */
-  T visitDiscountCurve(InterpolatedDiscountCurve discountCurve);
+  T visitYieldAndDiscountCurve(YieldAndDiscountCurve curve);
 
   /**
    * Visit volatility surface.
