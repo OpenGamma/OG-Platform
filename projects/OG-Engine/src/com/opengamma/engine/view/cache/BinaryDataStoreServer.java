@@ -160,7 +160,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
       try {
         s_logger.debug("Waiting for missing value {} to appear", identifier);
         if (!search.waitFor(identifier, getFindValueTimeout())) {
-          s_logger.warn("{}ms timeout exceeded waiting for value {}", getFindValueTimeout(), identifier);
+          s_logger.warn("{}ms timeout exceeded waiting for value ID {}", getFindValueTimeout(), identifier);
           // don't try to avoid the store.get call as data may yet arrive
         }
       } catch (InterruptedException e) {
