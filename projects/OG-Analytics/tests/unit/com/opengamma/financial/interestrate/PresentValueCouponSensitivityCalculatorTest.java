@@ -16,8 +16,9 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * 
@@ -31,10 +32,10 @@ public class PresentValueCouponSensitivityCalculatorTest {
   private static final double DELTA = 1e-5;
 
   static {
-    YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
+    YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
     CURVES = new YieldCurveBundle();
     CURVES.setCurve(FIVE_PC_CURVE_NAME, curve);
-    curve = new ConstantYieldCurve(0.0);
+    curve = new YieldCurve(ConstantDoublesCurve.from(0.0));
     CURVES.setCurve(ZERO_PC_CURVE_NAME, curve);
   }
 

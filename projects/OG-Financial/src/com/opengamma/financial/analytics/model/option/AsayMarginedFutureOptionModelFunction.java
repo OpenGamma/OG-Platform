@@ -20,13 +20,14 @@ import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
@@ -42,7 +43,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.);
+    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
     final double b = 0;
     return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);

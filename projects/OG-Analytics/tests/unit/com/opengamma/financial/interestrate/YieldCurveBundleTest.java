@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -13,8 +13,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * 
@@ -26,9 +27,9 @@ public class YieldCurveBundleTest {
   private static final YieldCurveBundle BUNDLE;
 
   static {
-    CURVES[0] = new ConstantYieldCurve(0.03);
-    CURVES[1] = new ConstantYieldCurve(0.04);
-    CURVES[2] = new ConstantYieldCurve(0.05);
+    CURVES[0] = new YieldCurve(ConstantDoublesCurve.from(0.03));
+    CURVES[1] = new YieldCurve(ConstantDoublesCurve.from(0.04));
+    CURVES[2] = new YieldCurve(ConstantDoublesCurve.from(0.05));
     for (int i = 0; i < 3; i++) {
       MAP.put(NAMES[i], CURVES[i]);
     }

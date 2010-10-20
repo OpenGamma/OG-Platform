@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +120,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   // -------------------------------------------------------------------------
   @Override
   public void init() {
+    init(Instant.nowSystemClock());
+  }
+
+  public void init(final InstantProvider initialisationInstant) {
     _viewLock.lock();
     try {
       if (getCalculationState() != ViewCalculationState.NOT_INITIALIZED) {
@@ -134,7 +139,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
 
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.nowSystemClock()));
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initialisationInstant));
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -146,21 +151,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
     } finally {
       _viewLock.unlock();
-    }
-  }
-
-  // Caller must already hold viewLock
-  private void viewEvaluationModelValidFor(final long timestamp) {
-    if (!getViewEvaluationModel().isValidFor(timestamp)) {
-      final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(timestamp));
-      // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
-      // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
-      final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(timestamp)));
-      updateLiveDataSubscriptions(previousRequirement);
-      timer.finished();
-    } else {
-      s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(timestamp));
     }
   }
 
@@ -390,7 +380,22 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   @Override
   public SingleComputationCycle createCycle(long valuationTime) {
-    viewEvaluationModelValidFor(valuationTime);
+    _viewLock.lock();
+    try {
+      if (!getViewEvaluationModel().isValidFor(valuationTime)) {
+        final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+        // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
+        // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
+        final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
+        setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime)));
+        updateLiveDataSubscriptions(previousRequirement);
+        timer.finished();
+      } else {
+        s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+      }
+    } finally {
+      _viewLock.unlock();
+    }
     SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
   }
@@ -480,7 +485,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * Part of shutdown. Removes live data subscriptions for the view.
    */
   private void removeLiveDataSubscriptions() {
-    final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    // final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     // [ENG-251] TODO snapshotProvider.removeListener(this);
     removeLiveDataSubscriptions(getRequiredLiveData());
   }

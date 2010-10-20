@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -15,7 +17,7 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBundle, Double> {
+public class DeltaMeanCalculator extends Function1D<Map<Integer, ParametricVaRDataBundle>, Double> {
   private final MatrixAlgebra _algebra;
 
   public DeltaMeanCalculator(final MatrixAlgebra algebra) {
@@ -24,16 +26,12 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   }
 
   @Override
-  public Double evaluate(final ParametricWithMeanVaRDataBundle data) {
+  public Double evaluate(final Map<Integer, ParametricVaRDataBundle> data) {
     Validate.notNull(data, "data");
-    Validate.isTrue(data.getOrder() == 1, "Must have first order sensitivities");
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivities();
-    final int s1 = delta.getNumberOfElements();
-    Validate.isTrue(s1 > 0, "Value delta vector contained no data");
-    final DoubleMatrix1D mean = data.getMean();
-    final int s2 = mean.getNumberOfElements();
-    Validate.isTrue(s1 > 0, "Mean vector contained no data");
-    Validate.isTrue(s1 == s2, "Value delta and mean vectors were of different size");
+    Validate.isTrue(data.containsKey(1));
+    final ParametricVaRDataBundle deltaData = data.get(1);
+    final DoubleMatrix1D mean = deltaData.getExpectedReturn();
+    final DoubleMatrix1D delta = (DoubleMatrix1D) deltaData.getSensitivities();
     return _algebra.getInnerProduct(delta, mean);
   }
 
@@ -41,7 +39,7 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_algebra == null) ? 0 : _algebra.hashCode());
+    result = prime * result + _algebra.hashCode();
     return result;
   }
 

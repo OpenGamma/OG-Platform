@@ -184,14 +184,14 @@ public class SecuritySearchResult extends DirectBean {
     /**
      * The meta-property for the {@code documents} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<SecurityDocument>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("paging", _paging);

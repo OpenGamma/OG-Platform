@@ -73,6 +73,8 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     @Override
     protected CacheMessage visitReleaseCacheMessage(final ReleaseCacheMessage message) {
       s_logger.debug("Releasing cache {}/{}", message.getViewName(), message.getTimestamp());
+      // [ENG-256] make sure we don't cause a cascade of messages if e.g. release called on a client, must cause release on server, which must send release to other clients but these must not generate
+      // further messages
       releaseCaches(message.getViewName(), message.getTimestamp());
       return null;
     }
@@ -112,6 +114,9 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     }
 
   };
+
+  // [ENG-256] Override, or register callback handler for releaseCaches so that if it is called by user code we propogate the message to the server and other clients, noting the warning about cascade
+  // above
 
   @Override
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {

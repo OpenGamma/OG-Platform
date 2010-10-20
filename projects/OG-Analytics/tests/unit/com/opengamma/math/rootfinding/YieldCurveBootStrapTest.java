@@ -33,8 +33,9 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -449,7 +450,7 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new InterpolatedYieldCurve(times, yields, interpolator);
+    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {

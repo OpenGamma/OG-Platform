@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +33,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
     return new NodalObjectObjectCurve<T, U>(data, false);
   }
 
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final List<T> xData, final List<U> yData) {
+    return new NodalObjectObjectCurve<T, U>(xData, yData, false);
+  }
+
   public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final T[] xData, final U[] yData, final String name) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, false, name);
   }
@@ -42,6 +47,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
 
   public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final Set<Pair<T, U>> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, false, name);
+  }
+
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> from(final List<T> xData, final List<U> yData, final String name) {
+    return new NodalObjectObjectCurve<T, U>(xData, yData, false, name);
   }
 
   public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final T[] xData, final U[] yData) {
@@ -56,6 +65,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
     return new NodalObjectObjectCurve<T, U>(data, true);
   }
 
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final List<T> xData, final List<U> yData) {
+    return new NodalObjectObjectCurve<T, U>(xData, yData, true);
+  }
+
   public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final T[] xData, final U[] yData, final String name) {
     return new NodalObjectObjectCurve<T, U>(xData, yData, true, name);
   }
@@ -66,6 +79,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
 
   public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final Set<Pair<T, U>> data, final String name) {
     return new NodalObjectObjectCurve<T, U>(data, true, name);
+  }
+
+  public static <T extends Comparable<T>, U> NodalObjectObjectCurve<T, U> fromSorted(final List<T> xData, final List<U> yData, final String name) {
+    return new NodalObjectObjectCurve<T, U>(xData, yData, true, name);
   }
 
   public NodalObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted) {
@@ -80,6 +97,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
     super(data, isSorted);
   }
 
+  public NodalObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
+    super(xData, yData, isSorted);
+  }
+
   public NodalObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
     super(xData, yData, isSorted, name);
   }
@@ -90,6 +111,10 @@ public class NodalObjectObjectCurve<T extends Comparable<T>, U> extends ObjectOb
 
   public NodalObjectObjectCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
     super(data, isSorted, name);
+  }
+
+  public NodalObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
+    super(xData, yData, isSorted, name);
   }
 
   @Override

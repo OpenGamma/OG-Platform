@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic;
@@ -11,11 +11,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.FixedStrikeLookbackOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -29,7 +30,7 @@ public class FixedStrikeLookbackOptionModelTest {
   private static final double S = 100;
   private static final DoubleTimeSeries<?> STATIC = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5, 6, 7}, new double[] {S, S, S, S, S, S, S});
   private static final double B = 0.1;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.1);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final FixedStrikeLookbackOptionModel MODEL = new FixedStrikeLookbackOptionModel();

@@ -225,7 +225,7 @@ public class WebTimeSeriesData extends DirectBean {
     /**
      * The meta-property for the {@code timeSeriesMaster} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<TimeSeriesMaster<?>> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(this, "timeSeriesMaster", (Class) TimeSeriesMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
@@ -238,14 +238,14 @@ public class WebTimeSeriesData extends DirectBean {
     /**
      * The meta-property for the {@code timeSeries} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<TimeSeriesDocument<?>> _timeSeries = DirectMetaProperty.ofReadWrite(this, "timeSeries", (Class) TimeSeriesDocument.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("timeSeriesMaster", _timeSeriesMaster);

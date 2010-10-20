@@ -109,7 +109,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   public DefaultViewComputationCache getCache(final ViewComputationCacheKey key) {
-    DefaultViewComputationCache cache = _cachesByKey.get(key);
+    DefaultViewComputationCache cache = findCache(key);
     if (cache == null) {
       cache = constructCache(key);
     }
@@ -117,7 +117,11 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   }
 
   protected DefaultViewComputationCache findCache(String viewName, String calculationConfigurationName, long timestamp) {
-    return _cachesByKey.get(new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp));
+    return findCache(new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp));
+  }
+
+  protected DefaultViewComputationCache findCache(final ViewComputationCacheKey key) {
+    return _cachesByKey.get(key);
   }
 
   protected DefaultViewComputationCache constructCache(final ViewComputationCacheKey key) {
@@ -125,7 +129,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     _cacheManagementLock.lock();
     try {
       // Have to double-check. Too expensive to construct otherwise.
-      cache = _cachesByKey.get(key);
+      cache = findCache(key);
       if (cache == null) {
         final BinaryDataStore privateDataStore = _privateDataStoreFactory.createDataStore(key);
         final BinaryDataStore sharedDataStore = (_privateDataStoreFactory == _sharedDataStoreFactory) ? privateDataStore : _sharedDataStoreFactory.createDataStore(key);

@@ -182,10 +182,9 @@ public interface ValueRequirementNames {
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
   public static final String PEARSON_KURTOSIS = "Pearson Kurtosis";
   
-  // Risk Aggregates:
+  // VaR:
   public static final String HISTORICAL_VAR = "HistoricalVaR";
-  public static final String ISOLATED_VAR = "IsolatedVaR";
-  public static final String INCREMENTAL_VAR = "IncrementalVaR";
+  public static final String PARAMETRIC_VAR = "ParametricVaR"; 
 
   //Yield curve specifics
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
@@ -195,6 +194,12 @@ public interface ValueRequirementNames {
   public static final String PV01 = "PV01";
   public static final String PAR_RATE = "Par Rate";
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
+  
+  //Bond analytics
+  public static final String YTM = "Yield To Maturity";
+  public static final String CURRENT_YIELD = "Current Yield";
+  public static final String DURATION = "Duration";
+  public static final String CONVEXITY = "Convexity";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";

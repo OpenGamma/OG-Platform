@@ -189,7 +189,7 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -199,14 +199,14 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
     /**
      * The meta-property for the {@code documents} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<ConfigDocument<T>>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("paging", _paging);
@@ -219,7 +219,7 @@ public class ConfigSearchHistoricResult<T> extends DirectBean {
       return new ConfigSearchHistoricResult<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends ConfigSearchHistoricResult<T>> beanType() {
       return (Class) ConfigSearchHistoricResult.class;

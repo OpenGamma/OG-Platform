@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.swap;
@@ -9,8 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -21,7 +22,7 @@ public class VanillaSwapPresentValueCalculatorTest {
   private static final double[] FIXED_PAYMENT = new double[] {10, 10, 10, 10, 10};
   private static final double FLOAT_TIME = 1.5;
   private static final double FLOAT_PAYMENT = -10.5;
-  private static final YieldAndDiscountCurve CURVE = new InterpolatedDiscountCurve(new double[] {0, 5}, new double[] {1, 0.5}, new LinearInterpolator1D());
+  private static final YieldAndDiscountCurve CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(new double[] {0, 5}, new double[] {1, 0.5}, new LinearInterpolator1D()));
   private static final VanillaSwapPresentValueCalculator CALCULATOR = new VanillaSwapPresentValueCalculator();
 
   @Test(expected = IllegalArgumentException.class)

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,8 +12,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -34,8 +35,8 @@ public class ExtremeSpreadOptionDefinitionTest {
       DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1), DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 1),
       DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
       4, 15, 4, 4, 0, 4, 4, 4});
-  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new ConstantYieldCurve(0.), 0, new ConstantVolatilitySurface(0), 2, DATE,
-      SPOT_SERIES);
+  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0,
+      new ConstantVolatilitySurface(0), 2, DATE, SPOT_SERIES);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPeriodEnd() {

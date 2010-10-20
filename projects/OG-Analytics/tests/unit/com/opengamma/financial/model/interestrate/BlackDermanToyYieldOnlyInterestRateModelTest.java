@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate;
@@ -11,10 +11,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Triple;
 
@@ -38,13 +39,12 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     new BlackDermanToyYieldOnlyInterestRateModel(5).getTrees(DateUtil.getUTCDate(2010, 8, 1)).evaluate((StandardDiscountBondModelDataBundle) null);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     final int steps = 3;
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final ZonedDateTime maturity = DateUtil.getDateOffsetWithYearFraction(date, 3);
-    final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new ConstantYieldCurve(0.05), new ConstantVolatilityCurve(0.1), date);
+    final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), new ConstantVolatilityCurve(0.1), date);
     final BlackDermanToyYieldOnlyInterestRateModel model = new BlackDermanToyYieldOnlyInterestRateModel(steps);
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);
     final Triple[][] result = tree.getTree();
