@@ -797,7 +797,7 @@ public class BatchJob {
       
       } catch (Exception e) {
         run.setFailed(true);
-        s_logger.error("Failed " + run, e);                        
+        s_logger.error("Failed to run " + run, e);                        
       }
     }
   }
@@ -843,8 +843,10 @@ public class BatchJob {
     }
     
     if (failed) {
+      s_logger.info("Batch failed.");
       System.exit(-1);
     } else {
+      s_logger.info("Batch succeeded.");
       System.exit(0);
     }
   }

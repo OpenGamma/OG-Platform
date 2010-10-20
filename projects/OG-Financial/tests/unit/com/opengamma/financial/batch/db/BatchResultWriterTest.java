@@ -279,7 +279,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.SUCCESS, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -300,7 +300,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.SUCCESS, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -319,7 +319,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.FAILURE, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -339,7 +339,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.RUNNING, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -358,7 +358,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.NOT_RUNNING, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
