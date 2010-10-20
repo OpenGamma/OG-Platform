@@ -83,7 +83,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
-    assertEquals(EXPECTED_SIZE, requirements.size());
+    // assertEquals(EXPECTED_SIZE, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -92,10 +92,10 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(EXPECTED_SIZE, foundKeys.size());
+    // assertEquals(EXPECTED, foundKeys.size());
     
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
-    YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
+    YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveCurrency, curveName);
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource());
     InterpolatedYieldCurveSpecification curveSpecification = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
     for (FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
@@ -104,6 +104,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       }
       assertTrue(foundKeys.contains(strip.getSecurity()));
     }
+    assertEquals(curveSpecification.getStrips().size(), foundKeys.size());
   }
 
   @Test
@@ -125,7 +126,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNotNull(requirements);
-    assertEquals(EXPECTED_SIZE, requirements.size());
+    // assertEquals(EXPECTED_SIZE, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
@@ -134,16 +135,17 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
       assertEquals(ComputationTargetType.PRIMITIVE, requirement.getTargetSpecification().getType());
       foundKeys.add(requirement.getTargetSpecification().getIdentifier());
     }
-    assertEquals(EXPECTED_SIZE, foundKeys.size());
+    // assertEquals(EXPECTED_SIZE, foundKeys.size());
 
     ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource());
-    YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(Currency.getInstance("USD"),curveName);
+    YieldCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveCurrency, curveName);
     ConfigDBInterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource());
     InterpolatedYieldCurveSpecification curveSpecification = curveSpecBuilder.buildCurve(curveDate, curveDefinition);
     
     for (FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
       assertTrue(foundKeys.contains(strip.getSecurity()));
     }
+    assertEquals(curveSpecification.getStrips().size(), foundKeys.size());
   }
 
   @Test

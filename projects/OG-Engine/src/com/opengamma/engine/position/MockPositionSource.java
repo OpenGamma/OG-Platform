@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -46,7 +46,7 @@ public class MockPositionSource implements PositionSource {
     _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the list of all portfolio identifiers.
    * @return the portfolio identifiers, unmodifiable, not null
@@ -82,16 +82,16 @@ public class MockPositionSource implements PositionSource {
     return identifier == null ? null : _positions.get(identifier);
   }
 
-  //-------------------------------------------------------------------------`
+  // -------------------------------------------------------------------------`
   /**
    * Adds a portfolio to the master.
    * @param portfolio  the portfolio to add, not null
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-      
+
     _portfolios.put(portfolio.getUniqueIdentifier(), portfolio);
-    addToCache(portfolio.getUniqueIdentifier().getValue(), portfolio.getRootNode());
+    addToCache(portfolio.getUniqueIdentifier().getValue(), null, portfolio.getRootNode());
   }
 
   /**
@@ -99,26 +99,28 @@ public class MockPositionSource implements PositionSource {
    * @param portfolioId  the id, not null
    * @param node  the node to add, not null
    */
-  private void addToCache(String portfolioId, PortfolioNode node) {
+  private void addToCache(String portfolioId, UniqueIdentifier parentNode, PortfolioNode node) {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
       nodeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+      nodeImpl.setParentNode(parentNode);
     }
     _nodes.put(node.getUniqueIdentifier(), node);
-    
+
     // position
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
         positionImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+        positionImpl.setPortfolioNode(node.getUniqueIdentifier());
       }
       _positions.put(position.getUniqueIdentifier(), position);
     }
-    
+
     // recurse
     for (PortfolioNode child : node.getChildNodes()) {
-      addToCache(portfolioId, child);
+      addToCache(portfolioId, node.getUniqueIdentifier(), child);
     }
   }
 
