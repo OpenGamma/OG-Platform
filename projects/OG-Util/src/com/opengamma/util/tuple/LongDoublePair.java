@@ -21,6 +21,17 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
   public final double second;  // CSIGNORE
 
   /**
+   * Creates a pair from the specified values.
+   * 
+   * @param first  the first element
+   * @param second  the second element
+   * @return a pair formed from the two parameters, not null
+   */
+  public static LongDoublePair of(final long first, final double second) {
+    return new LongDoublePair(first, second);
+  }
+
+  /**
    * Constructor.
    * @param first  the first element
    * @param second  the second element

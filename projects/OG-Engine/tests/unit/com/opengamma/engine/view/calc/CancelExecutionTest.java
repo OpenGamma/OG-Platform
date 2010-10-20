@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
@@ -182,12 +183,13 @@ public class CancelExecutionTest {
    * Allow the job to finish, then call {@link Future#cancel}.
    */
   @Test
-  public void testJobFinish() {
+  public void testJobFinish() throws Exception {
     s_logger.info("testJobFinish");
     Future<?> job = executeTestJob();
     assertNotNull(job);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
       if (jobFinished()) {
+        job.get (Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
         assertFalse(job.isCancelled());
         assertTrue(job.isDone());
         s_logger.info("Job finished in {}", i);

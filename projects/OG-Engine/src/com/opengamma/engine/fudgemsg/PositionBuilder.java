@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -26,12 +26,24 @@ import com.opengamma.id.UniqueIdentifier;
 @GenericFudgeBuilderFor(Position.class)
 public class PositionBuilder implements FudgeBuilder<Position> {
 
-  private static final String FIELD_QUANTITY = "quantity";
-  private static final String FIELD_SECURITYKEY = "securityKey";
-  private static final String FIELD_IDENTIFIER = "identifier";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_QUANTITY = "quantity";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_SECURITYKEY = "securityKey";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_IDENTIFIER = "identifier";
+  /**
+   * Fudge field name.
+   */
+  protected static final String FIELD_PARENT = "parent";
 
-  @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Position position) {
+  protected static MutableFudgeFieldContainer buildMessageImpl(final FudgeSerializationContext context, final Position position) {
     final MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, position.getUniqueIdentifier());
     message.add(FIELD_QUANTITY, null, position.getQuantity());
@@ -40,15 +52,31 @@ public class PositionBuilder implements FudgeBuilder<Position> {
   }
 
   @Override
-  public Position buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final Position position) {
+    final MutableFudgeFieldContainer message = buildMessageImpl(context, position);
+    context.objectToFudgeMsg(message, FIELD_PARENT, null, position.getPortfolioNode());
+    return message;
+  }
+
+  protected static PositionImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     FudgeField idField = message.getByName(FIELD_IDENTIFIER);
     UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
     BigDecimal quantity = message.getFieldValue(BigDecimal.class, message.getByName(FIELD_QUANTITY));
     IdentifierBundle securityKey = context.fieldValueToObject(IdentifierBundle.class, message.getByName(FIELD_SECURITYKEY));
-    
     PositionImpl position = new PositionImpl(quantity, securityKey);
     if (id != null) {
       position.setUniqueIdentifier(id);
+    }
+    return position;
+  }
+
+  @Override
+  public Position buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final PositionImpl position = buildObjectImpl(context, message);
+    final FudgeField parentField = message.getByName(FIELD_PARENT);
+    final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
+    if (parentId != null) {
+      position.setPortfolioNode(parentId);
     }
     return position;
   }

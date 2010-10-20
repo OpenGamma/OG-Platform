@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -50,5 +50,11 @@ public interface PortfolioNode extends UniqueIdentifiable {
    * @return the positions, unmodifiable, not null
    */
   List<Position> getPositions();
+
+  /**
+   * Returns the identifier of the parent node, or {@code null} if this is a root node.
+   * @return the identifier
+   */
+  UniqueIdentifier getParentNode();
 
 }
