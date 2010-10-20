@@ -10,8 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.util.tuple.Pair;
-
 /**
  * Test DoublesPair.
  */
@@ -133,6 +131,27 @@ public class DoublesPairTest {
     DoublesPair a = Pair.of(1.5d, 1.7d);
     Pair<Double, Double> b = Pair.of(Double.valueOf(1.5d), Double.valueOf(1.7d));
     assertEquals(a.hashCode(), b.hashCode());
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testDoublesPairConversionNullFirst() {
+    Pair<Double, Double> pair = new ObjectsPair<Double, Double>(null, 0.);
+    DoublesPair.of(pair);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testDoublesPairConversionNullSecond() {
+    Pair<Double, Double> pair = new ObjectsPair<Double, Double>(0., null);
+    DoublesPair.of(pair);
+  }
+  
+  @Test
+  public void testDoublesPairConversion() {
+    final double first = 1.2;
+    final double second = 3.4;
+    DoublesPair pair1 = new DoublesPair(first, second);
+    Pair<Double, Double> pair2 = new ObjectsPair<Double, Double>(first, second);
+    assertEquals(pair1, DoublesPair.of(pair2));
   }
 
 }
