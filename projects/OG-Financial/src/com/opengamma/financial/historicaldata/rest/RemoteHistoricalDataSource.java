@@ -109,7 +109,6 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
-    System.err.println("calling rhds with id:" + identifiers + " date:" + currentDate + " ds:" + dataSource + " dp:" + dataProvider + " df:" + dataField);
     final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
       .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
