@@ -29,7 +29,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   private UniqueIdentifier _identifier;
   /**
-   * Identifier of the parent node
+   * Identifier of the parent node.
    */
   private UniqueIdentifier _parentNode;
   /**
@@ -69,6 +69,19 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
     _name = StringUtils.defaultString(name);
+  }
+
+  /**
+   * Creates a portfolio as a copy of another, possibly immutable, {@link PortfolioNode} implementation.
+   * 
+   * @param copyFrom the instance to copy fields from, not null
+   */
+  public PortfolioNodeImpl(final PortfolioNode copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _identifier = copyFrom.getUniqueIdentifier();
+    _name = copyFrom.getName();
+    _childNodes.addAll(copyFrom.getChildNodes());
+    _positions.addAll(copyFrom.getPositions());
   }
 
   // -------------------------------------------------------------------------
@@ -144,6 +157,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   public void addChildNode(PortfolioNode childNode) {
     ArgumentChecker.notNull(childNode, "child node");
+    if (!ObjectUtils.equals(getUniqueIdentifier(), childNode.getParentNode())) {
+      final PortfolioNodeImpl newChildNode = new PortfolioNodeImpl(childNode);
+      newChildNode.setParentNode(getUniqueIdentifier());
+      childNode = newChildNode;
+    }
     _childNodes.add(childNode);
   }
 
@@ -153,7 +171,9 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   public void addChildNodes(Collection<? extends PortfolioNode> childNodes) {
     ArgumentChecker.noNulls(childNodes, "child node");
-    _childNodes.addAll(childNodes);
+    for (PortfolioNode child : childNodes) {
+      addChildNode(child);
+    }
   }
 
   /**
@@ -180,6 +200,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   public void addPosition(Position position) {
     ArgumentChecker.notNull(position, "child node");
+    if (!ObjectUtils.equals(getUniqueIdentifier(), position.getPortfolioNode())) {
+      final PositionImpl newPosition = new PositionImpl(position);
+      newPosition.setPortfolioNode(getUniqueIdentifier());
+      position = newPosition;
+    }
     _positions.add(position);
   }
 
@@ -188,8 +213,10 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @param positions the positions to add, not null
    */
   public void addPositions(Collection<? extends Position> positions) {
-    ArgumentChecker.noNulls(positions, "position");
-    _positions.addAll(positions);
+    ArgumentChecker.noNulls(positions, "positions");
+    for (Position position : positions) {
+      addPosition(position);
+    }
   }
 
   /**
@@ -299,7 +326,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
       return false;
     }
     final PortfolioNodeImpl other = (PortfolioNodeImpl) o;
-    if (!ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier()) || !ObjectUtils.equals(getName(), other.getName())) {
+    if (!ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier()) || !ObjectUtils.equals(getName(), other.getName()) || !ObjectUtils.equals(getParentNode(), other.getParentNode())) {
       return false;
     }
     final List<PortfolioNode> otherChildNodes = other.getChildNodes();

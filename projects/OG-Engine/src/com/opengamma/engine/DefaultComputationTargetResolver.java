@@ -152,8 +152,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
-            final PositionImpl newPosition = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
-            newPosition.setPortfolioNode(position.getPortfolioNode());
+            final PositionImpl newPosition = new PositionImpl(position);
+            newPosition.setSecurity(security);
             position = newPosition;
           }
         }

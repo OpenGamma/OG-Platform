@@ -52,8 +52,8 @@ public class PortfolioNodeAndPositionBuilderTest {
   }
   
   private void linkNodes (final PortfolioNodeImpl parent, final PortfolioNodeImpl child) {
-    parent.addChildNode (child);
     child.setParentNode (parent.getUniqueIdentifier ());
+    parent.addChildNode (child);
   }
   
   private PortfolioNodeImpl[] createPortfolioNodes () {
@@ -72,9 +72,7 @@ public class PortfolioNodeAndPositionBuilderTest {
   
   private void addPositions (final PortfolioNodeImpl node, final int num) {
     for (int i = 0 ; i < num; i++) {
-      final PositionImpl position = new PositionImpl (nextIdentifier (), new BigDecimal (10), Identifier.of ("Security", "Foo"));
-      node.addPosition (position);
-      position.setPortfolioNode(node.getUniqueIdentifier ());
+      node.addPosition (new PositionImpl (nextIdentifier (), new BigDecimal (10), Identifier.of ("Security", "Foo")));
     }
   }
   

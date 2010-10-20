@@ -46,6 +46,20 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   private Security _security;
 
   /**
+   * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
+   * 
+   * @param copyFrom instance to copy fields from, not null
+   */
+  public PositionImpl(final Position copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _identifier = copyFrom.getUniqueIdentifier();
+    _parentNode = copyFrom.getPortfolioNode();
+    _quantity = copyFrom.getQuantity();
+    _securityKey = copyFrom.getSecurityKey();
+    _security = copyFrom.getSecurity();
+  }
+
+  /**
    * Creates a position from an amount of a security identified by key.
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
