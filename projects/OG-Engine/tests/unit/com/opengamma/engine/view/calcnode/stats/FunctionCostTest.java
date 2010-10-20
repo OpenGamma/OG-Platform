@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
@@ -67,7 +67,7 @@ public class FunctionCostTest {
   }
 
   // TODO 2010-09-16 Andrew -- Is there a mock or in-memory config master we can use for quick tests? If not, can we derive one from this?
-  private static class MockConfigMaster<T> implements ConfigMaster<T> {
+  private static class MockConfigMaster<T> implements ConfigTypeMaster<T> {
 
     private final Map<String, ConfigDocument<T>> _data = new HashMap<String, ConfigDocument<T>>();
     private int _addOperations;

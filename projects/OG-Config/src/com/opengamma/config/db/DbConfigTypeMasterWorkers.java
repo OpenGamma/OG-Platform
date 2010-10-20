@@ -12,32 +12,32 @@ package com.opengamma.config.db;
  * 
  * @param <T>  the configuration element type
  */
-public class DbConfigMasterWorkers<T> {
+public class DbConfigTypeMasterWorkers<T> {
 
   /** Worker. */
-  private DbConfigMasterWorker<T> _searchWorker = new QueryConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _searchWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigMasterWorker<T> _getWorker = new QueryConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _getWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigMasterWorker<T> _addWorker = new ModifyConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _addWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigMasterWorker<T> _updateWorker = new ModifyConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _updateWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigMasterWorker<T> _removeWorker = new ModifyConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _removeWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigMasterWorker<T> _searchHistoricWorker = new QueryConfigDbConfigMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _searchHistoricWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
 
   /**
    * Creates an instance.
    */
-  public DbConfigMasterWorkers() {
+  public DbConfigTypeMasterWorkers() {
   }
 
   /**
    * Initializes the instance.
    * @param master  the security master, non-null
    */
-  protected void init(final DbConfigMaster<T> master) {
+  protected void init(final DbConfigTypeMaster<T> master) {
     _searchWorker.init(master);
     _getWorker.init(master);
     _addWorker.init(master);
@@ -51,7 +51,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the searchWorker field.
    * @return the searchWorker
    */
-  public DbConfigMasterWorker<T> getSearchWorker() {
+  public DbConfigTypeMasterWorker<T> getSearchWorker() {
     return _searchWorker;
   }
 
@@ -59,7 +59,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the searchWorker field.
    * @param searchWorker  the searchWorker
    */
-  public void setSearchWorker(DbConfigMasterWorker<T> searchWorker) {
+  public void setSearchWorker(DbConfigTypeMasterWorker<T> searchWorker) {
     _searchWorker = searchWorker;
   }
 
@@ -68,7 +68,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the getWorker field.
    * @return the getWorker
    */
-  public DbConfigMasterWorker<T> getGetWorker() {
+  public DbConfigTypeMasterWorker<T> getGetWorker() {
     return _getWorker;
   }
 
@@ -76,7 +76,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the getWorker field.
    * @param getWorker  the getWorker
    */
-  public void setGetWorker(DbConfigMasterWorker<T> getWorker) {
+  public void setGetWorker(DbConfigTypeMasterWorker<T> getWorker) {
     _getWorker = getWorker;
   }
 
@@ -85,7 +85,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the addWorker field.
    * @return the addWorker
    */
-  public DbConfigMasterWorker<T> getAddWorker() {
+  public DbConfigTypeMasterWorker<T> getAddWorker() {
     return _addWorker;
   }
 
@@ -93,7 +93,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the addWorker field.
    * @param addWorker  the addWorker
    */
-  public void setAddWorker(DbConfigMasterWorker<T> addWorker) {
+  public void setAddWorker(DbConfigTypeMasterWorker<T> addWorker) {
     _addWorker = addWorker;
   }
 
@@ -102,7 +102,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the updateWorker field.
    * @return the updateWorker
    */
-  public DbConfigMasterWorker<T> getUpdateWorker() {
+  public DbConfigTypeMasterWorker<T> getUpdateWorker() {
     return _updateWorker;
   }
 
@@ -110,7 +110,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the updateWorker field.
    * @param updateWorker  the updateWorker
    */
-  public void setUpdateWorker(DbConfigMasterWorker<T> updateWorker) {
+  public void setUpdateWorker(DbConfigTypeMasterWorker<T> updateWorker) {
     _updateWorker = updateWorker;
   }
 
@@ -119,7 +119,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the removeWorker field.
    * @return the removeWorker
    */
-  public DbConfigMasterWorker<T> getRemoveWorker() {
+  public DbConfigTypeMasterWorker<T> getRemoveWorker() {
     return _removeWorker;
   }
 
@@ -127,7 +127,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the removeWorker field.
    * @param removeWorker  the removeWorker
    */
-  public void setRemoveWorker(DbConfigMasterWorker<T> removeWorker) {
+  public void setRemoveWorker(DbConfigTypeMasterWorker<T> removeWorker) {
     _removeWorker = removeWorker;
   }
 
@@ -136,7 +136,7 @@ public class DbConfigMasterWorkers<T> {
    * Gets the searchHistoricWorker field.
    * @return the searchHistoricWorker
    */
-  public DbConfigMasterWorker<T> getSearchHistoricWorker() {
+  public DbConfigTypeMasterWorker<T> getSearchHistoricWorker() {
     return _searchHistoricWorker;
   }
 
@@ -144,7 +144,7 @@ public class DbConfigMasterWorkers<T> {
    * Sets the searchHistoricWorker field.
    * @param searchHistoricWorker  the searchHistoricWorker
    */
-  public void setSearchHistoricWorker(DbConfigMasterWorker<T> searchHistoricWorker) {
+  public void setSearchHistoricWorker(DbConfigTypeMasterWorker<T> searchHistoricWorker) {
     _searchHistoricWorker = searchHistoricWorker;
   }
 

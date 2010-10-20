@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
@@ -26,9 +26,9 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * <p>
  * This is designed to allow each config master method to be implemented by a
  * different class and easily replaced by an alternative.
- * Implementations are registered using {@link DbConfigMasterWorkers}.
+ * Implementations are registered using {@link DbConfigTypeMasterWorkers}.
  * <p>
- * The API of this class follows {@link ConfigMaster}.
+ * The API of this class follows {@link ConfigTypeMaster}.
  * Each of the methods should be implemented as per the documentation on the master.
  * The parameters to the methods will be pre-checked for nulls before the worker is called,
  * including any internal required values in request or document objects.
@@ -38,7 +38,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * 
  * @param <T>  the configuration element type
  */
-public class DbConfigMasterWorker<T> {
+public class DbConfigTypeMasterWorker<T> {
 
   /**
    * The Fudge context.
@@ -48,19 +48,19 @@ public class DbConfigMasterWorker<T> {
   /**
    * The main master.
    */
-  private DbConfigMaster<T> _master;
+  private DbConfigTypeMaster<T> _master;
 
   /**
    * Creates an instance.
    */
-  protected DbConfigMasterWorker() {
+  protected DbConfigTypeMasterWorker() {
   }
 
   /**
    * Initializes the instance.
    * @param master  the security master, not null
    */
-  protected void init(final DbConfigMaster<T> master) {
+  protected void init(final DbConfigTypeMaster<T> master) {
     _master = master;
   }
 
@@ -69,7 +69,7 @@ public class DbConfigMasterWorker<T> {
    * Gets the parent master.
    * @return the parent, not null
    */
-  protected DbConfigMaster<T> getMaster() {
+  protected DbConfigTypeMaster<T> getMaster() {
     return _master;
   }
 

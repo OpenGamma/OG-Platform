@@ -26,7 +26,6 @@
   </bean>
 
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.config.db.DbConfigMaster">
-    <constructor-arg value="com.opengamma.id.Identifier" />
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbCfg" />
   </bean>
@@ -46,7 +45,6 @@
   </bean>
 
   <bean id="postgresDbConfigMaster" class="com.opengamma.config.db.DbConfigMaster">
-    <constructor-arg value="com.opengamma.id.Identifier" />
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbCfg" />
   </bean>

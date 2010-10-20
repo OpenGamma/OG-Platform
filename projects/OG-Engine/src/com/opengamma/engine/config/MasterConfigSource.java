@@ -7,14 +7,10 @@ package com.opengamma.engine.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ComputationException;
-import com.google.common.collect.MapMaker;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
@@ -34,19 +30,14 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * This implementation supports the concept of fixing the version.
  * This allows the version to be set in the constructor, and applied automatically to the methods.
- * Some methods on {@code ConfigSource} specify their own version requirements, whcih are respected.
+ * Some methods on {@code ConfigSource} specify their own version requirements, which are respected.
  */
 public class MasterConfigSource implements ConfigSource {
 
   /**
-   * Map of masters by class.
+   * The config master.
    */
-  private ConcurrentMap<Class<?>, ConfigMaster<?>> _configMasterMap = new MapMaker().makeComputingMap(new Function<Class<?>, ConfigMaster<?>>() {
-    public ConfigMaster<?> apply(final Class<?> clazz) {
-      return createMaster(clazz);
-    }
-  });
-
+  private final ConfigMaster _configMaster;
   /**
    * The instant to search for a version at.
    * Null is treated as the latest version.
@@ -54,17 +45,22 @@ public class MasterConfigSource implements ConfigSource {
   private final Instant _versionAsOfInstant;
 
   /**
-   * Creates an instance.
+   * Creates an instance with an underlying config master.
+   * @param configMaster  the config master, not null
    */
-  public MasterConfigSource() {
-    this(null);
+  public MasterConfigSource(final ConfigMaster configMaster) {
+    this(configMaster, null);
   }
 
   /**
-   * Creates an instance viewing the version that existed on the specified instant.
+   * Creates an instance with an underlying config master viewing the version
+   * that existed on the specified instant.
+   * @param configMaster  the config master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    */
-  public MasterConfigSource(final InstantProvider versionAsOfInstantProvider) {
+  public MasterConfigSource(final ConfigMaster configMaster, final InstantProvider versionAsOfInstantProvider) {
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    _configMaster = configMaster;
     if (versionAsOfInstantProvider != null) {
       _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
     } else {
@@ -74,47 +70,11 @@ public class MasterConfigSource implements ConfigSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Overridable method to create a master for the type specified.
-   * @param <T>  the type of the master to create
-   * @param clazz  the class to create a master for, not null
-   * @return the created master, not null
-   * @throws IllegalArgumentException if a master cannot be created for the specified type
+   * Gets the underlying master.
+   * @return the underlying master, not null
    */
-  protected <T> ConfigMaster<T> createMaster(Class<T> clazz) {
-    throw new IllegalArgumentException("Unable to create ConfigMaster for " + clazz.getName());
-  }
-
-  /**
-   * Finds a config master for the type specified.
-   * @param <T>  the type
-   * @param clazz  the class to create a master for, not null
-   * @return the master, not null
-   */
-  @SuppressWarnings("unchecked")
-  public <T> ConfigMaster<T> getMaster(Class<T> clazz) {
-    try {
-      return (ConfigMaster<T>) _configMasterMap.get(clazz);
-    } catch (ComputationException ex) {
-      if (ex.getCause() instanceof RuntimeException) {
-        throw (RuntimeException) ex.getCause();
-      }
-      throw ex;
-    }
-  }
-
-  /**
-   * Finds a config master for the type specified.
-   * @param <T>  the type
-   * @param clazz  the class to create a master for, not null
-   * @param master  the master to add, not null
-   */
-  public <T> void addMaster(Class<T> clazz, ConfigMaster<T> master) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(master, "master");
-    ConfigMaster<?> old = _configMasterMap.putIfAbsent(clazz, master);
-    if (old != null) {
-      throw new IllegalStateException("Master already exists for " + clazz.getName());
-    }
+  public ConfigMaster getMaster() {
+    return _configMaster;
   }
 
   //-------------------------------------------------------------------------
@@ -122,9 +82,8 @@ public class MasterConfigSource implements ConfigSource {
   public <T> List<T> search(final Class<T> clazz, final ConfigSearchRequest request) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(request, "request");
-    ConfigMaster<T> configMaster = getMaster(clazz);
     request.setVersionAsOfInstant(_versionAsOfInstant);
-    ConfigSearchResult<T> searchResult = configMaster.search(request);
+    ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
     List<T> result = new ArrayList<T>();
     for (ConfigDocument<T> configDocument : documents) {
@@ -137,10 +96,9 @@ public class MasterConfigSource implements ConfigSource {
   public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
-    ConfigMaster<T> configMaster = getMaster(clazz);
     if (_versionAsOfInstant != null) {
       ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, _versionAsOfInstant);
-      ConfigSearchHistoricResult<T> result = configMaster.searchHistoric(request);
+      ConfigSearchHistoricResult<T> result = _configMaster.typed(clazz).searchHistoric(request);
       if (result.getDocuments().isEmpty()) {
         return null;
       }
@@ -151,7 +109,7 @@ public class MasterConfigSource implements ConfigSource {
     } else {
       // just want the latest (or version) asked for, so don't use the more costly historic search operation
       try {
-        return configMaster.get(uid).getValue();
+        return _configMaster.typed(clazz).get(uid).getValue();
       } catch (DataNotFoundException ex) {
         return null;
       }
@@ -165,15 +123,20 @@ public class MasterConfigSource implements ConfigSource {
 
   @Override
   public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
+    ConfigDocument<T> doc = getDocumentByName(clazz, name, versionAsOf);
+    return doc == null ? null : doc.getValue();
+  }
+
+  @Override
+  public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
-    ConfigMaster<T> configMaster = getMaster(clazz);
     ConfigSearchRequest request = new ConfigSearchRequest();
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(versionAsOf);
     request.setName(name);
-    ConfigSearchResult<T> searchResult = configMaster.search(request);
-    return searchResult.getFirstValue();
+    ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
+    return searchResult.getFirstDocument();
   }
 
 }

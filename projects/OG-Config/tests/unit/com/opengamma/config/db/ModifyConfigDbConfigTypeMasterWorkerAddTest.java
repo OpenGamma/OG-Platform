@@ -26,15 +26,15 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMasterWorkerTest {
+public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfigTypeMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerAddTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerAddTest.class);
 
-  private ModifyConfigDbConfigMasterWorker<Identifier> _worker;
-  private DbConfigMasterWorker<Identifier> _queryWorker;
+  private ModifyConfigDbConfigTypeMasterWorker<Identifier> _worker;
+  private DbConfigTypeMasterWorker<Identifier> _queryWorker;
 
-  public ModifyConfigDbConfigMasterWorkerAddTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigTypeMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -43,9 +43,9 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _worker = new ModifyConfigDbConfigMasterWorker<Identifier>();
+    _worker = new ModifyConfigDbConfigTypeMasterWorker<Identifier>();
     _worker.init(_cfgMaster);
-    _queryWorker = new QueryConfigDbConfigMasterWorker<Identifier>();
+    _queryWorker = new QueryConfigDbConfigTypeMasterWorker<Identifier>();
     _queryWorker.init(_cfgMaster);
   }
 

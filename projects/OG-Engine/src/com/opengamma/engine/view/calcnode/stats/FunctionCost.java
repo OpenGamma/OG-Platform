@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -98,7 +98,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
   private final ConcurrentMap<String, ForConfiguration> _data = new ConcurrentHashMap<String, ForConfiguration>();
   private final Queue<ConfigDocument<FunctionInvocationStatistics>> _configDocuments = new ConcurrentLinkedQueue<ConfigDocument<FunctionInvocationStatistics>>();
   private FunctionInvocationStatistics _meanStatistics;
-  private ConfigMaster<FunctionInvocationStatistics> _configMaster;
+  private ConfigTypeMaster<FunctionInvocationStatistics> _configMaster;
   private ConfigDocument<FunctionInvocationStatistics> _meanStatisticsDocument;
 
   public ForConfiguration getStatistics(final String calculationConfiguration) {
@@ -122,7 +122,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     getStatistics(configurationName, functionIdentifier).recordInvocation(count, invocationTime, dataInput, dataOutput);
   }
 
-  public void setPersistence(final ConfigMaster<FunctionInvocationStatistics> configMaster) {
+  public void setPersistence(final ConfigTypeMaster<FunctionInvocationStatistics> configMaster) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
     s_logger.debug("Searching for initial mean statistics");
@@ -145,7 +145,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     _meanStatistics = _meanStatisticsDocument.getValue();
   }
 
-  public ConfigMaster<FunctionInvocationStatistics> getPersistence() {
+  public ConfigTypeMaster<FunctionInvocationStatistics> getPersistence() {
     return _configMaster;
   }
 

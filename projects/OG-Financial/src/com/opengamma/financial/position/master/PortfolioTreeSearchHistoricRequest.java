@@ -264,6 +264,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @return the value of the property
    */
@@ -273,6 +274,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @param versionsFromInstant  the new value of the property
    */
@@ -282,6 +284,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionsFromInstant} property.
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @return the property, not null
    */
@@ -292,6 +295,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the value of the property
@@ -302,6 +306,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @param versionsToInstant  the new value of the property
@@ -312,6 +317,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionsToInstant} property.
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the property, not null
@@ -323,6 +329,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve corrections on or after (inclusive).
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version prior to corrections.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the value of the property
@@ -333,6 +340,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve corrections on or after (inclusive).
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version prior to corrections.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @param correctionsFromInstant  the new value of the property
@@ -343,6 +351,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctionsFromInstant} property.
+   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version prior to corrections.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the property, not null
@@ -354,6 +363,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve corrections before (exclusive).
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest correction.
    * This should be equal to or later than the {@code correctionsFromInstant}.
    * @return the value of the property
@@ -364,6 +374,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve corrections before (exclusive).
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest correction.
    * This should be equal to or later than the {@code correctionsFromInstant}.
    * @param correctionsToInstant  the new value of the property
@@ -374,6 +385,7 @@ public class PortfolioTreeSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code correctionsToInstant} property.
+   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest correction.
    * This should be equal to or later than the {@code correctionsFromInstant}.
    * @return the property, not null

@@ -7,22 +7,16 @@ package com.opengamma.financial.batch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.config.MasterConfigSource;
+import com.opengamma.engine.config.MockConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
@@ -100,13 +94,8 @@ public class BatchJobTest {
     cfgDocument.setConfigId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     cfgDocument.setValue(testView.getDefinition());
-    ConfigSearchResult<ViewDefinition> cfgResult = new ConfigSearchResult<ViewDefinition>();
-    cfgResult.getDocuments().add(cfgDocument);
-    @SuppressWarnings("unchecked")
-    ConfigMaster<ViewDefinition> cfgMaster = mock(ConfigMaster.class);
-    when(cfgMaster.search(Mockito.<ConfigSearchRequest>anyObject())).thenReturn(cfgResult);
-    MasterConfigSource cfgSource = mock(MasterConfigSource.class);
-    when(cfgSource.getMaster(ViewDefinition.class)).thenReturn(cfgMaster);
+    MockConfigSource cfgSource = new MockConfigSource();
+    cfgSource.add(cfgDocument);
     
     SnapshotId snapshotId = new SnapshotId(LocalDate.of(9999, 9, 1), "AD_HOC_RUN");
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(

@@ -25,14 +25,14 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
-public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigMasterWorkerTest {
+public class QueryConfigDbConfigTypeMasterWorkerSearchTest extends AbstractDbConfigTypeMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerSearchTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorkerSearchTest.class);
 
-  private DbConfigMasterWorker<Identifier> _worker;
+  private DbConfigTypeMasterWorker<Identifier> _worker;
 
-  public QueryConfigDbConfigMasterWorkerSearchTest(String databaseType, String databaseVersion) {
+  public QueryConfigDbConfigTypeMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -41,7 +41,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _worker = new QueryConfigDbConfigMasterWorker<Identifier>();
+    _worker = new QueryConfigDbConfigTypeMasterWorker<Identifier>();
     _worker.init(_cfgMaster);
   }
 

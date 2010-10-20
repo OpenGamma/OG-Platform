@@ -9,12 +9,12 @@ import java.io.File;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.memory.InMemoryConfigMaster;
 import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.config.InMemoryMasterConfigSource;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
-import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.world.region.DefaultRegionSource;
 import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
@@ -28,6 +28,7 @@ import com.opengamma.util.PlatformConfigUtils;
 public class CurveConfigurationSetupHelper {
 
   private final ClassPathXmlApplicationContext _applicationContext;
+  private final ConfigMaster _configMaster;
   private final ConfigSource _configSource;
   private final RegionSource _regionSource;
   private final SecuritySource _secSource;
@@ -36,10 +37,10 @@ public class CurveConfigurationSetupHelper {
     PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV);
     _applicationContext = new ClassPathXmlApplicationContext("demoFinancialMasters.xml");
     
-    InMemoryMasterConfigSource cfgSource = new InMemoryMasterConfigSource();
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigMaster(cfgSource.getMaster(YieldCurveDefinition.class));
-    YieldCurveConfigPopulator.populateCurveSpecificationBuilderConfigMaster(cfgSource.getMaster(CurveSpecificationBuilderConfiguration.class));
-    _configSource = cfgSource;
+    InMemoryConfigMaster cfgMaster = new InMemoryConfigMaster();
+    YieldCurveConfigPopulator.populateCurveConfigMaster(cfgMaster);
+    _configMaster = cfgMaster;
+    _configSource = new MasterConfigSource(cfgMaster);
     
     RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
@@ -53,27 +54,36 @@ public class CurveConfigurationSetupHelper {
     _applicationContext.close();
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the configSource field.
-   * @return the configSource
+   * Gets the config master.
+   * @return the config master, not null
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  /**
+   * Gets the config source.
+   * @return the config source, not null
    */
   public ConfigSource getConfigSource() {
     return _configSource;
   }
 
   /**
-   * Gets the regionSource field.
-   * @return the regionSource
+   * Gets the region source field.
+   * @return the region source, not null
    */
   public RegionSource getRegionSource() {
     return _regionSource;
   }
 
   /**
-   * Gets the secSource field.
-   * @return the secSource
+   * Gets the security source field.
+   * @return the security source, not null
    */
-  public SecuritySource getSecSource() {
+  public SecuritySource getSecuritySource() {
     return _secSource;
   }
 

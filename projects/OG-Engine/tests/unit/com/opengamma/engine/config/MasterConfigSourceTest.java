@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
@@ -38,42 +39,41 @@ public class MasterConfigSourceTest {
     DOC = doc;
   }
 
-  static class MockSource extends MasterConfigSource {
+  static class MockMaster implements ConfigMaster {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    protected <T> ConfigMaster<T> createMaster(Class<T> clazz) {
-      if (clazz == Identifier.class) {
-        return (ConfigMaster) new ConfigMaster<Identifier>() {
-          @Override
-          public ConfigSearchResult<Identifier> search(ConfigSearchRequest request) {
-            ConfigSearchResult<Identifier> result = new ConfigSearchResult<Identifier>();
-            result.getDocuments().add(DOC);
-            return result;
-          }
-          @Override
-          public ConfigDocument<Identifier> get(UniqueIdentifier uid) {
-            return DOC;
-          }
-          @Override
-          public ConfigDocument<Identifier> add(ConfigDocument<Identifier> document) {
-            throw new UnsupportedOperationException();
-          }
-          @Override
-          public ConfigDocument<Identifier> update(ConfigDocument<Identifier> document) {
-            throw new UnsupportedOperationException();
-          }
-          @Override
-          public void remove(UniqueIdentifier uid) {
-            throw new UnsupportedOperationException();
-          }
-          @Override
-          public ConfigSearchHistoricResult<Identifier> searchHistoric(ConfigSearchHistoricRequest request) {
-            throw new UnsupportedOperationException();
-          }
-        };
-      } else {
+    public <T> ConfigTypeMaster<T> typed(Class<T> clazz) {
+      if (clazz == Identifier.class == false) {
         throw new IllegalArgumentException();
       }
+      return (ConfigTypeMaster) new ConfigTypeMaster<Identifier>() {
+        @Override
+        public ConfigSearchResult<Identifier> search(ConfigSearchRequest request) {
+          ConfigSearchResult<Identifier> result = new ConfigSearchResult<Identifier>();
+          result.getDocuments().add(DOC);
+          return result;
+        }
+        @Override
+        public ConfigDocument<Identifier> get(UniqueIdentifier uid) {
+          return DOC;
+        }
+        @Override
+        public ConfigDocument<Identifier> add(ConfigDocument<Identifier> document) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public ConfigDocument<Identifier> update(ConfigDocument<Identifier> document) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public void remove(UniqueIdentifier uid) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public ConfigSearchHistoricResult<Identifier> searchHistoric(ConfigSearchHistoricRequest request) {
+          throw new UnsupportedOperationException();
+        }
+      };
     }
   }
 
@@ -81,7 +81,7 @@ public class MasterConfigSourceTest {
 
   @Before
   public void setUp() throws Exception {
-    _configSource = new MockSource();
+    _configSource = new MasterConfigSource(new MockMaster());
   }
 
   @After

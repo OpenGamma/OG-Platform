@@ -28,15 +28,15 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
  * 
  * @param <T>  the configuration element type
  */
-public class ModifyConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T> {
+public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWorker<T> {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorker.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorker.class);
 
   /**
    * Creates an instance.
    */
-  public ModifyConfigDbConfigMasterWorker() {
+  public ModifyConfigDbConfigTypeMasterWorker() {
     super();
   }
 
