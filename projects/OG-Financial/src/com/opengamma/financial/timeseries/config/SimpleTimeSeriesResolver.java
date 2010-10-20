@@ -42,7 +42,7 @@ public class SimpleTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver {
   @Override
   public TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers) {
     TimeSeriesSearchRequest<T> searchRequest = new TimeSeriesSearchRequest<T>();
-    searchRequest.setIdentifiers(identifiers.getIdentifiers());
+    searchRequest.getIdentifiers().addAll(identifiers.getIdentifiers());
     searchRequest.setLoadTimeSeries(false);
     
     TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(searchRequest);

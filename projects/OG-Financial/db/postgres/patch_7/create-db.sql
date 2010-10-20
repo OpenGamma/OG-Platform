@@ -6,7 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-create sequence hibernate_sequence start 1 increment 1;
+    create sequence hibernate_sequence start 1 increment 1;
 
 -- create-db-security.sql: Security Master
 
@@ -442,7 +442,6 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
-
 -------------------------------------
 -- Static data
 -------------------------------------
@@ -752,7 +751,6 @@ create table rsk_failure_reason (
 
    unique (rsk_failure_id, compute_failure_id)
 );
-
 DROP TABLE IF EXISTS tss_identifier CASCADE;
 DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
 DROP TABLE IF EXISTS tss_data_point CASCADE;
@@ -907,11 +905,8 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
 	identification_scheme_id BIGINT NOT NULL
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
-	identifier_value VARCHAR(255) NOT NULL,
-	valid_from date,
-	valid_to date
+	identifier_value VARCHAR(255) NOT NULL
 );
-
 ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
-CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE UNIQUE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);

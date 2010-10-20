@@ -107,7 +107,9 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
 	identification_scheme_id BIGINT NOT NULL
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
-	identifier_value VARCHAR(255) NOT NULL
+	identifier_value VARCHAR(255) NOT NULL,
+	valid_from date,
+	valid_to date
 );
-CREATE UNIQUE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
-CREATE INDEX idx_dsi_identifier_value ON tss_identifier(identifier_value);
+CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);

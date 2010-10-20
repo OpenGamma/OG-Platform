@@ -8,6 +8,34 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
+-- create-db-config.sql: Config Master
+
+-- design has one document
+--  config
+-- unitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+create sequence cfg_config_seq as bigint
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby/HSQL, not accepted by Postgresql
+
+create table cfg_config (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    last_read_instant timestamp not null,
+    name varchar(255) not null,
+    config_type varchar(255) not null,
+    config blob not null,
+    primary key (id),
+    constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant)
+);
+
+create index ix_cfg_config_oid on cfg_config(oid);
+create index ix_cfg_config_config_type on cfg_config(config_type);
+
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -862,7 +890,9 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
 	identification_scheme_id BIGINT NOT NULL
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
-	identifier_value VARCHAR(255) NOT NULL
+	identifier_value VARCHAR(255) NOT NULL,
+	valid_from date,
+	valid_to date
 );
-CREATE UNIQUE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
-CREATE INDEX idx_dsi_identifier_value ON tss_identifier(identifier_value);
+CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
