@@ -55,17 +55,17 @@ public class YieldAndDiscountCurveTest {
 
   @Test
   public void testShift() {
-    final InterpolatedCurveShiftFunction F = new InterpolatedCurveShiftFunction();
+    final InterpolatedCurveShiftFunction f = new InterpolatedCurveShiftFunction();
     YieldAndDiscountCurve shifted1 = YIELD.withParallelShift(3);
-    InterpolatedDoublesCurve shifted2 = F.evaluate(R, 3.);
+    InterpolatedDoublesCurve shifted2 = f.evaluate(R, 3.);
     assertArrayEquals(shifted1.getCurve().getXData(), shifted2.getXData());
     assertArrayEquals(shifted1.getCurve().getYData(), shifted2.getYData());
     shifted1 = YIELD.withSingleShift(1, 3);
-    shifted2 = F.evaluate(R, 1, 3.);
+    shifted2 = f.evaluate(R, 1, 3.);
     assertArrayEquals(shifted1.getCurve().getXData(), shifted2.getXData());
     assertArrayEquals(shifted1.getCurve().getYData(), shifted2.getYData());
     shifted1 = YIELD.withMultipleShifts(new double[] {1, 2}, new double[] {3, 4});
-    shifted2 = F.evaluate(R, new double[] {1, 2}, new double[] {3, 4});
+    shifted2 = f.evaluate(R, new double[] {1, 2}, new double[] {3, 4});
     assertArrayEquals(shifted1.getCurve().getXData(), shifted2.getXData());
     assertArrayEquals(shifted1.getCurve().getYData(), shifted2.getYData());
   }

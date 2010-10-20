@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.local;
@@ -40,8 +40,8 @@ public class ImpliedTreeResult {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_localVolatilities == null) ? 0 : _localVolatilities.hashCode());
-    result = prime * result + ((_spotPrices == null) ? 0 : _spotPrices.hashCode());
+    result = prime * result + _localVolatilities.hashCode();
+    result = prime * result + _spotPrices.hashCode();
     return result;
   }
 

@@ -73,7 +73,12 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
     Validate.notNull(curve, "curve");
+    Validate.notNull(xShift, "x shifts");
+    Validate.notNull(yShift, "y shifts");
     Validate.isTrue(xShift.length == yShift.length);
+    if (xShift.length == 0) {
+      return InterpolatedDoublesCurve.from(curve.getXDataAsPrimitive(), curve.getYDataAsPrimitive(), curve.getInterpolator(), newName);
+    }
     final List<Double> newX = new ArrayList<Double>(Arrays.asList(curve.getXData()));
     final List<Double> newY = new ArrayList<Double>(Arrays.asList(curve.getYData()));
     for (int i = 0; i < xShift.length; i++) {
