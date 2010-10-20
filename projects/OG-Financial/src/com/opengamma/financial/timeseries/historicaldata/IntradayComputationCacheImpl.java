@@ -221,7 +221,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     String fieldName = getFieldName(specification);
     
     TimeSeriesSearchRequest<Date> searchRequest = new TimeSeriesSearchRequest<Date>();
-    searchRequest.setIdentifiers(identifiers.getIdentifiers());
+    searchRequest.getIdentifiers().addAll(identifiers.getIdentifiers());
     searchRequest.setDataSource(getDataSource());
     searchRequest.setDataProvider(getDataProvider(viewName, calcConf));
     searchRequest.setDataField(fieldName);

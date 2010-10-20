@@ -110,11 +110,14 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildUSDFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "DEFAULT"));
-    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(14)), "DEFAULT"));
-    for (final int i : new int[] {1, 3, 6, 7, 9}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofMonths(i)), "DEFAULT"));
-    }
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(7)), "DEFAULT"));
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofDays(14)), "DEFAULT"));
+//    for (final int i : new int[] {1, 3, 6, 7, 9}) {
+//      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, new Tenor(Period.ofMonths(i)), "DEFAULT"));
+    
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofDays(1)), "DEFAULT"));  
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofMonths(3)), "DEFAULT"));
+//    }
     
     for (final int i : new int[] {1, 2, 3, 5, 7, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, new Tenor(Period.ofYears(i)), "DEFAULT"));
@@ -128,7 +131,7 @@ public class CurveDefinitionAndSpecifications {
     strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofDays(1)), "DEFAULT"));  
     strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, new Tenor(Period.ofMonths(3)), "DEFAULT"));
     
-//    for (final int i : new int[] {3, 6, 9, 12, 15, 18, 21 }) {
+//    for (final int i : new int[] {6, 9, 12, 15, 18, 21}) {
 //      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, new Tenor(Period.ofMonths(i)), "DEFAULT"));
 //    }
     

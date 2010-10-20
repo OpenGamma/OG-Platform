@@ -6,17 +6,11 @@
 package com.opengamma.financial.test;
 
 import java.io.File;
-import java.net.UnknownHostException;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
-import com.mongodb.MongoException;
-import com.opengamma.config.db.MongoDBConfigMaster;
 import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.engine.config.InMemoryMasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
@@ -26,58 +20,36 @@ import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.financial.world.region.RegionMaster;
 import com.opengamma.financial.world.region.RegionSource;
-import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
- * 
+ * Helper for testing.
  */
 public class CurveConfigurationSetupHelper {
-  private ConfigSource _configSource;
-  private RegionSource _regionSource;
-  private SecuritySource _secSource;
 
-  private ClassPathXmlApplicationContext _applicationContext;
-  
-  private MongoDBConnectionSettings _yieldCurveDefinitionSettings;
-  private MongoDBConnectionSettings _curveSpecificationBuilderConfigurationSettings;
-  
+  private final ClassPathXmlApplicationContext _applicationContext;
+  private final ConfigSource _configSource;
+  private final RegionSource _regionSource;
+  private final SecuritySource _secSource;
+
   public CurveConfigurationSetupHelper() {
-       
-    _yieldCurveDefinitionSettings = MongoDBTestUtils.makeTestSettings("YieldCurveDefinition", true);
-    _curveSpecificationBuilderConfigurationSettings = MongoDBTestUtils.makeTestSettings("CurveSpecificationBuilderConfiguration", true);
+    PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV);
+    _applicationContext = new ClassPathXmlApplicationContext("demoFinancialMasters.xml");
     
-    MongoDBConfigMaster<YieldCurveDefinition> yieldCurveDefinitionConfigMaster = new MongoDBConfigMaster<YieldCurveDefinition>(YieldCurveDefinition.class, 
-                                                                                                                               _yieldCurveDefinitionSettings, true);
-    YieldCurveConfigPopulator.populateCurveDefinitionConfigMaster(yieldCurveDefinitionConfigMaster);
-    
-    MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
-    mongoDBMasterConfigSource.addConfigMaster(YieldCurveDefinition.class, yieldCurveDefinitionConfigMaster);
-    MongoDBConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = 
-      new MongoDBConfigMaster<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class, 
-                                                                      _curveSpecificationBuilderConfigurationSettings, true);
-    YieldCurveConfigPopulator.populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
-    mongoDBMasterConfigSource.addConfigMaster(CurveSpecificationBuilderConfiguration.class, curveSpecificationBuilderConfigMaster);
-    _configSource = mongoDBMasterConfigSource;
+    InMemoryMasterConfigSource cfgSource = new InMemoryMasterConfigSource();
+    YieldCurveConfigPopulator.populateCurveDefinitionConfigMaster(cfgSource.getMaster(YieldCurveDefinition.class));
+    YieldCurveConfigPopulator.populateCurveSpecificationBuilderConfigMaster(cfgSource.getMaster(CurveSpecificationBuilderConfiguration.class));
+    _configSource = cfgSource;
     
     RegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionMaster);
     _regionSource = regionSource;
-        
-    PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV);
-    _applicationContext = new ClassPathXmlApplicationContext("demoFinancialMasters.xml");
-    _secSource = (SecuritySource) _applicationContext.getBean("sharedSecuritySource");
+    
+    _secSource = _applicationContext.getBean("sharedSecuritySource", SecuritySource.class);
   }
-  
-  public void tearDown() throws UnknownHostException, MongoException {
-    Mongo mongo = new Mongo(_yieldCurveDefinitionSettings.getHost(), _yieldCurveDefinitionSettings.getPort());
-    DB db = mongo.getDB(_yieldCurveDefinitionSettings.getDatabase());
-    DBCollection dbCollection = db.getCollection(_yieldCurveDefinitionSettings.getCollectionName());
-    dbCollection.drop();
-    dbCollection = db.getCollection(_curveSpecificationBuilderConfigurationSettings.getCollectionName());
-    dbCollection.drop();
+
+  public void tearDown() {
     _applicationContext.close();
   }
 
@@ -105,19 +77,4 @@ public class CurveConfigurationSetupHelper {
     return _secSource;
   }
 
-  /**
-   * Gets the yieldCurveDefinitionSettings field.
-   * @return the yieldCurveDefinitionSettings
-   */
-  public MongoDBConnectionSettings getYieldCurveDefinitionSettings() {
-    return _yieldCurveDefinitionSettings;
-  }
-
-  /**
-   * Gets the curveSpecificationBuilderConfigurationSettings field.
-   * @return the curveSpecificationBuilderConfigurationSettings
-   */
-  public MongoDBConnectionSettings getCurveSpecificationBuilderConfigurationSettings() {
-    return _curveSpecificationBuilderConfigurationSettings;
-  }
 }

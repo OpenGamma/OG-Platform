@@ -17,8 +17,9 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * 
@@ -31,10 +32,10 @@ public class ParRateCalculatorTest {
   private static final YieldCurveBundle CURVES;
 
   static {
-    YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
+    YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
     CURVES = new YieldCurveBundle();
     CURVES.setCurve(FIVE_PC_CURVE_NAME, curve);
-    curve = new ConstantYieldCurve(0.0);
+    curve = new YieldCurve(ConstantDoublesCurve.from(0.0));
     CURVES.setCurve(ZERO_PC_CURVE_NAME, curve);
   }
 
@@ -90,9 +91,9 @@ public class ParRateCalculatorTest {
       paymentTimes[i] = tau * (i + 1);
       yearFracs[i] = yearFrac;
     }
-    Bond bond = new Bond(paymentTimes, 0.0, yearFracs, FIVE_PC_CURVE_NAME);
+    Bond bond = new Bond(paymentTimes, 0.0, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     final double rate = PRC.getValue(bond, CURVES);
-    bond = new Bond(paymentTimes, rate, yearFracs, FIVE_PC_CURVE_NAME);
+    bond = new Bond(paymentTimes, rate, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     assertEquals(1.0, PVC.getValue(bond, CURVES), 1e-12);
   }
 

@@ -33,7 +33,7 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final double[] CONTINUOUS_RATES;
   private static final double[] TIMES;
 
-  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> CALCULATOR = ParRateDifferenceCalculator.getInstance();
+  private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> CALCULATOR = ParRateCalculator.getInstance();
 
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
@@ -59,7 +59,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     NODES.put(CURVE_NAME, TIMES);
     INTERPOLATORS.put(CURVE_NAME, INTERPOLATOR);
     SENSITIVITY_CALCULATORS.put(CURVE_NAME, new LinearInterpolator1DNodeSensitivityCalculator());
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 

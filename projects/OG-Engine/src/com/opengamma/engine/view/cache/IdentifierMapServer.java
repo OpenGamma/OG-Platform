@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.msg.CacheMessage;
+import com.opengamma.engine.view.cache.msg.CacheMessageVisitor;
 import com.opengamma.engine.view.cache.msg.IdentifierLookupRequest;
 import com.opengamma.engine.view.cache.msg.IdentifierLookupResponse;
-import com.opengamma.engine.view.cache.msg.IdentifierMapRequest;
-import com.opengamma.engine.view.cache.msg.IdentifierMapResponse;
 import com.opengamma.engine.view.cache.msg.SpecificationLookupRequest;
 import com.opengamma.engine.view.cache.msg.SpecificationLookupResponse;
 import com.opengamma.transport.FudgeRequestReceiver;
@@ -32,7 +32,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
 /**
  * Server for a {@link RemoteIdentifierMap}.
  */
-public class IdentifierMapServer implements FudgeRequestReceiver {
+public class IdentifierMapServer extends CacheMessageVisitor implements FudgeRequestReceiver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(IdentifierMapServer.class);
 
@@ -46,7 +46,8 @@ public class IdentifierMapServer implements FudgeRequestReceiver {
     return _underlying;
   }
 
-  protected IdentifierLookupResponse handleIdentifierLookup(final IdentifierLookupRequest request) {
+  @Override
+  protected IdentifierLookupResponse visitIdentifierLookupRequest(final IdentifierLookupRequest request) {
     final List<ValueSpecification> spec = request.getSpecification();
     final Collection<Long> identifiers;
     if (spec.size() == 1) {
@@ -62,7 +63,8 @@ public class IdentifierMapServer implements FudgeRequestReceiver {
     return response;
   }
 
-  protected SpecificationLookupResponse handleSpecificationLookup(final SpecificationLookupRequest request) {
+  @Override
+  protected SpecificationLookupResponse visitSpecificationLookupRequest(final SpecificationLookupRequest request) {
     final List<Long> identifiers = request.getIdentifier();
     final Collection<ValueSpecification> specifications;
     if (identifiers.size() == 1) {
@@ -78,38 +80,26 @@ public class IdentifierMapServer implements FudgeRequestReceiver {
     return response;
   }
 
-  /**
-   * Handles the request.
-   * 
-   * @param request the request
-   * @return the response, not {@code null}
-   */
-  protected IdentifierMapResponse handleIdentifierMapRequest(final IdentifierMapRequest request) {
-    IdentifierMapResponse response = null;
-    if (request instanceof IdentifierLookupRequest) {
-      response = handleIdentifierLookup((IdentifierLookupRequest) request);
-    } else if (request instanceof SpecificationLookupRequest) {
-      response = handleSpecificationLookup((SpecificationLookupRequest) request);
-    } else {
-      s_logger.warn("Unexpected message {}", request);
-    }
-    if (response == null) {
-      response = new IdentifierMapResponse();
-    }
-    return response;
-  }
-
   @Override
   public FudgeFieldContainer requestReceived(final FudgeDeserializationContext context, final FudgeMsgEnvelope requestEnvelope) {
-    final IdentifierMapRequest request = context.fudgeMsgToObject(IdentifierMapRequest.class, requestEnvelope.getMessage());
+    final CacheMessage request = context.fudgeMsgToObject(CacheMessage.class, requestEnvelope.getMessage());
     final FudgeContext fudgeContext = context.getFudgeContext();
-    final IdentifierMapResponse response = handleIdentifierMapRequest(request);
+    CacheMessage response = request.accept(this);
+    if (response == null) {
+      response = new CacheMessage();
+    }
     response.setCorrelationId(request.getCorrelationId());
     final FudgeSerializationContext ctx = new FudgeSerializationContext(fudgeContext);
     final MutableFudgeFieldContainer responseMsg = ctx.objectToFudgeMsg(response);
     // We have only one response for each request type, so don't need the headers
     // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), IdentifierMapResponse.class);
     return responseMsg;
+  }
+
+  @Override
+  protected <T extends CacheMessage> T visitUnexpectedMessage(final CacheMessage message) {
+    s_logger.warn("Unexpected message {}", message);
+    return null;
   }
 
 }

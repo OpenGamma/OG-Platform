@@ -24,11 +24,11 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.ParRateDifferenceCalculator;
 import com.opengamma.financial.interestrate.PresentValueCouponSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -68,25 +68,25 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     }
 
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jacFunc, data.getStartPosition());
-    DoubleMatrix2D jacobian = jacFunc.evaluate(yieldCurveNodes);
+    final DoubleMatrix2D jacobian = jacFunc.evaluate(yieldCurveNodes);
 
     final HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);
 
-    final LinkedHashMap<String, InterpolatedYieldAndDiscountCurve> curves = new LinkedHashMap<String, InterpolatedYieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     for (final String name : data.getCurveNames()) {
-      final InterpolatedYieldAndDiscountCurve curve = makeYieldCurve(yields.get(name), data.getCurveNodePointsForCurve(name), data.getInterpolatorForCurve(name));
+      final YieldAndDiscountCurve curve = makeYieldCurve(yields.get(name), data.getCurveNodePointsForCurve(name), data.getInterpolatorForCurve(name));
       curves.put(name, curve);
     }
 
-    YieldCurveBundle allCurves = new YieldCurveBundle(curves);
+    final YieldCurveBundle allCurves = new YieldCurveBundle(curves);
     if (data.getKnownCurves() != null) {
       allCurves.addAll(data.getKnownCurves());
     }
 
-    InstrumentSensitivityCalculator isc = new InstrumentSensitivityCalculator();
+    final InstrumentSensitivityCalculator isc = new InstrumentSensitivityCalculator();
     for (int i = 0; i < data.getNumInstruments(); i++) {
-      DoubleMatrix1D bunkedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
-      double sense = PresentValueCouponSensitivityCalculator.getInstance().getValue(data.getDerivative(i), allCurves);
+      final DoubleMatrix1D bunkedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
+      final double sense = PresentValueCouponSensitivityCalculator.getInstance().getValue(data.getDerivative(i), allCurves);
       // PresentValueCouponSensitivityCalculator is sensitivity to change in the coupon rate for that instrument - what we calculate here is the (hypothetical) change of PV of the
       // instrument with a fixed coupon when its par-rate change - this is exactly the negative of the coupon sensitivity
       assertEquals(-sense, bunkedDelta.getEntry(i), 1e-8);
@@ -110,7 +110,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
-    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateDifferenceCalculator.getInstance();
+    final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
     // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueSensitivityCalculator.getInstance();

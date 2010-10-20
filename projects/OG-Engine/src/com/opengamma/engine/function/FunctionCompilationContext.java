@@ -20,6 +20,11 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
 
+  /**
+   * The name under which an instance of {@link PortfolioStructure} should be bound.
+   */
+  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+
   public FunctionCompilationContext() {
   }
 
@@ -41,6 +46,22 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setSecuritySource(SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
+  }
+
+  /**
+   * Gets the source of portfolio structure information.
+   * @return the {@link PortfolioStructure} instance
+   */
+  public PortfolioStructure getPortfolioStructure() {
+    return (PortfolioStructure) get(PORTFOLIO_STRUCTURE_NAME);
+  }
+
+  /**
+   * Sets the source of portfolio structure information.
+   * @param portfolioStructure the {@link PortfolioStructure} instance
+   */
+  public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
+    put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
   }
 
   @Override

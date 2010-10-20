@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.time.Instant;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.db.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -101,6 +103,31 @@ public class MongoDBMasterConfigSource implements ConfigSource {
   public void setConfigMasterMap(Map<Class<?>, MongoDBConfigMaster<?>> configMasterMap) {
     ArgumentChecker.notNull(configMasterMap, "configMasterMap");
     _configMasterMap = configMasterMap;
+  }
+
+  @Override
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setName(name);
+    List<T> results = search(clazz, searchRequest);
+    if (results.size() == 0) {
+      return null;
+    } else {
+      return results.get(0);
+    }
+  }
+
+  @Override
+  public <T> T getByName(Class<T> clazz, String name, Instant versionAsOf) {
+    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setVersionAsOfInstant(versionAsOf);
+    searchRequest.setName(name);
+    List<T> results = search(clazz, searchRequest);
+    if (results.size() == 0) {
+      return null;
+    } else {
+      return results.get(0);
+    }
   }
 
 }

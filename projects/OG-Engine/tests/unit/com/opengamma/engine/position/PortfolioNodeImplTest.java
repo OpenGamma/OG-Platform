@@ -6,6 +6,8 @@
 package com.opengamma.engine.position;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
 import java.math.BigDecimal;
@@ -95,6 +97,7 @@ public class PortfolioNodeImplTest {
   public void test_addChildNode() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
+    child.setParentNode(test.getUniqueIdentifier());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     assertEquals(child, test.getChildNodes().get(0));
@@ -107,6 +110,8 @@ public class PortfolioNodeImplTest {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child0 = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child0"), "child0");
     PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child1"), "child1");
+    child0.setParentNode(test.getUniqueIdentifier());
+    child1.setParentNode(test.getUniqueIdentifier());
     test.addChildNodes(Arrays.asList(child0, child1));
     assertEquals(2, test.getChildNodes().size());
     assertEquals(child0, test.getChildNodes().get(0));
@@ -119,6 +124,7 @@ public class PortfolioNodeImplTest {
   public void test_removeChildNode_match() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
+    child.setParentNode(test.getUniqueIdentifier ());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     test.removeChildNode(child);
@@ -130,6 +136,7 @@ public class PortfolioNodeImplTest {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
     PortfolioNodeImpl removing = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "removing"), "removing");
+    child.setParentNode (test.getUniqueIdentifier ());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     test.removeChildNode(removing);
@@ -208,10 +215,18 @@ public class PortfolioNodeImplTest {
   @Test
   public void test_getNode_Identifier() {
     PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
-    root.addChildNode(child);
+    PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
+    root.addChildNode(child1);
+    PortfolioNodeImpl child2 = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "B"), "Name");
+    child2.setParentNode (root.getUniqueIdentifier ());
+    root.addChildNode(child2);
     assertSame(root, root.getNode(UniqueIdentifier.of("Root", "A")));
-    assertSame(child, root.getNode(UniqueIdentifier.of("Child", "A")));
+    assertNotSame(child1, root.getNode(UniqueIdentifier.of("Child", "A")));
+    // equal except for the parent link
+    assertFalse(child1.equals (root.getNode(UniqueIdentifier.of("Child", "A"))));
+    child1.setParentNode (root.getUniqueIdentifier ());
+    assertEquals(child1, root.getNode(UniqueIdentifier.of("Child", "A")));
+    assertSame(child2, root.getNode(UniqueIdentifier.of("Child", "B")));
     assertEquals(null, root.getNode(UniqueIdentifier.of("NotFound", "A")));
   }
 
@@ -219,10 +234,18 @@ public class PortfolioNodeImplTest {
   public void test_getPosition_Identifier() {
     PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
-    Position position = new PositionImpl(UniqueIdentifier.of("Child", "A"), BigDecimal.ZERO, Identifier.of("A", "B"));
+    PositionImpl position1 = new PositionImpl(UniqueIdentifier.of("Child", "A"), BigDecimal.ZERO, Identifier.of("A", "B"));
+    PositionImpl position2 = new PositionImpl(UniqueIdentifier.of("Child", "B"), BigDecimal.ZERO, Identifier.of("A", "B"));
+    child.addPosition(position1);
+    position2.setPortfolioNode(child.getUniqueIdentifier ());
+    child.addPosition(position2);
     root.addChildNode(child);
-    child.addPosition(position);
-    assertSame(position, root.getPosition(UniqueIdentifier.of("Child", "A")));
+    assertNotSame(position1, root.getPosition(UniqueIdentifier.of("Child", "A")));
+    // equal except for the parent link
+    assertFalse(position1.equals (root.getPosition(UniqueIdentifier.of("Child", "A"))));
+    position1.setPortfolioNode(child.getUniqueIdentifier ());
+    assertEquals(position1, root.getPosition(UniqueIdentifier.of("Child", "A")));
+    assertSame(position2, root.getPosition(UniqueIdentifier.of("Child", "B")));
     assertEquals(null, root.getPosition(UniqueIdentifier.of("NotFound", "A")));
   }
 

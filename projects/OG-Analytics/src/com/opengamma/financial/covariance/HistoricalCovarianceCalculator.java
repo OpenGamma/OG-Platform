@@ -9,11 +9,10 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Calculates the historical covariance of two time series. The covariance is given by:
+ * Calculates the historical covariance of two return series. The covariance is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{eqnarray*}
  * \\frac{1}{n(n-1)}\\sum\\limits_{i=1}^n (x_i - \\overline{x})(y_i - \\overline{y})
@@ -21,17 +20,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * where {@latex.inline $x$} is the first return series, {@latex.inline $y$} is the second return series and {@latex.inline $n$} is the number of data points.
  */
 public class HistoricalCovarianceCalculator extends CovarianceCalculator {
-  private final TimeSeriesReturnCalculator _returnCalculator;
-
-  /**
-   * 
-   * @param returnCalculator The return calculator
-   * @throws IllegalArgumentException If the return calculator is null
-   */
-  public HistoricalCovarianceCalculator(final TimeSeriesReturnCalculator returnCalculator) {
-    Validate.notNull(returnCalculator, "return calculator");
-    _returnCalculator = returnCalculator;
-  }
 
   /**
    * Given two price time series, calculates their covariance
@@ -44,8 +32,8 @@ public class HistoricalCovarianceCalculator extends CovarianceCalculator {
     Validate.notNull(ts, "time series array");
     Validate.isTrue(ts.length == 2);
     testTimeSeries(ts[0], ts[1]);
-    final DoubleTimeSeries<?> returnTS1 = _returnCalculator.evaluate(ts[0]);
-    final DoubleTimeSeries<?> returnTS2 = _returnCalculator.evaluate(ts[1]);
+    final DoubleTimeSeries<?> returnTS1 = ts[0];
+    final DoubleTimeSeries<?> returnTS2 = ts[1];
     final int n = returnTS1.size();
     double xyMean = 0;
     double xMean = 0;

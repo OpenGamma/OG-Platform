@@ -114,7 +114,6 @@ public class BatchResultWriterTest extends HibernateTest {
     _hibernateTemplate.save(_computeNode);
     
     _liveDataSnapshot = new LiveDataSnapshot();
-    _liveDataSnapshot.setComplete(true);
     _liveDataSnapshot.setSnapshotTime(_observationDateTime);
     _hibernateTemplate.save(_liveDataSnapshot);
     
@@ -199,22 +198,16 @@ public class BatchResultWriterTest extends HibernateTest {
     resultModelDefinition.setSecurityOutputMode(ResultOutputMode.NONE);
     resultModelDefinition.setPrimitiveOutputMode(ResultOutputMode.NONE);
     BatchResultWriter resultWriter = new BatchResultWriter(
+        getDbSource(),
         new TestDependencyGraphExecutor<CalculationJobResult>(result),
         resultModelDefinition,
         cachesByCalculationConfiguration);
-    
-    resultWriter.setJdbcUrl(getDbTool().getJdbcUrl());
-    resultWriter.setUsername(getDbTool().getUser());
-    resultWriter.setPassword(getDbTool().getPassword());
-    
-    resultWriter.setTransactionManager(getTransactionManager());
-    resultWriter.setSessionFactory(getSessionFactory());
     
     resultWriter.setRiskRun(_riskRun);
     resultWriter.setRiskValueNames(_valueNames);
     
     resultWriter.setComputationTargets(_dbComputationTargets);
-    resultWriter.initialize(getDbTool());
+    resultWriter.initialize();
     
     return resultWriter;
   }

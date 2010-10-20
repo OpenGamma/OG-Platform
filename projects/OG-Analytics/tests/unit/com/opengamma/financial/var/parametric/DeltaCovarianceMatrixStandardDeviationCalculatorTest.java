@@ -48,7 +48,7 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(VECTOR, MATRIX, 1, VECTOR);
+    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(VECTOR, MATRIX, 1);
     final Map<Integer, ParametricVaRDataBundle> m = Collections.<Integer, ParametricVaRDataBundle> singletonMap(1, data);
     assertEquals(F.evaluate(m), Math.sqrt(45), 1e-9);
   }

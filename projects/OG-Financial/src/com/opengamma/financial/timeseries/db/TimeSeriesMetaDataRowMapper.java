@@ -17,23 +17,34 @@ import static com.opengamma.financial.timeseries.TimeSeriesConstant.TS_ID_COLUMN
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
  */
-/*package*/ class TimeSeriesMetaDataRowMapper<T> implements ParameterizedRowMapper<MetaData<T>> {
-  
+/*package*/ class TimeSeriesMetaDataRowMapper<T> implements RowMapper<MetaData<T>> {
+
+  /**
+   * The master.
+   */
   private final RowStoreTimeSeriesMaster<T> _rowStoreMaster;
+  /**
+   * Whether to load the dates.
+   */
   private boolean _loadDates;
-  
+
+  /**
+   * Creates an instance.
+   * @param rowStoreMaster  the master, not null
+   */
   public TimeSeriesMetaDataRowMapper(RowStoreTimeSeriesMaster<T> rowStoreMaster) {
     ArgumentChecker.notNull(rowStoreMaster, "rowStoreMaster");
     _rowStoreMaster = rowStoreMaster;    
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Sets the loadDates field.
    * @param loadDates  the loadDates
@@ -42,6 +53,7 @@ import com.opengamma.util.ArgumentChecker;
     _loadDates = loadDates;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MetaData<T> mapRow(ResultSet rs, int rowNum) throws SQLException {
     MetaData<T> result = new MetaData<T>();

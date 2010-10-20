@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -29,6 +29,10 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    */
   private UniqueIdentifier _identifier;
   /**
+   * The identifier of the parent node.
+   */
+  private UniqueIdentifier _parentNode;
+  /**
    * The amount of the position.
    */
   private BigDecimal _quantity;
@@ -40,6 +44,20 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * The security.
    */
   private Security _security;
+
+  /**
+   * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
+   * 
+   * @param copyFrom instance to copy fields from, not null
+   */
+  public PositionImpl(final Position copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _identifier = copyFrom.getUniqueIdentifier();
+    _parentNode = copyFrom.getPortfolioNode();
+    _quantity = copyFrom.getQuantity();
+    _securityKey = copyFrom.getSecurityKey();
+    _security = copyFrom.getSecurity();
+  }
 
   /**
    * Creates a position from an amount of a security identified by key.
@@ -133,7 +151,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _security = security;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the position.
    * @return the identifier, not null
@@ -152,7 +170,16 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _identifier = identifier;
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  public UniqueIdentifier getPortfolioNode() {
+    return _parentNode;
+  }
+
+  public void setPortfolioNode(final UniqueIdentifier parentNode) {
+    _parentNode = parentNode;
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the amount of the position held in terms of the security.
    * @return the amount of the position, not null
@@ -209,7 +236,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _security = security;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -217,9 +244,8 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     }
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
-      return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 &&
-              ObjectUtils.equals(_securityKey, other._securityKey) &&
-              ObjectUtils.equals(_security, other._security);
+      return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 && ObjectUtils.equals(_securityKey, other._securityKey) && ObjectUtils.equals(_security, other._security)
+          && ObjectUtils.equals(_parentNode, other._parentNode);
     }
     return false;
   }
@@ -228,26 +254,23 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public int hashCode() {
     int hashCode = 65;
     hashCode += _quantity.hashCode();
-    hashCode <<= 5;
+    hashCode *= 31;
     hashCode += _securityKey.hashCode();
+    hashCode *= 31;
     if (getSecurity() != null) {
-      hashCode <<= 5;
       hashCode += _security.hashCode();
+    }
+    hashCode *= 31;
+    if (_parentNode != null) {
+      hashCode += _parentNode.hashCode();
     }
     return hashCode;
   }
 
   @Override
   public String toString() {
-    return new StrBuilder()
-      .append("Position[")
-      .append(getUniqueIdentifier())
-      .append(", ")
-      .append(getQuantity())
-      .append(' ')
-      .append(getSecurity() != null ? getSecurity() : getSecurityKey())
-      .append(']')
-      .toString();
+    return new StrBuilder().append("Position[").append(getUniqueIdentifier()).append(", ").append(getQuantity()).append(' ').append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(
+        ']').toString();
   }
 
 }

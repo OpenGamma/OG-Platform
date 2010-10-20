@@ -39,10 +39,12 @@ import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Holds all data and actions for a single pass through a computation cycle.
@@ -103,11 +105,11 @@ public class SingleComputationCycle {
 
     _resultModel = new ViewComputationResultModelImpl();
     _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet());
-    
+
     if (getViewEvaluationModel().getPortfolio() != null) {
       _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
     }
-    
+
     _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getProcessingContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(view);
 
@@ -405,14 +407,14 @@ public class SingleComputationCycle {
 
   protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
-      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(outputSpec, depGraph)) {
+    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputValues(), CacheSelectHint.allShared())) {
+      if (value.getValue() == null) {
         continue;
       }
-      Object value = computationCache.getValue(outputSpec);
-      if (value != null) {
-        getResultModel().addValue(calcConfigurationName, new ComputedValue(outputSpec, value));
+      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
+        continue;
       }
+      getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
     }
   }
 

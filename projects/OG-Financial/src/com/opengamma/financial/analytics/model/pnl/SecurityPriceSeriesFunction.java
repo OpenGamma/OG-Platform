@@ -40,7 +40,6 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-
   private final String _dataSourceName;
   private final String _fieldName;
   private final LocalDate _startDate;
@@ -105,7 +104,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement>emptySet();
+    return Collections.<ValueRequirement> emptySet();
   }
 
   @Override
@@ -118,7 +117,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public String getShortName() {
-    return "SecurityReturn";
+    return "SampledSecurityPrice";
   }
 
   @Override

@@ -16,9 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
@@ -37,8 +37,8 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -71,12 +71,13 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.Timeout;
 
 @RunWith(Parameterized.class)
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;
-  private static final int JOB_FINISH_TIME = 1000;
+  private static final int JOB_FINISH_TIME = (int)Timeout.standardTimeoutMillis();
   private static final int SLEEP_TIME = JOB_FINISH_TIME / 10;
   private static final Logger s_logger = LoggerFactory.getLogger(CancelExecutionTest.class);
 
@@ -182,12 +183,13 @@ public class CancelExecutionTest {
    * Allow the job to finish, then call {@link Future#cancel}.
    */
   @Test
-  public void testJobFinish() {
+  public void testJobFinish() throws Exception {
     s_logger.info("testJobFinish");
     Future<?> job = executeTestJob();
     assertNotNull(job);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
       if (jobFinished()) {
+        job.get (Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
         assertFalse(job.isCancelled());
         assertTrue(job.isDone());
         s_logger.info("Job finished in {}", i);

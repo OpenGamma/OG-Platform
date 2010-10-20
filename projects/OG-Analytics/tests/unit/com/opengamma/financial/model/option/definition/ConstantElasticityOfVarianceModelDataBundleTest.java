@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -23,8 +24,8 @@ import com.opengamma.util.time.DateUtil;
  */
 public class ConstantElasticityOfVarianceModelDataBundleTest {
   private static final double R = 0.05;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
-  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(0.06);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.01;
   private static final double OTHER_B = 0.04;
   private static final double SIGMA = 0.2;

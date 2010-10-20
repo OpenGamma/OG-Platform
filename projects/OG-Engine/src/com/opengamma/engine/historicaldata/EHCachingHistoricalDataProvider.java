@@ -96,7 +96,10 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField);
       _cache.put(new Element(key, tsPair.getFirst()));
       if (tsPair.getFirst() != null) {
+        s_logger.debug("Retrieved {} for {}", tsPair.getFirst(), identifiers);
         _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      } else {
+        s_logger.debug("No data returned from underlying for {}", identifiers);
       }
       return tsPair;
     }
@@ -184,7 +187,10 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _underlying.getHistoricalData(identifiers);
       _cache.put(new Element(key, tsPair.getFirst()));
       if (tsPair.getFirst() != null) {
+        s_logger.debug("caching {} for {}", tsPair.getFirst(), identifiers);
         _cache.put(new Element(tsPair.getFirst(), tsPair.getSecond()));
+      } else {
+        s_logger.debug("no data returned from underlying for {}", identifiers);
       }
       return tsPair;
     }

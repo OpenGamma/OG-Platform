@@ -33,6 +33,10 @@ public final class PagingRequest {
    * Singleton constant to request the first page of 20 items.
    */
   public static final PagingRequest FIRST_PAGE = new PagingRequest(1, DEFAULT_PAGING_SIZE);
+  /**
+   * Singleton constant to request the first matching item.
+   */
+  public static final PagingRequest ONE = new PagingRequest(1, 1);
 
   /**
    * The requested page.

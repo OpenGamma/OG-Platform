@@ -1,6 +1,5 @@
-/**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+/* Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -57,8 +56,8 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -71,6 +70,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.ParallelArrayBinarySort;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -109,8 +109,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String fundingCurveValueRequirementName, String forwardCurveDefinitionName,
-      String forwardCurveValueRequirementName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String fundingCurveValueRequirementName,
+      final String forwardCurveDefinitionName,
+      final String forwardCurveValueRequirementName) {
     this(Currency.getInstance(currency), fundingCurveDefinitionName, fundingCurveValueRequirementName, forwardCurveDefinitionName, forwardCurveValueRequirementName);
   }
 
@@ -118,8 +119,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String fundingValueRequirementName, String forwardCurveDefinitionName,
-      String forwardValueRequirementName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String fundingValueRequirementName,
+      final String forwardCurveDefinitionName,
+      final String forwardValueRequirementName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(fundingCurveDefinitionName, "funding curve name");
     Validate.notNull(fundingValueRequirementName, "funding value requirement name");
@@ -152,7 +154,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity()));
     }
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode()
+    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency()
+        .getISOCode()
         + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
     final Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
@@ -165,8 +168,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
   }
 
+  // ENG-252 This logic doesn't seem to work
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
-    for (FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
+    for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
         final Instant futureExpiry = future.getExpiry().toInstant();
@@ -203,21 +207,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       _forwardCurveRequirements = forwardCurveRequirements;
     }
 
-    // just for debugging.
-    public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
-      return _identifierToFundingNodeTimes;
-    }
-
-    public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
-      return _identifierToForwardNodeTimes;
-    }
-
     public InterpolatedYieldCurveSpecification getFundingCurveSpecification() {
       return _fundingCurveSpecification;
     }
 
     public InterpolatedYieldCurveSpecification getForwardCurveSpecification() {
       return _forwardCurveSpecification;
+    }
+
+    public Map<Identifier, Double> getIdentifierToFundingNodeTimesMap() {
+      return _identifierToFundingNodeTimes;
+    }
+
+    public Map<Identifier, Double> getIdentifierToForwardNodeTimesMap() {
+      return _identifierToForwardNodeTimes;
     }
 
     @SuppressWarnings("unchecked")
@@ -238,17 +241,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
         // TODO going to arbitrarily use funding curve - will give the same result as forward curve
-        InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
-        List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
-        Set<FixedIncomeStrip> strips = _fundingCurveDefinition.getStrips();
-        int n = strips.size();
-        double[] initialRatesGuess = new double[n];
-        double[] nodeTimes = new double[n];
+        final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
+        final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
+        final Set<FixedIncomeStrip> strips = _fundingCurveDefinition.getStrips();
+        final int n = strips.size();
+        final double[] initialRatesGuess = new double[n];
+        final double[] nodeTimes = new double[n];
         _identifierToFundingNodeTimes.clear();
         _identifierToForwardNodeTimes.clear();
         int i = 0;
-        for (FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
-          ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
+        for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
+          final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
           final Double marketValue = (Double) inputs.getValue(stripRequirement);
           if (marketValue == null) {
             throw new NullPointerException("Could not get market data for " + strip);
@@ -268,7 +271,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
             // derivative = basisSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 100.,
             // now);
           } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-            derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName, marketValue / 10000.,
+            derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _fundingCurveDefinitionName,
+                marketValue / 10000.,
                 now);
           } else {
             throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
@@ -284,18 +288,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           i++;
         }
         ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);
-        LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
+        final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
         curveKnots.put(_fundingCurveDefinitionName, nodeTimes);
         final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
         final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-        final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+        final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators =
+            new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
         final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
             Interpolator1DFactory.FLAT_EXTRAPOLATOR);
         curveNodes.put(_fundingCurveDefinitionName, nodeTimes);
         interpolators.put(_fundingCurveDefinitionName, interpolator);
         // TODO have use finite difference or not as an input [FIN-147]
-        final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition
-            .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+        final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(
+            _fundingCurveDefinition
+                .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
         sensitivityCalculators.put(_fundingCurveDefinitionName, sensitivityCalculator);
         final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
         // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
@@ -313,11 +319,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         }
 
-        final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
-        final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(nodeTimes, yields, interpolator);
+        final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
+        final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
         return Sets
-            .newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
+            .newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve),
+                new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
       }
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
@@ -325,16 +332,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
       final Set<FixedIncomeStrip> fundingStrips = _fundingCurveDefinition.getStrips();
       final Set<FixedIncomeStrip> forwardStrips = _forwardCurveDefinition.getStrips();
-      int nFunding = fundingStrips.size();
-      int nForward = forwardStrips.size();
+      final int nFunding = fundingStrips.size();
+      final int nForward = forwardStrips.size();
       final double[] initialRatesGuess = new double[nFunding + nForward];
-      double[] fundingNodeTimes = new double[nFunding];
-      double[] forwardNodeTimes = new double[nForward];
+      final double[] fundingNodeTimes = new double[nFunding];
+      final double[] forwardNodeTimes = new double[nForward];
       _identifierToFundingNodeTimes.clear();
       _identifierToForwardNodeTimes.clear();
       int i = 0, fundingIndex = 0, forwardIndex = 0;
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
-        ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
+        final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
         final Double marketValue = (Double) inputs.getValue(stripRequirement);
         if (marketValue == null) {
           throw new NullPointerException("Could not get market data for " + strip);
@@ -347,11 +354,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
           derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue, now);
+          derivative = futureConverter.getInterestRateFuture((InterestRateFutureSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
-          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
+          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 10000., now);
+          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, _fundingCurveDefinitionName,
+              marketValue / 10000., now);
         } else {
           throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
         }
@@ -365,7 +373,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         fundingIndex++;
       }
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
-        ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
+        final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
         final Double marketValue = (Double) inputs.getValue(stripRequirement);
         if (marketValue == null) {
           throw new NullPointerException("Could not get market data for " + strip);
@@ -374,7 +382,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
-          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _fundingCurveDefinitionName, marketValue / 100., now);
+          derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
           derivative = fraConverter.getFRA((FRASecurity) strip.getSecurity(), _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -382,7 +390,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else if (strip.getInstrumentType() == StripInstrumentType.LIBOR) {
           derivative = cashConverter.getCash((CashSecurity) strip.getSecurity(), _forwardCurveDefinitionName, marketValue / 100., now);
         } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
-          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName, marketValue / 10000., now);
+          derivative = tenorSwapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName,
+              marketValue / 10000., now);
         } else {
           throw new OpenGammaRuntimeException("Can only handle swap, cash, LIBOR, FRA, IR futures and tenor swaps at the moment");
         }
@@ -399,25 +408,30 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       Arrays.sort(forwardNodeTimes);
       // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
       // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
-      LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
+      final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
       curveKnots.put(_fundingCurveDefinitionName, fundingNodeTimes);
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
-      final Interpolator1D fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators =
+          new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final Interpolator1D fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(),
+          Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-      final Interpolator1D forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_forwardCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+      final Interpolator1D forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_forwardCurveDefinition.getInterpolatorName(),
+          Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
       curveNodes.put(_fundingCurveDefinitionName, fundingNodeTimes);
       interpolators.put(_fundingCurveDefinitionName, fundingInterpolator);
       curveNodes.put(_forwardCurveDefinitionName, forwardNodeTimes);
       interpolators.put(_forwardCurveDefinitionName, forwardInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]
-      final Interpolator1DNodeSensitivityCalculator fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition
-          .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
-      final Interpolator1DNodeSensitivityCalculator forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_forwardCurveDefinition
-          .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+      final Interpolator1DNodeSensitivityCalculator fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(
+          _fundingCurveDefinition
+              .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+      final Interpolator1DNodeSensitivityCalculator forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(
+          _forwardCurveDefinition
+              .getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
       sensitivityCalculators.put(_fundingCurveDefinitionName, fundingSensitivityCalculator);
       sensitivityCalculators.put(_forwardCurveDefinitionName, forwardSensitivityCalculator);
       final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
@@ -435,18 +449,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
       }
-      // TODO duh the yields have to be split up
-      double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
-      double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
-      final YieldAndDiscountCurve fundingCurve = new InterpolatedYieldCurve(fundingNodeTimes, fundingYields, fundingInterpolator);
-      final YieldAndDiscountCurve forwardCurve = new InterpolatedYieldCurve(forwardNodeTimes, forwardYields, forwardInterpolator);
+      final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
+      final double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
+      final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, fundingInterpolator));
+      final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-      return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
+      return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve),
+          new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
 
     }
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       if (target.getType() != ComputationTargetType.PRIMITIVE) {
         return false;
       }
@@ -454,9 +468,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
       if (canApplyTo(context, target)) {
-        Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+        final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
         result.addAll(_fundingCurveRequirements);
         result.addAll(_forwardCurveRequirements);
         return result;
@@ -465,7 +479,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       if (canApplyTo(context, target)) {
         return _results;
       }
@@ -480,16 +494,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   @Override
-  public Compiled compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final LocalDate curveDate = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC).toLocalDate();
+  public Compiled compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+    final LocalDate curveDate = atInstant.toLocalDate();
     final InterpolatedYieldCurveSpecification fundingCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _fundingCurveDefinition);
     final InterpolatedYieldCurveSpecification forwardCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _forwardCurveDefinition);
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
-    Instant expiry = null;
-    expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
-    expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    return new Compiled(atInstant, expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification, forwardCurveRequirements);
+    // ENG-252 expiry logic is flawed so make it valid for the current day only
+    // Instant expiry = null;
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
+    // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
+    return new Compiled(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification,
+        forwardCurveRequirements);
   }
 
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {

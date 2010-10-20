@@ -8,7 +8,7 @@ package com.opengamma.financial.batch.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * 
@@ -113,7 +113,7 @@ public class StatusEntry {
   /**
    * Spring ParameterizedRowMapper 
    */
-  public static final ParameterizedRowMapper<StatusEntry> ROW_MAPPER = new ParameterizedRowMapper<StatusEntry>() {
+  public static final RowMapper<StatusEntry> ROW_MAPPER = new RowMapper<StatusEntry>() {
     @Override
     public StatusEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
       StatusEntry statusEntry = new StatusEntry();

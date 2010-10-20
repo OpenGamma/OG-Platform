@@ -6,7 +6,6 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
-import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;

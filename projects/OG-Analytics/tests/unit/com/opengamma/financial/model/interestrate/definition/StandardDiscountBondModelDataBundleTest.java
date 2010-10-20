@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate.definition;
@@ -12,10 +12,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtil;
 public class StandardDiscountBondModelDataBundleTest {
   private static final double R = 0.04;
   private static final double SIGMA = 0.2;
-  private static final YieldAndDiscountCurve R_CURVE = new ConstantYieldCurve(R);
-  private static final VolatilityCurve SIGMA_CURVE = new ConstantVolatilityCurve(SIGMA);
+  private static final YieldAndDiscountCurve R_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final VolatilityCurve SIGMA_CURVE = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final StandardDiscountBondModelDataBundle DATA = new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, DATE);
 
@@ -59,9 +59,9 @@ public class StandardDiscountBondModelDataBundleTest {
     StandardDiscountBondModelDataBundle other = new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, DATE);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new StandardDiscountBondModelDataBundle(new ConstantYieldCurve(R + 0.01), SIGMA_CURVE, DATE);
+    other = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(R + 0.01)), SIGMA_CURVE, DATE);
     assertFalse(other.equals(DATA));
-    other = new StandardDiscountBondModelDataBundle(R_CURVE, new ConstantVolatilityCurve(SIGMA + 0.1), DATE);
+    other = new StandardDiscountBondModelDataBundle(R_CURVE, new VolatilityCurve(ConstantDoublesCurve.from(SIGMA + 0.1)), DATE);
     assertFalse(other.equals(DATA));
     other = new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, DATE.minusDays(2));
     assertFalse(other.equals(DATA));

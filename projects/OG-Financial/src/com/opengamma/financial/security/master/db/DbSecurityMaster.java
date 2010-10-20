@@ -21,7 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbSource;
 
 /**
- * Low level SQL focused part of the database backed security master.
+ * A security master implementation using a database for persistence.
+ * <p>
+ * Full details of the API are in {@link SecurityMaster}.
+ * This class uses JDBC to store the data via a set of workers.
+ * The workers may be replaced by configuration to allow different SQL on different databases.
  */
 public class DbSecurityMaster implements SecurityMaster {
 

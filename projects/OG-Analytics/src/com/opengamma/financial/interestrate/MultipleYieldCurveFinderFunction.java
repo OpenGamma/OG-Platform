@@ -10,7 +10,8 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -47,7 +48,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
       final double[] nodes = _data.getCurveNodePointsForCurve(name);
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
       index += nodes.length;
-      final InterpolatedYieldCurve curve = new InterpolatedYieldCurve(nodes, yields, interpolator);
+      final YieldCurve curve = new YieldCurve(InterpolatedDoublesCurve.from(nodes, yields, interpolator));
       curves.setCurve(name, curve);
     }
 
@@ -59,7 +60,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
     final double[] res = new double[_data.getNumInstruments()];
     for (int i = 0; i < _data.getNumInstruments(); i++) {
-      res[i] = _calculator.getValue(_data.getDerivative(i), curves);
+      res[i] = _calculator.getValue(_data.getDerivative(i), curves) - _data.getMarketValue(i);
     }
 
     return new DoubleMatrix1D(res);

@@ -90,7 +90,9 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;
     }
-    return new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
+    final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
+    position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
+    return position;
   }
 
   //-------------------------------------------------------------------------
@@ -274,6 +276,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           _nodes.pop();
         }
         final PortfolioNodeImpl parent = _nodes.peek().second;
+        node.setParentNode(parent.getUniqueIdentifier());
         parent.addChildNode(node);
       }
       _nodes.push(LongObjectPair.of(treeRight, node));
@@ -286,6 +289,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       final BigDecimal quantity = extractBigDecimal(rs, "QUANTITY");
       final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
       PositionImpl pos = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
+      pos.setPortfolioNode(node.getUniqueIdentifier());
       node.addPosition(pos);
       return pos;
     }

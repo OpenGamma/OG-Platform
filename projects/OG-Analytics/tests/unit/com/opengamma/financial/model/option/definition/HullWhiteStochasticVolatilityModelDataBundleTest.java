@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -24,8 +25,8 @@ import com.opengamma.util.time.DateUtil;
 public class HullWhiteStochasticVolatilityModelDataBundleTest {
   private static final double R = 0.03;
   private static final double SIGMA = 0.3;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
-  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(0.2);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.2));
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.25);
   private static final double B = 0.01;
@@ -42,8 +43,7 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
   private static final double OTHER_RHO = -0.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 6, 1);
-  private static final HullWhiteStochasticVolatilityModelDataBundle DATA = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL,
-      RHO);
+  private static final HullWhiteStochasticVolatilityModelDataBundle DATA = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBundle() {
@@ -73,8 +73,8 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
   public void testEqualsAndHashCode() {
     final HullWhiteStochasticVolatilityModelDataBundle data1 = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
     final HullWhiteStochasticVolatilityModelDataBundle data2 = new HullWhiteStochasticVolatilityModelDataBundle(DATA);
-    final HullWhiteStochasticVolatilityModelDataBundle data3 = new HullWhiteStochasticVolatilityModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA,
-        SIGMA_LR, VOL_OF_VOL, RHO);
+    final HullWhiteStochasticVolatilityModelDataBundle data3 = new HullWhiteStochasticVolatilityModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, SIGMA_LR,
+        VOL_OF_VOL, RHO);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
     assertEquals(DATA, data3);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
@@ -11,12 +11,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
 import com.opengamma.financial.model.option.definition.twoasset.TwoAssetCorrelationOptionDefinition;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.time.Expiry;
 public class TwoAssetCorrelationOptionModelTest {
   private static final double S1 = 52;
   private static final double S2 = 65;
-  private static final YieldAndDiscountCurve R = new ConstantYieldCurve(0.1);
+  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B1 = 0.1;
   private static final double B2 = 0.1;
   private static final VolatilitySurface SIGMA1 = new ConstantVolatilitySurface(0.2);

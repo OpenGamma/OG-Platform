@@ -45,7 +45,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
-  private FudgeContext _fudgeContext = new FudgeContext();
+  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
   private final Timer _timer = new Timer("LiveDataClient Timer");
@@ -61,6 +61,11 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.notNull(messageSender, "Message Sender");
     _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
+  }
+
+  @Override
+  public void close() {
+    _timer.cancel();
   }
 
   /**

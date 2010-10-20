@@ -9,7 +9,6 @@
 
     create sequence hibernate_sequence start with 1 increment by 1;
 
-
 -- create-db-security.sql: Security Master
 
 -- design has one document

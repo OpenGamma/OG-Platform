@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.curve;
@@ -61,7 +61,7 @@ public class FXVannaVolgaVolatilityCurveDataBundle {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_delta);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_maturity == null) ? 0 : _maturity.hashCode());
+    result = prime * result + _maturity.hashCode();
     temp = Double.doubleToLongBits(_riskReversal);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_vegaWeightedButterfly);

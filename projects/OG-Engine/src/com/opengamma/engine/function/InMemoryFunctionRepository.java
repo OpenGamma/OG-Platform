@@ -28,10 +28,20 @@ public class InMemoryFunctionRepository implements FunctionRepository {
 
   public synchronized void addFunction(AbstractFunction function) {
     ArgumentChecker.notNull(function, "Function definition");
-    _functions.add(function);
     if (function.getUniqueIdentifier() == null) {
-      function.setUniqueIdentifier(Integer.toString(_functions.size()) + " (" + function.getClass().getSimpleName() + ")");
+      function.setUniqueIdentifier(Integer.toString(_functions.size() + 1) + " (" + function.getClass().getSimpleName() + ")");
     }
+    _functions.add(function);
+  }
+
+  public synchronized void replaceFunction(FunctionDefinition searchFor, AbstractFunction replaceWith) {
+    ArgumentChecker.notNull(searchFor, "searchFor");
+    ArgumentChecker.notNull(replaceWith, "replaceWith");
+    _functions.remove(searchFor);
+    if (replaceWith.getUniqueIdentifier() == null) {
+      replaceWith.setUniqueIdentifier(searchFor.getUniqueIdentifier());
+    }
+    _functions.add(replaceWith);
   }
 
   @Override

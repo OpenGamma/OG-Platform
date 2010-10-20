@@ -211,7 +211,7 @@ create table sec_bond (
     market_id bigint not null,
     currency_id bigint not null,
     yieldconvention_id bigint not null,
-    guaranteetype_id bigint not null,
+    guaranteetype_id bigint,
     maturity_date timestamp not null,
     maturity_zone varchar(50) not null,
     maturity_accuracy smallint not null,
@@ -219,9 +219,9 @@ create table sec_bond (
     couponrate double precision not null,
     couponfrequency_id bigint not null,
     daycountconvention_id bigint not null,
-    businessdayconvention_id bigint not null,
-    announcement_date timestamp not null,
-    announcement_zone varchar(50) not null,
+    businessdayconvention_id bigint,
+    announcement_date timestamp,
+    announcement_zone varchar(50),
     interestaccrual_date timestamp not null,
     interestaccrual_zone varchar(50) not null,
     settlement_date timestamp not null,
@@ -557,7 +557,6 @@ create table rsk_live_data_field (
 create table rsk_live_data_snapshot (
 	id int not null,
 	observation_datetime_id int not null,
-	complete boolean not null,
 	
 	primary key (id),
 	

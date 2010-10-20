@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import com.opengamma.config.DefaultConfigDocument;
-import com.opengamma.config.db.MongoDBConfigMaster;
-import com.opengamma.engine.config.MongoDBMasterConfigSource;
+import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigMaster;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.financial.Currency;
 
 /**
@@ -16,17 +16,29 @@ import com.opengamma.financial.Currency;
  * reversed. 
  */
 public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInterpolatedYieldCurveDefinitionSource {
+  // TODO: Remove this class which exists to make old tests easier
 
-  public DefaultInterpolatedYieldAndDiscountCurveSource() {
-    super(new MongoDBMasterConfigSource());
+  /**
+   * Creates an instance.
+   * @param source  the source, not null
+   */
+  public DefaultInterpolatedYieldAndDiscountCurveSource(final MasterConfigSource source) {
+    super(source);
   }
-  
+
+  /**
+   * Adds a definition to the configuration.
+   * @param currency  the currency, not null
+   * @param name  the name, not null
+   * @param definition  the definition, not null
+   */
   public void addDefinition(Currency currency, String name, YieldCurveDefinition definition) {
-    MongoDBMasterConfigSource configSource = (MongoDBMasterConfigSource) getConfigSource();
-    MongoDBConfigMaster<YieldCurveDefinition> configMaster = configSource.getConfigMasterFor(YieldCurveDefinition.class);
-    DefaultConfigDocument<YieldCurveDefinition> doc = new DefaultConfigDocument<YieldCurveDefinition>();
+    MasterConfigSource configSource = (MasterConfigSource) getConfigSource();
+    ConfigMaster<YieldCurveDefinition> configMaster = configSource.getMaster(YieldCurveDefinition.class);
+    ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>();
     doc.setName(name + "_" + currency.getISOCode());
     doc.setValue(definition);
     configMaster.add(doc);
   }
+
 }

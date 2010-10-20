@@ -20,11 +20,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -34,6 +32,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator;
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator;
   private final double _confidenceLevel;
+  private final NormalLinearVaRCalculator<DoubleTimeSeries<?>> _varCalculator;
 
   public PortfolioHistoricalVaRCalculatorFunction(final String meanCalculatorName, final String standardDeviationCalculatorName, final String confidenceLevel) {
     final Function<double[], Double> meanCalculator = StatisticsCalculatorFactory.getCalculator(meanCalculatorName);
@@ -41,6 +40,8 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
     _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(meanCalculator);
     _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(stdCalculator);
     _confidenceLevel = Double.valueOf(confidenceLevel);
+    //TODO number of periods per year depends on sampling frequency of P&L series
+    _varCalculator = new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(1, 1, _confidenceLevel, _meanCalculator, _stdCalculator);
   }
 
   @Override
@@ -48,11 +49,8 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
     final Object pnlSeriesObj = inputs.getValue(ValueRequirementNames.PNL_SERIES);
     if (pnlSeriesObj instanceof DoubleTimeSeries<?>) {
       final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
-      final LocalDateDoubleTimeSeries pnlSeriesLD = pnlSeries.toLocalDateDoubleTimeSeries();
-      if (!pnlSeriesLD.isEmpty()) {
-        final NormalLinearVaRCalculator varCalculator = new NormalLinearVaRCalculator(1, 1, _confidenceLevel); //TODO number of periods per year depends on sampling frequency of P&L series
-        final NormalStatistics<DoubleTimeSeries<?>> normalStats = new NormalStatistics<DoubleTimeSeries<?>>(_meanCalculator, _stdCalculator, pnlSeries);
-        final double var = varCalculator.evaluate(normalStats);
+      if (!pnlSeries.isEmpty()) {
+        final double var = _varCalculator.evaluate(pnlSeries);
         return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
             getUniqueIdentifier()), var));
       }

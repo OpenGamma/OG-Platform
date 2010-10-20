@@ -5,9 +5,7 @@
  */
 package com.opengamma.engine.value;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -17,10 +15,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
-public class ValueRequirementNames {
+public interface ValueRequirementNames {
 
-  private static final Map<String, Class<?>> TYPE_MAP = new HashMap<String, Class<?>>();
-  
   // CSOFF: Because they're names that should be known by industry practitioners.
   
   // Standard Analytic Models:
@@ -186,10 +182,9 @@ public class ValueRequirementNames {
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
   public static final String PEARSON_KURTOSIS = "Pearson Kurtosis";
   
-  // Risk Aggregates:
+  // VaR:
   public static final String HISTORICAL_VAR = "HistoricalVaR";
-  public static final String ISOLATED_VAR = "IsolatedVaR";
-  public static final String INCREMENTAL_VAR = "IncrementalVaR";
+  public static final String PARAMETRIC_VAR = "ParametricVaR"; 
 
   //Yield curve specifics
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
@@ -199,6 +194,12 @@ public class ValueRequirementNames {
   public static final String PV01 = "PV01";
   public static final String PAR_RATE = "Par Rate";
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
+  
+  //Bond analytics
+  public static final String YTM = "Yield To Maturity";
+  public static final String CURRENT_YIELD = "Current Yield";
+  public static final String DURATION = "Duration";
+  public static final String CONVEXITY = "Convexity";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
@@ -226,19 +227,5 @@ public class ValueRequirementNames {
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   
   //CSON
-  
-  static {
-    // Add non-scalars to the map
-    TYPE_MAP.put(YIELD_CURVE_JACOBIAN, double[][].class);
-  }
-  
-  public static Class<?> getValueRequirementType(String valueRequirementName) {
-    Class<?> type = TYPE_MAP.get(valueRequirementName);
-    if (type == null) {
-      // If no exception registered, assume it's a scalar
-      type = double.class;
-    }
-    return type;
-  }
   
 }

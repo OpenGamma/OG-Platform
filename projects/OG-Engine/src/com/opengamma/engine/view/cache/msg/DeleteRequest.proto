@@ -6,11 +6,17 @@
  
 namespace com.opengamma.engine.view.cache.msg {
 
-  message DeleteRequest extends BinaryDataStoreRequest {
+  // [ENG-256] Don't need this if we work at the releaseCaches level
+
+  message DeleteRequest extends CacheMessage {
   
     required string viewName;
     required string calculationConfigurationName;
     required long snapshotTimestamp;
+    
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitDeleteRequest (this); }";
+    }
   
   }
 

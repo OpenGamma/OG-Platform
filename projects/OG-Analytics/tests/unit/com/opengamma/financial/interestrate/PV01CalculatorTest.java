@@ -24,14 +24,17 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.FunctionalDoublesCurve;
+import com.opengamma.math.function.Function;
 
 /**
  * 
  */
 public class PV01CalculatorTest {
 
-  private final static YieldAndDiscountCurve FUNDING_CURVE = new DummyCurve(-0.04, 0.006, 0.1, 0.05);
-  private final static YieldAndDiscountCurve LIBOR_CURVE = new DummyCurve(-0.04, 0.005, 0.11, 0.055);
+  private final static YieldAndDiscountCurve FUNDING_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.1, 0.05)));
+  private final static YieldAndDiscountCurve LIBOR_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.005, 0.11, 0.055)));
   private final static PV01Calculator PV01 = PV01Calculator.getInstance();
   private final static PresentValueCalculator PV = PresentValueCalculator.getInstance();
   private final static double EPS = 1e-8;
@@ -139,7 +142,7 @@ public class PV01CalculatorTest {
       coupons[i] = initalCoupon + i * ramp;
       yearFracs[i] = yearFrac;
     }
-    final Bond bond = new Bond(paymentTimes, coupons, yearFracs, FUNDING_CURVE_NAME);
+    final Bond bond = new Bond(paymentTimes, coupons, yearFracs, 0.0, FUNDING_CURVE_NAME);
     doTest(bond, CURVES);
   }
 
@@ -218,13 +221,13 @@ public class PV01CalculatorTest {
     return result;
   }
 
-  private static class DummyCurve extends YieldAndDiscountCurve {
+  private static class MyFunction implements Function<Double, Double> {
     private final double _a;
     private final double _b;
     private final double _c;
     private final double _d;
 
-    public DummyCurve(final double a, final double b, final double c, final double d) {
+    public MyFunction(final double a, final double b, final double c, final double d) {
       Validate.isTrue(a + d > 0, "a+d>0");
       Validate.isTrue(d > 0, "d>0");
       Validate.isTrue(c > 0, "c>0");
@@ -234,34 +237,14 @@ public class PV01CalculatorTest {
       _d = d;
     }
 
-    @Override
-    public double getDiscountFactor(final Double t) {
-      return Math.exp(-t * getInterestRate(t));
-    }
-
-    @Override
-    public double getInterestRate(final Double t) {
-      return (_a + _b * t) * Math.exp(-_c * t) + _d;
-    }
-
-    @Override
-    public Set<Double> getMaturities() {
-      return null;
-    }
-
-    @Override
-    public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
-      return null;
-    }
-
-    @Override
     public YieldAndDiscountCurve withParallelShift(final Double shift) {
-      return new DummyCurve(_a, _b, _c, _d + shift);
+      return new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(_a, _b, _c, _d + shift)));
     }
 
     @Override
-    public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
-      return null;
+    public Double evaluate(final Double... x) {
+      final double t = x[0];
+      return (_a + _b * t) * Math.exp(-_c * t) + _d;
     }
   }
 
