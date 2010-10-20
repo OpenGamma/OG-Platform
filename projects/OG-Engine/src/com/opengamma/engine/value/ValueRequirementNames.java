@@ -198,6 +198,7 @@ public interface ValueRequirementNames {
   
   //Bond analytics
   public static final String YTM = "Yield To Maturity";
+  public static final String MARKET_YTM = "Market Yield To Maturity";//straight from BBG
   public static final String CURRENT_YIELD = "Current Yield";
   public static final String DURATION = "Duration";
   public static final String CONVEXITY = "Convexity";

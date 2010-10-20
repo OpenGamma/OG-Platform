@@ -16,32 +16,28 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
-import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
  */
-public class BondYieldFunction extends BondFunction {
+public class BondMarketYieldFunction extends BondFunction {
   
-  public BondYieldFunction(){
-    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+  public BondMarketYieldFunction(){
+    _requirementName = MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID;
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(Position position, Bond bond, double cleanPrice) {
-    double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
-    double yield = new BondYieldCalculator().calculate(bond, dirtyPrice);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueIdentifier());
-    return Sets.newHashSet(new ComputedValue(specification, yield));
+  protected Set<ComputedValue> getComputedValues(Position position, Bond bound, double value) {
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, position), getUniqueIdentifier());
+    return Sets.newHashSet(new ComputedValue(specification, value));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
     }
     return null;
   }
@@ -49,14 +45,14 @@ public class BondYieldFunction extends BondFunction {
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, target.getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "BondYieldFunction";
+    return "BondMarketYieldFunction";
   }
 
 }

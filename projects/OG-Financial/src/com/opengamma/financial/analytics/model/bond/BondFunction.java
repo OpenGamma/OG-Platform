@@ -34,6 +34,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public abstract class BondFunction extends NonCompiledInvoker {
 
   private final String _bondCurveName = "BondCurve";
+  protected String _requirementName;
 
   
   @Override
@@ -41,20 +42,21 @@ public abstract class BondFunction extends NonCompiledInvoker {
     Position position = target.getPosition();
     BondSecurity security = (BondSecurity) position.getSecurity();
 
-    final ValueRequirement cleanPriceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    final Object cleanPriceObject = inputs.getValue(cleanPriceRequirement);
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+ 
+    final Object cleanPriceObject = inputs.getValue(requirement);
     if (cleanPriceObject == null) {
-      throw new NullPointerException("Could not get " + cleanPriceRequirement);
+      throw new NullPointerException("Could not get " + requirement);
     }
     
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
 
-    final double cleanPrice = (Double) cleanPriceObject;
+    final double value = (Double) cleanPriceObject;
     final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now);
    
-    return getComputedValues(position, bond, cleanPrice);
+    return getComputedValues(position, bond, value);
   }
 
   @Override
@@ -78,6 +80,6 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return bond.getCurrency();
   }
   
-  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bound, double cleanPrice);
+  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bound, double value);
 
 }
