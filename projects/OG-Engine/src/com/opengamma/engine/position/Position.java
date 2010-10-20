@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position;
@@ -52,6 +52,12 @@ public interface Position extends UniqueIdentifiable {
    * This method is guaranteed to return a security within an analytic function.
    * @return the security
    */
-  Security getSecurity(); 
+  Security getSecurity();
+
+  /**
+   * Gets the unique identifier of the node within the portfolio this position is immediately under.
+   * @return the unique identifier
+   */
+  UniqueIdentifier getPortfolioNode();
 
 }

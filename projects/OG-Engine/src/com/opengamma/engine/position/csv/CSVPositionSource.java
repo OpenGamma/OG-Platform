@@ -185,6 +185,7 @@ public class CSVPositionSource implements PositionSource {
     while ((tokens = csvReader.readNext()) != null) {
       PositionImpl position = parseLine(tokens, positionId);
       if (position != null) {
+        position.setPortfolioNode(rootNodeId);
         ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
         _positions.put(position.getUniqueIdentifier(), position);
         positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(++curIndex));
