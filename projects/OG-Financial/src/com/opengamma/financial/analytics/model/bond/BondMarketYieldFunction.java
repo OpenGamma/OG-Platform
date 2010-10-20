@@ -35,14 +35,6 @@ public class BondMarketYieldFunction extends BondFunction {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
-    }
-    return null;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, target.getPosition()), getUniqueIdentifier()));

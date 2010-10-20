@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -58,6 +59,14 @@ public abstract class BondFunction extends NonCompiledInvoker {
    
     return getComputedValues(position, bond, value);
   }
+  
+  @Override
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+    }
+    return null;
+  }
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
@@ -80,6 +89,6 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return bond.getCurrency();
   }
   
-  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bound, double value);
+  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bond, double value);
 
 }
