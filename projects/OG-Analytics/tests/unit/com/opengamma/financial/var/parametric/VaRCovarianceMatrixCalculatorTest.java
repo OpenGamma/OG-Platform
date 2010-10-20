@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.var.parametric;
@@ -19,6 +19,10 @@ import org.junit.Test;
 import com.opengamma.financial.covariance.CovarianceCalculator;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekVisitor;
+import com.opengamma.financial.greeks.MixedOrderUnderlying;
+import com.opengamma.financial.greeks.NthOrderUnderlying;
+import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.Sensitivity;
@@ -70,6 +74,7 @@ public class VaRCovarianceMatrixCalculatorTest {
   private static final double GAMMA_A_2 = 89;
   private static final double VOMMA_A_2 = 97;
   private static final double DELTA_BLEED_A = 191;
+  private static final double DUMMY_A = 200;
   private static final double VANNA_A = 193;
   private static final double GAMMA_B = 197;
   private static final double VOMMA_B = 199;
@@ -86,54 +91,55 @@ public class VaRCovarianceMatrixCalculatorTest {
   private static final double VARIANCE_C_RETURN = 31;
   private static final double STRIKE_A_RETURN = 43;
   private static final double TIME_A_RETURN = 47;
+  private static final double DUMMY_A_RETURN = 34;
   private static final double[][] C1 = new double[][] {new double[] {VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * R_A_RETURN},
       new double[] {SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * R_A_RETURN},
       new double[] {R_A_RETURN * VOL_A_RETURN, R_A_RETURN * SPOT_A_RETURN, R_A_RETURN * R_A_RETURN}};
-  private static final double[][] C2 = new double[][] {new double[] {VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * R_A_RETURN, VOL_A_RETURN * R_B_RETURN,
-      VOL_A_RETURN * SPOT_B_RETURN, VOL_A_RETURN * VOL_B_RETURN, VOL_A_RETURN * SPOT_C_RETURN, VOL_A_RETURN * VOL_C_RETURN, VOL_A_RETURN * VARIANCE_C_RETURN},
-      new double[] {SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * R_A_RETURN, SPOT_A_RETURN * R_B_RETURN,
-          SPOT_A_RETURN * SPOT_B_RETURN, SPOT_A_RETURN * VOL_B_RETURN, SPOT_A_RETURN * SPOT_C_RETURN, SPOT_A_RETURN * VOL_C_RETURN, SPOT_A_RETURN * VARIANCE_C_RETURN},
-      new double[] {R_A_RETURN * VOL_A_RETURN, R_A_RETURN * SPOT_A_RETURN, R_A_RETURN * R_A_RETURN, R_A_RETURN * R_B_RETURN,
-          R_A_RETURN * SPOT_B_RETURN, R_A_RETURN * VOL_B_RETURN, R_A_RETURN * SPOT_C_RETURN, R_A_RETURN * VOL_C_RETURN, R_A_RETURN * VARIANCE_C_RETURN},
-      new double[] {R_B_RETURN * VOL_A_RETURN, R_B_RETURN * SPOT_A_RETURN, R_B_RETURN * R_A_RETURN, R_B_RETURN * R_B_RETURN,
-          R_B_RETURN * SPOT_B_RETURN, R_B_RETURN * VOL_B_RETURN, R_B_RETURN * SPOT_C_RETURN, R_B_RETURN * VOL_C_RETURN, R_B_RETURN * VARIANCE_C_RETURN},
-      new double[] {SPOT_B_RETURN * VOL_A_RETURN, SPOT_B_RETURN * SPOT_A_RETURN, SPOT_B_RETURN * R_A_RETURN, SPOT_B_RETURN * R_B_RETURN,
-          SPOT_B_RETURN * SPOT_B_RETURN, SPOT_B_RETURN * VOL_B_RETURN, SPOT_B_RETURN * SPOT_C_RETURN, SPOT_B_RETURN * VOL_C_RETURN, SPOT_B_RETURN * VARIANCE_C_RETURN},
-      new double[] {VOL_B_RETURN * VOL_A_RETURN, VOL_B_RETURN * SPOT_A_RETURN, VOL_B_RETURN * R_A_RETURN, VOL_B_RETURN * R_B_RETURN,
-          VOL_B_RETURN * SPOT_B_RETURN, VOL_B_RETURN * VOL_B_RETURN, VOL_B_RETURN * SPOT_C_RETURN, VOL_B_RETURN * VOL_C_RETURN, VOL_B_RETURN * VARIANCE_C_RETURN},
-      new double[] {SPOT_C_RETURN * VOL_A_RETURN, SPOT_C_RETURN * SPOT_A_RETURN, SPOT_C_RETURN * R_A_RETURN, SPOT_C_RETURN * R_B_RETURN,
-          SPOT_C_RETURN * SPOT_B_RETURN, SPOT_C_RETURN * VOL_B_RETURN, SPOT_C_RETURN * SPOT_C_RETURN, SPOT_C_RETURN * VOL_C_RETURN, SPOT_C_RETURN * VARIANCE_C_RETURN},
-      new double[] {VOL_C_RETURN * VOL_A_RETURN, VOL_C_RETURN * SPOT_A_RETURN, VOL_C_RETURN * R_A_RETURN, VOL_C_RETURN * R_B_RETURN,
-          VOL_C_RETURN * SPOT_B_RETURN, VOL_C_RETURN * VOL_B_RETURN, VOL_C_RETURN * SPOT_C_RETURN, VOL_C_RETURN * VOL_C_RETURN, VOL_C_RETURN * VARIANCE_C_RETURN},
-      new double[] {VARIANCE_C_RETURN * VOL_A_RETURN, VARIANCE_C_RETURN * SPOT_A_RETURN, VARIANCE_C_RETURN * R_A_RETURN, VARIANCE_C_RETURN * R_B_RETURN,
-          VARIANCE_C_RETURN * SPOT_B_RETURN, VARIANCE_C_RETURN * VOL_B_RETURN, VARIANCE_C_RETURN * SPOT_C_RETURN, VARIANCE_C_RETURN * VOL_C_RETURN, VARIANCE_C_RETURN * VARIANCE_C_RETURN}
-  };
+  private static final double[][] C2 = new double[][] {
+      new double[] {VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * R_A_RETURN, VOL_A_RETURN * R_B_RETURN, VOL_A_RETURN * SPOT_B_RETURN, VOL_A_RETURN * VOL_B_RETURN,
+          VOL_A_RETURN * SPOT_C_RETURN, VOL_A_RETURN * VOL_C_RETURN, VOL_A_RETURN * VARIANCE_C_RETURN},
+      new double[] {SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * R_A_RETURN, SPOT_A_RETURN * R_B_RETURN, SPOT_A_RETURN * SPOT_B_RETURN, SPOT_A_RETURN * VOL_B_RETURN,
+          SPOT_A_RETURN * SPOT_C_RETURN, SPOT_A_RETURN * VOL_C_RETURN, SPOT_A_RETURN * VARIANCE_C_RETURN},
+      new double[] {R_A_RETURN * VOL_A_RETURN, R_A_RETURN * SPOT_A_RETURN, R_A_RETURN * R_A_RETURN, R_A_RETURN * R_B_RETURN, R_A_RETURN * SPOT_B_RETURN, R_A_RETURN * VOL_B_RETURN,
+          R_A_RETURN * SPOT_C_RETURN, R_A_RETURN * VOL_C_RETURN, R_A_RETURN * VARIANCE_C_RETURN},
+      new double[] {R_B_RETURN * VOL_A_RETURN, R_B_RETURN * SPOT_A_RETURN, R_B_RETURN * R_A_RETURN, R_B_RETURN * R_B_RETURN, R_B_RETURN * SPOT_B_RETURN, R_B_RETURN * VOL_B_RETURN,
+          R_B_RETURN * SPOT_C_RETURN, R_B_RETURN * VOL_C_RETURN, R_B_RETURN * VARIANCE_C_RETURN},
+      new double[] {SPOT_B_RETURN * VOL_A_RETURN, SPOT_B_RETURN * SPOT_A_RETURN, SPOT_B_RETURN * R_A_RETURN, SPOT_B_RETURN * R_B_RETURN, SPOT_B_RETURN * SPOT_B_RETURN, SPOT_B_RETURN * VOL_B_RETURN,
+          SPOT_B_RETURN * SPOT_C_RETURN, SPOT_B_RETURN * VOL_C_RETURN, SPOT_B_RETURN * VARIANCE_C_RETURN},
+      new double[] {VOL_B_RETURN * VOL_A_RETURN, VOL_B_RETURN * SPOT_A_RETURN, VOL_B_RETURN * R_A_RETURN, VOL_B_RETURN * R_B_RETURN, VOL_B_RETURN * SPOT_B_RETURN, VOL_B_RETURN * VOL_B_RETURN,
+          VOL_B_RETURN * SPOT_C_RETURN, VOL_B_RETURN * VOL_C_RETURN, VOL_B_RETURN * VARIANCE_C_RETURN},
+      new double[] {SPOT_C_RETURN * VOL_A_RETURN, SPOT_C_RETURN * SPOT_A_RETURN, SPOT_C_RETURN * R_A_RETURN, SPOT_C_RETURN * R_B_RETURN, SPOT_C_RETURN * SPOT_B_RETURN, SPOT_C_RETURN * VOL_B_RETURN,
+          SPOT_C_RETURN * SPOT_C_RETURN, SPOT_C_RETURN * VOL_C_RETURN, SPOT_C_RETURN * VARIANCE_C_RETURN},
+      new double[] {VOL_C_RETURN * VOL_A_RETURN, VOL_C_RETURN * SPOT_A_RETURN, VOL_C_RETURN * R_A_RETURN, VOL_C_RETURN * R_B_RETURN, VOL_C_RETURN * SPOT_B_RETURN, VOL_C_RETURN * VOL_B_RETURN,
+          VOL_C_RETURN * SPOT_C_RETURN, VOL_C_RETURN * VOL_C_RETURN, VOL_C_RETURN * VARIANCE_C_RETURN},
+      new double[] {VARIANCE_C_RETURN * VOL_A_RETURN, VARIANCE_C_RETURN * SPOT_A_RETURN, VARIANCE_C_RETURN * R_A_RETURN, VARIANCE_C_RETURN * R_B_RETURN, VARIANCE_C_RETURN * SPOT_B_RETURN,
+          VARIANCE_C_RETURN * VOL_B_RETURN, VARIANCE_C_RETURN * SPOT_C_RETURN, VARIANCE_C_RETURN * VOL_C_RETURN, VARIANCE_C_RETURN * VARIANCE_C_RETURN}};
   private static final double[][] C3 = new double[][] {new double[] {SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * STRIKE_A_RETURN},
       new double[] {VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * STRIKE_A_RETURN},
       new double[] {STRIKE_A_RETURN * SPOT_A_RETURN, STRIKE_A_RETURN * VOL_A_RETURN, STRIKE_A_RETURN * STRIKE_A_RETURN}};
-  private static final double[][] C4 = new double[][] {
-      new double[] {SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * STRIKE_A_RETURN, SPOT_A_RETURN * TIME_A_RETURN},
+  private static final double[][] C4 = new double[][] {new double[] {SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * STRIKE_A_RETURN, SPOT_A_RETURN * TIME_A_RETURN},
       new double[] {VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * STRIKE_A_RETURN, VOL_A_RETURN * TIME_A_RETURN},
       new double[] {STRIKE_A_RETURN * SPOT_A_RETURN, STRIKE_A_RETURN * VOL_A_RETURN, STRIKE_A_RETURN * STRIKE_A_RETURN, STRIKE_A_RETURN * TIME_A_RETURN},
       new double[] {TIME_A_RETURN * SPOT_A_RETURN, TIME_A_RETURN * VOL_A_RETURN, TIME_A_RETURN * STRIKE_A_RETURN, TIME_A_RETURN * TIME_A_RETURN}};
   private static final double[][] C5 = new double[][] {
       new double[] {SPOT_A_RETURN * SPOT_A_RETURN, SPOT_A_RETURN * VOL_A_RETURN, SPOT_A_RETURN * STRIKE_A_RETURN, SPOT_A_RETURN * TIME_A_RETURN, SPOT_A_RETURN * SPOT_B_RETURN,
-          SPOT_A_RETURN * VOL_B_RETURN, SPOT_A_RETURN * SPOT_C_RETURN, SPOT_A_RETURN * VOL_C_RETURN},
-          new double[] {VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * STRIKE_A_RETURN, VOL_A_RETURN * TIME_A_RETURN, VOL_A_RETURN * SPOT_B_RETURN,
-              VOL_A_RETURN * VOL_B_RETURN, VOL_A_RETURN * SPOT_C_RETURN, VOL_A_RETURN * VOL_C_RETURN},
-          new double[] {STRIKE_A_RETURN * SPOT_A_RETURN, STRIKE_A_RETURN * VOL_A_RETURN, STRIKE_A_RETURN * STRIKE_A_RETURN, STRIKE_A_RETURN * TIME_A_RETURN, STRIKE_A_RETURN * SPOT_B_RETURN,
-              STRIKE_A_RETURN * VOL_B_RETURN, STRIKE_A_RETURN * SPOT_C_RETURN, STRIKE_A_RETURN * VOL_C_RETURN},
-          new double[] {TIME_A_RETURN * SPOT_A_RETURN, TIME_A_RETURN * VOL_A_RETURN, TIME_A_RETURN * STRIKE_A_RETURN, TIME_A_RETURN * TIME_A_RETURN, TIME_A_RETURN * SPOT_B_RETURN,
-              TIME_A_RETURN * VOL_B_RETURN, TIME_A_RETURN * SPOT_C_RETURN, TIME_A_RETURN * VOL_C_RETURN},
-          new double[] {SPOT_B_RETURN * SPOT_A_RETURN, SPOT_B_RETURN * VOL_A_RETURN, SPOT_B_RETURN * STRIKE_A_RETURN, SPOT_B_RETURN * TIME_A_RETURN, SPOT_B_RETURN * SPOT_B_RETURN,
-              SPOT_B_RETURN * VOL_B_RETURN, SPOT_B_RETURN * SPOT_C_RETURN, SPOT_B_RETURN * VOL_C_RETURN},
-          new double[] {VOL_B_RETURN * SPOT_A_RETURN, VOL_B_RETURN * VOL_A_RETURN, VOL_B_RETURN * STRIKE_A_RETURN, VOL_B_RETURN * TIME_A_RETURN, VOL_B_RETURN * SPOT_B_RETURN,
-              VOL_B_RETURN * VOL_B_RETURN, VOL_B_RETURN * SPOT_C_RETURN, VOL_B_RETURN * VOL_C_RETURN},
-          new double[] {SPOT_C_RETURN * SPOT_A_RETURN, SPOT_C_RETURN * VOL_A_RETURN, SPOT_C_RETURN * STRIKE_A_RETURN, SPOT_C_RETURN * TIME_A_RETURN, SPOT_C_RETURN * SPOT_B_RETURN,
-              SPOT_C_RETURN * VOL_B_RETURN, SPOT_C_RETURN * SPOT_C_RETURN, SPOT_C_RETURN * VOL_C_RETURN},
-          new double[] {VOL_C_RETURN * SPOT_A_RETURN, VOL_C_RETURN * VOL_A_RETURN, VOL_C_RETURN * STRIKE_A_RETURN, VOL_C_RETURN * TIME_A_RETURN, VOL_C_RETURN * SPOT_B_RETURN,
-              VOL_C_RETURN * VOL_B_RETURN, VOL_C_RETURN * SPOT_C_RETURN, VOL_C_RETURN * VOL_C_RETURN}
-  };
+          SPOT_A_RETURN * VOL_B_RETURN, SPOT_A_RETURN * SPOT_C_RETURN, SPOT_A_RETURN * VOL_C_RETURN, SPOT_A_RETURN * DUMMY_A_RETURN},
+      new double[] {VOL_A_RETURN * SPOT_A_RETURN, VOL_A_RETURN * VOL_A_RETURN, VOL_A_RETURN * STRIKE_A_RETURN, VOL_A_RETURN * TIME_A_RETURN, VOL_A_RETURN * SPOT_B_RETURN, VOL_A_RETURN * VOL_B_RETURN,
+          VOL_A_RETURN * SPOT_C_RETURN, VOL_A_RETURN * VOL_C_RETURN, VOL_A_RETURN * DUMMY_A_RETURN},
+      new double[] {STRIKE_A_RETURN * SPOT_A_RETURN, STRIKE_A_RETURN * VOL_A_RETURN, STRIKE_A_RETURN * STRIKE_A_RETURN, STRIKE_A_RETURN * TIME_A_RETURN, STRIKE_A_RETURN * SPOT_B_RETURN,
+          STRIKE_A_RETURN * VOL_B_RETURN, STRIKE_A_RETURN * SPOT_C_RETURN, STRIKE_A_RETURN * VOL_C_RETURN, STRIKE_A_RETURN * DUMMY_A_RETURN},
+      new double[] {TIME_A_RETURN * SPOT_A_RETURN, TIME_A_RETURN * VOL_A_RETURN, TIME_A_RETURN * STRIKE_A_RETURN, TIME_A_RETURN * TIME_A_RETURN, TIME_A_RETURN * SPOT_B_RETURN,
+          TIME_A_RETURN * VOL_B_RETURN, TIME_A_RETURN * SPOT_C_RETURN, TIME_A_RETURN * VOL_C_RETURN, TIME_A_RETURN * DUMMY_A_RETURN},
+      new double[] {SPOT_B_RETURN * SPOT_A_RETURN, SPOT_B_RETURN * VOL_A_RETURN, SPOT_B_RETURN * STRIKE_A_RETURN, SPOT_B_RETURN * TIME_A_RETURN, SPOT_B_RETURN * SPOT_B_RETURN,
+          SPOT_B_RETURN * VOL_B_RETURN, SPOT_B_RETURN * SPOT_C_RETURN, SPOT_B_RETURN * VOL_C_RETURN, SPOT_B_RETURN * DUMMY_A_RETURN},
+      new double[] {VOL_B_RETURN * SPOT_A_RETURN, VOL_B_RETURN * VOL_A_RETURN, VOL_B_RETURN * STRIKE_A_RETURN, VOL_B_RETURN * TIME_A_RETURN, VOL_B_RETURN * SPOT_B_RETURN, VOL_B_RETURN * VOL_B_RETURN,
+          VOL_B_RETURN * SPOT_C_RETURN, VOL_B_RETURN * VOL_C_RETURN, VOL_B_RETURN * DUMMY_A_RETURN},
+      new double[] {SPOT_C_RETURN * SPOT_A_RETURN, SPOT_C_RETURN * VOL_A_RETURN, SPOT_C_RETURN * STRIKE_A_RETURN, SPOT_C_RETURN * TIME_A_RETURN, SPOT_C_RETURN * SPOT_B_RETURN,
+          SPOT_C_RETURN * VOL_B_RETURN, SPOT_C_RETURN * SPOT_C_RETURN, SPOT_C_RETURN * VOL_C_RETURN, SPOT_C_RETURN * DUMMY_A_RETURN},
+      new double[] {VOL_C_RETURN * SPOT_A_RETURN, VOL_C_RETURN * VOL_A_RETURN, VOL_C_RETURN * STRIKE_A_RETURN, VOL_C_RETURN * TIME_A_RETURN, VOL_C_RETURN * SPOT_B_RETURN, VOL_C_RETURN * VOL_B_RETURN,
+          VOL_C_RETURN * SPOT_C_RETURN, VOL_C_RETURN * VOL_C_RETURN, VOL_C_RETURN * DUMMY_A_RETURN},
+      new double[] {DUMMY_A_RETURN * SPOT_A_RETURN, DUMMY_A_RETURN * VOL_A_RETURN, DUMMY_A_RETURN * STRIKE_A_RETURN, DUMMY_A_RETURN * TIME_A_RETURN, DUMMY_A_RETURN * SPOT_B_RETURN,
+          DUMMY_A_RETURN * VOL_B_RETURN, DUMMY_A_RETURN * SPOT_C_RETURN, DUMMY_A_RETURN * VOL_C_RETURN, DUMMY_A_RETURN * DUMMY_A_RETURN}};
 
   private static final double EPS = 1e-15;
 
@@ -153,6 +159,7 @@ public class VaRCovarianceMatrixCalculatorTest {
     final DoubleTimeSeries<?> varianceCTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {VARIANCE_C_RETURN});
     final DoubleTimeSeries<?> strikeATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {STRIKE_A_RETURN});
     final DoubleTimeSeries<?> timeATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {TIME_A_RETURN});
+    final DoubleTimeSeries<?> dummyATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {DUMMY_A_RETURN});
     final Sensitivity<?> rhoA1 = new ValueGreekSensitivity(new ValueGreek(Greek.RHO), name1);
     final Sensitivity<?> deltaA1 = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), name1);
     final Sensitivity<?> vegaA1 = new ValueGreekSensitivity(new ValueGreek(Greek.VEGA), name1);
@@ -175,6 +182,8 @@ public class VaRCovarianceMatrixCalculatorTest {
     final Sensitivity<?> vommaB = new ValueGreekSensitivity(new ValueGreek(Greek.VOMMA), name2);
     final Sensitivity<?> gammaC = new ValueGreekSensitivity(new ValueGreek(Greek.GAMMA), name3);
     final Sensitivity<?> vannaC = new ValueGreekSensitivity(new ValueGreek(Greek.VANNA), name3);
+    final Sensitivity<?> dummyA = new ValueGreekSensitivity(new ValueGreek(new DummyGreek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.YIELD),
+        new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE))), "DUMMY")), name1);
     A_DATA_FIRST_ORDER_1 = new SensitivityAndReturnDataBundle[3];
     A_DATA_FIRST_ORDER_1[0] = new SensitivityAndReturnDataBundle(vegaA1, VEGA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY, volATS));
     A_DATA_FIRST_ORDER_1[1] = new SensitivityAndReturnDataBundle(deltaA1, DELTA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, spotATS));
@@ -200,17 +209,14 @@ public class VaRCovarianceMatrixCalculatorTest {
         varianceCTS));
     A_DATA_SECOND_ORDER_1 = new SensitivityAndReturnDataBundle[3];
     A_DATA_SECOND_ORDER_1[0] = new SensitivityAndReturnDataBundle(gammaA1, GAMMA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, spotATS));
-    A_DATA_SECOND_ORDER_1[1] = new SensitivityAndReturnDataBundle(vommaA1, VOMMA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY,
-        volATS));
-    A_DATA_SECOND_ORDER_1[2] = new SensitivityAndReturnDataBundle(strikeGammaA1, STRIKE_GAMMA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.STRIKE,
-        strikeATS));
+    A_DATA_SECOND_ORDER_1[1] = new SensitivityAndReturnDataBundle(vommaA1, VOMMA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY, volATS));
+    A_DATA_SECOND_ORDER_1[2] = new SensitivityAndReturnDataBundle(strikeGammaA1, STRIKE_GAMMA_A_1, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.STRIKE, strikeATS));
     A_DATA_SECOND_ORDER_2 = new SensitivityAndReturnDataBundle[5];
     A_DATA_SECOND_ORDER_2[0] = A_DATA_SECOND_ORDER_1[0];
     A_DATA_SECOND_ORDER_2[1] = A_DATA_SECOND_ORDER_1[1];
     A_DATA_SECOND_ORDER_2[2] = A_DATA_SECOND_ORDER_1[2];
     A_DATA_SECOND_ORDER_2[3] = new SensitivityAndReturnDataBundle(gammaA2, GAMMA_A_2, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, spotATS));
-    A_DATA_SECOND_ORDER_2[4] = new SensitivityAndReturnDataBundle(vommaA2, VOMMA_A_2, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY,
-        volATS));
+    A_DATA_SECOND_ORDER_2[4] = new SensitivityAndReturnDataBundle(vommaA2, VOMMA_A_2, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY, volATS));
     A_DATA_SECOND_ORDER_3 = new SensitivityAndReturnDataBundle[7];
     A_DATA_SECOND_ORDER_3[0] = A_DATA_SECOND_ORDER_2[0];
     A_DATA_SECOND_ORDER_3[1] = A_DATA_SECOND_ORDER_2[1];
@@ -225,7 +231,7 @@ public class VaRCovarianceMatrixCalculatorTest {
     vannaAMap.put(UnderlyingType.SPOT_PRICE, spotATS);
     vannaAMap.put(UnderlyingType.IMPLIED_VOLATILITY, volATS);
     A_DATA_SECOND_ORDER_3[6] = new SensitivityAndReturnDataBundle(vannaA3, VANNA_A, vannaAMap);
-    DATA_SECOND_ORDER = new SensitivityAndReturnDataBundle[11];
+    DATA_SECOND_ORDER = new SensitivityAndReturnDataBundle[12];
     DATA_SECOND_ORDER[0] = A_DATA_SECOND_ORDER_3[0];
     DATA_SECOND_ORDER[1] = A_DATA_SECOND_ORDER_3[1];
     DATA_SECOND_ORDER[2] = A_DATA_SECOND_ORDER_3[2];
@@ -240,11 +246,15 @@ public class VaRCovarianceMatrixCalculatorTest {
     vannaCMap.put(UnderlyingType.SPOT_PRICE, spotCTS);
     vannaCMap.put(UnderlyingType.IMPLIED_VOLATILITY, volCTS);
     DATA_SECOND_ORDER[10] = new SensitivityAndReturnDataBundle(vannaC, VANNA_C, vannaCMap);
-    DATA = new SensitivityAndReturnDataBundle[22];
+    final Map<UnderlyingType, DoubleTimeSeries<?>> dummyAMap = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    dummyAMap.put(UnderlyingType.YIELD, dummyATS);
+    dummyAMap.put(UnderlyingType.SPOT_PRICE, spotATS);
+    DATA_SECOND_ORDER[11] = new SensitivityAndReturnDataBundle(dummyA, DUMMY_A, dummyAMap);
+    DATA = new SensitivityAndReturnDataBundle[23];
     for (int i = 0; i < 11; i++) {
       DATA[i] = DATA_FIRST_ORDER[i];
     }
-    for (int i = 11; i < 22; i++) {
+    for (int i = 11; i < 23; i++) {
       DATA[i] = DATA_SECOND_ORDER[i - 11];
     }
   }
@@ -272,8 +282,8 @@ public class VaRCovarianceMatrixCalculatorTest {
   @Test(expected = IllegalArgumentException.class)
   public void testThirdOrderSensitivity() {
     final SensitivityAndReturnDataBundle data = new SensitivityAndReturnDataBundle(new ValueGreekSensitivity(new ValueGreek(Greek.SPEED), "A"), 10,
-        Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS,
-            new long[] {1}, new double[] {1})));
+        Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new long[] {1},
+            new double[] {1})));
     CALC.evaluate(data);
   }
 
@@ -321,8 +331,8 @@ public class VaRCovarianceMatrixCalculatorTest {
   public void testFirstOrderOnly() {
     final ParametricVaRDataBundle result = CALC.evaluate(DATA_FIRST_ORDER).get(1);
     final List<String> names = result.getNames();
-    assertEquals(names, Arrays.asList("A_IMPLIED_VOLATILITY", "A_SPOT_PRICE", "A_INTEREST_RATE", "B_INTEREST_RATE", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE",
-        "C_IMPLIED_VOLATILITY", "C_IMPLIED_VARIANCE"));
+    assertEquals(names, Arrays.asList("A_IMPLIED_VOLATILITY", "A_SPOT_PRICE", "A_INTEREST_RATE", "B_INTEREST_RATE", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY",
+        "C_IMPLIED_VARIANCE"));
     final Matrix<?> sensitivities = result.getSensitivities();
     assertEquals(sensitivities.getClass(), DoubleMatrix1D.class);
     final DoubleMatrix1D v = (DoubleMatrix1D) sensitivities;
@@ -397,8 +407,7 @@ public class VaRCovarianceMatrixCalculatorTest {
     assertEquals(m1.getNumberOfRows(), 4);
     assertEquals(m1.getNumberOfColumns(), 4);
     final double[][] s = new double[][] {new double[] {GAMMA_A_1 + GAMMA_A_2, VANNA_A, 0, DELTA_BLEED_A}, new double[] {VANNA_A, VOMMA_A_1 + VOMMA_A_2, 0, 0},
-        new double[] {0, 0, STRIKE_GAMMA_A_1, 0},
-        new double[] {DELTA_BLEED_A, 0, 0, 0}};
+        new double[] {0, 0, STRIKE_GAMMA_A_1, 0}, new double[] {DELTA_BLEED_A, 0, 0, 0}};
     assertArrayEquals(m1.getData()[0], s[0], EPS);
     assertArrayEquals(m1.getData()[1], s[1], EPS);
     assertArrayEquals(m1.getData()[2], s[2], EPS);
@@ -416,29 +425,25 @@ public class VaRCovarianceMatrixCalculatorTest {
   public void testSecondOrderOnly() {
     final ParametricVaRDataBundle result = CALC.evaluate(DATA_SECOND_ORDER).get(2);
     final List<String> names = result.getNames();
-    assertEquals(names, Arrays.asList("A_SPOT_PRICE", "A_IMPLIED_VOLATILITY", "A_STRIKE", "A_TIME", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY"));
+    assertEquals(names, Arrays.asList("A_SPOT_PRICE", "A_IMPLIED_VOLATILITY", "A_STRIKE", "A_TIME", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY", "A_YIELD"));
     final Matrix<?> sensitivities = result.getSensitivities();
     assertEquals(sensitivities.getClass(), DoubleMatrix2D.class);
     final DoubleMatrix2D m1 = (DoubleMatrix2D) sensitivities;
-    assertEquals(m1.getNumberOfRows(), 8);
-    assertEquals(m1.getNumberOfColumns(), 8);
-    final double[][] s = new double[][] {new double[] {GAMMA_A_1 + GAMMA_A_2, VANNA_A, 0, DELTA_BLEED_A, 0, 0, 0, 0},
-        new double[] {VANNA_A, VOMMA_A_1 + VOMMA_A_2, 0, 0, 0, 0, 0, 0},
-        new double[] {0, 0, STRIKE_GAMMA_A_1, 0, 0, 0, 0, 0},
-        new double[] {DELTA_BLEED_A, 0, 0, 0, 0, 0, 0, 0},
-        new double[] {0, 0, 0, 0, GAMMA_B, 0, 0, 0},
-        new double[] {0, 0, 0, 0, 0, VOMMA_B, 0, 0},
-        new double[] {0, 0, 0, 0, 0, 0, GAMMA_C, VANNA_C},
-        new double[] {0, 0, 0, 0, 0, 0, VANNA_C, 0}};
-    for (int i = 0; i < 8; i++) {
+    assertEquals(m1.getNumberOfRows(), 9);
+    assertEquals(m1.getNumberOfColumns(), 9);
+    final double[][] s = new double[][] {new double[] {GAMMA_A_1 + GAMMA_A_2, VANNA_A, 0, DELTA_BLEED_A, 0, 0, 0, 0, DUMMY_A}, new double[] {VANNA_A, VOMMA_A_1 + VOMMA_A_2, 0, 0, 0, 0, 0, 0, 0},
+        new double[] {0, 0, STRIKE_GAMMA_A_1, 0, 0, 0, 0, 0, 0}, new double[] {DELTA_BLEED_A, 0, 0, 0, 0, 0, 0, 0, 0}, new double[] {0, 0, 0, 0, GAMMA_B, 0, 0, 0, 0},
+        new double[] {0, 0, 0, 0, 0, VOMMA_B, 0, 0, 0}, new double[] {0, 0, 0, 0, 0, 0, GAMMA_C, VANNA_C, 0}, new double[] {0, 0, 0, 0, 0, 0, VANNA_C, 0, 0},
+        new double[] {DUMMY_A, 0, 0, 0, 0, 0, 0, 0, 0}};
+    for (int i = 0; i < 9; i++) {
       assertArrayEquals(m1.getData()[i], s[i], EPS);
     }
     final Matrix<?> covariance = result.getCovarianceMatrix();
     assertEquals(covariance.getClass(), DoubleMatrix2D.class);
     final DoubleMatrix2D m2 = (DoubleMatrix2D) covariance;
-    assertEquals(m2.getNumberOfRows(), 8);
-    assertEquals(m2.getNumberOfColumns(), 8);
-    for (int i = 0; i < 8; i++) {
+    assertEquals(m2.getNumberOfRows(), 9);
+    assertEquals(m2.getNumberOfColumns(), 9);
+    for (int i = 0; i < 9; i++) {
       assertArrayEquals(m2.getData()[i], C5[i], EPS);
     }
   }
@@ -447,8 +452,8 @@ public class VaRCovarianceMatrixCalculatorTest {
   public void test() {
     ParametricVaRDataBundle result = CALC.evaluate(DATA).get(1);
     List<String> names = result.getNames();
-    assertEquals(names, Arrays.asList("A_IMPLIED_VOLATILITY", "A_SPOT_PRICE", "A_INTEREST_RATE", "B_INTEREST_RATE", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE",
-        "C_IMPLIED_VOLATILITY", "C_IMPLIED_VARIANCE"));
+    assertEquals(names, Arrays.asList("A_IMPLIED_VOLATILITY", "A_SPOT_PRICE", "A_INTEREST_RATE", "B_INTEREST_RATE", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY",
+        "C_IMPLIED_VARIANCE"));
     Matrix<?> sensitivities = result.getSensitivities();
     assertEquals(sensitivities.getClass(), DoubleMatrix1D.class);
     final DoubleMatrix1D v = (DoubleMatrix1D) sensitivities;
@@ -464,30 +469,39 @@ public class VaRCovarianceMatrixCalculatorTest {
     }
     result = CALC.evaluate(DATA).get(2);
     names = result.getNames();
-    assertEquals(names, Arrays.asList("A_SPOT_PRICE", "A_IMPLIED_VOLATILITY", "A_STRIKE", "A_TIME", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY"));
+    assertEquals(names, Arrays.asList("A_SPOT_PRICE", "A_IMPLIED_VOLATILITY", "A_STRIKE", "A_TIME", "B_SPOT_PRICE", "B_IMPLIED_VOLATILITY", "C_SPOT_PRICE", "C_IMPLIED_VOLATILITY", "A_YIELD"));
     sensitivities = result.getSensitivities();
     assertEquals(sensitivities.getClass(), DoubleMatrix2D.class);
     final DoubleMatrix2D m1 = (DoubleMatrix2D) sensitivities;
-    assertEquals(m1.getNumberOfRows(), 8);
-    assertEquals(m1.getNumberOfColumns(), 8);
-    final double[][] s = new double[][] {new double[] {GAMMA_A_1 + GAMMA_A_2, VANNA_A, 0, DELTA_BLEED_A, 0, 0, 0, 0},
-        new double[] {VANNA_A, VOMMA_A_1 + VOMMA_A_2, 0, 0, 0, 0, 0, 0},
-        new double[] {0, 0, STRIKE_GAMMA_A_1, 0, 0, 0, 0, 0},
-        new double[] {DELTA_BLEED_A, 0, 0, 0, 0, 0, 0, 0},
-        new double[] {0, 0, 0, 0, GAMMA_B, 0, 0, 0},
-        new double[] {0, 0, 0, 0, 0, VOMMA_B, 0, 0},
-        new double[] {0, 0, 0, 0, 0, 0, GAMMA_C, VANNA_C},
-        new double[] {0, 0, 0, 0, 0, 0, VANNA_C, 0}};
-    for (int i = 0; i < 8; i++) {
+    assertEquals(m1.getNumberOfRows(), 9);
+    assertEquals(m1.getNumberOfColumns(), 9);
+    final double[][] s = new double[][] {new double[] {GAMMA_A_1 + GAMMA_A_2, VANNA_A, 0, DELTA_BLEED_A, 0, 0, 0, 0, DUMMY_A}, new double[] {VANNA_A, VOMMA_A_1 + VOMMA_A_2, 0, 0, 0, 0, 0, 0, 0},
+        new double[] {0, 0, STRIKE_GAMMA_A_1, 0, 0, 0, 0, 0, 0}, new double[] {DELTA_BLEED_A, 0, 0, 0, 0, 0, 0, 0, 0}, new double[] {0, 0, 0, 0, GAMMA_B, 0, 0, 0, 0},
+        new double[] {0, 0, 0, 0, 0, VOMMA_B, 0, 0, 0}, new double[] {0, 0, 0, 0, 0, 0, GAMMA_C, VANNA_C, 0}, new double[] {0, 0, 0, 0, 0, 0, VANNA_C, 0, 0},
+        new double[] {DUMMY_A, 0, 0, 0, 0, 0, 0, 0, 0}};
+    for (int i = 0; i < 9; i++) {
       assertArrayEquals(m1.getData()[i], s[i], EPS);
     }
     covariance = result.getCovarianceMatrix();
     assertEquals(covariance.getClass(), DoubleMatrix2D.class);
     final DoubleMatrix2D m2 = (DoubleMatrix2D) covariance;
-    assertEquals(m2.getNumberOfRows(), 8);
-    assertEquals(m2.getNumberOfColumns(), 8);
-    for (int i = 0; i < 8; i++) {
+    assertEquals(m2.getNumberOfRows(), 9);
+    assertEquals(m2.getNumberOfColumns(), 9);
+    for (int i = 0; i < 9; i++) {
       assertArrayEquals(m2.getData()[i], C5[i], EPS);
     }
+  }
+
+  private static class DummyGreek extends Greek {
+
+    public DummyGreek(final Underlying underlying, final String name) {
+      super(underlying, name);
+    }
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      return null;
+    }
+
   }
 }

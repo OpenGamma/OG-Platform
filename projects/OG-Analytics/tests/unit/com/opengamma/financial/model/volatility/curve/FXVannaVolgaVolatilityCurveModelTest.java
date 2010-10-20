@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.curve;
@@ -11,21 +11,19 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
-import com.opengamma.financial.model.volatility.curve.FXVannaVolgaVolatilityCurveDataBundle;
-import com.opengamma.financial.model.volatility.curve.FXVannaVolgaVolatilityCurveModel;
-import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class FXVannaVolgaVolatilityCurveModelTest {
-  private static final YieldAndDiscountCurve DOMESTIC = new ConstantDiscountCurve(0.9902752);
-  private static final YieldAndDiscountCurve FOREIGN = new ConstantDiscountCurve(0.9945049);
+  private static final YieldAndDiscountCurve DOMESTIC = new DiscountCurve(ConstantDoublesCurve.from(0.9902752));
+  private static final YieldAndDiscountCurve FOREIGN = new DiscountCurve(ConstantDoublesCurve.from(0.9945049));
   private static final double SPOT = 1.205;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(DATE, 94. / 365);

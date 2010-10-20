@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -28,7 +29,7 @@ public class EuropeanStandardBarrierOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.DOWN, 90);
   private static final double REBATE = 2;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.05), 0.03, new ConstantVolatilitySurface(0.2), 100, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.03, new ConstantVolatilitySurface(0.2), 100, DATE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBarrier() {

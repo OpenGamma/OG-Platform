@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -17,8 +17,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.LogLinearInterpolator1D;
@@ -92,7 +93,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNameClash() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
-    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.05);
+    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
     bundle.setCurve(CURVE_NAME1, curve);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, bundle, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
@@ -104,8 +105,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1, new ConstantYieldCurve(2.))), NODES, INTERPOLATORS,
-        SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1, new YieldCurve(ConstantDoublesCurve.from(2.)))),
+        NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
   @Test(expected = IllegalArgumentException.class)

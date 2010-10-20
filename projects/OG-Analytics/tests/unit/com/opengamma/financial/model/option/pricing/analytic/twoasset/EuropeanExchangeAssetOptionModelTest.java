@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
@@ -11,10 +11,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.twoasset.EuropeanExchangeAssetOptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -28,7 +29,7 @@ public class EuropeanExchangeAssetOptionModelTest {
   private static final double Q2 = 1;
   private static final double B1 = 0.04;
   private static final double B2 = 0.06;
-  private static final ConstantYieldCurve R = new ConstantYieldCurve(0.1);
+  private static final YieldCurve R = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final ConstantVolatilitySurface SIGMA1 = new ConstantVolatilitySurface(0.2);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final EuropeanExchangeAssetOptionModel MODEL = new EuropeanExchangeAssetOptionModel();

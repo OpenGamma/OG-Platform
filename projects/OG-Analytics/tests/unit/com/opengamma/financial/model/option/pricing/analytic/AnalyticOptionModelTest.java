@@ -17,11 +17,12 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -41,7 +42,7 @@ public class AnalyticOptionModelTest {
 
   private static final EuropeanVanillaOptionDefinition PUT = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, false);
   private static final EuropeanVanillaOptionDefinition CALL = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, true);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0.02, new ConstantVolatilitySurface(0.24), 15., DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0.02, new ConstantVolatilitySurface(0.24), 15., DATE);
   private static final double EPS = 1e-2;
 
   public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {

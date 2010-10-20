@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.curve;
@@ -27,30 +27,6 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
   private final int _n;
   private final T[] _xData;
   private final U[] _yData;
-
-  public ObjectObjectCurve(final T[] xData, final U[] yData) {
-    this(xData, yData, false);
-  }
-
-  public ObjectObjectCurve(final Map<T, U> data) {
-    this(data, false);
-  }
-
-  public ObjectObjectCurve(final Set<Pair<T, U>> data) {
-    this(data, false);
-  }
-
-  public ObjectObjectCurve(final T[] xData, final U[] yData, final String name) {
-    this(xData, yData, false, name);
-  }
-
-  public ObjectObjectCurve(final Map<T, U> data, final String name) {
-    this(data, false, name);
-  }
-
-  public ObjectObjectCurve(final Set<Pair<T, U>> data, final String name) {
-    this(data, false, name);
-  }
 
   public ObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super();
@@ -106,6 +82,20 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  @SuppressWarnings("unchecked")
+  public ObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
+    super();
+    Validate.notNull(xData, "x data");
+    Validate.notNull(yData, "y data");
+    _n = xData.size();
+    Validate.isTrue(_n == yData.size());
+    _xData = xData.toArray((T[]) Array.newInstance(xData.get(0).getClass(), 0));
+    _yData = yData.toArray((U[]) Array.newInstance(yData.get(0).getClass(), 0));
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
   public ObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -151,6 +141,20 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     final Pair<T, U> firstEntry = data.iterator().next();
     _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
     _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getValue().getClass(), 0));
+    if (!isSorted) {
+      ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public ObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
+    super(name);
+    Validate.notNull(xData, "x data");
+    Validate.notNull(yData, "y data");
+    _n = xData.size();
+    Validate.isTrue(_n == yData.size());
+    _xData = xData.toArray((T[]) Array.newInstance(xData.get(0).getClass(), 0));
+    _yData = yData.toArray((U[]) Array.newInstance(yData.get(0).getClass(), 0));
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }

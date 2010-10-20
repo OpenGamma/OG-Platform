@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic;
@@ -11,14 +11,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.FadeInOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -29,7 +30,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  */
 public class FadeInOptionModelTest {
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.1);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B = 0;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final double SPOT = 100;
