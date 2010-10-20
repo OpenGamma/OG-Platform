@@ -6,6 +6,7 @@
 package com.opengamma.util.tuple;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -16,30 +17,121 @@ import org.junit.Test;
 public class DoublesPairTest {
 
   @Test
-  public void testOf_double_double() {
-    DoublesPair test = Pair.of(1.5d, -0.3d);
-    assertEquals(test.getFirst(), Double.valueOf(1.5d));
-    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
-    assertEquals(test.getFirstDouble(), 1.5d, 1E-10);
-    assertEquals(test.getSecondDouble(), -0.3d, 1E-10);
-    assertEquals(test.getKey(), Double.valueOf(1.5d));
-    assertEquals(test.getValue(), Double.valueOf(-0.3d));
-    assertEquals(test.getDoubleKey(), 1.5d, 1E-10);
-    assertEquals(test.getDoubleValue(), -0.3d, 1E-10);
+  public void test_DoublesPair_of_DoublesPair() {
+    DoublesPair base = DoublesPair.of(1.2d, 2.5d);
+    DoublesPair test = DoublesPair.of(base);
+    assertSame(base, test);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_of_DoublesPair_null() {
+    DoublesPair.of((DoublesPair) null);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testPair_Object_Object() {
+  public void test_DoublesPair_of_PairDoubleDouble() {
+    Pair<Double, Double> base = ObjectsPair.of(Double.valueOf(1.2d), Double.valueOf(2.5d));
+    DoublesPair test = DoublesPair.of(base);
+    assertEquals(new DoublesPair(1.2d, 2.5d), test);
+  }
+
+  @Test
+  public void test_DoublesPair_of_PairDoubleDouble_DoublesPair() {
+    Pair<Double, Double> base = DoublesPair.of(1.2d, 2.5d);
+    DoublesPair test = DoublesPair.of(base);
+    assertSame(base, test);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_of_PairDoubleDouble_null() {
+    DoublesPair.of((Pair<Double, Double>) null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_of_PairDoubleDouble_nullFirst() {
+    Pair<Double, Double> base = ObjectsPair.of(null, Double.valueOf(2.5d));
+    DoublesPair.of(base);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_of_PairDoubleDouble_nullSecond() {
+    Pair<Double, Double> base = ObjectsPair.of(Double.valueOf(1.2d), null);
+    DoublesPair.of(base);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_DoublesPair_ofNumbers_PairNumberNumber() {
+    Pair<Integer, Long> base = ObjectsPair.of(Integer.valueOf(2), Long.valueOf(3L));
+    DoublesPair test = DoublesPair.ofNumbers(base);
+    assertEquals(new DoublesPair(2, 3), test);
+  }
+
+  @Test
+  public void test_DoublesPair_of_PairNumberNumber_DoublesPair() {
+    DoublesPair base = DoublesPair.of(1.2d, 2.5d);
+    DoublesPair test = DoublesPair.ofNumbers(base);
+    assertSame(base, test);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_ofNumbers_PairDoubleDouble_null() {
+    DoublesPair.ofNumbers((Pair<Double, Double>) null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_ofNumbers_PairDoubleDouble_nullFirst() {
+    Pair<Double, Integer> base = ObjectsPair.of(null, Integer.valueOf(2));
+    DoublesPair.ofNumbers(base);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_DoublesPair_ofNumbers_PairDoubleDouble_nullSecond() {
+    Pair<Integer, Double> base = ObjectsPair.of(Integer.valueOf(1), null);
+    DoublesPair.ofNumbers(base);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_DoublesPair_of_double_double() {
+    DoublesPair test = DoublesPair.of(1.2d, 2.5d);
+    assertEquals(Double.valueOf(1.2d), test.getFirst());
+    assertEquals(Double.valueOf(2.5d), test.getSecond());
+    assertEquals(1.2d, test.getFirstDouble(), 1E-10);
+    assertEquals(2.5d, test.getSecondDouble(), 1E-10);
+    assertEquals(Double.valueOf(1.2d), test.getKey());
+    assertEquals(Double.valueOf(2.5d), test.getValue());
+    assertEquals(1.2d, test.getDoubleKey(), 1E-10);
+    assertEquals(2.5d, test.getDoubleValue(), 1E-10);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_PairOf_double_double() {
+    DoublesPair test = Pair.of(1.5d, -0.3d);
+    assertEquals(Double.valueOf(1.5d), test.getFirst());
+    assertEquals(Double.valueOf(-0.3d), test.getSecond());
+    assertEquals(1.5d, test.getFirstDouble(), 1E-10);
+    assertEquals(-0.3d, test.getSecondDouble(), 1E-10);
+    assertEquals(Double.valueOf(1.5d), test.getKey());
+    assertEquals(Double.valueOf(-0.3d), test.getValue());
+    assertEquals(1.5d, test.getDoubleKey(), 1E-10);
+    assertEquals(-0.3d, test.getDoubleValue(), 1E-10);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testConstructionGets() {
     DoublesPair test = new DoublesPair(1.5d, -0.3d);
-    assertEquals(test.getFirst(), Double.valueOf(1.5d));
-    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
-    assertEquals(test.getFirstDouble(), 1.5d, 1E-10);
-    assertEquals(test.getSecondDouble(), -0.3d, 1E-10);
-    assertEquals(test.getKey(), Double.valueOf(1.5d));
-    assertEquals(test.getValue(), Double.valueOf(-0.3d));
-    assertEquals(test.getDoubleKey(), 1.5d, 1E-10);
-    assertEquals(test.getDoubleValue(), -0.3d, 1E-10);
+    assertEquals(Double.valueOf(1.5d), test.getFirst());
+    assertEquals(Double.valueOf(-0.3d), test.getSecond());
+    assertEquals(1.5d, test.getFirstDouble(), 1E-10);
+    assertEquals(-0.3d, test.getSecondDouble(), 1E-10);
+    assertEquals(Double.valueOf(1.5d), test.getKey());
+    assertEquals(Double.valueOf(-0.3d), test.getValue());
+    assertEquals(1.5d, test.getDoubleKey(), 1E-10);
+    assertEquals(-0.3d, test.getDoubleValue(), 1E-10);
   }
 
   //-------------------------------------------------------------------------
@@ -87,50 +179,50 @@ public class DoublesPairTest {
     DoublesPair b = Pair.of(1.5d, 1.9d);
     DoublesPair c = Pair.of(1.7d, 1.7d);
     DoublesPair d = Pair.of(1.7d, 1.9d);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, a.equals(c));
+    assertEquals(false, a.equals(d));
     
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
+    assertEquals(false, b.equals(c));
+    assertEquals(false, b.equals(d));
     
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertEquals(false, c.equals(a));
+    assertEquals(false, c.equals(b));
+    assertEquals(true, c.equals(c));
+    assertEquals(false, c.equals(d));
     
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertEquals(false, d.equals(a));
+    assertEquals(false, d.equals(b));
+    assertEquals(false, d.equals(c));
+    assertEquals(true, d.equals(d));
   }
 
   @Test
   public void testEquals_toObjectVersion() {
     DoublesPair a = Pair.of(1.5d, 1.7d);
     Pair<Double, Double> b = Pair.of(Double.valueOf(1.5d), Double.valueOf(1.7d));
-    assertEquals(a.equals(b), true);
-    assertEquals(b.equals(a), true);
+    assertEquals(true, a.equals(b));
+    assertEquals(true, b.equals(a));
   }
 
   @Test
   public void testEquals_toObjectVersion_null() {
     Pair<Double, Double> a = Pair.of(null, Double.valueOf(1.9d));
     DoublesPair b = Pair.of(1.5d, 1.7d);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
   }
 
   @Test
   public void testHashCode() {
     DoublesPair a = Pair.of(1.5d, 1.7d);
     Pair<Double, Double> b = Pair.of(Double.valueOf(1.5d), Double.valueOf(1.7d));
-    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b.hashCode(), a.hashCode());
   }
   
   @Test(expected = IllegalArgumentException.class)

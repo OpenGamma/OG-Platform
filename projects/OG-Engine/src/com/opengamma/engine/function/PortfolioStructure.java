@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionSource;
@@ -12,13 +15,13 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Service to get the parent node of portfolio items. 
+ * Service to interrogate the portfolio structure 
  */
-public class ParentNodeResolver {
+public class PortfolioStructure {
 
   private final PositionSource _positionSource;
 
-  public ParentNodeResolver(final PositionSource positionSource) {
+  public PortfolioStructure(final PositionSource positionSource) {
     ArgumentChecker.notNull(positionSource, "positionSource");
     _positionSource = positionSource;
   }
@@ -76,6 +79,20 @@ public class ParentNodeResolver {
     } else {
       return null;
     }
+  }
+
+  private void getAllPositionsImpl(final PortfolioNode node, final List<Position> result) {
+    result.addAll(node.getPositions());
+    for (PortfolioNode child : node.getChildNodes()) {
+      getAllPositionsImpl(child, result);
+    }
+  }
+
+  public List<Position> getAllPositions(final PortfolioNode node) {
+    ArgumentChecker.notNull(node, "node");
+    final List<Position> result = new ArrayList<Position>();
+    getAllPositionsImpl(node, result);
+    return result;
   }
 
 }

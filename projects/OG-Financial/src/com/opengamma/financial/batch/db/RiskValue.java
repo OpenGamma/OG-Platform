@@ -9,9 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 /**
  * 
@@ -127,7 +127,7 @@ public class RiskValue {
   /**
    * Spring ParameterizedRowMapper 
    */
-  public static final ParameterizedRowMapper<RiskValue> ROW_MAPPER = new ParameterizedRowMapper<RiskValue>() {
+  public static final RowMapper<RiskValue> ROW_MAPPER = new RowMapper<RiskValue>() {
     @Override
     public RiskValue mapRow(ResultSet rs, int rowNum) throws SQLException {
       RiskValue riskValue = new RiskValue();

@@ -5,13 +5,14 @@
  */
 package com.opengamma.util.tuple;
 
-import org.apache.commons.lang.Validate;
+import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An immutable pair consisting of two {@code double} elements.
@@ -21,20 +22,72 @@ import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
-  public static DoublesPair of(Pair<Double, Double> pair) {
-    Validate.notNull(pair, "pair");
-    Validate.notNull(pair.getFirst(), "first");
-    Validate.notNull(pair.getSecond(), "second");
-    return new DoublesPair(pair.getFirst(), pair.getSecond());
-  }
-  
   /** The first element. */
   public final double first;  // CSIGNORE
   /** The second element. */
   public final double second;  // CSIGNORE
 
   /**
-   * Constructor.
+   * Checks the specified pair is not null.
+   * <p>
+   * This method exists to catch instances of {@code DoublesPair} being passed to
+   * {@link #of(Pair)} in an optimal way.
+   * 
+   * @param pair  the pair to convert, not null
+   * @return the input pair, not null
+   */
+  public static DoublesPair of(final DoublesPair pair) {
+    ArgumentChecker.notNull(pair, "pair");
+    return pair;
+  }
+
+  /**
+   * Creates a pair from the specified {@code Double} values.
+   * 
+   * @param pair  the pair to convert, not null
+   * @return a pair formed by extracting values from the pair, not null
+   */
+  public static DoublesPair of(final Pair<Double, Double> pair) {
+    if (pair instanceof DoublesPair) {
+      return (DoublesPair) pair;
+    }
+    ArgumentChecker.notNull(pair, "pair");
+    ArgumentChecker.notNull(pair.getFirst(), "pair.first");
+    ArgumentChecker.notNull(pair.getSecond(), "pair.second");
+    return new DoublesPair(pair.getFirst(), pair.getSecond());
+  }
+
+  /**
+   * Creates a pair from the specified {@code Number} values.
+   * <p>
+   * This uses {@link Number#doubleValue()}.
+   * 
+   * @param pair  the pair to convert, not null
+   * @return a pair formed by extracting values from the pair, not null
+   */
+  public static DoublesPair ofNumbers(final Pair<? extends Number, ? extends Number> pair) {
+    if (pair instanceof DoublesPair) {
+      return (DoublesPair) pair;
+    }
+    ArgumentChecker.notNull(pair, "pair");
+    ArgumentChecker.notNull(pair.getFirst(), "pair.first");
+    ArgumentChecker.notNull(pair.getSecond(), "pair.second");
+    return new DoublesPair(pair.getFirst().doubleValue(), pair.getSecond().doubleValue());
+  }
+
+  /**
+   * Creates a pair from the specified values.
+   * 
+   * @param first  the first element
+   * @param second  the second element
+   * @return a pair formed from the two parameters, not null
+   */
+  public static DoublesPair of(final double first, final double second) {
+    return new DoublesPair(first, second);
+  }
+
+  /**
+   * Constructs a pair.
    * @param first  the first element
    * @param second  the second element
    */
