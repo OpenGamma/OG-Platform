@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.surface;
@@ -15,9 +15,9 @@ import java.util.Map;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 
-import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
-import com.opengamma.financial.model.volatility.curve.FunctionalVolatilityCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.LogLinearInterpolator1D;
@@ -60,9 +60,9 @@ public class VolatilityCurvesToInterpolatedVolatilitySurfaceTest {
   private static final double EPS = 1e-12;
 
   static {
-    CURVES.put(T0, new FunctionalVolatilityCurve(LINEAR));
-    CURVES.put(T1, new FunctionalVolatilityCurve(QUADRATIC));
-    CURVES.put(T2, new FunctionalVolatilityCurve(CUBIC));
+    CURVES.put(T0, new VolatilityCurve(FunctionalDoublesCurve.from(LINEAR)));
+    CURVES.put(T1, new VolatilityCurve(FunctionalDoublesCurve.from(QUADRATIC)));
+    CURVES.put(T2, new VolatilityCurve(FunctionalDoublesCurve.from(CUBIC)));
     SURFACE = new VolatilityCurvesToInterpolatedVolatilitySurface(CURVES, INTERPOLATOR);
   }
 
@@ -112,7 +112,7 @@ public class VolatilityCurvesToInterpolatedVolatilitySurfaceTest {
     VolatilityCurvesToInterpolatedVolatilitySurface other = new VolatilityCurvesToInterpolatedVolatilitySurface(CURVES, INTERPOLATOR);
     assertEquals(other, SURFACE);
     assertEquals(other.hashCode(), SURFACE.hashCode());
-    other = new VolatilityCurvesToInterpolatedVolatilitySurface(Collections.<Double, VolatilityCurve> singletonMap(1., new ConstantVolatilityCurve(0.3)), INTERPOLATOR);
+    other = new VolatilityCurvesToInterpolatedVolatilitySurface(Collections.<Double, VolatilityCurve> singletonMap(1., new VolatilityCurve(ConstantDoublesCurve.from(0.3))), INTERPOLATOR);
     assertFalse(other.equals(SURFACE));
     other = new VolatilityCurvesToInterpolatedVolatilitySurface(CURVES, new LogLinearInterpolator1D());
     assertFalse(other.equals(SURFACE));

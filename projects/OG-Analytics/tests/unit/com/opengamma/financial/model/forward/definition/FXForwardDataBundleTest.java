@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.forward.definition;
@@ -12,16 +12,17 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
  *
  */
 public class FXForwardDataBundleTest {
-  private static final YieldAndDiscountCurve FOREIGN = new ConstantYieldCurve(0.03);
-  private static final YieldAndDiscountCurve DOMESTIC = new ConstantYieldCurve(0.05);
+  private static final YieldAndDiscountCurve FOREIGN = new YieldCurve(ConstantDoublesCurve.from(0.03));
+  private static final YieldAndDiscountCurve DOMESTIC = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double SPOT = 1.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final FXForwardDataBundle DATA = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
@@ -71,9 +72,9 @@ public class FXForwardDataBundleTest {
     ForwardDataBundle data = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
     assertEquals(data, DATA);
     assertEquals(data.hashCode(), DATA.hashCode());
-    data = new FXForwardDataBundle(new ConstantYieldCurve(0.12), FOREIGN, SPOT, DATE);
+    data = new FXForwardDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.12)), FOREIGN, SPOT, DATE);
     assertFalse(data.equals(DATA));
-    data = new FXForwardDataBundle(DOMESTIC, new ConstantYieldCurve(0.07), SPOT, DATE);
+    data = new FXForwardDataBundle(DOMESTIC, new YieldCurve(ConstantDoublesCurve.from(0.07)), SPOT, DATE);
     assertFalse(data.equals(DATA));
     data = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT - 1, DATE);
     assertFalse(data.equals(DATA));
@@ -84,7 +85,7 @@ public class FXForwardDataBundleTest {
 
   @Test
   public void testBuilders() {
-    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.02);
+    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.02));
     final double spot = 2;
     final ZonedDateTime date = DateUtil.getUTCDate(2010, 2, 1);
     assertEquals(DATA.withDate(date), new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, date));

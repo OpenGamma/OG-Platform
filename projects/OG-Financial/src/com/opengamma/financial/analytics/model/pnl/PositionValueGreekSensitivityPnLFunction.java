@@ -58,7 +58,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _dataSourceName;
   private final LocalDate _startDate;
-
   private final Set<ValueGreek> _valueGreeks;
   private final Set<String> _valueGreekRequirementNames;
   private final TimeSeriesReturnCalculator _returnCalculator;

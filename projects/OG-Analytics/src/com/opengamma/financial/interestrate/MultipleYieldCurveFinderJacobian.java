@@ -11,8 +11,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -55,7 +56,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
       numberOfNodes = unknownCurveNodePoints.length;
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + numberOfNodes);
       index += numberOfNodes;
-      final InterpolatedYieldAndDiscountCurve curve = new InterpolatedYieldCurve(unknownCurveNodePoints, yields, interpolator);
+      final YieldCurve curve = new YieldCurve(InterpolatedDoublesCurve.from(unknownCurveNodePoints, yields, interpolator));
       curves.setCurve(name, curve);
     }
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
@@ -70,8 +71,12 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
-          final InterpolatedYieldAndDiscountCurve curve = (InterpolatedYieldAndDiscountCurve) curves.getCurve(name);
-          final Interpolator1DDataBundle data = curve.getDataBundles().values().iterator().next();
+          final Curve<Double, Double> curve = curves.getCurve(name).getCurve();
+          if (!(curve instanceof InterpolatedDoublesCurve)) {
+            throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
+          }
+          final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve;
+          final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
           final double[][] sensitivity = new double[senseList.size()][];

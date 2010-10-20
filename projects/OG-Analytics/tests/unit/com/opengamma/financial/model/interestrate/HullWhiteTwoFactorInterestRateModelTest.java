@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate;
@@ -11,9 +11,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
-import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
+import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -28,9 +29,9 @@ public class HullWhiteTwoFactorInterestRateModelTest {
   private static final ZonedDateTime TODAY = DateUtil.getUTCDate(2010, 8, 1);
   private static final ZonedDateTime START = DateUtil.getDateOffsetWithYearFraction(TODAY, T1);
   private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(START, T2);
-  private static final ConstantYieldCurve R = new ConstantYieldCurve(RATE);
-  private static final ConstantVolatilityCurve VOL1 = new ConstantVolatilityCurve(SIGMA1);
-  private static final ConstantVolatilityCurve VOL2 = new ConstantVolatilityCurve(SIGMA2);
+  private static final YieldCurve R = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final VolatilityCurve VOL1 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA1));
+  private static final VolatilityCurve VOL2 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA2));
   private static final double SPEED1 = 0.2;
   private static final double SPEED2 = 0.07;
   private static final double U = 0.13;
@@ -56,9 +57,10 @@ public class HullWhiteTwoFactorInterestRateModelTest {
 
   @Test
   public void test() {
-    HullWhiteTwoFactorDataBundle data = new HullWhiteTwoFactorDataBundle(R, new ConstantVolatilityCurve(0), VOL2, TODAY, SPEED1, SPEED2, U, new ConstantYieldCurve(F), RHO);
+    HullWhiteTwoFactorDataBundle data = new HullWhiteTwoFactorDataBundle(R, new VolatilityCurve(ConstantDoublesCurve.from(0)), VOL2, TODAY, SPEED1, SPEED2, U, new YieldCurve(
+        ConstantDoublesCurve.from(F)), RHO);
     assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), 0, EPS);
-    data = new HullWhiteTwoFactorDataBundle(R, VOL1, VOL2, TODAY, SPEED1, SPEED2, U, new ConstantYieldCurve(F), RHO);
+    data = new HullWhiteTwoFactorDataBundle(R, VOL1, VOL2, TODAY, SPEED1, SPEED2, U, new YieldCurve(ConstantDoublesCurve.from(F)), RHO);
     assertEquals(MODEL.getDiscountBondFunction(START, START).evaluate(data), 1, EPS);
   }
 }

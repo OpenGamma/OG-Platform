@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.curve;
@@ -8,7 +8,8 @@ package com.opengamma.financial.model.volatility.curve;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
-import com.opengamma.math.function.Function1D;
+import com.opengamma.math.curve.FunctionalDoublesCurve;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtil;
@@ -44,12 +45,14 @@ public class FXVannaVolgaVolatilityCurveModel implements VolatilityCurveModel<FX
     final double lnk31 = Math.log(k3 / k1);
     final double lnk32 = Math.log(k3 / k2);
     final double sigma = sigmaATM;
-    return new FunctionalVolatilityCurve(new Function1D<Double, Double>() {
+    return new VolatilityCurve(FunctionalDoublesCurve.from(new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final Double k) {
-        Validate.notNull(k);
+      public Double evaluate(final Double... x) {
+        Validate.notNull(x);
+        Validate.notEmpty(x);
+        final double k = x[0];
         final double a1 = Math.log(k2 / k) * Math.log(k3 / k) / lnk21 / lnk31;
         final double a2 = Math.log(k / k1) * Math.log(k3 / k) / lnk21 / lnk32;
         final double a3 = Math.log(k / k1) * Math.log(k / k2) / lnk31 / lnk32;
@@ -69,7 +72,7 @@ public class FXVannaVolgaVolatilityCurveModel implements VolatilityCurveModel<FX
         return sigma + (-sigma + Math.sqrt(sigma * sigma + d1k * d2k * (2 * sigma * e1 + e2))) / d1k / d2k;
       }
 
-    });
+    }));
   }
 
   private double getD1(final double s, final double k, final double t, final double rd, final double rf, final double sigma, final double sqrtT) {

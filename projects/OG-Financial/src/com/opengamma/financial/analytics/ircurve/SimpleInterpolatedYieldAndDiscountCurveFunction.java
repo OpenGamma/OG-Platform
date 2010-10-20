@@ -40,19 +40,19 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.time.DateUtil;
-
 
 /**
  * 
@@ -96,12 +96,13 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   @SuppressWarnings("unchecked")
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
     _definition = curveDefinitionSource.getDefinition(_curveCurrency, _curveName);
     _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
-    _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()), getUniqueIdentifier());
+    _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()),
+        getUniqueIdentifier());
     _results = Collections.singleton(_result);
   }
 
@@ -116,20 +117,20 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity());
       result.add(requirement);
     }
-    ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     // get the swap convention so we can find out the initial rate
-    ConventionBundle conventionBundle = conventionBundleSource
+    final ConventionBundle conventionBundle = conventionBundleSource
         .getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode() + "_SWAP"));
-    ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
-    Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
+    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
+    final Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return result;
   }
 
-  private Map<Identifier, Double> buildMarketDataMap(FunctionInputs inputs) {
-    Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
-    for (ComputedValue value : inputs.getAllValues()) {
-      ComputationTargetSpecification targetSpecification = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+  private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
+    final Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
+    for (final ComputedValue value : inputs.getAllValues()) {
+      final ComputationTargetSpecification targetSpecification = value.getSpecification().getRequirementSpecification().getTargetSpecification();
       if (value.getValue() instanceof Double) {
         marketDataMap.put(targetSpecification.getIdentifier(), (Double) value.getValue());
       }
@@ -155,7 +156,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         if (canApplyTo(context, target)) {
           return _results;
         }
@@ -163,7 +164,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
         if (canApplyTo(context, target)) {
           return requirements;
         }
@@ -171,7 +172,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       }
 
       @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
@@ -181,14 +182,16 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
 
       @SuppressWarnings("unchecked")
       @Override
-      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         // Gather market data rates
         // Note that this assumes that all strips are priced in decimal percent. We need to resolve
         // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
         // the crazy IndicativeValue name.
-        FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext), OpenGammaExecutionContext
-            .getConventionBundleSource(executionContext), executionContext.getSecuritySource());
-        InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, buildMarketDataMap(inputs));
+        final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
+            OpenGammaExecutionContext
+                .getConventionBundleSource(executionContext), executionContext.getSecuritySource());
+        final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, buildMarketDataMap(inputs));
         final Clock snapshotClock = executionContext.getSnapshotClock();
         final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
         final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
@@ -201,15 +204,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           }
           price /= 100d;
           if (_isYieldCurve) {
-            if (isFirst) {
-              // TODO This is here to avoid problems with instruments with expiry < 1 day
-              // At the moment, interpolators don't extrapolate, and so asking for the rate
-              // if t < 1 throws an exception. It doesn't actually matter in the case of discount curves,
-              // because df at t = 0 is 1 by definition, but for yield curves this should change when
-              // extrapolation is allowed
-              timeInYearsToRates.put(0., 0.);
-              isFirst = false;
-            }
             final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
             timeInYearsToRates.put(years, price);
           } else {
@@ -221,13 +215,12 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
             timeInYearsToRates.put(years, Math.exp(-price * years));
           }
         }
-        // Bootstrap the yield curve
-        final YieldAndDiscountCurve curve = _isYieldCurve ? new InterpolatedYieldCurve(timeInYearsToRates, _interpolator) : new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
+        final YieldAndDiscountCurve curve = _isYieldCurve ? new YieldCurve(InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator)) : new DiscountCurve(
+            InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator));
         final ComputedValue resultValue = new ComputedValue(_result, curve);
         return Collections.singleton(resultValue);
       }
 
     };
   }
-
 }

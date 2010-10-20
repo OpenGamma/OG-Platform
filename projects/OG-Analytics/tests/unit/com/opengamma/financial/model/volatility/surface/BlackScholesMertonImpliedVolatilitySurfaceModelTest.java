@@ -16,13 +16,14 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -34,7 +35,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final BlackScholesMertonImpliedVolatilitySurfaceModel MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.01), 0.1, new ConstantVolatilitySurface(0.01), 100., DateUtil.getUTCDate(2010, 1, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0.1, new ConstantVolatilitySurface(0.01), 100.,
+      DateUtil.getUTCDate(2010, 1, 1));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final double EPS = 1e-3;
 
@@ -67,7 +69,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       sigma += 0.03;
       spot = 2 * RANDOM.nextDouble() + 10;
       strike = 2 * RANDOM.nextDouble() + 10;
-      curve = new ConstantYieldCurve(RANDOM.nextDouble() / 10);
+      curve = new YieldCurve(ConstantDoublesCurve.from(RANDOM.nextDouble() / 10));
       b = RANDOM.nextDouble() / 20;
       isCall = RANDOM.nextDouble() < 0.5 ? true : false;
       definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);

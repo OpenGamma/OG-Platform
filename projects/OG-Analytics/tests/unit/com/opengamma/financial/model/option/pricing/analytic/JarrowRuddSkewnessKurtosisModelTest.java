@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic;
@@ -11,13 +11,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.statistics.descriptive.LognormalFisherKurtosisFromVolatilityCalculator;
 import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.util.time.DateUtil;
@@ -27,7 +28,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class JarrowRuddSkewnessKurtosisModelTest {
-  private static final YieldAndDiscountCurve R = new ConstantYieldCurve(0.05);
+  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.02;
   private static final double SIGMA = 0.4;
   private static final double T = 0.5;

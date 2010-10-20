@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.forward.definition;
@@ -12,8 +12,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -21,7 +22,7 @@ import com.opengamma.util.time.DateUtil;
  */
 public class CostOfCarryForwardDataBundleTest {
   private static final double YIELD = 0.04;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.05);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final double STORAGE = 2;
@@ -74,7 +75,7 @@ public class CostOfCarryForwardDataBundleTest {
     assertEquals(data.hashCode(), DATA.hashCode());
     data = new StandardForwardDataBundle(YIELD + 1, CURVE, SPOT, DATE, STORAGE);
     assertFalse(data.equals(DATA));
-    data = new StandardForwardDataBundle(YIELD, new ConstantYieldCurve(0.1), SPOT, DATE, STORAGE);
+    data = new StandardForwardDataBundle(YIELD, new YieldCurve(ConstantDoublesCurve.from(0.1)), SPOT, DATE, STORAGE);
     assertFalse(data.equals(DATA));
     data = new StandardForwardDataBundle(YIELD, CURVE, SPOT + 1, DATE, STORAGE);
     assertFalse(data.equals(DATA));
@@ -87,7 +88,7 @@ public class CostOfCarryForwardDataBundleTest {
   @Test
   public void testBuilders() {
     final double yield = -0.01;
-    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.02);
+    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.02));
     final double spot = 110;
     final ZonedDateTime date = DateUtil.getUTCDate(2010, 2, 1);
     final double storageCost = 4;
