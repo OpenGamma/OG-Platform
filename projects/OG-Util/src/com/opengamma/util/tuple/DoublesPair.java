@@ -5,15 +5,14 @@
  */
 package com.opengamma.util.tuple;
 
-import org.apache.commons.lang.Validate;
+import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.util.ArgumentChecker;
-
-import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
 
 /**
  * An immutable pair consisting of two {@code double} elements.
@@ -23,13 +22,6 @@ import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
-  public static DoublesPair of(Pair<Double, Double> pair) {
-    Validate.notNull(pair, "pair");
-    Validate.notNull(pair.getFirst(), "first");
-    Validate.notNull(pair.getSecond(), "second");
-    return new DoublesPair(pair.getFirst(), pair.getSecond());
-  }
-  
   /** The first element. */
   public final double first;  // CSIGNORE
   /** The second element. */
