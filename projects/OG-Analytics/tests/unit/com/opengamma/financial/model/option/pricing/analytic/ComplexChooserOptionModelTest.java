@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic;
@@ -11,14 +11,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.ComplexChooserOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ComplexChooserOptionModelTest {
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.1);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.05;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.35);
   private static final double SPOT = 50;
@@ -61,12 +62,12 @@ public class ComplexChooserOptionModelTest {
 
   @Test
   public void test() {
-    //TODO test wrt BSM
-    //    final double spot = 2;
-    //    final StandardOptionDataBundle data = DATA.withSpot(spot);
-    //    final ComplexChooserOptionDefinition chooser = new ComplexChooserOptionDefinition(new Expiry(DATE), CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
-    //    assertEquals(MODEL.getPricingFunction(chooser).evaluate(data), BSM.getPricingFunction(
-    //        new EuropeanVanillaOptionDefinition(CALL_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, CALL_LIFE)), true)).evaluate(data), 0);
+    // TODO test wrt BSM
+    // final double spot = 2;
+    // final StandardOptionDataBundle data = DATA.withSpot(spot);
+    // final ComplexChooserOptionDefinition chooser = new ComplexChooserOptionDefinition(new Expiry(DATE), CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
+    // assertEquals(MODEL.getPricingFunction(chooser).evaluate(data), BSM.getPricingFunction(
+    // new EuropeanVanillaOptionDefinition(CALL_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, CALL_LIFE)), true)).evaluate(data), 0);
     assertEquals(MODEL.getPricingFunction(CHOOSER).evaluate(DATA), 6.0508, 1e-4);
   }
 }

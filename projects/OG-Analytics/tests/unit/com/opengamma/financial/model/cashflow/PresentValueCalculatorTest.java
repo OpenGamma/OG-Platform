@@ -13,7 +13,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.StepInterpolator1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -45,8 +46,8 @@ public class PresentValueCalculatorTest {
     lnRates.put(3., Math.log(1.045));
     lnRates.put(4., Math.log(1.0425));
     lnRates.put(5., Math.log(1.042));
-    RATES = new InterpolatedYieldCurve(rates, new StepInterpolator1D());
-    LN_RATES = new InterpolatedYieldCurve(lnRates, new StepInterpolator1D());
+    RATES = new YieldCurve(InterpolatedDoublesCurve.from(rates, new StepInterpolator1D()));
+    LN_RATES = new YieldCurve(InterpolatedDoublesCurve.from(lnRates, new StepInterpolator1D()));
     TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, times, cf);
   }
 

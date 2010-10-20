@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -24,8 +25,8 @@ import com.opengamma.util.time.DateUtil;
 public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
   private static final double R = 0.05;
   private static final double SIGMA = 0.5;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
-  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(0.1);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.55);
   private static final double B = 0.02;
@@ -69,8 +70,7 @@ public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
   public void testEqualsAndHashCode() {
     final BatesGeneralizedJumpDiffusionModelDataBundle data1 = new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA);
     final BatesGeneralizedJumpDiffusionModelDataBundle data2 = new BatesGeneralizedJumpDiffusionModelDataBundle(DATA);
-    final BatesGeneralizedJumpDiffusionModelDataBundle data3 = new BatesGeneralizedJumpDiffusionModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, JUMP,
-        DELTA);
+    final BatesGeneralizedJumpDiffusionModelDataBundle data3 = new BatesGeneralizedJumpDiffusionModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, JUMP, DELTA);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
     assertEquals(DATA, data3);

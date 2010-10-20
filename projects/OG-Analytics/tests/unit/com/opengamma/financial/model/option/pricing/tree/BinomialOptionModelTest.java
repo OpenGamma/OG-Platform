@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.tree;
@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -20,6 +20,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -87,7 +88,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testEuropeanCallTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), true);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getTree();
@@ -108,7 +109,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testAmericanPutTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), false);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getTree();

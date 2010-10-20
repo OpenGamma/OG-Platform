@@ -1,26 +1,70 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.curve;
 
-import java.util.Map;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
  * 
  */
-public abstract class VolatilityCurve implements VolatilityModel<Double> {
+public class VolatilityCurve implements VolatilityModel<Double> {
+  private final Curve<Double, Double> _curve;
+
+  public VolatilityCurve(final Curve<Double, Double> curve) {
+    Validate.notNull(curve, "curve");
+    _curve = curve;
+  }
 
   @Override
-  public abstract Double getVolatility(final Double x);
+  public Double getVolatility(final Double x) {
+    return _curve.getYValue(x);
+  }
 
-  public abstract VolatilityCurve withParallelShift(Double shift);
+  public Curve<Double, Double> getCurve() {
+    return _curve;
+  }
 
-  public abstract VolatilityCurve withSingleShift(Double x, Double shift);
+  public VolatilityCurve withParallelShift(final double shift) {
+    return new VolatilityCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, shift));
+  }
 
-  public abstract VolatilityCurve withMultipleShifts(Map<Double, Double> shifts);
+  public VolatilityCurve withSingleShift(final double x, final double shift) {
+    return new VolatilityCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, x, shift));
+  }
+
+  public VolatilityCurve withMultipleShifts(final double[] xShifts, final double[] yShifts) {
+    return new VolatilityCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, xShifts, yShifts));
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _curve.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final VolatilityCurve other = (VolatilityCurve) obj;
+    return ObjectUtils.equals(_curve, other._curve);
+  }
 
 }

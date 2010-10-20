@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.future.pricing;
@@ -23,7 +23,8 @@ import com.opengamma.financial.model.forward.pricing.CostOfCarryForwardModel;
 import com.opengamma.financial.model.forward.pricing.ForwardModel;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.definition.StandardFutureDataBundle;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -36,10 +37,10 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final ForwardModel<StandardForwardDataBundle> FORWARD_MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D, new YieldCurve(ConstantDoublesCurve.from(R)), SPOT, DATE, STORAGE);
   private static final FutureModel<StandardFutureDataBundle> FUTURE_MODEL = new CostOfCarryFutureAsForwardModel();
   private static final FutureDefinition FUTURE_DEFINITION = new FutureDefinition(EXPIRY);
-  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new YieldCurve(ConstantDoublesCurve.from(R)), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = IllegalArgumentException.class)
@@ -59,7 +60,7 @@ public class CostOfCarryFutureAsForwardModelTest {
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek>emptySet()));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek> emptySet()));
     assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Sets.newHashSet(Greek.DELTA)));
   }
 

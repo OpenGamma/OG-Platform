@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -12,10 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -24,12 +25,12 @@ import com.opengamma.util.time.DateUtil;
 public class StandardOptionDataBundleTest {
   private static final double R = 0.05;
   private static final double SIGMA = 0.15;
-  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
+  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final double B = 0.01;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(R + 1);
+  private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(R + 1));
   private static final double OTHER_B = B + 1;
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(SIGMA + 1);
   private static final double OTHER_SPOT = SPOT + 1;

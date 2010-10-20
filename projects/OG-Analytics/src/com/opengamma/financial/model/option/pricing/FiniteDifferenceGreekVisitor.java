@@ -8,12 +8,13 @@ package com.opengamma.financial.model.option.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
@@ -24,7 +25,7 @@ import com.opengamma.util.time.DateUtil;
  */
 @SuppressWarnings("unchecked")
 public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<Double> {
-  private static final double EPS = 1e-4; //TODO make this so it can be set 
+  private static final double EPS = 1e-4; // TODO make this so it can be set
   private final Function1D<S, Double> _pricingFunction;
   private final S _data;
   private final T _definition;
@@ -77,8 +78,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(date);
     final double r = _data.getInterestRate(t);
     final double b = _data.getCostOfCarry();
-    final YieldAndDiscountCurve upCurve = new ConstantYieldCurve(r + EPS);
-    final YieldAndDiscountCurve downCurve = new ConstantYieldCurve(r - EPS);
+    final YieldAndDiscountCurve upCurve = new YieldCurve(ConstantDoublesCurve.from(r + EPS));
+    final YieldAndDiscountCurve downCurve = new YieldCurve(ConstantDoublesCurve.from(r - EPS));
     final S dataUp = (S) _data.withCostOfCarry(b + EPS).withInterestRateCurve(upCurve);
     final S dataDown = (S) _data.withCostOfCarry(b - EPS).withInterestRateCurve(downCurve);
     return getFirstDerivative(dataUp, dataDown);

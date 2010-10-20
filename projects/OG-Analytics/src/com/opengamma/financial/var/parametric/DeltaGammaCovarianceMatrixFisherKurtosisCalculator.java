@@ -60,8 +60,8 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_algebra == null) ? 0 : _algebra.hashCode());
-    result = prime * result + ((_std == null) ? 0 : _std.hashCode());
+    result = prime * result + _algebra.hashCode();
+    result = prime * result + _std.hashCode();
     return result;
   }
 
