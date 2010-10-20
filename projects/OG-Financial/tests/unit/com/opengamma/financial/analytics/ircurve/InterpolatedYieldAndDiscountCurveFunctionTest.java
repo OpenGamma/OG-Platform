@@ -83,7 +83,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
-    // assertEquals(EXPECTED_SIZE, requirements.size());
+    //assertEquals(EXPECTED_SIZE, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
