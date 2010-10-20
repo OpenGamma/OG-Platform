@@ -8,6 +8,7 @@ package com.opengamma.math.surface;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -53,6 +54,12 @@ public class ConstantDoublesSurfaceTest {
     assertEquals(SURFACE.size(), 1);
     assertEquals(SURFACE.getZValue(1., 2.), Z1, 0);
     assertEquals(SURFACE.getZValue(DoublesPair.of(1., 4.)), Z1, 0);
+    final Double[] x = SURFACE.getXData();
+    assertTrue(x == SURFACE.getXData());
+    final Double[] y = SURFACE.getYData();
+    assertTrue(y == SURFACE.getYData());
+    final Double[] z = SURFACE.getZData();
+    assertTrue(z == SURFACE.getZData());
   }
 
   @Test

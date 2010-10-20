@@ -78,13 +78,13 @@ public class DoublesSurfaceTestCase {
 
   @Test
   public void testObjectArrays() {
-    final DoublesSurface curve = new DummySurface(XYZ_LIST);
-    final Double[] x = curve.getXData();
-    assertTrue(x == curve.getXData());
-    final Double[] y = curve.getYData();
-    assertTrue(y == curve.getYData());
-    final Double[] z = curve.getZData();
-    assertTrue(z == curve.getZData());
+    final DoublesSurface surface = new DummySurface(XYZ_LIST);
+    final Double[] x = surface.getXData();
+    assertTrue(x == surface.getXData());
+    final Double[] y = surface.getYData();
+    assertTrue(y == surface.getYData());
+    final Double[] z = surface.getZData();
+    assertTrue(z == surface.getZData());
   }
 
   @Test(expected = IllegalArgumentException.class)
