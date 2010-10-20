@@ -16,16 +16,22 @@ import org.junit.Test;
 public class IntDoublePairTest {
 
   @Test
+  public void test_IntDoublePair_of() {
+    IntDoublePair test = IntDoublePair.of(1, 2.5d);
+    assertEquals(new IntDoublePair(1, 2.5d), test);
+  }
+
+  @Test
   public void testConstructionGets() {
     IntDoublePair test = new IntDoublePair(1, 2.0d);
-    assertEquals(test.getFirst(), Integer.valueOf(1));
-    assertEquals(test.getSecond(), Double.valueOf(2.0d));
-    assertEquals(test.getFirstInt(), 1);
-    assertEquals(test.getSecondDouble(), 2.0d, 1E-10);
-    assertEquals(test.getKey(), Integer.valueOf(1));
-    assertEquals(test.getValue(), Double.valueOf(2.0d));
-    assertEquals(test.getIntKey(), 1);
-    assertEquals(test.getDoubleValue(), 2.0d, 1E-10);
+    assertEquals(Integer.valueOf(1), test.getFirst());
+    assertEquals(Double.valueOf(2.0d), test.getSecond());
+    assertEquals(1, test.getFirstInt());
+    assertEquals(2.0d, test.getSecondDouble(), 1E-10);
+    assertEquals(Integer.valueOf(1), test.getKey());
+    assertEquals(Double.valueOf(2.0d), test.getValue());
+    assertEquals(1, test.getIntKey());
+    assertEquals(2.0d, test.getDoubleValue(), 1E-10);
   }
 
   //-------------------------------------------------------------------------
@@ -73,43 +79,43 @@ public class IntDoublePairTest {
     IntDoublePair b = new IntDoublePair(1, 3.0);
     IntDoublePair c = new IntDoublePair(2, 2.0);
     IntDoublePair d = new IntDoublePair(2, 3.0);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, a.equals(c));
+    assertEquals(false, a.equals(d));
     
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
+    assertEquals(false, b.equals(c));
+    assertEquals(false, b.equals(d));
     
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertEquals(false, c.equals(a));
+    assertEquals(false, c.equals(b));
+    assertEquals(true, c.equals(c));
+    assertEquals(false, c.equals(d));
     
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertEquals(false, d.equals(a));
+    assertEquals(false, d.equals(b));
+    assertEquals(false, d.equals(c));
+    assertEquals(true, d.equals(d));
   }
 
   @Test
   public void testEquals_toObjectVersion() {
     IntDoublePair a = Pair.of(1, 1.7d);
     Pair<Integer, Double> b = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
-    assertEquals(a.equals(b), true);
-    assertEquals(b.equals(a), true);
+    assertEquals(true, a.equals(b));
+    assertEquals(true, b.equals(a));
   }
 
   @Test
   public void testEquals_toObjectVersion_null() {
     Pair<Integer, Double> a = Pair.of(null, Double.valueOf(1.9d));
     IntDoublePair b = Pair.of(1, 1.7d);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
   }
 
   @Test
@@ -123,7 +129,7 @@ public class IntDoublePairTest {
   public void testHashCode_value() {
     IntDoublePair a = new IntDoublePair(1, 2.0);
     assertEquals(a.hashCode(), a.hashCode());
-    assertEquals(a.hashCode(), Integer.valueOf(1).hashCode() ^ Double.valueOf(2.0).hashCode());
+    assertEquals(Integer.valueOf(1).hashCode() ^ Double.valueOf(2.0).hashCode(), a.hashCode());
     // can't test for different hash codes as they might not be different
   }
 

@@ -21,6 +21,17 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   public final double second;  // CSIGNORE
 
   /**
+   * Creates a pair from the specified values.
+   * 
+   * @param first  the first element
+   * @param second  the second element
+   * @return a pair formed from the two parameters, not null
+   */
+  public static IntDoublePair of(final int first, final double second) {
+    return new IntDoublePair(first, second);
+  }
+
+  /**
    * Constructor.
    * @param first  the first element
    * @param second  the second element
