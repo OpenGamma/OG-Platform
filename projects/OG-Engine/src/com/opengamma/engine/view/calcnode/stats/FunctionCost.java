@@ -57,7 +57,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     public FunctionInvocationStatistics getStatistics(final String functionIdentifier) {
       FunctionInvocationStatistics stats = _data.get(functionIdentifier);
       if (stats == null) {
-        if (getTypedPersistence() != null) {
+        if (getPersistence() != null) {
           s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionIdentifier);
           final ConfigSearchRequest request = new ConfigSearchRequest();
           request.setName(getDocumentName(functionIdentifier));
@@ -83,7 +83,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
           stats = newStats;
         } else {
           // We created function statistics, so poke it into storage
-          if (getTypedPersistence() != null) {
+          if (getPersistence() != null) {
             final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
             doc.setValue(stats);
             doc.setName(getDocumentName(functionIdentifier));
