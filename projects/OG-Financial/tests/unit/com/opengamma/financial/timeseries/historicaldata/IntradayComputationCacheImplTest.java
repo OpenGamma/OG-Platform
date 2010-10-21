@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.historicaldata;
+package com.opengamma.financial.timeseries.historicaldata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

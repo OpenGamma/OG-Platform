@@ -16,7 +16,7 @@
         			<key><value>loadAllIdentifiers</value></key>
         			<value>
         				<![CDATA[
-        					SELECT dsi.bundle_id as bundleId, d.name as scheme, dsi.identifier_value as identifier_value
+        					SELECT dsi.bundle_id as bundleId, d.name as scheme, dsi.identifier_value as identifier_value, dsi.valid_from as valid_from, dsi.valid_to as valid_to
         					FROM tss_identifier dsi
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
         					ORDER by dsi.bundle_id
@@ -28,7 +28,7 @@
         			<value>
         				<![CDATA[
         					INSERT into tss_identifier 
-        					(bundle_id, identification_scheme_id, identifier_value) VALUES (:bundleId, :schemeId, :identifier_value)
+        					(bundle_id, identification_scheme_id, identifier_value, valid_from, valid_to) VALUES (:bundleId, :schemeId, :identifier_value, :valid_from, :valid_to)
         				]]>
         			</value>
         		</entry>
@@ -50,32 +50,20 @@
         			<key><value>selectBundleFromIdentifiers</value></key>
         			<value>
         				<![CDATA[
-        				    SELECT qo.id as bundleId, qo.name, d.name as scheme, dsi.identifier_value
-        					FROM tss_identifier_bundle as qo
-        					JOIN tss_identifier as dsi ON qo.id = dsi.bundle_id
+        				    SELECT bundle.id as bundleId, bundle.name, d.name as scheme, dsi.identifier_value, dsi.valid_from as valid_from, dsi.valid_to as valid_to
+        					FROM tss_identifier_bundle as bundle
+        					JOIN tss_identifier as dsi ON bundle.id = dsi.bundle_id
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-        					WHERE qo.id in (
-	        					SELECT qo.id
-	        					FROM tss_identifier_bundle as qo
-	        					JOIN tss_identifier as dsi ON qo.id = dsi.bundle_id
+        					WHERE bundle.id in (
+	        					SELECT bundle.id
+	        					FROM tss_identifier_bundle as bundle
+	        					JOIN tss_identifier as dsi ON bundle.id = dsi.bundle_id
 	        					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
 	        					WHERE :identifierBundleClause
 	        				)
         				]]>
         			</value>
         		</entry>
-        		<entry> 
-        			<key><value>selectAllIdentifierBundle</value></key>
-        			<value>
-        				<![CDATA[
-        				    SELECT qo.id as bundleId, qo.name, d.name as scheme, dsi.identifier_value
-							FROM tss_identifier as dsi
-							JOIN tss_identifier_bundle as qo ON qo.id = dsi.bundle_id
-							JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-        				]]>
-        			</value>
-        		</entry>
-        		
         		<entry key="insertScheme" value="INSERT INTO tss_identification_scheme (name, description) VALUES (:name, :description)"/>
         		<entry key="selectSchemeID" value="SELECT id FROM tss_identification_scheme WHERE name = :name"/>
         		<entry key="loadAllScheme" value="SELECT id, name, description FROM tss_identification_scheme"/>
@@ -90,22 +78,6 @@
         					AND tskey.data_provider_id = :dpid 
         					AND tskey.data_field_id = :dfid 
         					AND tskey.observation_time_id = :otid
-        				]]>
-        			</value>
-        		</entry>
-        	    <entry> 
-        			<key><value>getTimeSeriesKey</value></key>
-        			<value>
-        				<![CDATA[
-        					SELECT tskey.id 
-        					FROM tss_meta_data as tskey
-        					JOIN tss_identifier_bundle as qo ON tskey.bundle_id = qo.id
-        					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
-        					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
-        					JOIN tss_data_field as df ON tskey.data_field_id = df.id
-        					JOIN tss_observation_time as ot ON tskey.observation_time_id = ot.id
-        					WHERE ds.name = :dataSource AND dp.name = :dataProvider AND df.name = :dataField AND ot.name = :observationTime
-        					AND qo.id = :bundleId
         				]]>
         			</value>
         		</entry>
@@ -195,7 +167,7 @@
         			<key><value>getActiveMetaDataByOid</value></key>
         			<value>
         				<![CDATA[
-        					SELECT tsKey.id as tsKey, d.name as scheme, dsi.identifier_value as value, ds.name as dataSource, dp.name as dataProvider, df.name as dataField, ot.name as observationTime 
+        					SELECT tsKey.id as tsKey, d.name as scheme, dsi.identifier_value as value, dsi.valid_from as valid_from , dsi.valid_to as valid_to, ds.name as dataSource, dp.name as dataProvider, df.name as dataField, ot.name as observationTime 
         					FROM tss_meta_data as tskey
         					JOIN tss_identifier as dsi ON tsKey.bundle_id = dsi.bundle_id
         					JOIN tss_data_source as ds ON tskey.data_source_id = ds.id

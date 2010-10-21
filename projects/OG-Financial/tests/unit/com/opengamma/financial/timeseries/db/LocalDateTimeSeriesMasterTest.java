@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.db;
+package com.opengamma.financial.timeseries.db;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,8 +19,7 @@ import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
-import com.opengamma.financial.timeseries.db.LocalDateRowStoreTimeSeriesMaster;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -101,9 +100,9 @@ public class LocalDateTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDat
     }
   }
   
-  private TimeSeriesDocument<LocalDate> getHistoricalTimeSeries(IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
+  private TimeSeriesDocument<LocalDate> getHistoricalTimeSeries(IdentifierBundleWithDates identifierBundleWithDates, String dataSource, String dataProvider, String dataField, LocalDate earliestDate, LocalDate latestDate) {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(identifierBundle.getIdentifiers());
+    request.getIdentifiers().addAll(identifierBundleWithDates.asIdentifierBundle().getIdentifiers());
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
     request.setDataField(dataField);

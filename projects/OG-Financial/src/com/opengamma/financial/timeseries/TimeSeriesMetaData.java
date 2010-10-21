@@ -271,7 +271,7 @@ public class TimeSeriesMetaData extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("dataSource", _dataSource);

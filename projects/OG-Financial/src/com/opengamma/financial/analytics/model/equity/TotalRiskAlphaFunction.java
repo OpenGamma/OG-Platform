@@ -82,12 +82,12 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> marketTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMMarketName())), "BLOOMBERG", null, "PX_LAST", _startDate, true, now, false);
     if (marketTSObject == null) {
       throw new NullPointerException("Market time series was null");
     }
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (marketTSObject == null) {
       throw new NullPointerException("Risk-free time series was null");
     }

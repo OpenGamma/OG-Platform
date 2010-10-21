@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.config;
+package com.opengamma.financial.timeseries.config;
 
 import java.util.HashSet;
 import java.util.Set;
