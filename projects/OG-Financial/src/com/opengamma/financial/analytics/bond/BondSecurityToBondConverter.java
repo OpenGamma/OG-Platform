@@ -59,7 +59,7 @@ public class BondSecurityToBondConverter {
     if (!maturityDate.equals(unadjustedDates[n - 1])) {
       unadjustedDates[n - 1] = maturityDate;
     }
-    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), calendar);
+    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), calendar);
    
     final ZonedDateTime[] couponDates = new ZonedDateTime[n + 1];
     couponDates[0] = firstCouponDate;
