@@ -38,10 +38,10 @@ import com.opengamma.util.db.Paging;
  * 
  * @param <T>  the configuration element type
  */
-public class QueryConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T> {
+public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWorker<T> {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorker.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorker.class);
   /**
    * SQL select.
    */
@@ -64,7 +64,7 @@ public class QueryConfigDbConfigMasterWorker<T> extends DbConfigMasterWorker<T> 
   /**
    * Creates an instance.
    */
-  public QueryConfigDbConfigMasterWorker() {
+  public QueryConfigDbConfigTypeMasterWorker() {
   }
 
   //-------------------------------------------------------------------------

@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.mongo.MongoDBConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
+import com.opengamma.config.mongo.MongoDBConfigTypeMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,7 +34,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
   
   private static final Logger s_logger = LoggerFactory.getLogger(MongoDBMasterConfigSource.class);
   
-  private Map<Class<?>, MongoDBConfigMaster<?>> _configMasterMap = new ConcurrentHashMap<Class<?>, MongoDBConfigMaster<?>>();
+  private Map<Class<?>, MongoDBConfigTypeMaster<?>> _configMasterMap = new ConcurrentHashMap<Class<?>, MongoDBConfigTypeMaster<?>>();
   
   public MongoDBMasterConfigSource() {
   }
@@ -43,13 +43,13 @@ public class MongoDBMasterConfigSource implements ConfigSource {
    * Primarily here to make Spring DI easier.
    * @param initialMap a map of class to MongoDBConfigMasters
    */
-  public MongoDBMasterConfigSource(Map<Class<?>, MongoDBConfigMaster<?>> initialMap) {
+  public MongoDBMasterConfigSource(Map<Class<?>, MongoDBConfigTypeMaster<?>> initialMap) {
     _configMasterMap.putAll(initialMap);
   }
 
   @Override
   public <T> T get(Class<T> clazz, UniqueIdentifier identifier) {
-    ConfigMaster<T> configMaster = getConfigMasterFor(clazz);
+    ConfigTypeMaster<T> configMaster = getConfigMasterFor(clazz);
     T result = null;
     try {
       ConfigDocument<T> configDocument = configMaster.get(identifier);
@@ -62,7 +62,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
 
   @Override
   public <T> List<T> search(Class<T> clazz, ConfigSearchRequest request) {
-    MongoDBConfigMaster<T> configMaster = getConfigMasterFor(clazz);
+    MongoDBConfigTypeMaster<T> configMaster = getConfigMasterFor(clazz);
     List<T> result = new ArrayList<T>();
     ConfigSearchResult<T> searchResult = configMaster.search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
@@ -73,11 +73,9 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     return result;
   }
 
-  // REVIEW: jim 10-Aug-2010 -- Spectacular hack here to make it possible to build a DefaultInterpolatedYieldAndDiscountCurveSource
-  //                            change to private ASAP.
   @SuppressWarnings("unchecked")
-  public <T> MongoDBConfigMaster<T> getConfigMasterFor(Class<T> clazz) {
-    MongoDBConfigMaster<T> configMaster = (MongoDBConfigMaster<T>) _configMasterMap.get(clazz);
+  private <T> MongoDBConfigTypeMaster<T> getConfigMasterFor(Class<T> clazz) {
+    MongoDBConfigTypeMaster<T> configMaster = (MongoDBConfigTypeMaster<T>) _configMasterMap.get(clazz);
     if (configMaster == null) {
       s_logger.warn("cannot do lookup on {} document type", clazz);
       throw new OpenGammaRuntimeException("MongoDBMasterConfigSource not set up properly for " + clazz);
@@ -90,7 +88,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
    * @param clazz the class of the config doc, not-null
    * @param configMaster the mongodb configmaster, not-null
    */
-  public void addConfigMaster(Class<?> clazz, MongoDBConfigMaster<?> configMaster) {
+  public void addConfigMaster(Class<?> clazz, MongoDBConfigTypeMaster<?> configMaster) {
     ArgumentChecker.notNull(clazz, "config doc class");
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMasterMap.put(clazz, configMaster);
@@ -100,7 +98,7 @@ public class MongoDBMasterConfigSource implements ConfigSource {
    * Set the underlying configMasters 
    * @param configMasterMap the configMasterMap, not-null
    */
-  public void setConfigMasterMap(Map<Class<?>, MongoDBConfigMaster<?>> configMasterMap) {
+  public void setConfigMasterMap(Map<Class<?>, MongoDBConfigTypeMaster<?>> configMasterMap) {
     ArgumentChecker.notNull(configMasterMap, "configMasterMap");
     _configMasterMap = configMasterMap;
   }
@@ -128,6 +126,16 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     } else {
       return results.get(0);
     }
+  }
+
+  @Override
+  public <T> ConfigDocument<T> getDocumentByName(Class<T> clazz, String name, Instant versionAsOf) {
+    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+    searchRequest.setVersionAsOfInstant(versionAsOf);
+    searchRequest.setName(name);
+    MongoDBConfigTypeMaster<T> configMaster = getConfigMasterFor(clazz);
+    ConfigSearchResult<T> searchResult = configMaster.search(searchRequest);
+    return searchResult.getFirstDocument();
   }
 
 }

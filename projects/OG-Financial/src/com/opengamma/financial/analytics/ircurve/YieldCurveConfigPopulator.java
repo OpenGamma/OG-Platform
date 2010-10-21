@@ -7,22 +7,22 @@ package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
-import com.opengamma.engine.config.MasterConfigSource;
+import com.opengamma.config.ConfigTypeMaster;
 
 /**
  * Populates the yield curve configuration.
  */
 public class YieldCurveConfigPopulator {
 
-  public static MasterConfigSource populateCurveConfigSource(MasterConfigSource masterConfigSource) {
-    ConfigMaster<YieldCurveDefinition> curveDefinitionMaster = masterConfigSource.getMaster(YieldCurveDefinition.class);
+  public static ConfigMaster populateCurveConfigMaster(ConfigMaster cfgMaster) {
+    ConfigTypeMaster<YieldCurveDefinition> curveDefinitionMaster = cfgMaster.typed(YieldCurveDefinition.class);
     populateCurveDefinitionConfigMaster(curveDefinitionMaster);
-    ConfigMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = masterConfigSource.getMaster(CurveSpecificationBuilderConfiguration.class);
+    ConfigTypeMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = cfgMaster.typed(CurveSpecificationBuilderConfiguration.class);
     populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
-    return masterConfigSource;
+    return cfgMaster;
   }
 
-  public static void populateCurveDefinitionConfigMaster(ConfigMaster<YieldCurveDefinition> configRepo) {
+  public static void populateCurveDefinitionConfigMaster(ConfigTypeMaster<YieldCurveDefinition> configRepo) {
     ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>();
     forwardUSD.setName("FORWARD_USD");
     forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
@@ -49,7 +49,7 @@ public class YieldCurveConfigPopulator {
     configRepo.add(singleUSD);
   }
 
-  public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster<CurveSpecificationBuilderConfiguration> configMaster) {
+  public static void populateCurveSpecificationBuilderConfigMaster(ConfigTypeMaster<CurveSpecificationBuilderConfiguration> configMaster) {
     ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
     doc.setName("DEFAULT_USD");
     doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());

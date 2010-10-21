@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.mongo.test.MongoDBConfigMasterTestCase;
+import com.opengamma.config.mongo.test.MongoDBConfigTypeMasterTestCase;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
@@ -21,12 +21,12 @@ import com.opengamma.util.test.MongoDBTestUtils;
 /**
  * Test UniqueIdentifier as a configuration document.
  */
-public class UniqueIdentifierConfigMasterTest extends MongoDBConfigMasterTestCase<UniqueIdentifier> {
+public class UniqueIdentifierConfigTypeMasterTest extends MongoDBConfigTypeMasterTestCase<UniqueIdentifier> {
 
   private Random _random = new Random();
   private MongoDBConnectionSettings _mongoSettings;
 
-  public UniqueIdentifierConfigMasterTest() {
+  public UniqueIdentifierConfigTypeMasterTest() {
     super(UniqueIdentifier.class);
   }
 
@@ -42,11 +42,11 @@ public class UniqueIdentifierConfigMasterTest extends MongoDBConfigMasterTestCas
 
   //-------------------------------------------------------------------------
   @Override
-  public MongoDBConfigMaster<UniqueIdentifier> createMongoConfigMaster() {
+  public MongoDBConfigTypeMaster<UniqueIdentifier> createMongoConfigMaster() {
     // use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigMaster<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
+    return new MongoDBConfigTypeMaster<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
   }
 
   @Override

@@ -29,15 +29,15 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfigMasterWorkerTest {
+public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbConfigTypeMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerUpdateTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerUpdateTest.class);
 
-  private ModifyConfigDbConfigMasterWorker<Identifier> _worker;
-  private DbConfigMasterWorker<Identifier> _queryWorker;
+  private ModifyConfigDbConfigTypeMasterWorker<Identifier> _worker;
+  private DbConfigTypeMasterWorker<Identifier> _queryWorker;
 
-  public ModifyConfigDbConfigMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigTypeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -46,9 +46,9 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _worker = new ModifyConfigDbConfigMasterWorker<Identifier>();
+    _worker = new ModifyConfigDbConfigTypeMasterWorker<Identifier>();
     _worker.init(_cfgMaster);
-    _queryWorker = new QueryConfigDbConfigMasterWorker<Identifier>();
+    _queryWorker = new QueryConfigDbConfigTypeMasterWorker<Identifier>();
     _queryWorker.init(_cfgMaster);
   }
 
@@ -123,7 +123,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
 
   @Test
   public void test_update_rollback() {
-    ModifyConfigDbConfigMasterWorker<Identifier> w = new ModifyConfigDbConfigMasterWorker<Identifier>() {
+    ModifyConfigDbConfigTypeMasterWorker<Identifier> w = new ModifyConfigDbConfigTypeMasterWorker<Identifier>() {
       @Override
       protected String sqlInsertConfig() {
         return "INSERT";  // bad sql

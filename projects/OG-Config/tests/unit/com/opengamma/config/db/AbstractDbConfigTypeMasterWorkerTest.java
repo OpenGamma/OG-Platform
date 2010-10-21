@@ -36,27 +36,27 @@ import com.opengamma.util.test.DBTest;
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
 @Ignore
-public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
+public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigTypeMasterWorkerTest.class);
 
-  protected DbConfigMaster<Identifier> _cfgMaster;
+  protected DbConfigTypeMaster<Identifier> _cfgMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalConfigs;
 
-  public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbConfigTypeMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _cfgMaster = (DbConfigMaster<Identifier>) context.getBean(getDatabaseType() + "DbConfigMaster");
+    DbConfigMaster master = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
+    _cfgMaster = (DbConfigTypeMaster<Identifier>) master.typed(Identifier.class);
     
 //    id bigint not null,
 //    oid bigint not null,

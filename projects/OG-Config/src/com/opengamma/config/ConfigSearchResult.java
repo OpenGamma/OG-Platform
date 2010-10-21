@@ -61,7 +61,7 @@ public class ConfigSearchResult<T> extends DirectBean {
    * Gets the returned exchanges from within the documents.
    * @return the exchanges, not null
    */
-  public List<T> getExchanges() {
+  public List<T> getValues() {
     List<T> result = new ArrayList<T>();
     if (_documents != null) {
       for (ConfigDocument<T> doc : _documents) {

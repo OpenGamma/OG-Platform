@@ -40,11 +40,9 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.config.MasterConfigSource;
+import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -79,7 +77,6 @@ import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
@@ -159,7 +156,7 @@ public class BatchJob {
   /**
    * Used to load a ViewDefinition (whose name will be given on the command line)
    */
-  private MasterConfigSource _configSource;
+  private ConfigSource _configSource;
 
   /**
    * Used to load Functions (needed for building the dependency graph)
@@ -387,11 +384,11 @@ public class BatchJob {
     return getPositionMasterAsViewedAtTime(); // assume this for now
   }
 
-  public MasterConfigSource getConfigSource() {
+  public ConfigSource getConfigSource() {
     return _configSource;
   }
 
-  public void setConfigSource(MasterConfigSource configSource) {
+  public void setConfigSource(ConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -625,17 +622,12 @@ public class BatchJob {
    * Finds the configuration.
    */
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
-    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.ONE);
-    searchRequest.setName(getViewName());
-    searchRequest.setVersionAsOfInstant(_viewDateTime.toInstant());
-    ConfigSearchResult<ViewDefinition> searchResult = _configSource.getMaster(ViewDefinition.class).search(searchRequest);
-    List<ConfigDocument<ViewDefinition>> documents = searchResult.getDocuments();
-    if (documents.isEmpty()) {
+    ConfigDocument<ViewDefinition> doc = _configSource.getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
+    if (doc == null) {
       throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
           _viewDateTime.toInstant() + " in config db");
     }
-    return searchResult.getFirstDocument();
+    return doc;
   }
 
   public static Options getOptions() {

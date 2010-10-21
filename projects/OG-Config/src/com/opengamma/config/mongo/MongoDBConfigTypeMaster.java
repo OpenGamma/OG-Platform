@@ -33,7 +33,7 @@ import com.mongodb.Mongo;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
@@ -54,12 +54,12 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * 
  * @param <T>  the configuration document type
  */
-public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
+public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   // this implementation uses multiple Mongo documents
   // without transactions, this means that it is not fully safe under load
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(MongoDBConfigTypeMaster.class);
   /**
    * The maximum instant for use in date ranges.
    */
@@ -137,7 +137,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * @param documentClazz  the element type, not null
    * @param mongoSettings  the Mongo connection settings, not null
    */
-  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
+  public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
     this(documentClazz, mongoSettings, true);
   }
 
@@ -147,7 +147,7 @@ public class MongoDBConfigMaster<T> implements ConfigMaster<T> {
    * @param mongoSettings  the Mongo connection settings, not null
    * @param updateLastRead  whether to update the last read flag
    */
-  public MongoDBConfigMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
+  public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
     
