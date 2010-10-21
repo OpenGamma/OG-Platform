@@ -11,6 +11,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
@@ -41,8 +42,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public abstract class BondFunction extends NonCompiledInvoker {
 
   private final String _bondCurveName = "BondCurve";
-  //protected String _requirementName;
-  protected String _fieldName;
+  protected String _requirementName;
+ // protected String _fieldName;
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -52,27 +53,27 @@ public abstract class BondFunction extends NonCompiledInvoker {
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
 
-    //final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    //    final Object cleanPriceObject = inputs.getValue(requirement);
-    //    if (cleanPriceObject == null) {
-    //      throw new NullPointerException("Could not get " + requirement);
-    //    }
-    //    final double value = (Double) cleanPriceObject;
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    final Object cleanPriceObject = inputs.getValue(requirement);
+    if (cleanPriceObject == null) {
+      throw new NullPointerException("Could not get " + requirement);
+    }
+    final double value = (Double) cleanPriceObject;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    final LocalDate closeOfDay = now.minusDays(1).toLocalDate();
-    final LocalDate startDate = now.minusDays(7).toLocalDate();
-    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), "BLOOMBERG", "CMPL", _fieldName,
-        startDate, true, closeOfDay, false);
-    if (tsPair == null) {
-      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
-    }
-    final DoubleTimeSeries<?> ts = tsPair.getSecond();
-    if (ts == null) {
-      throw new NullPointerException("Could not get ts for security " + security);
-    }
-    final double value = ts.getLatestValue();
+//    final LocalDate closeOfDay = now.minusDays(1).toLocalDate();
+//    final LocalDate startDate = now.minusDays(7).toLocalDate();
+//    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+//    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), "BLOOMBERG", "CMPL", _fieldName,
+//        startDate, true, closeOfDay, false);
+//    if (tsPair == null) {
+//      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
+//    }
+//    final DoubleTimeSeries<?> ts = tsPair.getSecond();
+//    if (ts == null) {
+//      throw new NullPointerException("Could not get ts for security " + security);
+//    }
+//    final double value = ts.getLatestValue();
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now);
@@ -83,8 +84,8 @@ public abstract class BondFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      //return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
-      return Collections.emptySet();
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+     // return Collections.emptySet();
     }
     return null;
   }

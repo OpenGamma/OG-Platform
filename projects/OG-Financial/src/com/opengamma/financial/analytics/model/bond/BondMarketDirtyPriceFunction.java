@@ -21,30 +21,29 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 /**
  * 
  */
-public class BondMarketYieldFunction extends BondFunction {
+public class BondMarketDirtyPriceFunction extends BondFunction {
 
-  public BondMarketYieldFunction() {
-    _requirementName = MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID;
-    //_fieldName = "YLD_YTM_MID";
+  public BondMarketDirtyPriceFunction() {
+    _requirementName = MarketDataRequirementNames.DIRTY_PRICE_MID;
   }
-
+  
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bound, final double value) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, position), getUniqueIdentifier());
+  protected Set<ComputedValue> getComputedValues(Position position, Bond bond, double value) {
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, position), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, target.getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "BondMarketYieldFunction";
+    return "BondMarketDirtyPriceFunction";
   }
 
 }

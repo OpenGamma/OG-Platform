@@ -201,12 +201,10 @@ public class BatchResultWriterTest extends HibernateTest {
         getDbSource(),
         new TestDependencyGraphExecutor<CalculationJobResult>(result),
         resultModelDefinition,
-        cachesByCalculationConfiguration);
-    
-    resultWriter.setRiskRun(_riskRun);
-    resultWriter.setRiskValueNames(_valueNames);
-    
-    resultWriter.setComputationTargets(_dbComputationTargets);
+        cachesByCalculationConfiguration,
+        _dbComputationTargets,
+        _riskRun,
+        _valueNames);
     resultWriter.initialize();
     
     return resultWriter;
@@ -239,7 +237,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   private void setIsRestart(BatchResultWriter resultWriter) {
     _riskRun.setNumRestarts(1);
-    resultWriter.setIsRestart(true);
+    resultWriter.setRestart(true);
   }
   
 
@@ -279,7 +277,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.SUCCESS, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -300,7 +298,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.SUCCESS, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -319,7 +317,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.FAILURE, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -339,7 +337,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.RUNNING, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -358,7 +356,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter.upsertStatusEntries(
         _calcJob.getSpecification(), 
         StatusEntry.Status.NOT_RUNNING, 
-        Sets.newHashSet(_dbComputationTarget.toSpec()));
+        Sets.newHashSet(_dbComputationTarget.toNormalizedSpec()));
     resultWriter.closeSession();
     
     DependencyGraph originalGraph = getPositionDepGraph();

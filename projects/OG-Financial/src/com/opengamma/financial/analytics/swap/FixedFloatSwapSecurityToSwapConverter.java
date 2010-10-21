@@ -42,7 +42,7 @@ import com.opengamma.financial.world.region.Region;
 import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
 
 /**
  * 

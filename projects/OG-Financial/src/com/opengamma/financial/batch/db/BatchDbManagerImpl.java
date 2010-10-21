@@ -182,7 +182,12 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ ComputeNode getComputeNode(String nodeId) {
-    final ComputeHost host = getComputeHost(nodeId);
+    String hostName = nodeId; 
+    int slashIndex = nodeId.indexOf('/'); // e.g., mymachine-t5500/0/1, see LocalCalculationNode.java. Should refactor nodeId to a class with two strings, host and node id
+    if (slashIndex != -1) {
+      hostName = nodeId.substring(0, slashIndex);      
+    }
+    final ComputeHost host = getComputeHost(hostName);
     
     ComputeNode node = getHibernateTemplate().execute(new HibernateCallback<ComputeNode>() {
       @Override
@@ -564,6 +569,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
       } else {
         restartRun(run);
       }
+
+      // make sure calc conf collection is inited
+      for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
+        ;
+      }
       
       Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
       Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
@@ -607,12 +617,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _batch = batch;
     }
     
-    private void initialize(BatchResultWriter resultWriter) {
-      resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
-      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
-      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
-    }
-    
     @Override
     public BatchExecutor createExecutor(SingleComputationCycle cycle) {
       DependencyGraphExecutor<CalculationJobResult> delegate =
@@ -620,13 +624,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriter resultWriter =  new BatchResultWriter(
+      BatchResultWriter resultWriter = new BatchResultWriter(
           _dbSource,
           delegate,
           cycle.getViewDefinition().getResultModelDefinition(),
-          cachesByCalculationConfiguration);
-      
-      initialize(resultWriter);
+          cachesByCalculationConfiguration,
+          getDbHandle(_batch)._computationTargets,
+          getRiskRunFromHandle(_batch),
+          getDbHandle(_batch)._riskValueNames);
       
       return new BatchExecutor(resultWriter);
     }
@@ -639,9 +644,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
           _dbSource,
           delegate,
           new ResultModelDefinition(),
-          new HashMap<String, ViewComputationCache>());
-      
-      initialize(resultWriter);
+          new HashMap<String, ViewComputationCache>(),
+          getDbHandle(_batch)._computationTargets,
+          getRiskRunFromHandle(_batch),
+          getDbHandle(_batch)._riskValueNames);
       
       return resultWriter;
     }

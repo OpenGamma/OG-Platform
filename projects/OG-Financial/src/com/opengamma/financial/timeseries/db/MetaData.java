@@ -388,7 +388,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -422,19 +422,19 @@ import com.opengamma.id.IdentifierBundleWithDates;
     /**
      * The meta-property for the {@code earliestDate} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _earliestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "earliestDate", Object.class);
     /**
      * The meta-property for the {@code latestDate} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _latestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "latestDate", Object.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("timeSeriesId", _timeSeriesId);
@@ -454,7 +454,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
       return new MetaData<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends MetaData<T>> beanType() {
       return (Class) MetaData.class;
