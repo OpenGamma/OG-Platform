@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.value;
@@ -36,6 +36,11 @@ public final class ValueRequirement implements Serializable {
    * The specification of the object that the value refers to.
    */
   private final ComputationTargetSpecification _targetSpecification;
+  /**
+   * The constraints or additional parameters about the target. For example, a currency
+   * constraint.
+   */
+  private final ValueProperties _constraints;
 
   /**
    * Creates a requirement.
@@ -45,6 +50,10 @@ public final class ValueRequirement implements Serializable {
    */
   public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier) {
     this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier));
+  }
+
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier, ValueProperties constraints) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier), constraints);
   }
 
   /**
@@ -63,13 +72,19 @@ public final class ValueRequirement implements Serializable {
    * @param targetSpecification  the target specification, not null
    */
   public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification) {
-    ArgumentChecker.notNull(valueName, "Value name");
-    ArgumentChecker.notNull(targetSpecification, "Computation target specification");
-    _valueName = valueName.intern();
-    _targetSpecification = targetSpecification;
+    this(valueName, targetSpecification, ValueProperties.none());
   }
 
-  //-------------------------------------------------------------------------
+  public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification, ValueProperties constraints) {
+    ArgumentChecker.notNull(valueName, "Value name");
+    ArgumentChecker.notNull(targetSpecification, "Computation target specification");
+    ArgumentChecker.notNull(constraints, "constraints");
+    _valueName = valueName.intern();
+    _targetSpecification = targetSpecification;
+    _constraints = constraints;
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the name of the value to load.
    * @return the valueName, not null
@@ -86,7 +101,11 @@ public final class ValueRequirement implements Serializable {
     return _targetSpecification;
   }
 
-  //-------------------------------------------------------------------------
+  public ValueProperties getConstraints() {
+    return _constraints;
+  }
+
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -94,8 +113,8 @@ public final class ValueRequirement implements Serializable {
     }
     if (obj instanceof ValueRequirement) {
       ValueRequirement other = (ValueRequirement) obj;
-      return _valueName == other._valueName &&  // values are interned
-        ObjectUtils.equals(_targetSpecification, other._targetSpecification);
+      return _valueName == other._valueName && // values are interned
+          ObjectUtils.equals(_targetSpecification, other._targetSpecification) && ObjectUtils.equals(_constraints, other._constraints);
     }
     return false;
   }
@@ -106,22 +125,17 @@ public final class ValueRequirement implements Serializable {
     int result = 1;
     result = prime * result + _valueName.hashCode();
     result = prime * result + _targetSpecification.hashCode();
+    result = prime * result + _constraints.hashCode();
     return result;
   }
 
   @Override
   public String toString() {
-    return new StrBuilder()
-      .append("ValueReq[")
-      .append(getValueName())
-      .append(", ")
-      .append(getTargetSpecification())
-      .append(']')
-      .toString();
+    return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(']').toString();
   }
 
   public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
     return getTargetSpecification().getRequiredLiveData(securitySource);
   }
-  
+
 }

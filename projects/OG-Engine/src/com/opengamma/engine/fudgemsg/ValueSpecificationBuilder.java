@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.FudgeFieldChecker;
@@ -30,18 +31,23 @@ public class ValueSpecificationBuilder implements FudgeBuilder<ValueSpecificatio
    * Fudge field name for functionUniqueId
    */
   private static final String FUNCTION_UNIQUE_ID_KEY = "functionUniqueId";
+  /**
+   * Fudge field name for properties.
+   */
+  private static final String PROPERTIES_KEY = "properties";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ValueSpecification object) {
     MutableFudgeFieldContainer msg = context.newMessage();
     ValueRequirement requirementSpecification = object.getRequirementSpecification();
-    if (requirementSpecification != null)  {
-      context.objectToFudgeMsgWithClassHeaders(msg, REQUIREMENT_SPECIFICATION_KEY, null, requirementSpecification, ValueRequirement.class);
+    if (requirementSpecification != null) {
+      context.objectToFudgeMsg(msg, REQUIREMENT_SPECIFICATION_KEY, null, requirementSpecification);
     }
     String functionUniqueId = object.getFunctionUniqueId();
-    if (functionUniqueId != null)  {
+    if (functionUniqueId != null) {
       msg.add(FUNCTION_UNIQUE_ID_KEY, null, functionUniqueId);
     }
+    context.objectToFudgeMsg(msg, PROPERTIES_KEY, null, object.getProperties());
     return msg;
   }
 
@@ -53,7 +59,12 @@ public class ValueSpecificationBuilder implements FudgeBuilder<ValueSpecificatio
     FudgeFieldChecker.notNull(requirementSpecification, "Fudge message is not a ValueSpecification - field 'requirementSpecification' is not ValueRequirement message");
     String functionUniqueId = message.getString(FUNCTION_UNIQUE_ID_KEY);
     FudgeFieldChecker.notNull(functionUniqueId, "Fudge message is not a ValueSpecification - field 'functionUniqueId' is not present");
-    return new ValueSpecification(requirementSpecification, functionUniqueId);
+    fudgeField = message.getByName(PROPERTIES_KEY);
+    if (fudgeField != null) {
+      return new ValueSpecification(requirementSpecification, context.fieldValueToObject(ValueProperties.class, fudgeField));
+    } else {
+      return new ValueSpecification(requirementSpecification, ValueProperties.none());
+    }
   }
 
 }

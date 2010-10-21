@@ -11,6 +11,9 @@ import java.util.Set;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 

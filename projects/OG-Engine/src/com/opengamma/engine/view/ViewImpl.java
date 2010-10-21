@@ -31,6 +31,8 @@ import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;

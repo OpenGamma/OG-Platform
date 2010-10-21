@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.FudgeFieldChecker;
 
@@ -28,6 +29,10 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
    * Fudge field name.
    */
   public static final String VALUE_NAME_FIELD_NAME = "valueName";
+  /**
+   * Fudge field name.
+   */
+  public static final String CONSTRAINTS_FIELD_NAME = "constraints";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ValueRequirement object) {
@@ -40,6 +45,9 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
     for (FudgeField fudgeField : fields) {
       msg.add(fudgeField);
     }
+    if (!object.getConstraints().isEmpty()) {
+      context.objectToFudgeMsg(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
+    }
     return msg;
   }
 
@@ -49,7 +57,12 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
     FudgeFieldChecker.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
     ComputationTargetSpecification targetSpecification = context.fudgeMsgToObject(ComputationTargetSpecification.class, message);
     FudgeFieldChecker.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
-    return new ValueRequirement(valueName, targetSpecification);
+    FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
+    if (constraints != null) {
+      return new ValueRequirement(valueName, targetSpecification, context.fieldValueToObject(ValueProperties.class, constraints));
+    } else {
+      return new ValueRequirement(valueName, targetSpecification);
+    }
   }
 
 }
