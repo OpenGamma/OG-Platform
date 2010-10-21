@@ -19,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigTypeMaster;
+import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,11 +57,11 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     public FunctionInvocationStatistics getStatistics(final String functionIdentifier) {
       FunctionInvocationStatistics stats = _data.get(functionIdentifier);
       if (stats == null) {
-        if (getPersistence() != null) {
+        if (getTypedPersistence() != null) {
           s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionIdentifier);
           final ConfigSearchRequest request = new ConfigSearchRequest();
           request.setName(getDocumentName(functionIdentifier));
-          final ConfigSearchResult<FunctionInvocationStatistics> result = getPersistence().search(request);
+          final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
           final List<ConfigDocument<FunctionInvocationStatistics>> docs = result.getDocuments();
           if (docs.size() > 0) {
             stats = docs.get(0).getValue();
@@ -82,7 +83,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
           stats = newStats;
         } else {
           // We created function statistics, so poke it into storage
-          if (getPersistence() != null) {
+          if (getTypedPersistence() != null) {
             final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
             doc.setValue(stats);
             doc.setName(getDocumentName(functionIdentifier));
@@ -98,7 +99,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
   private final ConcurrentMap<String, ForConfiguration> _data = new ConcurrentHashMap<String, ForConfiguration>();
   private final Queue<ConfigDocument<FunctionInvocationStatistics>> _configDocuments = new ConcurrentLinkedQueue<ConfigDocument<FunctionInvocationStatistics>>();
   private FunctionInvocationStatistics _meanStatistics;
-  private ConfigTypeMaster<FunctionInvocationStatistics> _configMaster;
+  private ConfigMaster _configMaster;
   private ConfigDocument<FunctionInvocationStatistics> _meanStatisticsDocument;
 
   public ForConfiguration getStatistics(final String calculationConfiguration) {
@@ -122,13 +123,13 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     getStatistics(configurationName, functionIdentifier).recordInvocation(count, invocationTime, dataInput, dataOutput);
   }
 
-  public void setPersistence(final ConfigTypeMaster<FunctionInvocationStatistics> configMaster) {
+  public void setPersistence(final ConfigMaster configMaster) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
     s_logger.debug("Searching for initial mean statistics");
     final ConfigSearchRequest request = new ConfigSearchRequest();
     request.setName(MEAN_INVOCATION_DOCUMENT_NAME);
-    final ConfigSearchResult<FunctionInvocationStatistics> result = _configMaster.search(request);
+    final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
     final List<ConfigDocument<FunctionInvocationStatistics>> resultDocs = result.getDocuments();
     if (resultDocs.size() > 0) {
       _meanStatisticsDocument = resultDocs.get(0);
@@ -145,8 +146,12 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     _meanStatistics = _meanStatisticsDocument.getValue();
   }
 
-  public ConfigTypeMaster<FunctionInvocationStatistics> getPersistence() {
+  public ConfigMaster getPersistence() {
     return _configMaster;
+  }
+
+  public ConfigTypeMaster<FunctionInvocationStatistics> getTypedPersistence() {
+    return _configMaster.typed(FunctionInvocationStatistics.class);
   }
 
   protected Queue<ConfigDocument<FunctionInvocationStatistics>> getConfigDocuments() {
@@ -158,7 +163,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
   }
 
   public Runnable createPersistenceWriter() {
-    ArgumentChecker.notNull(getPersistence(), "persistence");
+    ArgumentChecker.notNull(getTypedPersistence(), "persistence");
     return new Runnable() {
 
       @Override
@@ -174,7 +179,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
           if (configDocument.getConfigId() != null) {
             if (configDocument.getValue().getLastUpdateNanos() > lastUpdate) {
               s_logger.debug("Updating document {} with {}", configDocument.getConfigId(), configDocument.getName());
-              getConfigDocuments().add(getPersistence().update(configDocument));
+              getConfigDocuments().add(getTypedPersistence().update(configDocument));
               invocationCost += configDocument.getValue().getInvocationCost();
               dataInputCost += configDocument.getValue().getDataInputCost();
               dataOutputCost += configDocument.getValue().getDataOutputCost();
@@ -184,7 +189,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
             }
           } else {
             s_logger.debug("Adding {} to store", configDocument.getName());
-            getConfigDocuments().add(getPersistence().add(configDocument));
+            getConfigDocuments().add(getTypedPersistence().add(configDocument));
             invocationCost += configDocument.getValue().getInvocationCost();
             dataInputCost += configDocument.getValue().getDataInputCost();
             dataOutputCost += configDocument.getValue().getDataOutputCost();
@@ -195,10 +200,10 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
         if (count > 1) {
           if (_meanStatisticsDocument.getConfigId() != null) {
             s_logger.debug("Updating mean statistics {}", _meanStatistics);
-            _meanStatisticsDocument = getPersistence().update(_meanStatisticsDocument);
+            _meanStatisticsDocument = getTypedPersistence().update(_meanStatisticsDocument);
           } else {
             s_logger.debug("Adding mean statistics {}", _meanStatistics);
-            _meanStatisticsDocument = getPersistence().add(_meanStatisticsDocument);
+            _meanStatisticsDocument = getTypedPersistence().add(_meanStatisticsDocument);
           }
         }
       }
