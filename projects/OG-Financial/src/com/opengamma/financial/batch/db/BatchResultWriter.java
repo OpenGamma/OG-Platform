@@ -274,7 +274,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       if (id == -1) {
         throw new IllegalArgumentException(target + " is not initialized");
       }
-      _computationTarget2Id.put(target.toSpec(), id);      
+      _computationTarget2Id.put(target.toNormalizedSpec(), id);      
     }
   }
 
@@ -317,7 +317,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   public int getComputationTargetId(ComputationTargetSpecification spec) {
     ArgumentChecker.notNull(spec, "Computation target");
     
-    Integer specId = _computationTarget2Id.get(spec);
+    Integer specId = _computationTarget2Id.get(ComputationTarget.toNormalizedSpec(spec));
     if (specId == null) {
       throw new IllegalArgumentException(spec + " is not in the database");
     }
@@ -425,10 +425,26 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   
   private void write(ViewComputationCache cache, CalculationJobResult result, DependencyGraph depGraph) {
     
+    // STAGE 1. Populate error information in the shared computation cache.
+    // This is done for all items and will populate table rsk_compute_failure. 
+    for (CalculationJobResultItem item : result.getResultItems()) {
+      populateErrorCache(cache, item);
+    }
+    
+    // STAGE 2. Work out which targets:
+    // 1) succeeded and should be written into rsk_value (because ALL items for that target succeeded)
+    // 2) failed and should be written into rsk_failure (because AT LEAST ONE item for that target failed)
+    
     Set<ComputationTargetSpecification> successfulTargets = new HashSet<ComputationTargetSpecification>();
     Set<ComputationTargetSpecification> failedTargets = new HashSet<ComputationTargetSpecification>();
     
     for (CalculationJobResultItem item : result.getResultItems()) {
+      ResultOutputMode targetOutputMode = _resultModelDefinition.getOutputMode(item.getComputationTargetSpecification().getType());
+      if (targetOutputMode == ResultOutputMode.NONE) {
+        // Any sort of output is disabled for this target type
+        continue;
+      }
+
       ComputationTargetSpecification target = item.getComputationTargetSpecification();
       
       boolean success; 
@@ -478,12 +494,11 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     
     Date evalInstant = new Date();
     
+    // STAGE 3. Based on the results of stage 2, work out 
+    // SQL statements to write risk into rsk_value and rsk_failure (& rsk_failure_reason)
+    
     for (CalculationJobResultItem item : result.getResultItems()) {
       ResultOutputMode targetOutputMode = _resultModelDefinition.getOutputMode(item.getComputationTargetSpecification().getType());
-      if (targetOutputMode == ResultOutputMode.NONE) {
-        // Any sort of output is disabled for this target type
-        continue;
-      }
       
       if (successfulTargets.contains(item.getComputationTargetSpecification())) {
         
@@ -520,7 +535,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       // the check below ensures that
       // if there is a partial failure (some successes, some failures) for a target, 
       // only the failures will be written out in the database
-      } else if (failedTargets.contains(item.getComputationTargetSpecification()))  {
+      } else if (failedTargets.contains(item.getComputationTargetSpecification())) {
           
         if (!isWriteErrors()) {
           continue;
@@ -531,8 +546,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           int valueNameId = getValueNameId(outputValue.getRequirementSpecification().getValueName());
           int computationTargetId = getComputationTargetId(outputValue.getRequirementSpecification().getTargetSpecification());
         
-          BatchResultWriterFailure cachedFailure = new BatchResultWriterFailure();
-          
           RiskFailure failure = new RiskFailure();
           failure.setId(generateUniqueId());
           failure.setCalculationConfigurationId(calcConfId);
@@ -546,69 +559,47 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           switch (item.getResult()) {
 
             case MISSING_INPUTS:
-            
-              // There may be 1-N failure reasons - one for each failed
-              // function in the subtree below this node. (This
-              // only includes "original", i.e., lowest-level, failures.)
-            
-              for (ValueSpecification missingInput : item.getMissingInputs()) {
-                BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
-                if (inputFailure == null) {
-                  s_logger.warn("No failure information available for {}", missingInput);
-                  continue;
-                }
-                
-                cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
-              }
-                
-              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
-                FailureReason reason = new FailureReason();
-                reason.setId(generateUniqueId());
-                reason.setRiskFailure(failure);
-                reason.setComputeFailureId(computeFailureId.longValue());
-                failureReasons.add(reason.toSqlParameterSource());
-              }
-              
-              break;
-              
             case FUNCTION_THREW_EXCEPTION:
-            case FUNCTION_TIMED_OUT:
-
-              // an "original" failure
-              //
-              // There will only be 1 failure reason.
             
-              ComputeFailureKey computeFailureKey = new ComputeFailureKey(
-                  item.getItem().getFunctionUniqueIdentifier(),
-                  item.getExceptionClass(),
-                  item.getExceptionMsg(),
-                  item.getStackTrace());
-              
-              ComputeFailure computeFailure = getComputeFailureFromDb(computeFailureKey);
-              cachedFailure.addComputeFailureId(computeFailure.getId());
-              
-              FailureReason reason = new FailureReason();
-              reason.setId(generateUniqueId());
-              reason.setRiskFailure(failure);
-              reason.setComputeFailureId(computeFailure.getId());
-              failureReasons.add(reason.toSqlParameterSource());
-              
+              BatchResultWriterFailure cachedFailure = (BatchResultWriterFailure) cache.getValue(outputValue);
+              if (cachedFailure != null) {
+                for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
+                  FailureReason reason = new FailureReason();
+                  reason.setId(generateUniqueId());
+                  reason.setRiskFailure(failure);
+                  reason.setComputeFailureId(computeFailureId.longValue());
+                  failureReasons.add(reason.toSqlParameterSource());
+                }
+              }
+                            
               break;
-            
+              
             case SUCCESS:
             
-              // partial failure for this target / unsupported (non-Double) output from a function
+              // maybe this output succeeded, but some other outputs for the same target failed.
               s_logger.debug("Not adding any failure reasons for partial failures / unsupported outputs for now");
               break;
               
             default:
               throw new RuntimeException("Should not get here");
           }
+        }
           
-          // failures are propagated up from children via the computation cache
-          cache.putSharedValue(new ComputedValue(outputValue, cachedFailure));
-        } 
+      } else {
+        // probably a PRIMITIVE target. See targetOutputMode == ResultOutputMode.NONE check above.
+        s_logger.debug("Not writing anything for target {}", item.getComputationTargetSpecification());
       }
+    }
+    
+    // STAGE 4. Actually execute the statements worked out in stage 3.
+    
+    if (successes.isEmpty() 
+        && failures.isEmpty() 
+        && failureReasons.isEmpty() 
+        && successfulTargets.isEmpty() 
+        && failedTargets.isEmpty()) {
+      s_logger.debug("Nothing to write to DB for {}", result);
+      return;
     }
     
     TransactionStatus transaction = getTransactionManager().getTransaction(new DefaultTransactionDefinition());
@@ -628,6 +619,60 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
   }
 
+  private void populateErrorCache(ViewComputationCache cache, CalculationJobResultItem item) {
+    BatchResultWriterFailure cachedFailure = new BatchResultWriterFailure();
+    
+    switch (item.getResult()) {
+
+      case FUNCTION_THREW_EXCEPTION:
+      
+        // an "original" failure
+        //
+        // There will only be 1 failure reason.
+        
+        ComputeFailure computeFailure = getComputeFailureFromDb(item);
+        cachedFailure.addComputeFailureId(computeFailure.getId());
+        
+        break;
+      
+      case MISSING_INPUTS:
+        
+        // There may be 1-N failure reasons - one for each failed
+        // function in the subtree below this node. (This
+        // only includes "original", i.e., lowest-level, failures.)
+        
+        for (ValueSpecification missingInput : item.getMissingInputs()) {
+          BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
+          if (inputFailure == null) {
+            s_logger.warn("No failure information available for {}", missingInput);
+            continue;
+          }
+          cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
+        }
+        
+        break;
+    }
+    
+    if (!cachedFailure.getComputeFailureIds().isEmpty()) {
+      for (ValueSpecification outputValue : item.getOutputs()) {
+        cache.putSharedValue(new ComputedValue(outputValue, cachedFailure));
+      }
+    }
+  }
+  
+  private ComputeFailure getComputeFailureFromDb(CalculationJobResultItem item) {
+    if (item.getResult() != InvocationResult.FUNCTION_THREW_EXCEPTION) {
+      throw new IllegalArgumentException("Please give a failed item");       
+    }
+    
+    ComputeFailureKey computeFailureKey = new ComputeFailureKey(
+        item.getItem().getFunctionUniqueIdentifier(),
+        item.getExceptionClass(),
+        item.getExceptionMsg(),
+        item.getStackTrace());
+    return getComputeFailureFromDb(computeFailureKey);
+  }
+
   private ComputeFailure getComputeFailureFromDb(ComputeFailureKey computeFailureKey) {
     ComputeFailure computeFailure = _key2ComputeFailure.get(computeFailureKey);
     if (computeFailure != null) {
@@ -643,7 +688,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
     
     try {
-      int id = getJdbcTemplate().queryForInt(ComputeFailure.sqlGet(), computeFailure.toSqlParameterSource());
+      int id = getJdbcTemplate().queryForInt(ComputeFailure.sqlGet(), computeFailureKey.toSqlParameterSource());
       
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
@@ -721,6 +766,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       
       MapSqlParameterSource params = new MapSqlParameterSource();
       
+      // this assumes that _searchKey2StatusEntry has already been populated
+      // in getStatus()
       Pair<Integer, Integer> key = Pair.of(calcConfId, computationTargetId);
       StatusEntry statusEntry = _searchKey2StatusEntry.get(key);
       if (statusEntry != null) {

@@ -9,9 +9,6 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 
 /**
@@ -187,16 +184,6 @@ public class RiskRun {
   }
   
   // --------------------------------------------------------------------------
-  
-  @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
   
   @Override
   public String toString() {

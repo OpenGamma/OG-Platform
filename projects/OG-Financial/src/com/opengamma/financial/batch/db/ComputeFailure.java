@@ -97,8 +97,7 @@ public class ComputeFailure {
   
   public static String sqlGet() {
     return "SELECT id FROM rsk_compute_failure WHERE " +
-      "id = :id AND " +
-      "function_id = :functionId AND " +
+      "function_id = :function_id AND " +
       "exception_class = :exception_class AND " + 
       "exception_msg = :exception_msg AND " +
       "stack_trace = :stack_trace";
