@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
 import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -25,8 +26,8 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 public class BondYieldFunction extends BondFunction {
 
   public BondYieldFunction() {
-    //_requirementName = MarketDataRequirementNames.MARKET_VALUE;
-    _fieldName = "PX_LAST";
+    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    //_fieldName = "PX_LAST";
   }
 
   @Override

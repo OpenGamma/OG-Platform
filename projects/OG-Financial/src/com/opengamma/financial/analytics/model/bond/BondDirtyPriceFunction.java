@@ -17,14 +17,15 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
  */
 public class BondDirtyPriceFunction extends BondFunction {
   public BondDirtyPriceFunction() {
-    //_requirementName = MarketDataRequirementNames.MARKET_VALUE;
-    _fieldName = "PX_LAST";
+    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    //_fieldName = "PX_LAST";
   }
 
   @Override
