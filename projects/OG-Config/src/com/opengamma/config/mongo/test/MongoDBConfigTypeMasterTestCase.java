@@ -31,7 +31,7 @@ import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.mongo.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigTypeMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.db.Paging;
@@ -42,13 +42,13 @@ import com.opengamma.util.db.PagingRequest;
  *
  * @param <T>  the configuration document type
  */
-public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
+public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
 
-  private MongoDBConfigMaster<T> _configMaster;
+  private MongoDBConfigTypeMaster<T> _configMaster;
   private Class<?> _entityType;
   private Random _random = new Random();
 
-  public MongoDBConfigMasterTestCase(Class<?> entityType) {
+  public MongoDBConfigTypeMasterTestCase(Class<?> entityType) {
     _entityType = entityType;
   }
 
@@ -69,7 +69,7 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
   }
 
   //-------------------------------------------------------------------------
-  protected abstract MongoDBConfigMaster<T> createMongoConfigMaster();
+  protected abstract MongoDBConfigTypeMaster<T> createMongoConfigMaster();
   protected abstract ConfigDocument<T> makeTestConfigDoc(int version);
   protected abstract MongoDBConnectionSettings getMongoDBConnectionSettings();
   protected abstract T makeRandomConfigDoc();
@@ -227,12 +227,12 @@ public abstract class MongoDBConfigMasterTestCase<T extends Serializable> {
 
   @Test(expected = DataNotFoundException.class)
   public void get_notFound_versioned() throws Exception {
-    _configMaster.get(UniqueIdentifier.of(MongoDBConfigMaster.IDENTIFIER_SCHEME_DEFAULT, "1", "1"));
+    _configMaster.get(UniqueIdentifier.of(MongoDBConfigTypeMaster.IDENTIFIER_SCHEME_DEFAULT, "1", "1"));
   }
 
   @Test(expected = DataNotFoundException.class)
   public void get_notFound_latest() throws Exception {
-    _configMaster.get(UniqueIdentifier.of(MongoDBConfigMaster.IDENTIFIER_SCHEME_DEFAULT, "1"));
+    _configMaster.get(UniqueIdentifier.of(MongoDBConfigTypeMaster.IDENTIFIER_SCHEME_DEFAULT, "1"));
   }
 
   @Test

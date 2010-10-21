@@ -24,24 +24,24 @@ import com.opengamma.util.test.DBTest;
 /**
  * Test DbConfigMaster.
  */
-public class DbConfigMasterTest extends DBTest {
+public class DbConfigTypeMasterTest extends DBTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMasterTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbConfigTypeMasterTest.class);
 
-  private DbConfigMaster<Identifier> _cfgMaster;
+  private DbConfigTypeMaster<Identifier> _cfgMaster;
 
-  public DbConfigMasterTest(String databaseType, String databaseVersion) {
+  public DbConfigTypeMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _cfgMaster = (DbConfigMaster<Identifier>) context.getBean(getDatabaseType() + "DbConfigMaster");
+    DbConfigMaster master = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
+    _cfgMaster = (DbConfigTypeMaster<Identifier>) master.typed(Identifier.class);
   }
 
   @After
@@ -75,7 +75,7 @@ public class DbConfigMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals("DbConfigMaster[DbCfg]", _cfgMaster.toString());
+    assertEquals("DbConfigTypeMaster[DbCfg]", _cfgMaster.toString());
   }
 
 }

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
@@ -46,8 +45,6 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
 
   /** Logger. */
   private final Logger s_logger = LoggerFactory.getLogger(this.getClass());
-  /** The expected result size. */
-  private static final int EXPECTED_SIZE = 12;
 
   private CurveConfigurationSetupHelper _configHelper;
 
@@ -75,7 +72,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
-    context.setSecuritySource(_configHelper.getSecSource());
+    context.setSecuritySource(_configHelper.getSecuritySource());
     
     function.init(context);
     CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
@@ -113,7 +110,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final String curveName = "FUNDING";
     final LocalDate curveDate = DateUtil.previousWeekDay();
     
-    YieldCurveConfigPopulator.populateCurveConfigSource((MasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(_configHelper.getConfigMaster());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
@@ -153,7 +150,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
     
-    YieldCurveConfigPopulator.populateCurveConfigSource((MasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(_configHelper.getConfigMaster());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
@@ -177,7 +174,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     final Currency curveCurrency = Currency.getInstance("USD");
     final String curveName = "FUNDING";
     
-    YieldCurveConfigPopulator.populateCurveConfigSource((MasterConfigSource)_configHelper.getConfigSource());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(_configHelper.getConfigMaster());
     SimpleInterpolatedYieldAndDiscountCurveFunction function = new SimpleInterpolatedYieldAndDiscountCurveFunction(curveCurrency, curveName, false);
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;

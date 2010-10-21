@@ -26,21 +26,21 @@ import com.opengamma.id.UniqueIdentifierSupplier;
 /**
  * Test InMemoryConfigMaster.
  */
-public class InMemoryConfigMasterTest {
+public class InMemoryConfigTypeMasterTest {
 
   private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
   private static final Identifier VAL1 = Identifier.of ("Test", "sec1");
   private static final Identifier VAL2 = Identifier.of ("Test", "sec2");
 
-  private InMemoryConfigMaster<Identifier> testEmpty;
-  private InMemoryConfigMaster<Identifier> testPopulated;
+  private InMemoryConfigTypeMaster<Identifier> testEmpty;
+  private InMemoryConfigTypeMaster<Identifier> testPopulated;
   private ConfigDocument<Identifier> doc1;
   private ConfigDocument<Identifier> doc2;
 
   @Before
   public void setUp() {
-    testEmpty = new InMemoryConfigMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
-    testPopulated = new InMemoryConfigMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
+    testEmpty = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
+    testPopulated = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
     doc1 = new ConfigDocument<Identifier>();
     doc1.setName("ONE");
     doc1.setValue(VAL1);
@@ -54,12 +54,12 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemoryConfigMaster<Identifier>(null);
+    new InMemoryConfigTypeMaster<Identifier>(null);
   }
 
   @Test
   public void test_defaultSupplier() {
-    InMemoryConfigMaster<Identifier> master = new InMemoryConfigMaster<Identifier>();
+    InMemoryConfigTypeMaster<Identifier> master = new InMemoryConfigTypeMaster<Identifier>();
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("ONE");
     doc.setValue(VAL1);
@@ -69,7 +69,7 @@ public class InMemoryConfigMasterTest {
 
   @Test
   public void test_alternateSupplier() {
-    InMemoryConfigMaster<Identifier> master = new InMemoryConfigMaster<Identifier>(new UniqueIdentifierSupplier("Hello"));
+    InMemoryConfigTypeMaster<Identifier> master = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Hello"));
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("ONE");
     doc.setValue(VAL1);

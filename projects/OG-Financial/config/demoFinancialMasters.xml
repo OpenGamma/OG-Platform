@@ -66,9 +66,12 @@
   </bean>
 
   <!-- ConfigSource -->
-  <bean id="sharedConfigSource" class="com.opengamma.engine.config.DbMasterConfigSource">
+  <bean id="sharedConfigMaster" class="com.opengamma.config.db.DbConfigMaster">
     <constructor-arg ref="cfgDbSource" />
     <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
+  </bean>
+  <bean id="sharedConfigSource" class="com.opengamma.engine.config.MasterConfigSource">
+    <constructor-arg ref="sharedConfigMaster" />
   </bean>
 
   <!-- SecurityMaster -->

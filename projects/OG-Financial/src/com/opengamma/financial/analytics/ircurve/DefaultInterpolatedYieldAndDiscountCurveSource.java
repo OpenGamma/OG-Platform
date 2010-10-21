@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.financial.Currency;
 
@@ -34,7 +34,7 @@ public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInte
    */
   public void addDefinition(Currency currency, String name, YieldCurveDefinition definition) {
     MasterConfigSource configSource = (MasterConfigSource) getConfigSource();
-    ConfigMaster<YieldCurveDefinition> configMaster = configSource.getMaster(YieldCurveDefinition.class);
+    ConfigTypeMaster<YieldCurveDefinition> configMaster = ((MasterConfigSource) configSource).getMaster().typed(YieldCurveDefinition.class);
     ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>();
     doc.setName(name + "_" + currency.getISOCode());
     doc.setValue(definition);
