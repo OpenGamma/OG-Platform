@@ -30,21 +30,18 @@ public interface HistoricalDataSource {
    * @return  the (uid, timeseries) pair, (null,empty) if not found
    */
   Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField);
-
+  
   /**
-   * Finds a timeseries with data points between start and end dates
-   * <p>
-   * Datapoint for both start and end date are included
+   * Finds a timeseries with all the available data points 
    * 
    * @param identifiers the identifier bundle, not-null
+   * @param currentDate the current valid date for the identifier, not-null
    * @param dataSource the datasource, not-null
    * @param dataProvider the dataprovider, not-null
-   * @param field the dataField, not-null
-   * @param start the start date, if null will load the earliest date 
-   * @param end the end date, if null will load the latest date
+   * @param dataField the dataField, not-null
    * @return  the (uid, timeseries) pair, (null,empty) if not found
    */
-  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start, LocalDate end);
+  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField);
 
   /**
    * Finds a timeseries with data points between start and end dates
@@ -52,44 +49,52 @@ public interface HistoricalDataSource {
    * @param identifiers the identifier bundle, not-null
    * @param dataSource the datasource, not-null
    * @param dataProvider the dataprovider, not-null
-   * @param field the dataField, not-null
+   * @param dataField the dataField, not-null
    * @param start the start date, if null will load the earliest date 
    * @param inclusiveStart whether or not the start date is included in the result.
    * @param end the end date, if null will load the latest date
    * @param exclusiveEnd whether or not the end date is included in the result.
    * @return the (uid, timeseries) pair, (null,empty) if not found
    */
-  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start, boolean inclusiveStart,
+  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start, boolean inclusiveStart,
+      LocalDate end, boolean exclusiveEnd);
+  
+  /**
+   * Finds a timeseries with data points between start and end dates
+   * 
+   * @param identifiers the identifier bundle, not-null
+   * @param currentDate the current date if applicable
+   * @param dataSource the datasource, not-null
+   * @param dataProvider the dataprovider, not-null
+   * @param dataField the dataField, not-null
+   * @param start the start date, if null will load the earliest date 
+   * @param inclusiveStart whether or not the start date is included in the result.
+   * @param end the end date, if null will load the latest date
+   * @param exclusiveEnd whether or not the end date is included in the result.
+   * @return the (uid, timeseries) pair, (null,empty) if not found
+   */
+  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String field, LocalDate start, boolean inclusiveStart,
       LocalDate end, boolean exclusiveEnd);
 
   /**
    * Finds a timeseries with all the available data points 
-   * <p>
-   * The {@link TimeSeriesResolver} provides the default meta data for lookup
    * 
    * @param identifiers the identifier bundle, not-null
    * @return the (uid, timeseries) pair, (null,empty) if not found
    */
   Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers);
+  
+  /**
+   * Finds a timeseries with all the available data points 
+   * 
+   * @param identifiers the identifier bundle, not-null
+   * @param currentDate the current date if applicable
+   * @return the (uid, timeseries) pair, (null,empty) if not found
+   */
+  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate);
 
   /**
    * Finds a timeseries with data points between start and end dates
-   * <p>
-   * The {@link TimeSeriesResolver} provides the default meta data for lookup
-   * Datapoints for both start and end dates are included
-   * 
-   * @param identifiers the identifier bundle, not-null
-   * @param start the start date, if null will load the earliest date 
-   * @param end the end date, if null will load the latest date
-   * @return the (uid, timeseries) pair, (null,empty) if not found
-   */
-  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, LocalDate end);
-  
- 
-  /**
-   * Finds a timeseries with data points between start and end dates
-   * <p>
-   * The {@link TimeSeriesResolver} provides the default meta data for lookup
    * 
    * @param identifiers the identifier bundle, not-null
    * @param start the start date, if null will load the earliest date 
@@ -99,6 +104,19 @@ public interface HistoricalDataSource {
    * @return the (uid, timeseries) pair, (null,empty) if not found
    */
   Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
+  
+  /**
+   * Finds a timeseries with data points between start and end dates
+   * 
+   * @param identifiers the identifier bundle, not-null
+   * @param currentDate the current date if applicable
+   * @param start the start date, if null will load the earliest date 
+   * @param inclusiveStart whether or not the start date is included in the result.
+   * @param end the end date, if null will load the latest date
+   * @param exclusiveEnd whether or not the end date is included in the result.
+   * @return the (uid, timeseries) pair, (null,empty) if not found
+   */
+  Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   /**
    *  Finds a timeseries with all the available data points by identifier
@@ -109,17 +127,6 @@ public interface HistoricalDataSource {
    */
   LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid);
 
-  /**
-   *  Finds a timeseries with all data points between start and end date included by identifier
-   *  
-   * @param uid the identifier, not-null
-   * @param start the start date, if null will load the earliest date 
-   * @param end the end date, if null will load the latest date
-   * @return the timeseries, empty if not found
-   * @throws IllegalArgumentException if the identifier is invalid
-   */
-  LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, LocalDate end);
-  
   /**
    * Finds a timeseries with all data points between start and end date by identifier
    * 

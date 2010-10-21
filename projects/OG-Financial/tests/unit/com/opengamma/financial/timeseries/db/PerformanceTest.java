@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.timeseries.db;
+package com.opengamma.financial.timeseries.db;
 
 import java.util.Map;
 
@@ -23,8 +23,10 @@ import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.financial.timeseries.db.LocalDateRowStoreTimeSeriesMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -44,7 +46,7 @@ public class PerformanceTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/financial/timeseries/db/tssQueries.xml");
+    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/timeseries/db/tssQueries.xml");
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
     TimeSeriesMaster<LocalDate> ts = new LocalDateRowStoreTimeSeriesMaster(
@@ -72,7 +74,7 @@ public class PerformanceTest extends DBTest {
       tsDocument.setDataProvider("CMPL");
       tsDocument.setDataSource("BLOOMBERG");
       tsDocument.setObservationTime("LDN_CLOSE");
-      tsDocument.setIdentifiers(identifiers);
+      tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
       tsDocument.setTimeSeries(timeSeries);
       s_logger.debug("adding timeseries {}", tsDocument);
       _tsMaster.addTimeSeries(tsDocument);

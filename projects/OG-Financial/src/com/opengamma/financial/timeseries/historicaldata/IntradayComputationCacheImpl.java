@@ -38,13 +38,14 @@ import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
-import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * This implementation uses a {@link DateTimeTimeSeriesMaster} (i.e., a relational DB)
@@ -359,6 +360,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
 
           UniqueIdentifier seriesUid = _timeSeriesMaster.resolveIdentifier(
               identifiers,
+              null,
               getDataSource(),
               dataProvider,
               fieldName);
@@ -366,7 +368,8 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
           if (seriesUid == null) {
             
             TimeSeriesDocument<Date> timeSeries = new TimeSeriesDocument<Date>();
-            timeSeries.setIdentifiers(identifiers);
+            //REVIEW - Yomi 20101007 may need to store the valid dates range for identifiers
+            timeSeries.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
             timeSeries.setDataSource(getDataSource());
             timeSeries.setDataProvider(getDataProvider(lastResult.getViewName(), calcConf));
             timeSeries.setDataField(fieldName);

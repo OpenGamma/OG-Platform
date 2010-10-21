@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -41,6 +42,9 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
   
   @PropertyDefinition
   private IdentifierBundle _identifiers;
+  
+  @PropertyDefinition
+  private LocalDate _currentDate;
   
   @PropertyDefinition
   private String _dataSource;
@@ -86,6 +90,8 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
         return getTimeSeriesId();
       case 1368189162:  // identifiers
         return getIdentifiers();
+      case 600751303:  // currentDate
+        return getCurrentDate();
       case 1272470629:  // dataSource
         return getDataSource();
       case 339742651:  // dataProvider
@@ -111,6 +117,9 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
         return;
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundle) newValue);
+        return;
+      case 600751303:  // currentDate
+        setCurrentDate((LocalDate) newValue);
         return;
       case 1272470629:  // dataSource
         setDataSource((String) newValue);
@@ -207,6 +216,31 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
    */
   public final Property<IdentifierBundle> identifiers() {
     return metaBean().identifiers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currentDate.
+   * @return the value of the property
+   */
+  public LocalDate getCurrentDate() {
+    return _currentDate;
+  }
+
+  /**
+   * Sets the currentDate.
+   * @param currentDate  the new value of the property
+   */
+  public void setCurrentDate(LocalDate currentDate) {
+    this._currentDate = currentDate;
+  }
+
+  /**
+   * Gets the the {@code currentDate} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> currentDate() {
+    return metaBean().currentDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +391,10 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
      */
     private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
     /**
+     * The meta-property for the {@code currentDate} property.
+     */
+    private final MetaProperty<LocalDate> _currentDate = DirectMetaProperty.ofReadWrite(this, "currentDate", LocalDate.class);
+    /**
      * The meta-property for the {@code dataSource} property.
      */
     private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(this, "dataSource", String.class);
@@ -381,12 +419,13 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
       temp.put("timeSeriesId", _timeSeriesId);
       temp.put("identifiers", _identifiers);
+      temp.put("currentDate", _currentDate);
       temp.put("dataSource", _dataSource);
       temp.put("dataProvider", _dataProvider);
       temp.put("dataField", _dataField);
@@ -433,6 +472,14 @@ public class TimeSeriesSearchHistoricRequest extends DirectBean {
      */
     public final MetaProperty<IdentifierBundle> identifiers() {
       return _identifiers;
+    }
+
+    /**
+     * The meta-property for the {@code currentDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> currentDate() {
+      return _currentDate;
     }
 
     /**
