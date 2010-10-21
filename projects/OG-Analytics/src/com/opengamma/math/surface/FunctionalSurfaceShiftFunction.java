@@ -47,12 +47,12 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
   }
 
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] zShift) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] zShift, final String name) {
+  public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 

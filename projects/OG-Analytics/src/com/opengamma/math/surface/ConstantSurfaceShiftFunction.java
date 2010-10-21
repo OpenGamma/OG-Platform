@@ -36,12 +36,12 @@ public class ConstantSurfaceShiftFunction implements SurfaceShiftFunction<Consta
   }
 
   @Override
-  public ConstantDoublesSurface evaluate(final ConstantDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] zShift) {
+  public ConstantDoublesSurface evaluate(final ConstantDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ConstantDoublesSurface evaluate(final ConstantDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] zShift, final String name) {
+  public ConstantDoublesSurface evaluate(final ConstantDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 
