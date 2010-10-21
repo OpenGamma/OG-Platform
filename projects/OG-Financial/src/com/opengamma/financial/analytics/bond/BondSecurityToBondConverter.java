@@ -55,8 +55,12 @@ public class BondSecurityToBondConverter {
    
     //these are the remaining payment dates after the firstCouponDate - they could fall on non-business days 
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, frequency);  
-    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), calendar);
-    int n = temp.length; 
+    int n = unadjustedDates.length;
+    if (!maturityDate.equals(unadjustedDates[n - 1])) {
+      unadjustedDates[n - 1] = maturityDate;
+    }
+    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), calendar);
+   
     final ZonedDateTime[] couponDates = new ZonedDateTime[n + 1];
     couponDates[0] = firstCouponDate;
     for (int i = 0; i < n; i++) {
