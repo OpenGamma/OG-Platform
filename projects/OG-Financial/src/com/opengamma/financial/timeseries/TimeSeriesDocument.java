@@ -391,7 +391,7 @@ public class TimeSeriesDocument<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -421,24 +421,24 @@ public class TimeSeriesDocument<T> extends DirectBean {
     /**
      * The meta-property for the {@code latest} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _latest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "latest", Object.class);
     /**
      * The meta-property for the {@code earliest} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _earliest = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "earliest", Object.class);
     /**
      * The meta-property for the {@code timeSeries} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<DoubleTimeSeries<T>> _timeSeries = DirectMetaProperty.ofReadWrite(this, "timeSeries", (Class) DoubleTimeSeries.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("uniqueIdentifier", _uniqueIdentifier);
@@ -458,7 +458,7 @@ public class TimeSeriesDocument<T> extends DirectBean {
       return new TimeSeriesDocument<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends TimeSeriesDocument<T>> beanType() {
       return (Class) TimeSeriesDocument.class;
