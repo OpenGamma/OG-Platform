@@ -47,10 +47,10 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ExchangeDocument latestSecDoc = data().getExchange();
+    ExchangeDocument latestDoc = data().getExchange();
     ExchangeDocument versionedExchange = data().getVersioned();
-    out.put("latestExchangeDoc", latestSecDoc);
-    out.put("latestExchange", latestSecDoc.getExchange());
+    out.put("latestExchangeDoc", latestDoc);
+    out.put("latestExchange", latestDoc.getExchange());
     out.put("exchangeDoc", versionedExchange);
     out.put("exchange", versionedExchange.getExchange());
     return out;
