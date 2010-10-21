@@ -8,6 +8,8 @@ package com.opengamma.financial.batch.db;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 /**
  * 
@@ -43,6 +45,15 @@ public class ComputeFailureKey {
   
   public String getStackTrace() {
     return _stackTrace;
+  }
+  
+  public SqlParameterSource toSqlParameterSource() {
+    MapSqlParameterSource source = new MapSqlParameterSource();
+    source.addValue("function_id", getFunctionId());
+    source.addValue("exception_class", getExceptionClass());
+    source.addValue("exception_msg", getExceptionMsg());
+    source.addValue("stack_trace", getStackTrace());
+    return source;
   }
   
   @Override

@@ -13,7 +13,7 @@
     </id>
     <many-to-one name="riskRun" 
     	column="run_id" 
-    	not-null="true" fetch="join"/>
+    	not-null="true"/>
     <property name="name" not-null="true"/>
   </class>
   

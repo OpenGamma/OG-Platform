@@ -15,7 +15,9 @@ import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
+import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import org.hibernate.HibernateException;
@@ -563,6 +565,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
         run = createRiskRun(batch);
       } else {
         restartRun(run);
+      }
+
+      // make sure calc conf collection is inited
+      for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
+        ;
       }
       
       Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
