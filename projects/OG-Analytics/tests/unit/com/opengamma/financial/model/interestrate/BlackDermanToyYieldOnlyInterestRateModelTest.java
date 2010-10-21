@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
+import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Triple;
@@ -44,7 +44,7 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     final int steps = 3;
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final ZonedDateTime maturity = DateUtil.getDateOffsetWithYearFraction(date, 3);
-    final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), new ConstantVolatilityCurve(0.1), date);
+    final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), new VolatilityCurve(ConstantDoublesCurve.from(0.1)), date);
     final BlackDermanToyYieldOnlyInterestRateModel model = new BlackDermanToyYieldOnlyInterestRateModel(steps);
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);
     final Triple[][] result = tree.getTree();

@@ -148,7 +148,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings("unchecked")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -158,14 +158,14 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
     /**
      * The meta-property for the {@code documents} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private final MetaProperty<List<TimeSeriesDocument<T>>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("paging", _paging);
@@ -178,7 +178,7 @@ public class TimeSeriesSearchResult<T> extends DirectBean {
       return new TimeSeriesSearchResult<T>();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     @Override
     public Class<? extends TimeSeriesSearchResult<T>> beanType() {
       return (Class) TimeSeriesSearchResult.class;

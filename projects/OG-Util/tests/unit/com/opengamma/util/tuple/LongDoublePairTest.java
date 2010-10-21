@@ -16,16 +16,29 @@ import org.junit.Test;
 public class LongDoublePairTest {
 
   @Test
+  public void test_LongDoublePair_of() {
+    LongDoublePair test = LongDoublePair.of(1L, 2.5d);
+    assertEquals(Long.valueOf(1L), test.getFirst());
+    assertEquals(Double.valueOf(2.5d), test.getSecond());
+    assertEquals(1L, test.getFirstLong());
+    assertEquals(2.5d, test.getSecondDouble(), 1E-10);
+    assertEquals(Long.valueOf(1L), test.getKey());
+    assertEquals(Double.valueOf(2.5d), test.getValue());
+    assertEquals(1L, test.getLongKey());
+    assertEquals(2.5d, test.getDoubleValue(), 1E-10);
+  }
+
+  @Test
   public void testConstructionGets() {
     LongDoublePair test = new LongDoublePair(1L, 2.0d);
-    assertEquals(test.getFirst(), Long.valueOf(1L));
-    assertEquals(test.getSecond(), Double.valueOf(2.0d));
-    assertEquals(test.getFirstLong(), 1L);
-    assertEquals(test.getSecondDouble(), 2.0d, 1E-10);
-    assertEquals(test.getKey(), Long.valueOf(1L));
-    assertEquals(test.getValue(), Double.valueOf(2.0d));
-    assertEquals(test.getLongKey(), 1L);
-    assertEquals(test.getDoubleValue(), 2.0, 1E-10);
+    assertEquals(Long.valueOf(1L), test.getFirst());
+    assertEquals(Double.valueOf(2.0d), test.getSecond());
+    assertEquals(1L, test.getFirstLong());
+    assertEquals(2.0d, test.getSecondDouble(), 1E-10);
+    assertEquals(Long.valueOf(1L), test.getKey());
+    assertEquals(Double.valueOf(2.0d), test.getValue());
+    assertEquals(1L, test.getLongKey());
+    assertEquals(2.0, test.getDoubleValue(), 1E-10);
   }
 
   //-------------------------------------------------------------------------
@@ -73,57 +86,57 @@ public class LongDoublePairTest {
     LongDoublePair b = new LongDoublePair(1L, 3.0);
     LongDoublePair c = new LongDoublePair(2L, 2.0);
     LongDoublePair d = new LongDoublePair(2L, 3.0);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, a.equals(c));
+    assertEquals(false, a.equals(d));
     
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
+    assertEquals(false, b.equals(c));
+    assertEquals(false, b.equals(d));
     
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertEquals(false, c.equals(a));
+    assertEquals(false, c.equals(b));
+    assertEquals(true, c.equals(c));
+    assertEquals(false, c.equals(d));
     
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertEquals(false, d.equals(a));
+    assertEquals(false, d.equals(b));
+    assertEquals(false, d.equals(c));
+    assertEquals(true, d.equals(d));
   }
 
   @Test
   public void testEquals_toObjectVersion() {
     LongDoublePair a = Pair.of(1L, 1.7d);
     Pair<Long, Double> b = Pair.of(Long.valueOf(1L), Double.valueOf(1.7d));
-    assertEquals(a.equals(b), true);
-    assertEquals(b.equals(a), true);
+    assertEquals(true, a.equals(b));
+    assertEquals(true, b.equals(a));
   }
 
   @Test
   public void testEquals_toObjectVersion_null() {
     Pair<Long, Double> a = Pair.of(null, Double.valueOf(1.9d));
     LongDoublePair b = Pair.of(1L, 1.7d);
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
   }
 
   @Test
   public void testHashCode() {
     LongDoublePair a = Pair.of(1L, 1.7d);
     Pair<Long, Double> b = Pair.of(Long.valueOf(1L), Double.valueOf(1.7d));
-    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b.hashCode(), a.hashCode());
   }
 
   @Test
   public void testHashCode_value() {
     LongDoublePair a = new LongDoublePair(1L, 2.0);
     assertEquals(a.hashCode(), a.hashCode());
-    assertEquals(a.hashCode(), Long.valueOf(1L).hashCode() ^ Double.valueOf(2.0).hashCode());
+    assertEquals(Long.valueOf(1L).hashCode() ^ Double.valueOf(2.0).hashCode(), a.hashCode());
     // can't test for different hash codes as they might not be different
   }
 

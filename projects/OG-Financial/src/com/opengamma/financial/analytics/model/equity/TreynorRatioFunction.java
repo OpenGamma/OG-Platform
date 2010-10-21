@@ -70,7 +70,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeRateTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
-        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, now);
+        IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
     if (riskFreeRateTSObject == null) {
       throw new NullPointerException("Risk free rate series was null");
     }

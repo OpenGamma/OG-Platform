@@ -7,6 +7,7 @@ package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -71,6 +72,26 @@ public class InterpolatedCurveShiftFunctionTest {
   @Test(expected = IllegalArgumentException.class)
   public void testUnequalArrayLength2() {
     F.evaluate(CURVE, new double[] {1}, new double[] {3, 4}, "S");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullXShifts1() {
+    F.evaluate(CURVE, null, new double[] {1, 2, 3});
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullXShifts2() {
+    F.evaluate(CURVE, null, new double[] {1, 2, 3}, "A");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullYShifts1() {
+    F.evaluate(CURVE, new double[] {1, 2, 3}, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullYShifts2() {
+    F.evaluate(CURVE, new double[] {1, 2, 3}, null, "A");
   }
 
   @Test
@@ -182,6 +203,11 @@ public class InterpolatedCurveShiftFunctionTest {
     assertArrayEquals(x, resultX, EPS);
     assertArrayEquals(y, resultY, EPS);
     assertEquals(shifted.getName(), "MULTIPLE_POINT_SHIFT_A");
+    shiftX = new double[0];
+    shiftY = new double[0];
+    shifted = F.evaluate(CURVE, shiftX, shiftY, "A");
+    assertFalse(shifted == CURVE);
+    assertEquals(shifted, CURVE);
   }
 
 }
