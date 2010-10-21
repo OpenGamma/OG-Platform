@@ -562,14 +562,16 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
             case FUNCTION_THREW_EXCEPTION:
             
               BatchResultWriterFailure cachedFailure = (BatchResultWriterFailure) cache.getValue(outputValue);
-              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
-                FailureReason reason = new FailureReason();
-                reason.setId(generateUniqueId());
-                reason.setRiskFailure(failure);
-                reason.setComputeFailureId(computeFailureId.longValue());
-                failureReasons.add(reason.toSqlParameterSource());
+              if (cachedFailure != null) {
+                for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
+                  FailureReason reason = new FailureReason();
+                  reason.setId(generateUniqueId());
+                  reason.setRiskFailure(failure);
+                  reason.setComputeFailureId(computeFailureId.longValue());
+                  failureReasons.add(reason.toSqlParameterSource());
+                }
               }
-              
+                            
               break;
               
             case SUCCESS:
