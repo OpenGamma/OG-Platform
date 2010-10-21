@@ -201,12 +201,10 @@ public class BatchResultWriterTest extends HibernateTest {
         getDbSource(),
         new TestDependencyGraphExecutor<CalculationJobResult>(result),
         resultModelDefinition,
-        cachesByCalculationConfiguration);
-    
-    resultWriter.setRiskRun(_riskRun);
-    resultWriter.setRiskValueNames(_valueNames);
-    
-    resultWriter.setComputationTargets(_dbComputationTargets);
+        cachesByCalculationConfiguration,
+        _dbComputationTargets,
+        _riskRun,
+        _valueNames);
     resultWriter.initialize();
     
     return resultWriter;
@@ -239,7 +237,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   private void setIsRestart(BatchResultWriter resultWriter) {
     _riskRun.setNumRestarts(1);
-    resultWriter.setIsRestart(true);
+    resultWriter.setRestart(true);
   }
   
 

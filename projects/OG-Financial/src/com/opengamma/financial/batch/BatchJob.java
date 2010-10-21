@@ -636,7 +636,9 @@ public class BatchJob {
     options.addOption("observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
     options.addOption("observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
-        + "is given, the system time zone is used. Default - system clock on observation date.");
+        + "is given, the system time zone is used. Default - system clock on observation date. " 
+        + "Note that this default is not good enough for repeatable runs in a " 
+        + "production environment.");
 
     options.addOption("view", true, "View name in configuration database. You must specify this.");
     options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. " +
