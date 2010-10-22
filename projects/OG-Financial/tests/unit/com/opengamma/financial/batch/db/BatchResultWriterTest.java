@@ -541,8 +541,8 @@ public class BatchResultWriterTest extends HibernateTest {
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
-    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
-    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
   }
   
   @Test

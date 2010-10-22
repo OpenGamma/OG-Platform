@@ -614,11 +614,22 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         
         for (ValueSpecification missingInput : item.getMissingInputs()) {
           BatchResultWriterFailure inputFailure = (BatchResultWriterFailure) cache.getValue(missingInput);
+          
           if (inputFailure == null) {
-            s_logger.warn("No failure information available for {}", missingInput);
-            continue;
+
+            ComputeFailureKey computeFailureKey = new ComputeFailureKey(
+                missingInput.getFunctionUniqueId(),
+                "N/A",
+                "Missing input " + missingInput,
+                "N/A");
+            computeFailure = getComputeFailureFromDb(computeFailureKey);
+            cachedFailure.addComputeFailureId(computeFailure.getId());
+
+          } else {
+            
+            cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
+          
           }
-          cachedFailure.addComputeFailureIds(inputFailure.getComputeFailureIds());
         }
         
         break;
