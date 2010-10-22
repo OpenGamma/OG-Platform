@@ -54,12 +54,11 @@ public abstract class BondFunction extends NonCompiledInvoker {
     final ZonedDateTime now = snapshotClock.zonedDateTime();
 
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    final Object cleanPriceObject = inputs.getValue(requirement);
-    if (cleanPriceObject == null) {
+    final Object value = inputs.getValue(requirement);
+    if (value == null) {
       throw new NullPointerException("Could not get " + requirement);
     }
-    final double value = (Double) cleanPriceObject;
-
+  
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //    final LocalDate closeOfDay = now.minusDays(1).toLocalDate();
 //    final LocalDate startDate = now.minusDays(7).toLocalDate();
@@ -109,6 +108,6 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return bond.getCurrency();
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bond, double value);
+  protected abstract Set<ComputedValue> getComputedValues(Position position, Bond bond, Object value);
 
 }

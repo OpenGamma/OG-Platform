@@ -29,7 +29,7 @@ public class BondCleanPriceFunction extends BondFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bound, final double value) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bound, final Object value) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, position), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }

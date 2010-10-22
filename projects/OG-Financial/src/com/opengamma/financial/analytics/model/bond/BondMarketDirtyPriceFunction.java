@@ -29,7 +29,7 @@ public class BondMarketDirtyPriceFunction extends BondFunction {
   }
   
   @Override
-  protected Set<ComputedValue> getComputedValues(Position position, Bond bond, double value) {
+  protected Set<ComputedValue> getComputedValues(Position position, Bond bond, Object value) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, position), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
