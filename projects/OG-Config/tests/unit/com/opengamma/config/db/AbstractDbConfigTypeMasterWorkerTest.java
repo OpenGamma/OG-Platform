@@ -62,7 +62,6 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
 //    oid bigint not null,
 //    ver_from_instant timestamp not null,
 //    ver_to_instant timestamp not null,
-//    last_read_instant timestamp not null,
 //    name varchar(255) not null,
 //    config_type varchar(255) not null,
 //    config blob not null,
