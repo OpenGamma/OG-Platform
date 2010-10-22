@@ -24,7 +24,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondMarketDirtyPriceFunction extends BondFunction {
 
   public BondMarketDirtyPriceFunction() {
-    _requirementName = MarketDataRequirementNames.DIRTY_PRICE_MID;
+    //_fieldName = "PX_DIRTY_MID";
+     _requirementName = MarketDataRequirementNames.DIRTY_PRICE_MID;
   }
   
   @Override

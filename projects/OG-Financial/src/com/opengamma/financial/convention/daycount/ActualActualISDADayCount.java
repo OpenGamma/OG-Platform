@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.DateAdjusters;
+import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtil;
@@ -32,10 +33,13 @@ public class ActualActualISDADayCount extends StatelessDayCount {
     final int year1 = dateTime1.getYear();
     final int year2 = dateTime2.getYear();
     if (year1 == year2) {
-      return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
+      return DateUtil.getExactDaysBetween(dateTime1, dateTime2) / getBasis(dateTime1);
     }
-    return (double) DateUtil.getDaysBetween(dateTime1, true, dateTime1.with(DateAdjusters.lastDayOfYear()), true) / getBasis(dateTime1)
-        + (double) DateUtil.getDaysBetween(dateTime2.with(DateAdjusters.firstDayOfYear()), false, dateTime2, true) / getBasis(dateTime2) + (double) (year2 - year1 - 1);
+    ZonedDateTime endOfYear1 = LocalDateTime.of(year1 + 1, 1, 1, 0, 0).atZone(dateTime1.getZone());
+    ZonedDateTime startOfYear2 = LocalDateTime.of(year2, 1, 1, 0, 0).atZone(dateTime2.getZone());
+    
+    return (double) DateUtil.getExactDaysBetween(dateTime1, endOfYear1) / getBasis(dateTime1)
+        + (double) DateUtil.getExactDaysBetween(startOfYear2, dateTime2) / getBasis(dateTime2) + (double) (year2 - year1 - 1);
   }
 
   @Override
