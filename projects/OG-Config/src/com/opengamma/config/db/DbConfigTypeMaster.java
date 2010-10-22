@@ -183,7 +183,7 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigDocument<T> add(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getValue(), "document.name");
+    ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
     
     return getWorkers().getAddWorker().add(document);

@@ -127,7 +127,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
 
   //-------------------------------------------------------------------------
   @Path("{exchangeId}")
-  public WebExchangeResource findPortfolio(@PathParam("exchangeId") String idStr) {
+  public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
     ExchangeDocument exchangeDoc = data().getExchangeMaster().getExchange(UniqueIdentifier.parse(idStr));
     data().setExchange(exchangeDoc);

@@ -200,7 +200,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       LiveDataSnapshotEntry entry = snapshot.getEntry(spec, "field_name");
       assertNotNull(entry);
       assertEquals(snapshot, entry.getSnapshot());
-      assertEquals(spec, entry.getComputationTarget().toSpec());
+      assertEquals(spec, entry.getComputationTarget().toNormalizedSpec());
       assertEquals("field_name", entry.getField().getName());
       assertEquals(123.45, entry.getValue(), 0.000001);
     }

@@ -67,7 +67,7 @@ public class LiveDataSnapshotEntry {
   
   public LiveDataValue toLiveDataValue() {
     return new LiveDataValue(
-        getComputationTarget().toSpec(),
+        getComputationTarget().toNormalizedSpec(),
         getField().getName(),
         getValue());
   }

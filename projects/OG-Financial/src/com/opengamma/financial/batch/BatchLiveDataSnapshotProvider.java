@@ -85,4 +85,12 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     return valueInTimeSeriesDb;
   }
   
+  @Override
+  public boolean isAvailable(ValueRequirement requirement) {
+    if (super.isAvailable(requirement)) {
+      return true;
+    }
+    return _historicalDataProvider.isAvailable(requirement);
+  }
+  
 }
