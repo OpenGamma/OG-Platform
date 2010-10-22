@@ -52,7 +52,6 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         final Instant now = Instant.now(getTimeSource());
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
-        document.setLastReadInstant(now);
         document.setConfigId(null);
         insertConfig(document);
       }
@@ -79,7 +78,6 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         // insert new row
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
-        document.setLastReadInstant(oldDoc.getLastReadInstant());
         document.setConfigId(oldDoc.getConfigId().toLatest());
         insertConfig(document);
       }
@@ -130,7 +128,6 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
       .addValue("config_oid", configOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("last_read_instant", document.getLastReadInstant())
       .addValue("name", document.getName())
       .addValue("config_type", getMaster().getReifiedType().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
@@ -146,9 +143,9 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
    */
   protected String sqlInsertConfig() {
     return "INSERT INTO cfg_config " +
-              "(id, oid, ver_from_instant, ver_to_instant, last_read_instant, name, config_type, config) " +
+              "(id, oid, ver_from_instant, ver_to_instant, name, config_type, config) " +
             "VALUES " +
-              "(:config_id, :config_oid, :ver_from_instant, :ver_to_instant, :last_read_instant, :name, :config_type, :config)";
+              "(:config_id, :config_oid, :ver_from_instant, :ver_to_instant, :name, :config_type, :config)";
   }
 
   //-------------------------------------------------------------------------

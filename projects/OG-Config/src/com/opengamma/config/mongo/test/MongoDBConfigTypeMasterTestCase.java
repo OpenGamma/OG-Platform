@@ -104,31 +104,26 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     ConfigSearchResult<T> found = doSearch(null, null, 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc3, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match new name at latest instant
     found = doSearch("changeOfName", Instant.EPOCH.plusSeconds(6), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc3, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match new name case insensitive at latest instant
     found = doSearch("CHANGEOFNAME", Instant.EPOCH.plusSeconds(6), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc3, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match new name wildcard at latest instant
     found = doSearch("CHANGE*", Instant.EPOCH.plusSeconds(6), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc3, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match new name wildcard at latest instant
     found = doSearch("CHA??E*", Instant.EPOCH.plusSeconds(6), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc3, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match new name no wildcard, no match
     found = doSearch("CHANGE", Instant.EPOCH.plusSeconds(6), 1, 20);
@@ -138,13 +133,11 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     found = doSearch(doc2.getName(), Instant.EPOCH.plusSeconds(4), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc2, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match old name at specific instant
     found = doSearch(doc1.getName(), Instant.EPOCH.plusSeconds(2), 1, 20);
     assertEquals(1, found.getDocuments().size());
     assertConfigDoc(doc1, found.getFirstDocument());
-    assertEquals(Instant.EPOCH.plusSeconds(6), found.getFirstDocument().getLastReadInstant());
     
     // match old name at current instant, no match
     found = doSearch(doc1.getName(), null, 1, 20);
@@ -249,7 +242,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertConfigDoc(doc1, found);
     assertEquals(Instant.EPOCH.plusSeconds(1), found.getVersionFromInstant());
     assertEquals(null, found.getVersionToInstant());
-    assertEquals(Instant.EPOCH.plusSeconds(2), found.getLastReadInstant());
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
@@ -264,7 +256,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertConfigDoc(doc2, found);
     assertEquals(Instant.EPOCH.plusSeconds(3), found.getVersionFromInstant());
     assertEquals(null, found.getVersionToInstant());
-    assertEquals(Instant.EPOCH.plusSeconds(4), found.getLastReadInstant());
   }
 
   //-------------------------------------------------------------------------
@@ -301,7 +292,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertEquals(name, doc.getName());
     assertEquals(Instant.EPOCH, doc.getVersionFromInstant());
     assertNull(doc.getVersionToInstant());
-    assertEquals(Instant.EPOCH, doc.getLastReadInstant());
     
     // get fixed version
     ConfigDocument<T> fixed = _configMaster.get(doc.getConfigId());
@@ -365,7 +355,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertEquals(1, doc1.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getVersionFromInstant());
     assertEquals(null, doc1.getVersionToInstant());
-    assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getLastReadInstant());
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
@@ -378,7 +367,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertEquals(2, doc2.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc2.getVersionFromInstant());
     assertEquals(null, doc2.getVersionToInstant());
-    assertEquals(Instant.EPOCH.plusSeconds(3), doc2.getLastReadInstant());
     
     // version 1 end-dated
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(4)));
@@ -386,7 +374,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertEquals(1, doc1.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getVersionFromInstant());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc1.getVersionToInstant());
-    assertEquals(Instant.EPOCH.plusSeconds(4), doc1.getLastReadInstant());
     
     // get latest
     ConfigDocument<T> latest = _configMaster.get(doc1.getConfigId().toLatest());

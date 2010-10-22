@@ -46,7 +46,7 @@ public class UniqueIdentifierConfigTypeMasterTest extends MongoDBConfigTypeMaste
     // use className as collection so do not set collectionName
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(null, false);
     _mongoSettings = settings;
-    return new MongoDBConfigTypeMaster<UniqueIdentifier>(UniqueIdentifier.class, settings, true);
+    return new MongoDBConfigTypeMaster<UniqueIdentifier>(UniqueIdentifier.class, settings);
   }
 
   @Override

@@ -33,11 +33,11 @@ import com.mongodb.Mongo;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchHistoricRequest;
 import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
@@ -120,10 +120,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    */
   private final Mongo _mongo;
   /**
-   * Whether to update the last read time.
-   */
-  private final boolean _updateLastReadTime;
-  /**
    * The scheme to use for unique identifiers.
    */
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
@@ -138,16 +134,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    * @param mongoSettings  the Mongo connection settings, not null
    */
   public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
-    this(documentClazz, mongoSettings, true);
-  }
-
-  /**
-   * Creates an instance.
-   * @param documentClazz  the element type, not null
-   * @param mongoSettings  the Mongo connection settings, not null
-   * @param updateLastRead  whether to update the last read flag
-   */
-  public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
     
@@ -164,9 +150,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     }
     
     ensureIndices();
-    _updateLastReadTime = updateLastRead;
-    String status = _updateLastReadTime ? "updateLastReadTime" : "readWithoutUpdate";
-    s_logger.info("creating MongoDBConfigurationRepo for {}", status);
   }
 
   private void ensureIndices() {
@@ -300,17 +283,9 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
     DBCollection dbCollection = createDBCollection();
     DBObject matched;
-    if (_updateLastReadTime) {
-      matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
-      if (matched == null) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
-    } else {
-      DBCursor cursor = dbCollection.find(queryObj).sort(sortObj).skip(0).limit(1);
-      if (cursor.hasNext()) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
-      matched = cursor.next();
+    matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
+    if (matched == null) {
+      throw new DataNotFoundException("Configuration not found: " + uid);
     }
     return convertFromDb(matched);
   }
@@ -328,7 +303,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     document.setVersionNumber(1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
-    document.setLastReadInstant(now);
     DBObject insertDoc = convertToDb(document);
     s_logger.debug("Config add, insert={}", insertDoc);
     createDBCollection().insert(insertDoc).getLastError().throwOnError();
@@ -360,7 +334,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     document.setVersionNumber(oldDoc.getVersionNumber() + 1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
-    document.setLastReadInstant(now);
     DBObject insertDoc = convertToDb(document);
     s_logger.debug("Config update, insert={}", insertDoc);
     // prepare to update old row
@@ -504,15 +477,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     for (DBObject dbObject : cursor) {
       result.getDocuments().add(convertFromDb(dbObject));
     }
-    if (_updateLastReadTime) {
-      for (ConfigDocument<T> doc : result.getDocuments()) {
-        DBObject updateQueryObj = new BasicDBObject();
-        updateQueryObj.put(ID_FIELD_NAME, extractRowId(doc.getConfigId()));
-        updateQueryObj.put(LAST_READ_INSTANT_FIELD_NAME, new Date(doc.getLastReadInstant().toEpochMillisLong()));
-        dbCollection.update(updateQueryObj, updateObj).getLastError().throwOnError();
-        doc.setLastReadInstant(now);
-      }
-    }
     return result;
   }
 
@@ -539,8 +503,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     Date versionToTime = (Date) dbObject.get(VERSION_TO_INSTANT_FIELD_NAME);
     Instant versionToInstant = Instant.ofEpochMillis(versionToTime.getTime());
     doc.setVersionToInstant(versionToInstant.equals(MAX_INSTANT) ? null : versionToInstant);
-    Date lastRead = (Date) dbObject.get(LAST_READ_INSTANT_FIELD_NAME);
-    doc.setLastReadInstant(Instant.ofEpochMillis(lastRead.getTime()));
     doc.setValue(value);
     return doc;
   }

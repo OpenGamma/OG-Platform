@@ -55,13 +55,6 @@ public class ConfigDocument<T> extends DirectBean {
   @PropertyDefinition
   private Instant _versionToInstant;
   /**
-   * The instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   */
-  @PropertyDefinition
-  private Instant _lastReadInstant;
-  /**
    * The name of this configuration element.
    */
   @PropertyDefinition
@@ -127,8 +120,6 @@ public class ConfigDocument<T> extends DirectBean {
         return getVersionFromInstant();
       case 1577022702:  // versionToInstant
         return getVersionToInstant();
-      case -889566475:  // lastReadInstant
-        return getLastReadInstant();
       case 3373707:  // name
         return getName();
       case 111972721:  // value
@@ -152,9 +143,6 @@ public class ConfigDocument<T> extends DirectBean {
         return;
       case 1577022702:  // versionToInstant
         setVersionToInstant((Instant) newValue);
-        return;
-      case -889566475:  // lastReadInstant
-        setLastReadInstant((Instant) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -283,37 +271,6 @@ public class ConfigDocument<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the value of the property
-   */
-  public Instant getLastReadInstant() {
-    return _lastReadInstant;
-  }
-
-  /**
-   * Sets the instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @param lastReadInstant  the new value of the property
-   */
-  public void setLastReadInstant(Instant lastReadInstant) {
-    this._lastReadInstant = lastReadInstant;
-  }
-
-  /**
-   * Gets the the {@code lastReadInstant} property.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> lastReadInstant() {
-    return metaBean().lastReadInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the name of this configuration element.
    * @return the value of the property
    */
@@ -390,10 +347,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
     /**
-     * The meta-property for the {@code lastReadInstant} property.
-     */
-    private final MetaProperty<Instant> _lastReadInstant = DirectMetaProperty.ofReadWrite(this, "lastReadInstant", Instant.class);
-    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -414,7 +367,6 @@ public class ConfigDocument<T> extends DirectBean {
       temp.put("versionNumber", _versionNumber);
       temp.put("versionFromInstant", _versionFromInstant);
       temp.put("versionToInstant", _versionToInstant);
-      temp.put("lastReadInstant", _lastReadInstant);
       temp.put("name", _name);
       temp.put("value", _value);
       _map = Collections.unmodifiableMap(temp);
@@ -467,14 +419,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     public final MetaProperty<Instant> versionToInstant() {
       return _versionToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code lastReadInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> lastReadInstant() {
-      return _lastReadInstant;
     }
 
     /**
