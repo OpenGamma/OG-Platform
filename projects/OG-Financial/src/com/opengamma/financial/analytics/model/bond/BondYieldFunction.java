@@ -27,7 +27,7 @@ public class BondYieldFunction extends BondFunction {
 
   public BondYieldFunction() {
     _requirementName = MarketDataRequirementNames.MARKET_VALUE;
-    //_fieldName = "PX_LAST";
+   // _fieldName = "PX_LAST";
   }
 
   @Override

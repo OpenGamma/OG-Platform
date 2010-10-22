@@ -76,7 +76,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
 //    final double value = ts.getLatestValue();
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now);
+    final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now.minusDays(1).withTime(17, 0, 0));
 
     return getComputedValues(position, bond, value);
   }
@@ -85,7 +85,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
-     // return Collections.emptySet();
+    //  return Collections.emptySet();
     }
     return null;
   }

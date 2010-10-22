@@ -54,43 +54,45 @@ public class BondSecurityToBondConverter {
     double paymentYearFraction = 1.0 / simpleFrequency.getPeriodsPerYear();
    
     //these are the remaining payment dates after the firstCouponDate - they could fall on non-business days 
-    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, frequency);  
-    int n = unadjustedDates.length;
-    if (!maturityDate.equals(unadjustedDates[n - 1])) {
-      unadjustedDates[n - 1] = maturityDate;
-    }
-    final ZonedDateTime[] temp = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), calendar);
-   
-    final ZonedDateTime[] couponDates = new ZonedDateTime[n + 1];
-    couponDates[0] = firstCouponDate;
-    for (int i = 0; i < n; i++) {
-      couponDates[i + 1] = temp[i];
-    }
-    //TODO The last coupon date should be the maturity 
+    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getBackwardsUnadjustedDateSchedule(firstCouponDate, maturityDate, frequency);  
     
-      
+    int n = unadjustedDates.length;
+    //add in firstCouponDate
+    ZonedDateTime[] nominalCouponDates = new ZonedDateTime[n + 1];
+    nominalCouponDates[0] = firstCouponDate;
+    for (int i = 0; i < n; i++) {
+      nominalCouponDates[i + 1] = unadjustedDates[i];
+    }
+    
+    //adjust all coupon dates to fall on business days 
+    ZonedDateTime[] couponDates = ScheduleCalculator.getAdjustedDateSchedule(nominalCouponDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), calendar);
+    
+    ZonedDateTime[] exDividenDates = getExDividendDates(nominalCouponDates);
+    
     //for a seasoned bond, find out the next coupon
+   //TODO if a bonds nominal coupon payment date is a non-business day, does it count as being ex-dividen on that date even if the actual payment may have rolled a
+    //few days forward to the next business day?
     int index = 0;
-    while (!now.isBefore(couponDates[index])) { //if now is on or after couponDates[index], assume coupon has been paid
+    while (!now.isBefore(nominalCouponDates[index])) { //if now is on or after nominalCouponDate[index], assume coupon has been paid
       index++;
     }
-    
+        
+    //Accrued interest calculated from nominal coupon dates
     ZonedDateTime previousCouponDate;
     if (index == 0) {
       previousCouponDate = security.getInterestAccrualDate().toZonedDateTime();
     } else {
-      previousCouponDate = couponDates[index - 1];
+      previousCouponDate = nominalCouponDates[index - 1];
     }
     
-    double periodYearFrac = security.getDayCountConvention().getDayCountFraction(previousCouponDate, couponDates[index]);
+    double periodYearFrac = security.getDayCountConvention().getDayCountFraction(previousCouponDate, nominalCouponDates[index]);
     
-    ZonedDateTime exDivDate = getExDividenedDate(couponDates[index], 0); //TODO get the days from somewhere
     double accualFraction;
-    if (now.isBefore(exDivDate)) {
+    if (now.isBefore(exDividenDates[index])) {
       double accualTime = security.getDayCountConvention().getDayCountFraction(previousCouponDate, now);
       accualFraction = accualTime / periodYearFrac;
     } else {
-      double accualTime = -security.getDayCountConvention().getDayCountFraction(now, couponDates[index]);
+      double accualTime = -security.getDayCountConvention().getDayCountFraction(now, nominalCouponDates[index]);
       accualFraction = accualTime / periodYearFrac;
       index++; //drop the next coupon from the bond as we are ex-dividend 
     }
@@ -105,8 +107,15 @@ public class BondSecurityToBondConverter {
     return new Bond(paymentTimes, security.getCouponRate() / 100., paymentYearFraction, accualFraction, curveName);
   }
   
-  private ZonedDateTime getExDividenedDate(ZonedDateTime couponDate, int daysBefore) {
-    return couponDate.minusDays(daysBefore);
+  /**
+   * Right now this does nothing
+   * @param nominalCouponDate
+   * @return
+   */
+  private ZonedDateTime[] getExDividendDates(ZonedDateTime[] nominalCouponDates) {
+    return nominalCouponDates; //TODO get these dates from somewhere 
   }
+  
+  
 
 }

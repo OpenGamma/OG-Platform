@@ -101,8 +101,8 @@ public class DayCountTest {
   @Test
   public void testActualActual() {
     final DayCount convention = DayCountFactory.INSTANCE.getDayCount("Act/Act (ISDA)"); // new ActualActualISDADayCount();
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2007, 12, 1);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2008, 2, 1);
+    ZonedDateTime d1 = DateUtil.getUTCDate(2007, 12, 1);
+    ZonedDateTime d2 = DateUtil.getUTCDate(2008, 2, 1);
     final double basis = convention.getBasis(d1);
     final double leapYearBasis = convention.getBasis(d2);
     testOneYearNoLeapYears(convention);
@@ -120,6 +120,12 @@ public class DayCountTest {
     assertFractionEquals(convention, d1, DateUtil.getUTCDate(2009, 2, 1), 1. + 62. / basis);
     // overlap multiple leap years
     assertFractionEquals(convention, DateUtil.getUTCDate(1997, 12, 1), DateUtil.getUTCDate(2009, 2, 1), 31. / basis + 11 + 31. / basis);
+    
+    
+    d1 = DateUtil.getUTCDate(2010, 07, 21, 11, 0);
+    d2 = DateUtil.getUTCDate(2010, 07, 21, 17, 0);
+    assertFractionEquals(convention, d1, d2, 0.25/basis);
+    
   }
 
   private void assertFractionEquals(final DayCount convention, final ZonedDateTime d1, final ZonedDateTime d2, final double frac) {
