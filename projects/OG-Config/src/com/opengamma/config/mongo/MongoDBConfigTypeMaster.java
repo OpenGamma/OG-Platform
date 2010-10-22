@@ -73,10 +73,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    */
   private static final String OID_FIELD_NAME = "oid";
   /**
-   * Mongo key for the version.
-   */
-  private static final String VERSION_FIELD_NAME = "version";
-  /**
    * Mongo key for the name.
    */
   private static final String NAME_FIELD_NAME = "name";
@@ -300,7 +296,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     Instant now = Instant.now(getTimeSource());
     String id = ObjectId.get().toString();
     document.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id, id));
-    document.setVersionNumber(1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     DBObject insertDoc = convertToDb(document);
@@ -331,7 +326,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     Instant now = Instant.now(getTimeSource());
     ObjectId id = ObjectId.get();
     document.setConfigId(document.getConfigId().withVersion(id.toString()));
-    document.setVersionNumber(oldDoc.getVersionNumber() + 1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     DBObject insertDoc = convertToDb(document);
@@ -496,7 +490,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ObjectId id = (ObjectId) dbObject.get("_id");
     String oid = (String) dbObject.get(OID_FIELD_NAME);
     doc.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), oid, id.toString()));
-    doc.setVersionNumber((Integer) dbObject.get(VERSION_FIELD_NAME));
     doc.setName((String) dbObject.get(NAME_FIELD_NAME));
     Date versionFromTime = (Date) dbObject.get(VERSION_FROM_INSTANT_FIELD_NAME);
     doc.setVersionFromInstant(Instant.ofEpochMillis(versionFromTime.getTime()));
@@ -518,7 +511,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     DBObject insertDoc = new BasicDBObject();
     insertDoc.put(ID_FIELD_NAME, extractRowId(document.getConfigId()));
     insertDoc.put(OID_FIELD_NAME, extractOid(document.getConfigId()));
-    insertDoc.put(VERSION_FIELD_NAME, document.getVersionNumber());
     insertDoc.put(NAME_FIELD_NAME, document.getName());
     insertDoc.put(VERSION_FROM_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     if (document.getVersionToInstant() != null) {
@@ -526,7 +518,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     } else {
       insertDoc.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
     }
-    insertDoc.put(LAST_READ_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     insertDoc.put(VALUE_FIELD_NAME, getFudgeContext().fromFudgeMsg(DBObject.class, msg.getMessage()));
     s_logger.trace("Config converted config doc to object={}", insertDoc);
     return insertDoc;

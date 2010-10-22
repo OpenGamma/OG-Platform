@@ -36,12 +36,6 @@ public class ConfigDocument<T> extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _configId;
   /**
-   * The human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   */
-  @PropertyDefinition
-  private int _versionNumber;
-  /**
    * The start of an interval that the version of the configuration is accurate for.
    * This field is managed by the {@code ConfigMaster}.
    */
@@ -114,8 +108,6 @@ public class ConfigDocument<T> extends DirectBean {
     switch (propertyName.hashCode()) {
       case -580140035:  // configId
         return getConfigId();
-      case 632283713:  // versionNumber
-        return getVersionNumber();
       case 2006263519:  // versionFromInstant
         return getVersionFromInstant();
       case 1577022702:  // versionToInstant
@@ -134,9 +126,6 @@ public class ConfigDocument<T> extends DirectBean {
     switch (propertyName.hashCode()) {
       case -580140035:  // configId
         setConfigId((UniqueIdentifier) newValue);
-        return;
-      case 632283713:  // versionNumber
-        setVersionNumber((Integer) newValue);
         return;
       case 2006263519:  // versionFromInstant
         setVersionFromInstant((Instant) newValue);
@@ -180,34 +169,6 @@ public class ConfigDocument<T> extends DirectBean {
    */
   public final Property<UniqueIdentifier> configId() {
     return metaBean().configId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the value of the property
-   */
-  public int getVersionNumber() {
-    return _versionNumber;
-  }
-
-  /**
-   * Sets the human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   * @param versionNumber  the new value of the property
-   */
-  public void setVersionNumber(int versionNumber) {
-    this._versionNumber = versionNumber;
-  }
-
-  /**
-   * Gets the the {@code versionNumber} property.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the property, not null
-   */
-  public final Property<Integer> versionNumber() {
-    return metaBean().versionNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -335,10 +296,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _configId = DirectMetaProperty.ofReadWrite(this, "configId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code versionNumber} property.
-     */
-    private final MetaProperty<Integer> _versionNumber = DirectMetaProperty.ofReadWrite(this, "versionNumber", Integer.TYPE);
-    /**
      * The meta-property for the {@code versionFromInstant} property.
      */
     private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
@@ -364,7 +321,6 @@ public class ConfigDocument<T> extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("configId", _configId);
-      temp.put("versionNumber", _versionNumber);
       temp.put("versionFromInstant", _versionFromInstant);
       temp.put("versionToInstant", _versionToInstant);
       temp.put("name", _name);
@@ -395,14 +351,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     public final MetaProperty<UniqueIdentifier> configId() {
       return _configId;
-    }
-
-    /**
-     * The meta-property for the {@code versionNumber} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> versionNumber() {
-      return _versionNumber;
     }
 
     /**

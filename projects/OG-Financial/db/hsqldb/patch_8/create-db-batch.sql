@@ -147,7 +147,7 @@ create table rsk_run (
     run_time_id int not null,
     valuation_time timestamp not null,	 	-- 15 June 2010 17:00:00 - 'T'
     view_oid varchar(255) not null,
-    view_version int not null,
+    view_version varchar(255),
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted

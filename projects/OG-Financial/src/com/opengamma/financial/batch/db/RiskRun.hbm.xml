@@ -23,7 +23,7 @@
     	not-null="true"/>
    	<property name="valuationTime" column="valuation_time" not-null="true"/>
    	<property name="viewOid" column="view_oid" not-null="true"/>
-   	<property name="viewVersion" column="view_version" not-null="true"/>
+   	<property name="viewVersion" column="view_version"/>
    	<many-to-one name="liveDataSnapshot" 
     	column="live_data_snapshot_id" 
     	not-null="true"/>

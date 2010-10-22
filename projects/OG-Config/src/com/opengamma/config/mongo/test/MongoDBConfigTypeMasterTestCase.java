@@ -288,7 +288,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     doc = _configMaster.add(doc);
     assertNotNull(doc);
     assertNotNull(doc.getConfigId());
-    assertEquals(1, doc.getVersionNumber());
     assertEquals(name, doc.getName());
     assertEquals(Instant.EPOCH, doc.getVersionFromInstant());
     assertNull(doc.getVersionToInstant());
@@ -352,7 +351,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(1)));
     ConfigDocument<T> doc1 = _configMaster.add(makeTestConfigDoc(1));
-    assertEquals(1, doc1.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getVersionFromInstant());
     assertEquals(null, doc1.getVersionToInstant());
     
@@ -364,20 +362,18 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     assertNotNull(doc2);
     assertEquals(doc1.getConfigId().toLatest(), doc2.getConfigId().toLatest());
-    assertEquals(2, doc2.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc2.getVersionFromInstant());
     assertEquals(null, doc2.getVersionToInstant());
     
     // version 1 end-dated
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(4)));
     doc1 = _configMaster.get(doc1.getConfigId());
-    assertEquals(1, doc1.getVersionNumber());
     assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getVersionFromInstant());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc1.getVersionToInstant());
     
     // get latest
     ConfigDocument<T> latest = _configMaster.get(doc1.getConfigId().toLatest());
-    assertEquals(2, latest.getVersionNumber());
+    assertEquals(Instant.EPOCH.plusSeconds(3), latest.getVersionFromInstant());
   }
 
   //-------------------------------------------------------------------------
@@ -559,7 +555,6 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
 
   private void assertConfigDoc(ConfigDocument<T> expected, ConfigDocument<T> actual) {
     assertEquals(expected.getConfigId(), actual.getConfigId());
-    assertEquals(expected.getVersionNumber(), actual.getVersionNumber());
     assertEquals(expected.getName(), actual.getName());
     assertConfigDocumentValue(expected.getValue(), actual.getValue());
   }

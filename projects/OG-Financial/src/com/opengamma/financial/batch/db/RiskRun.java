@@ -23,7 +23,7 @@ public class RiskRun {
   private ObservationDateTime _runTime;
   private Timestamp _valuationTime;
   private String _viewOid;
-  private int _viewVersion;
+  private String _viewVersion;
   private LiveDataSnapshot _liveDataSnapshot;
   private Timestamp _createInstant;
   private Timestamp _startInstant;
@@ -88,11 +88,11 @@ public class RiskRun {
     _viewOid = viewOid;
   }
   
-  public int getViewVersion() {
+  public String getViewVersion() {
     return _viewVersion;
   }
   
-  public void setViewVersion(int viewVersion) {
+  public void setViewVersion(String viewVersion) {
     _viewVersion = viewVersion;
   }
   
