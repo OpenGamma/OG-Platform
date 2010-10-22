@@ -135,8 +135,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ComputeNode node1 = _dbManager.getLocalComputeNode();
     assertNotNull(node1);
     assertEquals(_dbManager.getLocalComputeHost(), node1.getComputeHost());
-    assertEquals("UNDEFINED", node1.getConfigOid());
-    assertEquals(1, node1.getConfigVersion());
     assertEquals(InetAddress.getLocalHost().getHostName(), node1.getNodeName());
     
     // get

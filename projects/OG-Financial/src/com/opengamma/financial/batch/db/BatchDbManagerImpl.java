@@ -181,7 +181,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return getComputeHost(InetAddressUtils.getLocalHostName());
   }
   
-  /*package*/ ComputeNode getComputeNode(String nodeId) {
+  /*package*/ ComputeNode getComputeNode(final String nodeId) {
     String hostName = nodeId; 
     int slashIndex = nodeId.indexOf('/'); // e.g., mymachine-t5500/0/1, see LocalCalculationNode.java. Should refactor nodeId to a class with two strings, host and node id
     if (slashIndex != -1) {
@@ -193,17 +193,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
       @Override
       public ComputeNode doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("ComputeNode.one.byHostName");
-        query.setString("hostName", host.getHostName());
+        Query query = session.getNamedQuery("ComputeNode.one.byNodeName");
+        query.setString("nodeName", nodeId);
         return (ComputeNode) query.uniqueResult();
       }
     });
     if (node == null) {
       node = new ComputeNode();
       node.setComputeHost(host);
-      node.setConfigOid("UNDEFINED"); // TODO
-      node.setConfigVersion(1); // TODO
-      node.setNodeName(host.getHostName());
+      node.setNodeName(nodeId);
       getHibernateTemplate().save(node);
     }
     return node;

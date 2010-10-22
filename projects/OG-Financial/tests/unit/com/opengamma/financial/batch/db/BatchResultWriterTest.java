@@ -108,8 +108,6 @@ public class BatchResultWriterTest extends HibernateTest {
     
     _computeNode = new ComputeNode();
     _computeNode.setComputeHost(_computeHost);
-    _computeNode.setConfigOid("1");
-    _computeNode.setConfigVersion(1);
     _computeNode.setNodeName("test-node");
     _hibernateTemplate.save(_computeNode);
     

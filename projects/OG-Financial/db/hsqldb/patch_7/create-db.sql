@@ -487,7 +487,7 @@ create table rsk_observation_time (
     
     primary key (id),
     
-    unique (label)
+    constraint rsk_chk_uq_obs_time unique (label)
 );
 
 create table rsk_observation_datetime (
@@ -504,7 +504,7 @@ create table rsk_observation_datetime (
 	constraint rsk_chk_obs_datetime check 
 	    (time_part is not null or observation_time_id is not null), 
 	
-	unique (date_part, observation_time_id)
+	constraint rsk_chk_uq_obs_datetime unique (date_part, observation_time_id)
 );
 
 create table rsk_compute_host (
@@ -513,13 +513,11 @@ create table rsk_compute_host (
 	
 	primary key (id),
 	
-	unique (host_name)
+	constraint rsk_chk_uq_compute_host unique (host_name)
 );
 
 create table rsk_compute_node (
 	id int not null,
-	config_oid varchar(255) not null,
-	config_version int not null,
 	compute_host_id int not null,
 	node_name varchar(255) not null,
 	
@@ -528,7 +526,7 @@ create table rsk_compute_node (
 	constraint rsk_fk_cmpt_node2cmpt_host
 	    foreign key (compute_host_id) references rsk_compute_host (id),
 	    
-	unique (config_oid, config_version)
+	constraint rsk_chk_uq_compute_node unique (node_name)
 );
 
 create table rsk_opengamma_version (
@@ -538,7 +536,7 @@ create table rsk_opengamma_version (
 	
 	primary key (id),
 	
-	unique (version, hash)
+	constraint rsk_chk_uq_opengamma_version unique (version, hash)
 );
 
 -- DBTOOLDONOTCLEAR
@@ -571,7 +569,7 @@ create table rsk_computation_target (
 	constraint rsk_fk_cmpt_target2tgt_type 
 	    foreign key (type_id) references rsk_computation_target_type (id),
 	    
-	unique (type_id, id_scheme, id_value)
+	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value)
 );
 
 -------------------------------------
@@ -584,7 +582,7 @@ create table rsk_live_data_field (
 	
 	primary key (id),
 	
-	unique(name)
+	constraint rsk_chk_uq_live_data_field unique (name)
 );
 
 create table rsk_live_data_snapshot (
@@ -596,7 +594,7 @@ create table rsk_live_data_snapshot (
 	constraint rsk_fk_lv_data_snap2ob_dttime
 	    foreign key (observation_datetime_id) references rsk_observation_datetime (id),
 	    
-	unique (observation_datetime_id)
+	constraint rsk_chk_uq_live_data_snapshot unique (observation_datetime_id)
 );
 
 create table rsk_live_data_snapshot_entry (
@@ -613,7 +611,7 @@ create table rsk_live_data_snapshot_entry (
 	constraint rsk_fk_spsht_entry2cmp_target
 	    foreign key (computation_target_id) references rsk_computation_target (id),
 	    
-	unique (snapshot_id, computation_target_id, field_id) 	
+	constraint rsk_chk_uq_snapshot_entry unique (snapshot_id, computation_target_id, field_id) 	
 );
 
 -------------------------------------
@@ -658,7 +656,7 @@ create table rsk_calculation_configuration (
 	constraint rsk_fk_calc_conf2run
 	    foreign key (run_id) references rsk_run (id),
 	
-	unique (run_id, name)
+	constraint rsk_chk_uq_calc_conf unique (run_id, name)
 );
 
 -- Properties should be filled once only. If already there, use existing value.
@@ -689,7 +687,7 @@ create table rsk_run_status (
     constraint rsk_fk_run_status2comp_tgt
         foreign key (computation_target_id) references rsk_computation_target (id),
 
-    unique (calculation_configuration_id, computation_target_id)
+    constraint rsk_chk_uq_run_status unique (calculation_configuration_id, computation_target_id)
 );
 
 -------------------------------------
@@ -702,7 +700,7 @@ create table rsk_value_name (
     
     primary key (id),
     
-    unique (name)
+    constraint rsk_chk_uq_value_name unique (name)
 );
 
 create table rsk_value (
@@ -729,7 +727,7 @@ create table rsk_value (
     constraint rsk_fk_value2compute_node
         foreign key (compute_node_id) references rsk_compute_node (id),
         
-    unique (calculation_configuration_id, value_name_id, computation_target_id)
+    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, computation_target_id)
 );
 
 
@@ -742,7 +740,7 @@ create table rsk_compute_failure (
     
     primary key (id),
     
-    unique (function_id, exception_class, exception_msg, stack_trace)
+    constraint rsk_chk_uq_compute_failure unique (function_id, exception_class, exception_msg, stack_trace)
 );
 
 -- how to aggregate risk failures?
@@ -765,10 +763,10 @@ create table rsk_failure (
         foreign key (value_name_id) references rsk_value_name (id),
     constraint rsk_fk_failure2com_target
         foreign key (computation_target_id) references rsk_computation_target (id),
-   constraint rsk_fk_failure2node
+    constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
-    unique (calculation_configuration_id, value_name_id, computation_target_id)
+    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, computation_target_id)
 );    
 
 create table rsk_failure_reason (
@@ -784,7 +782,7 @@ create table rsk_failure_reason (
    constraint rsk_fk_fail_reason2cmpt_fail
        foreign key (compute_failure_id) references rsk_compute_failure (id),
 
-   unique (rsk_failure_id, compute_failure_id)
+   constraint rsk_chk_uq_failure_reason unique (rsk_failure_id, compute_failure_id)
 );
 
 CREATE TABLE tss_data_source (

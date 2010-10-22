@@ -11,16 +11,14 @@
       	<param name="increment_size">100</param>
       </generator>
     </id>
-    <property name="configOid" column="config_oid" not-null="true"/>
-    <property name="configVersion" column="config_version" not-null="true"/>
     <many-to-one name="computeHost" 
         column="compute_host_id" 
         not-null="true"/>
     <property name="nodeName" column="node_name" not-null="true"/>
   </class>
   
-  <query name="ComputeNode.one.byHostName">
+  <query name="ComputeNode.one.byNodeName">
   	from ComputeNode as a where 
-  	a.computeHost.hostName = :hostName</query>  
+  	a.nodeName = :nodeName</query>  
   
 </hibernate-mapping>
