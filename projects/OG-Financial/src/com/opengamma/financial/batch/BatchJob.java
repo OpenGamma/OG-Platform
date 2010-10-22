@@ -337,8 +337,8 @@ public class BatchJob {
     return _viewDefinitionConfig.getConfigId().getValue();
   }
 
-  public int getViewVersion() {
-    return _viewDefinitionConfig.getVersionNumber();
+  public String getViewVersion() {
+    return _viewDefinitionConfig.getConfigId().getVersion();
   }
 
   public boolean isForceNewRun() {

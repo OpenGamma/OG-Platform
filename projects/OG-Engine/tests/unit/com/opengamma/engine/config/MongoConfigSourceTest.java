@@ -55,7 +55,7 @@ public class MongoConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    MongoDBConfigTypeMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigTypeMaster<ViewDefinition>(ViewDefinition.class, settings, true);
+    MongoDBConfigTypeMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigTypeMaster<ViewDefinition>(ViewDefinition.class, settings);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();

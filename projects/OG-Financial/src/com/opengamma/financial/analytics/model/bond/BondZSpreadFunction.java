@@ -107,7 +107,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if (target.getType() == ComputationTargetType.POSITION) {
       final Security security = target.getPosition().getSecurity();
-      return security instanceof Bond;
+      return security instanceof BondSecurity;
     }
     return false;
   }

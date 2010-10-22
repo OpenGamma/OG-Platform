@@ -452,7 +452,7 @@ public abstract class AbstractDBDialect implements DBDialect {
         try {
           statement.execute(sqlStatement);
         } catch (SQLException e) {
-          throw new OpenGammaRuntimeException("Failed to execute statement " + sqlStatement, e);
+          throw new OpenGammaRuntimeException("Failed to execute statement (" + _dbServerHost + ") " + sqlStatement, e);
         }
       }
       statement.close();

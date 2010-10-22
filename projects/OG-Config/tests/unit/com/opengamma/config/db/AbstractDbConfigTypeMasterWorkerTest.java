@@ -62,7 +62,6 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
 //    oid bigint not null,
 //    ver_from_instant timestamp not null,
 //    ver_to_instant timestamp not null,
-//    last_read_instant timestamp not null,
 //    name varchar(255) not null,
 //    config_type varchar(255) not null,
 //    config blob not null,
@@ -78,17 +77,17 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
     String cls = Identifier.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
     final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
-    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?)",
-        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), "TestConfig101", cls,
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?)",
+        101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestConfig101", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?)",
-        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), "TestConfig102", cls,
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?)",
+        102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestConfig102", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?)",
-        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), "TestConfig201", cls,
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?)",
+        201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), "TestConfig201", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?)",
-        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), "TestConfig202", cls,
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?)",
+        202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig202", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     _totalConfigs = 3;
   }

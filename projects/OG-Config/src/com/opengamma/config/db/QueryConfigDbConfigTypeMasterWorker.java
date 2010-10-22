@@ -51,7 +51,6 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
         "c.oid AS config_oid, " +
         "c.ver_from_instant AS ver_from_instant, " +
         "c.ver_to_instant AS ver_to_instant, " +
-        "c.last_read_instant AS last_read, " +
         "c.name AS name, " +
         "c.config_type AS config_type, " +
         "c.config AS config ";
@@ -232,7 +231,6 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
       final long configOid = rs.getLong("CONFIG_OID");
       final Timestamp versionFrom = rs.getTimestamp("VER_FROM_INSTANT");
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
-      final Timestamp lastRead = rs.getTimestamp("LAST_READ");
       final String name = rs.getString("NAME");
       LobHandler lob = getDbHelper().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
@@ -242,7 +240,6 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
       doc.setConfigId(createUniqueIdentifier(configOid, configId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
-      doc.setLastReadInstant(DbDateUtils.fromSqlTimestamp(lastRead));
       doc.setName(name);
       doc.setValue(value);
       _documents.add(doc);

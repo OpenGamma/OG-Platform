@@ -310,7 +310,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
             SQLException {
           Query query = session.getNamedQuery("RiskRun.one.byViewAndRunTime");
           query.setString("viewOid", job.getViewOid());
-          query.setInteger("viewVersion", job.getViewVersion());
+          query.setString("viewVersion", job.getViewVersion());
           query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
           query.setString("runTime", job.getObservationTime());
           return (RiskRun) query.uniqueResult();
