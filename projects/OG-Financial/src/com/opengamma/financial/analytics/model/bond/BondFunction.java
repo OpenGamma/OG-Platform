@@ -75,7 +75,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
 //    final double value = ts.getLatestValue();
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now.minusDays(1).withTime(17, 0, 0));
+    final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now);
 
     return getComputedValues(position, bond, value);
   }
