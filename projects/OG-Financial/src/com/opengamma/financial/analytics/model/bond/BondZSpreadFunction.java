@@ -100,7 +100,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     
     final Double zSpread = new BondZSpreadCalculator().calculate(bond, bundle, dirtyPrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueIdentifier());
-    return Sets.newHashSet(new ComputedValue(specification, zSpread));
+    return Sets.newHashSet(new ComputedValue(specification, zSpread * 10000)); //report z-spread in BPS
   }
 
   @Override
