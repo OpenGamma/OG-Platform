@@ -502,8 +502,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           
           Double valueAsDouble = (Double) cache.getValue(output); // output type was already checked above
   
-          int valueNameId = getValueNameId(output.getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(output.getRequirementSpecification().getTargetSpecification());
+          int valueNameId = getValueNameId(output.getValueName());
+          int computationTargetId = getComputationTargetId(output.getTargetSpecification());
           
           RiskValue riskValue = new RiskValue();
           riskValue.setId(generateUniqueId());
@@ -528,8 +528,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         
         for (ValueSpecification outputValue : item.getOutputs()) {
           
-          int valueNameId = getValueNameId(outputValue.getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(outputValue.getRequirementSpecification().getTargetSpecification());
+          int valueNameId = getValueNameId(outputValue.getValueName());
+          int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
         
           BatchResultWriterFailure cachedFailure = new BatchResultWriterFailure();
           

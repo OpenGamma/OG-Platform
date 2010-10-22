@@ -39,12 +39,12 @@ import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
-import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * This implementation uses a {@link DateTimeTimeSeriesMaster} (i.e., a relational DB)
@@ -246,10 +246,10 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       Date latestTime = new Date(lastResult.getResultTimestamp().toEpochMillisLong());
       
       if (latestTime.after(latestDbTime)) {
-        ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getRequirementSpecification().getTargetSpecification());
+        ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getTargetSpecification());
         if (latestResult != null) {
           Map<String, ComputedValue> latestValues = latestResult.getValues(calcConf);
-          ComputedValue latestValue = latestValues.get(specification.getRequirementSpecification().getValueName());
+          ComputedValue latestValue = latestValues.get(specification.getValueName());
           if (latestValue.getValue() instanceof Double) {
             timeSeries.putDataPoint(latestTime, (Double) latestValue.getValue());
           }
@@ -290,11 +290,12 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   
   private String getFieldName(ValueSpecification spec) {
     // ugly and error-prone if new fields are added to ValueSpecification
-    return spec.getFunctionUniqueId() + "/" + spec.getRequirementSpecification().getValueName();
+    // TODO 2010-10-22 Andrew -- should we iterate over the properties of the value spec ?
+    return spec.getFunctionUniqueId() + "/" + spec.getValueName();
   }
   
   private IdentifierBundle getIdentifierBundle(ValueSpecification specification) {
-    return new IdentifierBundle(specification.getRequirementSpecification().getTargetSpecification().getIdentifier());
+    return new IdentifierBundle(specification.getTargetSpecification().getIdentifier());
   }
   
   // --------------------------------------------------------------------------

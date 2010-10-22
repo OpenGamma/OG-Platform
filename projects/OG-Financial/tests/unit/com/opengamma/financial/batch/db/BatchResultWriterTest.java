@@ -600,7 +600,7 @@ public class BatchResultWriterTest extends HibernateTest {
   private RiskValue getValueFromDb(BatchResultWriter resultWriter) {
     return resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
-        _mockFunction.getResultSpec().getRequirementSpecification().getValueName(), 
+ _mockFunction.getResultSpec().getValueName(),
         _mockFunction.getTarget().toSpecification());
   }
   

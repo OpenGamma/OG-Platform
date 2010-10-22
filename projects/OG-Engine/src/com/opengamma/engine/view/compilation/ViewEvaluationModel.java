@@ -45,9 +45,9 @@ public class ViewEvaluationModel {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
 
     _portfolio = portfolio;
-    _graphsByConfiguration = graphsByConfiguration;
-    _liveDataRequirements = processLiveDataRequirements(graphsByConfiguration);
-    _securityTypes = processSecurityTypes(graphsByConfiguration);
+    _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
+    _liveDataRequirements = Collections.unmodifiableSet(processLiveDataRequirements(graphsByConfiguration));
+    _securityTypes = Collections.unmodifiableSet(processSecurityTypes(graphsByConfiguration));
     Instant earliest = null;
     Instant latest = null;
     for (DependencyGraph graph : graphsByConfiguration.values()) {
@@ -80,11 +80,11 @@ public class ViewEvaluationModel {
 
   // --------------------------------------------------------------------------
   public Map<String, DependencyGraph> getDependencyGraphsByConfiguration() {
-    return Collections.unmodifiableMap(_graphsByConfiguration);
+    return _graphsByConfiguration;
   }
 
   public Collection<DependencyGraph> getAllDependencyGraphs() {
-    return Collections.unmodifiableCollection(_graphsByConfiguration.values());
+    return _graphsByConfiguration.values();
   }
 
   public DependencyGraph getDependencyGraph(String name) {
@@ -96,11 +96,11 @@ public class ViewEvaluationModel {
   }
 
   public Set<ValueSpecification> getAllLiveDataRequirements() {
-    return Collections.unmodifiableSet(_liveDataRequirements);
+    return _liveDataRequirements;
   }
 
   public Set<String> getAllSecurityTypes() {
-    return Collections.unmodifiableSet(_securityTypes);
+    return _securityTypes;
   }
 
   public Set<ComputationTargetSpecification> getAllComputationTargets() {
@@ -116,7 +116,7 @@ public class ViewEvaluationModel {
     Set<String> valueNames = new HashSet<String>();
     for (DependencyGraph graph : getAllDependencyGraphs()) {
       for (ValueSpecification spec : graph.getOutputValues()) {
-        valueNames.add(spec.getRequirementSpecification().getValueName());
+        valueNames.add(spec.getValueName());
       }
     }
     return valueNames;

@@ -130,7 +130,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
     final Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
-      final ComputationTargetSpecification targetSpecification = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+      final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
       if (value.getValue() instanceof Double) {
         marketDataMap.put(targetSpecification.getIdentifier(), (Double) value.getValue());
       }

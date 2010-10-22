@@ -7,7 +7,6 @@ package com.opengamma.engine.value;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -24,7 +23,11 @@ import com.opengamma.util.PublicAPI;
  * An immutable requirement to obtain a value needed to perform a calculation.
  * This is a metadata-based requirement, and specifies only the minimal number of parameters
  * that are necessary to specify the user requirements.
- * The actual value which is computed is available as a matching {@link ValueSpecification}.
+ * 
+ * The actual value which is computed is available as a {@link ValueSpecification} that is
+ * capable of satisfying this requirement. A specification satisfies a requirement if its
+ * properties satisfy the requirement constraints, plus the value name and target specifications
+ * match.
  */
 @PublicAPI
 public final class ValueRequirement implements Serializable {
@@ -114,7 +117,7 @@ public final class ValueRequirement implements Serializable {
     if (obj instanceof ValueRequirement) {
       ValueRequirement other = (ValueRequirement) obj;
       return _valueName == other._valueName && // values are interned
-          ObjectUtils.equals(_targetSpecification, other._targetSpecification) && ObjectUtils.equals(_constraints, other._constraints);
+          _targetSpecification.equals(other._targetSpecification) && _constraints.equals(other._constraints);
     }
     return false;
   }
@@ -131,11 +134,25 @@ public final class ValueRequirement implements Serializable {
 
   @Override
   public String toString() {
-    return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(']').toString();
+    return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(", ").append(getConstraints()).append(']').toString();
   }
 
   public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
     return getTargetSpecification().getRequiredLiveData(securitySource);
+  }
+
+  public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
+    // value names are interned by this and specifications
+    if (getValueName() != valueSpecification.getValueName()) {
+      return false;
+    }
+    if (!getTargetSpecification().equals(getTargetSpecification())) {
+      return false;
+    }
+    if (!getConstraints().isSatisfiedBy(valueSpecification.getProperties())) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -64,7 +64,7 @@ public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public ComputationTargetType getTargetType() {
-    return _result.getRequirementSpecification().getTargetSpecification().getType();
+    return _result.getTargetSpecification().getType();
   }
 
   @Override

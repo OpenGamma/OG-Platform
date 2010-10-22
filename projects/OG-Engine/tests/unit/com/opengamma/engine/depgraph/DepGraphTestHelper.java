@@ -32,8 +32,10 @@ public class DepGraphTestHelper {
   private static final String FUNCTION_PRODUCING_2 = "functionProducing2";
 
   private final ComputationTarget _target;
+  private final ValueRequirement _req1;
   private final ValueSpecification _spec1;
   private final ComputedValue _value1;
+  private final ValueRequirement _req2;
   private final ValueSpecification _spec2;
   private final ComputedValue _value2;
   private final InMemoryFunctionRepository _functionRepo;
@@ -45,12 +47,12 @@ public class DepGraphTestHelper {
     _functionRepo = new InMemoryFunctionRepository();
     UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
     _target = new ComputationTarget(targetId);
-    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
-    _spec1 = new ValueSpecification(req1, MockFunction.UNIQUE_ID);
+    _req1 = new ValueRequirement("Req-1", targetId);
+    _spec1 = new ValueSpecification(_req1, MockFunction.UNIQUE_ID);
     _value1 = new ComputedValue(_spec1, 14.2);
 
-    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
-    _spec2 = new ValueSpecification(req2, MockFunction.UNIQUE_ID);
+    _req2 = new ValueRequirement("Req-2", targetId);
+    _spec2 = new ValueSpecification(_req2, MockFunction.UNIQUE_ID);
     _value2 = new ComputedValue(_spec2, 15.5);
 
     _liveDataAvailabilityProvider = new FixedLiveDataAvailabilityProvider();
@@ -65,7 +67,7 @@ public class DepGraphTestHelper {
 
   public MockFunction addFunctionRequiring2Producing1() {
     MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
-    function.addRequirement(_spec2);
+    function.addRequirement(_req2);
     function.addResult(_value1);
     _functionRepo.addFunction(function);
     return function;
@@ -79,7 +81,7 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addRequirement(_spec2.getRequirementSpecification());
+    _liveDataAvailabilityProvider.addRequirement(_req2);
   }
 
   public DependencyGraphBuilder getBuilder() {
@@ -98,9 +100,17 @@ public class DepGraphTestHelper {
   public ComputationTarget getTarget() {
     return _target;
   }
+  
+  public ValueRequirement getRequirement1 () {
+    return _req1;
+  }
 
   public ValueSpecification getSpec1() {
     return _spec1;
+  }
+  
+  public ValueRequirement getRequirement2 () {
+    return _req2;
   }
 
   public ValueSpecification getSpec2() {

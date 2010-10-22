@@ -6,6 +6,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -23,31 +24,57 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ValueSpecification implements java.io.Serializable {
 
-  // DO WE WANT THE ORIGINAL REQUIREMENT SPECIFICATION AS THE CONSTRAINTS BUNDLED WITH THAT ARE NOT RELEVANT ANY MORE
-  private final ValueRequirement _requirementSpecification;
+  /**
+   * The value being requested - matches that of a {@link ValueRequirement} satisfied by this specification.
+   */
+  private final String _valueName;
 
+  /**
+   * The specification of the object that the value refers to - matches that of a {@link ValueRequirement} satisfied by this specification.
+   */
+  private final ComputationTargetSpecification _targetSpecification;
+
+  /**
+   * The properties of the value described. This property set will satisfy the constraints of all {@link ValueRequirement}s satisfied by this specification.
+   */
   private final ValueProperties _properties;
 
   public ValueSpecification(ValueRequirement requirementSpecification, String functionIdentifier) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(functionIdentifier, "functionIdentifier");
-    _requirementSpecification = requirementSpecification;
+    // requirement specification interns its valueName
+    _valueName = requirementSpecification.getValueName();
+    _targetSpecification = requirementSpecification.getTargetSpecification();
     _properties = requirementSpecification.getConstraints().copy().with(ValuePropertyNames.FUNCTION, functionIdentifier).get();
   }
 
   public ValueSpecification(ValueRequirement requirementSpecification, ValueProperties properties) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(properties, "properties");
-    _requirementSpecification = requirementSpecification;
+    ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
+    assert requirementSpecification.getConstraints().isSatisfiedBy(properties);
+    // requirement specification interns its valueName
+    _valueName = requirementSpecification.getValueName();
+    _targetSpecification = requirementSpecification.getTargetSpecification();
     _properties = properties;
   }
 
-  /**
-   * Get the requirementSpecification field.
-   * @return the requirementSpecification
-   **/
-  public ValueRequirement getRequirementSpecification() {
-    return _requirementSpecification;
+  public ValueSpecification(final String valueName, final ComputationTargetSpecification targetSpecification, final ValueProperties properties) {
+    ArgumentChecker.notNull(valueName, "valueName");
+    ArgumentChecker.notNull(targetSpecification, "targetSpecification");
+    ArgumentChecker.notNull(properties, "properties");
+    ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
+    _valueName = valueName.intern();
+    _targetSpecification = targetSpecification;
+    _properties = properties;
+  }
+
+  public String getValueName() {
+    return _valueName;
+  }
+
+  public ComputationTargetSpecification getTargetSpecification() {
+    return _targetSpecification;
   }
 
   public ValueProperties getProperties() {
@@ -55,8 +82,17 @@ public class ValueSpecification implements java.io.Serializable {
   }
 
   /**
-   * Gets the functionUniqueId field.
-   * @return the functionUniqueId
+   * Creates the maximal {@link ValueRequirement} that would be satisfied by this value specification.
+   * 
+   * @return the value requirement
+   */
+  public ValueRequirement toRequirementSpecification() {
+    return new ValueRequirement(_valueName, _targetSpecification, _properties);
+  }
+
+  /**
+   * Gets the identifier of the function that calculates this value.
+   * @return the function identifier
    **/
   public String getFunctionUniqueId() {
     final Set<String> values = _properties.getValues(ValuePropertyNames.FUNCTION);
@@ -72,18 +108,20 @@ public class ValueSpecification implements java.io.Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ValueSpecification) {
-      ValueSpecification other = (ValueSpecification) obj;
-      return ObjectUtils.equals(_requirementSpecification, other._requirementSpecification) && ObjectUtils.equals(_properties, other._properties);
+    if (!(obj instanceof ValueSpecification)) {
+      return false;
     }
-    return false;
+    final ValueSpecification other = (ValueSpecification) obj;
+    // valueName is interned
+    return (_valueName == other._valueName) && ObjectUtils.equals(_targetSpecification, other._targetSpecification) && ObjectUtils.equals(_properties, other._properties);
   }
 
   @Override
   public int hashCode() {
     final int prime = 37;
     int result = 1;
-    result = (result * prime) + _requirementSpecification.hashCode();
+    result = (result * prime) + _valueName.hashCode();
+    result = (result * prime) + _targetSpecification.hashCode();
     result = (result * prime) + _properties.hashCode();
     return result;
   }

@@ -39,12 +39,7 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
     MutableFudgeFieldContainer msg = context.newMessage();
     String valueName = object.getValueName();
     msg.add(VALUE_NAME_FIELD_NAME, valueName);
-    ComputationTargetSpecification targetSpecification = object.getTargetSpecification();
-    MutableFudgeFieldContainer specMsg = context.objectToFudgeMsg(targetSpecification);
-    List<FudgeField> fields = specMsg.getAllFields();
-    for (FudgeField fudgeField : fields) {
-      msg.add(fudgeField);
-    }
+    ComputationTargetSpecificationBuilder.addMessageFields(context, msg, object.getTargetSpecification());
     if (!object.getConstraints().isEmpty()) {
       context.objectToFudgeMsg(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
     }
@@ -55,7 +50,7 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
   public ValueRequirement buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     String valueName = message.getString(VALUE_NAME_FIELD_NAME);
     FudgeFieldChecker.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
-    ComputationTargetSpecification targetSpecification = context.fudgeMsgToObject(ComputationTargetSpecification.class, message);
+    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationBuilder.buildObjectImpl(context, message);
     FudgeFieldChecker.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
     FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
     if (constraints != null) {

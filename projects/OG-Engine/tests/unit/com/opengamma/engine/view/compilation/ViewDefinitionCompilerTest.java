@@ -229,7 +229,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
 
     // We'll require r1 which can be satisfied by f1
-    calcConfig.addSpecificRequirement(f1.getResultSpec().getRequirementSpecification());
+    calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
 
@@ -271,7 +271,7 @@ public class ViewDefinitionCompilerTest {
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
     // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
     // source.
-    calcConfig.addSpecificRequirement(f2.getResultSpec().getRequirementSpecification());
+    calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.nowSystemClock());
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());

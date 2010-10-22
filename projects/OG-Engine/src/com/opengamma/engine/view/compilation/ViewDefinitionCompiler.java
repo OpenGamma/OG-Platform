@@ -106,7 +106,7 @@ public final class ViewDefinitionCompiler {
       } else {
         sb.append("Live data for ").append(configName).append("\n");
         for (ValueSpecification liveRequirement : requiredLiveData) {
-          sb.append("\t").append(liveRequirement.getRequirementSpecification().getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
+          sb.append("\t").append(liveRequirement.getTargetSpecification().getRequiredLiveData(secMaster)).append("\n");
         }
       }
     }

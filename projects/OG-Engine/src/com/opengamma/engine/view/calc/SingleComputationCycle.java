@@ -219,13 +219,25 @@ public class SingleComputationCycle {
 
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
     for (ValueSpecification liveDataRequirement : allLiveDataRequirements) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getRequirementSpecification());
+      // REVIEW 2010-10-22 Andrew -- the .toRequirementSpecification call below is not ideal - it will create a ValueRequirement for each
+      // "query snapshot" call. We could create the requirements once within the evaluation model to solve this. More importantly though:
+      //
+      // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
+      // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
+      // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
+      // we should be querying with a "specification" and not a requirement.
+      //
+      // NOTE: currently using the minimal requirement as the value providers won't have anything like which function produced the values
+      // etc which makes me want to lean towards working with <ValueRequirement,ValueSpecification> pairs when dealing with live data - i.e.
+      // make the LiveDataSourcingFunction responsible for determining the value specification that should go into the cache since that's
+      // the one it's made available for other nodes to read. 
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(),
+          new ValueRequirement(liveDataRequirement.getValueName(), liveDataRequirement.getTargetSpecification()));
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement);
       } else {
         ComputedValue dataAsValue = new ComputedValue(liveDataRequirement, data);
-        // s_logger.warn("Live Data Requirement: {}", dataAsValue);
         addToAllCaches(dataAsValue);
       }
     }
@@ -239,13 +251,12 @@ public class SingleComputationCycle {
   protected static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
     for (ValueSpecification spec : missingLiveData) {
-      ValueRequirement req = spec.getRequirementSpecification();
-      sb.append("[").append(req.getValueName()).append(" on ");
-      sb.append(req.getTargetSpecification().getType());
-      if (req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-        sb.append("-").append(req.getTargetSpecification().getIdentifier().getScheme().getName());
+      sb.append("[").append(spec.getValueName()).append(" on ");
+      sb.append(spec.getTargetSpecification().getType());
+      if (spec.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+        sb.append("-").append(spec.getTargetSpecification().getIdentifier().getScheme().getName());
       }
-      sb.append(":").append(req.getTargetSpecification().getIdentifier().getValue()).append("] ");
+      sb.append(":").append(spec.getTargetSpecification().getIdentifier().getValue()).append("] ");
     }
     return sb.toString();
   }

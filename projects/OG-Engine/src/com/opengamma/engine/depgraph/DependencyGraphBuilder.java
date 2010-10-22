@@ -139,7 +139,7 @@ public class DependencyGraphBuilder {
 
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
-    Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
+    Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeSatisfying(requirement);
     if (existingNode != null) {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
       return existingNode;

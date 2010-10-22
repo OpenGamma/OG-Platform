@@ -7,7 +7,6 @@ package com.opengamma.engine.function.resolver;
 
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +87,7 @@ public class ResolutionRule {
 
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {
-      if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), output)) {
+      if (output.isSatisfiedBy(resultSpec)) {
         validSpec = resultSpec;
       }
     }

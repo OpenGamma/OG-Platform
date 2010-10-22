@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -13,9 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link FunctionInputs} that stores all inputs in internal maps.
@@ -24,29 +26,38 @@ import com.opengamma.util.ArgumentChecker;
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
   private final Map<String, Object> _valuesByRequirementName = new HashMap<String, Object>();
-  private final Map<ValueRequirement, Object> _valuesByRequirement = new HashMap<ValueRequirement, Object>();
-  
+  private final Map<Pair<String, ComputationTargetSpecification>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, ComputationTargetSpecification>, ComputedValue[]>();
+
   public FunctionInputsImpl() {
   }
-  
+
   public FunctionInputsImpl(ComputedValue value) {
     this(Collections.singleton(value));
   }
-  
+
   public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
     for (ComputedValue value : values) {
       addValue(value);
     }
   }
-  
+
   public void addValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed Value");
     if (value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
     }
     _values.add(value);
-    _valuesByRequirementName.put(value.getSpecification().getRequirementSpecification().getValueName(), value.getValue());
-    _valuesByRequirement.put(value.getSpecification().getRequirementSpecification(), value.getValue());
+    _valuesByRequirementName.put(value.getSpecification().getValueName(), value.getValue());
+    final Pair<String, ComputationTargetSpecification> key = Pair.of(value.getSpecification().getValueName(), value.getSpecification().getTargetSpecification());
+    final ComputedValue[] prev = _valuesByRequirement.get(key);
+    if (prev == null) {
+      _valuesByRequirement.put(key, new ComputedValue[] {value});
+    } else {
+      final ComputedValue[] values = new ComputedValue[prev.length + 1];
+      System.arraycopy(prev, 0, values, 0, prev.length);
+      values[prev.length] = value;
+      _valuesByRequirement.put(key, values);
+    }
   }
 
   @Override
@@ -56,7 +67,17 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public Object getValue(ValueRequirement requirement) {
-    return _valuesByRequirement.get(requirement);
+    final Pair<String, ComputationTargetSpecification> key = Pair.of(requirement.getValueName(), requirement.getTargetSpecification());
+    final ComputedValue[] values = _valuesByRequirement.get(key);
+    if (values != null) {
+      for (ComputedValue value : values) {
+        // Shortcut to check the properties as we already know the name and target match  
+        if (requirement.getConstraints().isSatisfiedBy(value.getSpecification().getProperties())) {
+          return value.getValue();
+        }
+      }
+    }
+    return null;
   }
 
   @Override

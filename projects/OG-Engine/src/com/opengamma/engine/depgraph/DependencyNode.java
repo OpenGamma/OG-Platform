@@ -68,7 +68,7 @@ public class DependencyNode {
   public void addInputNode(DependencyNode inputNode) {
     ArgumentChecker.notNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
-    inputNode.addDependentNode(this); // note how we rely on the yucky class-scope encapsulation of private
+    inputNode.addDependentNode(this);
   }
 
   private void addDependentNode(DependencyNode dependentNode) {
@@ -121,7 +121,7 @@ public class DependencyNode {
   public Set<ValueRequirement> getOutputRequirements() {
     Set<ValueRequirement> outputRequirements = new HashSet<ValueRequirement>();
     for (ValueSpecification outputValue : _outputValues) {
-      outputRequirements.add(outputValue.getRequirementSpecification());
+      outputRequirements.add(outputValue.toRequirementSpecification());
     }
     return outputRequirements;
   }
@@ -132,14 +132,6 @@ public class DependencyNode {
 
   public boolean hasInputValue(final ValueSpecification specification) {
     return _inputValues.contains(specification);
-  }
-
-  public Set<ValueRequirement> getInputRequirements() {
-    Set<ValueRequirement> inputRequirements = new HashSet<ValueRequirement>();
-    for (ValueSpecification outputValue : _inputValues) {
-      inputRequirements.add(outputValue.getRequirementSpecification());
-    }
-    return inputRequirements;
   }
 
   /**
@@ -188,7 +180,7 @@ public class DependencyNode {
 
   public ValueSpecification resolveInput(ValueRequirement requirement) {
     for (ValueSpecification inputSpec : _inputValues) {
-      if (ObjectUtils.equals(inputSpec.getRequirementSpecification(), requirement)) {
+      if (requirement.isSatisfiedBy(inputSpec)) {
         return inputSpec;
       }
     }
@@ -197,7 +189,7 @@ public class DependencyNode {
 
   public ValueSpecification resolveOutput(ValueRequirement requirement) {
     for (ValueSpecification outputSpec : _outputValues) {
-      if (ObjectUtils.equals(outputSpec.getRequirementSpecification(), requirement)) {
+      if (requirement.isSatisfiedBy(outputSpec)) {
         return outputSpec;
       }
     }

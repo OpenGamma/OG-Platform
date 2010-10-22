@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -57,13 +57,9 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
       throw new OpenGammaRuntimeException("Unrecognized message object " + message);
     }
   }
-  
+
   private void collectAllValueSpecifications(DependencyNode node, Collection<ValueSpecification> specsSoFar) {
-    Set<ValueRequirement> inputRequirements = node.getInputRequirements();
-    for (ValueRequirement inputRequirement : inputRequirements) {
-      ValueSpecification resolvedInput = node.resolveInput(inputRequirement);
-      specsSoFar.add(resolvedInput);
-    }
+    specsSoFar.addAll(node.getInputValues());
     for (DependencyNode subNode : node.getInputNodes()) {
       collectAllValueSpecifications(subNode, specsSoFar);
     }

@@ -169,7 +169,7 @@ public final class ValueProperties implements Serializable {
    * @return {@code true} if this set of properties can be satisfied by the other set, {@code false} otherwise
    */
   public boolean isSatisfiedBy(final ValueProperties properties) {
-    ArgumentChecker.notNull(properties, "properties");
+    assert properties != null;
     nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
       final Set<String> available = properties.getValues(property.getKey());
       if (available == null) {
@@ -202,7 +202,7 @@ public final class ValueProperties implements Serializable {
    * @return the new set of properties
    */
   public ValueProperties compose(final ValueProperties properties) {
-    ArgumentChecker.notNull(properties, "properties");
+    assert properties != null;
     assert properties.isSatisfiedBy(this);
     for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
       final Set<String> available = properties.getValues(property.getKey());
@@ -298,6 +298,23 @@ public final class ValueProperties implements Serializable {
 
   public boolean isEmpty() {
     return _properties.isEmpty();
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    boolean first = true;
+    for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(", ");
+      }
+      sb.append(property.getKey()).append("=").append(property.getValue());
+    }
+    sb.append("}");
+    return sb.toString();
   }
 
 }
