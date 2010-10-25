@@ -49,20 +49,13 @@ public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoub
     final double[] yData = surface.getYDataAsPrimitive();
     final double[] zData = surface.getZDataAsPrimitive();
     final int n = zData.length;
-    final List<Integer> indices = new ArrayList<Integer>();
     for (int i = 0; i < n; i++) {
       if (Double.doubleToLongBits(xData[i]) == Double.doubleToLongBits(x)) {
-        indices.add(i);
-      }
-    }
-    if (indices.isEmpty()) {
-      throw new IllegalArgumentException("No x data in surface for value " + x);
-    }
-    final double[] shiftedZ = Arrays.copyOf(zData, n);
-    for (final int i : indices) {
-      if (Double.doubleToLongBits(yData[i]) == Double.doubleToLongBits(y)) {
-        shiftedZ[i] += shift;
-        return NodalDoublesSurface.from(xData, yData, shiftedZ, newName);
+        if (Double.doubleToLongBits(yData[i]) == Double.doubleToLongBits(y)) {
+          final double[] shiftedZ = Arrays.copyOf(zData, n);
+          shiftedZ[i] += shift;
+          return NodalDoublesSurface.from(xData, yData, shiftedZ, newName);
+        }
       }
     }
     throw new IllegalArgumentException("No x-y data in surface for (" + x + ", " + y + ")");
@@ -80,7 +73,11 @@ public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoub
     Validate.notNull(xShift, "x shift");
     Validate.notNull(yShift, "y shift");
     Validate.notNull(shift, "shifts");
-    Validate.isTrue(xShift.length == yShift.length && xShift.length == shift.length);
+    final int m = xShift.length;
+    if (m == 0) {
+      return NodalDoublesSurface.from(surface.getXDataAsPrimitive(), surface.getYDataAsPrimitive(), surface.getZDataAsPrimitive(), newName);
+    }
+    Validate.isTrue(m == yShift.length && m == shift.length);
     final double[] xData = surface.getXDataAsPrimitive();
     final double[] yData = surface.getYDataAsPrimitive();
     final double[] zData = surface.getZDataAsPrimitive();
