@@ -73,7 +73,11 @@ public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoub
     Validate.notNull(xShift, "x shift");
     Validate.notNull(yShift, "y shift");
     Validate.notNull(shift, "shifts");
-    Validate.isTrue(xShift.length == yShift.length && xShift.length == shift.length);
+    final int m = xShift.length;
+    if (m == 0) {
+      return NodalDoublesSurface.from(surface.getXDataAsPrimitive(), surface.getYDataAsPrimitive(), surface.getZDataAsPrimitive(), newName);
+    }
+    Validate.isTrue(m == yShift.length && m == shift.length);
     final double[] xData = surface.getXDataAsPrimitive();
     final double[] yData = surface.getYDataAsPrimitive();
     final double[] zData = surface.getZDataAsPrimitive();
