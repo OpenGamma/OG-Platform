@@ -103,6 +103,23 @@ public class ValueSpecification implements java.io.Serializable {
     }
   }
 
+  /**
+   * Respecifies the properties to match a tighter requirement. Requires {@code requirement.isSatisfiedBy(this) == true}.
+   * 
+   * @param requirement additional requirement to reduce properties against
+   * @return the new value specification, or this object if the composition is equal
+   */
+  public ValueSpecification compose(final ValueRequirement requirement) {
+    assert requirement.isSatisfiedBy(this);
+    final ValueProperties oldProperties = getProperties();
+    final ValueProperties newProperties = oldProperties.compose(requirement.getConstraints());
+    if (newProperties == oldProperties) {
+      return this;
+    } else {
+      return new ValueSpecification(getValueName(), getTargetSpecification(), newProperties);
+    }
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

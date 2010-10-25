@@ -72,7 +72,7 @@ public class DependencyNode {
     inputNode.addDependentNode(this);
   }
 
-  private void addDependentNode(DependencyNode dependentNode) {
+  protected void addDependentNode(DependencyNode dependentNode) {
     ArgumentChecker.notNull(dependentNode, "Dependent Node");
     _dependentNodes.add(dependentNode);
   }
@@ -100,10 +100,14 @@ public class DependencyNode {
       addOutputValue(outputValue);
     }
   }
-
+  
   public void addOutputValue(ValueSpecification outputValue) {
     ArgumentChecker.notNull(outputValue, "Output value");
     _outputValues.add(outputValue);
+  }
+  
+  /* package */ void clearOutputValues() {
+    _outputValues.clear();
   }
 
   /* package */void addInputValue(ValueSpecification inputValue) {

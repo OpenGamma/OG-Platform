@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
@@ -48,6 +49,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public Set<ValueSpecification> getRequiredLiveData() {
       return getRequiredLiveDataImpl();
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+      return getResults(context, target);
     }
 
     public void setEarliestInvocationTime(final InstantProvider timestamp) {
@@ -149,6 +155,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
       return this;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+      return getResults(context, target);
     }
 
     @Override

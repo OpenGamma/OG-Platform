@@ -68,6 +68,10 @@ public final class ValueRequirement implements Serializable {
   public ValueRequirement(String valueName, Object target) {
     this(valueName, new ComputationTargetSpecification(target));
   }
+  
+  public ValueRequirement(String valueName, Object target, ValueProperties constraints) {
+    this(valueName, new ComputationTargetSpecification(target), constraints);
+  }
 
   /**
    * Creates a requirement.

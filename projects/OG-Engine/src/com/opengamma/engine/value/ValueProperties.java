@@ -35,7 +35,7 @@ public final class ValueProperties implements Serializable {
     }
 
     private Builder(final Map<String, Set<String>> properties) {
-      _properties = new HashMap<String, Set<String>>();
+      _properties = new HashMap<String, Set<String>>(properties);
     }
 
     public Builder with(String propertyName, final String propertyValue) {
@@ -199,7 +199,7 @@ public final class ValueProperties implements Serializable {
    * untouched. Requires {@code properties.isSatisfiedBy (this) == true}.
    * 
    * @param properties other property set to compose against, not {@code null}
-   * @return the new set of properties
+   * @return the new set of properties, or this object if the composition result is equal
    */
   public ValueProperties compose(final ValueProperties properties) {
     assert properties != null;

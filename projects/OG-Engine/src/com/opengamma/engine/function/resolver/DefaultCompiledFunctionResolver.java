@@ -45,11 +45,12 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     _functionCompilationContext = functionCompilationContext;
   }
 
-  public DefaultCompiledFunctionResolver(final CompiledFunctionRepository repository) {
+  public DefaultCompiledFunctionResolver(final CompiledFunctionRepository repository, final DefaultFunctionResolver.FunctionPriority prioritizer) {
     this(repository.getCompilationContext());
     Collection<ResolutionRule> resolutionRules = new ArrayList<ResolutionRule>();
     for (CompiledFunctionDefinition function : repository.getAllFunctions()) {
-      ResolutionRule rule = new ResolutionRule(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()), new ApplyToAllTargets(), 0);
+      ResolutionRule rule = new ResolutionRule(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()), new ApplyToAllTargets(),
+          (prioritizer != null) ? prioritizer.getPriority(function) : 0);
       resolutionRules.add(rule);
     }
     addRules(resolutionRules);

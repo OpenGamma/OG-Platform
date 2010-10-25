@@ -96,7 +96,7 @@ public class ResolutionRule {
       return null;
     }
 
-    // Then check that he function (applied to the same computation target) is not already
+    // Then check that the function (applied to the same computation target) is not already
     // in the dep graph above the current node (i.e., no cycles)
 
     DependencyNode parent = atNode.getDependentNode();

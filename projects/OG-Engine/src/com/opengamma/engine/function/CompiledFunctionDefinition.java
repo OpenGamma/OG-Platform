@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -70,15 +69,31 @@ public interface CompiledFunctionDefinition {
 
   /**
    * Determine which result values can be produced by this function when applied to the
-   * specified target.
+   * specified target assuming no input constraints.
    * Should return the <b>maximal</b> set of potential outputs. <b>Actual</b> computed values
    * will be trimmed.
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
-   * @return All results <b>possible</b> to be computed by this node for this target with these parameters.
+   * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
+  
+  /**
+   * Determine which result values can be produced by this function when applied to the
+   * specified target given the resolved inputs. Should return the <b>maximal</b> set of potential outputs.
+   * <b>Actual</b> computed values will be trimmed. The default implementation from {@link AbstractFunction}
+   * will return the same value as {@link #getResults (FunctionCompilationContext, ComputationTarget)}. If
+   * a function specified both its outputs and inputs using a wildcard, with the outputs depending on the
+   * inputs, it should override this to implement that dependency. If it is not possible to generate any
+   * results using the inputs given, an empty set must be returned.
+   * 
+   * @param context The compilation context with view-specific parameters and configurations.
+   * @param target The target for which calculation is desired.
+   * @param inputs The resolved inputs to the function.
+   * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
+   */
+  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs);
 
   /**
    * Returns an invocation handle to the compiled function. If the function is not available at this node,

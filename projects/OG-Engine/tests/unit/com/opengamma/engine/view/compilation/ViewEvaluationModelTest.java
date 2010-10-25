@@ -112,6 +112,11 @@ public class ViewEvaluationModelTest {
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
         return null;
       }
+      
+      @Override
+      public Set<ValueSpecification> getResults (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        return null;
+      }
 
       @Override
       public ComputationTargetType getTargetType() {

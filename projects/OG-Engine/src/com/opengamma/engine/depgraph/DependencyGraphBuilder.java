@@ -126,12 +126,12 @@ public class DependencyGraphBuilder {
     checkInjectedInputs();
 
     for (ValueRequirement requirement : requirements) {
-      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(requirement);
+      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(requirement, null);
       _graph.addTerminalOutputValue(terminalNode.getSecond());
     }
   }
 
-  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement) {
+  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement, DependencyNode dependent) {
     ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
@@ -142,41 +142,79 @@ public class DependencyGraphBuilder {
     Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeSatisfying(requirement);
     if (existingNode != null) {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
-      return existingNode;
+      final ValueSpecification originalOutput = existingNode.getSecond();
+      final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+      if (originalOutput.equals(resolvedOutput)) {
+        return existingNode;
+      }
+      // TODO: update the node to reduce the specification & then return the node with the resolvedOutput 
+      throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
     }
 
     DependencyNode node = new DependencyNode(target);
+    if (dependent != null) {
+      node.addDependentNode(dependent);
+    }
 
     Pair<ParameterizedFunction, ValueSpecification> resolvedFunction;
 
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
-
       // this code to be moved to FunctionResolver?
       s_logger.debug("Live Data : {} on {}", requirement, target);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       resolvedFunction = Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult());
-
     } else {
-
       resolvedFunction = getFunctionResolver().resolveFunction(requirement, node);
-
     }
 
     node.setFunction(resolvedFunction.getFirst());
-
     CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-    Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-    node.addOutputValues(outputValues);
 
+    // Get the broad output values that we matched the function against, composing against the requested requirement
+    Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+    final ValueSpecification originalOutput = resolvedFunction.getSecond();
+    ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+    if (originalOutput.equals(resolvedOutput)) {
+      node.addOutputValues(outputValues);
+    } else {
+      for (ValueSpecification outputValue : outputValues) {
+        if (originalOutput.equals(outputValue)) {
+          s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+          node.addOutputValue(resolvedOutput);
+        } else {
+          node.addOutputValue(outputValue);
+        }
+      }
+    }
+
+    // TODO: pass the composed requirement in to allow downstream dynamic composition
     Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
     for (ValueRequirement inputRequirement : inputRequirements) {
-      Pair<DependencyNode, ValueSpecification> input = addTargetRequirement(inputRequirement);
+      Pair<DependencyNode, ValueSpecification> input = addTargetRequirement(inputRequirement, node);
       node.addInputNode(input.getFirst());
       node.addInputValue(input.getSecond());
     }
 
+    // TODO: only do this if there were wild-card or choices in any of the input requirements that might now be resolved
+    Set<ValueSpecification> newOutputValues = functionDefinition.getResults(getCompilationContext(), target, node.getInputValues());
+    if (!outputValues.equals(newOutputValues)) {
+      node.clearOutputValues();
+      resolvedOutput = null;
+      for (ValueSpecification outputValue : newOutputValues) {
+        if ((resolvedOutput == null) && requirement.isSatisfiedBy(outputValue)) {
+          resolvedOutput = outputValue.compose(requirement);
+          node.addOutputValue(resolvedOutput);
+        } else {
+          node.addOutputValue(outputValue);
+        }
+      }
+      if (resolvedOutput == null) {
+        throw new UnsatisfiableDependencyGraphException("Provisional specification " + originalOutput + " no longer in output after late resolution");
+      }
+    }
+
     _graph.addDependencyNode(node);
-    return Pair.of(node, resolvedFunction.getSecond());
+    return Pair.of(node, resolvedOutput);
   }
 
   public DependencyGraph getDependencyGraph() {
