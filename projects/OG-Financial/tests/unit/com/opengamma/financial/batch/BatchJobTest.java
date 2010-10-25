@@ -23,16 +23,11 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.ViewTestUtils;
-import com.opengamma.financial.world.CoppClarkFileReader;
-import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
-import com.opengamma.financial.world.exchange.master.ExchangeSource;
-import com.opengamma.financial.world.holiday.DefaultHolidaySource;
-import com.opengamma.financial.world.holiday.HolidaySource;
-import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
-import com.opengamma.financial.world.region.DefaultRegionSource;
+import com.opengamma.financial.world.holiday.coppclark.CoppClarkHolidayFileReader;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
+import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
 import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.RegionFileReader;
-import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -102,9 +97,9 @@ public class BatchJobTest {
   public void dateRangeCommandLineHolidayMaster() {
     InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
-    RegionSource regionSource = new DefaultRegionSource(regionRepo);
-    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
-    HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource));
+//    RegionSource regionSource = new DefaultRegionSource(regionRepo);
+//    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
+    HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster());
     
     BatchJob job = new BatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());

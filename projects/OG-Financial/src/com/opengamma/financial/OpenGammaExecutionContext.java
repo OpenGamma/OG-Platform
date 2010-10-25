@@ -12,8 +12,8 @@ import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.world.exchange.master.ExchangeSource;
-import com.opengamma.financial.world.holiday.HolidayMaster;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.region.RegionSource;
 
 /**

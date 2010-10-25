@@ -24,7 +24,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Test MasterPositionSource.
+ * Test MasterSecuritySource.
  */
 public class MasterSecuritySourceTest {
 

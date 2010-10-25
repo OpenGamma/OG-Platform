@@ -41,11 +41,11 @@ public class CoppClarkExchangeFileReader {
   /**
    * The date format.
    */
-  private static final DateTimeFormatter s_dateFormat = DateTimeFormatters.pattern("dd-MMM-yyyy");
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatters.pattern("dd-MMM-yyyy");
   /**
    * The time format.
    */
-  private static final DateTimeFormatter s_timeFormat = DateTimeFormatters.pattern("HH:mm:ss");
+  private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatters.pattern("HH:mm:ss");
   /**
    * The file version.
    */
@@ -76,23 +76,6 @@ public class CoppClarkExchangeFileReader {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange master.
-   * @return the exchange master, not null
-   */
-  public ExchangeMaster getExchangeMaster() {
-    return _exchangeMaster;
-  }
-
-  /**
-   * Gets the exchange source.
-   * @return the exchange source, not null
-   */
-  public ExchangeSource getExchangeSource() {
-    return _exchangeSource;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates an instance with an in-memory exchange master.
    */
   public CoppClarkExchangeFileReader() {
@@ -106,6 +89,23 @@ public class CoppClarkExchangeFileReader {
   public CoppClarkExchangeFileReader(ExchangeMaster exchangeMaster) {
     _exchangeMaster = exchangeMaster;
     _exchangeSource = new MasterExchangeSource(exchangeMaster);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the exchange master.
+   * @return the exchange master, not null
+   */
+  public ExchangeMaster getExchangeMaster() {
+    return _exchangeMaster;
+  }
+
+  /**
+   * Gets the exchange source.
+   * @return the exchange source, not null
+   */
+  public ExchangeSource getExchangeSource() {
+    return _exchangeSource;
   }
 
   //-------------------------------------------------------------------------
@@ -169,14 +169,14 @@ public class CoppClarkExchangeFileReader {
   }
 
   private static LocalTime parseTime(String time) {
-    return time.isEmpty() ? null : LocalTime.parse(time, s_timeFormat);
+    return time.isEmpty() ? null : LocalTime.parse(time, TIME_FORMAT);
   }
 
   private static LocalDate parseDate(String date) {
     StringBuilder sb = new StringBuilder();
     sb.append(date);
     //sb.insert(7, "20"); // beacuse the parser won't cope with 2-digit years...
-    return date.isEmpty() ? null : LocalDate.parse(sb.toString(), s_dateFormat);
+    return date.isEmpty() ? null : LocalDate.parse(sb.toString(), DATE_FORMAT);
   }
 
   private static String optionalStringField(String field) {
