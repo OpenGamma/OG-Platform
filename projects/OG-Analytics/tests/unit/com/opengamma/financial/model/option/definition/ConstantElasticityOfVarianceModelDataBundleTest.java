@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -29,8 +29,8 @@ public class ConstantElasticityOfVarianceModelDataBundleTest {
   private static final double B = 0.01;
   private static final double OTHER_B = 0.04;
   private static final double SIGMA = 0.2;
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
-  private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.4);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
+  private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
   private static final double SPOT = 100;
   private static final double OTHER_SPOT = 105;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);

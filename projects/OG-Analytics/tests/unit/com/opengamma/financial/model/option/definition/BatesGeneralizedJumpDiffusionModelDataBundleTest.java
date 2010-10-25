@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -27,8 +27,8 @@ public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
   private static final double SIGMA = 0.5;
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
-  private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.55);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
+  private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.55));
   private static final double B = 0.02;
   private static final double OTHER_B = 0.03;
   private static final double SPOT = 100;

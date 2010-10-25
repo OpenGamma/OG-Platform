@@ -15,8 +15,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.ExtremeSpreadOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -37,7 +38,7 @@ public class ExtremeSpreadOptionModelTest {
   @Test
   public void test() {
     DoubleTimeSeries<?> ts = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 11, 1)}, new double[] {SPOT, 100});
-    StandardOptionWithSpotTimeSeriesDataBundle data = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, new ConstantVolatilitySurface(0.15), SPOT, DATE, ts);
+    StandardOptionWithSpotTimeSeriesDataBundle data = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(0.15)), SPOT, DATE, ts);
     ExtremeSpreadOptionDefinition option = new ExtremeSpreadOptionDefinition(EXPIRY, true, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25)), false);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 10.6618, EPS);
     ts = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 11, 1)}, new double[] {SPOT, 110});
@@ -47,7 +48,7 @@ public class ExtremeSpreadOptionModelTest {
     data = data.withSpotTimeSeries(ts);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 4.5235, EPS);
     option = new ExtremeSpreadOptionDefinition(EXPIRY, true, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75)), true);
-    data = data.withVolatilitySurface(new ConstantVolatilitySurface(0.3));
+    data = data.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0.3)));
     ts = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 11, 1)}, new double[] {SPOT, 100});
     data = data.withSpotTimeSeries(ts);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 13.3404, EPS);
