@@ -91,15 +91,14 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     {"UF", "KANSAS_CLOSE"},
     {"PK", "NEWYORK_CLOSE"},
     {"LN", "LONDON_CLOSE"},
-      // Review 2010-10-06 Andrew -- Are these LONODNs mis-spelt? If correct, can we have a comment or reference to a doc so no-one makes the same mistake I have of thinking they need changing!
-    {"LI", "LONODN_CLOSE"},
-    {"PZ", "LONODN_CLOSE"},
-    {"TQ", "LONODN_CLOSE"},
+    {"LI", "LONDON_CLOSE"},
+    {"PZ", "LONDON_CLOSE"},
+    {"TQ", "LONDON_CLOSE"},
     {"NQ", "LONDON_CLOSE"},
-    {"BQ", "LONODN_CLOSE"},
-    {"EB", "LONODN_CLOSE"},
-    {"PQ", "LONODN_CLOSE"},
-    {"NR", "LONODN_CLOSE"},
+    {"BQ", "LONDON_CLOSE"},
+    {"EB", "LONDON_CLOSE"},
+    {"PQ", "LONDON_CLOSE"},
+    {"NR", "LONDON_CLOSE"},
     {"PX", "LISBOA_CLOSE"},
     {"BY", "STOCKHOLM_CLOSE"},
   };
@@ -332,7 +331,6 @@ public class DefaultTimeSeriesResolver implements TimeSeriesMetaDataResolver {
     return metaDataDefinition.getDataProviders();
   }
 
-  @Override
   public Collection<TimeSeriesMetaData> getAvailableMetaData(IdentifierBundle identifierBundle) {
     List<TimeSeriesMetaData> result = new ArrayList<TimeSeriesMetaData>();
     final Security security = _secSource.getSecurity(identifierBundle);

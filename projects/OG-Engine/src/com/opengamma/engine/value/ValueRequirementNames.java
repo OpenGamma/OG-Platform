@@ -196,10 +196,15 @@ public interface ValueRequirementNames {
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT= "Par Rate Parallel Shift Sensitivity";
   
   //Bond analytics
+  public static final String CLEAN_PRICE = "Clean Price";
+  public static final String DIRTY_PRICE = "Dirty Price";
   public static final String YTM = "Yield To Maturity";
+  public static final String MARKET_YTM = "Market Yield To Maturity";//straight from BBG
+  public static final String MARKET_DIRTY_PRICE = "Market Dirty Price";//straight from BBG
   public static final String CURRENT_YIELD = "Current Yield";
   public static final String DURATION = "Duration";
   public static final String CONVEXITY = "Convexity";
+  public static final String Z_SPREAD = "Z Spread";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";

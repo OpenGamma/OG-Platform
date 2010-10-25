@@ -9,9 +9,6 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 
 /**
@@ -26,7 +23,7 @@ public class RiskRun {
   private ObservationDateTime _runTime;
   private Timestamp _valuationTime;
   private String _viewOid;
-  private int _viewVersion;
+  private String _viewVersion;
   private LiveDataSnapshot _liveDataSnapshot;
   private Timestamp _createInstant;
   private Timestamp _startInstant;
@@ -91,11 +88,11 @@ public class RiskRun {
     _viewOid = viewOid;
   }
   
-  public int getViewVersion() {
+  public String getViewVersion() {
     return _viewVersion;
   }
   
-  public void setViewVersion(int viewVersion) {
+  public void setViewVersion(String viewVersion) {
     _viewVersion = viewVersion;
   }
   
@@ -187,16 +184,6 @@ public class RiskRun {
   }
   
   // --------------------------------------------------------------------------
-  
-  @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
   
   @Override
   public String toString() {

@@ -23,7 +23,7 @@
     	not-null="true"/>
    	<property name="valuationTime" column="valuation_time" not-null="true"/>
    	<property name="viewOid" column="view_oid" not-null="true"/>
-   	<property name="viewVersion" column="view_version" not-null="true"/>
+   	<property name="viewVersion" column="view_version"/>
    	<many-to-one name="liveDataSnapshot" 
     	column="live_data_snapshot_id" 
     	not-null="true"/>
@@ -32,7 +32,7 @@
    	<property name="endInstant" column="end_instant"/>
    	<property name="numRestarts" column="num_restarts"/>
     <set name="calculationConfigurations" inverse="true">
-        <key column="id"/>
+        <key column="run_id"/>
         <one-to-many class="CalculationConfiguration"/>
     </set>
     <property name="complete" not-null="true"/>

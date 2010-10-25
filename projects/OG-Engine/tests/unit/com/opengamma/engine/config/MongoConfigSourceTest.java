@@ -26,9 +26,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.mongo.MongoDBConfigMaster;
+import com.opengamma.config.mongo.MongoDBConfigTypeMaster;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
@@ -55,7 +55,7 @@ public class MongoConfigSourceTest {
   public void setUp() throws Exception {
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings("ViewDefinitions", true);
     _mongoSettings = settings;
-    MongoDBConfigMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigMaster<ViewDefinition>(ViewDefinition.class, settings, true);
+    MongoDBConfigTypeMaster<ViewDefinition> viewDefinitionConfigMaster = new MongoDBConfigTypeMaster<ViewDefinition>(ViewDefinition.class, settings);
     Map<String, ConfigDocument<ViewDefinition>> viewDefinitions = populateWithViewDefinitions(viewDefinitionConfigMaster);
     _viewDefinitions = viewDefinitions;
     MongoDBMasterConfigSource mongoDBMasterConfigSource = new MongoDBMasterConfigSource();
@@ -74,7 +74,7 @@ public class MongoConfigSourceTest {
     dbCollection.drop();
   }
   
-  private Map<String, ConfigDocument<ViewDefinition>> populateWithViewDefinitions(ConfigMaster<ViewDefinition> repo) throws Exception {
+  private Map<String, ConfigDocument<ViewDefinition>> populateWithViewDefinitions(ConfigTypeMaster<ViewDefinition> repo) throws Exception {
     HashMap<String, ConfigDocument<ViewDefinition>> viewDefinitionsMap = new HashMap<String, ConfigDocument<ViewDefinition>>();
     //generate unique name for dataset
     Set<String> names = new TreeSet<String>();

@@ -7,26 +7,32 @@ package com.opengamma.financial.batch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.config.MasterConfigSource;
+import com.opengamma.engine.config.MockConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.financial.Currency;
 import com.opengamma.financial.ViewTestUtils;
+import com.opengamma.financial.world.CoppClarkFileReader;
+import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.holiday.DefaultHolidaySource;
+import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
+import com.opengamma.financial.world.region.DefaultRegionSource;
+import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -56,7 +62,7 @@ public class BatchJobTest {
   }
 
   @Test
-  public void dateRangeCommandLine() {
+  public void dateRangeCommandLineSnapshotAvailability() {
     SnapshotId snapshotId1 = new SnapshotId(LocalDate.of(2010, 9, 1), "LDN_CLOSE");
     SnapshotId snapshotId2 = new SnapshotId(LocalDate.of(2010, 9, 4), "LDN_CLOSE");
     SnapshotId snapshotId3 = new SnapshotId(LocalDate.of(2010, 9, 7), "LDN_CLOSE");
@@ -91,6 +97,39 @@ public class BatchJobTest {
     
     assertEquals(observationDates, snapshotObservationDates);
   }
+  
+  @Test
+  public void dateRangeCommandLineHolidayMaster() {
+    InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
+    RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
+    RegionSource regionSource = new DefaultRegionSource(regionRepo);
+    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
+    HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource));
+    
+    BatchJob job = new BatchJob();
+    job.setBatchDbManager(new DummyBatchDbManager());
+    job.setHolidaySource(holidaySource);
+    job.setHolidayCurrency(Currency.getInstance("USD"));
+    job.parse("-view TestPortfolio -daterangestart 20100114 -daterangeend 20100119 -observationtime LDN_CLOSE".split(" "));
+    
+    assertEquals(3, job.getRuns().size()); // 14 = thursday, 15 = friday, 18 = Martin L King's Birthday, 19 = tuesday 
+    
+    HashSet<LocalDate> observationDates = new HashSet<LocalDate>();
+    HashSet<LocalDate> snapshotObservationDates = new HashSet<LocalDate>();
+    
+    for (BatchJobRun run : job.getRuns()) {
+      observationDates.add(run.getObservationDate());
+      snapshotObservationDates.add(run.getSnapshotObservationDate());
+      
+      assertEquals(job.getCreationTime().toLocalTime(), run.getValuationTime().toLocalTime());
+    }
+    
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 14)));
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 15)));
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 19)));
+    
+    assertEquals(observationDates, snapshotObservationDates);
+  }
 
   @Test
   public void initView() {
@@ -100,13 +139,8 @@ public class BatchJobTest {
     cfgDocument.setConfigId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     cfgDocument.setValue(testView.getDefinition());
-    ConfigSearchResult<ViewDefinition> cfgResult = new ConfigSearchResult<ViewDefinition>();
-    cfgResult.getDocuments().add(cfgDocument);
-    @SuppressWarnings("unchecked")
-    ConfigMaster<ViewDefinition> cfgMaster = mock(ConfigMaster.class);
-    when(cfgMaster.search(Mockito.<ConfigSearchRequest>anyObject())).thenReturn(cfgResult);
-    MasterConfigSource cfgSource = mock(MasterConfigSource.class);
-    when(cfgSource.getMaster(ViewDefinition.class)).thenReturn(cfgMaster);
+    MockConfigSource cfgSource = new MockConfigSource();
+    cfgSource.add(cfgDocument);
     
     SnapshotId snapshotId = new SnapshotId(LocalDate.of(9999, 9, 1), "AD_HOC_RUN");
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(

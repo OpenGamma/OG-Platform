@@ -27,7 +27,10 @@ public class StandardRulesUtils {
     Set<String> acceptableFields = Sets.newHashSet(
         MarketDataRequirementNames.MARKET_VALUE,
         MarketDataRequirementNames.VOLUME,
-        MarketDataRequirementNames.IMPLIED_VOLATILITY);
+        MarketDataRequirementNames.IMPLIED_VOLATILITY,
+        MarketDataRequirementNames.YIELD_CONVENTION_MID,
+        MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
+        MarketDataRequirementNames.DIRTY_PRICE_MID);
     for (FudgeField field : msg.getAllFields()) {
       assertTrue(acceptableFields + " does not contain " + field.getName(), acceptableFields.contains(field.getName()));
     }

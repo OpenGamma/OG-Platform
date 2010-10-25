@@ -78,15 +78,21 @@ public class MockConfigSource implements ConfigSource {
     return getByName(clazz, name, null);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
+    ConfigDocument<T> doc = getDocumentByName(clazz, name, versionAsOf);
+    return doc == null ? null : doc.getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
     Pattern matchName = RegexUtils.wildcardsToPattern(name);
     for (ConfigDocument<?> doc : _configs.values()) {
       if (matchName.matcher(doc.getName()).matches() && clazz.isInstance(doc.getValue())) {
-        return (T) doc.getValue();
+        return (ConfigDocument<T>) doc;
       }
     }
     return null;

@@ -38,6 +38,7 @@ import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -360,6 +361,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
 
           UniqueIdentifier seriesUid = _timeSeriesMaster.resolveIdentifier(
               identifiers,
+              null,
               getDataSource(),
               dataProvider,
               fieldName);
@@ -367,7 +369,8 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
           if (seriesUid == null) {
             
             TimeSeriesDocument<Date> timeSeries = new TimeSeriesDocument<Date>();
-            timeSeries.setIdentifiers(identifiers);
+            //REVIEW - Yomi 20101007 may need to store the valid dates range for identifiers
+            timeSeries.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
             timeSeries.setDataSource(getDataSource());
             timeSeries.setDataProvider(getDataProvider(lastResult.getViewName(), calcConf));
             timeSeries.setDataField(fieldName);

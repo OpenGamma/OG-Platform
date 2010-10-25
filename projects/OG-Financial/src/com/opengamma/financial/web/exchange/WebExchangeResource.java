@@ -134,8 +134,8 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
    * @return the URI, not null
    */
   public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideExchangeId) {
-    String portfolioId = data.getBestExchangeUriId(overrideExchangeId);
-    return data.getUriInfo().getBaseUriBuilder().path(WebExchangeResource.class).build(portfolioId);
+    String exchangeId = data.getBestExchangeUriId(overrideExchangeId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebExchangeResource.class).build(exchangeId);
   }
 
 }

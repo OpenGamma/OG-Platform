@@ -50,12 +50,14 @@ public class ConfigSearchHistoricRequest extends DirectBean {
   private UniqueIdentifier _configId;
   /**
    * The instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    */
   @PropertyDefinition
   private Instant _versionsFromInstant;
   /**
    * The instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    */
@@ -197,6 +199,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @return the value of the property
    */
@@ -206,6 +209,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve versions on or after (inclusive).
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @param versionsFromInstant  the new value of the property
    */
@@ -215,6 +219,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionsFromInstant} property.
+   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
    * A null value will retrieve values starting from the earliest version.
    * @return the property, not null
    */
@@ -225,6 +230,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the value of the property
@@ -235,6 +241,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
 
   /**
    * Sets the instant to retrieve versions before (exclusive).
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @param versionsToInstant  the new value of the property
@@ -245,6 +252,7 @@ public class ConfigSearchHistoricRequest extends DirectBean {
 
   /**
    * Gets the the {@code versionsToInstant} property.
+   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
    * A null value will retrieve values up to the latest version.
    * This should be equal to or later than the {@code versionsFromInstant}.
    * @return the property, not null

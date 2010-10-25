@@ -226,7 +226,7 @@ public class BatchJobRun {
     return getJob().getViewOid();
   }
   
-  public int getViewVersion() {
+  public String getViewVersion() {
     return getJob().getViewVersion();    
   } 
   

@@ -864,5 +864,5 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
 	identifier_value VARCHAR(255) NOT NULL
 );
-CREATE UNIQUE INDEX idx_identifier on tss_identifier (identification_scheme_id, identifier_value);
-CREATE INDEX idx_dsi_identifier ON tss_identifier(identifier_value);
+CREATE UNIQUE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_dsi_identifier_value ON tss_identifier(identifier_value);

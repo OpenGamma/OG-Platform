@@ -36,7 +36,6 @@ import com.opengamma.util.tuple.Pair;
  * REST resource wrapper for a {@link HistoricalDataSource}.
  */
 public class HistoricalDataSourceResource {
-
   /**
    * The Fudge context.
    */
@@ -114,31 +113,56 @@ public class HistoricalDataSourceResource {
   }
 
   @GET
-  @Path("all/{dataSource}/{dataProvider}/{dataField}")
-  public FudgeMsgEnvelope getAll(@PathParam("dataSource") String dataSource, @PathParam("dataProvider") String dataProvider, @PathParam("dataField") String dataField,
+  @Path("all/{currentDate}/{dataSource}/{dataProvider}/{dataField}")
+  public FudgeMsgEnvelope getAll(@PathParam("currentDate") String currentDate, 
+      @PathParam("dataSource") String dataSource, 
+      @PathParam("dataProvider") String dataProvider, 
+      @PathParam("dataField") String dataField,
       @QueryParam("id") List<String> identifiers) {
-    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers), dataSource, NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField));
+    return encodePairMessage(getHistoricalDataSource().getHistoricalData(
+        identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField));
   }
 
   @GET
-  @Path("allByDate/{dataSource}/{dataProvider}/{dataField}/{start}/{end}")
-  public FudgeMsgEnvelope getAllByDate(@PathParam("dataSource") String dataSource, @PathParam("dataProvider") String dataProvider, @PathParam("dataField") String dataField,
-      @PathParam("start") String start, @PathParam("end") String end, @QueryParam("id") List<String> identifiers) {
-    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers), dataSource, NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField,
-        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), NULL_VALUE.equals(end) ? null : LocalDate.parse(end)));
+  @Path("allByDate/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{excludeEnd}")
+  public FudgeMsgEnvelope getAllByDate(@PathParam("currentDate") String currentDate,
+      @PathParam("dataSource") String dataSource, 
+      @PathParam("dataProvider") String dataProvider, 
+      @PathParam("dataField") String dataField,
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end, 
+      @PathParam("excludeEnd") String excludeEnd,
+      @QueryParam("id") List<String> identifiers) {
+    
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = getHistoricalDataSource().getHistoricalData(
+        identifiersToBundle(identifiers), NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), dataSource, 
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider, dataField,
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd));
+    return encodePairMessage(historicalData);
+  }
+  
+  @GET
+  @Path("default/{currentDate}")
+  public FudgeMsgEnvelope getDefault(@PathParam("currentDate") String currentDate, @QueryParam("id") List<String> identifiers) {
+    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers), 
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate)));
   }
 
   @GET
-  @Path("default")
-  public FudgeMsgEnvelope getDefault(@QueryParam("id") List<String> identifiers) {
-    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers)));
-  }
-
-  @GET
-  @Path("defaultByDate/{start}/{end}")
-  public FudgeMsgEnvelope getDefaultByDate(@PathParam("start") String start, @PathParam("end") String end, @QueryParam("id") List<String> identifiers) {
-    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers), NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
-        NULL_VALUE.equals(end) ? null : LocalDate.parse(end)));
+  @Path("defaultByDate/{currentDate}/{start}/{includeStart}/{end}/{excludeEnd}")
+  public FudgeMsgEnvelope getDefaultByDate(@PathParam("currentDate") String currentDate,
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end, 
+      @PathParam("excludeEnd") String excludeEnd,
+      @QueryParam("id") List<String> identifiers) {
+    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
   }
 
   @GET
@@ -148,10 +172,16 @@ public class HistoricalDataSourceResource {
   }
 
   @GET
-  @Path("uidByDate/{uid}/{start}/{end}")
-  public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, @PathParam("start") String start, @PathParam("end") String end) {
-    return encodeTimeSeriesMessage(getHistoricalDataSource().getHistoricalData(UniqueIdentifier.parse(uid), NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
-        NULL_VALUE.equals(end) ? null : LocalDate.parse(end)));
+  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{excludeEnd}")
+  public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
+      @PathParam("start") String start, 
+      @PathParam("includeStart") String includeStart,
+      @PathParam("end") String end,
+      @PathParam("excludeEnd") String excludeEnd) {
+    return encodeTimeSeriesMessage(getHistoricalDataSource().getHistoricalData(
+        UniqueIdentifier.parse(uid), 
+        NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
+        NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
   }
 
   /**

@@ -24,6 +24,8 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   private final int _n;
   private final double[] _xData;
   private final double[] _yData;
+  private Double[] _xDataObject;
+  private Double[] _yDataObject;
 
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
     super();
@@ -130,6 +132,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
+    Validate.noNullElements(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
@@ -248,6 +251,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
+    Validate.noNullElements(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
@@ -261,24 +265,28 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
-  // TODO not ideal
   @Override
   public Double[] getXData() {
-    final Double[] result = new Double[_n];
-    for (int i = 0; i < _n; i++) {
-      result[i] = _xData[i];
+    if (_xDataObject != null) {
+      return _xDataObject;
     }
-    return result;
+    _xDataObject = new Double[_n];
+    for (int i = 0; i < _n; i++) {
+      _xDataObject[i] = _xData[i];
+    }
+    return _xDataObject;
   }
 
-  // TODO not ideal
   @Override
   public Double[] getYData() {
-    final Double[] result = new Double[_n];
-    for (int i = 0; i < _n; i++) {
-      result[i] = _yData[i];
+    if (_yDataObject != null) {
+      return _yDataObject;
     }
-    return result;
+    _yDataObject = new Double[_n];
+    for (int i = 0; i < _n; i++) {
+      _yDataObject[i] = _yData[i];
+    }
+    return _yDataObject;
   }
 
   public double[] getXDataAsPrimitive() {

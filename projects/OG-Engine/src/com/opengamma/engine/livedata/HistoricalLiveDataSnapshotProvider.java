@@ -58,17 +58,16 @@ public class HistoricalLiveDataSnapshotProvider extends AbstractLiveDataSnapshot
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
     LocalDate date = LocalDate.ofEpochDays(snapshot / MILLIS_PER_DAY);
     Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, _dataProvider, _field, date, date);
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> historicalData = _historicalDataSource.getHistoricalData(
+        IdentifierBundle.of(identifier), 
+        _dataSource, 
+        _dataProvider, 
+        _field, 
+        date, 
+        true, 
+        date, 
+        false);
     if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      //s_logger.warn("Couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = " + _dataProvider + ", field = " + _field);
-      historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "CMPL", _field, date, date);
-    }
-    if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      //s_logger.warn("  and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = CMPL, field = " + _field);
-      historicalData = _historicalDataSource.getHistoricalData(IdentifierBundle.of(identifier), _dataSource, "EXCH_XCME", _field, date, date);
-    }
-    if ((historicalData == null) || (historicalData.getValue().isEmpty())) {
-      //s_logger.warn(" and couldn't find data for " + identifier + " on " + date + " where dataSource = " + _dataSource + ", dataProvider = EXCH_XCME, field = " + _field);
       return null;
     }
     return historicalData.getValue().getValue(date);

@@ -16,6 +16,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.web.config.WebConfigData;
+import com.opengamma.financial.web.config.WebConfigUris;
 import com.opengamma.financial.web.exchange.WebExchangeData;
 import com.opengamma.financial.web.exchange.WebExchangeUris;
 import com.opengamma.financial.web.position.WebPortfoliosData;
@@ -71,6 +73,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebTimeSeriesData timeseriesData = new WebTimeSeriesData();
     timeseriesData.setUriInfo(uriInfo);
     out.put("timeseriesUris", new WebTimeSeriesUris(timeseriesData));
+    
+    WebConfigData<?> configData = new WebConfigData<Object>();
+    configData.setUriInfo(uriInfo);
+    out.put("configUris", new WebConfigUris(configData));
     
     return out;
   }

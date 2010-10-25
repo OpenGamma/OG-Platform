@@ -84,5 +84,9 @@ public interface MarketDataRequirementNames {
    * An average of yield and yield to maturity
    */
   String YIELD_YIELD_TO_MATURITY_MID = "Market_YieldYieldToMaturityMid";
-    
+  
+  /**
+   * Market dirty price (MID) 
+   */
+  String DIRTY_PRICE_MID = "Market_DirtyPriceMid";  
 }

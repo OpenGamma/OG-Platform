@@ -88,8 +88,8 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
 
   @Override
   public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final boolean includeStart,
-      final Integer endTime, final boolean includeEnd) {
-    return subSeriesFast(startTime, includeStart, endTime, includeEnd);
+      final Integer endTime, final boolean exclusiveEnd) {
+    return subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd); // note inconsistency here between interfaces
   }
 
   @Override

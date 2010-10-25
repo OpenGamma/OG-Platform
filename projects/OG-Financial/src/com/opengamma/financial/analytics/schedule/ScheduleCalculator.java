@@ -22,6 +22,8 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 /**
  * 
  *
@@ -70,6 +72,46 @@ public class ScheduleCalculator {
     return dates.toArray(EMPTY_ARRAY);
   }
 
+  /**
+   * Counts back from maturityDate, filling to equally spaced dates frequency times a year until the last date <b>after</b> effective date 
+   * @param effectiveDate The date that terminates to back counting (i.e. the first date is after this date)
+   * @param maturityDate The date to count back from 
+   * @param frequency How many times a year dates occur 
+   * @return The first date after effectiveDate (i.e. effectiveDate is <b>not</b> included to the maturityDate (included) 
+   */
+  public static ZonedDateTime[] getBackwardsUnadjustedDateSchedule(final ZonedDateTime effectiveDate,  final ZonedDateTime maturityDate, final Frequency frequency) {
+    Validate.notNull(effectiveDate);
+    Validate.notNull(maturityDate);
+    Validate.notNull(frequency);
+    if (effectiveDate.isAfter(maturityDate)) {
+      throw new IllegalArgumentException("Effective date was after maturity");
+    }
+  
+    PeriodFrequency periodFrequency;
+    if (frequency instanceof PeriodFrequency) {
+      periodFrequency = (PeriodFrequency) frequency;
+    } else if (frequency instanceof SimpleFrequency) {
+      periodFrequency = ((SimpleFrequency) frequency).toPeriodFrequency();
+    } else {
+      throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
+    }
+    final Period period = periodFrequency.getPeriod();
+    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    ZonedDateTime date = maturityDate; 
+    
+    //TODO review the tolerance given 
+    while (date.isAfter(effectiveDate) && DateUtil.getExactDaysBetween(effectiveDate, date) > 4.0) {
+      dates.add(date);
+      date = date.minus(period);
+    }
+    
+    Collections.sort(dates);
+    return dates.toArray(EMPTY_ARRAY);
+  }
+
+  
+  
+  
   //TODO change me urgently
   private static boolean isWithinSwapLifetime(ZonedDateTime date, ZonedDateTime maturity) {
     if (date.isBefore(maturity)) {

@@ -196,7 +196,8 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
     init(interpolator);
   }
 
-  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, 
+      final String name) {
     super(xData, yData, isSorted, name);
     init(interpolator);
   }
