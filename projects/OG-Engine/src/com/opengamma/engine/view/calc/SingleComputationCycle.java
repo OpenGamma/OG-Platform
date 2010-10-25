@@ -214,30 +214,22 @@ public class SingleComputationCycle {
 
     createAllCaches();
 
-    Set<ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+    Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
 
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
-    for (ValueSpecification liveDataRequirement : allLiveDataRequirements) {
-      // REVIEW 2010-10-22 Andrew -- the .toRequirementSpecification call below is not ideal - it will create a ValueRequirement for each
-      // "query snapshot" call. We could create the requirements once within the evaluation model to solve this. More importantly though:
-      //
+    for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
+      // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
       // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      //
-      // NOTE: currently using the minimal requirement as the value providers won't have anything like which function produced the values
-      // etc which makes me want to lean towards working with <ValueRequirement,ValueSpecification> pairs when dealing with live data - i.e.
-      // make the LiveDataSourcingFunction responsible for determining the value specification that should go into the cache since that's
-      // the one it's made available for other nodes to read. 
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(),
-          new ValueRequirement(liveDataRequirement.getValueName(), liveDataRequirement.getTargetSpecification()));
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
-        missingLiveData.add(liveDataRequirement);
+        missingLiveData.add(liveDataRequirement.getValue());
       } else {
-        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement, data);
+        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
         addToAllCaches(dataAsValue);
       }
     }

@@ -7,6 +7,7 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +20,10 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents the compilation output of a view definition, for downstream engine components to work with while the view
@@ -30,7 +33,7 @@ public class ViewEvaluationModel {
 
   private final Portfolio _portfolio;
   private final Map<String, DependencyGraph> _graphsByConfiguration;
-  private final Set<ValueSpecification> _liveDataRequirements;
+  private final Map<ValueRequirement, ValueSpecification> _liveDataRequirements;
   private final Set<String> _securityTypes;
   private final long _earliestValidity;
   private final long _latestValidity;
@@ -46,7 +49,7 @@ public class ViewEvaluationModel {
 
     _portfolio = portfolio;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
-    _liveDataRequirements = Collections.unmodifiableSet(processLiveDataRequirements(graphsByConfiguration));
+    _liveDataRequirements = Collections.unmodifiableMap(processLiveDataRequirements(graphsByConfiguration));
     _securityTypes = Collections.unmodifiableSet(processSecurityTypes(graphsByConfiguration));
     Instant earliest = null;
     Instant latest = null;
@@ -95,7 +98,7 @@ public class ViewEvaluationModel {
     return _portfolio;
   }
 
-  public Set<ValueSpecification> getAllLiveDataRequirements() {
+  public Map<ValueRequirement, ValueSpecification> getAllLiveDataRequirements() {
     return _liveDataRequirements;
   }
 
@@ -123,11 +126,12 @@ public class ViewEvaluationModel {
   }
 
   // --------------------------------------------------------------------------
-  private static Set<ValueSpecification> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
-    Set<ValueSpecification> result = new HashSet<ValueSpecification>();
+  private static Map<ValueRequirement, ValueSpecification> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
+    Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>();
     for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
-      Set<ValueSpecification> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
-      result.addAll(requiredLiveData);
+      for (Pair<ValueRequirement, ValueSpecification> liveData : dependencyGraph.getAllRequiredLiveData()) {
+        result.put(liveData.getFirst(), liveData.getSecond());
+      }
     }
     return result;
   }

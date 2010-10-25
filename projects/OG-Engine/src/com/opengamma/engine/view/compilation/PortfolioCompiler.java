@@ -169,8 +169,8 @@ import com.opengamma.util.monitor.OperationTimer;
       if (security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      PositionImpl populatedPosition = new PositionImpl (position);
-      populatedPosition.setSecurity (security);
+      PositionImpl populatedPosition = new PositionImpl(position);
+      populatedPosition.setSecurity(security);
       populatedPosition.setPortfolioNode(populatedNode.getUniqueIdentifier());
       populatedNode.addPosition(populatedPosition);
     }

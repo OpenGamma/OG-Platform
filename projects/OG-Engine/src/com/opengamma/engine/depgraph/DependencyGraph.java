@@ -58,7 +58,7 @@ public class DependencyGraph {
 
   private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications = new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
 
-  private final Set<ValueSpecification> _allRequiredLiveData = new HashSet<ValueSpecification>();
+  private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredLiveData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
   private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
 
   public DependencyGraph(String calcConfName) {
@@ -134,7 +134,7 @@ public class DependencyGraph {
     return Collections.unmodifiableSet(nodes);
   }
 
-  public Set<ValueSpecification> getAllRequiredLiveData() {
+  public Set<Pair<ValueRequirement, ValueSpecification>> getAllRequiredLiveData() {
     return Collections.unmodifiableSet(_allRequiredLiveData);
   }
 
@@ -168,7 +168,10 @@ public class DependencyGraph {
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
     _terminalOutputValues.addAll(node.getTerminalOutputValues());
-    _allRequiredLiveData.addAll(node.getRequiredLiveData());
+    Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
+    if (liveData != null) {
+      _allRequiredLiveData.add(liveData);
+    }
     _allComputationTargets.add(node.getComputationTarget().toSpecification());
 
     for (ValueSpecification output : node.getOutputValues()) {

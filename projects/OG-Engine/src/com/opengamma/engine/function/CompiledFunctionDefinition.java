@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;

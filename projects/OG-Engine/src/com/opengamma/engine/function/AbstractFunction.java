@@ -11,9 +11,6 @@ import java.util.Set;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
@@ -101,6 +98,13 @@ public abstract class AbstractFunction implements FunctionDefinition {
    */
   public String getUniqueIdentifier() {
     return _uniqueIdentifier;
+  }
+
+  /**
+   * @return the short name
+   */
+  public String getShortName() {
+    return getClass().getSimpleName();
   }
 
   /**
