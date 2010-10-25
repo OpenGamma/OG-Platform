@@ -29,7 +29,8 @@ public class BondDirtyPriceFunction extends BondFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final double cleanPrice) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
+    double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueIdentifier());
     final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));

@@ -204,6 +204,7 @@ public interface ValueRequirementNames {
   public static final String CURRENT_YIELD = "Current Yield";
   public static final String DURATION = "Duration";
   public static final String CONVEXITY = "Convexity";
+  public static final String Z_SPREAD = "Z Spread";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";

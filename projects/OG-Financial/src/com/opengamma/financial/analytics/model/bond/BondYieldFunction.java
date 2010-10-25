@@ -31,7 +31,8 @@ public class BondYieldFunction extends BondFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final double cleanPrice) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
+    double cleanPrice = (Double) value;
     final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
     double yield = new BondYieldCalculator().calculate(bond, dirtyPrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueIdentifier());

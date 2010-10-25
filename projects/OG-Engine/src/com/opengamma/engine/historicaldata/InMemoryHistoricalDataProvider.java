@@ -13,7 +13,6 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.base.Supplier;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
@@ -129,7 +128,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     UniqueIdentifier uid = _metaUniqueIdentifierStore.get(new MetaDataKey(currentDate, identifiers, dataSource, dataProvider, dataField));
     if (uid == null) {
-      throw new DataNotFoundException("TimeSeries not found: " + uid);
+      return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
     } else {
       return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, _timeSeriesStore.get(uid));
     }

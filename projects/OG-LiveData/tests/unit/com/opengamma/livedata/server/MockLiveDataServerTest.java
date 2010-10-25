@@ -14,9 +14,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +21,7 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
@@ -67,12 +65,12 @@ public class MockLiveDataServerTest {
   private void getMethods(String uniqueId, boolean persistent) {
     LiveDataSpecification spec = getSpec(uniqueId);    
     
-    SubscriptionResult result = _server.subscribe(uniqueId, persistent);
+    LiveDataSubscriptionResponse result = _server.subscribe(uniqueId, persistent);
 
     assertNotNull(result);
-    assertTrue(result.getResult() == LiveDataSubscriptionResult.SUCCESS);
+    assertTrue(result.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS);
     
-    DistributionSpecification distributionSpec = result.getDistributionSpecification();
+    String distributionSpec = result.getTickDistributionSpecification();
     assertNotNull(distributionSpec);
     
     
@@ -102,10 +100,8 @@ public class MockLiveDataServerTest {
     MarketDataDistributor distributor = subscription.getDistributors().iterator().next();
         
     assertSame(distributor, subscription.getMarketDataDistributor(spec));
-    assertSame(distributor, subscription.getMarketDataDistributor(distributionSpec));
     
     assertSame(distributor, _server.getMarketDataDistributor(spec));
-    assertSame(distributor, _server.getMarketDataDistributor(distributionSpec));
     
     assertTrue(distributor.isPersistent() == persistent);
     assertNull(distributor.getExpiry());
