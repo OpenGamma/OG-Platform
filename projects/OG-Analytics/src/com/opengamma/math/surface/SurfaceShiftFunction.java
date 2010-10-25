@@ -21,5 +21,5 @@ public interface SurfaceShiftFunction<T extends Surface<Double, Double, Double>>
 
   T evaluate(T surface, double[] xShift, double[] yShift, double[] shift);
 
-  T evaluate(T surface, double[] xShift, double[] yShift, double[] shift, String name);
+  T evaluate(T surface, double[] xShift, double[] yShift, double[] shift, String newName);
 }
