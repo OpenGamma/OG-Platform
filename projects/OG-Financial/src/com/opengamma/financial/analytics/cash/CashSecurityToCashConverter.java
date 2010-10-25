@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 
 /**
  * Converts a CashSecurity to an OG-Analytics Cash object (see {@link Cash})

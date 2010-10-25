@@ -28,7 +28,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

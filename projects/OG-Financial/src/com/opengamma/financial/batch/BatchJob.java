@@ -72,7 +72,7 @@ import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -745,7 +745,7 @@ public class BatchJob {
           if (runDate.getDayOfWeek() == DayOfWeek.SATURDAY || runDate.getDayOfWeek() == DayOfWeek.SUNDAY) { 
             whyNotRunReason = "this day is a weekend"; 
           } else {
-            boolean isHoliday = getHolidaySource().isHoliday(getHolidayCurrency(), runDate);
+            boolean isHoliday = getHolidaySource().isHoliday(runDate, getHolidayCurrency());
             if (isHoliday) {
               whyNotRunReason = "this day is a holiday";
             }
