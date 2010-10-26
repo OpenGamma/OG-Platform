@@ -203,7 +203,7 @@ public class CoppClarkHolidayFileReader {
       Identifier regionId = Identifier.of(ISO_COUNTRY_2, isoCountry);
       HolidayDocument doc = map.get(isoCountry);
       if (doc == null) {
-        doc = new HolidayDocument(new ManageableHoliday(regionId, HolidayType.BANK, EMPTY_DATE_LIST));
+        doc = new HolidayDocument(new ManageableHoliday(HolidayType.BANK, regionId, EMPTY_DATE_LIST));
         map.put(isoCountry, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -231,7 +231,7 @@ public class CoppClarkHolidayFileReader {
       Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
       HolidayDocument doc = map.get(isoMICCode);
       if (doc == null) {
-        doc = new HolidayDocument(new ManageableHoliday(micId, HolidayType.SETTLEMENT, EMPTY_DATE_LIST));
+        doc = new HolidayDocument(new ManageableHoliday(HolidayType.SETTLEMENT, micId, EMPTY_DATE_LIST));
         map.put(isoMICCode, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -259,7 +259,7 @@ public class CoppClarkHolidayFileReader {
       Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
       HolidayDocument doc = map.get(isoMICCode);
       if (doc == null) {
-        doc = new HolidayDocument(new ManageableHoliday(micId, HolidayType.TRADING, EMPTY_DATE_LIST));
+        doc = new HolidayDocument(new ManageableHoliday(HolidayType.TRADING, micId, EMPTY_DATE_LIST));
         map.put(isoMICCode, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);

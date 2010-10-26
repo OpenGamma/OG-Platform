@@ -113,13 +113,13 @@ public class ManageableHoliday extends DirectBean implements Holiday {
    * <p>
    * The unique identifier is managed separately using {@link #setUniqueIdentifier}.
    * 
-   * @param regionOrExchangeId  the Identifier for either a region (for a BANK holiday) or an exchange (for a SETTLEMENT or TRADING holiday), not null
    * @param holidayType  the type of the holiday, not null
+   * @param regionOrExchangeId  the Identifier for either a region (for a BANK holiday) or an exchange (for a SETTLEMENT or TRADING holiday), not null
    * @param holidaySeries  a collection of dates on which holidays fall, not null
    */
-  public ManageableHoliday(Identifier regionOrExchangeId, HolidayType holidayType, Collection<LocalDate> holidaySeries) {
-    ArgumentChecker.notNull(regionOrExchangeId, "regionOrExchangeId");
+  public ManageableHoliday(HolidayType holidayType, Identifier regionOrExchangeId, Collection<LocalDate> holidaySeries) {
     ArgumentChecker.notNull(holidayType, "holidayType");
+    ArgumentChecker.notNull(regionOrExchangeId, "regionOrExchangeId");
     ArgumentChecker.notNull(holidaySeries, "holidaySeries");
     switch (holidayType) {
       case BANK:
