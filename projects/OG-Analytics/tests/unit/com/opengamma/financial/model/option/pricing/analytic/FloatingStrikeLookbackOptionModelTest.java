@@ -18,9 +18,9 @@ import com.opengamma.financial.model.option.definition.FloatingStrikeLookbackOpt
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -33,7 +33,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 public class FloatingStrikeLookbackOptionModelTest {
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.04;
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.3);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final double SPOT = 120;
   private static final DoubleTimeSeries<?> TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5, 6, 7}, new double[] {100, 101, 106, 100, 109,
@@ -59,14 +59,14 @@ public class FloatingStrikeLookbackOptionModelTest {
   public void test() {
     double strike = 102;
     DoubleTimeSeries<?> shortTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {strike});
-    StandardOptionWithSpotTimeSeriesDataBundle data = DATA.withSpotTimeSeries(shortTS).withVolatilitySurface(new ConstantVolatilitySurface(0));
+    StandardOptionWithSpotTimeSeriesDataBundle data = DATA.withSpotTimeSeries(shortTS).withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0)));
     OptionDefinition vanilla = new EuropeanVanillaOptionDefinition(strike, EXPIRY, true);
     assertEquals(MODEL.getPricingFunction(CALL).evaluate(data), BSM.getPricingFunction(vanilla).evaluate(data), 1e-9);
     data = data.withCostOfCarry(0);
     assertEquals(MODEL.getPricingFunction(CALL).evaluate(data), BSM.getPricingFunction(vanilla).evaluate(data), 1e-9);
     strike = 95;
     shortTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {strike});
-    data = DATA.withSpotTimeSeries(shortTS).withVolatilitySurface(new ConstantVolatilitySurface(0));
+    data = DATA.withSpotTimeSeries(shortTS).withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0)));
     vanilla = new EuropeanVanillaOptionDefinition(strike, EXPIRY, false);
     assertEquals(MODEL.getPricingFunction(PUT).evaluate(data), BSM.getPricingFunction(vanilla).evaluate(data), 1e-9);
     data = data.withCostOfCarry(0);

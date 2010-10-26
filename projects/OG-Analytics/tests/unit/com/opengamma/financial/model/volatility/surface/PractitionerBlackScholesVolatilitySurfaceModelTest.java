@@ -24,6 +24,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -63,7 +64,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     final double sigma = 0.3;
     OptionDefinition definition;
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(sigma), SPOT, DATE);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), SPOT, DATE);
     try {
       MODEL.getSurface(prices, data);
       fail();
@@ -95,7 +96,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     for (int i = 0; i < sigma.length; i++) {
       for (final double strike : STRIKE) {
         definition = new EuropeanVanillaOptionDefinition(strike, EXPIRY[i], IS_CALL);
-        data = data.withVolatilitySurface(new ConstantVolatilitySurface(sigma[i]));
+        data = data.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(sigma[i])));
         prices.put(definition, BSM.getPricingFunction(definition).evaluate(data));
       }
     }
