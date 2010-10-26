@@ -72,10 +72,6 @@ import com.opengamma.util.tuple.Pair;
       _inputStates.add(inputState);
     }
 
-    public boolean isResolved() {
-      return (_parameterizedFunction == null) || (_inputStates != null);
-    }
-
     private boolean removeDeepest() {
       if ((_inputStates == null) || _inputStates.isEmpty()) {
         return false;
