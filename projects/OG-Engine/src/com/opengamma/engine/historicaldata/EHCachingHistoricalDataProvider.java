@@ -127,7 +127,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getSubseries(LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd,
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair) {
     if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
       return Pair.of(null, EMPTY_TIMESERIES);
