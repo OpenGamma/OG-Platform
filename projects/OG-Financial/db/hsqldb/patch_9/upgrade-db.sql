@@ -1,3 +1,24 @@
+create table rsk_run_status_code (
+    id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_rsk_run_status_code check
+        ((id = 0 and name = 'SUCCESS') or
+         (id = 1 and name = 'FAILURE') or 
+         (id = 2 and name = 'RUNNING') or
+         (id = 3 and name = 'NOT_RUNNING'))
+);
+
+insert into rsk_run_status_code (id, name) values (0, 'SUCCESS');
+insert into rsk_run_status_code (id, name) values (1, 'FAILURE');
+insert into rsk_run_status_code (id, name) values (2, 'RUNNING');
+insert into rsk_run_status_code (id, name) values (3, 'NOT_RUNNING');
+
+alter table rsk_run_status add constraint rsk_fk_run_status2code
+        foreign key (status) references rsk_run_status_code (id);
+
 create view vw_rsk as
 select
 rsk_computation_target_type.name as comp_target_type,
