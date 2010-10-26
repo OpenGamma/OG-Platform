@@ -12,13 +12,14 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.InterpolatedVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.math.surface.ConstantDoublesSurface;
+import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -29,8 +30,8 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
 
   @Test
   public void testConstantVolatilitySurface() {
-    final ConstantVolatilitySurface vs1 = new ConstantVolatilitySurface(0.2);
-    final ConstantVolatilitySurface vs2 = cycleObject(ConstantVolatilitySurface.class, vs1);
+    final VolatilitySurface vs1 = new VolatilitySurface(ConstantDoublesSurface.from(0.2));
+    final VolatilitySurface vs2 = cycleObject(VolatilitySurface.class, vs1);
     assertEquals(vs1, vs2);
   }
 
@@ -44,8 +45,8 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     data.put(Pair.of(1., 0.), sigma);
     data.put(Pair.of(0., 0.), sigma);
     data.put(Pair.of(1., 1.), sigma);
-    final InterpolatedVolatilitySurface vs1 = new InterpolatedVolatilitySurface(data, interpolator);
-    final InterpolatedVolatilitySurface vs2 = cycleObject(InterpolatedVolatilitySurface.class, vs1);
+    final VolatilitySurface vs1 = new VolatilitySurface(InterpolatedDoublesSurface.from(data, interpolator));
+    final VolatilitySurface vs2 = cycleObject(VolatilitySurface.class, vs1);
     assertEquals(vs1, vs2);
   }
 

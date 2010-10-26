@@ -5,22 +5,19 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import java.util.Map;
-
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.InterpolatedVolatilitySurface;
-import com.opengamma.math.interpolation.Interpolator2D;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.math.surface.Surface;
 
 /**
  * Holds Fudge builders for the volatility surface model.
  */
-/* package */ final class ModelVolatilitySurface {
+/* package */final class ModelVolatilitySurface {
 
   /**
    * Restricted constructor.
@@ -30,45 +27,22 @@ import com.opengamma.math.interpolation.Interpolator2D;
 
   //-------------------------------------------------------------------------
   /**
-   * Fudge builder for {@code ConstantVolatilitySurface}.
+   * Fudge builder for {@code VolatilitySurface}.
    */
-  @FudgeBuilderFor(ConstantVolatilitySurface.class)
-  public static final class ConstantVolatilitySurfaceBuilder extends FudgeBuilderBase<ConstantVolatilitySurface> {
-    private static final String SIGMA_FIELD_NAME = "sigma";
+  @FudgeBuilderFor(VolatilitySurface.class)
+  public static final class VolatilitySurfaceBuilder extends FudgeBuilderBase<VolatilitySurface> {
+    private static final String SURFACE_FIELD_NAME = "sigma";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantVolatilitySurface object) {
-      message.add(SIGMA_FIELD_NAME, null, object.getSigma());
-    }
-
-    @Override
-    public ConstantVolatilitySurface buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      return new ConstantVolatilitySurface(message.getFieldValue(Double.class, message.getByName(SIGMA_FIELD_NAME)));
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Fudge builder for {@code InterpolatedVolatilitySurface}.
-   */
-  @FudgeBuilderFor(InterpolatedVolatilitySurface.class)
-  public static final class InterpolatedVolatilitySurfaceBuilder extends FudgeBuilderBase<InterpolatedVolatilitySurface> {
-    private static final String DATA_FIELD_NAME = "data";
-    private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
-
-    @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final InterpolatedVolatilitySurface object) {
-      context.objectToFudgeMsg(message, DATA_FIELD_NAME, null, object.getData());
-      context.objectToFudgeMsg(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final VolatilitySurface object) {
+      context.objectToFudgeMsgWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public InterpolatedVolatilitySurface buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      return new InterpolatedVolatilitySurface(
-          context.fieldValueToObject(Map.class, message.getByName(DATA_FIELD_NAME)),
-          context.fieldValueToObject(Interpolator2D.class, message.getByName(INTERPOLATOR_FIELD_NAME)));
+    public VolatilitySurface buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+      final Surface<Double, Double, Double> surface = context.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
+      return new VolatilitySurface(surface);
     }
   }
-
 }
