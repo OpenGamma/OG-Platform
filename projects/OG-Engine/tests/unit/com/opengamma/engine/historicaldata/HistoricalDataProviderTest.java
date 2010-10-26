@@ -157,6 +157,9 @@ public class HistoricalDataProviderTest {
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> cachedPair = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field);
       assertEquals(inMemPair, cachedPair);
       assertEquals(inMemoryHistoricalDataProvider.getHistoricalData(inMemPair.getFirst()), cachedProvider.getHistoricalData(cachedPair.getFirst()));
+      
+      cachedPair = cachedProvider.getHistoricalData(ids, dataSource, dataProvider, field, inMemPair.getValue().getEarliestTime(), true, inMemPair.getValue().getLatestTime(), false);
+      assertEquals(inMemPair, cachedPair);
     }
   }
 }

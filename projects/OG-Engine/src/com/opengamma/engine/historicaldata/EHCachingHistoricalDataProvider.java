@@ -159,7 +159,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
     if (!timeseries.isEmpty()) {
-      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, !exclusiveEnd);
+      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
     } else {
       return timeseries;
     }
