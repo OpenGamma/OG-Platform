@@ -446,7 +446,7 @@ public class DependencyGraphBuilderTest {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     final AtomicInteger getResultsInvoked = new AtomicInteger();
-    final MockFunction fnConv = new MockFunction("conv1", helper.getTarget()) {
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
@@ -474,6 +474,52 @@ public class DependencyGraphBuilderTest {
     s_logger.debug("fnConv - inputs = {}", nodes.get(fnConv).getInputValues());
     s_logger.debug("fnConv - outputs = {}", nodes.get(fnConv).getOutputRequirements());
     assertEquals(2, getResultsInvoked.get());
+  }
+
+  @Test
+  public void testBacktrackCleanup() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue2Foo());
+    final MockFunction fn1Bar = helper.addFunctionProducing(helper.getValue2Bar());
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        s_logger.debug("fnConv late resolving with inputs {}", inputs);
+        assertEquals(1, inputs.size());
+        final ValueSpecification input = inputs.iterator().next();
+        if (!input.getProperties().getValues("TEST").contains("Bar")) {
+          return Collections.emptySet();
+        }
+        return super.getResults(context, target, inputs);
+      }
+
+    };
+    fnConv.addRequirement(helper.getRequirement2Any());
+    helper.getFunctionRepository().addFunction(fnConv);
+    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+      @Override
+      public int getPriority(CompiledFunctionDefinition function) {
+        if (function == fnConv) {
+          return 1;
+        }
+        if (function == fn1Bar) {
+          return -1;
+        }
+        return 0;
+      }
+    });
+    builder.addTarget(helper.getTarget(), helper.getRequirement1Bar());
+    DependencyGraph graph = builder.getDependencyGraph();
+    assertNotNull(graph);
+    assertGraphContains(graph, fn1Foo, fn1Bar, fnConv);
+    graph.removeUnnecessaryValues();
+    assertGraphContains(graph, fn1Bar, fnConv);
   }
 
 }

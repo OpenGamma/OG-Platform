@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -82,39 +83,35 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   }
 
   @Override
-  public Pair<ParameterizedFunction, ValueSpecification> resolveFunction(ValueRequirement requirement, DependencyNode atNode) {
+  public List<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode) {
 
     // the idea is to consider highest priority rules first, then the ones with priority
     // just below the highest, and so on until the lowest
 
+    final List<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = new ArrayList<Pair<ParameterizedFunction, ValueSpecification>>();
     for (Map.Entry<Integer, Collection<ResolutionRule>> entry : _priority2Rules.entrySet()) {
       Integer priority = entry.getKey();
       Collection<ResolutionRule> rules = entry.getValue();
 
-      Collection<ResolutionRule> applicableRules = new ArrayList<ResolutionRule>();
-      ValueSpecification validResult = null;
+      int rulesFound = 0;
       for (ResolutionRule rule : rules) {
         ValueSpecification result = rule.getResult(requirement, atNode, getFunctionCompilationContext());
         if (result != null) {
-          applicableRules.add(rule);
-          validResult = result;
+          applicableRules.add(Pair.of(rule.getFunction(), result));
+          rulesFound++;
         }
       }
 
-      if (!applicableRules.isEmpty()) {
-        if (applicableRules.size() > 1) {
-          throw new UnsatisfiableDependencyGraphException("There is more than 1 rule with priority " + priority + " that can satisfy requirement " + requirement + " for target "
-              + atNode.getComputationTarget() + ". The rules are: " + applicableRules);
-        } else {
-          // we can quit here because the map is sorted from highest to lowest priority
-          ResolutionRule onlyApplicableRule = applicableRules.iterator().next();
-          return Pair.of(onlyApplicableRule.getFunction(), validResult);
-        }
-
+      if (rulesFound > 1) {
+        throw new UnsatisfiableDependencyGraphException("There is more than 1 rule with priority " + priority + " that can satisfy requirement " + requirement + " for target "
+            + atNode.getComputationTarget() + ". The rules are: " + applicableRules + " (last " + rulesFound + ")");
       }
     }
 
-    throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
+    if (applicableRules.isEmpty()) {
+      throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
+    }
+    return applicableRules;
   }
 
 }

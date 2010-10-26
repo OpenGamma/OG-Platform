@@ -131,6 +131,14 @@ public class DependencyGraphBuilder {
     }
   }
 
+  private DependencyNode createDependencyNode(final ComputationTarget target, final DependencyNode dependent) {
+    DependencyNode node = new DependencyNode(target);
+    if (dependent != null) {
+      node.addDependentNode(dependent);
+    }
+    return node;
+  }
+
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement, DependencyNode dependent) {
     ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     if (target == null) {
@@ -147,25 +155,40 @@ public class DependencyGraphBuilder {
       if (originalOutput.equals(resolvedOutput)) {
         return existingNode;
       }
-      // TODO: update the node to reduce the specification & then return the node with the resolvedOutput 
+      // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
       throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
     }
-
-    DependencyNode node = new DependencyNode(target);
-    if (dependent != null) {
-      node.addDependentNode(dependent);
-    }
-
-    Pair<ParameterizedFunction, ValueSpecification> resolvedFunction;
 
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       // this code to be moved to FunctionResolver?
       s_logger.debug("Live Data : {} on {}", requirement, target);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      resolvedFunction = Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult());
+      return addTargetRequirement(requirement, createDependencyNode(target, dependent), target, Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult()));
     } else {
-      resolvedFunction = getFunctionResolver().resolveFunction(requirement, node);
+      UnsatisfiableDependencyGraphException lastException = null;
+      DependencyNode node = createDependencyNode(target, dependent);
+      for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
+        try {
+          if (node == null) {
+            node = createDependencyNode(target, dependent);
+          }
+          return addTargetRequirement(requirement, node, target, resolvedFunction);
+        } catch (UnsatisfiableDependencyGraphException e) {
+          s_logger.debug("Failed to resolve graph dependencies", e);
+          // Instead of housekeeping to remove nodes that may have gone into the graph, we'll leave them in
+          // as the sub-graph may yet be used. The removeUnusedValues will trim out unused nodes as well as
+          // the values.
+          node = null;
+          lastException = e;
+        }
+      }
+      throw new UnsatisfiableDependencyGraphException("Backtracking", lastException);
     }
+
+  }
+
+  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ValueRequirement requirement, final DependencyNode node, final ComputationTarget target,
+      final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction) {
 
     node.setFunction(resolvedFunction.getFirst());
     CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();

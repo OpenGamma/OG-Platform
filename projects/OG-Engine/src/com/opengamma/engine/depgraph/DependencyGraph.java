@@ -121,7 +121,7 @@ public class DependencyGraph {
   public Set<DependencyNode> getDependencyNodes() {
     return Collections.unmodifiableSet(_dependencyNodes);
   }
-
+  
   public int getSize() {
     return _dependencyNodes.size();
   }

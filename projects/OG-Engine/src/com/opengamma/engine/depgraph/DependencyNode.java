@@ -100,13 +100,13 @@ public class DependencyNode {
       addOutputValue(outputValue);
     }
   }
-  
+
   public void addOutputValue(ValueSpecification outputValue) {
     ArgumentChecker.notNull(outputValue, "Output value");
     _outputValues.add(outputValue);
   }
-  
-  /* package */ void clearOutputValues() {
+
+  /* package */void clearOutputValues() {
     _outputValues.clear();
   }
 
