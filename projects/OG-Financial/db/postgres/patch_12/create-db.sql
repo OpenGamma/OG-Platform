@@ -885,7 +885,7 @@ from
 rsk_failure_reason,
 rsk_compute_failure
 where
-rsk_failure_reason.compute_failure_id = rsk_compute_failure.id
+rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 
 DROP TABLE IF EXISTS tss_identifier CASCADE;
 DROP TABLE IF EXISTS tss_identification_scheme CASCADE;

@@ -409,4 +409,4 @@ from
 rsk_failure_reason,
 rsk_compute_failure
 where
-rsk_failure_reason.compute_failure_id = rsk_compute_failure.id
+rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
