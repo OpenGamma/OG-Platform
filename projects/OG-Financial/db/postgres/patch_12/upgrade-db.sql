@@ -53,6 +53,7 @@ rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
 
 create view vw_rsk_failure as
 select
+rsk_failure.id,
 rsk_computation_target_type.name as comp_target_type,
 rsk_computation_target.id_scheme as comp_target_id_scheme,
 rsk_computation_target.id_value as comp_target_id_value,
@@ -80,4 +81,18 @@ rsk_computation_target.type_id = rsk_computation_target_type.id and
 rsk_failure.run_id = rsk_run.id and
 rsk_failure.compute_node_id = rsk_compute_node.id and
 rsk_run.run_time_id = rsk_observation_datetime.id and
-rsk_observation_datetime.observation_time_id = rsk_observation_time.id
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+create view vw_rsk_failure_reason as
+select
+rsk_failure_reason.id,
+rsk_failure_reason.rsk_failure_id,
+rsk_compute_failure.function_id,
+rsk_compute_failure.exception_class,
+rsk_compute_failure.exception_msg,
+rsk_compute_failure.stack_trace 
+from 
+rsk_failure_reason,
+rsk_compute_failure
+where
+rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
