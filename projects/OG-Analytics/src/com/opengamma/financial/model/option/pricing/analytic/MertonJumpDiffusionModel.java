@@ -12,8 +12,9 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * 
@@ -46,13 +47,14 @@ public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefiniti
         double sigmaAdjusted = z;
         final double lambdaT = lambda * t;
         double mult = Math.exp(-lambdaT);
-        final StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getInterestRateCurve(), data.getCostOfCarry(), new ConstantVolatilitySurface(sigmaAdjusted), data.getSpot(), date);
+        final StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getInterestRateCurve(), data.getCostOfCarry(), new VolatilitySurface(ConstantDoublesSurface.from(sigmaAdjusted)),
+            data.getSpot(), date);
         final Function1D<StandardOptionDataBundle, Double> bsmFunction = BSM.getPricingFunction(definition);
         double price = mult * bsmFunction.evaluate(bsmData);
         for (int i = 1; i < N; i++) {
           sigmaAdjusted = Math.sqrt(zSq + delta * delta * i / t);
           mult *= lambdaT / i;
-          price += mult * bsmFunction.evaluate(bsmData.withVolatilitySurface(new ConstantVolatilitySurface(sigmaAdjusted)));
+          price += mult * bsmFunction.evaluate(bsmData.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(sigmaAdjusted))));
         }
         return price;
       }

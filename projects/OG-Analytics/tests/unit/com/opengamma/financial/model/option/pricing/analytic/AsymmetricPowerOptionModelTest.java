@@ -20,9 +20,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -33,7 +33,7 @@ public class AsymmetricPowerOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.08));
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.1));
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
@@ -89,7 +89,7 @@ public class AsymmetricPowerOptionModelTest {
     double sigma = data.getVolatility(t, STRIKE);
     final double b = p * (data.getCostOfCarry() + (p - 1) * sigma * sigma * 0.5);
     sigma *= p;
-    return new StandardOptionDataBundle(CURVE, b, new ConstantVolatilitySurface(sigma), spot, DATE);
+    return new StandardOptionDataBundle(CURVE, b, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), spot, DATE);
 
   }
 }

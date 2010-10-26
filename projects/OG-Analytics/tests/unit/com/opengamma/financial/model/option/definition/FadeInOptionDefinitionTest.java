@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -37,7 +37,7 @@ public class FadeInOptionDefinitionTest {
       new double[] {SPOT + 2 * DIFF, SPOT + 3 * DIFF, SPOT, SPOT - 1.5 * DIFF, SPOT - 4 * DIFF});
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.4);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 6);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final StandardOptionWithSpotTimeSeriesDataBundle ALL_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(DATA, ALL_WITHIN_RANGE);

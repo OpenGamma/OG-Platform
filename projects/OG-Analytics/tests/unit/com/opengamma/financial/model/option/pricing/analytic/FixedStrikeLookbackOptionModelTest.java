@@ -15,8 +15,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.FixedStrikeLookbackOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -34,7 +35,8 @@ public class FixedStrikeLookbackOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final FixedStrikeLookbackOptionModel MODEL = new FixedStrikeLookbackOptionModel();
-  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, new ConstantVolatilitySurface(0.2), S, DATE, STATIC);
+  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), S, DATE,
+      STATIC);
   private static final double EPS = 1e-4;
 
   @Test(expected = IllegalArgumentException.class)

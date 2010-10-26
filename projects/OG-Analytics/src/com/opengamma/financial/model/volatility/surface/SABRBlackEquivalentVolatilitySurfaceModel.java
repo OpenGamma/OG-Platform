@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -58,7 +59,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurf
         sigmaEquivalent = first * second * third;
       }
     }
-    return new ConstantVolatilitySurface(sigmaEquivalent);
+    return new VolatilitySurface(ConstantDoublesSurface.from(sigmaEquivalent));
   }
 
   private double getChi(final double rho, final double z) {

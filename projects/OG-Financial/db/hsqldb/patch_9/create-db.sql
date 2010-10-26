@@ -38,46 +38,6 @@ create index ix_cfg_config_oid on cfg_config(oid);
 create index ix_cfg_config_config_type on cfg_config(config_type);
 
 
--- create-db-holiday.sql: Holiday Master
-
--- design has one document
---  holiday and associated dates
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-create sequence hol_holiday_seq as bigint
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby/HSQL, not accepted by Postgresql
-
-create table hol_holiday (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    name varchar(255) not null,
-    hol_type varchar(255) not null,
-    region_scheme varchar(255),
-    region_value varchar(255),
-    exchange_scheme varchar(255),
-    exchange_value varchar(255),
-    currency_iso varchar(255),
-    primary key (id),
-    constraint hol_chk_holiday_ver_order check (ver_from_instant <= ver_to_instant)
-);
-
-create table hol_date (
-    holiday_id bigint not null,
-    hol_date date not null,
-    constraint hol_fk_date2hol foreign key (holiday_id) references hol_holiday (id)
-);
-
-create index ix_hol_holiday_oid on hol_holiday(oid);
-create index ix_hol_holiday_type on hol_holiday(hol_type);
-
-
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -715,6 +675,25 @@ create table rsk_run_property (
 	    foreign key (run_id) references rsk_run (id)
 );
 
+-- DBTOOLDONOTCLEAR
+create table rsk_run_status_code (
+    id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_rsk_run_status_code check
+        ((id = 0 and name = 'SUCCESS') or
+         (id = 1 and name = 'FAILURE') or 
+         (id = 2 and name = 'RUNNING') or
+         (id = 3 and name = 'NOT_RUNNING'))
+);
+
+insert into rsk_run_status_code (id, name) values (0, 'SUCCESS');
+insert into rsk_run_status_code (id, name) values (1, 'FAILURE');
+insert into rsk_run_status_code (id, name) values (2, 'RUNNING');
+insert into rsk_run_status_code (id, name) values (3, 'NOT_RUNNING');
+
 create table rsk_run_status (
     id bigint not null, 
     calculation_configuration_id int not null,
@@ -725,9 +704,12 @@ create table rsk_run_status (
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
     constraint rsk_fk_run_status2comp_tgt
         foreign key (computation_target_id) references rsk_computation_target (id),
+    constraint rsk_fk_run_status2code
+        foreign key (status) references rsk_run_status_code (id),
 
     constraint rsk_chk_uq_run_status unique (calculation_configuration_id, computation_target_id)
 );
+
 
 -------------------------------------
 -- Risk
@@ -823,6 +805,76 @@ create table rsk_failure_reason (
 
    constraint rsk_chk_uq_failure_reason unique (rsk_failure_id, compute_failure_id)
 );
+
+
+-------------------------------------
+-- Views
+-------------------------------------
+
+create view vw_rsk as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_value.value, 
+rsk_value.eval_instant
+from 
+rsk_value, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time
+where
+rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_value.value_name_id = rsk_value_name.id and
+rsk_value.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_value.run_id = rsk_run.id and
+rsk_value.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+create view vw_rsk_failure as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_failure.eval_instant
+from 
+rsk_failure, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time
+where
+rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_failure.value_name_id = rsk_value_name.id and
+rsk_failure.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_failure.run_id = rsk_run.id and
+rsk_failure.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+
 
 CREATE TABLE tss_data_source (
 	id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,

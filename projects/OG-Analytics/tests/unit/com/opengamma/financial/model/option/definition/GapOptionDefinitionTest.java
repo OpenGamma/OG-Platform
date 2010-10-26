@@ -11,8 +11,9 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -27,8 +28,8 @@ public class GapOptionDefinitionTest {
   private static final double PAYOFF_STRIKE = 55;
   private static final GapOptionDefinition CALL = new GapOptionDefinition(STRIKE, EXPIRY, true, PAYOFF_STRIKE);
   private static final GapOptionDefinition PUT = new GapOptionDefinition(STRIKE, EXPIRY, false, PAYOFF_STRIKE);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0.03, new ConstantVolatilitySurface(0.2), STRIKE,
-      DateUtil.getUTCDate(2009, 1, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+      STRIKE, DateUtil.getUTCDate(2009, 1, 1));
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativePayoffStrike() {

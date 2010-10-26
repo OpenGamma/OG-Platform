@@ -16,6 +16,7 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -36,7 +37,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final double B = R;
   private static final double S = 100 * Math.exp(-B * T);
-  private static final VolatilitySurface ATM_VOL = new ConstantVolatilitySurface(0.3);
+  private static final VolatilitySurface ATM_VOL = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(K, EXPIRY, false);
   private static final SABRDataBundle DATA = new SABRDataBundle(CURVE, B, ATM_VOL, S, DATE, ALPHA, BETA, RHO, VOL_OF_VOL);
   private static final SABRBlackEquivalentVolatilitySurfaceModel MODEL = new SABRBlackEquivalentVolatilitySurfaceModel();
