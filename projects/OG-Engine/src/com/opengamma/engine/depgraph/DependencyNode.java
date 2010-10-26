@@ -110,6 +110,14 @@ public class DependencyNode {
     _outputValues.clear();
   }
 
+  /* package */void clearInputs() {
+    for (DependencyNode inputNode : _inputNodes) {
+      inputNode._dependentNodes.remove(this);
+    }
+    _inputNodes.clear();
+    _inputValues.clear();
+  }
+
   /* package */void addInputValue(ValueSpecification inputValue) {
     ArgumentChecker.notNull(inputValue, "Input value");
     _inputValues.add(inputValue);

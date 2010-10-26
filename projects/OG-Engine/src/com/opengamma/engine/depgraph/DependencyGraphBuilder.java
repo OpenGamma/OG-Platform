@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -126,7 +127,8 @@ public class DependencyGraphBuilder {
     checkInjectedInputs();
 
     for (ValueRequirement requirement : requirements) {
-      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(requirement, null);
+      final ResolutionState resolutionState = resolveValueRequirement(requirement, null);
+      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(resolutionState);
       _graph.addTerminalOutputValue(terminalNode.getSecond());
     }
   }
@@ -139,105 +141,165 @@ public class DependencyGraphBuilder {
     return node;
   }
 
-  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(ValueRequirement requirement, DependencyNode dependent) {
-    ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
+  // Note the order requirements are considered can affect function choices and resultant graph construction (see [ENG-259]).
+  private ResolutionState resolveValueRequirement(final ValueRequirement requirement, final DependencyNode dependent) {
+    final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
     }
-
-    s_logger.info("Adding target requirement for {} on {}", requirement, target);
-
-    Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeSatisfying(requirement);
-    if (existingNode != null) {
-      s_logger.debug("Existing Node : {} on {}", requirement, target);
-      final ValueSpecification originalOutput = existingNode.getSecond();
-      final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-      if (originalOutput.equals(resolvedOutput)) {
-        return existingNode;
-      }
-      // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
-      throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
-    }
-
-    if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
-      // this code to be moved to FunctionResolver?
-      s_logger.debug("Live Data : {} on {}", requirement, target);
-      LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      return addTargetRequirement(requirement, createDependencyNode(target, dependent), target, Pair.of(new ParameterizedFunction(function, function.getDefaultParameters()), function.getResult()));
+    s_logger.info("Resolving target requirement for {} on {}", requirement, target);
+    // Find existing nodes in the graph
+    final Collection<Pair<DependencyNode, ValueSpecification>> existingNodes = _graph.getNodesSatisfying(requirement);
+    final ResolutionState resolutionState;
+    if (existingNodes != null) {
+      s_logger.debug("{} existing nodes found", existingNodes.size());
+      resolutionState = new ResolutionState(requirement);
+      resolutionState.addExistingNodes(existingNodes);
     } else {
-      UnsatisfiableDependencyGraphException lastException = null;
-      DependencyNode node = createDependencyNode(target, dependent);
-      for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
-        try {
-          if (node == null) {
-            node = createDependencyNode(target, dependent);
+      // Find live data
+      if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
+        s_logger.debug("Live Data : {} on {}", requirement, target);
+        LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
+        return new ResolutionState(requirement, function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), createDependencyNode(target, dependent));
+      }
+      resolutionState = new ResolutionState(requirement);
+    }
+    // Find functions that can do this for us - do this even if there are nodes found as the original functions may be more
+    // generic than the composed specifications attached to actual nodes.
+    DependencyNode node = createDependencyNode(target, dependent);
+    for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
+      final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+      final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+      final ValueSpecification originalOutput = resolvedFunction.getSecond();
+      final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+      if (_graph.getNodeProducing(resolvedOutput) != null) {
+        // Resolved function output already in the graph, so would have been added to the resolution state already
+        s_logger.debug("Skipping {} - already in graph", resolvedFunction.getSecond());
+        continue;
+      }
+      if (node == null) {
+        node = createDependencyNode(target, dependent);
+      }
+      if (originalOutput.equals(resolvedOutput)) {
+        node.addOutputValues(outputValues);
+      } else {
+        for (ValueSpecification outputValue : outputValues) {
+          if (originalOutput.equals(outputValue)) {
+            s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+            node.addOutputValue(resolvedOutput);
+          } else {
+            node.addOutputValue(outputValue);
           }
-          return addTargetRequirement(requirement, node, target, resolvedFunction);
-        } catch (UnsatisfiableDependencyGraphException e) {
-          s_logger.debug("Failed to resolve graph dependencies", e);
-          // Instead of housekeeping to remove nodes that may have gone into the graph, we'll leave them in
-          // as the sub-graph may yet be used. The removeUnusedValues will trim out unused nodes as well as
-          // the values.
-          node = null;
-          lastException = e;
         }
       }
-      throw new UnsatisfiableDependencyGraphException("Backtracking", lastException);
+      resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), node);
+      node = null;
     }
-
+    return resolutionState;
   }
 
-  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ValueRequirement requirement, final DependencyNode node, final ComputationTarget target,
-      final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction) {
-
-    node.setFunction(resolvedFunction.getFirst());
-    CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-
-    // Get the broad output values that we matched the function against, composing against the requested requirement
-    Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-    final ValueSpecification originalOutput = resolvedFunction.getSecond();
-    ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-    if (originalOutput.equals(resolvedOutput)) {
-      node.addOutputValues(outputValues);
-    } else {
-      for (ValueSpecification outputValue : outputValues) {
-        if (originalOutput.equals(outputValue)) {
-          s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-          node.addOutputValue(resolvedOutput);
-        } else {
-          node.addOutputValue(outputValue);
+  private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ResolutionState resolved) {
+    do {
+      if (resolved.isEmpty()) {
+        return resolved.getLastValid();
+      }
+      final ResolutionState.Node node = resolved.getFirst();
+      if (!node.isResolved()) {
+        // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
+        try {
+          final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
+          // TODO: pass the composed requirement in to allow downstream dynamic composition
+          Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget());
+          node.dimInputState(inputRequirements.size());
+          for (ValueRequirement inputRequirement : inputRequirements) {
+            final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());
+            node.addInputState(inputState);
+          }
+        } catch (UnsatisfiableDependencyGraphException e) {
+          s_logger.debug("Backtracking on dependency graph error", e);
+          resolved.removeFirst();
+          if (resolved.isEmpty()) {
+            throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
+          }
+          continue;
         }
       }
-    }
-
-    // TODO: pass the composed requirement in to allow downstream dynamic composition
-    Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), target);
-    for (ValueRequirement inputRequirement : inputRequirements) {
-      Pair<DependencyNode, ValueSpecification> input = addTargetRequirement(inputRequirement, node);
-      node.addInputNode(input.getFirst());
-      node.addInputValue(input.getSecond());
-    }
-
-    // TODO: only do this if there were wild-card or choices in any of the input requirements that might now be resolved
-    Set<ValueSpecification> newOutputValues = functionDefinition.getResults(getCompilationContext(), target, node.getInputValues());
-    if (!outputValues.equals(newOutputValues)) {
-      node.clearOutputValues();
-      resolvedOutput = null;
-      for (ValueSpecification outputValue : newOutputValues) {
-        if ((resolvedOutput == null) && requirement.isSatisfiedBy(outputValue)) {
-          resolvedOutput = outputValue.compose(requirement);
-          node.addOutputValue(resolvedOutput);
-        } else {
-          node.addOutputValue(outputValue);
+      if (node.getInputStates() == null) {
+        s_logger.debug("Existing Node : {} on {}", resolved.getValueRequirement(), node.getDependencyNode().getComputationTarget());
+        final ValueSpecification originalOutput = node.getValueSpecification();
+        final ValueSpecification resolvedOutput = originalOutput.compose(resolved.getValueRequirement());
+        if (originalOutput.equals(resolvedOutput)) {
+          final Pair<DependencyNode, ValueSpecification> result = Pair.of(node.getDependencyNode(), resolvedOutput);
+          if (resolved.isSingle()) {
+            resolved.removeFirst();
+            resolved.setLastValid(result);
+          }
+          return result;
+        }
+        // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
+        throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
+      }
+      boolean strictConstraints = true;
+      // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
+      try {
+        boolean pendingInputStates = false;
+        for (ResolutionState inputState : node.getInputStates()) {
+          final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
+          node.getDependencyNode().addInputNode(inputValue.getFirst());
+          node.getDependencyNode().addInputValue(inputValue.getSecond());
+          if (!inputState.isEmpty()) {
+            pendingInputStates = true;
+          }
+          if (!inputState.getValueRequirement().getConstraints().isStrict()) {
+            strictConstraints = false;
+          }
+        }
+        if (!pendingInputStates && resolved.isSingle()) {
+          resolved.removeFirst();
+        }
+      } catch (UnsatisfiableDependencyGraphException e) {
+        s_logger.debug("Backtracking on dependency graph error", e);
+        resolved.removeFirst();
+        if (resolved.isEmpty()) {
+          throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
+        }
+        continue;
+      }
+      ValueSpecification resolvedOutput = node.getValueSpecification();
+      if (!strictConstraints) {
+        final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
+        final Set<ValueSpecification> newOutputValues = functionDefinition.getResults(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
+            .getInputValues());
+        if (!node.getDependencyNode().getOutputValues().equals(newOutputValues)) {
+          node.getDependencyNode().clearOutputValues();
+          resolvedOutput = null;
+          for (ValueSpecification outputValue : newOutputValues) {
+            if ((resolvedOutput == null) && resolved.getValueRequirement().isSatisfiedBy(outputValue)) {
+              resolvedOutput = outputValue.compose(resolved.getValueRequirement());
+              s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+              node.getDependencyNode().addOutputValue(resolvedOutput);
+            } else {
+              node.getDependencyNode().addOutputValue(outputValue);
+            }
+          }
+          if (resolvedOutput == null) {
+            s_logger.debug("Provisional specification {} no longer in output after late resolution of {}", node.getValueSpecification(), resolved.getValueRequirement());
+            if (resolved.isEmpty() || !resolved.removeDeepest()) {
+              throw new UnsatisfiableDependencyGraphException("Provisional specification " + node.getValueSpecification() + " no longer in output after late resolution of "
+                  + resolved.getValueRequirement());
+            }
+            node.getDependencyNode().clearInputs();
+            continue;
+          }
         }
       }
-      if (resolvedOutput == null) {
-        throw new UnsatisfiableDependencyGraphException("Provisional specification " + originalOutput + " no longer in output after late resolution");
+      _graph.addDependencyNode(node.getDependencyNode());
+      final Pair<DependencyNode, ValueSpecification> result = Pair.of(node.getDependencyNode(), resolvedOutput);
+      if (resolved.isEmpty()) {
+        resolved.setLastValid(result);
       }
-    }
-
-    _graph.addDependencyNode(node);
-    return Pair.of(node, resolvedOutput);
+      return result;
+    } while (true);
   }
 
   public DependencyGraph getDependencyGraph() {

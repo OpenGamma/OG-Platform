@@ -279,6 +279,21 @@ public final class ValueProperties implements Serializable {
     return result;
   }
 
+  /**
+   * Tests if the set of properties is strict. A property set is strict if there is only one value
+   * for each property (or the property set is empty).
+   * 
+   * @return {@code true} if the property set is strict, {@code false} otherwise
+   */
+  public boolean isStrict() {
+    for (Set<String> property : _properties.values()) {
+      if (property.size() != 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o == this) {

@@ -121,7 +121,7 @@ public class DependencyGraph {
   public Set<DependencyNode> getDependencyNodes() {
     return Collections.unmodifiableSet(_dependencyNodes);
   }
-  
+
   public int getSize() {
     return _dependencyNodes.size();
   }
@@ -160,6 +160,46 @@ public class DependencyGraph {
       }
     }
     return null;
+  }
+
+  /**
+   * Finds a node which has an output value of the given specification.
+   * 
+   * @param specification specification to search for
+   * @return the node, or {@code null} if there is none
+   */
+  public DependencyNode getNodeProducing(final ValueSpecification specification) {
+    return _specification2DependencyNode.get(specification);
+  }
+
+  /**
+   * Finds the nodes which have an output value that can satisfy the given input requirement. The nodes are
+   * returned in the order they were added to the dependency graph - see [ENG-259] for the implications of
+   * handling multiple node returns.
+   * 
+   * @param requirement requirement to search for
+   * @return the nodes and exact value specifications, or {@code null} if there are none
+   */
+  public Collection<Pair<DependencyNode, ValueSpecification>> getNodesSatisfying(final ValueRequirement requirement) {
+    final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(requirement.getValueName());
+    if (targets == null) {
+      return null;
+    }
+    final List<Pair<DependencyNode, ValueSpecification>> nodes = targets.get(requirement.getTargetSpecification());
+    if (nodes == null) {
+      return null;
+    }
+    List<Pair<DependencyNode, ValueSpecification>> found = null;
+    for (Pair<DependencyNode, ValueSpecification> node : nodes) {
+      // Only compare constraints and properties as we know the target and value name match
+      if (requirement.getConstraints().isSatisfiedBy(node.getValue().getProperties())) {
+        if (found == null) {
+          found = new LinkedList<Pair<DependencyNode, ValueSpecification>>();
+        }
+        found.add(node);
+      }
+    }
+    return found;
   }
 
   public void addDependencyNode(DependencyNode node) {
@@ -233,24 +273,44 @@ public class DependencyGraph {
   /**
    * Go through the entire graph and remove any output values that
    * aren't actually consumed.
+   * 
    * Because functions can possibly produce more than their minimal set of values,
    * we need to strip out the ones that aren't actually used after the whole graph
    * is bootstrapped.
+   * 
+   * Because a backtracking algorithm is used for graph building nodes may remain
+   * which generate no output which is used.
    */
   public void removeUnnecessaryValues() {
-    for (DependencyNode node : _dependencyNodes) {
-      Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
-      if (!unnecessaryValues.isEmpty()) {
-        s_logger.info("{}: removed {} unnecessary potential results", this, unnecessaryValues.size());
-        _outputValues.removeAll(unnecessaryValues);
-      }
-      for (ValueSpecification unnecessaryValue : unnecessaryValues) {
-        DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
-        if (removed == null) {
-          throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+    final List<DependencyNode> unnecessaryNodes = new LinkedList<DependencyNode>();
+    do {
+      for (DependencyNode node : _dependencyNodes) {
+        Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+        if (!unnecessaryValues.isEmpty()) {
+          s_logger.info("{}: removed {} unnecessary potential result(s)", this, unnecessaryValues.size());
+          _outputValues.removeAll(unnecessaryValues);
+          if (node.getOutputValues().isEmpty()) {
+            unnecessaryNodes.add(node);
+          }
+        }
+        for (ValueSpecification unnecessaryValue : unnecessaryValues) {
+          DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
+          if (removed == null) {
+            throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+          }
         }
       }
-    }
+      if (unnecessaryNodes.isEmpty()) {
+        return;
+      }
+      s_logger.info("{}: removed {} unnecessary node(s)", this, unnecessaryNodes.size());
+      _dependencyNodes.removeAll(unnecessaryNodes);
+      for (DependencyNode node : unnecessaryNodes) {
+        _allRequiredLiveData.remove(node.getRequiredLiveData());
+        _computationTargetType2DependencyNode.get(node.getComputationTarget().getType()).remove(node);
+      }
+      unnecessaryNodes.clear();
+    } while (true);
   }
 
   /**
