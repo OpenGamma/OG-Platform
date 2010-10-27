@@ -208,6 +208,7 @@ public class DependencyGraphBuilder {
         return resolved.getLastValid();
       }
       final ResolutionState.Node node = resolved.getFirst();
+      // Resolve and add the inputs, or just add them if repeating because of a backtrack
       boolean strictConstraints = true;
       if (node.getInputStates() == null) {
         if (node.getParameterizedFunction() != null) {
@@ -259,6 +260,8 @@ public class DependencyGraphBuilder {
       } else {
         // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
         try {
+          // This is a "retry" following a backtrack so clear any previous inputs
+          node.getDependencyNode().clearInputs();
           boolean pendingInputStates = false;
           for (ResolutionState inputState : node.getInputStates()) {
             final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
@@ -283,9 +286,10 @@ public class DependencyGraphBuilder {
           continue;
         }
       }
+      // Late resolution of the output based on the actual inputs used
+      final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
       ValueSpecification resolvedOutput = node.getValueSpecification();
       if (!strictConstraints) {
-        final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
         final Set<ValueSpecification> newOutputValues = functionDefinition.getResults(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
             .getInputValues());
         if (!node.getDependencyNode().getOutputValues().equals(newOutputValues)) {
@@ -301,16 +305,35 @@ public class DependencyGraphBuilder {
             }
           }
           if (resolvedOutput == null) {
-            s_logger.debug("Provisional specification {} no longer in output after late resolution of {}", node.getValueSpecification(), resolved.getValueRequirement());
+            s_logger.debug("Deep backtracking as provisional specification {} no longer in output after late resolution of {}", node.getValueSpecification(), resolved.getValueRequirement());
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
               throw new UnsatisfiableDependencyGraphException("Provisional specification " + node.getValueSpecification() + " no longer in output after late resolution of "
                   + resolved.getValueRequirement());
             }
-            node.getDependencyNode().clearInputs();
+            continue;
+          }
+        }
+        // Fetch and additional input requirements now needed as a result of input and output resolution
+        Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
+            .getInputValues(), node.getDependencyNode().getOutputValues());
+        if (!additionalRequirements.isEmpty()) {
+          try {
+            for (ValueRequirement inputRequirement : additionalRequirements) {
+              final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());
+              final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
+              node.getDependencyNode().addInputNode(inputValue.getFirst());
+              node.getDependencyNode().addInputValue(inputValue.getSecond());
+            }
+          } catch (UnsatisfiableDependencyGraphException e) {
+            s_logger.debug("Deep backtracking on dependency graph error", e);
+            if (resolved.isEmpty() || !resolved.removeDeepest()) {
+              throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
+            }
             continue;
           }
         }
       }
+      // Add to the graph
       _graph.addDependencyNode(node.getDependencyNode());
       final Pair<DependencyNode, ValueSpecification> result = Pair.of(node.getDependencyNode(), resolvedOutput);
       if (resolved.isEmpty()) {

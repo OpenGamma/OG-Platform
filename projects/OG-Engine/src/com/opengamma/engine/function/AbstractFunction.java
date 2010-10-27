@@ -12,6 +12,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
@@ -50,7 +51,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
     public Set<ValueSpecification> getRequiredLiveData() {
       return getRequiredLiveDataImpl();
     }
-    
+
     /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
      * @param context The compilation context with view-specific parameters and configurations.
@@ -61,6 +62,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
       return getResults(context, target);
+    }
+
+    @Override
+    public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
+        final Set<ValueSpecification> outputs) {
+      return getAdditionalRequirementsImpl(context, target, inputs, outputs);
     }
 
     public void setEarliestInvocationTime(final InstantProvider timestamp) {
@@ -146,6 +153,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
     return Collections.emptySet();
   }
 
+  protected static Set<ValueRequirement> getAdditionalRequirementsImpl(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
+      final Set<ValueSpecification> outputs) {
+    return Collections.emptySet();
+  }
+
   /**
    * Default implementation indicates no parameters.
    * @return an {@link EmptyFunctionParameters} instance
@@ -168,6 +180,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public Set<ValueSpecification> getRequiredLiveData() {
       return getRequiredLiveDataImpl();
+    }
+
+    @Override
+    public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
+        final Set<ValueSpecification> outputs) {
+      return getAdditionalRequirementsImpl(context, target, inputs, outputs);
     }
 
     /**

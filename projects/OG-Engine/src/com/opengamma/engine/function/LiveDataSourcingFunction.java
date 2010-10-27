@@ -19,8 +19,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- *
+ * Special case of a function implementation that is never executed by the graph executor but
+ * used to source information from a live data provider.
  */
 public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -83,12 +83,12 @@ public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoke
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public final Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }
 
   @Override
-  public Set<ValueSpecification> getRequiredLiveData() {
+  public final Set<ValueSpecification> getRequiredLiveData() {
     throw new NotImplementedException("Deprecated method should not be called");
   }
 

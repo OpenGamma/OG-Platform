@@ -479,8 +479,8 @@ public class DependencyGraphBuilderTest {
   @Test
   public void testBacktrackCleanup() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
-    final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue2Foo());
-    final MockFunction fn1Bar = helper.addFunctionProducing(helper.getValue2Bar());
+    final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
+    final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
 
       @Override
@@ -508,7 +508,7 @@ public class DependencyGraphBuilderTest {
         if (function == fnConv) {
           return 1;
         }
-        if (function == fn1Bar) {
+        if (function == fn2Bar) {
           return -1;
         }
         return 0;
@@ -517,9 +517,113 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(helper.getTarget(), helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    assertGraphContains(graph, fn1Foo, fn1Bar, fnConv);
+    assertGraphContains(graph, fn2Foo, fn2Bar, fnConv);
     graph.removeUnnecessaryValues();
-    assertGraphContains(graph, fn1Bar, fnConv);
+    assertGraphContains(graph, fn2Bar, fnConv);
+  }
+
+  @Test
+  public void testOutputBasedRequirements() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    helper.addFunctionProducing(helper.getValue2Foo());
+    final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier()));
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+        return Collections.singleton(new ValueRequirement(helper.getRequirement2Any().getValueName(), desiredValue.getTargetSpecification(), ValueProperties.with("TEST",
+            desiredValue.getConstraints().getValues("TEST")).get()));
+      }
+
+    };
+    helper.getFunctionRepository().addFunction(fnConv);
+    DependencyGraphBuilder builder = helper.getBuilder(null);
+    builder.addTarget(helper.getTarget(), helper.getRequirement1Bar());
+    DependencyGraph graph = builder.getDependencyGraph();
+    assertNotNull(graph);
+    assertGraphContains(graph, fn2Bar, fnConv);
+  }
+  
+  @Test
+  public void testAdditionalRequirements () {
+    final DepGraphTestHelper helper = new DepGraphTestHelper ();
+    final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
+    final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
+      
+      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
+      
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(_result);
+      }
+      
+      @Override
+      public Set<ValueRequirement> getAdditionalRequirements (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+        assertEquals (1, inputs.size ());
+        assertTrue (inputs.contains (helper.getSpec2Bar ()));
+        assertEquals (1, outputs.size ());
+        assertTrue (outputs.contains (_result.compose(helper.getRequirement1Bar ())));
+        return Collections.singleton (helper.getRequirement1Foo ());
+      }
+      
+    };
+    fnConv.addRequirement(helper.getRequirement2Any ());
+    helper.getFunctionRepository().addFunction (fnConv);
+    DependencyGraphBuilder builder = helper.getBuilder(null);
+    builder.addTarget(helper.getTarget (), helper.getRequirement1Bar());
+    DependencyGraph graph = builder.getDependencyGraph ();
+    assertNotNull (graph);
+    assertGraphContains (graph, fn2Bar, fnConv, fn1Foo);
+  }
+  
+  @Test
+  public void testAdditionalRequirementBacktracking () {
+    final DepGraphTestHelper helper = new DepGraphTestHelper ();
+    final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
+    final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
+    final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
+      
+      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
+      
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(_result);
+      }
+      
+      @Override
+      public Set<ValueRequirement> getAdditionalRequirements (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+        if (inputs.contains (helper.getSpec2Foo ())) {
+          return Collections.singleton (helper.getRequirement2Beta());
+        } else {
+          return Collections.singleton (helper.getRequirement1Foo ());
+        }
+      }
+      
+    };
+    fnConv.addRequirement(helper.getRequirement2Any ());
+    helper.getFunctionRepository().addFunction (fnConv);
+    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+      @Override
+      public int getPriority(CompiledFunctionDefinition function) {
+        if (function == fn2Foo) {
+          return 1;
+        }
+        return 0;
+      }
+    });
+    builder.addTarget(helper.getTarget (), helper.getRequirement1Bar());
+    DependencyGraph graph = builder.getDependencyGraph ();
+    assertNotNull (graph);
+    assertGraphContains (graph, fn2Foo, fn2Bar, fnConv, fn1Foo);
+    graph.removeUnnecessaryValues();
+    assertGraphContains (graph, fn2Bar, fnConv, fn1Foo);
   }
 
 }

@@ -308,6 +308,7 @@ public class DependencyGraph {
       for (DependencyNode node : unnecessaryNodes) {
         _allRequiredLiveData.remove(node.getRequiredLiveData());
         _computationTargetType2DependencyNode.get(node.getComputationTarget().getType()).remove(node);
+        node.clearInputs();
       }
       unnecessaryNodes.clear();
     } while (true);

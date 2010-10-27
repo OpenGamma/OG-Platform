@@ -61,7 +61,19 @@ public interface CompiledFunctionDefinition {
    * @return All input requirements to execute this function on the specified target with the specified configuration.
    */
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);
-
+  
+  /**
+   * Determine any additional input requirements needed as a result of input and output resolution.
+   * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}.
+   * 
+   * @param context The compilation context with view-specific parameters and configurations.
+   * @param target The target for which calculation is desired.
+   * @param inputs The fully resolved input specifications.
+   * @param outputs The fully resolved output specifications.
+   * @return Any additional input requirements to satisfy execution on the given inputs to deliver the given outputs.
+   */
+  Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
+  
   // See ENG-216
   /**
    * Determine the known-to-be live data inputs to this function.
