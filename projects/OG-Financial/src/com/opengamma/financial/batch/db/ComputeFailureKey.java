@@ -33,12 +33,13 @@ public class ComputeFailureKey {
     
     _functionId = functionId;
     _exceptionClass = exceptionClass;
-    if (exceptionMsg == null) {
-      _exceptionMsg = null;
-    } else {
-      _exceptionMsg =  exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
-    }
     _stackTrace = stackTrace.substring(0, Math.min(stackTrace.length(), 2000));
+    
+    if (exceptionMsg == null) {
+      _exceptionMsg = ""; // although Throwable.getMessage() can return null, our db doesn't allow nulls
+    } else {
+      _exceptionMsg = exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
+    }
   }
   
   public String getFunctionId() {

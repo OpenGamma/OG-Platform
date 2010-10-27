@@ -28,5 +28,3 @@ create table hol_date (
 
 create index ix_hol_holiday_oid on hol_holiday(oid);
 create index ix_hol_holiday_type on hol_holiday(hol_type);
-
-alter table rsk_compute_failure alter column exception_msg set null;
