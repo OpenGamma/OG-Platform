@@ -13,20 +13,28 @@ package com.opengamma.financial.world.holiday;
 public enum HolidayType {
 
   /**
-   * A trading holiday, when no trades occur.
-   */
-  TRADING,
-  /**
-   * A settlement holiday, when no settlements occur.
-   */
-  SETTLEMENT,
-  /**
-   * A bank holiday, when banks are closed.
+   * A retail bank holiday.
+   * These occur when retail banks throughout the region are closed.
+   * This often affects other businesses and government departments.
    */
   BANK,
   /**
-   * A currency holiday, when no currency changes occur.
+   * An exchange trading holiday.
+   * These occur when an exchange, such as the London Stock Exchange, is closed
+   * and trading is not possible.
    */
-  CURRENCY;
+  TRADING,
+  /**
+   * An exchange settlement holiday.
+   * These occur when exchange-based trades cannot be settled.
+   * This may be because the banks, clearing agency or market is closed.
+   */
+  SETTLEMENT,
+  /**
+   * A currency (foreign exchange) holiday.
+   * These occur when the foreign exchange market for a currency is closed,
+   * such as when the central bank or clearing agency is closed.
+   */
+  CURRENCY,
 
 }

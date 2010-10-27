@@ -31,10 +31,13 @@ import com.opengamma.financial.world.exchange.ExchangeUtils;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
+import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.MasterHolidaySource;
 import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,6 +46,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CoppClarkHolidayFileReader {
 
+  /**
+   * The Copp Clark scheme.
+   */
+  private static final IdentificationScheme COPP_CLARK_SCHEME = new IdentificationScheme("COPP_CLARK");
   /**
    * The date format.
    */
@@ -162,6 +169,7 @@ public class CoppClarkHolidayFileReader {
     final List<String> columnNames = Arrays.asList(new String[] {
       "CenterID", "ISOCurrencyCode", "ISOCountryCode", "RelatedFinancialCentre", 
       "EventYear", "EventDate", "EventDayOfWeek", "EventName", "FileType" });
+    final int ccIdx = columnNames.indexOf("CenterID");
     final int isoCurrencyIdx = columnNames.indexOf("ISOCurrencyCode");
     final int eventDateIdx = columnNames.indexOf("EventDate");
     
@@ -169,27 +177,27 @@ public class CoppClarkHolidayFileReader {
     CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(currencyStream)));
     String[] row = reader.readNext(); // throw away the header
     while ((row = reader.readNext()) != null) {
-      String isoCurrency = row[isoCurrencyIdx].trim();
-      Currency currency = Currency.getInstance(isoCurrency);
+      String ccId = row[ccIdx].trim();
+      String currencyISO = row[isoCurrencyIdx].trim();
+      Currency currency = Currency.getInstance(currencyISO);  // validates format
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
-      HolidayDocument doc = map.get(isoCurrency);
+      HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(currency, EMPTY_DATE_LIST));
-        map.put(isoCurrency, doc);
+        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    for (HolidayDocument doc : map.values()) {
-      Collections.sort(doc.getHoliday().getHolidayDates());
-      _holidayMaster.add(doc);
-    }
+    addDocuments(map);
   }
 
   private void parseFinancialCentersFile(InputStream financialCentersStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {
       "CenterID", "ISOCurrencyCode", "ISOCountryCode", "FinancialCentre", 
       "UN/LOCODE", "EventYear", "EventDate", "EventDayOfWeek", "EventName", "FileType" });
+    final int ccIdx = columnNames.indexOf("CenterID");
     final int isoCountryIdx = columnNames.indexOf("ISOCountryCode");
     final int eventDateIdx = columnNames.indexOf("EventDate");
     
@@ -197,27 +205,27 @@ public class CoppClarkHolidayFileReader {
     CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(financialCentersStream)));
     String[] row = reader.readNext(); // throw away the header
     while ((row = reader.readNext()) != null) {
+      String ccId = row[ccIdx].trim();
       String isoCountry = row[isoCountryIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
       Identifier regionId = Identifier.of(ISO_COUNTRY_2, isoCountry);
-      HolidayDocument doc = map.get(isoCountry);
+      HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.BANK, regionId, EMPTY_DATE_LIST));
-        map.put(isoCountry, doc);
+        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    for (HolidayDocument doc : map.values()) {
-      Collections.sort(doc.getHoliday().getHolidayDates());
-      _holidayMaster.add(doc);
-    }
+    addDocuments(map);
   }
 
   private void parseExchangeSettlementFile(InputStream exchangeSettlementStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {
       "CenterID", "ISO MIC Code", "ISOCountryCode", "ExchangeName", "EventYear",
       "EventDate", "EventDayOfWeek", "EventName", "FileType" });
+    final int ccIdx = columnNames.indexOf("CenterID");
     final int isoMICCodeIdx = columnNames.indexOf("ISO MIC Code");
     final int eventDateIdx = columnNames.indexOf("EventDate");
     
@@ -225,27 +233,27 @@ public class CoppClarkHolidayFileReader {
     CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(exchangeSettlementStream)));
     String[] row = reader.readNext(); // throw away the header
     while ((row = reader.readNext()) != null) {
+      String ccId = row[ccIdx].trim();
       String isoMICCode = row[isoMICCodeIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
       Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
-      HolidayDocument doc = map.get(isoMICCode);
+      HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.SETTLEMENT, micId, EMPTY_DATE_LIST));
-        map.put(isoMICCode, doc);
+        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    for (HolidayDocument doc : map.values()) {
-      Collections.sort(doc.getHoliday().getHolidayDates());
-      _holidayMaster.add(doc);
-    }
+    addDocuments(map);
   }
 
   private void parseExchangeTradingFile(InputStream exchangeTradingStream) throws IOException {
     final List<String> columnNames = Arrays.asList(new String[] {
       "CenterID", "ISO MIC Code", "ISOCountryCode", "ExchangeName", "EventYear",
       "EventDate", "EventDayOfWeek", "EventName", "FileType" });
+    final int ccIdx = columnNames.indexOf("CenterID");
     final int isoMICCodeIdx = columnNames.indexOf("ISO MIC Code");
     final int eventDateIdx = columnNames.indexOf("EventDate");
     
@@ -253,20 +261,68 @@ public class CoppClarkHolidayFileReader {
     CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(exchangeTradingStream)));
     String[] row = reader.readNext(); // throw away the header
     while ((row = reader.readNext()) != null) {
+      String ccId = row[ccIdx].trim();
       String isoMICCode = row[isoMICCodeIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
       Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
-      HolidayDocument doc = map.get(isoMICCode);
+      HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.TRADING, micId, EMPTY_DATE_LIST));
-        map.put(isoMICCode, doc);
+        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
+    addDocuments(map);
+  }
+
+  /**
+   * Adds the documents to the database.
+   * @param map  the map of documents, not null
+   */
+  private void addDocuments(Map<String, HolidayDocument> map) {
     for (HolidayDocument doc : map.values()) {
       Collections.sort(doc.getHoliday().getHolidayDates());
-      _holidayMaster.add(doc);
+      HolidaySearchRequest search = new HolidaySearchRequest(doc.getHoliday().getType());
+      search.setProviderId(doc.getProviderId());
+      HolidaySearchResult result = _holidayMaster.search(search);
+      if (result.getDocuments().size() == 0) {
+        // add new data
+        _holidayMaster.add(doc);
+      } else if (result.getDocuments().size() == 1) {
+        // update existing data
+        HolidayDocument existing = result.getFirstDocument();
+        doc.setHolidayId(existing.getHolidayId());
+        doc.getHoliday().setUniqueIdentifier(existing.getHolidayId());
+        // merge dates
+        if (doc.getHoliday().getHolidayDates().size() > 0) {
+          LocalDate newFirstDate = doc.getHoliday().getHolidayDates().get(0);
+          List<LocalDate> existingDates = existing.getHoliday().getHolidayDates();
+          for (int i = 0; i < existingDates.size(); i++) {
+            LocalDate existingDate = existingDates.get(i);
+            if (existingDate.getYear() < newFirstDate.getYear()) {
+              doc.getHoliday().getHolidayDates().add(i, existingDate);
+            } else {
+              break;
+            }
+          }
+        }
+        // only update if changed
+        doc.setVersionFromInstant(null);
+        doc.setVersionToInstant(null);
+        doc.setCorrectionFromInstant(null);
+        doc.setCorrectionToInstant(null);
+        existing.setVersionFromInstant(null);
+        existing.setVersionToInstant(null);
+        existing.setCorrectionFromInstant(null);
+        existing.setCorrectionToInstant(null);
+        if (doc.equals(existing) == false) {  // only update if changed
+          _holidayMaster.update(doc);
+        }
+      } else {
+        throw new IllegalStateException("Multiple rows in database for Copp Clark ID: " + doc.getProviderId().getValue() + " " + doc.getHoliday().getType());
+      }
     }
   }
 

@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
@@ -48,6 +49,13 @@ public class HolidaySearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private HolidayType _type;
+  /**
+   * The identifier of the data provider.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _providerId;
   /**
    * A date to check to determine if it is a holiday, null to not match on type.
    */
@@ -164,6 +172,8 @@ public class HolidaySearchRequest extends DirectBean {
         return getName();
       case 3575610:  // type
         return getType();
+      case 205149932:  // providerId
+        return getProviderId();
       case 14222271:  // dateToCheck
         return getDateToCheck();
       case 575402001:  // currency
@@ -191,6 +201,9 @@ public class HolidaySearchRequest extends DirectBean {
         return;
       case 3575610:  // type
         setType((HolidayType) newValue);
+        return;
+      case 205149932:  // providerId
+        setProviderId((Identifier) newValue);
         return;
       case 14222271:  // dateToCheck
         setDateToCheck((LocalDate) newValue);
@@ -290,6 +303,37 @@ public class HolidaySearchRequest extends DirectBean {
    */
   public final Property<HolidayType> type() {
     return metaBean().type().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the data provider.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getProviderId() {
+    return _providerId;
+  }
+
+  /**
+   * Sets the identifier of the data provider.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @param providerId  the new value of the property
+   */
+  public void setProviderId(Identifier providerId) {
+    this._providerId = providerId;
+  }
+
+  /**
+   * Gets the the {@code providerId} property.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -483,6 +527,10 @@ public class HolidaySearchRequest extends DirectBean {
      */
     private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
     /**
+     * The meta-property for the {@code providerId} property.
+     */
+    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    /**
      * The meta-property for the {@code dateToCheck} property.
      */
     private final MetaProperty<LocalDate> _dateToCheck = DirectMetaProperty.ofReadWrite(this, "dateToCheck", LocalDate.class);
@@ -517,6 +565,7 @@ public class HolidaySearchRequest extends DirectBean {
       temp.put("pagingRequest", _pagingRequest);
       temp.put("name", _name);
       temp.put("type", _type);
+      temp.put("providerId", _providerId);
       temp.put("dateToCheck", _dateToCheck);
       temp.put("currency", _currency);
       temp.put("regionIdentifiers", _regionIdentifiers);
@@ -564,6 +613,14 @@ public class HolidaySearchRequest extends DirectBean {
      */
     public final MetaProperty<HolidayType> type() {
       return _type;
+    }
+
+    /**
+     * The meta-property for the {@code providerId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerId() {
+      return _providerId;
     }
 
     /**

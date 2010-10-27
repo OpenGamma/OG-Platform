@@ -10,6 +10,8 @@ create table hol_holiday (
     corr_from_instant timestamp not null,
     corr_to_instant timestamp not null,
     name varchar(255) not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
     hol_type varchar(255) not null,
     region_scheme varchar(255),
     region_value varchar(255),

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.financial.world.holiday.Holiday;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -65,6 +66,13 @@ public class HolidayDocument extends DirectBean {
   @PropertyDefinition
   private String _name;
   /**
+   * The identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _providerId;
+  /**
    * The holiday.
    */
   @PropertyDefinition
@@ -77,23 +85,23 @@ public class HolidayDocument extends DirectBean {
   }
 
   /**
-   * Creates an instance from an exchange.
+   * Creates an instance from a holiday.
    * @param holiday  the exchange, not null
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
     setHolidayId(holiday.getUniqueIdentifier());
-    setHoliday(new ManageableHoliday(holiday));
+    setHoliday(ManageableHoliday.copyOf(holiday));
     switch (holiday.getType()) {
       case BANK:
-        setName(holiday.getRegionId().getScheme().getName() + ":" + holiday.getRegionId().getValue());
+        setName(holiday.getRegionId().getValue());
         break;
       case CURRENCY:
         setName(holiday.getCurrencyISO());
         break;
       case SETTLEMENT:
       case TRADING:
-        setName(holiday.getExchangeId().getScheme().getName() + ":" + holiday.getExchangeId().getValue());
+        setName(holiday.getExchangeId().getValue());
         break;
       default:
         throw new IllegalArgumentException("Unsupported holiday type");
@@ -130,6 +138,8 @@ public class HolidayDocument extends DirectBean {
         return getCorrectionToInstant();
       case 3373707:  // name
         return getName();
+      case 205149932:  // providerId
+        return getProviderId();
       case 1091905624:  // holiday
         return getHoliday();
     }
@@ -156,6 +166,9 @@ public class HolidayDocument extends DirectBean {
         return;
       case 3373707:  // name
         setName((String) newValue);
+        return;
+      case 205149932:  // providerId
+        setProviderId((Identifier) newValue);
         return;
       case 1091905624:  // holiday
         setHoliday((ManageableHoliday) newValue);
@@ -322,6 +335,37 @@ public class HolidayDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getProviderId() {
+    return _providerId;
+  }
+
+  /**
+   * Sets the identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @param providerId  the new value of the property
+   */
+  public void setProviderId(Identifier providerId) {
+    this._providerId = providerId;
+  }
+
+  /**
+   * Gets the the {@code providerId} property.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> providerId() {
+    return metaBean().providerId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the holiday.
    * @return the value of the property
    */
@@ -380,6 +424,10 @@ public class HolidayDocument extends DirectBean {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
     /**
+     * The meta-property for the {@code providerId} property.
+     */
+    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    /**
      * The meta-property for the {@code holiday} property.
      */
     private final MetaProperty<ManageableHoliday> _holiday = DirectMetaProperty.ofReadWrite(this, "holiday", ManageableHoliday.class);
@@ -397,6 +445,7 @@ public class HolidayDocument extends DirectBean {
       temp.put("correctionFromInstant", _correctionFromInstant);
       temp.put("correctionToInstant", _correctionToInstant);
       temp.put("name", _name);
+      temp.put("providerId", _providerId);
       temp.put("holiday", _holiday);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -463,6 +512,14 @@ public class HolidayDocument extends DirectBean {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code providerId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerId() {
+      return _providerId;
     }
 
     /**

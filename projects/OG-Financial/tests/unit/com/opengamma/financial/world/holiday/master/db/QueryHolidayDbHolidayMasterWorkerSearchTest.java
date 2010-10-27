@@ -19,6 +19,8 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -162,6 +164,62 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   }
 
   //-------------------------------------------------------------------------
+  @Test
+  public void test_search_providerNoMatch() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setProviderId(Identifier.of("A", "B"));
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_providerFound() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setProviderId(Identifier.of("COPP_CLARK", "2"));
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_regionEmptyBundle() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setRegionIdentifiers(IdentifierBundle.EMPTY);
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_regionNoMatch() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setRegionIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_exchangeEmptyBundle() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setExchangeIdentifiers(IdentifierBundle.EMPTY);
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_exchangeNoMatch() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setExchangeIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    HolidaySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
   @Test
   public void test_search_currencyNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();

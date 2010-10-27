@@ -1,13 +1,13 @@
 
--- create-db-holiday.sql: Holiday Master
+-- create-db-refdata.sql
 
--- design has one document
+-- Holiday Master design has one document
 --  holiday and associated dates
 -- bitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence hol_holiday_seq
+create sequence hol_holiday_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -19,6 +19,8 @@ create table hol_holiday (
     corr_from_instant timestamp not null,
     corr_to_instant timestamp not null,
     name varchar(255) not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
     hol_type varchar(255) not null,
     region_scheme varchar(255),
     region_value varchar(255),
