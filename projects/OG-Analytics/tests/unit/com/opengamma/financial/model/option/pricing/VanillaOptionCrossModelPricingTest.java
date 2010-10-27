@@ -36,8 +36,9 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TreeOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TrinomialOptionModel;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -45,7 +46,8 @@ public class VanillaOptionCrossModelPricingTest {
   private static final double SPOT = 10;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.0, new ConstantVolatilitySurface(0.2), SPOT, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+      SPOT, DATE);
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();

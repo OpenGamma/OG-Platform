@@ -13,9 +13,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  *  
@@ -57,7 +57,7 @@ public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<Opti
         for (int i = 1; i < N; i++) {
           z = Math.sqrt(sigmaSq + delta * delta * i / t);
           b += gamma / t;
-          bsmData = bsmData.withVolatilitySurface(new ConstantVolatilitySurface(z)).withCostOfCarry(b);
+          bsmData = bsmData.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(z))).withCostOfCarry(b);
           mult *= lambdaT / i;
           price += mult * bsmFunction.evaluate(bsmData);
         }

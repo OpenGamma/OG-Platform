@@ -14,8 +14,9 @@ import org.junit.Test;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -30,7 +31,7 @@ public class FXVannaVolgaVolatilityCurveModelTest {
   private static final double RR = -0.005;
   private static final double ATM = 0.0905;
   private static final double VWB = 0.0013;
-  private static final FXOptionDataBundle DATA = new FXOptionDataBundle(DOMESTIC, FOREIGN, new ConstantVolatilitySurface(ATM), SPOT, DATE);
+  private static final FXOptionDataBundle DATA = new FXOptionDataBundle(DOMESTIC, FOREIGN, new VolatilitySurface(ConstantDoublesSurface.from(ATM)), SPOT, DATE);
   private static final FXVannaVolgaVolatilityCurveDataBundle MARKET_DATA = new FXVannaVolgaVolatilityCurveDataBundle(0.25, RR, ATM, VWB, MATURITY);
   private static final FXVannaVolgaVolatilityCurveModel MODEL = new FXVannaVolgaVolatilityCurveModel();
 

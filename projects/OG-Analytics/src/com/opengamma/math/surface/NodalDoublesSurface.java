@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.surface;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -152,30 +151,17 @@ public class NodalDoublesSurface extends DoublesSurface {
   public Double getZValue(final Double x, final Double y) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
-    final List<Integer> indices = new ArrayList<Integer>();
     final double[] xArray = getXDataAsPrimitive();
     final double[] yArray = getYDataAsPrimitive();
-    for (int i = 0; i < size(); i++) {
+    final int n = size();
+    for (int i = 0; i < n; i++) {
       if (Double.doubleToLongBits(xArray[i]) == Double.doubleToLongBits(x)) {
-        indices.add(i);
+        if (Double.doubleToLongBits(yArray[i]) == Double.doubleToLongBits(y)) {
+          return getZDataAsPrimitive()[i];
+        }
       }
     }
-    if (indices.isEmpty()) {
-      throw new IllegalArgumentException("Surface does not contain data for x point " + x);
-    }
-    boolean found = false;
-    int index = -1;
-    for (final int i : indices) {
-      if (Double.doubleToLongBits(yArray[i]) == Double.doubleToLongBits(y)) {
-        found = true;
-        index = i;
-        break;
-      }
-    }
-    if (!found) {
-      throw new IllegalArgumentException("Surface does not contain data for (x, y) point (" + x + ", " + y + ")");
-    }
-    return getZDataAsPrimitive()[index];
+    throw new IllegalArgumentException("No x-y data in surface for (" + x + ", " + y + ")");
   }
 
   @Override

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -30,24 +28,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
-import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
 import com.opengamma.financial.interestrate.bond.BondZSpreadCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
-import com.opengamma.financial.security.swap.InterestRateLeg;
-import com.opengamma.financial.security.swap.InterestRateNotional;
-import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**

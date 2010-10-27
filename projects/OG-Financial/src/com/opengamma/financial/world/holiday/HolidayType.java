@@ -6,8 +6,27 @@
 package com.opengamma.financial.world.holiday;
 
 /**
- * The type of holiday calendar we are checking
+ * The type of a holiday.
+ * <p>
+ * Holidays are categorized into fixed types.
  */
 public enum HolidayType {
-  TRADING, SETTLEMENT, BANK, CURRENCY
+
+  /**
+   * A trading holiday, when no trades occur.
+   */
+  TRADING,
+  /**
+   * A settlement holiday, when no settlements occur.
+   */
+  SETTLEMENT,
+  /**
+   * A bank holiday, when banks are closed.
+   */
+  BANK,
+  /**
+   * A currency holiday, when no currency changes occur.
+   */
+  CURRENCY;
+
 }

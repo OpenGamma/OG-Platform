@@ -11,8 +11,9 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -24,8 +25,9 @@ public class SupershareOptionDefinitionTest {
   private static final double LOWER = 10;
   private static final double UPPER = 30;
   private static final double SPOT = 20;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), SPOT, new ConstantVolatilitySurface(0.2), 20, DateUtil.getUTCDate(
-      2009, 1, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), SPOT, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 20,
+      DateUtil.getUTCDate(
+          2009, 1, 1));
   private static final SupershareOptionDefinition OPTION = new SupershareOptionDefinition(EXPIRY, LOWER, UPPER);
 
   @Test(expected = IllegalArgumentException.class)
