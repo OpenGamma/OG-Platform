@@ -20,6 +20,8 @@ import com.opengamma.financial.web.config.WebConfigData;
 import com.opengamma.financial.web.config.WebConfigUris;
 import com.opengamma.financial.web.exchange.WebExchangeData;
 import com.opengamma.financial.web.exchange.WebExchangeUris;
+import com.opengamma.financial.web.holiday.WebHolidayData;
+import com.opengamma.financial.web.holiday.WebHolidayUris;
 import com.opengamma.financial.web.position.WebPortfoliosData;
 import com.opengamma.financial.web.position.WebPortfoliosUris;
 import com.opengamma.financial.web.security.WebSecuritiesData;
@@ -69,6 +71,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebExchangeData exchangeData = new WebExchangeData();
     exchangeData.setUriInfo(uriInfo);
     out.put("exchangeUris", new WebExchangeUris(exchangeData));
+    
+    WebHolidayData holidayData = new WebHolidayData();
+    holidayData.setUriInfo(uriInfo);
+    out.put("holidayUris", new WebHolidayUris(holidayData));
     
     WebTimeSeriesData timeseriesData = new WebTimeSeriesData();
     timeseriesData.setUriInfo(uriInfo);

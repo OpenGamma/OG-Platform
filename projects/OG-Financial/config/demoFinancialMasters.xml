@@ -74,13 +74,20 @@
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
 
+  <!-- HolidayMaster -->
+  <bean id="dbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
+    <constructor-arg ref="finDbSource" />
+    <property name="identifierScheme" value="${opengamma.config.db.holidaymaster.scheme}" />
+  </bean>
+  <bean id="sharedHolidaySource" class="com.opengamma.financial.world.holiday.master.MasterHolidaySource">
+    <constructor-arg ref="dbHolidayMaster"/>
+  </bean>
+
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
   </bean>
-
-  <!-- SecuritySource -->
   <bean id="sharedSecuritySource" class="com.opengamma.engine.security.EHCachingSecuritySource">
     <constructor-arg>
       <bean class="com.opengamma.financial.security.master.MasterSecuritySource">
@@ -95,8 +102,6 @@
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
-
-  <!-- PositionSource -->  
   <bean id="sharedPositionSource" class="com.opengamma.engine.position.EHCachingPositionSource">
     <constructor-arg>
       <bean class="com.opengamma.financial.position.master.MasterPositionSource">

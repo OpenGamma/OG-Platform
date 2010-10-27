@@ -15,8 +15,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanOptionOnEuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -32,7 +33,8 @@ public class EuropeanOptionOnEuropeanVanillaOptionModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
   private static final EuropeanOptionOnEuropeanVanillaOptionDefinition OPTION = new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false, UNDERLYING);
   private static final EuropeanOptionOnEuropeanVanillaOptionModel MODEL = new EuropeanOptionOnEuropeanVanillaOptionModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.05, new ConstantVolatilitySurface(0.35), 500, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.35)),
+      500, DATE);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
   @Test(expected = IllegalArgumentException.class)

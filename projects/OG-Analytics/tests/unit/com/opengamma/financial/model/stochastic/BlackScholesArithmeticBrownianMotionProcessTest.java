@@ -18,10 +18,11 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -37,7 +38,7 @@ public class BlackScholesArithmeticBrownianMotionProcessTest {
   private static final double R = 0.4;
   private static final double B = 0.1;
   private static final double S = 100;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(R)), B, new ConstantVolatilitySurface(0.), S, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(R)), B, new VolatilitySurface(ConstantDoublesSurface.from(0.)), S, DATE);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)

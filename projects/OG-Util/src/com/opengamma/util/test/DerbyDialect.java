@@ -116,6 +116,15 @@ public final class DerbyDialect extends AbstractDBDialect {
     }
     return sql;
   }
+  
+  @Override
+  public String getAllViewsSQL(String catalog, String schema) {
+    String sql = "SELECT tablename AS name FROM SYS.SYSTABLES WHERE tabletype = 'V'";
+    if (schema != null) {
+      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "')";
+    }
+    return sql;
+  }
 
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {

@@ -136,6 +136,23 @@ public class NodalSurfaceShiftFunctionTest {
   }
 
   @Test
+  public void testMultipleShiftNoShifts() {
+    final double[] xShift = new double[0];
+    final double[] yShift = new double[0];
+    final double[] shift = new double[0];
+    NodalDoublesSurface surface = F.evaluate(SURFACE, xShift, yShift, shift);
+    assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
+    assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
+    assertArrayEquals(surface.getZDataAsPrimitive(), Z, 0);
+    assertEquals(surface.getName(), "MULTIPLE_SHIFT_" + "A");
+    surface = F.evaluate(SURFACE, xShift, yShift, shift, "A");
+    assertArrayEquals(surface.getXDataAsPrimitive(), X, 0);
+    assertArrayEquals(surface.getYDataAsPrimitive(), Y, 0);
+    assertArrayEquals(surface.getZDataAsPrimitive(), Z, 0);
+    assertEquals(surface.getName(), "A");
+  }
+
+  @Test
   public void testMultipleShifts() {
     final double[] x = new double[] {0, 2};
     final double[] y = new double[] {0, 1};

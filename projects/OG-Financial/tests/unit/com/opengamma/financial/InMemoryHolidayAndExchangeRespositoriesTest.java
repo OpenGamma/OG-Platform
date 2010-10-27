@@ -15,17 +15,17 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.financial.world.CoppClarkFileReader;
 import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
 import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
-import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
-import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.InMemoryHolidayMaster;
+import com.opengamma.financial.world.holiday.coppclark.CoppClarkHolidayFileReader;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
+import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
 import com.opengamma.financial.world.region.DefaultRegionSource;
 import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
@@ -114,19 +114,19 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
     RegionSource regionSource = new DefaultRegionSource(regionRepo);
     ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
-    HolidaySource holidaySource = CoppClarkFileReader.createPopulatedHolidaySource(new InMemoryHolidayMaster(regionSource, exchangeSource)); 
+    HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster()); 
     Identifier euronextLiffeId = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
     Assert.assertNotNull(euronextLiffe);
-    Assert.assertTrue(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT));
-    Assert.assertFalse(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT));
-    Assert.assertTrue(holidaySource.isHoliday(euronextLiffe.getRegionId(), LocalDate.of(2012, 06, 05), HolidayType.BANK));
-    Assert.assertFalse(holidaySource.isHoliday(euronextLiffe.getRegionId(), LocalDate.of(2012, 06, 06), HolidayType.BANK));
-    Assert.assertTrue(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 05), HolidayType.TRADING));
-    Assert.assertFalse(holidaySource.isHoliday(euronextLiffeId, LocalDate.of(2012, 06, 06), HolidayType.TRADING));
+    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT, euronextLiffeId));
+    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT, euronextLiffeId));
+    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.BANK, euronextLiffe.getRegionId()));
+    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.BANK, euronextLiffe.getRegionId()));
+    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.TRADING, euronextLiffeId));
+    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.TRADING, euronextLiffeId));
     String curncy = regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()).getData().getString(InMemoryRegionMaster.ISO_CURRENCY_3);
     Currency currency = Currency.getInstance(curncy);
-    Assert.assertTrue(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 05)));
-    Assert.assertFalse(holidaySource.isHoliday(currency, LocalDate.of(2012, 06, 06)));
+    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), currency));
+    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), currency));
   }
 }

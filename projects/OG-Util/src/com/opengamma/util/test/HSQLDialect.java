@@ -89,6 +89,15 @@ public final class HSQLDialect extends AbstractDBDialect {
     }
     return sql;
   }
+  
+  @Override
+  public String getAllViewsSQL(String catalog, String schema) {
+    String sql = "SELECT TABLE_NAME AS name FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TABLE_TYPE = 'VIEW'";
+    if (schema != null) {
+      sql += " AND TABLE_SCHEM = '" + schema + "'";
+    }
+    return sql;
+  }
 
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {

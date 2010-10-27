@@ -127,7 +127,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getSubseries(LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd,
       Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair) {
     if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, !exclusiveEnd);
+      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
       return Pair.of(tsPair.getKey(), timeSeries);
     } else {
       return Pair.of(null, EMPTY_TIMESERIES);
@@ -159,7 +159,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     LocalDateDoubleTimeSeries timeseries = getHistoricalData(uid);
     if (!timeseries.isEmpty()) {
-      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, !exclusiveEnd);
+      return (LocalDateDoubleTimeSeries) timeseries.subSeries(start, inclusiveStart, end, exclusiveEnd);
     } else {
       return timeseries;
     }

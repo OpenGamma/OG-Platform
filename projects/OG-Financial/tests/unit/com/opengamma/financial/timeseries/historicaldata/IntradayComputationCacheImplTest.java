@@ -132,12 +132,12 @@ public class IntradayComputationCacheImplTest extends DBTest {
     
     _intradayComputationCache.computationResultAvailable(result);
     
-    Thread.sleep(Timeout.standardTimeoutMillis()); // should be sufficient to populate full result
+    Thread.sleep(500); // should be sufficient to populate full result
     
     DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     
-    assertEquals(5, timeSeries.size());
+    assertEquals(timeSeries.toString(), 5, timeSeries.size());
     for (Map.Entry<Date, Double> entry : timeSeries) {
       assertTrue(entry.getKey().getTime() >= result.getResultTimestamp().toEpochMillisLong()
           && entry.getKey().getTime() <= System.currentTimeMillis());
@@ -159,7 +159,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     // A long duration (100 seconds):
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3); 
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 5);
-    Thread.sleep(Timeout.standardTimeoutMillis());
+    Thread.sleep(500);
     assertNotNull(_intradayComputationCache.getValue("MockView", "Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
     
     // Try to get some non-existent histories

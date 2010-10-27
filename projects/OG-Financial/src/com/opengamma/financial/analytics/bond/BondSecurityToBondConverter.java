@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 
 /**
  * 

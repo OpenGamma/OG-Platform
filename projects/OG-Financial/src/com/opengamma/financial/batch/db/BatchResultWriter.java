@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -642,7 +641,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
   }
   
-  private ComputeFailure getComputeFailureFromDb(CalculationJobResultItem item) {
+  /*package*/ ComputeFailure getComputeFailureFromDb(CalculationJobResultItem item) {
     if (item.getResult() != InvocationResult.FUNCTION_THREW_EXCEPTION) {
       throw new IllegalArgumentException("Please give a failed item");       
     }
@@ -667,6 +666,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       
     } catch (DataAccessException e) {
       // maybe the row was already there
+      s_logger.debug("Failed to save compute failure", e);
     }
     
     try {
@@ -683,8 +683,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       return computeFailure;
 
     } catch (IncorrectResultSizeDataAccessException e) {
-      s_logger.error("Cannot get {} from db", computeFailure);
-      throw new RuntimeException("Cannot get " + computeFailure + " from db", e);
+      s_logger.error("Cannot get {} from db", computeFailureKey);
+      throw new RuntimeException("Cannot get " + computeFailureKey + " from db", e);
     }
   }
 
