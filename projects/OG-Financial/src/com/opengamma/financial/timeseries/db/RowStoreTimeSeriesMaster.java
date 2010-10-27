@@ -750,6 +750,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   private void validateTimeSeriesDocument(TimeSeriesDocument<T> document) {
     ArgumentChecker.notNull(document, "timeseries document");
     ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
+    ArgumentChecker.notNull(document.getIdentifiers(), "identifiers");
     ArgumentChecker.isTrue(!document.getIdentifiers().asIdentifierBundle().getIdentifiers().isEmpty(), "cannot add timeseries with empty identifiers");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataSource()), "cannot add timeseries with blank dataSource");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");

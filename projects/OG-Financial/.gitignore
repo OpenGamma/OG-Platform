@@ -19,3 +19,4 @@ doc/
 /MANIFEST.MF
 .clover/
 .DS_Store
+*.log

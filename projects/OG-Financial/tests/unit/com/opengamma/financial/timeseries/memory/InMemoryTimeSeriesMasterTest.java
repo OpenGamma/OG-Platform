@@ -1,9 +1,10 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.financial.timeseries.memory;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.SortedMap;
-import java.util.TimeZone;
 import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
@@ -33,29 +33,23 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.timeseries.DataFieldBean;
 import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.DataProviderBean;
-import com.opengamma.financial.timeseries.DataSourceBean;
-import com.opengamma.financial.timeseries.ObservationTimeBean;
-import com.opengamma.financial.timeseries.SchemeBean;
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
+import com.opengamma.financial.timeseries.db.RowStoreTimeSeriesMaster;
+import com.opengamma.financial.timeseries.db.TimeSeriesMasterTest;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -65,8 +59,8 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
  * Test.
  */
 @Ignore("Abstract class")
-abstract public class TimeSeriesMasterTest<T> extends DBTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
+abstract public class InMemoryTimeSeriesMasterTest<T> {
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryTimeSeriesMasterTest.class);
   
   private static final int TS_DATASET_SIZE = 1;
 
@@ -84,19 +78,13 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   private Random _random = new Random();
   private TimeSeriesMaster<T> _tsMaster;
   
-  public TimeSeriesMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.info("running testcases for {} version {}", databaseType, databaseVersion);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-  }
-  
-  abstract protected TimeSeriesMaster<T> getTimeSeriesMaster(Map<String, String> namedSQLMap);
   abstract protected DoubleTimeSeries<T> getTimeSeries(MapLocalDateDoubleTimeSeries tsMap);
   abstract protected DoubleTimeSeries<T> getTimeSeries(List<T> dates, List<Double> values);
   abstract protected DoubleTimeSeries<T> getEmptyTimeSeries();
   abstract protected T convert(LocalDate date);
   abstract protected LocalDate convert(T date);
   abstract protected String print(T date);
+  abstract protected TimeSeriesMaster<T> createTimeSeriesMaster();
   
   /**
    * Gets the tsMaster field.
@@ -106,163 +94,154 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     return _tsMaster;
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
-    super.setUp();
-    
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/financial/timeseries/db/tssQueries.xml");
-    Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
-    
-    _tsMaster = getTimeSeriesMaster(namedSQLMap);
+    _tsMaster = createTimeSeriesMaster();
   }
 
-  @Test
-  public void createDataSource() throws Exception {
-    
-    DataSourceBean ds1 = _tsMaster.getOrCreateDataSource("DS1", "DS1");
-    assertNotNull(ds1);
-    assertNotNull(ds1.getId());
-    assertEquals("DS1", ds1.getName());
-    assertEquals("DS1", ds1.getDescription());
-    
-    DataSourceBean ds2 = _tsMaster.getOrCreateDataSource("DS2", "DS2");
-    assertNotNull(ds2);
-    assertNotNull(ds2.getId());
-    assertEquals("DS2", ds2.getName());
-    assertEquals("DS2", ds2.getDescription());
-    
-    List<DataSourceBean> dataSources = _tsMaster.getDataSources();
-    assertNotNull(dataSources);
-    assertTrue(dataSources.size() == 2);
-    assertTrue(dataSources.contains(ds1));
-    assertTrue(dataSources.contains(ds2));
-    
-    _tsMaster.getOrCreateDataSource("DS1", "DS1");
-    _tsMaster.getOrCreateDataSource("DS2", "DS2");
-    dataSources = _tsMaster.getDataSources();
-    assertNotNull(dataSources);
-    assertTrue(dataSources.size() == 2);
-    
-  }
+//  @Test
+//  public void createDataSource() throws Exception {
+//    
+//    DataSourceBean ds1 = _tsMaster.getOrCreateDataSource("DS1", "DS1");
+//    assertNotNull(ds1);
+//    assertNotNull(ds1.getId());
+//    assertEquals("DS1", ds1.getName());
+//    assertEquals("DS1", ds1.getDescription());
+//    
+//    DataSourceBean ds2 = _tsMaster.getOrCreateDataSource("DS2", "DS2");
+//    assertNotNull(ds2);
+//    assertNotNull(ds2.getId());
+//    assertEquals("DS2", ds2.getName());
+//    assertEquals("DS2", ds2.getDescription());
+//    
+//    List<DataSourceBean> dataSources = _tsMaster.getDataSources();
+//    assertNotNull(dataSources);
+//    assertTrue(dataSources.size() == 2);
+//    assertTrue(dataSources.contains(ds1));
+//    assertTrue(dataSources.contains(ds2));
+//    
+//    _tsMaster.getOrCreateDataSource("DS1", "DS1");
+//    _tsMaster.getOrCreateDataSource("DS2", "DS2");
+//    dataSources = _tsMaster.getDataSources();
+//    assertNotNull(dataSources);
+//    assertTrue(dataSources.size() == 2);
+//    
+//  }
 
-  @Test
-  public void createDataProvider() throws Exception {
-    DataProviderBean dp1 = _tsMaster.getOrCreateDataProvider("DP1", "DP1");
-    assertNotNull(dp1);
-    assertNotNull(dp1.getId());
-    assertEquals("DP1", dp1.getName());
-    assertEquals("DP1", dp1.getDescription());
-    
-    DataProviderBean dp2 = _tsMaster.getOrCreateDataProvider("DP2", "DP2");
-    assertNotNull(dp2);
-    assertNotNull(dp2.getId());
-    assertEquals("DP2", dp2.getName());
-    assertEquals("DP2", dp2.getDescription());
-    
-    List<DataProviderBean> dataProviders = _tsMaster.getDataProviders();
-    assertNotNull(dataProviders);
-    assertTrue(dataProviders.size() == 2);
-    assertTrue(dataProviders.contains(dp1));
-    assertTrue(dataProviders.contains(dp2));
-    
-    _tsMaster.getOrCreateDataProvider("DP1", "DP1");
-    _tsMaster.getOrCreateDataProvider("DP2", "DP2");
-    dataProviders = _tsMaster.getDataProviders();
-    assertNotNull(dataProviders);
-    assertTrue(dataProviders.size() == 2);
-        
-  }
-  
-  @Test
-  public void createDataField() throws Exception {
-    
-    DataFieldBean df1 = _tsMaster.getOrCreateDataField("TSF1", "TSF1");
-    assertNotNull(df1);
-    assertNotNull(df1.getId());
-    assertEquals("TSF1", df1.getName());
-    assertEquals("TSF1", df1.getDescription());
-    
-    DataFieldBean df2 = _tsMaster.getOrCreateDataField("TSF2", "TSF2");
-    assertNotNull(df2);
-    assertNotNull(df2.getId());
-    assertEquals("TSF2", df2.getName());
-    assertEquals("TSF2", df2.getDescription());
-    
-    List<DataFieldBean> dataFields = _tsMaster.getDataFields();
-    assertNotNull(dataFields);
-    assertTrue(dataFields.size() == 2);
-    assertTrue(dataFields.contains(df1));
-    assertTrue(dataFields.contains(df2));
-    
-    _tsMaster.getOrCreateDataField("TSF1", "TSF1");
-    _tsMaster.getOrCreateDataField("TSF2", "TSF2");
-    dataFields = _tsMaster.getDataFields();
-    assertNotNull(dataFields);
-    assertTrue(dataFields.size() == 2);
-  }
-  
-  @Test
-  public void createObservationTime() throws Exception {
-    
-    ObservationTimeBean b1 = _tsMaster.getOrCreateObservationTime("OBT1", "OBT1");
-    assertNotNull(b1);
-    assertNotNull(b1.getId());
-    assertEquals("OBT1", b1.getName());
-    assertEquals("OBT1", b1.getDescription());
-    
-    ObservationTimeBean b2 = _tsMaster.getOrCreateObservationTime("OBT2", "OBT2");
-    assertNotNull(b2);
-    assertNotNull(b2.getId());
-    assertEquals("OBT2", b2.getName());
-    assertEquals("OBT2", b2.getDescription());
-    
-    List<ObservationTimeBean> observationTimes = _tsMaster.getObservationTimes();
-    assertNotNull(observationTimes);
-    assertTrue(observationTimes.size() == 2);
-    assertTrue(observationTimes.contains(b1));
-    assertTrue(observationTimes.contains(b2));
-    
-    _tsMaster.getOrCreateObservationTime("OBT1", "OBT1");
-    _tsMaster.getOrCreateObservationTime("OBT2", "OBT2");
-    observationTimes = _tsMaster.getObservationTimes();
-    assertNotNull(observationTimes);
-    assertTrue(observationTimes.size() == 2);
-    
-  }
-  
-  
-  @Test
-  public void createScheme() throws Exception {
-    
-    SchemeBean b1 = _tsMaster.getOrCreateScheme("SCH1", "SCH1");
-    assertNotNull(b1);
-    assertNotNull(b1.getId());
-    assertEquals("SCH1", b1.getName());
-    assertEquals("SCH1", b1.getDescription());
-    
-    SchemeBean b2 = _tsMaster.getOrCreateScheme("SCH2", "SCH2");
-    assertNotNull(b2);
-    assertNotNull(b2.getId());
-    assertEquals("SCH2", b2.getName());
-    assertEquals("SCH2", b2.getDescription());
-    
-    List<SchemeBean> enums = _tsMaster.getSchemes();
-    assertNotNull(enums);
-    assertTrue(enums.size() == 2);
-    assertTrue(enums.contains(b1));
-    assertTrue(enums.contains(b2));
-    
-    _tsMaster.getOrCreateScheme("SCH1", "SCH1");
-    _tsMaster.getOrCreateScheme("SCH2", "SCH2");
-    enums = _tsMaster.getSchemes();
-    assertNotNull(enums);
-    assertTrue(enums.size() == 2);
-    
-  }
+//  @Test
+//  public void createDataProvider() throws Exception {
+//    DataProviderBean dp1 = _tsMaster.getOrCreateDataProvider("DP1", "DP1");
+//    assertNotNull(dp1);
+//    assertNotNull(dp1.getId());
+//    assertEquals("DP1", dp1.getName());
+//    assertEquals("DP1", dp1.getDescription());
+//    
+//    DataProviderBean dp2 = _tsMaster.getOrCreateDataProvider("DP2", "DP2");
+//    assertNotNull(dp2);
+//    assertNotNull(dp2.getId());
+//    assertEquals("DP2", dp2.getName());
+//    assertEquals("DP2", dp2.getDescription());
+//    
+//    List<DataProviderBean> dataProviders = _tsMaster.getDataProviders();
+//    assertNotNull(dataProviders);
+//    assertTrue(dataProviders.size() == 2);
+//    assertTrue(dataProviders.contains(dp1));
+//    assertTrue(dataProviders.contains(dp2));
+//    
+//    _tsMaster.getOrCreateDataProvider("DP1", "DP1");
+//    _tsMaster.getOrCreateDataProvider("DP2", "DP2");
+//    dataProviders = _tsMaster.getDataProviders();
+//    assertNotNull(dataProviders);
+//    assertTrue(dataProviders.size() == 2);
+//        
+//  }
+//  
+//  @Test
+//  public void createDataField() throws Exception {
+//    
+//    DataFieldBean df1 = _tsMaster.getOrCreateDataField("TSF1", "TSF1");
+//    assertNotNull(df1);
+//    assertNotNull(df1.getId());
+//    assertEquals("TSF1", df1.getName());
+//    assertEquals("TSF1", df1.getDescription());
+//    
+//    DataFieldBean df2 = _tsMaster.getOrCreateDataField("TSF2", "TSF2");
+//    assertNotNull(df2);
+//    assertNotNull(df2.getId());
+//    assertEquals("TSF2", df2.getName());
+//    assertEquals("TSF2", df2.getDescription());
+//    
+//    List<DataFieldBean> dataFields = _tsMaster.getDataFields();
+//    assertNotNull(dataFields);
+//    assertTrue(dataFields.size() == 2);
+//    assertTrue(dataFields.contains(df1));
+//    assertTrue(dataFields.contains(df2));
+//    
+//    _tsMaster.getOrCreateDataField("TSF1", "TSF1");
+//    _tsMaster.getOrCreateDataField("TSF2", "TSF2");
+//    dataFields = _tsMaster.getDataFields();
+//    assertNotNull(dataFields);
+//    assertTrue(dataFields.size() == 2);
+//  }
+//  
+//  @Test
+//  public void createObservationTime() throws Exception {
+//    
+//    ObservationTimeBean b1 = _tsMaster.getOrCreateObservationTime("OBT1", "OBT1");
+//    assertNotNull(b1);
+//    assertNotNull(b1.getId());
+//    assertEquals("OBT1", b1.getName());
+//    assertEquals("OBT1", b1.getDescription());
+//    
+//    ObservationTimeBean b2 = _tsMaster.getOrCreateObservationTime("OBT2", "OBT2");
+//    assertNotNull(b2);
+//    assertNotNull(b2.getId());
+//    assertEquals("OBT2", b2.getName());
+//    assertEquals("OBT2", b2.getDescription());
+//    
+//    List<ObservationTimeBean> observationTimes = _tsMaster.getObservationTimes();
+//    assertNotNull(observationTimes);
+//    assertTrue(observationTimes.size() == 2);
+//    assertTrue(observationTimes.contains(b1));
+//    assertTrue(observationTimes.contains(b2));
+//    
+//    _tsMaster.getOrCreateObservationTime("OBT1", "OBT1");
+//    _tsMaster.getOrCreateObservationTime("OBT2", "OBT2");
+//    observationTimes = _tsMaster.getObservationTimes();
+//    assertNotNull(observationTimes);
+//    assertTrue(observationTimes.size() == 2);
+//    
+//  }
+//  
+//  
+//  @Test
+//  public void createScheme() throws Exception {
+//    
+//    SchemeBean b1 = _tsMaster.getOrCreateScheme("SCH1", "SCH1");
+//    assertNotNull(b1);
+//    assertNotNull(b1.getId());
+//    assertEquals("SCH1", b1.getName());
+//    assertEquals("SCH1", b1.getDescription());
+//    
+//    SchemeBean b2 = _tsMaster.getOrCreateScheme("SCH2", "SCH2");
+//    assertNotNull(b2);
+//    assertNotNull(b2.getId());
+//    assertEquals("SCH2", b2.getName());
+//    assertEquals("SCH2", b2.getDescription());
+//    
+//    List<SchemeBean> enums = _tsMaster.getSchemes();
+//    assertNotNull(enums);
+//    assertTrue(enums.size() == 2);
+//    assertTrue(enums.contains(b1));
+//    assertTrue(enums.contains(b2));
+//    
+//    _tsMaster.getOrCreateScheme("SCH1", "SCH1");
+//    _tsMaster.getOrCreateScheme("SCH2", "SCH2");
+//    enums = _tsMaster.getSchemes();
+//    assertNotNull(enums);
+//    assertTrue(enums.size() == 2);
+//    
+//  }
   
   @Test
   public void getAllIdentifiers() throws Exception {
@@ -285,7 +264,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
       tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
       tsDocument.setDataSource(BBG_DATA_SOURCE);
       tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-      setIdentifiers(identifiers, tsDocument);
+      tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
       
       tsDocument.setTimeSeries(timeSeries);
       
@@ -387,7 +366,6 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
       List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
       assertNotNull(documents);
       assertTrue(documents.size() == 1);
-      
       assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
     }
   }
@@ -410,7 +388,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
             tsDocument.setDataProvider(dataProvider);
             tsDocument.setDataSource(dataSource);
             tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-            setIdentifiers(identifiers, tsDocument);
+            tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
             DoubleTimeSeries<T> timeSeries = makeRandomTimeSeries(start, 7);
             assertTrue(timeSeries.size() == 7);
             assertEquals(convert(start), timeSeries.getEarliestTime());
@@ -443,7 +421,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
     tsDocument.setDataSource(BBG_DATA_SOURCE);
     tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-    setIdentifiers(identifiers, tsDocument);
+    tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
     tsDocument.setTimeSeries(timeSeries);
     
     tsDocument = _tsMaster.addTimeSeries(tsDocument);
@@ -462,7 +440,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     otherDoc.setDataProvider(CMPL_DATA_PROVIDER);
     otherDoc.setDataSource(BBG_DATA_SOURCE);
     otherDoc.setObservationTime(LCLOSE_OBSERVATION_TIME);
-    setIdentifiers(identifiers, otherDoc);
+    tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
     otherDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
     try {
       _tsMaster.addTimeSeries(otherDoc);
@@ -470,14 +448,6 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     } catch (IllegalArgumentException ex) {
       //do nothing
     }
-  }
-
-  /**
-   * @param identifiers
-   * @param tsDocument
-   */
-  private void setIdentifiers(IdentifierBundle identifiers, TimeSeriesDocument<T> tsDocument) {
-    tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
   }
   
   @Test
@@ -519,9 +489,11 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   
   @Test
   public void getUnknownUID() throws Exception {
-    addAndTestTimeSeries();
+    List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     try {
-      _tsMaster.getTimeSeries(UniqueIdentifier.of(RowStoreTimeSeriesMaster.IDENTIFIER_SCHEME_DEFAULT, String.valueOf(Long.MIN_VALUE)));
+      TimeSeriesDocument<T> tsDoc = tsList.get(0);
+      String scheme = tsDoc.getUniqueIdentifier().getScheme();
+      _tsMaster.getTimeSeries(UniqueIdentifier.of(scheme, String.valueOf(Long.MIN_VALUE)));
       fail();
     } catch(DataNotFoundException ex) {
       //do nothing
@@ -590,7 +562,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
       tsDocument.setDataProvider(dataProvider);
       tsDocument.setDataSource(BBG_DATA_SOURCE);
       tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-      setIdentifiers(bundle, tsDocument);
+      tsDocument.setIdentifiers(IdentifierBundleWithDates.of(bundle));
       tsDocument.setTimeSeries(timeSeries);
       
       tsDocument = _tsMaster.addTimeSeries(tsDocument);
@@ -731,7 +703,6 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertNotNull(documents);
     assertTrue(tsList.size() == documents.size());
     for (TimeSeriesDocument<T> tsDoc : tsList) {
-      //set timeseries to null for metadata test and set dates
       tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
       tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
       tsDoc.setTimeSeries(null);
@@ -889,7 +860,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
     tsDocument.setDataSource(BBG_DATA_SOURCE);
     tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
-    setIdentifiers(identifiers, tsDocument);
+    tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
     tsDocument.setTimeSeries(timeSeries);
     
     tsDocument = _tsMaster.addTimeSeries(tsDocument);
@@ -1020,25 +991,12 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   
   public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
-    return makeRandomTimeSeriesStatic(previousWeekDay, numDays);
+    return TimeSeriesMasterTest.makeRandomTimeSeriesStatic(previousWeekDay, numDays);
   }
   
   public DoubleTimeSeries<T> makeRandomTimeSeries(LocalDate start, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = makeRandomTimeSeriesStatic(start, numDays);
+    MapLocalDateDoubleTimeSeries tsMap = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(start, numDays);
     return getTimeSeries(tsMap);
-  }
-  
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(LocalDate start, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
-    LocalDate current = start;
-    tsMap.putDataPoint(current, Math.random());
-    while (tsMap.size() < numDays) {
-      if (isWeekday(current)) {
-        tsMap.putDataPoint(current, Math.random());
-      }
-      current = current.plusDays(1);
-    }
-    return tsMap;
   }
   
   private static boolean isWeekday(LocalDate day) {
@@ -1206,5 +1164,4 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertTrue(searchResult.getDocuments().size() == 1);
     assertEquals(expectedTS.get(edu20Buid), searchResult.getDocuments().get(0).getTimeSeries());
   }
-
 }

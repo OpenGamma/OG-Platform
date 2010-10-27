@@ -9,10 +9,13 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames;
+import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataResolver;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -38,7 +41,6 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
    * The timeseries request resolver
    */
   private final TimeSeriesMetaDataResolver _timeSeriesResolver;
-
   /**
    * @param timeSeriesMaster the timeseries master, not-null
    * @param tsResolver the _timeSeries resolver, not-null
@@ -59,7 +61,8 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
   }
 
-  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField, LocalDate start, LocalDate end) {
+  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, 
+      String dataSource, String dataProvider, String dataField, LocalDate start, LocalDate end) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "field");
@@ -117,13 +120,16 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return getHistoricalData(identifiers, (LocalDate) null, (LocalDate) null, (LocalDate) null);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
+    return getHistoricalData(identifiers, configDocName, (LocalDate) null, (LocalDate) null, (LocalDate) null);
   }
 
-  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, LocalDate start, LocalDate end) {
+  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName, LocalDate currentDate, LocalDate start, LocalDate end) {
     ArgumentChecker.isTrue(identifiers != null && !identifiers.getIdentifiers().isEmpty(), "Cannot get historical data with null/empty identifiers");
-    TimeSeriesMetaData metaData = _timeSeriesResolver.getDefaultMetaData(identifiers);
+    if (StringUtils.isBlank(configDocName)) {
+      configDocName = TimeSeriesMetaDataFieldNames.DEFAULT_CONFIG_NAME;
+    }
+    TimeSeriesMetaData metaData = _timeSeriesResolver.getDefaultMetaData(identifiers, configDocName);
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> result = new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
     if (metaData != null) {
       result = getHistoricalData(identifiers, currentDate, metaData.getDataSource(), metaData.getDataProvider(), metaData.getDataField(), start, end);
@@ -144,9 +150,10 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     }
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, field, start, end);
   }
-
+  
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(start, "start date");
     ArgumentChecker.notNull(end, "end date");
     if (!inclusiveStart) {
@@ -155,7 +162,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     if (exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(identifiers, null, start, end);
+    return getHistoricalData(identifiers, configDocName, (LocalDate) null, start, end);
   }
 
   @Override
@@ -192,14 +199,14 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate) {
-    return getHistoricalData(identifiers, currentDate, null, null);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
+    return getHistoricalData(identifiers, configDocName, currentDate, null, null);
   }
 
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, LocalDate start, boolean inclusiveStart, LocalDate end,
-      boolean exclusiveEnd) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(start, "start date");
     ArgumentChecker.notNull(end, "end date");
     if (!inclusiveStart) {
@@ -208,6 +215,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     if (exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(identifiers, currentDate, start, end);
+    return getHistoricalData(identifiers, configDocName, currentDate, start, end);
   }
+
 }
