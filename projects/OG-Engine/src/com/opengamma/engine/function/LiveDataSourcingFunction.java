@@ -67,7 +67,7 @@ public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoke
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     // None by design.
     return Collections.emptySet();
   }

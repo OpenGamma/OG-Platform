@@ -145,7 +145,7 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     return Collections.unmodifiableSet(_requirements);
   }
 

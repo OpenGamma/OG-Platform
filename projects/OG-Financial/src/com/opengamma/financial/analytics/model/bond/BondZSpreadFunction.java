@@ -100,7 +100,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()),
           new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));

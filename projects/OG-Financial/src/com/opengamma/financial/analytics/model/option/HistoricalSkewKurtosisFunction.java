@@ -111,7 +111,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     return Collections.<ValueRequirement>emptySet();
   }
 

@@ -38,7 +38,7 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     Position position = target.getPosition();
     Security security = position.getSecurity();
     ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security

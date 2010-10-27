@@ -60,7 +60,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();

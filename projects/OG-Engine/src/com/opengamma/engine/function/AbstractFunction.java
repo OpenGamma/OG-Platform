@@ -50,7 +50,14 @@ public abstract class AbstractFunction implements FunctionDefinition {
     public Set<ValueSpecification> getRequiredLiveData() {
       return getRequiredLiveDataImpl();
     }
-
+    
+    /**
+     * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target The target for which calculation is desired.
+     * @param inputs The resolved inputs to the function.
+     * @return the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}
+     */
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
       return getResults(context, target);
@@ -90,6 +97,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
       super(earliestInvocation, latestInvocation);
     }
 
+    /**
+     * Returns this instance.
+     * @return this instance
+     */
     @Override
     public final FunctionInvoker getFunctionInvoker() {
       return this;
@@ -123,6 +134,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
     _uniqueIdentifier = uniqueIdentifier;
   }
 
+  /**
+   * Default implementation performs no initialization action.
+   * @param context the function compilation context
+   */
   @Override
   public void init(FunctionCompilationContext context) {
   }
@@ -131,9 +146,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
     return Collections.emptySet();
   }
 
+  /**
+   * Default implementation indicates no parameters.
+   * @return an {@link EmptyFunctionParameters} instance
+   */
   @Override
   public FunctionParameters getDefaultParameters() {
-    // by default, a function has no parameters.
     return new EmptyFunctionParameters();
   }
 
@@ -152,21 +170,42 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return getRequiredLiveDataImpl();
     }
 
+    /**
+     * Returns this instance - there is no compile time state.
+     * @param context the function compilation context
+     * @param atInstant the compilation time
+     * @return this instance
+     */
     @Override
     public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
       return this;
     }
 
+    /**
+     * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target The target for which calculation is desired.
+     * @param inputs The resolved inputs to the function.
+     * @return the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}
+     */
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
       return getResults(context, target);
     }
 
+    /**
+     * Returns {@code null} indicating always valid.
+     * @return {@code null}
+     */
     @Override
     public final Instant getEarliestInvocationTime() {
       return null;
     }
 
+    /**
+     * Returns {@code null} indicating always valid.
+     * @return {@code null}
+     */
     @Override
     public final Instant getLatestInvocationTime() {
       return null;
@@ -180,6 +219,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
    */
   public abstract static class NonCompiledInvoker extends NonCompiled implements FunctionInvoker {
 
+    /**
+     * Returns this instance.
+     * @return this instance
+     */
     @Override
     public final FunctionInvoker getFunctionInvoker() {
       return this;

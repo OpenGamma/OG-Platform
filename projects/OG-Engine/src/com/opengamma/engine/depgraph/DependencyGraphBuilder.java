@@ -214,8 +214,7 @@ public class DependencyGraphBuilder {
           // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
           try {
             final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
-            // TODO: pass the composed requirement in to allow downstream dynamic composition
-            Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget());
+            Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), resolved.getValueRequirement());
             node.dimInputState(inputRequirements.size());
             boolean pendingInputStates = false;
             for (ValueRequirement inputRequirement : inputRequirements) {

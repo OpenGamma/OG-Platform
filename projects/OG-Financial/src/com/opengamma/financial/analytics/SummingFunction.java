@@ -95,7 +95,7 @@ public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final PortfolioNode node = target.getPortfolioNode();
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
