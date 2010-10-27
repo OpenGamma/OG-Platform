@@ -21,7 +21,7 @@ import com.opengamma.util.PublicAPI;
  * An immutable set of constraints on the values required, or properties of the value produced.
  */
 @PublicAPI
-public final class ValueProperties implements Serializable {
+public abstract class ValueProperties implements Serializable {
 
   /**
    * Builder pattern for constructing properties.
@@ -90,33 +90,265 @@ public final class ValueProperties implements Serializable {
       return this;
     }
 
+    public Builder withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      _properties.remove(propertyName);
+      return this;
+    }
+
     public ValueProperties get() {
       if (_properties.isEmpty()) {
         return EMPTY;
       }
-      return new ValueProperties(Collections.unmodifiableMap(_properties));
+      return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties));
     }
 
   }
 
-  private static final ValueProperties EMPTY = new ValueProperties(Collections.<String, Set<String>> emptyMap());
+  private static final class ValuePropertiesImpl extends ValueProperties {
 
-  private final Map<String, Set<String>> _properties;
+    private final Map<String, Set<String>> _properties;
 
-  private ValueProperties(final Map<String, Set<String>> properties) {
-    _properties = properties;
+    private ValuePropertiesImpl(final Map<String, Set<String>> properties) {
+      _properties = properties;
+    }
+
+    @Override
+    public Builder copy() {
+      return new Builder(_properties);
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return _properties.keySet();
+    }
+
+    @Override
+    public Set<String> getValues(final String propertyName) {
+      return _properties.get(propertyName);
+    }
+
+    @Override
+    public boolean isSatisfiedBy(final ValueProperties properties) {
+      assert properties != null;
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+        final Set<String> available = properties.getValues(property.getKey());
+        if (available == null) {
+          // Can't be satisfied - required property never defined
+          return false;
+        }
+        if (available.isEmpty() || property.getValue().isEmpty()) {
+          // Other properties can supply anything - satisfying this requirement
+          // or this requirement is for anything and so satisfied.
+          continue;
+        }
+        for (String value : property.getValue()) {
+          if (available.contains(value)) {
+            // There is at least one value that can satisfy this requirement
+            continue nextProperty;
+          }
+        }
+        // This requirement cannot be satisfied
+        return false;
+      }
+      return true;
+    }
+
+    @Override
+    public ValueProperties compose(final ValueProperties properties) {
+      assert properties != null;
+      assert properties.isSatisfiedBy(this);
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+        final Set<String> available = properties.getValues(property.getKey());
+        if ((available == null) || available.isEmpty()) {
+          // This property unchanged in output
+          continue;
+        }
+        if (property.getValue().isEmpty()) {
+          // Requires a subset in the output
+          return composeImpl(properties);
+        }
+        if (property.getValue().size() != available.size()) {
+          // Requires an intersection in the output
+          return composeImpl(properties);
+        }
+        for (String value : property.getValue()) {
+          if (!available.contains(value)) {
+            // Requires an intersection in the output
+            return composeImpl(properties);
+          }
+        }
+      }
+      return this;
+    }
+
+    private ValueProperties composeImpl(final ValueProperties properties) {
+      final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
+      int otherAvailable = 0;
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+        final Set<String> available = properties.getValues(property.getKey());
+        if (available == null) {
+          // Other is nothing, or wild-card so use these values
+          composed.put(property.getKey(), property.getValue());
+          continue;
+        }
+        if (property.getValue().isEmpty()) {
+          // This is a wild-card so use other values
+          composed.put(property.getKey(), available);
+          otherAvailable++;
+          continue;
+        }
+        if (available.isEmpty()) {
+          // Other is wild-card so use current value
+          composed.put(property.getKey(), property.getValue());
+          continue;
+        }
+        if (property.getValue().size() != available.size()) {
+          composed.put(property.getKey(), intersect(property.getValue(), available));
+          continue;
+        }
+        for (String value : property.getValue()) {
+          if (!available.contains(value)) {
+            composed.put(property.getKey(), intersect(property.getValue(), available));
+            continue nextProperty;
+          }
+        }
+        // Property is identical in both
+        composed.put(property.getKey(), property.getValue());
+      }
+      if (otherAvailable == _properties.size()) {
+        return properties;
+      } else {
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed));
+      }
+    }
+
+    private static <T> Set<T> intersect(final Set<T> a, final Set<T> b) {
+      final Set<T> result = new HashSet<T>();
+      for (T v : a) {
+        if (b.contains(v)) {
+          result.add(v);
+        }
+      }
+      return result;
+    }
+
+    @Override
+    public boolean isStrict() {
+      for (Set<String> property : _properties.values()) {
+        if (property.size() != 1) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof ValuePropertiesImpl)) {
+        return false;
+      }
+      final ValuePropertiesImpl other = (ValuePropertiesImpl) o;
+      return _properties.equals(other._properties);
+    }
+
+    @Override
+    public int hashCode() {
+      return _properties.hashCode();
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return _properties.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("{");
+      boolean first = true;
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(", ");
+        }
+        sb.append(property.getKey()).append("=").append(property.getValue());
+      }
+      sb.append("}");
+      return sb.toString();
+    }
+
   }
+
+  /**
+   * Implements the infinite property set.
+   */
+  private static final ValueProperties INFINITE = new ValueProperties() {
+
+    @Override
+    public ValueProperties compose(final ValueProperties properties) {
+      return properties;
+    }
+
+    @Override
+    public Builder copy() {
+      throw new UnsupportedOperationException("Can't copy the infinite set");
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getValues(String propertyName) {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public boolean isSatisfiedBy(ValueProperties properties) {
+      return !properties.isEmpty();
+    }
+
+    @Override
+    public boolean isStrict() {
+      return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return "INF";
+    }
+
+  };
+
+  private static final ValueProperties EMPTY = new ValuePropertiesImpl(Collections.<String, Set<String>> emptyMap());
 
   public static ValueProperties none() {
     return EMPTY;
   }
 
-  public static Builder builder() {
-    return new Builder();
+  /**
+   * Returns a property set that simulates all possible properties. This should be used with caution - well written
+   * functions should build a property set explicitly stating the properties recognized.
+   * 
+   * @return the "infinite" property set 
+   */
+  public static ValueProperties all() {
+    return INFINITE;
   }
 
-  public Builder copy() {
-    return new Builder(_properties);
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static Builder with(final String propertyName, final String propertyValue) {
@@ -136,13 +368,18 @@ public final class ValueProperties implements Serializable {
   }
 
   /**
+   * Returns a builder pre-populated with the properties from this set.
+   * 
+   * @return the builder
+   */
+  public abstract Builder copy();
+
+  /**
    * Returns an immutable set of defined property names.
    * 
    * @return the property names, not {@code null}
    */
-  public Set<String> getProperties() {
-    return _properties.keySet();
-  }
+  public abstract Set<String> getProperties();
 
   /**
    * Returns an immutable set of values for a given property name. If the name is not defined,
@@ -151,9 +388,7 @@ public final class ValueProperties implements Serializable {
    * @param propertyName the name required, not {@code null}
    * @return the set of values, empty if wild-card, {@code null} if not defined
    */
-  public Set<String> getValues(final String propertyName) {
-    return _properties.get(propertyName);
-  }
+  public abstract Set<String> getValues(String propertyName);
 
   /**
    * Tests if this set of properties can be satisfied by the other set. An individual property is
@@ -168,30 +403,7 @@ public final class ValueProperties implements Serializable {
    * @param properties other property set to check against, not {@code null}
    * @return {@code true} if this set of properties can be satisfied by the other set, {@code false} otherwise
    */
-  public boolean isSatisfiedBy(final ValueProperties properties) {
-    assert properties != null;
-    nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-      final Set<String> available = properties.getValues(property.getKey());
-      if (available == null) {
-        // Can't be satisfied - required property never defined
-        return false;
-      }
-      if (available.isEmpty() || property.getValue().isEmpty()) {
-        // Other properties can supply anything - satisfying this requirement
-        // or this requirement is for anything and so satisfied.
-        continue;
-      }
-      for (String value : property.getValue()) {
-        if (available.contains(value)) {
-          // There is at least one value that can satisfy this requirement
-          continue nextProperty;
-        }
-      }
-      // This requirement cannot be satisfied
-      return false;
-    }
-    return true;
-  }
+  public abstract boolean isSatisfiedBy(ValueProperties properties);
 
   /**
    * Produces a set of properties such that for any properties defined by the other, the intersection
@@ -201,83 +413,7 @@ public final class ValueProperties implements Serializable {
    * @param properties other property set to compose against, not {@code null}
    * @return the new set of properties, or this object if the composition result is equal
    */
-  public ValueProperties compose(final ValueProperties properties) {
-    assert properties != null;
-    assert properties.isSatisfiedBy(this);
-    for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-      final Set<String> available = properties.getValues(property.getKey());
-      if ((available == null) || available.isEmpty()) {
-        // This property unchanged in output
-        continue;
-      }
-      if (property.getValue().isEmpty()) {
-        // Requires a subset in the output
-        return composeImpl(properties);
-      }
-      if (property.getValue().size() != available.size()) {
-        // Requires an intersection in the output
-        return composeImpl(properties);
-      }
-      for (String value : property.getValue()) {
-        if (!available.contains(value)) {
-          // Requires an intersection in the output
-          return composeImpl(properties);
-        }
-      }
-    }
-    return this;
-  }
-
-  private ValueProperties composeImpl(final ValueProperties properties) {
-    final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
-    int otherAvailable = 0;
-    nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-      final Set<String> available = properties.getValues(property.getKey());
-      if (available == null) {
-        // Other is nothing, or wild-card so use these values
-        composed.put(property.getKey(), property.getValue());
-        continue;
-      }
-      if (property.getValue().isEmpty()) {
-        // This is a wild-card so use other values
-        composed.put(property.getKey(), available);
-        otherAvailable++;
-        continue;
-      }
-      if (available.isEmpty()) {
-        // Other is wild-card so use current value
-        composed.put(property.getKey(), property.getValue());
-        continue;
-      }
-      if (property.getValue().size() != available.size()) {
-        composed.put(property.getKey(), intersect(property.getValue(), available));
-        continue;
-      }
-      for (String value : property.getValue()) {
-        if (!available.contains(value)) {
-          composed.put(property.getKey(), intersect(property.getValue(), available));
-          continue nextProperty;
-        }
-      }
-      // Property is identical in both
-      composed.put(property.getKey(), property.getValue());
-    }
-    if (otherAvailable == _properties.size()) {
-      return properties;
-    } else {
-      return new ValueProperties(Collections.unmodifiableMap(composed));
-    }
-  }
-
-  private static <T> Set<T> intersect(final Set<T> a, final Set<T> b) {
-    final Set<T> result = new HashSet<T>();
-    for (T v : a) {
-      if (b.contains(v)) {
-        result.add(v);
-      }
-    }
-    return result;
-  }
+  public abstract ValueProperties compose(ValueProperties properties);
 
   /**
    * Tests if the set of properties is strict. A property set is strict if there is only one value
@@ -285,51 +421,13 @@ public final class ValueProperties implements Serializable {
    * 
    * @return {@code true} if the property set is strict, {@code false} otherwise
    */
-  public boolean isStrict() {
-    for (Set<String> property : _properties.values()) {
-      if (property.size() != 1) {
-        return false;
-      }
-    }
-    return true;
-  }
+  public abstract boolean isStrict();
 
-  @Override
-  public boolean equals(final Object o) {
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof ValueProperties)) {
-      return false;
-    }
-    final ValueProperties other = (ValueProperties) o;
-    return _properties.equals(other._properties);
-  }
-
-  @Override
-  public int hashCode() {
-    return _properties.hashCode();
-  }
-
-  public boolean isEmpty() {
-    return _properties.isEmpty();
-  }
-
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder();
-    sb.append("{");
-    boolean first = true;
-    for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
-      if (first) {
-        first = false;
-      } else {
-        sb.append(", ");
-      }
-      sb.append(property.getKey()).append("=").append(property.getValue());
-    }
-    sb.append("}");
-    return sb.toString();
-  }
+  /**
+   * Tests if the set of properties is empty.
+   * 
+   * @return {@code true} if the property set is empty, {@code false} otherwise
+   */
+  public abstract boolean isEmpty();
 
 }

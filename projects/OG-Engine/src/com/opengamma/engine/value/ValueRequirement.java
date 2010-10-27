@@ -6,6 +6,7 @@
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -68,7 +69,7 @@ public final class ValueRequirement implements Serializable {
   public ValueRequirement(String valueName, Object target) {
     this(valueName, new ComputationTargetSpecification(target));
   }
-  
+
   public ValueRequirement(String valueName, Object target, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(target), constraints);
   }
@@ -110,6 +111,17 @@ public final class ValueRequirement implements Serializable {
 
   public ValueProperties getConstraints() {
     return _constraints;
+  }
+
+  public String getConstraint(final String constraintName) {
+    final Set<String> values = _constraints.getValues(constraintName);
+    if (values == null) {
+      return null;
+    } else if (values.isEmpty()) {
+      throw new IllegalArgumentException("constraint " + constraintName + " contains only wild-card values");
+    } else {
+      return values.iterator().next();
+    }
   }
 
   // -------------------------------------------------------------------------

@@ -81,6 +81,17 @@ public class ValueSpecification implements java.io.Serializable {
     return _properties;
   }
 
+  public String getProperty(final String propertyName) {
+    final Set<String> values = _properties.getValues(propertyName);
+    if (values == null) {
+      return null;
+    } else if (values.isEmpty()) {
+      throw new IllegalArgumentException("property " + propertyName + " contains only wild-card values");
+    } else {
+      return values.iterator().next();
+    }
+  }
+
   /**
    * Creates the maximal {@link ValueRequirement} that would be satisfied by this value specification.
    * 
@@ -95,12 +106,7 @@ public class ValueSpecification implements java.io.Serializable {
    * @return the function identifier
    **/
   public String getFunctionUniqueId() {
-    final Set<String> values = _properties.getValues(ValuePropertyNames.FUNCTION);
-    if (values == null) {
-      return null;
-    } else {
-      return values.iterator().next();
-    }
+    return getProperty(ValuePropertyNames.FUNCTION);
   }
 
   /**
