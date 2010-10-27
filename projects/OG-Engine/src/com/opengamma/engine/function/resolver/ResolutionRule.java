@@ -67,7 +67,9 @@ public class ResolutionRule {
    * </ul>  
    * @param context This should really be refactored out.
    * @return Null if this the function advertised by this rule cannot produce 
-   * the desired output, a valid ValueSpecification otherwise
+   * the desired output, a valid ValueSpecification otherwise - as returned by
+   * the function. The specification is not composed against the requirement
+   * constraints.
    */
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
     CompiledFunctionDefinition function = _parameterizedFunction.getFunction();

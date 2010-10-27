@@ -155,7 +155,7 @@ public class DependencyGraphBuilder {
       s_logger.debug("{} existing nodes found", existingNodes.size());
       resolutionState = new ResolutionState(requirement);
       resolutionState.addExistingNodes(existingNodes);
-      // It it's live data, stop now. Otherwise fall through to the functions as they may be more generic than the
+      // If it's live data, stop now. Otherwise fall through to the functions as they may be more generic than the
       // composed specifications attached to the nodes found
       if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
         return resolutionState;
