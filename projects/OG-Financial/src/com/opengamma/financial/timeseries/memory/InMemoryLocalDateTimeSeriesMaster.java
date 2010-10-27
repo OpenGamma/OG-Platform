@@ -10,12 +10,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +26,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
 import com.opengamma.financial.timeseries.DataFieldBean;
 import com.opengamma.financial.timeseries.DataPointDocument;
 import com.opengamma.financial.timeseries.DataProviderBean;
@@ -56,7 +60,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   /**
    * A cache of LocalDate Timeseries by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>>();
+  private final ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>>();
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
@@ -385,8 +389,17 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
 
   @Override
-  public TimeSeriesSearchHistoricResult<LocalDate> searchHistoric(TimeSeriesSearchHistoricRequest request) {
-    return null;
+  public TimeSeriesSearchHistoricResult<LocalDate> searchHistoric(final TimeSeriesSearchHistoricRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getTimeSeriesId(), "request.timeseriesId");
+    
+    final TimeSeriesSearchHistoricResult<LocalDate> result = new TimeSeriesSearchHistoricResult<LocalDate>();
+    TimeSeriesDocument<LocalDate> doc = getTimeSeries(request.getTimeSeriesId());
+    if (doc != null) {
+      result.getDocuments().add(doc);
+    }
+    result.setPaging(Paging.of(result.getDocuments()));
+    return result;
   }
   
   @Override
