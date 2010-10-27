@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.world.holiday.master;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  * Each element is stored in a document.
  */
 @BeanDefinition
-public class HolidayDocument extends DirectBean {
+public class HolidayDocument extends DirectBean implements Serializable {
 
   /**
    * The holiday unique identifier.
