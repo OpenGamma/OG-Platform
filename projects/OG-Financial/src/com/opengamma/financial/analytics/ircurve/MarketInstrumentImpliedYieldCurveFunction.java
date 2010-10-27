@@ -36,6 +36,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -142,7 +143,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _fundingCurveResult = new ValueSpecification(new ValueRequirement(_fundingCurveValueRequirementName, _currency), getUniqueIdentifier());
     _forwardCurveResult = new ValueSpecification(new ValueRequirement(_forwardCurveValueRequirementName, _currency), getUniqueIdentifier());
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, _currency), getUniqueIdentifier());
+    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, _currency, ValueProperties.with("FUNDING", _fundingCurveValueRequirementName).with(
+        "FORWARD", _forwardCurveValueRequirementName).get()), getUniqueIdentifier());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
