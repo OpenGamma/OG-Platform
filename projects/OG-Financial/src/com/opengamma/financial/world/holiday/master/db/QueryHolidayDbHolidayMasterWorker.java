@@ -191,7 +191,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     if (request.getRegionIdentifiers() != null) {
       where += "AND (" + sqlSelectIdKeys(request.getRegionIdentifiers(), "region") + ") ";
     }
-    if (request.getRegionIdentifiers() != null) {
+    if (request.getExchangeIdentifiers() != null) {
       where += "AND (" + sqlSelectIdKeys(request.getExchangeIdentifiers(), "exchange") + ") ";
     }
     if (request.getCurrency() != null) {
