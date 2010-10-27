@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.world.holiday.master;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * This implementation is used by the holiday master to store and manipulate the data.
  */
 @BeanDefinition
-public class ManageableHoliday extends DirectBean implements Holiday {
+public class ManageableHoliday extends DirectBean implements Holiday, Serializable {
 
   /**
    * The unique identifier of the holiday.
