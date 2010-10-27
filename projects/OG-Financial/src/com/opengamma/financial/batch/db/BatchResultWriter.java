@@ -667,6 +667,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       
     } catch (DataAccessException e) {
       // maybe the row was already there
+      s_logger.debug("Failed to save compute failure", e);
     }
     
     try {
@@ -683,8 +684,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       return computeFailure;
 
     } catch (IncorrectResultSizeDataAccessException e) {
-      s_logger.error("Cannot get {} from db", computeFailure);
-      throw new RuntimeException("Cannot get " + computeFailure + " from db", e);
+      s_logger.error("Cannot get {} from db", computeFailureKey);
+      throw new RuntimeException("Cannot get " + computeFailureKey + " from db", e);
     }
   }
 

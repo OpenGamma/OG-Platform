@@ -479,6 +479,27 @@ public class BatchResultWriterTest extends HibernateTest {
   }
   
   @Test
+  public void functionExecutionThrewExceptionNullMessage() {
+    CalculationJobResultItem item = new CalculationJobResultItem(
+        _calcJob.getJobItems().get(0),
+        new RuntimeException((String) null));
+    
+    CalculationJobResult result = new CalculationJobResult(
+        _calcJob.getSpecification(),
+        200,
+        Collections.singletonList(item),
+        "localhost");
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result, null);
+    
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
+  }
+  
+  @Test
   public void missingFunctionInputs() {
     CalculationJobResultItem item = new CalculationJobResultItem(
         _calcJob.getJobItems().get(0),

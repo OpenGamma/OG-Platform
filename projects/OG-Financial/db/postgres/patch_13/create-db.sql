@@ -794,7 +794,7 @@ create table rsk_compute_failure (
     id bigint not null,
     function_id varchar(255) not null,
     exception_class varchar(255) not null,
-    exception_msg varchar(255) not null,                  
+    exception_msg varchar(255),                  
     stack_trace varchar(2000) not null,         -- first 2000 chars. not including msg
     
     primary key (id),
