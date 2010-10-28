@@ -87,12 +87,24 @@ public class HolidayDocument extends DirectBean implements Serializable {
 
   /**
    * Creates an instance from a holiday.
+   * <p>
+   * This will call {@link #createName()} to build a suitable name.
+   * 
    * @param holiday  the exchange, not null
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
     setHolidayId(holiday.getUniqueIdentifier());
-    setHoliday(ManageableHoliday.copyOf(holiday));
+    setHoliday(new ManageableHoliday(holiday));
+    createName();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a name based on the holiday.
+   */
+  public void createName() {
+    ManageableHoliday holiday = getHoliday();
     switch (holiday.getType()) {
       case BANK:
         setName(holiday.getRegionId().getValue());

@@ -84,18 +84,15 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * This copies the specified holiday creating an independent copy.
    * 
    * @param holiday  the holiday to copy, not null
-   * @return a new holiday copying the old one, not null
    */
-  public static ManageableHoliday copyOf(final Holiday holiday) {
+  public ManageableHoliday(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
-    ManageableHoliday copy = new ManageableHoliday();
-    copy.setUniqueIdentifier(holiday.getUniqueIdentifier());
-    copy.setType(holiday.getType());
-    copy.setRegionId(holiday.getRegionId());
-    copy.setExchangeId(holiday.getExchangeId());
-    copy.setCurrencyISO(holiday.getCurrencyISO());
-    copy.setHolidayDates(holiday.getHolidayDates());
-    return copy;
+    setUniqueIdentifier(holiday.getUniqueIdentifier());
+    setType(holiday.getType());
+    setRegionId(holiday.getRegionId());
+    setExchangeId(holiday.getExchangeId());
+    setCurrencyISO(holiday.getCurrencyISO());
+    setHolidayDates(holiday.getHolidayDates());
   }
 
   /**

@@ -75,6 +75,15 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request, "request");
     final HolidaySearchResult result = new HolidaySearchResult();
     Collection<HolidayDocument> docs = _holidays.values();
+    if (request.getProviderId() != null) {
+      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
+        @Override
+        public boolean apply(final HolidayDocument doc) {
+          return doc.getHoliday().getRegionId() != null &&
+            request.getProviderId().equals(doc.getProviderId());
+        }
+      });
+    }
     if (request.getCurrency() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
@@ -146,11 +155,12 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueIdentifier(uid);
     final Instant now = Instant.nowSystemClock();
-    final HolidayDocument doc = new HolidayDocument(holiday);
-    doc.setVersionFromInstant(now);
-    doc.setCorrectionFromInstant(now);
-    _holidays.put(uid, doc);  // unique identifier should be unique
-    return doc;
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    _holidays.put(uid, document);  // unique identifier should be unique
+    return document;
   }
 
   //-------------------------------------------------------------------------
@@ -167,10 +177,10 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     if (storedDocument == null) {
       throw new DataNotFoundException("Holiday not found: " + uid);
     }
-    final ManageableHoliday holiday = document.getHoliday();
-    final HolidayDocument doc = new HolidayDocument(holiday);
-    doc.setVersionFromInstant(now);
-    doc.setCorrectionFromInstant(now);
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
     if (_holidays.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
