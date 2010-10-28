@@ -476,6 +476,9 @@ public class DBTool extends Task {
         return patchNo1Int.compareTo(patchNo2Int);
       }
     });
+    if (scriptDirs.isEmpty()) {
+      throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
+    }
     return scriptDirs.toArray(new File[0]);
   }
   
