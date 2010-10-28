@@ -12,6 +12,8 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
@@ -156,6 +158,15 @@ public abstract class AbstractFunction implements FunctionDefinition {
   protected static Set<ValueRequirement> getAdditionalRequirementsImpl(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
       final Set<ValueSpecification> outputs) {
     return Collections.emptySet();
+  }
+
+  /**
+   * Creates a value property builder populated with the function identifier and otherwise empty.
+   * 
+   * @return the builder
+   */
+  protected ValueProperties.Builder createValueProperties() {
+    return ValueProperties.with(ValuePropertyNames.FUNCTION, getUniqueIdentifier());
   }
 
   /**

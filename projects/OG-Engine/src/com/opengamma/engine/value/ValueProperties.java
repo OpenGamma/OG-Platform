@@ -29,13 +29,15 @@ public abstract class ValueProperties implements Serializable {
   public static final class Builder {
 
     private final Map<String, Set<String>> _properties;
+    private Set<String> _optional;
 
     private Builder() {
       _properties = new HashMap<String, Set<String>>();
     }
 
-    private Builder(final Map<String, Set<String>> properties) {
+    private Builder(final Map<String, Set<String>> properties, final Set<String> optional) {
       _properties = new HashMap<String, Set<String>>(properties);
+      _optional = (optional != null) ? new HashSet<String>(optional) : null;
     }
 
     public Builder with(String propertyName, final String propertyValue) {
@@ -90,6 +92,15 @@ public abstract class ValueProperties implements Serializable {
       return this;
     }
 
+    public Builder withOptional(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      if (_optional == null) {
+        _optional = new HashSet<String>();
+      }
+      _optional.add(propertyName);
+      return this;
+    }
+
     public Builder withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       _properties.remove(propertyName);
@@ -97,10 +108,19 @@ public abstract class ValueProperties implements Serializable {
     }
 
     public ValueProperties get() {
-      if (_properties.isEmpty()) {
-        return EMPTY;
+      if (_optional != null) {
+        for (String optionalProperty : _optional) {
+          if (!_properties.containsKey(optionalProperty)) {
+            _properties.put(optionalProperty, Collections.<String> emptySet());
+          }
+        }
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
+      } else {
+        if (_properties.isEmpty()) {
+          return EMPTY;
+        }
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
       }
-      return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties));
     }
 
   }
@@ -108,14 +128,16 @@ public abstract class ValueProperties implements Serializable {
   private static final class ValuePropertiesImpl extends ValueProperties {
 
     private final Map<String, Set<String>> _properties;
+    private final Set<String> _optional;
 
-    private ValuePropertiesImpl(final Map<String, Set<String>> properties) {
+    private ValuePropertiesImpl(final Map<String, Set<String>> properties, final Set<String> optional) {
       _properties = properties;
+      _optional = optional;
     }
 
     @Override
     public Builder copy() {
-      return new Builder(_properties);
+      return new Builder(_properties, _optional);
     }
 
     @Override
@@ -129,13 +151,27 @@ public abstract class ValueProperties implements Serializable {
     }
 
     @Override
+    public boolean isOptional(final String propertyName) {
+      return _optional.contains(propertyName);
+    }
+
+    @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
       nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
-          // Can't be satisfied - required property never defined
-          return false;
+          if (!isOptional(property.getKey())) {
+            // Can't be satisfied - required property never defined
+            return false;
+          }
+          continue;
+        }
+        if (!isOptional(property.getKey())) {
+          if (properties.isOptional(property.getKey())) {
+            // Can't be satisfied - required property might not be defined
+            return false;
+          }
         }
         if (available.isEmpty() || property.getValue().isEmpty()) {
           // Other properties can supply anything - satisfying this requirement
@@ -157,7 +193,6 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public ValueProperties compose(final ValueProperties properties) {
       assert properties != null;
-      assert properties.isSatisfiedBy(this);
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if ((available == null) || available.isEmpty()) {
@@ -184,13 +219,28 @@ public abstract class ValueProperties implements Serializable {
 
     private ValueProperties composeImpl(final ValueProperties properties) {
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
+      Set<String> optional = null;
       int otherAvailable = 0;
       nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
-          // Other is nothing, or wild-card so use these values
+          // Other is not defined, so use current value
           composed.put(property.getKey(), property.getValue());
+          // Preserve optionality from this property set
+          if (isOptional(property.getKey())) {
+            if (optional == null) {
+              optional = new HashSet<String>();
+            }
+            optional.add(property.getKey());
+          }
           continue;
+        }
+        // Preserve optionality from the other property set
+        if (properties.isOptional(property.getKey())) {
+          if (optional == null) {
+            optional = new HashSet<String>();
+          }
+          optional.add(property.getKey());
         }
         if (property.getValue().isEmpty()) {
           // This is a wild-card so use other values
@@ -216,10 +266,11 @@ public abstract class ValueProperties implements Serializable {
         // Property is identical in both
         composed.put(property.getKey(), property.getValue());
       }
-      if (otherAvailable == _properties.size()) {
+      if ((composed.size() == otherAvailable) && (otherAvailable == _properties.size())) {
+        // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed));
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
       }
     }
 
@@ -274,14 +325,16 @@ public abstract class ValueProperties implements Serializable {
         if (first) {
           first = false;
         } else {
-          sb.append(", ");
+          sb.append(",");
         }
         sb.append(property.getKey()).append("=").append(property.getValue());
+        if (isOptional(property.getKey())) {
+          sb.append("?");
+        }
       }
       sb.append("}");
       return sb.toString();
     }
-
   }
 
   /**
@@ -291,7 +344,8 @@ public abstract class ValueProperties implements Serializable {
 
     @Override
     public ValueProperties compose(final ValueProperties properties) {
-      return properties;
+      // Any composition yields the infinite set again
+      return this;
     }
 
     @Override
@@ -310,17 +364,26 @@ public abstract class ValueProperties implements Serializable {
     }
 
     @Override
+    public boolean isOptional(String propertyName) {
+      // Everything's required
+      return false;
+    }
+
+    @Override
     public boolean isSatisfiedBy(ValueProperties properties) {
-      return !properties.isEmpty();
+      // Only the infinite set can satisfy
+      return (properties == this);
     }
 
     @Override
     public boolean isStrict() {
+      // Not strict by definition
       return false;
     }
 
     @Override
     public boolean isEmpty() {
+      // Not empty by definition
       return false;
     }
 
@@ -331,7 +394,64 @@ public abstract class ValueProperties implements Serializable {
 
   };
 
-  private static final ValueProperties EMPTY = new ValuePropertiesImpl(Collections.<String, Set<String>> emptyMap());
+  /**
+   * Implements the empty set.
+   */
+  private static final ValueProperties EMPTY = new ValueProperties() {
+
+    @Override
+    public ValueProperties compose(ValueProperties properties) {
+      // The only thing satisfied by the empty set is the empty set, or a set with only optional properties
+      return this;
+    }
+
+    @Override
+    public Builder copy() {
+      return new Builder();
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      // No properties
+      return null;
+    }
+
+    @Override
+    public Set<String> getValues(String propertyName) {
+      // No values for anything
+      return null;
+    }
+
+    @Override
+    public boolean isOptional(String propertyName) {
+      // Alwyas false as no properties in the set
+      return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      // Always empty
+      return true;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(ValueProperties properties) {
+      // Satisfied by anything
+      return true;
+    }
+
+    @Override
+    public boolean isStrict() {
+      // Empty is strict
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return "EMPTY";
+    }
+
+  };
 
   public static ValueProperties none() {
     return EMPTY;
@@ -367,6 +487,10 @@ public abstract class ValueProperties implements Serializable {
     return builder().withAny(propertyName);
   }
 
+  public static Builder withOptional(final String propertyName) {
+    return builder().withOptional(propertyName);
+  }
+
   /**
    * Returns a builder pre-populated with the properties from this set.
    * 
@@ -391,6 +515,14 @@ public abstract class ValueProperties implements Serializable {
   public abstract Set<String> getValues(String propertyName);
 
   /**
+   * Indicates if a property may be omitted.
+   * 
+   * @param propertyName the name required, not {@code null}
+   * @return {@code true} if the property is optional, {@code false} if it is not defined or required
+   */
+  public abstract boolean isOptional(String propertyName);
+
+  /**
    * Tests if this set of properties can be satisfied by the other set. An individual property is
    * satisfied if:
    * 
@@ -408,7 +540,7 @@ public abstract class ValueProperties implements Serializable {
   /**
    * Produces a set of properties such that for any properties defined by the other, the intersection
    * of the property values is taken. Any properties defined in this set not but not in the other remain
-   * untouched. Requires {@code properties.isSatisfiedBy (this) == true}.
+   * untouched.
    * 
    * @param properties other property set to compose against, not {@code null}
    * @return the new set of properties, or this object if the composition result is equal

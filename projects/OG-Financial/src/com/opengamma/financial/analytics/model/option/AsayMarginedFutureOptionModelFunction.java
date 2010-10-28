@@ -44,7 +44,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
     }
     final double spot = spotAsObject;
     final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     final double b = 0;
     return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);
   }
@@ -67,7 +67,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       return requirements;
     }
     return null;

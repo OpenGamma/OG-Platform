@@ -45,7 +45,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     }
     final double spot = spotAsObject;
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     final double b = (Double) inputs.getValue(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
@@ -59,7 +59,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
       return requirements;
     }

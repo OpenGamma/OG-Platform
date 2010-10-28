@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.PortfolioNode;
@@ -82,7 +80,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
         for (String requiredOutput : requiredOutputs) {
           requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
         }
-        _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
+        _dependencyGraphBuilder.addTarget(requirements);
       }
       if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
         for (Position position : portfolioNode.getPositions()) {
@@ -90,7 +88,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
           for (String requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput, position));
           }
-          _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
+          _dependencyGraphBuilder.addTarget(requirements);
         }
       }
     }

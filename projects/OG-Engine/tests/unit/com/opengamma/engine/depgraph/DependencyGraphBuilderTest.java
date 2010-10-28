@@ -53,7 +53,7 @@ public class DependencyGraphBuilderTest {
     MockFunction function = helper.addFunctionProducing1and2();
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getRequirement1()));
+    builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
 
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -94,8 +94,8 @@ public class DependencyGraphBuilderTest {
     MockFunction function = helper.addFunctionProducing1and2();
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getRequirement1()));
-    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getRequirement2()));
+    builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
+    builder.addTarget(Sets.newHashSet(helper.getRequirement2()));
 
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -117,8 +117,8 @@ public class DependencyGraphBuilderTest {
     ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), Sets.newHashSet(helper.getRequirement1()));
-    builder.addTarget(helper.getTarget(), Collections.singleton(anotherReq));
+    builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
+    builder.addTarget(Collections.singleton(anotherReq));
   }
 
   @Test
@@ -128,7 +128,7 @@ public class DependencyGraphBuilderTest {
     MockFunction fn2 = helper.addFunctionProducing2();
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement1());
+    builder.addTarget(helper.getRequirement1());
 
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -166,7 +166,7 @@ public class DependencyGraphBuilderTest {
     helper.make2AvailableFromLiveData();
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement1());
+    builder.addTarget(helper.getRequirement1());
 
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -230,8 +230,8 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget(), helper.getRequirement2());
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Beta());
+    builder.addTarget(helper.getRequirement2());
+    builder.addTarget(helper.getRequirement2Beta());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -252,8 +252,8 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Beta());
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Beta());
+    builder.addTarget(helper.getRequirement2Beta());
+    builder.addTarget(helper.getRequirement2Beta());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -265,8 +265,8 @@ public class DependencyGraphBuilderTest {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2());
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Beta());
+    builder.addTarget(helper.getRequirement2());
+    builder.addTarget(helper.getRequirement2Beta());
   }
 
   @Test
@@ -276,7 +276,7 @@ public class DependencyGraphBuilderTest {
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     final MockFunction fn2b = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Foo());
+    builder.addTarget(helper.getRequirement2Foo());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -290,7 +290,7 @@ public class DependencyGraphBuilderTest {
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Bar());
+    builder.addTarget(helper.getRequirement2Bar());
   }
 
   @Test
@@ -316,12 +316,12 @@ public class DependencyGraphBuilderTest {
     helper.getFunctionRepository().addFunction(fnConv);
     final MockFunction fn2 = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Foo());
+    builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
     assertGraphContains(graph, fn1, fn2);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Bar());
+    builder.addTarget(helper.getRequirement2Bar());
     graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -360,7 +360,7 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Bar());
+    builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -420,7 +420,7 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Foo());
+    builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -428,7 +428,7 @@ public class DependencyGraphBuilderTest {
     s_logger.debug("fnConv1 - inputs = {}", nodes.get(fnConv1).getInputValues());
     s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputRequirements());
     assertTrue(nodes.get(fnConv1).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Foo"));
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Bar());
+    builder.addTarget(helper.getRequirement2Bar());
     graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -465,8 +465,8 @@ public class DependencyGraphBuilderTest {
     fnConv.addRequirement(helper.getRequirement1Any());
     helper.getFunctionRepository().addFunction(fnConv);
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Foo());
-    builder.addTarget(helper.getTarget(), helper.getRequirement2Bar());
+    builder.addTarget(helper.getRequirement2Foo());
+    builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
@@ -514,7 +514,7 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget(), helper.getRequirement1Bar());
+    builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     assertGraphContains(graph, fn2Foo, fn2Bar, fnConv);
@@ -543,7 +543,7 @@ public class DependencyGraphBuilderTest {
     };
     helper.getFunctionRepository().addFunction(fnConv);
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget(), helper.getRequirement1Bar());
+    builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
     assertGraphContains(graph, fn2Bar, fnConv);
@@ -576,7 +576,7 @@ public class DependencyGraphBuilderTest {
     fnConv.addRequirement(helper.getRequirement2Any ());
     helper.getFunctionRepository().addFunction (fnConv);
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getTarget (), helper.getRequirement1Bar());
+    builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph ();
     assertNotNull (graph);
     assertGraphContains (graph, fn2Bar, fnConv, fn1Foo);
@@ -618,7 +618,7 @@ public class DependencyGraphBuilderTest {
         return 0;
       }
     });
-    builder.addTarget(helper.getTarget (), helper.getRequirement1Bar());
+    builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph ();
     assertNotNull (graph);
     assertGraphContains (graph, fn2Foo, fn2Bar, fnConv, fn1Foo);

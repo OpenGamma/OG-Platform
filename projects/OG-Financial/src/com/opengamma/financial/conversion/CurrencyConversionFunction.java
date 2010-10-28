@@ -135,6 +135,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (!canApplyTo(context, target)) {
+      return null;
+    }
+    final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    if ((possibleCurrencies == null) || possibleCurrencies.isEmpty()) {
+      throw new IllegalArgumentException("Cannot satisfy a wild-card or unspecified currency constraint " + desiredValue);
+    }
     // Actual input requirement is desired requirement with the currency wild-carded
     return Collections.singleton(getInputValueRequirement(desiredValue));
   }

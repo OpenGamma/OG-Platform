@@ -8,6 +8,8 @@ package com.opengamma.engine.value;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -25,7 +27,15 @@ public class ValuePropertiesTest {
     final ValueProperties none = ValueProperties.none();
     assertNotNull(none);
     assertTrue(none.isEmpty());
-    assertTrue(none.getProperties().isEmpty());
+    assertNull(none.getProperties());
+  }
+  
+  @Test
+  public void testAll () {
+    final ValueProperties all = ValueProperties.all ();
+    assertNotNull (all);
+    assertFalse(all.isEmpty ());
+    assertTrue(all.getProperties().isEmpty ());
   }
 
   @Test
@@ -85,16 +95,32 @@ public class ValuePropertiesTest {
     ValueProperties props = ValueProperties.withAny("A").get();
     assertTrue(props.getValues("A").isEmpty());
   }
-
+  
+  @Test
+  public void testWithOptional () {
+    ValueProperties props = ValueProperties.withAny("A").get();
+    assertTrue(props.getValues("A").isEmpty ());
+    assertFalse(props.isOptional ("A"));
+    props = ValueProperties.withOptional("A").get ();
+    assertTrue(props.getValues("A").isEmpty ());
+    assertTrue(props.isOptional ("A"));
+    props = ValueProperties.withOptional("A").with ("A", "1").get ();
+    assertTrue(props.getValues("A").contains ("1"));
+    assertTrue(props.isOptional ("A"));
+    props = ValueProperties.with("A", "1").withOptional("A").get ();
+    assertTrue(props.getValues("A").contains ("1"));
+    assertTrue(props.isOptional ("A"));
+  }
+  
   @Test
   public void testIsSatisfiedBy() {
-    final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").get();
+    final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").withOptional ("D").with("E", "1").withOptional("E").get();
     assertTrue(requirement.isSatisfiedBy(requirement));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.all()));
     assertFalse(requirement.isSatisfiedBy(ValueProperties.none()));
     assertTrue(ValueProperties.none().isSatisfiedBy(requirement));
     assertTrue(ValueProperties.none().isSatisfiedBy(ValueProperties.all()));
-    assertFalse(ValueProperties.all().isSatisfiedBy(ValueProperties.none()));
+    assertTrue(ValueProperties.all().isSatisfiedBy(ValueProperties.none()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").get()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.withAny("A").with("B", "2", "3").withAny("C").get()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "2").withAny("C").get()));
@@ -105,11 +131,14 @@ public class ValuePropertiesTest {
     assertFalse(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "2", "3").get()));
     assertFalse(requirement.isSatisfiedBy(ValueProperties.with("A", "5").with("B", "2", "3").withAny("C").get()));
     assertFalse(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "6", "7").withAny("C").get()));
+    assertTrue(requirement.isSatisfiedBy(ValueProperties.withAny("A").withAny("B").withAny("C").with ("E", "1").get ()));
+    assertTrue(requirement.isSatisfiedBy(ValueProperties.withAny("A").withAny("B").withAny("C").withAny ("E").get ()));
+    assertFalse(requirement.isSatisfiedBy(ValueProperties.withAny("A").withAny("B").withAny("C").with ("E", "2").get ()));
   }
 
   @Test
   public void testCompose() {
-    final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").get();
+    final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").withOptional("D").with ("E", "1").withOptional("E").get();
     ValueProperties offering = ValueProperties.with ("A", "1").with ("B", "2", "3").withAny ("C").get ();
     ValueProperties props = offering.compose(requirement);
     assertSame (offering, props);
@@ -135,6 +164,12 @@ public class ValuePropertiesTest {
     assertSame (requirement.getValues ("B"), props.getValues ("B"));
     assertSame (requirement.getValues ("C"), props.getValues ("C"));
     assertSame (requirement, props);
+    offering = ValueProperties.withAny ("A").withAny("B").withAny("C").with("E", "1").get ();
+    props = offering.compose (requirement);
+    assertSame (requirement.getValues ("A"), props.getValues ("A"));
+    assertSame (requirement.getValues ("B"), props.getValues ("B"));
+    assertSame (requirement.getValues ("C"), props.getValues ("C"));
+    assertSame (offering.getValues ("E"), props.getValues ("E"));
   }
 
 }

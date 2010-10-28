@@ -117,12 +117,11 @@ public class DependencyGraphBuilder {
     ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");
   }
 
-  public void addTarget(ComputationTarget target, ValueRequirement requirement) {
-    addTarget(target, Collections.singleton(requirement));
+  public void addTarget(ValueRequirement requirement) {
+    addTarget(Collections.singleton(requirement));
   }
 
-  public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
-    ArgumentChecker.notNull(target, "Computation Target");
+  public void addTarget(Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "Value requirements");
     checkInjectedInputs();
 

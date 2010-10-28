@@ -44,7 +44,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     //TODO check call / put are actually the right way around
     final YieldAndDiscountCurve domesticCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getCallCurrency().getUniqueIdentifier()));
     final YieldAndDiscountCurve foreignCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getPutCurrency().getUniqueIdentifier()));
@@ -70,7 +70,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
       final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       requirements.add(getYieldCurveMarketDataRequirement(option.getCallCurrency().getUniqueIdentifier()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getPutCurrency().getUniqueIdentifier()));
       return requirements;
