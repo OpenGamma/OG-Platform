@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -303,7 +305,7 @@ public abstract class ValueProperties implements Serializable {
         return false;
       }
       final ValuePropertiesImpl other = (ValuePropertiesImpl) o;
-      return _properties.equals(other._properties);
+      return _properties.equals(other._properties) && ObjectUtils.equals(_optional, other._optional);
     }
 
     @Override

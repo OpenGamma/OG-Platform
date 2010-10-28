@@ -26,7 +26,7 @@ public class ValuePropertiesBuilderTest extends AbstractBuilderTestCase {
 
   @Test
   public void testValues() {
-    assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.builder().withAny("Any").with("One", "a").with("Two", "b", "c").get());
+    assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.builder().withAny("Any").with("One", "a").with("Two", "b", "c").withOptional("Three").get());
   }
 
 }

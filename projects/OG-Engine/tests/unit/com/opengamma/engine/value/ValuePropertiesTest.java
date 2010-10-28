@@ -120,7 +120,8 @@ public class ValuePropertiesTest {
     assertFalse(requirement.isSatisfiedBy(ValueProperties.none()));
     assertTrue(ValueProperties.none().isSatisfiedBy(requirement));
     assertTrue(ValueProperties.none().isSatisfiedBy(ValueProperties.all()));
-    assertTrue(ValueProperties.all().isSatisfiedBy(ValueProperties.none()));
+    assertFalse(ValueProperties.all().isSatisfiedBy(ValueProperties.none()));
+    assertTrue(ValueProperties.all().isSatisfiedBy(ValueProperties.all()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").get()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.withAny("A").with("B", "2", "3").withAny("C").get()));
     assertTrue(requirement.isSatisfiedBy(ValueProperties.with("A", "1").with("B", "2").withAny("C").get()));

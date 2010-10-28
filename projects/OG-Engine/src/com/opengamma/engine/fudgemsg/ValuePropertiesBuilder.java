@@ -35,24 +35,27 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final ValueProperties object) {
     final MutableFudgeFieldContainer message = context.newMessage();
-    if (object.getProperties().isEmpty()) {
-      if (!object.isEmpty()) {
-        // the "infinite" set
+    if (!object.isEmpty()) {
+      if (object.getProperties().isEmpty()) {
         message.add(null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
-      }
-    } else {
-      for (String propertyName : object.getProperties()) {
-        final Set<String> propertyValues = object.getValues(propertyName);
-        if (propertyValues.isEmpty()) {
-          message.add(propertyName, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
-        } else if (propertyValues.size() == 1) {
-          message.add(propertyName, null, StringFieldType.INSTANCE, propertyValues.iterator().next());
-        } else {
-          final MutableFudgeFieldContainer subMessage = context.newMessage();
-          for (String propertyValue : propertyValues) {
-            subMessage.add(null, null, StringFieldType.INSTANCE, propertyValue);
+      } else {
+        for (String propertyName : object.getProperties()) {
+          final Set<String> propertyValues = object.getValues(propertyName);
+          final boolean optional = object.isOptional(propertyName);
+          if ((propertyValues.size() > 1) || optional) {
+            final MutableFudgeFieldContainer subMessage = context.newMessage();
+            if (optional) {
+              subMessage.add(null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+            }
+            for (String propertyValue : propertyValues) {
+              subMessage.add(null, null, StringFieldType.INSTANCE, propertyValue);
+            }
+            message.add(propertyName, null, FudgeMsgFieldType.INSTANCE, subMessage);
+          } else if (propertyValues.isEmpty()) {
+            message.add(propertyName, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+          } else {
+            message.add(propertyName, null, StringFieldType.INSTANCE, propertyValues.iterator().next());
           }
-          message.add(propertyName, null, FudgeMsgFieldType.INSTANCE, subMessage);
         }
       }
     }
@@ -84,10 +87,17 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
         case FudgeTypeDictionary.FUDGE_MSG_TYPE_ID: {
           final FudgeFieldContainer subMessage = (FudgeFieldContainer) field.getValue();
           final List<String> values = new ArrayList<String>(subMessage.getNumFields());
-          for (FudgeField value : subMessage) {
-            values.add(subMessage.getFieldValue(String.class, value));
+          for (FudgeField subField : subMessage) {
+            final String value = subMessage.getFieldValue(String.class, subField);
+            if (value != null) {
+              values.add(value);
+            } else {
+              builder.withOptional(propertyName);
+            }
           }
-          builder.with(propertyName, values);
+          if (!values.isEmpty()) {
+            builder.with(propertyName, values);
+          }
           break;
         }
       }
