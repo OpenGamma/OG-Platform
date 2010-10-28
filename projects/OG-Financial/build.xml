@@ -41,7 +41,7 @@
 		<subant target="create-db-sql-impl" genericantfile="${basedir}/build.xml">
 			<property name="parent.dir" value="${basedir}" />
 			<property name="common.dir" value="${common.dir}" />
-			<dirset dir="." includes="db/**/patch_*" />
+            <dirset dir="${install.dir}/db" includes="*/patch_*" />
 		</subant>
 	</target>
 	
