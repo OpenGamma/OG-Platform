@@ -161,6 +161,8 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
+      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
+      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
       .addValue("hol_type", holiday.getType() != null ? holiday.getType().name() : null)
       .addValue("region_scheme", (holiday.getRegionId() != null ? holiday.getRegionId().getScheme().getName() : null))
       .addValue("region_value", (holiday.getRegionId() != null ? holiday.getRegionId().getValue() : null))
@@ -190,10 +192,10 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   protected String sqlInsertHoliday() {
     return "INSERT INTO hol_holiday " +
               "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, hol_type," +
-              "region_scheme, region_value, exchange_scheme, exchange_value, currency_iso) " +
+              "provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, currency_iso) " +
             "VALUES " +
               "(:holiday_id, :holiday_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :hol_type," +
-              ":region_scheme, :region_value, :exchange_scheme, :exchange_value, :currency_iso)";
+              ":provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :currency_iso)";
   }
 
   /**

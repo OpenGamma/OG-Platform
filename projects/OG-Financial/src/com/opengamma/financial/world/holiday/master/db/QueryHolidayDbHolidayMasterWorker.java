@@ -57,6 +57,8 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
         "h.corr_to_instant AS corr_to_instant, " +
         "h.name AS name, " +
         "h.hol_type AS hol_type, " +
+        "h.provider_scheme AS provider_scheme, " +
+        "h.provider_value AS provider_value, " +
         "h.region_scheme AS region_scheme, " +
         "h.region_value AS region_value, " +
         "h.exchange_scheme AS exchange_scheme, " +
@@ -147,6 +149,10 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
+    if (request.getProviderId() != null) {
+      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
+      args.addValue("provider_value", request.getProviderId().getValue());
+    }
     if (regionIds != null) {
       int i = 0;
       for (Identifier idKey : regionIds.getIdentifiers()) {
@@ -187,6 +193,9 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     }
     if (request.getType() != null) {
       where += "AND hol_type = :hol_type ";
+    }
+    if (request.getProviderId() != null) {
+      where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
     if (request.getRegionIdentifiers() != null) {
       where += "AND (" + sqlSelectIdKeys(request.getRegionIdentifiers(), "region") + ") ";
@@ -309,6 +318,8 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = rs.getString("NAME");
       final String type = rs.getString("HOL_TYPE");
+      final String providerScheme = rs.getString("PROVIDER_SCHEME");
+      final String providerValue = rs.getString("PROVIDER_VALUE");
       final String regionScheme = rs.getString("REGION_SCHEME");
       final String regionValue = rs.getString("REGION_VALUE");
       final String exchangeScheme = rs.getString("EXCHANGE_SCHEME");
@@ -332,6 +343,9 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setHolidayId(uid);
       doc.setName(name);
+      if (providerScheme != null && providerValue != null) {
+        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+      }
       _holiday = doc.getHoliday();
       _documents.add(doc);
     }
