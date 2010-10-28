@@ -70,11 +70,21 @@ public class MasterConfigSource implements ConfigSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying master.
-   * @return the underlying master, not null
+   * Gets the underlying config master.
+   * 
+   * @return the config master, not null
    */
   public ConfigMaster getMaster() {
     return _configMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
   }
 
   //-------------------------------------------------------------------------
@@ -137,6 +147,16 @@ public class MasterConfigSource implements ConfigSource {
     request.setName(name);
     ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
     return searchResult.getFirstDocument();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterConfigSource[" + getMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    return str + "]";
   }
 
 }

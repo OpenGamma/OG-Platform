@@ -52,10 +52,17 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     _timeSeriesResolver = tsResolver;
   }
 
-  protected TimeSeriesMaster<LocalDate> getTimeSeriesMaster() {
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying time series master.
+   * 
+   * @return the time series master, not null
+   */
+  public TimeSeriesMaster<LocalDate> getTimeSeriesMaster() {
     return _timeSeriesMaster;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
@@ -183,7 +190,6 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     return getHistoricalData(identifiers, currentDate, dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null);
   }
 
-
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
@@ -203,7 +209,6 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     return getHistoricalData(identifiers, configDocName, currentDate, null, null);
   }
 
-
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
@@ -216,6 +221,12 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
       end = end.minusDays(1);
     }
     return getHistoricalData(identifiers, configDocName, currentDate, start, end);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "MasterTimeSeriesSource[" + getTimeSeriesMaster() + "]";
   }
 
 }

@@ -83,11 +83,33 @@ public class MasterHolidaySource implements HolidaySource {
       _correctedToInstant = null;
     }
   }
-  
+
   //-------------------------------------------------------------------------
-  
+  /**
+   * Gets the underlying holiday master.
+   * 
+   * @return the holiday master, not null
+   */
   public HolidayMaster getHolidayMaster() {
     return _holidayMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
   }
 
   //-------------------------------------------------------------------------
@@ -128,7 +150,7 @@ public class MasterHolidaySource implements HolidaySource {
       return true;
     }
     request.setDateToCheck(dateToCheck);
-    HolidayDocument doc = _holidayMaster.search(request).getFirstDocument();
+    HolidayDocument doc = getHolidayMaster().search(request).getFirstDocument();
     return isHoliday(doc, dateToCheck);
   }
   
@@ -155,6 +177,19 @@ public class MasterHolidaySource implements HolidaySource {
    */
   protected boolean isWeekend(LocalDate date) {
     return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterHolidaySource[" + getHolidayMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    if (_versionAsOfInstant != null) {
+      str += ",correctedTo=" + _correctedToInstant;
+    }
+    return str + "]";
   }
 
 }
