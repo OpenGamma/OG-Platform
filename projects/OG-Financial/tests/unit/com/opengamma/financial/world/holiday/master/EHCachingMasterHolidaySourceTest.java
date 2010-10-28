@@ -28,10 +28,10 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Test EHCachingHolidaySource
  */
-public class EHCachingHolidaySourceTest {
+public class EHCachingMasterHolidaySourceTest {
 
   private HolidayMaster _underlyingHolidayMaster = null;
-  private EHCachingHolidaySource _cachingHolidaySource = null;
+  private EHCachingMasterHolidaySource _cachingHolidaySource = null;
   
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_TUESDAY = LocalDate.of(2010, 10, 26);
@@ -44,7 +44,7 @@ public class EHCachingHolidaySourceTest {
   public void setUp() throws Exception {
     EHCacheUtils.clearAll();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
-    _cachingHolidaySource = new EHCachingHolidaySource(_underlyingHolidayMaster, EHCacheUtils.createCacheManager());
+    _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, EHCacheUtils.createCacheManager());
   }
 
   //-------------------------------------------------------------------------

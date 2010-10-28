@@ -17,7 +17,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * A cache to optimize the results of {@code MasterHolidaySource}.
  */
-public class EHCachingHolidaySource extends MasterHolidaySource {
+public class EHCachingMasterHolidaySource extends MasterHolidaySource {
 
   /**
    * Cache key for holidays.
@@ -39,7 +39,7 @@ public class EHCachingHolidaySource extends MasterHolidaySource {
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingHolidaySource(final HolidayMaster underlying, final CacheManager cacheManager) {
+  public EHCachingMasterHolidaySource(final HolidayMaster underlying, final CacheManager cacheManager) {
     super(underlying);
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
