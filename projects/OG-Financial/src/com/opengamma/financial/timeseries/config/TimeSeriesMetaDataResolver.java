@@ -3,8 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.financial.timeseries.config;
 
+import com.opengamma.financial.timeseries.TimeSeriesMetaData;
 import com.opengamma.id.IdentifierBundle;
 
 /**
@@ -15,6 +16,11 @@ import com.opengamma.id.IdentifierBundle;
  * load timeseries from data sources like BLOOMBERG.
  */
 public interface TimeSeriesMetaDataResolver {
+  
+  /**
+   * Default data field value
+   */
+  String DEFAULT_DATA_FIELD = "PX_LAST";
 
   /**
    * Returns the default metadata for a security.
@@ -22,7 +28,8 @@ public interface TimeSeriesMetaDataResolver {
    * Looks up security in security master and returns default metadata based on security type.
    * 
    * @param identifiers the identifier bundle, not-null
+   * @param configName the name of the configuration rules to use for resolving metadata, not-null
    * @return the default metadata, null if security cannot be found in security master
    */
-  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers);
+  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers, String configName);
 }
