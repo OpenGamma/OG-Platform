@@ -81,10 +81,15 @@ public class ResolutionRule {
       return null;
     }
 
-    Set<ValueSpecification> resultSpecs = function.getResults(context, target);
+    Set<ValueSpecification> resultSpecs = null;
+    try {
+      resultSpecs = function.getResults(context, target);
+    } catch (Throwable t) {
+      s_logger.debug("Exception thrown by getResults", t);
+    }
     if (resultSpecs == null) {
-      s_logger.error("For function {} can apply to {} but results are null", function.getClass(), target);
-      throw new NullPointerException("For function " + function.getClass() + " can apply to target but results are null");
+      // Exceptions and null returns are okay - the backtracking will hopefully find a way to satisfy the graph requirements
+      return null;
     }
 
     ValueSpecification validSpec = null;

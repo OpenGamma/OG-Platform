@@ -233,11 +233,12 @@ public class DependencyGraphBuilder {
             if (!pendingInputStates && resolved.isSingle()) {
               resolved.removeFirst();
             }
-          } catch (UnsatisfiableDependencyGraphException e) {
-            s_logger.debug("Backtracking on dependency graph error", e);
+          } catch (Throwable t) {
+            // Note catch Throwable rather than the UnsatisfiedDependencyGraphException in case functionDefinition.getRequirements went wrong
+            s_logger.debug("Backtracking on dependency graph error", t);
             resolved.removeFirst();
             if (resolved.isEmpty()) {
-              throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
+              throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), t);
             }
             continue;
           }
@@ -289,8 +290,17 @@ public class DependencyGraphBuilder {
       final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
       ValueSpecification resolvedOutput = node.getValueSpecification();
       if (!strictConstraints) {
-        final Set<ValueSpecification> newOutputValues = functionDefinition.getResults(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
-            .getInputValues());
+        final Set<ValueSpecification> newOutputValues;
+        try {
+          newOutputValues = functionDefinition.getResults(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode().getInputValues());
+        } catch (Throwable t) {
+          // detect failure from .getResults
+          s_logger.debug("Deep backtracking at late resolution failure", t);
+          if (resolved.isEmpty() || !resolved.removeDeepest()) {
+            throw new UnsatisfiableDependencyGraphException("Late resolution failure of " + resolved.getValueRequirement(), t);
+          }
+          continue;
+        }
         if (!node.getDependencyNode().getOutputValues().equals(newOutputValues)) {
           node.getDependencyNode().clearOutputValues();
           resolvedOutput = null;
@@ -313,23 +323,24 @@ public class DependencyGraphBuilder {
           }
         }
         // Fetch and additional input requirements now needed as a result of input and output resolution
-        Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
-            .getInputValues(), node.getDependencyNode().getOutputValues());
-        if (!additionalRequirements.isEmpty()) {
-          try {
+        try {
+          Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
+              .getInputValues(), node.getDependencyNode().getOutputValues());
+          if (!additionalRequirements.isEmpty()) {
             for (ValueRequirement inputRequirement : additionalRequirements) {
               final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());
               final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
               node.getDependencyNode().addInputNode(inputValue.getFirst());
               node.getDependencyNode().addInputValue(inputValue.getSecond());
             }
-          } catch (UnsatisfiableDependencyGraphException e) {
-            s_logger.debug("Deep backtracking on dependency graph error", e);
-            if (resolved.isEmpty() || !resolved.removeDeepest()) {
-              throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
-            }
-            continue;
           }
+        } catch (Throwable e) {
+          // Catch Throwable in case getAdditionalRequirements fails
+          s_logger.debug("Deep backtracking on dependency graph error", e);
+          if (resolved.isEmpty() || !resolved.removeDeepest()) {
+            throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
+          }
+          continue;
         }
       }
       // Add to the graph

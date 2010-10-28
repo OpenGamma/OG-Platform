@@ -166,6 +166,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     // Resolved outputs are the inputs with the currency wild-carded - even the function ID will be preserved
     final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
     for (ValueSpecification input : inputs) {
+      s_logger.debug("Currency wild-card for {}", input);
       result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
     }
     return result;
