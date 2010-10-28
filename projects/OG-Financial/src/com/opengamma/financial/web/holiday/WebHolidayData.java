@@ -105,15 +105,15 @@ public class WebHolidayData extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -652001691:  // holidayMaster
+      case 246258906:  // holidayMaster
         return getHolidayMaster();
       case -173275078:  // uriInfo
         return getUriInfo();
-      case 772498730:  // uriHolidayId
+      case -872009849:  // uriHolidayId
         return getUriHolidayId();
       case 666567687:  // uriVersionId
         return getUriVersionId();
-      case 1989774883:  // holiday
+      case 1091905624:  // holiday
         return getHoliday();
       case -1407102089:  // versioned
         return getVersioned();
@@ -124,19 +124,19 @@ public class WebHolidayData extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -652001691:  // holidayMaster
+      case 246258906:  // holidayMaster
         setHolidayMaster((HolidayMaster) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
         return;
-      case 772498730:  // uriHolidayId
+      case -872009849:  // uriHolidayId
         setUriHolidayId((String) newValue);
         return;
       case 666567687:  // uriVersionId
         setUriVersionId((String) newValue);
         return;
-      case 1989774883:  // holiday
+      case 1091905624:  // holiday
         setHoliday((HolidayDocument) newValue);
         return;
       case -1407102089:  // versioned

@@ -29,7 +29,7 @@ public class MasterHolidaySource implements HolidaySource {
   /**
    * The underlying master.
    */
-  private HolidayMaster _holidayMaster;
+  private final HolidayMaster _holidayMaster;
   /**
    * The instant to search for a version at.
    * Null is treated as the latest version.
@@ -85,6 +85,34 @@ public class MasterHolidaySource implements HolidaySource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying holiday master.
+   * 
+   * @return the holiday master, not null
+   */
+  public HolidayMaster getHolidayMaster() {
+    return _holidayMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     HolidaySearchRequest request = new HolidaySearchRequest(currency);
@@ -122,10 +150,25 @@ public class MasterHolidaySource implements HolidaySource {
       return true;
     }
     request.setDateToCheck(dateToCheck);
-    HolidayDocument doc = _holidayMaster.search(request).getFirstDocument();
-    return (doc != null && Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0);
+    HolidayDocument doc = getHolidayMaster().search(request).getFirstDocument();
+    return isHoliday(doc, dateToCheck);
   }
-
+  
+  /**
+   * Checks if the specified date is a holiday.
+   * 
+   * @param doc document retrieved from underlying holiday master, may be null
+   * @param dateToCheck  the date to check, not null
+   * @return false if nothing was retrieved from underlying holiday master. 
+   * Otherwise, true if and only if the date is a holiday based on the underlying holiday master
+   */
+  protected boolean isHoliday(final HolidayDocument doc, final LocalDate dateToCheck) {
+    if (doc == null) {
+      return false;
+    }
+    return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
+  }
+  
   /**
    * Checks if the date is at the weekend, defined as a Saturday or Sunday.
    * 
@@ -134,6 +177,19 @@ public class MasterHolidaySource implements HolidaySource {
    */
   protected boolean isWeekend(LocalDate date) {
     return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterHolidaySource[" + getHolidayMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    if (_versionAsOfInstant != null) {
+      str += ",correctedTo=" + _correctedToInstant;
+    }
+    return str + "]";
   }
 
 }

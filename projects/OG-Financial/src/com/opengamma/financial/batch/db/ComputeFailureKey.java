@@ -11,6 +11,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -25,10 +27,19 @@ public class ComputeFailureKey {
       String exceptionClass,
       String exceptionMsg,
       String stackTrace) {
+    ArgumentChecker.notNull(functionId, "functionId");
+    ArgumentChecker.notNull(exceptionClass, "exceptionClass");
+    ArgumentChecker.notNull(stackTrace, "stackTrace");
+    
     _functionId = functionId;
     _exceptionClass = exceptionClass;
-    _exceptionMsg = exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
     _stackTrace = stackTrace.substring(0, Math.min(stackTrace.length(), 2000));
+    
+    if (exceptionMsg == null) {
+      _exceptionMsg = ""; // although Throwable.getMessage() can return null, our db doesn't allow nulls
+    } else {
+      _exceptionMsg = exceptionMsg.substring(0, Math.min(exceptionMsg.length(), 255));
+    }
   }
   
   public String getFunctionId() {

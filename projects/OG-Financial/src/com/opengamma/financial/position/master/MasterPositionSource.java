@@ -79,31 +79,59 @@ public class MasterPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying position master.
+   * 
+   * @return the position master, not null
+   */
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final FullPortfolioGetRequest request = new FullPortfolioGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
-    return _positionMaster.getFullPortfolio(request);
+    return getPositionMaster().getFullPortfolio(request);
   }
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
-    return _positionMaster.getFullPortfolioNode(request);
+    return getPositionMaster().getFullPortfolioNode(request);
   }
 
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final FullPositionGetRequest request = new FullPositionGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
-    return _positionMaster.getFullPosition(request);
+    return getPositionMaster().getFullPosition(request);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = "MasterPositionSource[" + _positionMaster;
+    String str = "MasterPositionSource[" + getPositionMaster();
     if (_versionAsOfInstant != null) {
       str += ",versionAsOf=" + _versionAsOfInstant;
     }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.world.holiday.master;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,12 +31,12 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The manageable implementation of a single conceptual holiday.
+ * The manageable implementation of a set of holiday dates.
  * <p>
  * This implementation is used by the holiday master to store and manipulate the data.
  */
 @BeanDefinition
-public class ManageableHoliday extends DirectBean implements Holiday {
+public class ManageableHoliday extends DirectBean implements Holiday, Serializable {
 
   /**
    * The unique identifier of the holiday.
@@ -66,7 +67,7 @@ public class ManageableHoliday extends DirectBean implements Holiday {
   @PropertyDefinition
   private String _currencyISO;
   /**
-   * The list of dates on which the holiday occurs.
+   * The list of dates that the target (currency/region/exchange) is on holiday.
    */
   @PropertyDefinition
   private final List<LocalDate> _holidayDates = new ArrayList<LocalDate>();
@@ -79,6 +80,8 @@ public class ManageableHoliday extends DirectBean implements Holiday {
 
   /**
    * Create an instance from another holiday instance.
+   * <p>
+   * This copies the specified holiday creating an independent copy.
    * 
    * @param holiday  the holiday to copy, not null
    */
@@ -86,10 +89,10 @@ public class ManageableHoliday extends DirectBean implements Holiday {
     ArgumentChecker.notNull(holiday, "holiday");
     setUniqueIdentifier(holiday.getUniqueIdentifier());
     setType(holiday.getType());
-    setHolidayDates(holiday.getHolidayDates());
     setRegionId(holiday.getRegionId());
     setExchangeId(holiday.getExchangeId());
     setCurrencyISO(holiday.getCurrencyISO());
+    setHolidayDates(holiday.getHolidayDates());
   }
 
   /**
@@ -333,7 +336,7 @@ public class ManageableHoliday extends DirectBean implements Holiday {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of dates on which the holiday occurs.
+   * Gets the list of dates that the target (currency/region/exchange) is on holiday.
    * @return the value of the property
    */
   public List<LocalDate> getHolidayDates() {
@@ -341,7 +344,7 @@ public class ManageableHoliday extends DirectBean implements Holiday {
   }
 
   /**
-   * Sets the list of dates on which the holiday occurs.
+   * Sets the list of dates that the target (currency/region/exchange) is on holiday.
    * @param holidayDates  the new value of the property
    */
   public void setHolidayDates(List<LocalDate> holidayDates) {

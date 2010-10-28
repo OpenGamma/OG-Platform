@@ -38,7 +38,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
-
+  
   /**
    * Creates an empty TimeSeriesSource using the default scheme for any {@link UniqueIdentifier}s created.
    */
@@ -74,7 +74,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   }
 
   public void storeHistoricalTimeSeries(IdentifierBundle dsids, String dataSource, String dataProvider, String field, LocalDateDoubleTimeSeries dts) {
-    MetaDataKey metaKey = new MetaDataKey(null, dsids, dataSource, dataProvider, field);
+    MetaDataKey metaKey = new MetaDataKey(null, null, dsids, dataSource, dataProvider, field);
     UniqueIdentifier uid = null;
     synchronized (this) {
       uid = _metaUniqueIdentifierStore.get(metaKey);
@@ -87,19 +87,14 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return getHistoricalData(identifiers, null, null, null);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
-
+  
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
-      return Pair.of(tsPair.getKey(), timeSeries);
-    } else {
-      return null;
-    }
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
 
   @Override
@@ -126,7 +121,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
 
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    UniqueIdentifier uid = _metaUniqueIdentifierStore.get(new MetaDataKey(currentDate, identifiers, dataSource, dataProvider, dataField));
+    UniqueIdentifier uid = _metaUniqueIdentifierStore.get(new MetaDataKey(null, currentDate, identifiers, dataSource, dataProvider, dataField));
     if (uid == null) {
       return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(null, new ArrayLocalDateDoubleTimeSeries());
     } else {
@@ -147,20 +142,14 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate) {
-    return getHistoricalData(identifiers, currentDate, null, null, null);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
-
+  
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, LocalDate start, boolean inclusiveStart, LocalDate end,
-      boolean exclusiveEnd) {
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, currentDate);
-    if (tsPair != null) {
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) tsPair.getSecond().subSeries(start, inclusiveStart, end, exclusiveEnd);
-      return Pair.of(tsPair.getKey(), timeSeries);
-    } else {
-      return null;
-    }
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
 
 }

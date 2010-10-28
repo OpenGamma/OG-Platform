@@ -77,10 +77,11 @@
   <!-- HolidayMaster -->
   <bean id="dbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.config.db.holidaymaster.scheme}" />
+    <property name="identifierScheme" value="${opengamma.refdata.db.holidaymaster.scheme}" />
   </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.financial.world.holiday.master.MasterHolidaySource">
+  <bean id="sharedHolidaySource" class="com.opengamma.financial.world.holiday.master.EHCachingMasterHolidaySource">
     <constructor-arg ref="dbHolidayMaster"/>
+    <constructor-arg ref="cacheManager"/>
   </bean>
 
   <!-- SecurityMaster -->
@@ -124,11 +125,8 @@
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
           <bean class="com.opengamma.financial.timeseries.config.DefaultTimeSeriesResolver">
-            <constructor-arg ref="sharedSecuritySource"/>
-            <constructor-arg>
-              <bean class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider"/>
-            </constructor-arg>
-            <constructor-arg ref="sharedConfigSource"/>
+          	<constructor-arg ref="timeseriesMaster"/>
+          	<constructor-arg ref="sharedConfigSource"/>
           </bean>
         </constructor-arg>
       </bean>

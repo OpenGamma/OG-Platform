@@ -1,109 +1,111 @@
 package com.opengamma.financial.timeseries.config;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.timeseries.TimeSeriesMetaData;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TimeSeriesMetaDataConfiguration representation
+ * TimeSeriesMetaDataConfiguration represents the set of rules to use when loading timeseries from a TimeSeriesMaster
  */
-public class TimeSeriesMetaDataConfiguration implements java.io.Serializable {
-  private final String _securityType;
-  private final String _defaultDataSource;
-  private Set<String> _dataSources = new TreeSet<String>();
-  private final String _defaultDataField;
-  private Set<String> _dataFields = new TreeSet<String>();
-  private final String _defaultDataProvider;
-  private Set<String> _dataProviders = new TreeSet<String>();
+public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRateProvider {
+
+  private Set<TimeSeriesMetaDataRating> _rules = new HashSet<TimeSeriesMetaDataRating>();
+  private transient Map<String, Map<String, Integer>> _rulesByFieldType = new HashMap<String, Map<String, Integer>>();
+  /**
+   * The cached hash code.
+   */
+  private transient volatile int _hashCode;
   
-  public TimeSeriesMetaDataConfiguration(String securityType, String defaultDataSource, String defaultDataField, String defaultDataProvider) {
-    ArgumentChecker.notNull(securityType, "securityType");
-    ArgumentChecker.notNull(defaultDataSource, "defaultDataSource");
-    ArgumentChecker.notNull(defaultDataField, "defaultDataField");
-    ArgumentChecker.notNull(defaultDataProvider, "defaultDataProvider");
-    _securityType = securityType;
-    _defaultDataSource = defaultDataSource;
-    _dataSources.add(defaultDataSource);
-    _defaultDataField = defaultDataField;
-    _dataFields.add(defaultDataField);
-    _defaultDataProvider = defaultDataProvider;
-    _dataProviders.add(defaultDataProvider);
+  /**
+   * @param rules the list of rules, not null and empty
+   */
+  public TimeSeriesMetaDataConfiguration(Collection<TimeSeriesMetaDataRating> rules) {
+    ArgumentChecker.notEmpty(rules, "rules");
+    _rules.addAll(rules);
+    buildRuleDb();
+    _hashCode = calcHashCode();
   }
   
-  public String getSecurityType() {
-    return _securityType;
+  private void buildRuleDb() {
+    for (TimeSeriesMetaDataRating rule : _rules) {
+      String fieldName = rule.getFieldName();
+      Map<String, Integer> ruleDb = _rulesByFieldType.get(fieldName);
+      if (ruleDb == null) {
+        ruleDb = new HashMap<String, Integer>();
+        _rulesByFieldType.put(fieldName, ruleDb);
+      }
+      ruleDb.put(rule.getFieldValue(), rule.getRating());
+    }
+  }
+
+
+  /**
+   * Gets the rules field.
+   * @return the rules
+   */
+  public Collection<TimeSeriesMetaDataRating> getRules() {
+    return Collections.unmodifiableCollection(_rules);
+  }
+
+  @Override
+  public int rate(TimeSeriesMetaData metaData) {
+    String dataSource = metaData.getDataSource();
+    Map<String, Integer> dataSourceMap = _rulesByFieldType.get(TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME);
+    Integer dsRating = dataSourceMap.get(dataSource);
+    if (dsRating == null) {
+      dsRating = dataSourceMap.get(TimeSeriesMetaDataFieldNames.STAR_VALUE);
+      if (dsRating == null) {
+        throw new OpenGammaRuntimeException("There must be a star match if no match with given dataSource: " + dataSource);
+      }
+    }
+    String dataProvider = metaData.getDataProvider();
+    Map<String, Integer> dataProviderMap = _rulesByFieldType.get(TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME);
+    Integer dpRating = dataProviderMap.get(dataProvider);
+    if (dpRating == null) {
+      dpRating = dataProviderMap.get(TimeSeriesMetaDataFieldNames.STAR_VALUE);
+      if (dpRating == null) {
+        throw new OpenGammaRuntimeException("There must be a star match if no match with given dataProvider: " + dataProvider);
+      }
+    }
+    return dsRating * dpRating;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE, false);
   }
   
-  public String getDefaultDataSource() {
-    return _defaultDataSource;
+  private int calcHashCode() {
+    return 31 + _rules.hashCode();
   }
-  
-  public Set<String> getDataSources() {
-    return Collections.unmodifiableSet(_dataSources);
+
+  @Override
+  public int hashCode() {
+    return _hashCode;
   }
-  
-  public void addDataSource(String dataSource) {
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    _dataSources.add(dataSource);
-  }
-  
-  public String getDefaultDataField() {
-    return _defaultDataField;
-  }
-  
-  public Set<String> getDataFields() {
-    return Collections.unmodifiableSet(_dataFields);
-  }
-  
-  public void addDataField(String dataField) {
-    ArgumentChecker.notNull(dataField, "dataField");
-    _dataFields.add(dataField);
-  }
-  
-  public String getDefaultDataProvider() {
-    return _defaultDataProvider;
-  }
-  
-  public Set<String> getDataProviders() {
-    return Collections.unmodifiableSet(_dataProviders);
-  }
-  
-  public void addDataProvider(String dataProvider) {
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
-    _dataProviders.add(dataProvider);
-  }
-  
-  public boolean equals(final Object obj) {
+
+  @Override
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof TimeSeriesMetaDataConfiguration) {
       TimeSeriesMetaDataConfiguration other = (TimeSeriesMetaDataConfiguration) obj;
-      return ObjectUtils.equals(getSecurityType(), other.getSecurityType()) 
-        && ObjectUtils.equals(getDataFields(), other.getDataFields()) 
-        && ObjectUtils.equals(getDataProviders(), other.getDataProviders())
-        && ObjectUtils.equals(getDataSources(), other.getDataSources());
+      return _rules.equals(other._rules);
     }
     return false;
   }
   
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ObjectUtils.hashCode(getSecurityType());
-    result = prime * result + ObjectUtils.hashCode(getDataFields());
-    result = prime * result + ObjectUtils.hashCode(getDataProviders());
-    result = prime * result + ObjectUtils.hashCode(getDataSources());
-    return result;
-  }
   
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
 }

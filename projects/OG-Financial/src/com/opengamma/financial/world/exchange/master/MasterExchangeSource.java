@@ -77,13 +77,41 @@ public class MasterExchangeSource implements ExchangeSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying exchange master.
+   * 
+   * @return the exchange master, not null
+   */
+  public ExchangeMaster getExchangeMaster() {
+    return _exchangeMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Exchange getSingleExchange(Identifier identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return _exchangeMaster.searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
   }
 
   @Override
@@ -92,7 +120,20 @@ public class MasterExchangeSource implements ExchangeSource {
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return _exchangeMaster.searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterExchangeSource[" + getExchangeMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    if (_versionAsOfInstant != null) {
+      str += ",correctedTo=" + _correctedToInstant;
+    }
+    return str + "]";
   }
 
 }
