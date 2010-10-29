@@ -188,7 +188,7 @@ public class ResultModelDefinition implements Serializable {
   public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(outputSpecification, "outputSpecification");
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    ComputationTargetType targetType = outputSpecification.getRequirementSpecification().getTargetSpecification().getType();
+    ComputationTargetType targetType = outputSpecification.getTargetSpecification().getType();
     return getOutputMode(targetType).shouldOutputResult(outputSpecification, dependencyGraph);
   }
   

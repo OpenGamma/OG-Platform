@@ -46,7 +46,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
     final Security security = position.getSecurity();
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());

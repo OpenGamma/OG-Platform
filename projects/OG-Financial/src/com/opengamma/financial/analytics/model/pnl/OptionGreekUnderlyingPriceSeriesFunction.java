@@ -120,7 +120,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     return Collections.<ValueRequirement>emptySet();
   }
 

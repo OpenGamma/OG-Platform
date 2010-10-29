@@ -45,7 +45,7 @@ public class DBTool extends Task {
   
   private static final Logger s_logger = LoggerFactory.getLogger(DBTool.class);
 
-  private static final String DATABASE_FOLDER = "db";
+  private static final String DATABASE_INSTALL_FOLDER = "install/db";
   private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
@@ -324,7 +324,7 @@ public class DBTool extends Task {
   }
   
   public static String getTestCatalogStatic() {
-    return "test_" + System.getProperty("user.name").replace('.','_');
+    return "test_" + System.getProperty("user.name").replace('.', '_');
   }
   
   public String getTestCatalog() {
@@ -454,7 +454,7 @@ public class DBTool extends Task {
   private File[] getScriptDirs() {
     final List<File> scriptDirs = new ArrayList<File>();
     for (String scriptDir : _dbScriptDirs) {
-      final File file = new File(scriptDir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+      final File file = new File(scriptDir, DATABASE_INSTALL_FOLDER + File.separatorChar + _dialect.getDatabaseName());
       if (!file.exists()) {
         throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
       }
@@ -476,6 +476,9 @@ public class DBTool extends Task {
         return patchNo1Int.compareTo(patchNo2Int);
       }
     });
+    if (scriptDirs.isEmpty()) {
+      throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
+    }
     return scriptDirs.toArray(new File[0]);
   }
   

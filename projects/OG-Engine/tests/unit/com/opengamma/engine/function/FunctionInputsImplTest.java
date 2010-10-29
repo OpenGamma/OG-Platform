@@ -19,8 +19,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 public class FunctionInputsImplTest {
-  private static final ValueSpecification SPEC1 = new ValueSpecification(new ValueRequirement("foo-1", "USD"), "mockFunctionId");
-  private static final ValueSpecification SPEC2 = new ValueSpecification(new ValueRequirement("foo-2", "USD"), "mockFunctionId");
+  private static final ValueRequirement REQ1 = new ValueRequirement("foo-1", "USD");
+  private static final ValueRequirement REQ2 = new ValueRequirement("foo-2", "USD");
+  private static final ValueSpecification SPEC1 = new ValueSpecification(REQ1, "mockFunctionId");
+  private static final ValueSpecification SPEC2 = new ValueSpecification(REQ2, "mockFunctionId");
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");
   private static final ComputedValue VALUE2 = new ComputedValue(SPEC2, "2");
 
@@ -61,8 +63,8 @@ public class FunctionInputsImplTest {
     FunctionInputsImpl inputs = new FunctionInputsImpl(VALUE1);
     inputs.addValue(VALUE2);
 
-    assertEquals("1", inputs.getValue(SPEC1.getRequirementSpecification()));
-    assertEquals("2", inputs.getValue(SPEC2.getRequirementSpecification()));
+    assertEquals("1", inputs.getValue(REQ1));
+    assertEquals("2", inputs.getValue(REQ2));
     assertNull(inputs.getValue("foo-3"));
   }
   

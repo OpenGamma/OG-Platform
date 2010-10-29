@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +52,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.financial.conversion.ResultConverter;
+import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.tuple.Pair;
@@ -79,8 +80,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    * DB configuration
    */
   private final DbSource _dbSource;
-  
-  // Variables YOU must set before calling initialize()
   
   /**
    * References rsk_run(id)
@@ -145,6 +144,11 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    */
   private final boolean _writeErrors = true;
   
+  /**
+   * Used to write non-Double results into database
+   */
+  private final ResultConverterCache _resultConverterCache;
+  
   // Variables set in initialize()
   
   /**
@@ -176,7 +180,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         cachesByCalculationConfiguration,
         computationTargets,
         riskRun,
-        valueNames);
+        valueNames,
+        new ResultConverterCache());
   }
   
   public BatchResultWriter(
@@ -187,7 +192,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
-      Set<RiskValueName> valueNames) {
+      Set<RiskValueName> valueNames,
+      ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(dbSource, "dbSource");
     ArgumentChecker.notNull(delegate, "Dep graph executor");
     ArgumentChecker.notNull(executor, "Task executor");
@@ -196,12 +202,14 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     ArgumentChecker.notNull(computationTargets, "Computation targets");
     ArgumentChecker.notNull(riskRun, "Risk run");
     ArgumentChecker.notNull(valueNames, "Value names");
+    ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     
     _dbSource = dbSource;
     _delegate = delegate;
     _executor = executor;
     _resultModelDefinition = resultModelDefinition;
     _cachesByCalculationConfiguration = cachesByCalculationConfiguration;
+    _resultConverterCache = resultConverterCache;
     
     for (ComputationTarget target : computationTargets) {
       int id = target.getId();
@@ -303,6 +311,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
 
   public Integer getComputeNodeId(String nodeId) {
+    ArgumentChecker.notNull(nodeId, "nodeId");
+    
     Integer dbId = _computeNodeId2Id.get(nodeId);
     if (dbId != null) {
       return dbId;
@@ -329,6 +339,38 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       throw lastException;
     }
     _computeNodeId2Id.put(nodeId, dbId);
+    return dbId;
+  }
+  
+  public int getValueNameId(String name) {
+    ArgumentChecker.notNull(name, "Risk value name");
+    
+    Integer dbId = _riskValueName2Id.get(name);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+    dbManager.setDbSource(_dbSource);
+    
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        dbId = dbManager.getRiskValueName(name).getId();
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _riskValueName2Id.put(name, dbId);
     return dbId;
   }
 
@@ -359,16 +401,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
 
   // --------------------------------------------------------------------------
-
-  public int getValueNameId(String name) {
-    ArgumentChecker.notNull(name, "Risk value name");
-    
-    Number valueNameId = _riskValueName2Id.get(name);
-    if (valueNameId == null) {
-      throw new IllegalArgumentException("Value name " + name + " is not in the database");
-    }
-    return valueNameId.intValue();
-  }
 
   public void jobExecuted(CalculationJobResult result, DependencyGraph depGraph) {
     ArgumentChecker.notNull(result, "The result to write");
@@ -434,9 +466,10 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
               break;
             }
             
-            if (!(value instanceof Double)) {
-              s_logger.error("Can only insert Double values, got " + 
-                  value.getClass() + " for " + item);
+            try {
+              _resultConverterCache.getConverter(value);
+            } catch (IllegalArgumentException e) {
+              s_logger.error("Cannot insert value of type " + value.getClass() + " for " + item, e);
               success = false;
               break;
             }
@@ -486,21 +519,26 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
             continue;
           }
           
-          Double valueAsDouble = (Double) cache.getValue(output); // output type was already checked above
+          Object outputValue = cache.getValue(output);
+          ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(outputValue);
+          Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
   
-          int valueNameId = getValueNameId(output.getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(output.getRequirementSpecification().getTargetSpecification());
+          int computationTargetId = getComputationTargetId(output.getTargetSpecification());
           
-          RiskValue riskValue = new RiskValue();
-          riskValue.setId(generateUniqueId());
-          riskValue.setCalculationConfigurationId(calcConfId);
-          riskValue.setValueNameId(valueNameId);
-          riskValue.setComputationTargetId(computationTargetId);
-          riskValue.setRunId(riskRunId);
-          riskValue.setValue(valueAsDouble);
-          riskValue.setEvalInstant(evalInstant);
-          riskValue.setComputeNodeId(computeNodeId);
-          successes.add(riskValue.toSqlParameterSource());
+          for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
+            int valueNameId = getValueNameId(riskValueEntry.getKey());
+
+            RiskValue riskValue = new RiskValue();
+            riskValue.setId(generateUniqueId());
+            riskValue.setCalculationConfigurationId(calcConfId);
+            riskValue.setValueNameId(valueNameId);
+            riskValue.setComputationTargetId(computationTargetId);
+            riskValue.setRunId(riskRunId);
+            riskValue.setValue(riskValueEntry.getValue());
+            riskValue.setEvalInstant(evalInstant);
+            riskValue.setComputeNodeId(computeNodeId);
+            successes.add(riskValue.toSqlParameterSource());
+          }
         }
         
       // the check below ensures that
@@ -514,8 +552,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         
         for (ValueSpecification outputValue : item.getOutputs()) {
           
-          int valueNameId = getValueNameId(outputValue.getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(outputValue.getRequirementSpecification().getTargetSpecification());
+          int valueNameId = getValueNameId(outputValue.getValueName());
+          int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
         
           RiskFailure failure = new RiskFailure();
           failure.setId(generateUniqueId());
@@ -642,7 +680,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
   }
   
-  private ComputeFailure getComputeFailureFromDb(CalculationJobResultItem item) {
+  /*package*/ ComputeFailure getComputeFailureFromDb(CalculationJobResultItem item) {
     if (item.getResult() != InvocationResult.FUNCTION_THREW_EXCEPTION) {
       throw new IllegalArgumentException("Please give a failed item");       
     }
@@ -667,6 +705,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       
     } catch (DataAccessException e) {
       // maybe the row was already there
+      s_logger.debug("Failed to save compute failure", e);
     }
     
     try {
@@ -683,8 +722,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       return computeFailure;
 
     } catch (IncorrectResultSizeDataAccessException e) {
-      s_logger.error("Cannot get {} from db", computeFailure);
-      throw new RuntimeException("Cannot get " + computeFailure + " from db", e);
+      s_logger.error("Cannot get {} from db", computeFailureKey);
+      throw new RuntimeException("Cannot get " + computeFailureKey + " from db", e);
     }
   }
 

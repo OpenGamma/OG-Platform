@@ -15,10 +15,10 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -84,7 +84,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
     //  return Collections.emptySet();

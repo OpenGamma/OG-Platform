@@ -137,7 +137,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     
-    assertEquals(5, timeSeries.size());
+    assertEquals(timeSeries.toString(), 5, timeSeries.size());
     for (Map.Entry<Date, Double> entry : timeSeries) {
       assertTrue(entry.getKey().getTime() >= result.getResultTimestamp().toEpochMillisLong()
           && entry.getKey().getTime() <= System.currentTimeMillis());

@@ -247,10 +247,10 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       Date latestTime = new Date(lastResult.getResultTimestamp().toEpochMillisLong());
       
       if (latestTime.after(latestDbTime)) {
-        ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getRequirementSpecification().getTargetSpecification());
+        ViewTargetResultModel latestResult = lastResult.getTargetResult(specification.getTargetSpecification());
         if (latestResult != null) {
           Map<String, ComputedValue> latestValues = latestResult.getValues(calcConf);
-          ComputedValue latestValue = latestValues.get(specification.getRequirementSpecification().getValueName());
+          ComputedValue latestValue = latestValues.get(specification.getValueName());
           if (latestValue.getValue() instanceof Double) {
             timeSeries.putDataPoint(latestTime, (Double) latestValue.getValue());
           }
@@ -291,11 +291,12 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   
   private String getFieldName(ValueSpecification spec) {
     // ugly and error-prone if new fields are added to ValueSpecification
-    return spec.getFunctionUniqueId() + "/" + spec.getRequirementSpecification().getValueName();
+    // TODO 2010-10-22 Andrew -- should we iterate over the properties of the value spec ?
+    return spec.getFunctionUniqueId() + "/" + spec.getValueName();
   }
   
   private IdentifierBundle getIdentifierBundle(ValueSpecification specification) {
-    return new IdentifierBundle(specification.getRequirementSpecification().getTargetSpecification().getIdentifier());
+    return new IdentifierBundle(specification.getTargetSpecification().getIdentifier());
   }
   
   // --------------------------------------------------------------------------

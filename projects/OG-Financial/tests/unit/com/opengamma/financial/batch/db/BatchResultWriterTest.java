@@ -6,6 +6,7 @@
 package com.opengamma.financial.batch.db;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -45,6 +46,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.HibernateTest;
 
@@ -241,6 +243,62 @@ public class BatchResultWriterTest extends HibernateTest {
 
   // --------------------------------------------------------------------------
   
+  @Test
+  public void getComputeFailureFromDb() {
+    BatchResultWriter resultWriter1 = getSuccessResultWriter();
+    
+    StringBuffer longString = new StringBuffer();
+    for (int i = 0; i < 2000; i++) {
+      longString.append('f');
+    }
+    
+    CalculationJobResultItem item = new CalculationJobResultItem(
+        _calcJob.getJobItems().get(0),
+        new RuntimeException(longString.toString()));
+    
+    resultWriter1.openSession();
+    assertEquals(0, resultWriter1.getNumRiskComputeFailureRows());
+    assertNotNull(resultWriter1.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter1.getNumRiskComputeFailureRows());
+    assertNotNull(resultWriter1.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter1.getNumRiskComputeFailureRows());
+    resultWriter1.closeSession();
+    
+    // writer with no in-memory cache
+    BatchResultWriter resultWriter2 = getSuccessResultWriter();
+    
+    resultWriter2.openSession();
+    assertNotNull(resultWriter2.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter2.getNumRiskComputeFailureRows());
+    resultWriter2.closeSession();
+  }
+  
+  @Test
+  public void getComputeFailureFromDbNullMessage() {
+    BatchResultWriter resultWriter1 = getSuccessResultWriter();
+    resultWriter1.initialize();
+    
+    CalculationJobResultItem item = new CalculationJobResultItem(
+        _calcJob.getJobItems().get(0),
+        new RuntimeException((String) null));
+    
+    resultWriter1.openSession();
+    assertEquals(0, resultWriter1.getNumRiskComputeFailureRows());
+    assertNotNull(resultWriter1.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter1.getNumRiskComputeFailureRows());
+    assertNotNull(resultWriter1.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter1.getNumRiskComputeFailureRows());
+    resultWriter1.closeSession();
+    
+    // writer with no in-memory cache
+    BatchResultWriter resultWriter2 = getSuccessResultWriter();
+    resultWriter2.initialize();
+    
+    resultWriter2.openSession();
+    assertNotNull(resultWriter2.getComputeFailureFromDb(item));
+    assertEquals(1, resultWriter2.getNumRiskComputeFailureRows());
+    resultWriter2.closeSession();
+  }
   
   @Test
   public void notARestart() {
@@ -434,6 +492,49 @@ public class BatchResultWriterTest extends HibernateTest {
   }
   
   @Test
+  public void nonScalarFunctionWasSuccessful() {
+    CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
+    
+    ComputedValue outputWithANonDoubleValue = new ComputedValue(
+        _mockFunction.getResultSpec(), 
+        new DoubleMatrix1D(new double[] { 4.0, 5.0, 6.0 }));
+    putValue(outputWithANonDoubleValue);
+    
+    CalculationJobResult result = new CalculationJobResult(
+        _calcJob.getSpecification(),
+        200,
+        Collections.singletonList(item),
+        "localhost");
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result, null);
+    
+    assertEquals(3, resultWriter.getNumRiskRows());
+
+    RiskValue value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[0]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(4.0, value.getValue(), 0.0000001);
+    
+    value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[1]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(5.0, value.getValue(), 0.0000001);
+    
+    value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[2]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(6.0, value.getValue(), 0.0000001);
+    
+    assertEquals(0, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
+  }
+  
+  @Test
   public void functionWasSuccessfulButProducesUnsupportedOutputType() {
     CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
     
@@ -462,6 +563,27 @@ public class BatchResultWriterTest extends HibernateTest {
     CalculationJobResultItem item = new CalculationJobResultItem(
         _calcJob.getJobItems().get(0),
         new RuntimeException("function execution failed"));
+    
+    CalculationJobResult result = new CalculationJobResult(
+        _calcJob.getSpecification(),
+        200,
+        Collections.singletonList(item),
+        "localhost");
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result, null);
+    
+    assertEquals(0, resultWriter.getNumRiskRows());
+    assertEquals(1, resultWriter.getNumRiskFailureRows());
+    assertEquals(1, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
+  }
+  
+  @Test
+  public void functionExecutionThrewExceptionNullMessage() {
+    CalculationJobResultItem item = new CalculationJobResultItem(
+        _calcJob.getJobItems().get(0),
+        new RuntimeException((String) null));
     
     CalculationJobResult result = new CalculationJobResult(
         _calcJob.getSpecification(),
@@ -596,7 +718,7 @@ public class BatchResultWriterTest extends HibernateTest {
   private RiskValue getValueFromDb(BatchResultWriter resultWriter) {
     return resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
-        _mockFunction.getResultSpec().getRequirementSpecification().getValueName(), 
+ _mockFunction.getResultSpec().getValueName(),
         _mockFunction.getTarget().toSpecification());
   }
   

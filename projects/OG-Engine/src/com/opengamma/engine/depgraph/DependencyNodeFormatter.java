@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -24,7 +24,7 @@ public class DependencyNodeFormatter {
   public DependencyNodeFormatter() {
     this(DEFAULT_INDENT_SIZE);
   }
-  
+
   public DependencyNodeFormatter(int indentSize) {
     if (indentSize < 0) {
       throw new IllegalArgumentException("Indent size must not be negative.");
@@ -54,21 +54,21 @@ public class DependencyNodeFormatter {
   protected String getIndentText() {
     return _indentText;
   }
-  
+
   public void format(PrintStream ps, DependencyNode node) {
     PrintWriter pw = new PrintWriter(ps);
     format(pw, node);
   }
-  
+
   public void format(Writer w, DependencyNode node) {
     PrintWriter pw = new PrintWriter(w);
     format(pw, node);
   }
-  
+
   public void format(PrintWriter pw, DependencyNode node) {
     format(pw, node, 0);
   }
-  
+
   protected void format(PrintWriter pw, DependencyNode node, int indentLevel) {
     if (node == null) {
       return;
@@ -76,12 +76,16 @@ public class DependencyNodeFormatter {
     for (int i = 0; i < indentLevel; i++) {
       pw.print(getIndentText());
     }
-    pw.println(node.toString());
+    pw.print(node.toString());
+    pw.print(" ");
+    pw.print("producing ");
+    pw.print(node.getOutputValues());
+    pw.println();
     for (DependencyNode subNode : node.getInputNodes()) {
       format(pw, subNode, indentLevel + 1);
     }
   }
-  
+
   public static String toString(DependencyNode node) {
     DependencyNodeFormatter formatter = new DependencyNodeFormatter();
     StringWriter sw = new StringWriter();

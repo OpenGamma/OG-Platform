@@ -105,6 +105,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -374,8 +375,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         parametersList.add(adjustedIdentifierValue);
         
         if (currentDate != null) {
-          bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) " +
-          		"AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
+          bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
           parametersList.add(currentDate);
           parametersList.add(currentDate);
         }
@@ -750,6 +750,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   private void validateTimeSeriesDocument(TimeSeriesDocument<T> document) {
     ArgumentChecker.notNull(document, "timeseries document");
     ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
+    ArgumentChecker.notNull(document.getIdentifiers(), "identifiers");
     ArgumentChecker.isTrue(!document.getIdentifiers().asIdentifierBundle().getIdentifiers().isEmpty(), "cannot add timeseries with empty identifiers");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataSource()), "cannot add timeseries with blank dataSource");
     ArgumentChecker.isTrue(!StringUtils.isBlank(document.getDataProvider()), "cannot add timeseries with blank dataProvider");
@@ -1065,31 +1066,36 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
           metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA);
         }
       }
+      metaDataSql = metaDataSql.toUpperCase();
       MapSqlParameterSource parameters = new MapSqlParameterSource();
       if (dataSource != null) {
-        metaDataSql +=  " AND ds.name = :dataSource ";
-        parameters.addValue("dataSource", dataSource, Types.VARCHAR);
+        metaDataSql +=  " AND DS.NAME = :DATASOURCE ";
+        parameters.addValue("DATASOURCE", dataSource, Types.VARCHAR);
       }
       if (dataProvider != null) {
-        metaDataSql +=  " AND dp.name = :dataProvider ";
-        parameters.addValue("dataProvider", dataProvider, Types.VARCHAR);
+        metaDataSql +=  " AND DP.NAME = :DATAPROVIDER ";
+        parameters.addValue("DATAPROVIDER", dataProvider, Types.VARCHAR);
       }
       if (dataField != null) {
-        metaDataSql +=  " AND df.name = :dataField ";
-        parameters.addValue("dataField", dataField, Types.VARCHAR);
+        metaDataSql +=  " AND DF.NAME = :DATAFIELD ";
+        parameters.addValue("DATAFIELD", dataField, Types.VARCHAR);
       }
       if (observationTime != null) {
-        metaDataSql +=  " AND ot.name = :observationTime ";
-        parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+        metaDataSql +=  " AND OT.NAME = :OBSERVATIONTIME ";
+        parameters.addValue("OBSERVATIONTIME", observationTime, Types.VARCHAR);
       }
       
       if (useBundleIds) {
-        parameters.addValue("bundleIds", bundles.keySet());
+        parameters.addValue("BUNDLEIDS", bundles.keySet());
       }
       TimeSeriesMetaDataRowMapper<T> rowMapper = new TimeSeriesMetaDataRowMapper<T>(this);
       rowMapper.setLoadDates(request.isLoadDates());
       
-      List<MetaData<T>> tsMetaDataList = getJdbcTemplate().query(metaDataSql, rowMapper, parameters);
+      String countSql = createTotalCountSql(metaDataSql);
+      int count = getJdbcTemplate().queryForInt(countSql, parameters);
+      String sqlApplyPaging = getDbSource().getDialect().sqlApplyPaging(metaDataSql, StringUtils.EMPTY, request.getPagingRequest());
+      
+      List<MetaData<T>> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
       for (MetaData<T> tsMetaData : tsMetaDataList) {
         TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
         Long bundleId = tsMetaData.getIdentifierBundleId();
@@ -1113,8 +1119,19 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         }
         result.getDocuments().add(document);
       }
+      result.setPaging(new Paging(request.getPagingRequest(), count));
     }
     return result;
+  }
+
+  private String createTotalCountSql(String metaDataSql) {
+    StringBuilder buf = new StringBuilder();
+    int fromIndex = metaDataSql.indexOf("FROM");
+    if (fromIndex != -1) {
+      buf.append("SELECT COUNT(*) FROM  ");
+      buf.append(metaDataSql.substring(fromIndex + 4));
+    }
+    return buf.toString();
   }
 
   private Map<String, T> getTimeSeriesDateRange(long tsId) {

@@ -13,12 +13,11 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A single holiday when some form of market activity does not occur.
+ * A set of holidays when some form of market activity does not occur.
  * <p>
  * Markets have, on occasion, holidays when there is no business.
  * These can form part of algorithms and contracts.
- * Instances of this interface represent a single conceptual holiday and
- * can provide multiple applicable dates.
+ * Instances of this interface represent all known holiday dates for a single type of business.
  */
 public interface Holiday {
 

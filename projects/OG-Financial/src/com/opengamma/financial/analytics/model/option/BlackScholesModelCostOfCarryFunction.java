@@ -56,7 +56,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueIdentifier()));

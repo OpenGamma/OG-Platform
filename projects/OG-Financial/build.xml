@@ -30,6 +30,7 @@
 			</header>
 			<fileset file="${basedir}/${dbscript.prefix}-db-common.sql" />
             <fileset file="${basedir}/${dbscript.prefix}-db-config.sql" />
+            <fileset file="${basedir}/${dbscript.prefix}-db-refdata.sql" />
 			<fileset file="${basedir}/${dbscript.prefix}-db-security.sql" />
 			<fileset file="${basedir}/${dbscript.prefix}-db-position.sql" />
 			<fileset file="${basedir}/${dbscript.prefix}-db-batch.sql" />
@@ -40,7 +41,7 @@
 		<subant target="create-db-sql-impl" genericantfile="${basedir}/build.xml">
 			<property name="parent.dir" value="${basedir}" />
 			<property name="common.dir" value="${common.dir}" />
-			<dirset dir="." includes="db/**/patch_*" />
+            <dirset dir="${install.dir}/db" includes="*/patch_*" />
 		</subant>
 	</target>
 	
