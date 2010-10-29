@@ -328,7 +328,9 @@
 	</target>
 
 	<target name="clean-build" description="--> clean the project build files">
-		<delete includeemptydirs="true" dir="${build.dir}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${build.dir}" includes="**/*" excludes="bootstrap/*" />
+		</delete>
 		<delete includeemptydirs="true" dir="${tests.classes.dir}" />
         <delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
