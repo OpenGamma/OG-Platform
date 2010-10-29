@@ -328,6 +328,7 @@
 	</target>
 
 	<target name="clean-build" description="--> clean the project build files">
+		<mkdir dir="${build.dir}" />
 		<delete includeemptydirs="true">
 			<fileset dir="${build.dir}" includes="**/*" excludes="bootstrap/*" />
 		</delete>
