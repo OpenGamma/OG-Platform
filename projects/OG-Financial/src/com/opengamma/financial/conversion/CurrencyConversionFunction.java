@@ -35,12 +35,22 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
+  /**
+   * Default value for {@code _rateLookupValueName}.
+   */
+  public static final String DEFAULT_LOOKUP_VALUE_NAME = "CurrencyConversion";
+
+  /**
+   * Default value for {@code _rateLookupIdentifierScheme}.
+   */
+  public static final String DEFAULT_LOOKUP_IDENTIFIER_SCHEME = "CurrencyISO";
+
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
   private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
-  private String _rateLookupValueName = "CurrencyConversion";
-  private String _rateLookupIdentifierScheme = "CurrencyConversion";
+  private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
+  private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
 
   public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
     ArgumentChecker.notNull(targetType, "targetType");
