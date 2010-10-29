@@ -19,6 +19,11 @@ public class WebHomeUris {
    */
   private final UriInfo _uriInfo;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param uriInfo  the request URI information, not null
+   */
   public WebHomeUris(UriInfo uriInfo) {
     _uriInfo = uriInfo;
   }
