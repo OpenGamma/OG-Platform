@@ -180,6 +180,7 @@
 		<clover-html-report
 			initstring="${clover.db.dir}"
 			outdir="${clover.html.report.dir}"
+			numThreads="1"
 		>
 		</clover-html-report>
 	</target>
