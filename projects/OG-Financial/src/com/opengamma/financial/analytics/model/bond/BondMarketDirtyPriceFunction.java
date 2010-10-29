@@ -25,7 +25,7 @@ public class BondMarketDirtyPriceFunction extends BondFunction {
 
   public BondMarketDirtyPriceFunction() {
     //_fieldName = "PX_DIRTY_MID";
-     _requirementName = MarketDataRequirementNames.DIRTY_PRICE_MID;
+     super(MarketDataRequirementNames.DIRTY_PRICE_MID);
   }
   
   @Override

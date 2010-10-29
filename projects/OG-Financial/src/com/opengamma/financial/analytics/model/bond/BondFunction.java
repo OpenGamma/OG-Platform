@@ -8,8 +8,9 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -18,7 +19,6 @@ import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -29,12 +29,6 @@ import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 
@@ -42,9 +36,18 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public abstract class BondFunction extends NonCompiledInvoker {
 
   private final String _bondCurveName = "BondCurve";
-  protected String _requirementName;
+  private String _requirementName;
  // protected String _fieldName;
 
+  public BondFunction(String requirementName) {
+    Validate.notNull(requirementName, "requirementName");
+    _requirementName = requirementName;
+  }
+  
+  public String getRequirementName() {
+    return _requirementName;
+  }
+  
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();

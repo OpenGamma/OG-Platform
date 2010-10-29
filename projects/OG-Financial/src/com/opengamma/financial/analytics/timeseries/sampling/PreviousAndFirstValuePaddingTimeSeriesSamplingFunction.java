@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -28,23 +27,24 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
     Validate.notNull(schedule, "schedule");
     final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
     final List<LocalDate> tsDates = localDateTS.times();
-    final List<LocalDate> scheduledDates = Arrays.asList(schedule);
+    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
     final List<Double> scheduledData = new ArrayList<Double>();
     final double firstValue = localDateTS.getEarliestValue();
     final LocalDate firstDate = localDateTS.getEarliestTime();
-    for (final LocalDate date : schedule) {
-      if (tsDates.contains(date)) {
-        scheduledData.add(localDateTS.getValue(date));
-      } else if (firstDate.isAfter(date)) {
+    for (final LocalDate localDate : schedule) {
+      scheduledDates.add(localDate);
+      if (tsDates.contains(localDate)) {
+        scheduledData.add(localDateTS.getValue(localDate));
+      } else if (firstDate.isAfter(localDate)) {
         scheduledData.add(firstValue);
       } else {
-        LocalDate temp = date.minusDays(1);
+        LocalDate temp = localDate.minusDays(1);
         if (firstDate.isAfter(temp)) {
           scheduledData.add(firstValue);
         } else {
           while (!tsDates.contains(temp)) {
             temp = temp.minusDays(1);
-            if (temp.isBefore(schedule[0]) || temp.isBefore(tsDates.get(0))) {
+            if (temp.isBefore(schedule[0].toLocalDate()) || temp.isBefore(tsDates.get(0))) {
               scheduledData.add(firstValue);
               break;
             }

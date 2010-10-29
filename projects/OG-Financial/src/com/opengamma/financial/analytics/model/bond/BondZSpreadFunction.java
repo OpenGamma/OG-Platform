@@ -43,7 +43,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   
   private final String _curveName;
-  private final  String _requirementName;
+  private final String _requirementName;
   
   public BondZSpreadFunction(final String curveName, final String valueRequirementName) {
     Validate.notNull(curveName, "curve name");
@@ -79,7 +79,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
  
     final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
     final Object priceObject = inputs.getValue(priceRequirement);
-    if (curveObject == null) {
+    if (priceObject == null) {
       throw new NullPointerException("Could not get " + priceRequirement);
     }
     double cleanPrice = (Double) priceObject;

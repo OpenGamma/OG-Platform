@@ -137,7 +137,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
 
     final ForwardLiborPayment[] payments = new ForwardLiborPayment[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
-        payments[i] = new ForwardLiborPayment(paymentTimes[i], notional, resetTimes[i], maturityTimes[i], yearFractions[i], yearFractions[i], spreads[i], fundingCurveName, liborCurveName);
+      payments[i] = new ForwardLiborPayment(paymentTimes[i], notional, resetTimes[i], maturityTimes[i], yearFractions[i], yearFractions[i], spreads[i], fundingCurveName, liborCurveName);
     }
 
     //TODO need to handle paymentYearFraction differently from forwardYearFraction 

@@ -29,10 +29,10 @@ public class NoPaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFu
     final List<LocalDate> tsDates = localDateTS.times();
     final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
     final List<Double> scheduledData = new ArrayList<Double>();
-    for (final LocalDate date : schedule) {
-      if (tsDates.contains(date)) {
-        scheduledDates.add(date);
-        scheduledData.add(localDateTS.getValue(date));
+    for (final LocalDate localDate : schedule) {
+      if (tsDates.contains(localDate)) {
+        scheduledDates.add(localDate);
+        scheduledData.add(localDateTS.getValue(localDate));
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
