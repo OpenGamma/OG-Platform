@@ -26,7 +26,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondYieldFunction extends BondFunction {
 
   public BondYieldFunction() {
-    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    super(MarketDataRequirementNames.MARKET_VALUE);
    // _fieldName = "PX_LAST";
   }
 

@@ -50,7 +50,7 @@ public class ScheduleCalculatorFactory {
   /** End of month calculator */
   public static final EndOfMonthScheduleCalculator END_OF_MONTH_CALCULATOR = new EndOfMonthScheduleCalculator();
   /** Yearly calculator */
-  public static final YearlyScheduleCalculator YEARLY_CALCULATOR = new YearlyScheduleCalculator();
+  public static final AnnualScheduleCalculator YEARLY_CALCULATOR = new AnnualScheduleCalculator();
   /** First of year calculator */
   public static final FirstOfYearScheduleCalculator FIRST_OF_YEAR_CALCULATOR = new FirstOfYearScheduleCalculator();
   /** End of year calculator */
@@ -90,6 +90,6 @@ public class ScheduleCalculatorFactory {
     if (!name.equals(YEAR_ON_DAY_OF_MONTH)) {
       throw new IllegalArgumentException("Can only ask for " + YEAR_ON_DAY_OF_MONTH + " schedule");
     }
-    return new YearlyScheduleOnDayAndMonthCalculator(dayOfMonth, monthOfYear);
+    return new AnnualScheduleOnDayAndMonthCalculator(dayOfMonth, monthOfYear);
   }
 }

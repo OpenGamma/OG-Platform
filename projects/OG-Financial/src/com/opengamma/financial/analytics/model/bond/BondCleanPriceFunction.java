@@ -24,7 +24,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondCleanPriceFunction extends BondFunction {
 
   public BondCleanPriceFunction() {
-    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    super(MarketDataRequirementNames.MARKET_VALUE);
     //_fieldName = "PX_LAST";
   }
 

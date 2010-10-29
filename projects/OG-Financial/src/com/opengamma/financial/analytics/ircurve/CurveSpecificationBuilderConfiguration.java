@@ -35,6 +35,8 @@ public class CurveSpecificationBuilderConfiguration {
    * @param rateInstrumentProviders a map of tenor to instrument providers for rate (e.g. LIBOR) curve instruments
    * @param futureInstrumentProviders a map of tenor to instrument providers for future curve instruments e.g. (BloombergFutureInstrumentProvider)
    * @param swapInstrumentProviders a map of tenor to instrument providers for swap curve instruments
+   * @param basisSwapInstrumentProviders a map of tenor to instrument providers for basis swap instruments
+   * @param tenorSwapInstrumentProviders a map of tenor swap to instrument providers for tenor swap curve 
    */
   public CurveSpecificationBuilderConfiguration(Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders,
                                                 Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders,

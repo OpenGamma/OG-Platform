@@ -88,7 +88,7 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     }
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> riskFreeTSObject = historicalDataSource.getHistoricalData(IdentifierBundle.of(Identifier.of(
         IdentificationScheme.BLOOMBERG_TICKER, bundle.getCAPMRiskFreeRateName())), "BLOOMBERG", "CMPL", "PX_LAST", _startDate, true, now, false);
-    if (marketTSObject == null) {
+    if (riskFreeTSObject == null) {
       throw new NullPointerException("Risk-free time series was null");
     }
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in

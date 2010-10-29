@@ -29,6 +29,7 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   //TODO test start date = holiday
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
   private static final LocalDate END = LocalDate.of(2010, 10, 1);
+  private static final HolidayDateRemovalFunction WEEKEND_REMOVER = new HolidayDateRemovalFunction();
   private static final DailyScheduleCalculator DAILY = new DailyScheduleCalculator();
   private static final WeeklyScheduleOnDayCalculator WEEKLY_MONDAY = new WeeklyScheduleOnDayCalculator(DayOfWeek.MONDAY);
   private static final PreviousAndFirstValuePaddingTimeSeriesSamplingFunction F = new PreviousAndFirstValuePaddingTimeSeriesSamplingFunction();
@@ -45,8 +46,8 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
     }
 
   };
-  private static final LocalDate[] DAILY_SCHEDULE = DAILY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
-  private static final LocalDate[] MONDAY_SCHEDULE = WEEKLY_MONDAY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
+  private static final LocalDate[] DAILY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(DAILY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final LocalDate[] MONDAY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(WEEKLY_MONDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
   private static final LocalDate MISSING_DAY_MONDAY_1 = LocalDate.of(2009, 2, 9);
   private static final LocalDate MISSING_DAY_MONDAY_2 = LocalDate.of(2009, 2, 16);
   private static final LocalDateDoubleTimeSeries TS_NO_MISSING_DATA;
@@ -58,10 +59,10 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
     final List<LocalDate> t2 = new ArrayList<LocalDate>();
     final List<Double> d2 = new ArrayList<Double>();
     for (int i = 0; i < DAILY_SCHEDULE.length; i++) {
-      t1.add(DAILY_SCHEDULE[i]);
+      t1.add(DAILY_SCHEDULE[i].toLocalDate());
       d1.add(Double.valueOf(i));
       if (!(DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_1) || DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_2))) {
-        t2.add(DAILY_SCHEDULE[i]);
+        t2.add(DAILY_SCHEDULE[i].toLocalDate());
         d2.add(Double.valueOf(i));
       }
     }
@@ -82,12 +83,12 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   @Test
   public void testMissingFirstData() {
     final LocalDate start = START.minusDays(21);
-    final LocalDate[] daily = DAILY.getScheduleWorkingDaysOnly(start, END, true, WEEKEND_CALENDAR);
+    final LocalDate[] daily = WEEKEND_REMOVER.getStrippedSchedule(DAILY.getSchedule(start, END, true, true), WEEKEND_CALENDAR);
     final List<LocalDate> t = new ArrayList<LocalDate>();
     final List<Double> d = new ArrayList<Double>();
     for (int i = 0; i < daily.length; i++) {
       if (daily[i].isAfter(START)) {
-        t.add(daily[i]);
+        t.add(daily[i].toLocalDate());
         d.add(Double.valueOf(i));
       }
     }
