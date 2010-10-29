@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.junit.Test;
 
-import com.opengamma.financial.web.WebHomeUris;
+import com.opengamma.web.WebHomeUris;
 
 /**
  * Test WebHomeUris.
