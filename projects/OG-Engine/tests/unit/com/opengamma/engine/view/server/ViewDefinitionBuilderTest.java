@@ -41,9 +41,9 @@ public class ViewDefinitionBuilderTest {
     viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
     
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDef, "Test config");
-    calcConfig.addPortfolioRequirement("SecType", "Req1");
-    calcConfig.addPortfolioRequirement("SecType", "Req2");
-    calcConfig.addPortfolioRequirement("SecType2", "Req1");
+    calcConfig.addPortfolioRequirementName("SecType", "Req1");
+    calcConfig.addPortfolioRequirementName("SecType", "Req2");
+    calcConfig.addPortfolioRequirementName("SecType2", "Req1");
     calcConfig.addSpecificRequirement(new ValueRequirement("Req3", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme2", "USD")));
     calcConfig.getDeltaDefinition().setNumberComparer(new NumberDeltaComparer(2));
     viewDef.addViewCalculationConfiguration(calcConfig);

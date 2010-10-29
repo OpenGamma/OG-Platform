@@ -84,10 +84,10 @@ public class MongoConfigSourceTest {
     for (String name : names) {
       ViewDefinition definition = new ViewDefinition(name, UniqueIdentifier.of("PORTFOLIO_SCHEME", "ID" + _random.nextInt(100)), "RandUser" + _random.nextInt(100));
       String configName = "ConfigName" + _random.nextInt();
-      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
-      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
-      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
-      definition.addPortfolioRequirement(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
+      definition.addPortfolioRequirementName(configName, EQUITY_OPTION, ValueRequirementNames.DELTA);
+      definition.addPortfolioRequirementName(configName, EQUITY_OPTION, ValueRequirementNames.GAMMA);
+      definition.addPortfolioRequirementName(configName, EQUITY_OPTION, ValueRequirementNames.RHO);
+      definition.addPortfolioRequirementName(configName, EQUITY_OPTION, ValueRequirementNames.FAIR_VALUE);
       
       ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>();
       configDocument.setName(name);

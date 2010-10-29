@@ -58,11 +58,15 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option), getUniqueIdentifier());
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
+      final ComputedValue resultValue = new ComputedValue(getResultSpecification(dV.getValueName(), target, option), greekResult);
       results.add(resultValue);
     }
     return results;
+  }
+
+  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final OptionSecurity security) {
+    // REVIEW 2010-10-28 Andrew -- Do all values produced have a currency? Aren't the derivitive greeks unitless?
+    return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getISOCode()).get());
   }
 
   @Override
@@ -73,7 +77,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     final OptionSecurity security = (OptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      results.add(new ValueSpecification(new ValueRequirement(valueName, security), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getISOCode()).get()));
+      results.add(getResultSpecification(valueName, target, security));
     }
     return results;
   }

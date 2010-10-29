@@ -313,19 +313,28 @@ public class DependencyGraphBuilder {
               node.getDependencyNode().addOutputValue(outputValue);
             }
           }
-          if (resolvedOutput == null) {
-            s_logger.debug("Deep backtracking as provisional specification {} no longer in output after late resolution of {}", node.getValueSpecification(), resolved.getValueRequirement());
+          String failureMessage = null;
+          if (resolvedOutput != null) {
+            if (_graph.getNodeProducing(resolvedOutput) != null) {
+              // Already considered this case - the curse of late resolution is that we can't detect it sooner
+              failureMessage = "Late resolution reduced provisional specification " + node.getValueSpecification() + " to previously rejected " + resolvedOutput + " for "
+                  + resolved.getValueRequirement();
+            }
+          } else {
+            failureMessage = "Deep backtracking as provisional specification " + node.getValueSpecification() + " no longer in output after late resolution of " + resolved.getValueRequirement();
+          }
+          if (failureMessage != null) {
+            s_logger.debug(failureMessage);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
-              throw new UnsatisfiableDependencyGraphException("Provisional specification " + node.getValueSpecification() + " no longer in output after late resolution of "
-                  + resolved.getValueRequirement());
+              throw new UnsatisfiableDependencyGraphException(failureMessage);
             }
             continue;
           }
         }
         // Fetch and additional input requirements now needed as a result of input and output resolution
         try {
-          Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode()
-              .getInputValues(), node.getDependencyNode().getOutputValues());
+          Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node
+              .getDependencyNode().getInputValues(), node.getDependencyNode().getOutputValues());
           if (!additionalRequirements.isEmpty()) {
             for (ValueRequirement inputRequirement : additionalRequirements) {
               final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());

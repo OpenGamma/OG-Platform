@@ -137,7 +137,7 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
 
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
-    calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
+    calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.nowSystemClock());
@@ -192,7 +192,7 @@ public class ViewDefinitionCompilerTest {
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
-    calcConfig.addPortfolioRequirement("My Sec", "OUTPUT");
+    calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
     ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.nowSystemClock());
 
