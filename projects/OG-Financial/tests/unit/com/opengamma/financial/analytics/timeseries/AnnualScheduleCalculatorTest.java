@@ -18,8 +18,8 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class YearlyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
-  private static final YearlyScheduleCalculator CALCULATOR = new YearlyScheduleCalculator();
+public class AnnualScheduleCalculatorTest extends ScheduleCalculatorTestCase {
+  private static final AnnualScheduleCalculator CALCULATOR = new AnnualScheduleCalculator();
 
   @Override
   public Schedule getScheduleCalculator() {

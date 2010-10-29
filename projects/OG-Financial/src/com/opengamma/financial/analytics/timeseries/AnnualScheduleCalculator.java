@@ -17,7 +17,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class YearlyScheduleCalculator extends Schedule {
+public class AnnualScheduleCalculator extends Schedule {
 
   @Override
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final boolean generateRecursive) {

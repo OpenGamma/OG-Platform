@@ -19,11 +19,11 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class YearlyScheduleOnDayAndMonthCalculator extends Schedule {
+public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
   private final int _dayOfMonth;
   private final MonthOfYear _monthOfYear;
 
-  public YearlyScheduleOnDayAndMonthCalculator(final int dayOfMonth, final MonthOfYear monthOfYear) {
+  public AnnualScheduleOnDayAndMonthCalculator(final int dayOfMonth, final MonthOfYear monthOfYear) {
     Validate.isTrue(dayOfMonth > 0);
     Validate.isTrue(monthOfYear.maxLengthInDays() > dayOfMonth);
     _dayOfMonth = dayOfMonth;

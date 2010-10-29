@@ -19,10 +19,10 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class YearlyScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculatorTestCase {
+public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculatorTestCase {
   private static final int DAY_OF_MONTH = 15;
   private static final MonthOfYear MONTH_OF_YEAR = MonthOfYear.APRIL;
-  private static final YearlyScheduleOnDayAndMonthCalculator CALCULATOR = new YearlyScheduleOnDayAndMonthCalculator(DAY_OF_MONTH, MONTH_OF_YEAR);
+  private static final AnnualScheduleOnDayAndMonthCalculator CALCULATOR = new AnnualScheduleOnDayAndMonthCalculator(DAY_OF_MONTH, MONTH_OF_YEAR);
 
   @Override
   public Schedule getScheduleCalculator() {
@@ -31,12 +31,12 @@ public class YearlyScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeDay() {
-    new YearlyScheduleOnDayAndMonthCalculator(-DAY_OF_MONTH, MONTH_OF_YEAR);
+    new AnnualScheduleOnDayAndMonthCalculator(-DAY_OF_MONTH, MONTH_OF_YEAR);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadDay() {
-    new YearlyScheduleOnDayAndMonthCalculator(31, MonthOfYear.FEBRUARY);
+    new AnnualScheduleOnDayAndMonthCalculator(31, MonthOfYear.FEBRUARY);
   }
 
   @Test(expected = IllegalArgumentException.class)
