@@ -45,10 +45,10 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
-      final Set<ValueRequirement> standardRequirements = super.getRequirements(context, target);
+      final Set<ValueRequirement> standardRequirements = super.getRequirements(context, target, desiredValue);
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
       result.addAll(standardRequirements);
       result.add(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid));

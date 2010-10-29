@@ -149,9 +149,9 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public CompiledFunctionRepository compile(final CompiledFunctionService context, final InstantProvider atInstantProvider) {
+  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final InstantProvider atInstantProvider) {
     final Instant atInstant = Instant.of(atInstantProvider);
-    final Pair<FunctionRepository, Instant> key = Pair.of(context.getFunctionRepository(), atInstant);
+    final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation
     final InMemoryCompiledFunctionRepository previous = getPreviousCompilation(key);
     if (previous != null) {
@@ -180,7 +180,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       return compiled;
     }
     // Create a compilation, salvaging results from previous and next if possible
-    compiled = compile(context.getFunctionCompilationContext(), context.getFunctionRepository(), atInstant, previous, next, context.getExecutorService());
+    compiled = compile(context, repository, atInstant, previous, next, executor);
     cacheCompilation(key, compiled);
     return compiled;
   }

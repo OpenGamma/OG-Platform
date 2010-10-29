@@ -35,7 +35,7 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   public static final String UNIQUE_ID = "mock";
 
   private final ComputationTarget _target;
-  private final Set<ValueSpecification> _requirements = new HashSet<ValueSpecification>();
+  private final Set<ValueRequirement> _requirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _resultSpecs = new HashSet<ValueSpecification>();
   private final Set<ComputedValue> _results = new HashSet<ComputedValue>();
   private final Set<ValueSpecification> _requiredLiveData = new HashSet<ValueSpecification>();
@@ -66,14 +66,16 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   public static MockFunction getMockFunction(String uniqueIdentifier, ComputationTarget target, Object output, ValueRequirement input) {
     MockFunction fn = getMockFunction(uniqueIdentifier, target, output);
 
-    fn.addValueRequirement(input);
+    fn.addRequirement(input);
     return fn;
   }
 
   public static MockFunction getMockFunction(String uniqueIdentifier, ComputationTarget target, Object output, MockFunction inputFunction) {
     MockFunction fn = getMockFunction(uniqueIdentifier, target, output);
 
-    fn.addRequirements(inputFunction.getResultSpecs());
+    for (ValueSpecification resultSpec : inputFunction.getResultSpecs()) {
+      fn.addRequirement(resultSpec.toRequirementSpecification());
+    }
     return fn;
   }
 
@@ -86,22 +88,20 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     this(UNIQUE_ID, target);
   }
 
-  public void addValueRequirement(ValueRequirement requirement) {
-    addValueRequirements(Collections.singleton(requirement));
-  }
-
-  public void addValueRequirements(Collection<ValueRequirement> requirements) {
-    for (ValueRequirement requirement : requirements) {
-      addRequirement(toValueSpecification(requirement));
-    }
-  }
-
-  public void addRequirement(ValueSpecification requirement) {
+  public void addRequirement(ValueRequirement requirement) {
     addRequirements(Collections.singleton(requirement));
   }
 
-  public void addRequirements(Collection<ValueSpecification> requirements) {
+  public void addRequirements(Collection<ValueRequirement> requirements) {
     _requirements.addAll(requirements);
+  }
+
+  public Set<ValueSpecification> getRequirements() {
+    final HashSet<ValueSpecification> specs = new HashSet<ValueSpecification>();
+    for (ValueRequirement requirement : _requirements) {
+      specs.add(toValueSpecification(requirement));
+    }
+    return Collections.unmodifiableSet(specs);
   }
 
   public ValueSpecification toValueSpecification(ValueRequirement requirement) {
@@ -145,23 +145,8 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-    Set<ValueRequirement> reqs = new HashSet<ValueRequirement>();
-    for (ValueSpecification req : getRequirements()) {
-      reqs.add(req.getRequirementSpecification());
-    }
-    return reqs;
-  }
-
-  public ValueSpecification getRequirement() {
-    if (_requirements.size() != 1) {
-      throw new IllegalStateException();
-    }
-    return _requirements.iterator().next();
-  }
-
-  public Set<ValueSpecification> getRequirements() {
-    return _requirements;
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
+    return Collections.unmodifiableSet(_requirements);
   }
 
   @Override
@@ -180,14 +165,10 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return _resultSpecs.iterator().next();
   }
 
-  public ValueRequirement getResultRequirement() {
-    return getResultSpec().getRequirementSpecification();
-  }
-
   public Set<ValueRequirement> getResultRequirements() {
     Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
     for (ValueSpecification spec : getResultSpecs()) {
-      returnValue.add(spec.getRequirementSpecification());
+      returnValue.add(spec.toRequirementSpecification());
     }
     return returnValue;
   }
@@ -220,9 +201,11 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Set<ComputedValue> results = new HashSet<ComputedValue>();
-    for (ComputedValue result : _results) {
-      if (desiredValues.contains(result.getSpecification().getRequirementSpecification())) {
-        results.add(result);
+    for (ValueRequirement desiredValue : desiredValues) {
+      for (ComputedValue result : _results) {
+        if (desiredValue.isSatisfiedBy(result.getSpecification())) {
+          results.add(result);
+        }
       }
     }
     return results;

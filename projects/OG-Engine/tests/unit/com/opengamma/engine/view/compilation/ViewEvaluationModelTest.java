@@ -104,12 +104,22 @@ public class ViewEvaluationModelTest {
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
+        return null;
+      }
+
+      @Override
+      public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
         return null;
       }
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return null;
+      }
+      
+      @Override
+      public Set<ValueSpecification> getResults (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
         return null;
       }
 

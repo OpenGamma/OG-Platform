@@ -9,15 +9,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
-
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A single node in a {@link DependencyGraph}. A node represents
@@ -68,10 +69,10 @@ public class DependencyNode {
   public void addInputNode(DependencyNode inputNode) {
     ArgumentChecker.notNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
-    inputNode.addDependentNode(this); // note how we rely on the yucky class-scope encapsulation of private
+    inputNode.addDependentNode(this);
   }
 
-  private void addDependentNode(DependencyNode dependentNode) {
+  protected void addDependentNode(DependencyNode dependentNode) {
     ArgumentChecker.notNull(dependentNode, "Dependent Node");
     _dependentNodes.add(dependentNode);
   }
@@ -105,6 +106,18 @@ public class DependencyNode {
     _outputValues.add(outputValue);
   }
 
+  /* package */void clearOutputValues() {
+    _outputValues.clear();
+  }
+
+  /* package */void clearInputs() {
+    for (DependencyNode inputNode : _inputNodes) {
+      inputNode._dependentNodes.remove(this);
+    }
+    _inputNodes.clear();
+    _inputValues.clear();
+  }
+
   /* package */void addInputValue(ValueSpecification inputValue) {
     ArgumentChecker.notNull(inputValue, "Input value");
     _inputValues.add(inputValue);
@@ -121,7 +134,7 @@ public class DependencyNode {
   public Set<ValueRequirement> getOutputRequirements() {
     Set<ValueRequirement> outputRequirements = new HashSet<ValueRequirement>();
     for (ValueSpecification outputValue : _outputValues) {
-      outputRequirements.add(outputValue.getRequirementSpecification());
+      outputRequirements.add(outputValue.toRequirementSpecification());
     }
     return outputRequirements;
   }
@@ -134,21 +147,27 @@ public class DependencyNode {
     return _inputValues.contains(specification);
   }
 
-  public Set<ValueRequirement> getInputRequirements() {
-    Set<ValueRequirement> inputRequirements = new HashSet<ValueRequirement>();
-    for (ValueSpecification outputValue : _inputValues) {
-      inputRequirements.add(outputValue.getRequirementSpecification());
-    }
-    return inputRequirements;
-  }
-
   /**
    * @return The returned {@code ValueSpecifications} only tell you what the function
    * of this <i>this</i> node requires. They tell you nothing about the 
    * functions of any child nodes. 
    */
-  public Set<ValueSpecification> getRequiredLiveData() {
-    return _function.getFunction().getRequiredLiveData();
+  public Pair<ValueRequirement, ValueSpecification> getRequiredLiveData() {
+    if (_function.getFunction() instanceof LiveDataSourcingFunction) {
+      final LiveDataSourcingFunction ldsf = ((LiveDataSourcingFunction) _function.getFunction());
+      return ldsf.getLiveDataRequirement();
+    }
+    // [ENG-216] Remove this bit of code when getRequiredLiveData is removed. Just return the empty set.
+    final Set<ValueSpecification> liveData = _function.getFunction().getRequiredLiveData();
+    if (liveData.isEmpty()) {
+      return null;
+    }
+    if (liveData.size() > 1) {
+      // The method is deprecated, so shouldn't be being used anyway
+      throw new OpenGammaRuntimeException("[ENG-216] Multiple live data requirements from function " + _function.getFunction() + " - " + liveData);
+    }
+    final ValueSpecification spec = liveData.iterator().next();
+    return Pair.of(spec.toRequirementSpecification(), spec);
   }
 
   /**
@@ -188,7 +207,7 @@ public class DependencyNode {
 
   public ValueSpecification resolveInput(ValueRequirement requirement) {
     for (ValueSpecification inputSpec : _inputValues) {
-      if (ObjectUtils.equals(inputSpec.getRequirementSpecification(), requirement)) {
+      if (requirement.isSatisfiedBy(inputSpec)) {
         return inputSpec;
       }
     }
@@ -197,7 +216,7 @@ public class DependencyNode {
 
   public ValueSpecification resolveOutput(ValueRequirement requirement) {
     for (ValueSpecification outputSpec : _outputValues) {
-      if (ObjectUtils.equals(outputSpec.getRequirementSpecification(), requirement)) {
+      if (requirement.isSatisfiedBy(outputSpec)) {
         return outputSpec;
       }
     }

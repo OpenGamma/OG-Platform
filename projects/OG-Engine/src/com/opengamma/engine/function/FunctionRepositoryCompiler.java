@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.concurrent.ExecutorService;
+
 import javax.time.InstantProvider;
 
 /**
@@ -15,10 +17,12 @@ public interface FunctionRepositoryCompiler {
   /**
    * Compile all functions in the repository for use with snapshots at the given time.
    * 
-   * @param context the function repository, compilation contexts and other services to use
+   * @param repository the function repository
+   * @param context the compilation context
+   * @param executor executor service to use for parallel compilation
    * @param atInstant the snapshot time.
    * @return the repository of compiled functions.
    */
-  CompiledFunctionRepository compile(CompiledFunctionService context, InstantProvider atInstant);
+  CompiledFunctionRepository compile(FunctionRepository repository, FunctionCompilationContext context, ExecutorService executor, InstantProvider atInstant);
 
 }

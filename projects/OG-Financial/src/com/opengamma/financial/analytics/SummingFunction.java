@@ -12,7 +12,6 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -20,6 +19,8 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionAccumulator;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -38,7 +39,25 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
  */
-public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
+public class SummingFunction extends PropertyPreservingFunction {
+
+  /**
+   * Constraints to preserve from output to required input.
+   */
+  private static final String[] s_preserve = new String[] {ValuePropertyNames.CURRENCY};
+
+  private static final ValueProperties s_inputConstraints = createInputConstraints(s_preserve);
+
+  @Override
+  protected ValueProperties getInputConstraints() {
+    return s_inputConstraints;
+  }
+
+  @Override
+  protected ValueProperties createResultProperties() {
+    return createResultProperties(s_preserve);
+  }
+
   private final String _requirementName;
 
   public SummingFunction(final String requirementName) {
@@ -54,8 +73,7 @@ public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final PortfolioNode node = target.getPortfolioNode();
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
@@ -64,8 +82,7 @@ public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
           ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       currentSum = addValue(currentSum, positionValue);
     }
-    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(new ValueRequirement(_requirementName,
-        ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()), getUniqueIdentifier()), currentSum);
+    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);
   }
 
@@ -95,22 +112,26 @@ public class SummingFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final PortfolioNode node = target.getPortfolioNode();
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final Position position : allPositions) {
-      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position
-          .getUniqueIdentifier()));
+      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier(), getInputConstraint(desiredValue)));
     }
     return requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final PortfolioNode node = target.getPortfolioNode();
-    final ValueSpecification result = new ValueSpecification(new ValueRequirement(_requirementName,
-        ComputationTargetType.PORTFOLIO_NODE, node.getUniqueIdentifier()), getUniqueIdentifier());
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties());
+    return Collections.singleton(result);
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    final ValueSpecification input = inputs.iterator().next();
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(input));
     return Collections.singleton(result);
   }
 
