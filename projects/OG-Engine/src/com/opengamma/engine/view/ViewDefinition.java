@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
@@ -16,10 +16,12 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The encapsulated logic that controls how precisely a view is to be constructed
@@ -27,30 +29,29 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public class ViewDefinition implements Serializable {
-   
+
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
-  
+
   private final ResultModelDefinition _resultModelDefinition;
-  
+
   private Long _minDeltaCalculationPeriod;
   private Long _maxDeltaCalculationPeriod;
-  
+
   private Long _minFullCalculationPeriod;
   private Long _maxFullCalculationPeriod;
-  
-  private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
-    new TreeMap<String, ViewCalculationConfiguration>();
-  
+
+  private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName = new TreeMap<String, ViewCalculationConfiguration>();
+
   /**
    * If true, when a single computation cycle completes, the outputs are written
    * to a temporary file on the disk. This is not useful in a real production 
    * deployment, but can be useful in tests.
    */
   private boolean _dumpComputationCacheToDisk;
-  
-  //--------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
   /**
    * Constructs an instance, including a reference portfolio.
    * 
@@ -61,7 +62,7 @@ public class ViewDefinition implements Serializable {
   public ViewDefinition(String name, UniqueIdentifier portfolioId, String userName) {
     this(name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
   }
-  
+
   /**
    * Constructs an instance, without a reference portfolio.
    * 
@@ -71,7 +72,7 @@ public class ViewDefinition implements Serializable {
   public ViewDefinition(String name, String userName) {
     this(name, UserPrincipal.getLocalUser(userName));
   }
-  
+
   /**
    * Constructs an instance, without a reference portfolio.
    * 
@@ -81,7 +82,7 @@ public class ViewDefinition implements Serializable {
   public ViewDefinition(String name, UserPrincipal liveDataUser) {
     this(name, null, liveDataUser);
   }
-  
+
   /**
    * Constructs an instance, without a reference portfolio.
    * 
@@ -92,7 +93,7 @@ public class ViewDefinition implements Serializable {
   public ViewDefinition(String name, UserPrincipal liveDataUser, ResultModelDefinition resultModelDefinition) {
     this(name, null, liveDataUser, resultModelDefinition);
   }
-  
+
   /**
    * Constructs an instance
    * 
@@ -101,7 +102,7 @@ public class ViewDefinition implements Serializable {
    *                     <code>null</code> if no reference portfolio is required
    * @param liveDataUser  the user who owns the view definition
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId,  UserPrincipal liveDataUser) {
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser) {
     this(name, portfolioId, liveDataUser, new ResultModelDefinition());
   }
 
@@ -118,14 +119,14 @@ public class ViewDefinition implements Serializable {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(liveDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
-    
+
     _name = name;
     _portfolioId = portfolioId;
     _liveDataUser = liveDataUser;
     _resultModelDefinition = resultModelDefinition;
   }
-  
-  //--------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
   /**
    * Gets a set containing every portfolio output that is required, across all calculation configurations, regardless
    * of the security type(s) on which the output is required. These are outputs produced at the position and aggregate
@@ -133,8 +134,8 @@ public class ViewDefinition implements Serializable {
    * 
    * @return  a set of every required portfolio output across all calculation configurations, not null
    */
-  public Set<String> getAllPortfolioRequirementNames() {
-    Set<String> requirements = new TreeSet<String>();
+  public Set<Pair<String, ValueProperties>> getAllPortfolioRequirementNames() {
+    Set<Pair<String, ValueProperties>> requirements = new TreeSet<Pair<String, ValueProperties>>();
     for (ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
       requirements.addAll(calcConfig.getAllPortfolioRequirements());
     }
@@ -144,7 +145,7 @@ public class ViewDefinition implements Serializable {
   public String getName() {
     return _name;
   }
-  
+
   /**
    * Gets the unique identifier of the reference portfolio for this view. This is the portfolio on which position-level
    * calculations will be performed.
@@ -154,7 +155,7 @@ public class ViewDefinition implements Serializable {
   public UniqueIdentifier getPortfolioId() {
     return _portfolioId;
   }
-  
+
   /**
    * @return The LiveData user should be used to create 
    * LiveData subscriptions. It is thus a kind of 'super-user'
@@ -167,39 +168,43 @@ public class ViewDefinition implements Serializable {
   public UserPrincipal getLiveDataUser() {
     return _liveDataUser;
   }
-  
+
   public Collection<ViewCalculationConfiguration> getAllCalculationConfigurations() {
     return new ArrayList<ViewCalculationConfiguration>(_calculationConfigurationsByName.values());
   }
-  
+
   public Set<String> getAllCalculationConfigurationNames() {
     return Collections.unmodifiableSet(_calculationConfigurationsByName.keySet());
   }
-  
+
   public Map<String, ViewCalculationConfiguration> getAllCalculationConfigurationsByName() {
     return Collections.unmodifiableMap(_calculationConfigurationsByName);
   }
-  
+
   public ViewCalculationConfiguration getCalculationConfiguration(String configurationName) {
     return _calculationConfigurationsByName.get(configurationName);
   }
-  
+
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
-  
-  public void addPortfolioRequirement(String calculationConfigurationName, String securityType, String requirementName) {
+
+  public void addPortfolioRequirement(String calculationConfigurationName, String securityType, String requirementName, ValueProperties constraints) {
     ViewCalculationConfiguration calcConfig = _calculationConfigurationsByName.get(calculationConfigurationName);
     if (calcConfig == null) {
       calcConfig = new ViewCalculationConfiguration(this, calculationConfigurationName);
       _calculationConfigurationsByName.put(calculationConfigurationName, calcConfig);
     }
-    calcConfig.addPortfolioRequirement(securityType, requirementName);
+    calcConfig.addPortfolioRequirement(securityType, requirementName, constraints);
   }
 
-  //-------------------------------------------------------------------------
+  public void addPortfolioRequirementName(final String calculationConfigurationName, final String securityType, final String requirementName) {
+    addPortfolioRequirement(calculationConfigurationName, securityType, requirementName, ValueProperties.none());
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the minimum period, in milliseconds, which must have elapsed since the start of the last delta calculation
    * when live computations are running. Delta calculations involve only those nodes in the dependency graph whose
@@ -276,7 +281,7 @@ public class ViewDefinition implements Serializable {
   public void setMinFullCalculationPeriod(Long minFullCalculationPeriod) {
     _minFullCalculationPeriod = minFullCalculationPeriod;
   }
-  
+
   /**
    * Gets the maximum period, in milliseconds, which can elapse since the start of the last full calculation before a
    * full recalculation is forced when live computations are running. In between the minimum and maximum period, any
@@ -305,11 +310,11 @@ public class ViewDefinition implements Serializable {
     _maxFullCalculationPeriod = maxFullCalculationPeriod;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   public ResultModelDefinition getResultModelDefinition() {
     return _resultModelDefinition;
   }
-  
+
   public boolean isDumpComputationCacheToDisk() {
     return _dumpComputationCacheToDisk;
   }
@@ -333,33 +338,28 @@ public class ViewDefinition implements Serializable {
     if (this == obj) {
       return true;
     }
-    
+
     if (!(obj instanceof ViewDefinition)) {
       return false;
     }
-    
+
     ViewDefinition other = (ViewDefinition) obj;
-    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) 
-      && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
-      && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition())
-      && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
-      && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod)
-      && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
-      && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod)
-      && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)
-      && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk)
-      && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
+    boolean basicPropertiesEqual = ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getPortfolioId(), other.getPortfolioId())
+        && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
+        && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod) && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
+        && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod) && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)
+        && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk) && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
     if (!basicPropertiesEqual) {
       return false;
     }
-    
+
     for (ViewCalculationConfiguration localCalcConfig : _calculationConfigurationsByName.values()) {
       ViewCalculationConfiguration otherCalcConfig = other.getCalculationConfiguration(localCalcConfig.getName());
       if (!localCalcConfig.equals(otherCalcConfig)) {
         return false;
       }
     }
-    
+
     return true;
   }
 

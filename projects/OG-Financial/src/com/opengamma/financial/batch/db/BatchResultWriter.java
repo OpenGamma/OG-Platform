@@ -552,8 +552,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         
         for (ValueSpecification outputValue : item.getOutputs()) {
           
-          int valueNameId = getValueNameId(outputValue.getRequirementSpecification().getValueName());
-          int computationTargetId = getComputationTargetId(outputValue.getRequirementSpecification().getTargetSpecification());
+          int valueNameId = getValueNameId(outputValue.getValueName());
+          int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
         
           RiskFailure failure = new RiskFailure();
           failure.setId(generateUniqueId());

@@ -2,9 +2,7 @@
 foo~
 *.class
 *.log
-bootstrap/
 build/
-classes/
 dist/
 doc/
 ivy/

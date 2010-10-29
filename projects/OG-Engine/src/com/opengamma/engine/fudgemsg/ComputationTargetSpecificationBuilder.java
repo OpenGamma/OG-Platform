@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -31,19 +31,22 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
    */
   private static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
-  @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ComputationTargetSpecification object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  protected static void addMessageFields(final FudgeSerializationContext context, final MutableFudgeFieldContainer msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());
     UniqueIdentifier uid = object.getUniqueIdentifier();
     if (uid != null) {
       context.objectToFudgeMsg(msg, IDENTIFIER_FIELD_NAME, null, uid);
     }
-    return msg;
   }
 
   @Override
-  public ComputationTargetSpecification buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ComputationTargetSpecification object) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    addMessageFields(context, msg, object);
+    return msg;
+  }
+
+  protected static ComputationTargetSpecification buildObjectImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final ComputationTargetType type = ComputationTargetType.valueOf(message.getString(TYPE_FIELD_NAME));
     UniqueIdentifier uid = null;
     if (message.hasField(IDENTIFIER_FIELD_NAME)) {
@@ -51,6 +54,11 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
       uid = context.fieldValueToObject(UniqueIdentifier.class, fudgeField);
     }
     return new ComputationTargetSpecification(type, uid);
+  }
+
+  @Override
+  public ComputationTargetSpecification buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+    return buildObjectImpl(context, message);
   }
 
 }

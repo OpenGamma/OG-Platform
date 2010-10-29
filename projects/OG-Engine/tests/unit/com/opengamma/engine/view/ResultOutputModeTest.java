@@ -27,8 +27,8 @@ public class ResultOutputModeTest {
   public void testOutputModes() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing1and2();
-    DependencyGraphBuilder builder = helper.getBuilder();
-    builder.addTarget(helper.getTarget(), Collections.singleton(helper.getSpec1().getRequirementSpecification()));
+    DependencyGraphBuilder builder = helper.getBuilder(null);
+    builder.addTarget(Collections.singleton(helper.getRequirement1()));
     DependencyGraph graph = builder.getDependencyGraph();
     graph.removeUnnecessaryValues();
     

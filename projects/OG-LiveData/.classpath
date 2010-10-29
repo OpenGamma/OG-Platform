@@ -6,6 +6,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Util"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Fudge"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Security"/>
-	<classpathentry exported="true" kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=project%3A%2F%2FOG+Platform%2Fcommon%2Fivysettings.xml&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
+	<classpathentry exported="true" kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=core&amp;ivySettingsPath=project%3A%2F%2FOG+Platform%2Fcommon%2Fivysettings.xml&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

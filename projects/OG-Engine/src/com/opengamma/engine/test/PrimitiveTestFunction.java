@@ -38,7 +38,7 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, 
         ComputationTargetType.PRIMITIVE, 
         UniqueIdentifier.of("foo", "bar"));

@@ -45,11 +45,11 @@ public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalcu
     final Map<ComputationTargetSpecification, Map<String, ComputedValue>> map = new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
     for (FudgeField field : message) {
       final ComputedValue value = context.fieldValueToObject(ComputedValue.class, field);
-      final ComputationTargetSpecification target = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+      final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
       if (!map.containsKey(target)) {
         map.put(target, new HashMap<String, ComputedValue>());
       }
-      map.get(target).put(value.getSpecification().getRequirementSpecification().getValueName(), value);
+      map.get(target).put(value.getSpecification().getValueName(), value);
     }
     return new ViewCalculationResultModel() {
       

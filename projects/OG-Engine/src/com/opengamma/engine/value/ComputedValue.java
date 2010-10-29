@@ -101,15 +101,10 @@ public class ComputedValue implements Serializable {
     ValueSpecification spec = getSpecification();
     if (spec != null) {
       style.append(sb, "functionId", spec.getFunctionUniqueId(), null);
-      ValueRequirement requirements = spec.getRequirementSpecification();
-      if (requirements != null) {
-        style.append(sb, "name", requirements.getValueName(), null);
-        ComputationTargetSpecification targetSpec = requirements.getTargetSpecification();
-        if (targetSpec != null) {
-          style.append(sb, "targetId", targetSpec.getIdentifier(), null);
-          style.append(sb, "targetType", targetSpec.getType(), null);
-        }
-      }
+      style.append(sb, "name", spec.getValueName(), null);
+      ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      style.append(sb, "targetId", targetSpec.getIdentifier(), null);
+      style.append(sb, "targetType", targetSpec.getType(), null);
     }
     style.append(sb, "value", getValue(), null);
     style.appendEnd(sb, this);

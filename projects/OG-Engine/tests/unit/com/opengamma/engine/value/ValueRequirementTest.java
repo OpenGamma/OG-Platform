@@ -139,16 +139,22 @@ public class ValueRequirementTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_fudgeEncoding() {
-    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD);
     FudgeContext context = OpenGammaFudgeContext.getInstance();
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(context);
+    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD);
     MutableFudgeFieldContainer inMsg = serializationContext.objectToFudgeMsg(test);
     assertNotNull(inMsg);
     assertEquals(3, inMsg.getNumFields());
     FudgeFieldContainer outMsg = context.deserialize(context.toByteArray(inMsg)).getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(context);
     ValueRequirement decoded = deserializationContext.fudgeMsgToObject(ValueRequirement.class, outMsg);
-    
+    assertEquals(test, decoded);
+    test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foo").get ());
+    inMsg = serializationContext.objectToFudgeMsg(test);
+    assertNotNull(inMsg);
+    assertEquals(4, inMsg.getNumFields());
+    outMsg = context.deserialize(context.toByteArray(inMsg)).getMessage();
+    decoded = deserializationContext.fudgeMsgToObject(ValueRequirement.class, outMsg);
     assertEquals(test, decoded);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -10,37 +10,37 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Compiles dependency graphs for each stage in a portfolio tree.
  */
-/*package*/ class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
+/* package */class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
   private final DependencyGraphBuilder _dependencyGraphBuilder;
   private final ViewCalculationConfiguration _calculationConfiguration;
   private final ResultModelDefinition _resultModelDefinition;
-  
+
   public PortfolioCompilerTraversalCallback(DependencyGraphBuilder dependencyGraphBuilder, ViewCalculationConfiguration calculationConfiguration) {
     _dependencyGraphBuilder = dependencyGraphBuilder;
     _calculationConfiguration = calculationConfiguration;
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
   }
-  
+
   /**
    * Gathers all security types. 
    */
   protected static class SubNodeSecurityTypeAccumulator extends AbstractPortfolioNodeTraversalCallback {
-    
+
     private final Set<String> _subNodeSecurityTypes = new TreeSet<String>();
 
     /**
@@ -54,9 +54,9 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
     public void preOrderOperation(Position position) {
       _subNodeSecurityTypes.add(position.getSecurity().getSecurityType());
     }
-    
+
   }
-  
+
   /**
    * @param portfolioNode
    * @return
@@ -70,30 +70,30 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
   @Override
   public void preOrderOperation(PortfolioNode portfolioNode) {
     Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
+    Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
     for (String secType : subNodeSecurityTypes) {
-      Set<String> requiredOutputs = outputsBySecurityType.get(secType);
+      Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
       if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
         continue;
       }
       Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       // If the outputs are not even required in the results then there's no point adding them as terminal outputs
       if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
-        for (String requiredOutput : requiredOutputs) {
-          requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
+        for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+          requirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
         }
-        _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode), requirements);
+        _dependencyGraphBuilder.addTarget(requirements);
       }
       if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
         for (Position position : portfolioNode.getPositions()) {
           requirements.clear();
-          for (String requiredOutput : requiredOutputs) {
-            requirements.add(new ValueRequirement(requiredOutput, position));
+          for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+            requirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
           }
-          _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
+          _dependencyGraphBuilder.addTarget(requirements);
         }
       }
     }
   }
-      
+
 }
