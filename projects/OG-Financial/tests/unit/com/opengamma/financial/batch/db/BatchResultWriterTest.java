@@ -513,19 +513,19 @@ public class BatchResultWriterTest extends HibernateTest {
 
     RiskValue value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
-        _mockFunction.getResultSpec().getRequirementSpecification().getValueName() + "[0]", 
+        _mockFunction.getResultSpec().getValueName() + "[0]", 
         _mockFunction.getTarget().toSpecification());
     assertEquals(4.0, value.getValue(), 0.0000001);
     
     value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
-        _mockFunction.getResultSpec().getRequirementSpecification().getValueName() + "[1]", 
+        _mockFunction.getResultSpec().getValueName() + "[1]", 
         _mockFunction.getTarget().toSpecification());
     assertEquals(5.0, value.getValue(), 0.0000001);
     
     value = resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
-        _mockFunction.getResultSpec().getRequirementSpecification().getValueName() + "[2]", 
+        _mockFunction.getResultSpec().getValueName() + "[2]", 
         _mockFunction.getTarget().toSpecification());
     assertEquals(6.0, value.getValue(), 0.0000001);
     

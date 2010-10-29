@@ -521,9 +521,9 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           
           Object outputValue = cache.getValue(output);
           ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(outputValue);
-          Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getRequirementSpecification().getValueName(), outputValue);
+          Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
   
-          int computationTargetId = getComputationTargetId(output.getRequirementSpecification().getTargetSpecification());
+          int computationTargetId = getComputationTargetId(output.getTargetSpecification());
           
           for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
             int valueNameId = getValueNameId(riskValueEntry.getKey());
