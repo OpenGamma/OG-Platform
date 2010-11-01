@@ -46,6 +46,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.HibernateTest;
 
@@ -484,6 +485,49 @@ public class BatchResultWriterTest extends HibernateTest {
     assertEquals(1, resultWriter.getNumRiskRows());
     RiskValue value = getValueFromDb(resultWriter);
     assertEquals(_mockFunction.getResult().getValue(), value.getValue());
+    
+    assertEquals(0, resultWriter.getNumRiskFailureRows());
+    assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
+    assertEquals(0, resultWriter.getNumRiskComputeFailureRows());
+  }
+  
+  @Test
+  public void nonScalarFunctionWasSuccessful() {
+    CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
+    
+    ComputedValue outputWithANonDoubleValue = new ComputedValue(
+        _mockFunction.getResultSpec(), 
+        new DoubleMatrix1D(new double[] { 4.0, 5.0, 6.0 }));
+    putValue(outputWithANonDoubleValue);
+    
+    CalculationJobResult result = new CalculationJobResult(
+        _calcJob.getSpecification(),
+        200,
+        Collections.singletonList(item),
+        "localhost");
+    
+    BatchResultWriter resultWriter = getSuccessResultWriter();
+    resultWriter.jobExecuted(result, null);
+    
+    assertEquals(3, resultWriter.getNumRiskRows());
+
+    RiskValue value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[0]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(4.0, value.getValue(), 0.0000001);
+    
+    value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[1]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(5.0, value.getValue(), 0.0000001);
+    
+    value = resultWriter.getValue(
+        CalculationNodeUtils.CALC_CONF_NAME, 
+        _mockFunction.getResultSpec().getValueName() + "[2]", 
+        _mockFunction.getTarget().toSpecification());
+    assertEquals(6.0, value.getValue(), 0.0000001);
     
     assertEquals(0, resultWriter.getNumRiskFailureRows());
     assertEquals(0, resultWriter.getNumRiskFailureReasonRows());

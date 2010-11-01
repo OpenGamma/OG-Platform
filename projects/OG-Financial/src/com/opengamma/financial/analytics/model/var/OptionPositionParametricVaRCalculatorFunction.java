@@ -126,7 +126,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
           for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
             final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
                 position.getSecurity());
-            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true);
+            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
             final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
             tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
           }
@@ -137,6 +137,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
       }
     }
     final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
+    @SuppressWarnings("unchecked")
     final Double result = _normalVaRCalculator.evaluate(data);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);

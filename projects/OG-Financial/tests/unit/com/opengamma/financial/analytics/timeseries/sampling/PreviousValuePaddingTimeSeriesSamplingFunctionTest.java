@@ -29,6 +29,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
   private static final LocalDate END = LocalDate.of(2010, 10, 1);
+  private static final HolidayDateRemovalFunction WEEKEND_REMOVER = new HolidayDateRemovalFunction();
   private static final DailyScheduleCalculator DAILY = new DailyScheduleCalculator();
   private static final WeeklyScheduleOnDayCalculator WEEKLY_TUESDAY = new WeeklyScheduleOnDayCalculator(DayOfWeek.TUESDAY);
   private static final WeeklyScheduleOnDayCalculator WEEKLY_FRIDAY = new WeeklyScheduleOnDayCalculator(DayOfWeek.FRIDAY);
@@ -47,10 +48,10 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     }
 
   };
-  private static final LocalDate[] DAILY_SCHEDULE = DAILY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
-  private static final LocalDate[] TUESDAY_SCHEDULE = WEEKLY_TUESDAY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
-  private static final LocalDate[] FRIDAY_SCHEDULE = WEEKLY_FRIDAY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
-  private static final LocalDate[] MONDAY_SCHEDULE = WEEKLY_MONDAY.getScheduleWorkingDaysOnly(START, END, true, WEEKEND_CALENDAR);
+  private static final LocalDate[] DAILY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(DAILY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final LocalDate[] TUESDAY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(WEEKLY_TUESDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final LocalDate[] FRIDAY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(WEEKLY_FRIDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final LocalDate[] MONDAY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(WEEKLY_MONDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
   private static final LocalDate MISSING_DAY_FRIDAY = LocalDate.of(2009, 2, 6);
   private static final LocalDate MISSING_DAY_MONDAY_1 = LocalDate.of(2009, 2, 9);
   private static final LocalDate MISSING_DAY_MONDAY_2 = LocalDate.of(2009, 2, 16);
@@ -69,18 +70,18 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     final List<LocalDate> t4 = new ArrayList<LocalDate>();
     final List<Double> d4 = new ArrayList<Double>();
     for (int i = 0; i < DAILY_SCHEDULE.length; i++) {
-      t1.add(DAILY_SCHEDULE[i]);
+      t1.add(DAILY_SCHEDULE[i].toLocalDate());
       d1.add(Double.valueOf(i));
-      if (!DAILY_SCHEDULE[i].equals(MISSING_DAY_FRIDAY)) {
-        t2.add(DAILY_SCHEDULE[i]);
+      if (!DAILY_SCHEDULE[i].toLocalDate().equals(MISSING_DAY_FRIDAY)) {
+        t2.add(DAILY_SCHEDULE[i].toLocalDate());
         d2.add(Double.valueOf(i));
-        if (!(DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_1) || DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_2))) {
-          t3.add(DAILY_SCHEDULE[i]);
+        if (!(DAILY_SCHEDULE[i].toLocalDate().equals(MISSING_DAY_MONDAY_1) || DAILY_SCHEDULE[i].toLocalDate().equals(MISSING_DAY_MONDAY_2))) {
+          t3.add(DAILY_SCHEDULE[i].toLocalDate());
           d3.add(Double.valueOf(i));
         }
       }
       if (!(DAILY_SCHEDULE[i].getMonthOfYear() == MonthOfYear.FEBRUARY && DAILY_SCHEDULE[i].getYear() == 2009)) {
-        t4.add(DAILY_SCHEDULE[i]);
+        t4.add(DAILY_SCHEDULE[i].toLocalDate());
         d4.add(Double.valueOf(i));
       }
     }
@@ -117,7 +118,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), DAILY_SCHEDULE[i]);
+      assertEquals(entry.getKey(), DAILY_SCHEDULE[i].toLocalDate());
       assertEquals(entry.getValue(), i++, 0);
     }
   }
@@ -128,7 +129,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), TUESDAY_SCHEDULE.length);
     int i = 0, j = 3;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), TUESDAY_SCHEDULE[i++]);
+      assertEquals(entry.getKey(), TUESDAY_SCHEDULE[i++].toLocalDate());
       assertEquals(entry.getValue(), j, 0);
       j += 5;
     }
@@ -137,7 +138,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     i = 0;
     j = 3;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), TUESDAY_SCHEDULE[i++]);
+      assertEquals(entry.getKey(), TUESDAY_SCHEDULE[i++].toLocalDate());
       assertEquals(entry.getValue(), j, 0);
       j += 5;
     }
@@ -149,8 +150,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), DAILY_SCHEDULE[i]);
-      if (entry.getKey().equals(MISSING_DAY_FRIDAY)) {
+      assertEquals(entry.getKey(), DAILY_SCHEDULE[i].toLocalDate());
+      if (entry.getKey().equals(MISSING_DAY_FRIDAY.toLocalDate())) {
         assertEquals(entry.getValue(), i - 1, 0);
       } else {
         assertEquals(entry.getValue(), i, 0);
@@ -165,8 +166,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), FRIDAY_SCHEDULE.length);
     int i = 0, j = 1;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), FRIDAY_SCHEDULE[i++]);
-      if (entry.getKey().equals(MISSING_DAY_FRIDAY)) {
+      assertEquals(entry.getKey(), FRIDAY_SCHEDULE[i++].toLocalDate());
+      if (entry.getKey().equals(MISSING_DAY_FRIDAY.toLocalDate())) {
         assertEquals(entry.getValue(), j - 1, 0);
       } else {
         assertEquals(entry.getValue(), j, 0);
@@ -178,7 +179,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     i = 0;
     j = 2;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), MONDAY_SCHEDULE[i++]);
+      assertEquals(entry.getKey(), MONDAY_SCHEDULE[i++].toLocalDate());
       if (entry.getKey().equals(MISSING_DAY_MONDAY_1)) {
         assertEquals(entry.getValue(), j - 2, 0);
       } else if (entry.getKey().equals(MISSING_DAY_MONDAY_2)) {
@@ -196,7 +197,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), DAILY_SCHEDULE[i]);
+      assertEquals(entry.getKey(), DAILY_SCHEDULE[i].toLocalDate());
       if (entry.getKey().equals(MISSING_DAY_FRIDAY)) {
         assertEquals(entry.getValue(), i - 1, 0);
       } else if (entry.getKey().equals(MISSING_DAY_MONDAY_1)) {
@@ -216,7 +217,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), DAILY_SCHEDULE[i]);
+      assertEquals(entry.getKey(), DAILY_SCHEDULE[i].toLocalDate());
       if (entry.getKey().getMonthOfYear() == MonthOfYear.FEBRUARY && entry.getKey().getYear() == 2009) {
         assertEquals(entry.getValue(), 21, 0);
       } else {

@@ -5,17 +5,14 @@
  */
 package com.opengamma.util.timeseries.localdate;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.time.calendar.TimeZone;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.ToStringHelper;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
@@ -75,23 +72,9 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
     return new ArrayLocalDateDoubleTimeSeries(dateTimes, values);
   }
 
+  @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("ArrayLocalDateDoubleTimeSeries[");
-    Iterator<Map.Entry<LocalDate, Double>> iterator = iterator();
-    while (iterator.hasNext()) {
-      Entry<LocalDate, Double> entry = iterator.next();
-      sb.append("(");
-      sb.append(entry.getKey());
-      sb.append(", ");
-      sb.append(entry.getValue());
-      sb.append(")");
-      if (iterator.hasNext()) {
-        sb.append(", ");
-      }
-    }
-    sb.append("]");
-    return sb.toString();
+    return ToStringHelper.toString(this);
   }
 
 }

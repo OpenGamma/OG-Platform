@@ -17,6 +17,7 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.LUDecompositionQuick;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -49,7 +50,7 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
     for (int i = 0; i < data.size(); i++) {
       f = _basisFunction.evaluate(getRadius(value, iter.next()));
       if (Double.isNaN(f) || Double.isInfinite(f)) {
-        throw new InterpolationException("Basis function evaluation returned " + f + "; could not calculate interpolated value");
+        throw new MathException("Basis function evaluation returned " + f + "; could not calculate interpolated value");
       }
       weightedSum += w[i] * f;
       sum += f;

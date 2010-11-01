@@ -11,6 +11,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.math.MathException;
+
 /**
  * 
  */
@@ -42,7 +44,7 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     }
     try {
       return getBestResult(result, x, weights, y, useIntercept);
-    } catch (final RegressionException e) {
+    } catch (final MathException e) {
       s_logger.info("Could not find improvement on original regression; returning original");
       return result;
     }

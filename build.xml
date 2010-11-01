@@ -176,6 +176,7 @@
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db/clover-db-" />
+            <cloverDb span="30 mins"  initstring="projects/OG-Web/tests/output/clover.db/clover-db-" />
 		</clover-merge>
 		<clover-html-report
 			initstring="${clover.db.dir}"
