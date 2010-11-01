@@ -339,5 +339,17 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
     assertEquals(valueName1, valueName2);
   }
+  
+  @Test
+  public void getFunctionUniqueId() {
+    // create
+    FunctionUniqueId id1 = _dbManager.getFunctionUniqueId("test_id");
+    assertNotNull(id1);
+    assertEquals("test_id", id1.getUniqueId());
+    
+    // get
+    FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
+    assertEquals(id1, id2);
+  }
     
 }
