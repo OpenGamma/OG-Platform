@@ -8,10 +8,10 @@ package com.opengamma.math.interpolation;
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.NevilleInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
@@ -50,7 +50,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     final double[] keys = data.getKeys();
     final double[] values = data.getValues();
     if (n <= _degree) {
-      throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
+      throw new MathException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
     if (data.getLowerBoundIndex(value) == n - 1) {
       return values[n - 1];
@@ -59,18 +59,18 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     final int lowerBound = lower - _offset;
     final int upperBound = _degree + 1 + lowerBound;
     if (lowerBound < 0) {
-      throw new InterpolationException("Could not get lower bound: index " + lowerBound + " must be greater than or equal to zero");
+      throw new MathException("Could not get lower bound: index " + lowerBound + " must be greater than or equal to zero");
     }
     if (upperBound > n + 1) {
-      throw new InterpolationException("Could not get upper bound: index " + upperBound + " must be less than or equal to " + (n + 1));
+      throw new MathException("Could not get upper bound: index " + upperBound + " must be less than or equal to " + (n + 1));
     }
     final double[] x = Arrays.copyOfRange(keys, lowerBound, upperBound);
     final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
     try {
       final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
       return CommonsMathWrapper.unwrap(lagrange).evaluate(value);
-    } catch (final MathException e) {
-      throw new InterpolationException(e);
+    } catch (final org.apache.commons.math.MathException e) {
+      throw new MathException(e);
     }
   }
 

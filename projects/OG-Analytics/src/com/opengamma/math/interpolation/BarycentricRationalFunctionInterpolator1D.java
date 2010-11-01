@@ -7,6 +7,7 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -28,7 +29,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     if (data.size() < _degree) {
-      throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
+      throw new MathException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
     final int m = data.size();
     final double[] x = data.getKeys();
