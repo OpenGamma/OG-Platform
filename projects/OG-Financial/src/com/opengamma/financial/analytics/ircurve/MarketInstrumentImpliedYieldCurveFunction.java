@@ -71,6 +71,7 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.math.MathException;
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
@@ -83,7 +84,6 @@ import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivit
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 
@@ -294,14 +294,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
         final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators =
             new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
-        final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(), 
+        final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(),
             Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
         curveNodes.put(_fundingCurveDefinitionName, nodeTimes);
         interpolators.put(_fundingCurveDefinitionName, interpolator);
         // TODO have use finite difference or not as an input [FIN-147]
-        final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> sensitivityCalculator = 
-          CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(), 
-              Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+        final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> sensitivityCalculator =
+            CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(),
+                Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
         sensitivityCalculators.put(_fundingCurveDefinitionName, sensitivityCalculator);
         final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
         // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
@@ -313,7 +313,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           // TODO have the decomposition as an optional input [FIN-146]
           rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
-        } catch (final RootNotFoundException e) {
+        } catch (final MathException e) {
           rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
@@ -426,12 +426,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveNodes.put(_forwardCurveDefinitionName, forwardNodeTimes);
       interpolators.put(_forwardCurveDefinitionName, forwardInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]
-      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> fundingSensitivityCalculator = 
-        CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(), 
-            Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
-      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> forwardSensitivityCalculator = 
-        CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(), 
-            Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> fundingSensitivityCalculator =
+          CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(),
+              Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
+      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> forwardSensitivityCalculator =
+          CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(),
+              Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
       sensitivityCalculators.put(_fundingCurveDefinitionName, fundingSensitivityCalculator);
       sensitivityCalculators.put(_forwardCurveDefinitionName, forwardSensitivityCalculator);
       final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
@@ -444,7 +444,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         // TODO have the decomposition as an optional input [FIN-146]
         rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
-      } catch (final RootNotFoundException e) {
+      } catch (final MathException e) {
         rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
 
