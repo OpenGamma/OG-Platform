@@ -189,6 +189,7 @@ public abstract class ValueProperties implements Serializable {
         // This requirement cannot be satisfied
         return false;
       }
+      // All requirements can be satisfied
       return true;
     }
 

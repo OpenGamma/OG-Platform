@@ -200,29 +200,29 @@ public class DependencyGraphBuilder {
     }
     return resolutionState;
   }
-
+  
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ResolutionState resolved) {
     do {
       if (resolved.isEmpty()) {
         return resolved.getLastValid();
       }
-      final ResolutionState.Node node = resolved.getFirst();
+      final ResolutionState.Node resolutionNode = resolved.getFirst();
+      final DependencyNode graphNode = resolutionNode.getDependencyNode();
       // Resolve and add the inputs, or just add them if repeating because of a backtrack
       boolean strictConstraints = true;
-      if (node.getInputStates() == null) {
-        if (node.getParameterizedFunction() != null) {
-          // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
+      if (resolutionNode.getInputStates() == null) {
+        if (resolutionNode.getParameterizedFunction() != null) {
           try {
-            final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
-            Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), resolved.getValueRequirement());
-            node.dimInputState(inputRequirements.size());
+            final CompiledFunctionDefinition functionDefinition = resolutionNode.getParameterizedFunction().getFunction();
+            Set<ValueRequirement> inputRequirements = functionDefinition.getRequirements(getCompilationContext(), graphNode.getComputationTarget(), resolved.getValueRequirement());
+            resolutionNode.dimInputState(inputRequirements.size());
             boolean pendingInputStates = false;
             for (ValueRequirement inputRequirement : inputRequirements) {
-              final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());
-              node.addInputState(inputState);
+              final ResolutionState inputState = resolveValueRequirement(inputRequirement, graphNode);
+              resolutionNode.addInputState(inputState);
               final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
-              node.getDependencyNode().addInputNode(inputValue.getFirst());
-              node.getDependencyNode().addInputValue(inputValue.getSecond());
+              graphNode.addInputNode(inputValue.getFirst());
+              graphNode.addInputValue(inputValue.getSecond());
               if (!inputState.isEmpty()) {
                 pendingInputStates = true;
               }
@@ -243,11 +243,11 @@ public class DependencyGraphBuilder {
             continue;
           }
         } else {
-          s_logger.debug("Existing Node : {} on {}", resolved.getValueRequirement(), node.getDependencyNode().getComputationTarget());
-          final ValueSpecification originalOutput = node.getValueSpecification();
+          s_logger.debug("Existing Node : {} on {}", resolved.getValueRequirement(), graphNode.getComputationTarget());
+          final ValueSpecification originalOutput = resolutionNode.getValueSpecification();
           final ValueSpecification resolvedOutput = originalOutput.compose(resolved.getValueRequirement());
           if (originalOutput.equals(resolvedOutput)) {
-            final Pair<DependencyNode, ValueSpecification> result = Pair.of(node.getDependencyNode(), resolvedOutput);
+            final Pair<DependencyNode, ValueSpecification> result = Pair.of(graphNode, resolvedOutput);
             if (resolved.isSingle()) {
               resolved.removeFirst();
               resolved.setLastValid(result);
@@ -261,12 +261,12 @@ public class DependencyGraphBuilder {
         // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
         try {
           // This is a "retry" following a backtrack so clear any previous inputs
-          node.getDependencyNode().clearInputs();
+          graphNode.clearInputs();
           boolean pendingInputStates = false;
-          for (ResolutionState inputState : node.getInputStates()) {
+          for (ResolutionState inputState : resolutionNode.getInputStates()) {
             final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
-            node.getDependencyNode().addInputNode(inputValue.getFirst());
-            node.getDependencyNode().addInputValue(inputValue.getSecond());
+            graphNode.addInputNode(inputValue.getFirst());
+            graphNode.addInputValue(inputValue.getSecond());
             if (!inputState.isEmpty()) {
               pendingInputStates = true;
             }
@@ -287,12 +287,12 @@ public class DependencyGraphBuilder {
         }
       }
       // Late resolution of the output based on the actual inputs used
-      final CompiledFunctionDefinition functionDefinition = node.getParameterizedFunction().getFunction();
-      ValueSpecification resolvedOutput = node.getValueSpecification();
+      final CompiledFunctionDefinition functionDefinition = resolutionNode.getParameterizedFunction().getFunction();
+      ValueSpecification resolvedOutput = resolutionNode.getValueSpecification();
       if (!strictConstraints) {
         final Set<ValueSpecification> newOutputValues;
         try {
-          newOutputValues = functionDefinition.getResults(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node.getDependencyNode().getInputValues());
+          newOutputValues = functionDefinition.getResults(getCompilationContext(), graphNode.getComputationTarget(), graphNode.getInputValues());
         } catch (Throwable t) {
           // detect failure from .getResults
           s_logger.debug("Deep backtracking at late resolution failure", t);
@@ -301,27 +301,28 @@ public class DependencyGraphBuilder {
           }
           continue;
         }
-        if (!node.getDependencyNode().getOutputValues().equals(newOutputValues)) {
-          node.getDependencyNode().clearOutputValues();
+        if (!graphNode.getOutputValues().equals(newOutputValues)) {
+          graphNode.clearOutputValues();
           resolvedOutput = null;
           for (ValueSpecification outputValue : newOutputValues) {
             if ((resolvedOutput == null) && resolved.getValueRequirement().isSatisfiedBy(outputValue)) {
               resolvedOutput = outputValue.compose(resolved.getValueRequirement());
               s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-              node.getDependencyNode().addOutputValue(resolvedOutput);
+              graphNode.addOutputValue(resolvedOutput);
             } else {
-              node.getDependencyNode().addOutputValue(outputValue);
+              graphNode.addOutputValue(outputValue);
             }
           }
           String failureMessage = null;
           if (resolvedOutput != null) {
             if (_graph.getNodeProducing(resolvedOutput) != null) {
               // Already considered this case - the curse of late resolution is that we can't detect it sooner
-              failureMessage = "Late resolution reduced provisional specification " + node.getValueSpecification() + " to previously rejected " + resolvedOutput + " for "
+              failureMessage = "Late resolution reduced provisional specification " + resolutionNode.getValueSpecification() + " to previously rejected " + resolvedOutput + " for "
                   + resolved.getValueRequirement();
             }
           } else {
-            failureMessage = "Deep backtracking as provisional specification " + node.getValueSpecification() + " no longer in output after late resolution of " + resolved.getValueRequirement();
+            failureMessage = "Deep backtracking as provisional specification " + resolutionNode.getValueSpecification() + " no longer in output after late resolution of "
+                + resolved.getValueRequirement();
           }
           if (failureMessage != null) {
             s_logger.debug(failureMessage);
@@ -333,14 +334,14 @@ public class DependencyGraphBuilder {
         }
         // Fetch and additional input requirements now needed as a result of input and output resolution
         try {
-          Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), node.getDependencyNode().getComputationTarget(), node
-              .getDependencyNode().getInputValues(), node.getDependencyNode().getOutputValues());
+          Set<ValueRequirement> additionalRequirements = functionDefinition.getAdditionalRequirements(getCompilationContext(), graphNode.getComputationTarget(), graphNode.getInputValues(), graphNode
+              .getOutputValues());
           if (!additionalRequirements.isEmpty()) {
             for (ValueRequirement inputRequirement : additionalRequirements) {
-              final ResolutionState inputState = resolveValueRequirement(inputRequirement, node.getDependencyNode());
+              final ResolutionState inputState = resolveValueRequirement(inputRequirement, graphNode);
               final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
-              node.getDependencyNode().addInputNode(inputValue.getFirst());
-              node.getDependencyNode().addInputValue(inputValue.getSecond());
+              graphNode.addInputNode(inputValue.getFirst());
+              graphNode.addInputValue(inputValue.getSecond());
             }
           }
         } catch (Throwable e) {
@@ -353,8 +354,8 @@ public class DependencyGraphBuilder {
         }
       }
       // Add to the graph
-      _graph.addDependencyNode(node.getDependencyNode());
-      final Pair<DependencyNode, ValueSpecification> result = Pair.of(node.getDependencyNode(), resolvedOutput);
+      _graph.addDependencyNode(graphNode);
+      final Pair<DependencyNode, ValueSpecification> result = Pair.of(graphNode, resolvedOutput);
       if (resolved.isEmpty()) {
         resolved.setLastValid(result);
       }
