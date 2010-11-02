@@ -10,14 +10,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +23,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
 import com.opengamma.financial.timeseries.DataFieldBean;
 import com.opengamma.financial.timeseries.DataPointDocument;
 import com.opengamma.financial.timeseries.DataProviderBean;
