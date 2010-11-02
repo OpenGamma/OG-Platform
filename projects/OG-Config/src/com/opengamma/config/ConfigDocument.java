@@ -20,12 +20,14 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A configuration document type
  *
  * @param <T> the type of configuration document
  */
+@PublicAPI
 @BeanDefinition
 public class ConfigDocument<T> extends DirectBean {
 

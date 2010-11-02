@@ -28,7 +28,7 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.
  */
 @PublicAPI
 public class DependencyGraph {

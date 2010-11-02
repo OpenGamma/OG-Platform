@@ -5,12 +5,12 @@
  */
 package com.opengamma.id;
 
-import com.opengamma.util.PublicSPI;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Provides uniform access to objects that can supply a standard identifier.
  */
-@PublicSPI
+@PublicAPI
 public interface Identifiable {
 
   /**

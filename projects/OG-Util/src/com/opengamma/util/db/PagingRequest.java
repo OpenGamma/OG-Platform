@@ -15,10 +15,12 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Simple immutable model for managing paging, as typically used on websites.
  */
+@PublicAPI
 public final class PagingRequest {
 
   /**
