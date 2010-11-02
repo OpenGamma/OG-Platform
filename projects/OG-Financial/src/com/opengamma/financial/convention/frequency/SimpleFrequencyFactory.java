@@ -46,7 +46,7 @@ public final class SimpleFrequencyFactory {
    */
   private void store(final SimpleFrequency convention) {
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
-    _periodsMap.put((int)convention.getPeriodsPerYear(), convention);
+    _periodsMap.put((int) convention.getPeriodsPerYear(), convention);
   }
 
   //-------------------------------------------------------------------------

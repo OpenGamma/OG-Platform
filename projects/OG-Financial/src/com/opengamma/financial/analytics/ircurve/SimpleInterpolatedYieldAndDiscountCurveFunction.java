@@ -92,7 +92,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return _isYieldCurve;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);

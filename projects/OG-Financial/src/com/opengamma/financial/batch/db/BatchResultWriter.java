@@ -557,9 +557,10 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           }
           
           Object outputValue = cache.getValue(output);
+          @SuppressWarnings("unchecked")
           ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(outputValue);
           Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
-  
+          
           int computationTargetId = getComputationTargetId(output.getTargetSpecification());
           
           for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {

@@ -127,7 +127,7 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Pair<String, String> currencies = parse(target);
-    return Sets.<ValueRequirement> newHashSet(createRequirement(currencies.getFirst(), getIntermediateCurrencyISO()), createRequirement(getIntermediateCurrencyISO(), currencies.getSecond()));
+    return Sets.<ValueRequirement>newHashSet(createRequirement(currencies.getFirst(), getIntermediateCurrencyISO()), createRequirement(getIntermediateCurrencyISO(), currencies.getSecond()));
   }
 
   private ValueSpecification createResultValueSpecification(final ComputationTarget target) {

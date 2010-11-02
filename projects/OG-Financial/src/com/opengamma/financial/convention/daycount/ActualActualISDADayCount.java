@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.ZonedDateTime;
 

@@ -114,7 +114,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final Collection<ComputedValue> inputValues = inputs.getAllValues();
-    desiredValueLoop: for (ValueRequirement desiredValue : desiredValues) {
+  desiredValueLoop:
+    for (ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement inputRequirement = getInputValueRequirement(desiredValue);
       for (ComputedValue inputValue : inputValues) {
         if (inputRequirement.isSatisfiedBy(inputValue.getSpecification())) {
