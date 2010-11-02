@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.bond;
 
 /**
- * Visitor for the BondSecurity subclasses.
+ * Visitor for the {@code BondSecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */
