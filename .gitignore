@@ -10,3 +10,5 @@ repository/
 ivy/
 bootstrap/
 tests/output/
+docs/
+lib/

@@ -35,7 +35,7 @@ import com.opengamma.engine.view.ViewComputationResultModelImpl;
 import com.opengamma.financial.timeseries.db.DateTimeRowStoreTimeSeriesMaster;
 import com.opengamma.financial.timeseries.historicaldata.IntradayComputationCacheImpl;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;

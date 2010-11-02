@@ -6,6 +6,7 @@
 package com.opengamma.livedata;
 
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.util.PublicAPI;
 
 
 /**
@@ -14,6 +15,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
  * need to implement in your LiveData client application.
  * 
  */
+@PublicAPI
 public interface LiveDataListener {
   
   void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult);

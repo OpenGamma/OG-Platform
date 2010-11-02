@@ -23,7 +23,7 @@ import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.ArgumentChecker;

@@ -10,15 +10,17 @@ import java.util.Collection;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.PublicAPI;
 
 
 /**
  * The core interface through which clients are able to interact
  * with the rest of the OpenGamma Live Data system.
  */
+@PublicAPI
 public interface LiveDataClient extends LiveDataEntitlementChecker {
   
   /**

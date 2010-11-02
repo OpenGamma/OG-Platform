@@ -7,7 +7,7 @@ package com.opengamma.engine.test;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 public class TestComputationResultListener extends AbstractTestResultListener<ViewComputationResultModel>
     implements ComputationResultListener {
