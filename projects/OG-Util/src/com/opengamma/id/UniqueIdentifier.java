@@ -284,6 +284,15 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @param msg the message to serialize into, not {@code null}
+   * @return the serialized message
+   */
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(msg, "msg");
@@ -296,18 +305,22 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Serializes this pair to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
+   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @return the serialized Fudge message
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**
-   * Deserializes this pair from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
+   * Deserializes an unique identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param msg the Fudge message, not {@code null}
+   * @return the unique identifier
    */
   public static UniqueIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);

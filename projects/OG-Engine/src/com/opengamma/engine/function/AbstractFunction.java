@@ -39,6 +39,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
     protected AbstractCompiledFunction() {
     }
 
+    /**
+     * 
+     * @param earliestInvocation earliest time this metadata and invoker are valid, or {@code null} to indicate no lower validity bound
+     * @param latestInvocation latest time this metadata and invoker are valid, or {@code null} to indicate no upper validity bound
+     */
     protected AbstractCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
       setEarliestInvocationTime(earliestInvocation);
       setLatestInvocationTime(latestInvocation);
@@ -72,10 +77,20 @@ public abstract class AbstractFunction implements FunctionDefinition {
       return getAdditionalRequirementsImpl(context, target, inputs, outputs);
     }
 
+    /**
+     * Sets the earliest time that this metadata and invoker will be valid for.
+     * 
+     * @param timestamp earliest time, or {@code null} to indicate no lower validity bound
+     */
     public void setEarliestInvocationTime(final InstantProvider timestamp) {
       _earliestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
     }
 
+    /**
+     * Sets the latest time that this metadata and invoker will be valid for.
+     * 
+     * @param timestamp latest time, or {@code null} to indicate no upper validity bound
+     */
     public void setLatestInvocationTime(final InstantProvider timestamp) {
       _latestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
     }
@@ -102,6 +117,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
       super();
     }
 
+    /**
+     * 
+     */
     protected AbstractInvokingCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
       super(earliestInvocation, latestInvocation);
     }
@@ -120,7 +138,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
   private String _uniqueIdentifier;
 
   /**
-   * @return the uniqueIdentifier
+   * @return the unique identifier set by {@link #setUniqueIdentifier (String)}
    */
   public String getUniqueIdentifier() {
     return _uniqueIdentifier;
@@ -134,7 +152,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   /**
-   * @param uniqueIdentifier the uniqueIdentifier to set
+   * Sets the unique identifier for the function. Once set, the identifier cannot be changed.
+   * 
+   * @param uniqueIdentifier the unique identifier to set
    */
   public void setUniqueIdentifier(String uniqueIdentifier) {
     if (_uniqueIdentifier != null) {
@@ -151,10 +171,24 @@ public abstract class AbstractFunction implements FunctionDefinition {
   public void init(FunctionCompilationContext context) {
   }
 
+  /**
+   * Default implementation of {@link CompiledFunctionDefinition#getRequiredLiveData ()}.
+   * 
+   * @return the empty set indicating no live data requirement
+   */
   protected static Set<ValueSpecification> getRequiredLiveDataImpl() {
     return Collections.emptySet();
   }
 
+  /**
+   * Default implementation of {@link CompiledFunctionDefinition#getAdditionalRequirements (FunctionCompilationContext, ComputationTarget, Set<ValueSpecification>)}.
+   * 
+   * @param context the function compilation context
+   * @param target the computation target
+   * @param inputs the resolved inputs
+   * @param outputs the resolved outputs
+   * @return the empty set indicating no additional data requirements
+   */
   protected static Set<ValueRequirement> getAdditionalRequirementsImpl(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
       final Set<ValueSpecification> outputs) {
     return Collections.emptySet();

@@ -19,14 +19,13 @@ import com.opengamma.util.PublicAPI;
  * An immutable pair consisting of two elements.
  * <p>
  * This implementation refers to the elements as 'first' and 'second'.
- * The class also implements the {@link Map.Entry} interface where the key is 'first'
+ * The class also implements the {@link java.util.Map.Entry} interface where the key is 'first'
  * and the value is 'second'.
  * <p>
  * Although the implementation is immutable, there is no restriction on the objects
  * that may be stored. If mutable objects are stored in the pair, then the pair itself
  * effectively becomes mutable.
  *
- * @author kirk
  * @param <A> the first element type
  * @param <B> the second element type
  */
@@ -118,7 +117,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
 
   /**
    * Gets the key from this pair.
-   * This method implements the {@link Map.Entry} interface returning the
+   * This method implements the {@link java.util.Map.Entry} interface returning the
    * first element as the key.
    * @return the first element as the key, may be null
    */
@@ -129,7 +128,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
 
   /**
    * Gets the value from this pair.
-   * This method implements the {@link Map.Entry} interface returning the
+   * This method implements the {@link java.util.Map.Entry} interface returning the
    * second element as the value.
    * @return the second element as the value, may be null
    */

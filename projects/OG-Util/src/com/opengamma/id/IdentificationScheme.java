@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A classification scheme for identifiers.
@@ -28,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>RIC for a Reuters-provided market data object.</li>
  * </ul>
  */
+@PublicAPI
 public class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
   /**

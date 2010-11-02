@@ -15,9 +15,9 @@ import com.opengamma.util.PublicAPI;
  * these views. A view processor can manage only one instance of any view, but potentially there can be many view
  * processors responsible for possibly-overlapping sets of views.
  * <p>
- * This interface exposes full control over the view processor, for example using through
- * {@link #stopProcessing(String)}, and is designed for internal use by the engine. The {@link ViewProcessorClient}
- * interface is designed to provide more restricted access to a {@link ViewProcessor} for external use.
+ * This interface exposes full control over the view processor and is designed for internal use by the engine.
+ * The {@link ViewProcessorClient} interface is designed to provide more restricted access to a {@link ViewProcessor}
+ * for external use.
  */
 @PublicAPI
 public interface ViewProcessor {
