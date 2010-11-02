@@ -7,6 +7,7 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -65,7 +66,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
         t = (xArray[j] - value) * d[j] / diff;
         dd = t - c[j + 1];
         if (Math.abs(dd) < getEPS()) {
-          throw new InterpolationException("Interpolating function has a pole at x = " + value);
+          throw new MathException("Interpolating function has a pole at x = " + value);
         }
         dd = w / dd;
         d[j] = c[j + 1] * dd;

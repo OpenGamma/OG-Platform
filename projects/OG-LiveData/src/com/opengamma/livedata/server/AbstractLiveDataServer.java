@@ -42,12 +42,14 @@ import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The base class from which most OpenGamma Live Data feed servers should
  * extend. Handles most common cases for distributed contract management.
  * 
  */
+@PublicAPI
 public abstract class AbstractLiveDataServer implements Lifecycle {
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractLiveDataServer.class);

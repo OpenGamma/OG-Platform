@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
@@ -37,7 +38,7 @@ public class QuadraticRealRootFinderTest {
     try {
       FINDER.getRoots(new RealPolynomialFunction1D(new double[] {12., 1., 12.}));
       fail();
-    } catch (final RootNotFoundException e) {
+    } catch (final MathException e) {
       // Expected
     }
     final Double[] roots = FINDER.getRoots(F);

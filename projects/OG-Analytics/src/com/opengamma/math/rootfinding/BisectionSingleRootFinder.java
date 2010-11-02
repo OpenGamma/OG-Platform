@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -35,7 +36,7 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
       return x1;
     }
     if (y1 * y >= 0) {
-      throw new RootNotFoundException(x1 + " and " + x2 + " do not bracket a root");
+      throw new MathException(x1 + " and " + x2 + " do not bracket a root");
     }
     double dx, xRoot, xMid;
     if (y1 < 0) {
@@ -56,6 +57,6 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
         return xRoot;
       }
     }
-    throw new RootNotFoundException("Could not find root in " + MAX_ITER + " attempts");
+    throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }
 }

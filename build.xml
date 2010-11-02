@@ -81,12 +81,6 @@
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="*/build.xml" />
-				<exclude name="Fudge-CSharp/**" />
-				<exclude name="fudgemsg-dist/**" />
-				<exclude name="Hermit/**" />
-				<exclude name="jsr-310*/**" />
-				<exclude name="OG-PrivateIvy/**" />
-				<exclude name="sysadmin/**" />
 			</fileset>
 		</ivy:buildlist>
 	</target>
@@ -192,23 +186,23 @@
 		<mkdir dir="${docs.dir}/temp-src" />
 		<copy toDir="${docs.dir}/temp-src">
 			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
 			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
 			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
 		</copy>
 		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"

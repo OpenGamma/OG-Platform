@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -14,7 +15,7 @@ public class BracketRoot {
   private static double s_ratio = 1.6;
   private static int s_maxSteps = 50;
 
-  public double[] getBracketedPoints(Function1D<Double, Double> f, double xLower, double xUpper) {
+  public double[] getBracketedPoints(final Function1D<Double, Double> f, final double xLower, final double xUpper) {
 
     if (xLower >= xUpper) {
       throw new IllegalArgumentException("Need xLower less than xUpper");
@@ -37,7 +38,7 @@ public class BracketRoot {
         x2 += s_ratio * (x2 - x1);
       }
     }
-    throw new RootNotFoundException("Failed to bracket root");
+    throw new MathException("Failed to bracket root");
   }
 
 }

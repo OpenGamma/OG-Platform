@@ -6,7 +6,7 @@
 package com.opengamma.livedata.entitlement;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 
 /**

@@ -28,6 +28,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
@@ -36,6 +37,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * The client creates 10 JMS sessions by default. New market data
  * subscriptions are assigned to sessions in round-robin fashion.
  */
+@PublicAPI
 public class JmsLiveDataClient extends DistributedLiveDataClient implements Lifecycle {
   
   /**

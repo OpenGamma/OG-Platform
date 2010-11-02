@@ -21,7 +21,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.rest.FudgeRestClient;
