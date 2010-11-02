@@ -233,6 +233,33 @@ public class IdentifierBundleTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_containsAll1() {
+    IdentifierBundle test = new IdentifierBundle(_id11);
+    assertEquals(false, test.containsAll(new IdentifierBundle(_id11, _id12)));
+    assertEquals(true, test.containsAll(new IdentifierBundle(_id11)));
+    assertEquals(false, test.containsAll(new IdentifierBundle(_id12)));
+    assertEquals(false, test.containsAll(new IdentifierBundle(_id21)));
+    assertEquals(true, test.containsAll(new IdentifierBundle()));
+  }
+
+  @Test
+  public void test_containsAll2() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(true, test.containsAll(new IdentifierBundle(_id11, _id12)));
+    assertEquals(true, test.containsAll(new IdentifierBundle(_id11)));
+    assertEquals(true, test.containsAll(new IdentifierBundle(_id12)));
+    assertEquals(false, test.containsAll(new IdentifierBundle(_id21)));
+    assertEquals(true, test.containsAll(new IdentifierBundle()));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_containsAll_null() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    test.containsAll(null);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_containsAny() {
     IdentifierBundle test = new IdentifierBundle(_id11, _id12);
     assertEquals(true, test.containsAny(new IdentifierBundle(_id11, _id12)));
