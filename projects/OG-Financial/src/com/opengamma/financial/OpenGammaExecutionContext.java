@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.world.exchange.master.ExchangeSource;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.RegionSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.

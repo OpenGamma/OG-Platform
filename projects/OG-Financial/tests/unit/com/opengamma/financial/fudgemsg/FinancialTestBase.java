@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -20,11 +18,11 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
-import com.opengamma.financial.world.region.RegionFileReader;
-import com.opengamma.financial.world.region.RegionMaster;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.MasterRegionSource;
+import com.opengamma.financial.world.region.master.RegionMaster;
+import com.opengamma.financial.world.region.master.RegionSource;
+import com.opengamma.financial.world.region.master.loader.RegionFileReader;
+import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
@@ -41,8 +39,8 @@ public class FinancialTestBase {
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     RegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
-    _regionSource = new DefaultRegionSource(regionMaster);
+    RegionFileReader.populate(regionMaster);
+    _regionSource = new MasterRegionSource(regionMaster);
   }
 
   protected FudgeContext getFudgeContext() {
