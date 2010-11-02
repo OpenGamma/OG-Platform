@@ -7,11 +7,12 @@ package com.opengamma.math.minimization;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
-import com.opengamma.math.ConvergenceException;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -30,12 +31,12 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
     this(minimizer, DEFAULT_TOL, DEFAULT_MAX_STEPS);
   }
 
-  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double tolerance, int maxInterations) {
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, final double tolerance, final int maxInterations) {
     this(minimizer, tolerance, tolerance, maxInterations);
   }
 
-  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, double relativeTolerance, double absoluteTolerance, int maxInterations) {
-    ArgumentChecker.notNull(minimizer, "minimizer");
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, final double relativeTolerance, final double absoluteTolerance, final int maxInterations) {
+    Validate.notNull(minimizer, "minimizer");
     if (relativeTolerance < 0.0 || relativeTolerance > 1.0) {
       throw new IllegalArgumentException("relativeTolerance must be greater than " + 0.0 + " and less than 1.0");
     }
@@ -85,7 +86,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
       if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol
-      //in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion 
+          //in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion 
           && OG_ALGEBRA.getNorm2(deltaX) < _relTol * OG_ALGEBRA.getNorm2(x) + _absTol) {
 
         boolean flag = true;
@@ -108,13 +109,10 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         d = (DoubleMatrix1D) OG_ALGEBRA.subtract(OG_ALGEBRA.scale(d, beta), g);
         final double sanity = OG_ALGEBRA.getInnerProduct(d, g);
         if (sanity > 0) {
-          System.out.println("arse");
+          throw new MathException();
         }
       }
     }
-
-    String s = "ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final position reached was " + x.toString();
-
-    throw new ConvergenceException(s);
+    throw new MathException("ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final position reached was " + x.toString());
   }
 }

@@ -44,7 +44,7 @@ public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new com.opengamma.math.ConvergenceException(e);
+      throw new MathException(e);
     }
   }
 }

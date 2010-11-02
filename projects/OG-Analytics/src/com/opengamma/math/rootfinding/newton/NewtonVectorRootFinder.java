@@ -5,13 +5,13 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
-import com.opengamma.math.rootfinding.RootNotFoundException;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
@@ -70,7 +70,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
       if (isConverged(data)) {
         return data.getX(); // this can happen if the starting position is the root
       }
-      throw new RootNotFoundException("Cannot work with this starting position. Please choose another point");
+      throw new MathException("Cannot work with this starting position. Please choose another point");
     }
 
     int count = 0;
@@ -89,12 +89,12 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
-          throw new RootNotFoundException("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: " + data.getX() + ", function value: " + data.getY());
+          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: " + data.getX() + ", function value: " + data.getY());
         }
       }
       count++;
       if (count > _maxSteps) {
-        throw new RootNotFoundException("Failed to converge");
+        throw new MathException("Failed to converge");
       }
     }
     return data.getX();

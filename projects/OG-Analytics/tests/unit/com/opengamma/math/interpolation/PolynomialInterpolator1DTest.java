@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
@@ -56,7 +57,7 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = MathException.class)
   public void testInsufficientData() {
     INTERPOLATOR_WITH_OFFSET.interpolate(INTERPOLATOR_WITH_OFFSET.getDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
   }
@@ -66,7 +67,7 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 0.);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = MathException.class)
   public void testOutOfRangeWithOffset() {
     INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 2.1);
   }

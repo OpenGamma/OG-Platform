@@ -613,6 +613,15 @@ create table rsk_computation_target (
 	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value)
 );
 
+create table rsk_function_unique_id (
+	id int not null,
+	unique_id varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_function_unique_id unique (unique_id)
+);
+
 -------------------------------------
 -- LiveData inputs
 -------------------------------------
@@ -770,6 +779,7 @@ create table rsk_value (
     id bigint not null,
     calculation_configuration_id int not null,
     value_name_id int not null,                 
+    function_unique_id int not null,
     computation_target_id int not null,        
     run_id int not null,             	       -- shortcut
     value double precision not null,
@@ -785,6 +795,8 @@ create table rsk_value (
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_value2value_name
         foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_value2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id),
     constraint rsk_fk_value2comp_target
         foreign key (computation_target_id) references rsk_computation_target (id),
     constraint rsk_fk_value2compute_node
@@ -810,7 +822,8 @@ create table rsk_compute_failure (
 create table rsk_failure (			
     id bigint not null,
     calculation_configuration_id int not null,
-    value_name_id int not null,                 
+    value_name_id int not null,
+    function_unique_id int not null,
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
     eval_instant timestamp not null,
@@ -824,6 +837,8 @@ create table rsk_failure (
         foreign key (run_id) references rsk_run (id),
     constraint rsk_fk_failure2value_name
         foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_failure2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id),
     constraint rsk_fk_failure2com_target
         foreign key (computation_target_id) references rsk_computation_target (id),
     constraint rsk_fk_failure2node

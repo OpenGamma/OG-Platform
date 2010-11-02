@@ -191,8 +191,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
-        + toCurrency)));
+    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), toCurrency + "_"
+        + fromCurrency)));
   }
 
   @Override
