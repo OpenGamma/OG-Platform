@@ -37,6 +37,10 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * The name under which function parameters (such as # of Monte Carlo iterations) should be bound.
    */
   public static final String FUNCTION_PARAMETERS_NAME = "functionParameters";
+  /**
+   * The name under which an instance of {@link PortfolioStructure} should be bound.
+   */
+  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
 
   public FunctionExecutionContext() {
   }
@@ -76,7 +80,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   public SecuritySource getSecuritySource() {
     return (SecuritySource) get(SECURITY_SOURCE_NAME);
   }
-  
+
   public void setFunctionParameters(FunctionParameters functionParameters) {
     put(FUNCTION_PARAMETERS_NAME, functionParameters);
   }
@@ -84,7 +88,15 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   public FunctionParameters getFunctionParameters() {
     return (FunctionParameters) get(FUNCTION_PARAMETERS_NAME);
   }
-  
+
+  public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
+    put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
+  }
+
+  public PortfolioStructure getPortfolioStructure() {
+    return (PortfolioStructure) get(PORTFOLIO_STRUCTURE_NAME);
+  }
+
   @Override
   public FunctionExecutionContext clone() {
     return new FunctionExecutionContext(this);

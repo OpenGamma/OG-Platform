@@ -300,6 +300,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return riskValueName;
   }
   
+  /*package*/ FunctionUniqueId getFunctionUniqueId(final String uniqueId) {
+    FunctionUniqueId functionUniqueId = getHibernateTemplate().execute(new HibernateCallback<FunctionUniqueId>() {
+      @Override
+      public FunctionUniqueId doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("FunctionUniqueId.one.byUniqueId");
+        query.setString("uniqueId", uniqueId);
+        return (FunctionUniqueId) query.uniqueResult();
+      }
+    });
+    if (functionUniqueId == null) {
+      functionUniqueId = new FunctionUniqueId();
+      functionUniqueId.setUniqueId(uniqueId);
+      getHibernateTemplate().save(functionUniqueId);
+    }
+    return functionUniqueId;
+  }
+  
   /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
     RiskRun riskRun = null;
     

@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -189,6 +190,7 @@ public abstract class ValueProperties implements Serializable {
         // This requirement cannot be satisfied
         return false;
       }
+      // All requirements can be satisfied
       return true;
     }
 
@@ -256,12 +258,12 @@ public abstract class ValueProperties implements Serializable {
           continue;
         }
         if (property.getValue().size() != available.size()) {
-          composed.put(property.getKey(), intersect(property.getValue(), available));
+          composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
           continue;
         }
         for (String value : property.getValue()) {
           if (!available.contains(value)) {
-            composed.put(property.getKey(), intersect(property.getValue(), available));
+            composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
             continue nextProperty;
           }
         }
@@ -274,16 +276,6 @@ public abstract class ValueProperties implements Serializable {
       } else {
         return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
       }
-    }
-
-    private static <T> Set<T> intersect(final Set<T> a, final Set<T> b) {
-      final Set<T> result = new HashSet<T>();
-      for (T v : a) {
-        if (b.contains(v)) {
-          result.add(v);
-        }
-      }
-      return result;
     }
 
     @Override

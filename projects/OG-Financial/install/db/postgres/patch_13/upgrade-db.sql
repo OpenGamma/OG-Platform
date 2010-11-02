@@ -30,3 +30,19 @@ create table hol_date (
 
 create index ix_hol_holiday_oid on hol_holiday(oid);
 create index ix_hol_holiday_type on hol_holiday(hol_type);
+
+create table rsk_function_unique_id (
+	id int not null,
+	unique_id varchar(255) not null,
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_function_unique_id unique (unique_id)
+);
+
+alter table rsk_value add column function_unique_id int not null;
+alter table rsk_value add constraint rsk_fk_value2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id);
+alter table rsk_failure add column function_unique_id int not null;
+alter table rsk_failure add constraint rsk_fk_failure2function_id
+        foreign key (function_unique_id) references rsk_function_unique_id (id);

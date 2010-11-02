@@ -174,12 +174,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
-        final Instant futureExpiry = future.getExpiry().toInstant();
+        final Instant futureInvalidAt = future.getExpiry().getExpiry().minus(strip.getMaturity().getPeriod()).toInstant();
         if (expiry == null) {
-          expiry = futureExpiry;
+          expiry = futureInvalidAt;
         } else {
-          if (futureExpiry.isBefore(expiry)) {
-            expiry = futureExpiry;
+          if (futureInvalidAt.isBefore(expiry)) {
+            expiry = futureInvalidAt;
           }
         }
       }
@@ -502,10 +502,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
     // ENG-252 expiry logic is flawed so make it valid for the current day only
-    // Instant expiry = null;
+    Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
+    Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    return new Compiled(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification,
+    // if (expiry.isBefore(eod)) {
+    expiry = eod;
+    // }
+    return new Compiled(atInstant.withTime(0, 0), expiry, fundingCurveSpecification, fundingCurveRequirements, forwardCurveSpecification,
         forwardCurveRequirements);
   }
 
