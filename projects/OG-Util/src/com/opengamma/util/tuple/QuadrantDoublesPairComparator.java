@@ -16,6 +16,8 @@ import java.util.Comparator;
  * If the quadrants are equal, {@link FirstThenSecondDoublesPairComparator} is used.
  * <p>
  * This comparator does not support {@code null} elements in the pair.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class QuadrantDoublesPairComparator implements Comparator<DoublesPair> {
 

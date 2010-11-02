@@ -10,12 +10,14 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.apache.http.util.LangUtils;
 
 /**
- * An immutable pair consisting of an {@code long} and {@code double}.
+ * An immutable pair consisting of an {@code long} and {@code Object}.
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
+ * <p>
+ * This class is immutable and thread-safe if the stored object is immutable.
  *
- * @param <T> The entity type for the Second side of the underlying Pair.
+ * @param <T> the type of the second side of the pair
  */
 public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.Entry<T> {
 
@@ -26,6 +28,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
 
   /**
    * Creates a pair inferring the types.
+   * 
    * @param <B> the second element type
    * @param first  the first element, may be null
    * @param second  the second element, may be null
@@ -37,6 +40,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
 
   /**
    * Constructor.
+   * 
    * @param first  the first element
    * @param second  the second element
    */

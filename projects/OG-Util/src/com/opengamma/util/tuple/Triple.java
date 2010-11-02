@@ -20,6 +20,8 @@ import org.apache.commons.lang.builder.CompareToBuilder;
  * Although the implementation is immutable, there is no restriction on the objects
  * that may be stored. If mutable objects are stored in the triple, then the triple
  * itself effectively becomes mutable.
+ * <p>
+ * This class is immutable and thread-safe if the stored objects are immutable.
  *
  * @param <A> the first element type
  * @param <B> the second element type
@@ -36,6 +38,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Factory method creating a triple inferring the types.
+   * 
    * @param <A> the first element type
    * @param <B> the second element type
    * @param <C> the third element type
@@ -50,6 +53,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Constructs a triple.
+   * 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @param third  the third element, may be null
@@ -63,6 +67,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   //-------------------------------------------------------------------------
   /**
    * Gets the first element from this pair.
+   * 
    * @return the first element, may be null
    */
   public A getFirst() {
@@ -71,6 +76,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Gets the second element from this pair.
+   * 
    * @return the second element, may be null
    */
   public B getSecond() {
@@ -79,6 +85,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Gets the third element from this pair.
+   * 
    * @return the third element, may be null
    */
   public C getThird() {
@@ -88,8 +95,10 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   //-------------------------------------------------------------------------
   /**
    * Gets the elements from this triple as a list.
+   * <p>
    * This method supports auto-casting as they is no way in generics to provide
    * a more specific type.
+   * 
    * @param <T> an auto-cast list type
    * @return the elements as a list, never null
    */
@@ -104,6 +113,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Gets the first and second elements from this triple as a pair.
+   * 
    * @return the first and second elements, never null
    */
   public Pair<A, B> toFirstPair() {
@@ -112,6 +122,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Gets the first and second elements from this triple as a pair.
+   * 
    * @return the second and third elements, never null
    */
   public Pair<B, C> toSecondPair() {
@@ -121,6 +132,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   //-------------------------------------------------------------------------
   /**
    * Compares the pair based on the first element followed by the second element.
+   * 
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
