@@ -79,8 +79,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getRegionId() != null &&
-            request.getProviderId().equals(doc.getProviderId());
+          return request.getProviderId().equals(doc.getProviderId());
         }
       });
     }
@@ -154,6 +153,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueIdentifier(uid);
+    document.setHolidayId(uid);
     final Instant now = Instant.nowSystemClock();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
