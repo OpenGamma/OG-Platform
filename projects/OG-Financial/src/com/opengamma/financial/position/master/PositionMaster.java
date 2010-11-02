@@ -71,7 +71,7 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on portfolios,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #searchPortfolioTreeHistoric}.
    * 
    * @param document  the document, not null
    * @return the updated tree document, not null
@@ -113,9 +113,9 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on portfolios
    * and will support correction of each node.
-   * To update the node with a new version, use {@link #update}.
+   * To update the node with a new version, use {@link #updatePortfolioTree}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchPortfolioTreeHistoric}.
    * <p>
    * The specified document must contain the portfolio tree and the portfolio unique identifier.
    * The unique identifier must specify the last correction of a specific version of the portfolio.
@@ -171,7 +171,7 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on positions,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #searchPositionHistoric}.
    * 
    * @param document  the document, not null
    * @return the updated position document, not null
@@ -210,9 +210,9 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on positions
    * and will support correction of each position.
-   * To update the position with a new version, use {@link #update}.
+   * To update the position with a new version, use {@link #updatePosition}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchPositionHistoric}.
    * <p>
    * The specified document must contain the position and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the position.

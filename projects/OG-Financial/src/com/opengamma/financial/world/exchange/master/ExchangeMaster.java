@@ -59,7 +59,7 @@ public interface ExchangeMaster {
    * <p>
    * A full exchange master will store detailed historic information on exchanges,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #searchHistoricExchange}.
    * 
    * @param document  the document, not null
    * @return the updated exchange document, not null
@@ -98,9 +98,9 @@ public interface ExchangeMaster {
    * <p>
    * A full exchange master will store detailed historic information on exchanges
    * and will support correction of each exchange.
-   * To update the exchange with a new version, use {@link #update}.
+   * To update the exchange with a new version, use {@link #updateExchange}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoricExchange}.
    * <p>
    * The specified document must contain the exchange and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the exchange.
