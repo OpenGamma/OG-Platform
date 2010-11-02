@@ -14,15 +14,23 @@ import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented
- * functionality. This is the unit of external interaction for accessing computation results.
+ * Represents a managed client of a specific view in the context of a particular user. Provides access to properties of
+ * the view, and adds client-oriented functionality. This is the unit of external interaction for accessing computation
+ * results.
  * <p>
- * Always call {@link #shutdown()} to allow resources associated with the managed view to be released when the client is
- * no longer required.
+ * Typically, a {@link ViewClient} will be created for each view in each instance of a client application. If the
+ * application requires asynchronous updates, it must set a full or delta result listener (or both) as required: any
+ * new computation results will be delivered through these listeners. The application may poll for the latest full
+ * result by calling {@link #getLatestResult()}.
  * <p>
- * NOTE: The result listeners must be maintained as a set. It should be possible to add the same listener multiple times but
- * only have it receive one notification. After repeated calls to add, a single call to remove the listener should stop any
- * further notifications.
+ * The per-client flow of results is controlled through {@link #pauseLive()}, {@link #startLive()} and
+ * {@link #stopLive()}. Initially, results are stopped. A stopped client does not cause the underlying view to be
+ * computed, but other, active clients may keep the computation running. When results are paused, computation takes
+ * place but the results are incrementally batched to be delivered as a single, collapsed result when they are resumed.
+ * Use {@link #setLiveUpdatePeriod(long)} to throttle the frequency of updates exposed through this client.
+ * <p>
+ * Always call {@link #shutdown()} from any state to allow resources associated with the managed view to be released
+ * when the client is no longer required.
  */
 @PublicAPI
 public interface ViewClient {
@@ -123,7 +131,7 @@ public interface ViewClient {
   
   /**
    * Terminates this client, disconnecting it from any listeners and releasing any resources. This method <b>must</b>
-   * be called to avoid resource leaks. 
+   * be called to avoid resource leaks. A terminated client is no longer useful and must be discarded.
    */
   void shutdown();
   

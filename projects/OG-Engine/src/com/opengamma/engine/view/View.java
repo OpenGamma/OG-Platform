@@ -17,7 +17,9 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * A view represents a {@link ViewDefinition} in the context of a {@link ViewProcessor}; this is everything required
- * to perform computations and attach clients which listen to the output.
+ * to perform computations and create clients which listen to the output. The view is responsible for managing its own
+ * computation efficiently in response to demand from its clients, and for sharing computation results among its
+ * clients.
  * <p>
  * Views must be initialized by calling {@link #init()} before computations can be performed. This operation involves
  * resolving every aspect of the view definition and building the view's dependency graph, which is potentially
