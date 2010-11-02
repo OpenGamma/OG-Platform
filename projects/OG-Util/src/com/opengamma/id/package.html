@@ -1,0 +1,15 @@
+<html>
+ <head>
+  <meta name="OpenGamma-JavaDoc" content="@PublicAPI" />
+ </head>
+ <body>
+  <p>Defines the identification scheme used by all OpenGamma entities.</p>
+  <p>All objects are lazily bound at runtime meaning no database primary/foreign keys are held for most object references, using these loose identifiers instead. This allows assembling of complex structures from multiple underlying sources.</p>
+  <p>The three main identifier classes are:</p>
+  <ul>
+  <li><strong>UniqueIdentifier</strong>: A globally unique, opaque, system used identifier that will never change over time</li>
+  <li><strong>IdentifierBundle</strong>: A set of real-world identifiers that may not be unique, and may change over time</li>
+  <li><strong>Identifier</strong>: A value with a scheme (e.g. "CUSIP: 912828LS7", "EDOL1:B53H5J6")</li>
+  </ul>
+ </body>
+</html>

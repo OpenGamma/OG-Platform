@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A classification scheme for identifiers.
@@ -30,6 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
+@PublicAPI
 public class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
   /**

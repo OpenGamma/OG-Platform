@@ -22,12 +22,14 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable set of constraints on the values required, or properties of the value produced.
+ * 
+ * @see ValuePropertyNames
  */
 @PublicAPI
 public abstract class ValueProperties implements Serializable {
 
   /**
-   * Builder pattern for constructing properties.
+   * Builder pattern for constructing {@link ValueProperties} objects.
    */
   public static final class Builder {
 
@@ -43,6 +45,14 @@ public abstract class ValueProperties implements Serializable {
       _optional = (optional != null) ? new HashSet<String>(optional) : null;
     }
 
+    /**
+     * Adds a property value to the builder. If the property is already a wild-card, the builder is left
+     * unchanged.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @param propertyValue value, not {@code null}
+     * @return the builder instance
+     */
     public Builder with(String propertyName, final String propertyValue) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       ArgumentChecker.notNull(propertyValue, "propertyValue");
@@ -60,11 +70,27 @@ public abstract class ValueProperties implements Serializable {
       return this;
     }
 
+    /**
+     * Adds property values to the builder. If the property is already a wild-card, the builder is left
+     * unchanged.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @param propertyValues values to add, not {@code null} and not containing {@code null}s.
+     * @return the builder instance
+     */
     public Builder with(final String propertyName, final String... propertyValues) {
       ArgumentChecker.notNull(propertyValues, "propertyValues");
       return with(propertyName, Arrays.asList(propertyValues));
     }
 
+    /**
+     * Adds property values to the builder. If the property is already a wild-card, the builder is left
+     * unchanged.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @param propertyValues values to add, not {@code null} and not containing {@code null}s
+     * @return the builder instance
+     */
     public Builder with(String propertyName, final Collection<String> propertyValues) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       ArgumentChecker.notNull(propertyValues, "propertyValues");
@@ -89,12 +115,29 @@ public abstract class ValueProperties implements Serializable {
       return this;
     }
 
+    /**
+     * Adds a wild-card property value. If explicit values were previously set for the property, they
+     * are removed to leave the wild-card definition.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @return the builder instance
+     */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       _properties.put(propertyName.intern(), Collections.<String> emptySet());
       return this;
     }
 
+    /**
+     * Declares a property as optional when used as a constraint. By default constraints are required, and
+     * can only be satisfied if the other property set defines a matching value. If a constraint is optional
+     * the other set may define a matching value, or have no definition for the property. If no explicit values
+     * for the property are set with one of the other calls, the property will have a wild-card value (i.e.
+     * as if {@link #withAny (String)} had been called.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @return the builder instance 
+     */
     public Builder withOptional(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       if (_optional == null) {
@@ -104,12 +147,24 @@ public abstract class ValueProperties implements Serializable {
       return this;
     }
 
+    /**
+     * Removes a property from the builder definition.
+     * 
+     * @param propertyName name of the property, not {@code null}
+     * @return the builder instance
+     */
     public Builder withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       _properties.remove(propertyName);
+      _optional.remove(propertyName);
       return this;
     }
 
+    /**
+     * Constructs and returns a {@link ValueProperties} instance based on the builder's current state.
+     * 
+     * @return the property set
+     */
     public ValueProperties get() {
       if (_optional != null) {
         for (String optionalProperty : _optional) {
@@ -447,6 +502,11 @@ public abstract class ValueProperties implements Serializable {
 
   };
 
+  /**
+   * Returns the empty property set, typically indicating no value constraints.
+   * 
+   * @return the empty property set
+   */
   public static ValueProperties none() {
     return EMPTY;
   }
@@ -461,26 +521,66 @@ public abstract class ValueProperties implements Serializable {
     return INFINITE;
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object.
+   * 
+   * @return the builder
+   */
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * 
+   * @param propertyName name of the property to define, not {@code null}
+   * @param propertyValue property value, not {@code null}
+   * @return the builder instance
+   */
   public static Builder with(final String propertyName, final String propertyValue) {
     return builder().with(propertyName, propertyValue);
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * 
+   * @param propertyName name of the property to define, not {@code null}
+   * @param propertyValues property values, not {@code null} and not containing {@code null}
+   * @return the builder instance
+   */
   public static Builder with(final String propertyName, final String... propertyValues) {
     return builder().with(propertyName, propertyValues);
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * 
+   * @param propertyName name of the property to define, not {@code null}
+   * @param propertyValues property values, not {@code null} and not containing {@code null}
+   * @return the builder instance
+   */
   public static Builder with(final String propertyName, final Collection<String> propertyValues) {
     return builder().with(propertyName, propertyValues);
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined
+   * as a wild-card.
+   * 
+   * @param propertyName name of the property to define, not {@code null}
+   * @return the builder instance
+   */
   public static Builder withAny(final String propertyName) {
     return builder().withAny(propertyName);
   }
 
+  /**
+   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined
+   * as optional.
+   * 
+   * @param propertyName name of the property to define, not {@code null}
+   * @return the builder instance
+   */
   public static Builder withOptional(final String propertyName) {
     return builder().withOptional(propertyName);
   }

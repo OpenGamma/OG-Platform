@@ -142,6 +142,11 @@ public class ViewDefinition implements Serializable {
     return requirements;
   }
 
+  /**
+   * Returns the name of the view.
+   * 
+   * @return the view name
+   */
   public String getName() {
     return _name;
   }
@@ -157,40 +162,75 @@ public class ViewDefinition implements Serializable {
   }
 
   /**
-   * @return The LiveData user should be used to create 
-   * LiveData subscriptions. It is thus a kind of 'super-user'
-   * and ensures that the View can be materialized even without
-   * any end user trying to use it.
-   * <p>
-   * Authenticating the end users of the View (of which there can be many) 
-   * is a separate matter entirely and has nothing to do with this user.  
+   * Returns the user who 'owns' the view. The LiveData user should be used to create subscriptions. It ensures that the
+   * view can be created and initialized without any end users trying to use it. Authorizing end users to interact with
+   * the view is a separate matter and independent of this user. 
+   * 
+   * @return The LiveData user to create LiveData subscriptions for the view  
    */
   public UserPrincipal getLiveDataUser() {
     return _liveDataUser;
   }
 
+  /**
+   * Returns the calculation configurations.
+   * 
+   * @return the configurations
+   */
   public Collection<ViewCalculationConfiguration> getAllCalculationConfigurations() {
     return new ArrayList<ViewCalculationConfiguration>(_calculationConfigurationsByName.values());
   }
 
+  /**
+   * Returns the set of calculation configuration names. These names can be passed to {@link #getCalculationConfiguration (String)}
+   * to retrieve the configuration information.
+   * 
+   * @return the configuration names
+   */
   public Set<String> getAllCalculationConfigurationNames() {
     return Collections.unmodifiableSet(_calculationConfigurationsByName.keySet());
   }
 
+  /**
+   * Returns a map of calculation configuration names to configurations.
+   * 
+   * @return the calculation configurations
+   */
   public Map<String, ViewCalculationConfiguration> getAllCalculationConfigurationsByName() {
     return Collections.unmodifiableMap(_calculationConfigurationsByName);
   }
 
+  /**
+   * Returns the named calculation configuration.
+   * 
+   * @param configurationName name of the configuration
+   * @return the configuration
+   */
   public ViewCalculationConfiguration getCalculationConfiguration(String configurationName) {
     return _calculationConfigurationsByName.get(configurationName);
   }
 
+  /**
+   * Adds a new calculation configuration to the view definition. If there is already a configuration with that name it will
+   * be replaced.
+   * 
+   * @param calcConfig the new configuration, not {@code null}
+   */
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
 
+  /**
+   * Add an output requirement to the view definition. This will become a terminal output when constructing dependency graphs for the view.
+   * 
+   * @param calculationConfigurationName the configuration to add this as a requirement to, not {@code null}
+   * @param securityType the type of security for which an output should be produced, not {@code null}
+   * @param requirementName the value name to be produced, not {@code null}
+   * @param constraints additional constraints on the value produced, not {@code null}. For example this could be used to specify a currency
+   * rather than use the view or portfolio default. 
+   */
   public void addPortfolioRequirement(String calculationConfigurationName, String securityType, String requirementName, ValueProperties constraints) {
     ViewCalculationConfiguration calcConfig = _calculationConfigurationsByName.get(calculationConfigurationName);
     if (calcConfig == null) {
@@ -200,6 +240,14 @@ public class ViewDefinition implements Serializable {
     calcConfig.addPortfolioRequirement(securityType, requirementName, constraints);
   }
 
+  /**
+   * Add an output requirement to the view definition. This will become a terminal output when constructing dependency graphs for the view.
+   * The value is added without any constraints.
+   * 
+   * @param calculationConfigurationName the configuration to add this as a requirement to, not {@code null}
+   * @param securityType the type of security for which an output should be produced, not {@code null}
+   * @param requirementName the value name to be produced, not {@code null}
+   */
   public void addPortfolioRequirementName(final String calculationConfigurationName, final String securityType, final String requirementName) {
     addPortfolioRequirement(calculationConfigurationName, securityType, requirementName, ValueProperties.none());
   }
@@ -311,14 +359,36 @@ public class ViewDefinition implements Serializable {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * Returns the result model definition, describing how the results should be constructed and returned after execution
+   * of the view.
+   * 
+   * @return the {@link ResultModelDefinition} instance.
+   */
   public ResultModelDefinition getResultModelDefinition() {
     return _resultModelDefinition;
   }
 
+  /**
+   * Tests whether to dump the computation cache to disk after execution of the view. This is intended for debugging and
+   * testing only. There are more efficient ways to interact with the computation cache to obtain terminal and intermediate
+   * values following view execution.
+   * 
+   * @return {@code true} if the cache should be written to disk after view execution, {@code false} otherwise.
+   */
   public boolean isDumpComputationCacheToDisk() {
     return _dumpComputationCacheToDisk;
   }
 
+  /**
+   * Sets whether to dump the computation cache to disk after execution of the view. This is intended for debugging and
+   * testing only. There are more efficient ways to interact with the computation cache to obtain terminal and intermediate
+   * values following view execution.
+   * <p>
+   * A view executor should write to a file in the system temporary directory with a filename based on the executing view's name.
+   * 
+   * @param dumpComputationCacheToDisk {@code true} to write the contents of the cache to disk after view execution, {@code false} otherwise
+   */
   public void setDumpComputationCacheToDisk(boolean dumpComputationCacheToDisk) {
     _dumpComputationCacheToDisk = dumpComputationCacheToDisk;
   }

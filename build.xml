@@ -185,29 +185,32 @@
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
 		<copy toDir="${docs.dir}/temp-src">
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
 				<contains text="@PublicAPI" casesensitive="yes"/>
 			</fileset>
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
 				<contains text="@PublicSPI" casesensitive="yes"/>
 			</fileset>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
 				<contains text="@PublicAPI" casesensitive="yes"/>
 			</fileset>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
 				<contains text="@PublicSPI" casesensitive="yes"/>
 			</fileset>
-			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java **/package.html">
 				<contains text="@PublicAPI" casesensitive="yes"/>
 			</fileset>
-			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java **/package.html">
 				<contains text="@PublicSPI" casesensitive="yes"/>
 			</fileset>
 		</copy>
 		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-	    </javadoc>
+			<link href="http://java.sun.com/javase/6/docs/api/" />
+			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+			<link href="https://jsr-310.dev.java.net/nonav/doc-2010-06-22/" />
+		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
 	</target>
 	

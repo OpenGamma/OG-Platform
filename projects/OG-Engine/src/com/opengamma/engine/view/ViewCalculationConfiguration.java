@@ -134,7 +134,7 @@ public class ViewCalculationConfiguration implements Serializable {
 
   /**
    * Adds a set of required portfolio outputs for the given security type with no value constraints. This is
-   * equivilant to calling {@link #addPortfolioRequirements(String, Set<Pair<String, ValueProperties>>)} with
+   * equivilant to calling {@link #addPortfolioRequirements (String, Set)} with
    * {@code ValueProperties.none ()} against each output name.
    * 
    * @param securityType the type of security for which the outputs should be produced, not null

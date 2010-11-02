@@ -13,6 +13,11 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface Trade extends Position {
 
+  /**
+   * Returns the {@link Counterparty} associated with the trade.
+   * 
+   * @return the {@code Counterprty}
+   */
   Counterparty getCounterparty();
 
 }
