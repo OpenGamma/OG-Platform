@@ -17,8 +17,12 @@ import com.opengamma.util.PublicAPI;
  * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented
  * functionality. This is the unit of external interaction for accessing computation results.
  * <p>
- * Always call {@link #close()} to allow resources associated with the managed view to be released when the client is
+ * Always call {@link #shutdown()} to allow resources associated with the managed view to be released when the client is
  * no longer required.
+ * <p>
+ * NOTE: The result listeners must be maintained as a set. It should be possible to add the same listener multiple times but
+ * only have it receive one notification. After repeated calls to add, a single call to remove the listener should stop any
+ * further notifications.
  */
 @PublicAPI
 public interface ViewClient {
@@ -26,7 +30,7 @@ public interface ViewClient {
   /**
    * Gets the unique identifier for the view client, to make it easier to refer to the view client externally.
    * 
-   * @return  the unique identifier, not null
+   * @return the unique identifier, not null
    */
   UniqueIdentifier getUniqueIdentifier();
   
@@ -50,7 +54,7 @@ public interface ViewClient {
    * flow restrictions being applied through this view client, so does not necessarily reflect the live state of the
    * view.
    * 
-   * @return  <code>true</code> if a computation result is available, <code>false</code> otherwise
+   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
    */
   boolean isResultAvailable();
   
@@ -58,7 +62,7 @@ public interface ViewClient {
    * Gets the full result from the last computation cycle. This is consistent with any data flow restrictions being
    * applied through this view client, so does not necessarily represent the live state of the view.
    *  
-   * @return  the latest result, or <code>null</code> if no result yet exists
+   * @return the latest result, or <code>null</code> if no result yet exists
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
@@ -80,7 +84,7 @@ public interface ViewClient {
   /**
    * Gets the state of this view client.
    * 
-   * @return  the state of this view client, not null
+   * @return the state of this view client, not null
    */
   ViewClientState getState();
   
