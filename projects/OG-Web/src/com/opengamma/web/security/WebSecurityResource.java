@@ -6,6 +6,8 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -17,12 +19,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -54,34 +54,22 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
-    name = StringUtils.trimToNull(name);
-    idScheme = StringUtils.trimToNull(idScheme);
-    idValue = StringUtils.trimToNull(idValue);
-    if (name == null || idScheme == null || idValue == null) {
-      FlexiBean out = createRootData();
-      if (name == null) {
-        out.put("err_nameMissing", true);
-      }
-      if (idScheme == null) {
-        out.put("err_idschemeMissing", true);
-      }
-      if (idValue == null) {
-        out.put("err_idvalueMissing", true);
-      }
-      String html = getFreemarker().build("securities/security-update.ftl", out);
-      return Response.ok(html).build();
-    }
+    
     SecurityDocument doc = data().getSecurity();
-    if (doc.getSecurity() instanceof DefaultSecurity == false) {
-      throw new IllegalArgumentException("Unable to update as not an instance of DefaultSecurity");
-    }
-    DefaultSecurity ds = (DefaultSecurity) doc.getSecurity();
-    ds.setName(name);
-    ds.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    doc = data().getSecurityMaster().update(doc);
-    data().setSecurity(doc);
+    
+    IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
+    Map<IdentifierBundle, DefaultSecurity> loadedSecurities = data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
+    DefaultSecurity updatedSecurity = loadedSecurities.get(identifierBundle);
+    SecurityDocument updateDoc = new SecurityDocument();
+    
+    UniqueIdentifier securityId = doc.getSecurityId();
+    updateDoc.setSecurityId(securityId);
+    updateDoc.setSecurity(updatedSecurity);
+    data().getSecurityMaster().update(updateDoc);
+    
     URI uri = WebSecurityResource.uri(data());
     return Response.seeOther(uri).build();
+   
   }
 
   @DELETE

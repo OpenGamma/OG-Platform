@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.security.master.SecurityLoader;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
@@ -30,11 +31,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
+   * @param securityLoader  the security loader, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
+    ArgumentChecker.notNull(securityLoader, "securityLoader");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
+    data().setSecurityLoader(securityLoader);
   }
 
   /**
