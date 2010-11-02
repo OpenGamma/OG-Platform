@@ -11,11 +11,14 @@ package com.opengamma.id;
  * <p>
  * For example, code in the database layer will need to update the unique identifier
  * when the object is stored.
+ * <p>
+ * This interface makes no guarantees about the thread-safety of implementations.
  */
 public interface MutableUniqueIdentifiable {
 
   /**
    * Sets the unique identifier for this item.
+   * 
    * @param uid  the unique identifier to set, not null
    */
   void setUniqueIdentifier(UniqueIdentifier uid);

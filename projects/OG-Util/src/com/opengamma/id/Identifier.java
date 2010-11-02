@@ -29,10 +29,12 @@ import com.opengamma.util.PublicAPI;
  *   <li>Cusip</li>
  *   <li>Isin</li>
  *   <li>RIC code</li>
- *   <li>Bloomberg ID</li>
+ *   <li>Bloomberg BUID</li>
  *   <li>Bloomberg Ticker</li>
  *   <li>Trading system OTC trade ID</li>
  * </ul>
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class Identifier implements Identifiable, Comparable<Identifier>, Cloneable, Serializable {
@@ -57,6 +59,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Obtains an identifier from a scheme and value.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
@@ -67,6 +70,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Obtains an identifier from a scheme and value.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
@@ -80,6 +84,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>::<VALUE>}.
+   * 
    * @param str  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
@@ -94,6 +99,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Constructs an identifier from the scheme and standalone identifier.
+   * 
    * @param scheme  the scheme, not null
    * @param standaloneId  the standalone identifier, not empty, not null
    */
@@ -106,6 +112,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Constructs an identifier from the scheme and standalone identifier.
+   * 
    * @param schemeName  the scheme name, not null
    * @param standaloneId  the standalone identifier, not null
    */
@@ -116,6 +123,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   //-------------------------------------------------------------------------
   /**
    * Gets the identification scheme.
+   * 
    * This provides the universe within which the standalone identifier has meaning.
    * @return the scheme, not null
    */
@@ -124,7 +132,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
@@ -133,7 +142,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns true
    * @return true if the schemes are different
    */
@@ -142,7 +152,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
@@ -151,7 +162,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns true
    * @return true if the schemes are different
    */
@@ -161,22 +173,26 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Gets the standalone identifier.
+   * 
    * @return the value, not null
    */
   public String getValue() {
     return _value;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Identifier getIdentityKey() {
     return this;
   }
-  
+
   /**
    * Converts this Identifier to a UniqueIdentifier.
    * 
-   * @return A UniqueIdentifier with the same scheme and value as this Identifier
+   * @return a UniqueIdentifier with the same scheme and value as this Identifier
+   * @deprecated this is an invalid conversion
    */
+  @Deprecated
   public UniqueIdentifier toUniqueIdentifier() {
     return UniqueIdentifier.of(getScheme().getName(), getValue());
   }
@@ -184,6 +200,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   //-------------------------------------------------------------------------
   /**
    * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * 
    * @param other  the other identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
@@ -215,6 +232,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * 
    * @return the identifier, not null
    */
   @Override
@@ -223,7 +241,6 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   //-------------------------------------------------------------------------
-
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");

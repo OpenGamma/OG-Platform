@@ -31,8 +31,13 @@ import com.opengamma.util.PublicAPI;
 /**
  * An immutable bundle of identifiers.
  * <p>
- * Each identifier in the bundle will typically refer to the same physical item.
- * The identifiers represent different ways to represent the item, for example in multiple schemes.
+ * A bundle allows multiple identifiers to be used that all refer to the same conceptual object.
+ * Each bundle will typically be in a different scheme.
+ * <p>
+ * For example, the United States might be referred to by an identifier referencing the 2 letter
+ * ISO country code {@code US} in one identifier and the 3 letter currency code {@code USD} in another.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
@@ -65,6 +70,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Creates a bundle from a single identifier.
+   * 
    * @param identifier  the identifier, null returns an empty bundle
    */
   public IdentifierBundle(Identifier identifier) {
@@ -78,6 +84,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Creates a bundle from an array of identifiers.
+   * 
    * @param identifiers  the array of identifiers, null returns an empty bundle
    */
   public IdentifierBundle(Identifier... identifiers) {
@@ -92,6 +99,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Creates a bundle from a collection of identifiers.
+   * 
    * @param identifiers  the collection of identifiers, null returns an empty bundle, no nulls in array
    */
   public IdentifierBundle(Collection<? extends Identifier> identifiers) {
@@ -106,6 +114,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Creates a bundle from a collection of identifiers.
+   * 
    * @param identifiers  the collection of identifiers, not null, no nulls in array
    * @return the identifier bundle, not null
    */
@@ -116,6 +125,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Recalculate the hash code on deserialization.
+   * 
    * @param in  the input stream
    */
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -123,6 +133,11 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     _hashCode = calcHashCode();
   }
 
+  /**
+   * Calculate the hash code.
+   * 
+   * @return the hash code
+   */
   private int calcHashCode() {
     return 31 + _identifiers.hashCode();
   }
@@ -130,6 +145,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   //-------------------------------------------------------------------------
   /**
    * Gets the collection of identifiers in the bundle.
+   * 
    * @return the identifier collection, unmodifiable, not null
    */
   public Set<Identifier> getIdentifiers() {
@@ -139,6 +155,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
+   * 
    * @param identifier  the identifier to add to the returned bundle, not null
    * @return the new bundle, not null
    */
@@ -151,6 +168,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * Returns a new bundle with the specified identifier removed.
    * This instance is immutable and unaffected by this method call.
+   * 
    * @param identifier  the identifier to remove from the returned bundle, null ignored
    * @return the new bundle, not null
    */
@@ -166,6 +184,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * <p>
    * This returns the first identifier in the internal set that matches.
    * The set is not sorted, so this method is not consistent.
+   * 
    * @param scheme  the scheme to query, null returns null
    * @return the standalone identifier, null if not found
    */
@@ -180,6 +199,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Gets the number of identifiers in the bundle.
+   * 
    * @return the bundle size, zero or greater
    */
   public int size() {
@@ -188,6 +208,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Returns an iterator over the identifiers in the bundle.
+   * 
    * @return the identifiers in the bundle, not null
    */
   public Iterator<Identifier> iterator() {
@@ -196,6 +217,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Checks if this bundle contains all the keys from the specified bundle.
+   * 
    * @param bundle  the bundle to search for, empty returns true, not null
    * @return true if this bundle contains all the keys from the specified bundle
    */
@@ -211,6 +233,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Checks if this bundle contains any key from the specified bundle.
+   * 
    * @param bundle  the bundle to search for, empty returns false, not null
    * @return true if this bundle contains any key from the specified bundle
    */
@@ -226,6 +249,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Checks if this bundle contains the specified key.
+   * 
    * @param identifier  the key to search for, null returns false
    * @return true if this bundle contains any key from the specified bundle
    */
@@ -235,6 +259,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Converts this bundle to a list of formatted strings.
+   * 
    * @return the list of identifiers as strings, not null
    */
   public List<String> toStringList() {
@@ -295,7 +320,6 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   //-------------------------------------------------------------------------
-
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");

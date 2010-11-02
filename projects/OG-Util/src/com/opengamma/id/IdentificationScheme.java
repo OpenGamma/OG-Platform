@@ -27,6 +27,8 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>A trading system instance name for trades and positions.</li>
  *   <li>RIC for a Reuters-provided market data object.</li>
  * </ul>
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
