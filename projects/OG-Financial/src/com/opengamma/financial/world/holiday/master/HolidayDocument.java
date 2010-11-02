@@ -90,7 +90,7 @@ public class HolidayDocument extends DirectBean implements Serializable {
    * <p>
    * This will call {@link #createName()} to build a suitable name.
    * 
-   * @param holiday  the exchange, not null
+   * @param holiday  the holiday, not null
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");

@@ -40,7 +40,7 @@ public interface HolidayMaster {
   HolidayDocument get(UniqueIdentifier uid);
 
   /**
-   * Adds an holiday to the data store.
+   * Adds a holiday to the data store.
    * <p>
    * The specified document must contain the holiday.
    * 
@@ -52,7 +52,7 @@ public interface HolidayMaster {
   HolidayDocument add(HolidayDocument document);
 
   /**
-   * Updates an holiday in the data store.
+   * Updates a holiday in the data store.
    * <p>
    * The specified document must contain the holiday and the unique identifier.
    * If the identifier has a version it must be the latest version.
@@ -69,7 +69,7 @@ public interface HolidayMaster {
   HolidayDocument update(HolidayDocument document);
 
   /**
-   * Removes an holiday from the data store.
+   * Removes a holiday from the data store.
    * <p>
    * A full holiday master will store detailed historic information on holidays.
    * Thus, a removal does not prevent retrieval or correction of an earlier version.
@@ -94,7 +94,7 @@ public interface HolidayMaster {
   HolidaySearchHistoricResult searchHistoric(HolidaySearchHistoricRequest request);
 
   /**
-   * Corrects an holiday in the data store.
+   * Corrects a holiday in the data store.
    * <p>
    * A full holiday master will store detailed historic information on holidays
    * and will support correction of each holiday.

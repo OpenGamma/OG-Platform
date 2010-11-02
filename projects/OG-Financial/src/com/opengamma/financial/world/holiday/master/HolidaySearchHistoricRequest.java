@@ -38,7 +38,7 @@ import com.opengamma.util.db.PagingRequest;
  * A full implementation will store the correction in such a manner that it is still possible
  * to obtain the value before the correction was made.
  * <p>
- * For example, an holiday added on Monday and updated on Thursday has two versions.
+ * For example, a holiday added on Monday and updated on Thursday has two versions.
  * If it is realized on Friday that the version stored on Monday was incorrect, then a
  * correction may be applied. There are now two versions, the first of which has one correction.
  * This may continue, with multiple corrections allowed for each version.
