@@ -1,3 +1,4 @@
+/db/
 *.log
 projects/Fudge-Java/
 projects/Fudge-Proto/
@@ -9,5 +10,5 @@ repository/
 ivy/
 bootstrap/
 tests/output/
-docs/javadoc-public
+docs/
 lib/

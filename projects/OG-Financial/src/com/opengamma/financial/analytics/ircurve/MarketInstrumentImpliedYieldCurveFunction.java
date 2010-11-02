@@ -66,7 +66,7 @@ import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.RegionSource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

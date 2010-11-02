@@ -7,12 +7,13 @@ package com.opengamma.livedata;
 
 import org.fudgemsg.FudgeFieldContainer;
 
+import com.opengamma.util.PublicAPI;
+
 
 /**
  * A market data update sent from server to client. 
- *
- * @author kirk
  */
+@PublicAPI
 public interface LiveDataValueUpdate {
   
   /**

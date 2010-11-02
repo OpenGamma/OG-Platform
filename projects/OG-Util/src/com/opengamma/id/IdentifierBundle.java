@@ -195,8 +195,23 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Checks if this bundle contains all the keys from the specified bundle.
+   * @param bundle  the bundle to search for, empty returns true, not null
+   * @return true if this bundle contains all the keys from the specified bundle
+   */
+  public boolean containsAll(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    for (Identifier identifier : bundle.getIdentifiers()) {
+      if (_identifiers.contains(identifier) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Checks if this bundle contains any key from the specified bundle.
-   * @param bundle  the bundle to search for, not null
+   * @param bundle  the bundle to search for, empty returns false, not null
    * @return true if this bundle contains any key from the specified bundle
    */
   public boolean containsAny(IdentifierBundle bundle) {

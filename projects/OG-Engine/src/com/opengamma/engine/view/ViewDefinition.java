@@ -18,7 +18,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;

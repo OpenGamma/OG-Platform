@@ -121,6 +121,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final Exchange exchange = document.getExchange().clone();
     exchange.setUniqueIdentifier(uid);
+    document.setExchangeId(uid);
     final Instant now = Instant.nowSystemClock();
     final ExchangeDocument doc = new ExchangeDocument();
     doc.setExchange(exchange);

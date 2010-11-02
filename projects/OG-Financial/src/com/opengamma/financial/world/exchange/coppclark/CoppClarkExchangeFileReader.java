@@ -24,12 +24,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.ExchangeCalendarEntry;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
-import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
 import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -65,8 +65,11 @@ public class CoppClarkExchangeFileReader {
   private ExchangeSource _exchangeSource;
 
   /**
-   * Creates a populated in-memory exchange source.
-   * @return the exchange source, not null
+   * Creates a populated in-memory master and source.
+   * <p>
+   * The values can be extracted using the accessor methods.
+   * 
+   * @return the exchange reader, not null
    */
   public static CoppClarkExchangeFileReader createPopulated() {
     CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader();
@@ -129,7 +132,7 @@ public class CoppClarkExchangeFileReader {
 
   private void readLine(String[]rawFields) {
     String countryISO = rawFields[2];
-    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, countryISO);
+    Identifier region = RegionUtils.countryRegionId(countryISO);
     String exchangeMIC = rawFields[3];
     Identifier mic = Identifier.of(ExchangeUtils.ISO_MIC, exchangeMIC);
     String exchangeName = rawFields[4];

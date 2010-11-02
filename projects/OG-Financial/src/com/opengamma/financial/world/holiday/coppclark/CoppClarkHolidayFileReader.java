@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.world.holiday.coppclark;
 
-import static com.opengamma.financial.world.region.InMemoryRegionMaster.ISO_COUNTRY_2;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +34,8 @@ import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.MasterHolidaySource;
-import com.opengamma.financial.world.region.RegionFileReader;
+import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.financial.world.region.master.loader.RegionFileReader;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
@@ -123,7 +122,7 @@ public class CoppClarkHolidayFileReader {
    * Gets the holiday master.
    * @return the holiday master, not null
    */
-  public HolidayMaster getExchangeMaster() {
+  public HolidayMaster getHolidayMaster() {
     return _holidayMaster;
   }
 
@@ -209,7 +208,7 @@ public class CoppClarkHolidayFileReader {
       String isoCountry = row[isoCountryIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
-      Identifier regionId = Identifier.of(ISO_COUNTRY_2, isoCountry);
+      Identifier regionId = RegionUtils.countryRegionId(isoCountry);
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.BANK, regionId, EMPTY_DATE_LIST));

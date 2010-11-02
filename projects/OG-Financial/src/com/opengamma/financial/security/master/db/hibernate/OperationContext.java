@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security.master.db.hibernate;
 
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.RegionSource;
 
 /**
  * Context for the bean operations - i.e. access to any resources that are needed

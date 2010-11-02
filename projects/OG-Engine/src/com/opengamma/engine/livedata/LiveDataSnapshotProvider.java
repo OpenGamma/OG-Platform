@@ -8,7 +8,7 @@ package com.opengamma.engine.livedata;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
 
 /**

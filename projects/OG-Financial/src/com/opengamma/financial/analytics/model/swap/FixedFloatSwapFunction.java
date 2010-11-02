@@ -34,7 +34,7 @@ import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.RegionSource;
 
 /**
  * 

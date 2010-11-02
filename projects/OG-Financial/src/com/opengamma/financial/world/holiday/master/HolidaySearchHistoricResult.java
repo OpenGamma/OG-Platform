@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for holidays.
+ * Result from searching for holiday history.
  */
 @BeanDefinition
 public class HolidaySearchHistoricResult extends DirectBean {

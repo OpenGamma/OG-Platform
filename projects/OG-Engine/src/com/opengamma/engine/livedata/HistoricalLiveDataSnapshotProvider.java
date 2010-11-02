@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 

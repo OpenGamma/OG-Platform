@@ -6,7 +6,12 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -25,12 +30,16 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityLoader;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -44,13 +53,14 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/securities")
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(WebSecuritiesResource.class);
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
+   * @param securityLoader  the security loader, not null
    */
-  public WebSecuritiesResource(final SecurityMaster securityMaster) {
-    super(securityMaster);
+  public WebSecuritiesResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader) {
+    super(securityMaster, securityLoader);
   }
 
   //-------------------------------------------------------------------------
@@ -84,26 +94,16 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return getFreemarker().build("securities/securities.ftl", out);
   }
 
-  //-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
-      @FormParam("name") String name,
-      @FormParam("type") String type,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
-    name = StringUtils.trimToNull(name);
-    type = StringUtils.trimToNull(type);
     idScheme = StringUtils.trimToNull(idScheme);
     idValue = StringUtils.trimToNull(idValue);
-    if (name == null || type == null || idScheme == null || idValue == null) {
-      FlexiBean out = createRootData();
-      if (name == null) {
-        out.put("err_nameMissing", true);
-      }
-      if (type == null) {
-        out.put("err_typeMissing", true);
-      }
+    FlexiBean out = createRootData();
+    if (idScheme == null || idValue == null) {
       if (idScheme == null) {
         out.put("err_idschemeMissing", true);
       }
@@ -113,14 +113,45 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       String html = getFreemarker().build("securities/securities-add.ftl", out);
       return Response.ok(html).build();
     }
-    DefaultSecurity security = new DefaultSecurity(type);
-    security.setName(name);
-    security.addIdentifier(Identifier.of(idScheme, idValue));
-    SecurityDocument doc = new SecurityDocument();
-    doc.setSecurity(security);
-    SecurityDocument added = data().getSecurityMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
+    List<IdentifierBundle> errors = new ArrayList<IdentifierBundle>();
+    IdentificationScheme scheme = new IdentificationScheme(idScheme);
+    Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
+    SecurityLoader securityLoader = data().getSecurityLoader();
+    Map<IdentifierBundle, DefaultSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
+    SecurityMaster securityMaster = data().getSecurityMaster();
+    SecurityDocument added = null;
+    for (IdentifierBundle identifierBundle : bundles) {
+      DefaultSecurity security = loadedSecurities.get(identifierBundle);
+      if (security != null) {
+        try {
+          final SecurityDocument document = new SecurityDocument();
+          document.setSecurity(security);
+          added = securityMaster.add(document);
+        } catch (Exception e) {
+          s_logger.warn("error writing security=" + security, e.getCause());
+          errors.add(identifierBundle);
+        }
+      } else {
+        errors.add(identifierBundle);
+      }
+    }
+    URI uri = null;
+    if (bundles.size() == 1) {
+      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
+    } else {
+      uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
+//      uri = uri(data());
+    }
     return Response.seeOther(uri).build();
+  }
+
+  private IdentifierBundle buildRequestAsIdentifierBundle(IdentificationScheme scheme, Collection<IdentifierBundle> bundles) {
+    List<Identifier> identifiers = new ArrayList<Identifier>();
+    for (IdentifierBundle bundle : bundles) {
+      String identifierValue = bundle.getIdentifier(scheme);
+      identifiers.add(Identifier.of(scheme, identifierValue));
+    }
+    return new IdentifierBundle(identifiers);
   }
 
   //-------------------------------------------------------------------------
@@ -171,6 +202,21 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       }
     }
     return builder.build();
+  }
+  
+  private Collection<IdentifierBundle> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
+    if (idValue == null) {
+      return Collections.emptyList();
+    }
+    final String[] identifiers = StringUtils.split(idValue, "\n");
+    final List<IdentifierBundle> result = new ArrayList<IdentifierBundle>(identifiers.length);
+    for (String identifier : identifiers) {
+      identifier = StringUtils.trimToNull(identifier);
+      if (identifier != null) {
+        result.add(IdentifierBundle.of(Identifier.of(identificationScheme, identifier)));
+      }
+    }
+    return result;
   }
 
 }

@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -186,7 +186,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
     // holiday for swap should be NY+LON
-    Identifier usgb = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "US+GB");
+    Identifier usgb = RegionUtils.financialRegionId("US+GB");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360, modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2, Identifier.of(
         SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
     
@@ -225,7 +225,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "EU0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m")), "EUR LIBOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with EUR swaps is TARGET
-    Identifier eu = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "EU");
+    Identifier eu = RegionUtils.financialRegionId("EU");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360, modified, annual, 2, eu, act360, modified, semiAnnual, 2, Identifier.of(
         SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2, Identifier.of(
@@ -257,7 +257,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "JY0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m")), "JPY LIBOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with JPY swaps is Tokyo
-    Identifier jp = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "JP");
+    Identifier jp = RegionUtils.financialRegionId("JP");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2, Identifier.of(
         SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
   }
@@ -279,7 +279,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "CDOR12M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 12m")), "CDOR 12m", act360, following, null, 2);
 
     //TODO holiday associated with CAD swaps is Toronto
-    Identifier ca = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "CA");
+    Identifier ca = RegionUtils.financialRegionId("CA");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_SWAP")), "CAD_SWAP", act365, modified, semiAnnual, 0, ca, act365, modified, quarterly, 0, Identifier.of(
         SIMPLE_NAME_SCHEME, "CDOR 3m"), ca);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CAD_1Y_SWAP")), "CAD_1Y_SWAP", act365, modified, annual, 0, ca, act365, modified, quarterly, 0, Identifier.of(
@@ -314,7 +314,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "BP0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m")), "GBP LIBOR 12m", act365, following, null, 2);
 
     //TODO holiday associated with GBP swaps is London
-    Identifier gb = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "GB");
+    Identifier gb = RegionUtils.financialRegionId("GB");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365, modified, semiAnnual, 0, Identifier.of(
         SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, gb, act365, modified, quarterly, 0, Identifier.of(
@@ -332,7 +332,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "AU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill")), "AUD 3m Bill", act365, following, null, 2);
 
     //TODO holiday associated with AUD swaps is Sydney
-    Identifier au = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "AU");
+    Identifier au = RegionUtils.financialRegionId("AU");
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 0, au, act365, modified, quarterly, 0, Identifier.of(
         SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "AUD_1Y_SWAP")), "AUD_1Y_SWAP", act365, modified, quarterly, 0, au, act365, modified, quarterly, 0, Identifier.of(
@@ -369,7 +369,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "SF0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 12m")), "CHF LIBOR 12m", act360, following, null, 2);
     
     //TODO holiday associated with CHF swaps is Zurich
-    Identifier ch = Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, "CH");
+    Identifier ch = RegionUtils.financialRegionId("CH");
     //TODO check reference rate
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360, modified, semiAnnual, 2, Identifier.of(
         SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
