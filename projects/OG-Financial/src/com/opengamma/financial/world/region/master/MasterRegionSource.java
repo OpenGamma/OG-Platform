@@ -9,7 +9,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -112,7 +111,7 @@ public class MasterRegionSource implements RegionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Region getRegion(UniqueIdentifier uid) {
+  public ManageableRegion getRegion(UniqueIdentifier uid) {
     try {
       return getRegionMaster().get(uid).getRegion();
     } catch (DataNotFoundException ex) {
@@ -121,7 +120,7 @@ public class MasterRegionSource implements RegionSource {
   }
 
   @Override
-  public Region getHighestLevelRegion(Identifier regionId) {
+  public ManageableRegion getHighestLevelRegion(Identifier regionId) {
     RegionSearchRequest request = new RegionSearchRequest();
     request.addIdentifierBundle(regionId);
     request.setPagingRequest(PagingRequest.ONE);
@@ -130,7 +129,7 @@ public class MasterRegionSource implements RegionSource {
     return getRegionMaster().search(request).getFirstRegion();
   }
 
-  public Region getHighestLevelRegion(IdentifierBundle regionIds) {
+  public ManageableRegion getHighestLevelRegion(IdentifierBundle regionIds) {
     RegionSearchRequest request = new RegionSearchRequest();
     request.addIdentifierBundle(regionIds);
     request.setPagingRequest(PagingRequest.ONE);

@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.Holiday;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -117,7 +116,7 @@ public class MasterHolidaySource implements HolidaySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Holiday getHoliday(UniqueIdentifier uid) {
+  public ManageableHoliday getHoliday(UniqueIdentifier uid) {
     try {
       return getHolidayMaster().get(uid).getHoliday();
     } catch (DataNotFoundException ex) {
