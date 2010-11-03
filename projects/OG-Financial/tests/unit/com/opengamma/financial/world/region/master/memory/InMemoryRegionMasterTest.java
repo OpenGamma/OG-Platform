@@ -22,7 +22,7 @@ import com.opengamma.financial.world.region.master.loader.RegionFileReader;
  * Test InMemoryRegionRepository.
  * This also tests the data load.
  */
-public class InMemoryRegionRepositoryTest {
+public class InMemoryRegionMasterTest {
 
   private static RegionMaster _regionMaster;
 

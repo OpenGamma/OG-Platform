@@ -44,7 +44,7 @@ public class InMemoryRegionMaster implements RegionMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemReg";
 
   /**
    * A cache of regions by identifier.
