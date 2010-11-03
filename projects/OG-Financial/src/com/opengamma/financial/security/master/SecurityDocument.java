@@ -169,6 +169,7 @@ public class SecurityDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the security is accurate for.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the value of the property
    */
   public Instant getVersionFromInstant() {
@@ -177,6 +178,7 @@ public class SecurityDocument extends DirectBean {
 
   /**
    * Sets the start of an interval that the version of the security is accurate for.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @param versionFromInstant  the new value of the property
    */
   public void setVersionFromInstant(Instant versionFromInstant) {
@@ -185,6 +187,7 @@ public class SecurityDocument extends DirectBean {
 
   /**
    * Gets the the {@code versionFromInstant} property.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionFromInstant() {
@@ -195,6 +198,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Gets the end of an interval that the version of the security is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the value of the property
    */
   public Instant getVersionToInstant() {
@@ -204,6 +208,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Sets the end of an interval that the version of the security is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @param versionToInstant  the new value of the property
    */
   public void setVersionToInstant(Instant versionToInstant) {
@@ -213,6 +218,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Gets the the {@code versionToInstant} property.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionToInstant() {
@@ -222,6 +228,7 @@ public class SecurityDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the correction of the version of the security is accurate for.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionFromInstant() {
@@ -230,6 +237,7 @@ public class SecurityDocument extends DirectBean {
 
   /**
    * Sets the start of an interval that the correction of the version of the security is accurate for.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @param correctionFromInstant  the new value of the property
    */
   public void setCorrectionFromInstant(Instant correctionFromInstant) {
@@ -238,6 +246,7 @@ public class SecurityDocument extends DirectBean {
 
   /**
    * Gets the the {@code correctionFromInstant} property.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionFromInstant() {
@@ -248,6 +257,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Gets the end of an interval that the correction of the version of the security is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionToInstant() {
@@ -257,6 +267,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Sets the end of an interval that the correction of the version of the security is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @param correctionToInstant  the new value of the property
    */
   public void setCorrectionToInstant(Instant correctionToInstant) {
@@ -266,6 +277,7 @@ public class SecurityDocument extends DirectBean {
   /**
    * Gets the the {@code correctionToInstant} property.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code SecurityMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionToInstant() {

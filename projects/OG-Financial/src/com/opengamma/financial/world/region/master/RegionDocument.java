@@ -187,6 +187,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the region is accurate for.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the value of the property
    */
   public Instant getVersionFromInstant() {
@@ -195,6 +196,7 @@ public class RegionDocument extends DirectBean implements Serializable {
 
   /**
    * Sets the start of an interval that the version of the region is accurate for.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @param versionFromInstant  the new value of the property
    */
   public void setVersionFromInstant(Instant versionFromInstant) {
@@ -203,6 +205,7 @@ public class RegionDocument extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code versionFromInstant} property.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionFromInstant() {
@@ -213,6 +216,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Gets the end of an interval that the version of the region is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the value of the property
    */
   public Instant getVersionToInstant() {
@@ -222,6 +226,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Sets the end of an interval that the version of the region is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @param versionToInstant  the new value of the property
    */
   public void setVersionToInstant(Instant versionToInstant) {
@@ -231,6 +236,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Gets the the {@code versionToInstant} property.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionToInstant() {
@@ -240,6 +246,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the correction of the version of the region is accurate for.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionFromInstant() {
@@ -248,6 +255,7 @@ public class RegionDocument extends DirectBean implements Serializable {
 
   /**
    * Sets the start of an interval that the correction of the version of the region is accurate for.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @param correctionFromInstant  the new value of the property
    */
   public void setCorrectionFromInstant(Instant correctionFromInstant) {
@@ -256,6 +264,7 @@ public class RegionDocument extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code correctionFromInstant} property.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionFromInstant() {
@@ -266,6 +275,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Gets the end of an interval that the correction of the version of the region is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionToInstant() {
@@ -275,6 +285,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Sets the end of an interval that the correction of the version of the region is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @param correctionToInstant  the new value of the property
    */
   public void setCorrectionToInstant(Instant correctionToInstant) {
@@ -284,6 +295,7 @@ public class RegionDocument extends DirectBean implements Serializable {
   /**
    * Gets the the {@code correctionToInstant} property.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code RegionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionToInstant() {

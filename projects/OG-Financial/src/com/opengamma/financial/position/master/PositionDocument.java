@@ -251,6 +251,7 @@ public class PositionDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the value of the property
    */
   public Instant getVersionFromInstant() {
@@ -259,6 +260,7 @@ public class PositionDocument extends DirectBean {
 
   /**
    * Sets the start of an interval that the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @param versionFromInstant  the new value of the property
    */
   public void setVersionFromInstant(Instant versionFromInstant) {
@@ -267,6 +269,7 @@ public class PositionDocument extends DirectBean {
 
   /**
    * Gets the the {@code versionFromInstant} property.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionFromInstant() {
@@ -277,6 +280,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Gets the end of an interval that the version of the position is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the value of the property
    */
   public Instant getVersionToInstant() {
@@ -286,6 +290,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Sets the end of an interval that the version of the position is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @param versionToInstant  the new value of the property
    */
   public void setVersionToInstant(Instant versionToInstant) {
@@ -295,6 +300,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Gets the the {@code versionToInstant} property.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionToInstant() {
@@ -304,6 +310,7 @@ public class PositionDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the correction of the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionFromInstant() {
@@ -312,6 +319,7 @@ public class PositionDocument extends DirectBean {
 
   /**
    * Sets the start of an interval that the correction of the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @param correctionFromInstant  the new value of the property
    */
   public void setCorrectionFromInstant(Instant correctionFromInstant) {
@@ -320,6 +328,7 @@ public class PositionDocument extends DirectBean {
 
   /**
    * Gets the the {@code correctionFromInstant} property.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionFromInstant() {
@@ -330,6 +339,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Gets the end of an interval that the correction of the version of the position is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the value of the property
    */
   public Instant getCorrectionToInstant() {
@@ -339,6 +349,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Sets the end of an interval that the correction of the version of the position is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @param correctionToInstant  the new value of the property
    */
   public void setCorrectionToInstant(Instant correctionToInstant) {
@@ -348,6 +359,7 @@ public class PositionDocument extends DirectBean {
   /**
    * Gets the the {@code correctionToInstant} property.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code PositionMaster}.
    * @return the property, not null
    */
   public final Property<Instant> correctionToInstant() {
