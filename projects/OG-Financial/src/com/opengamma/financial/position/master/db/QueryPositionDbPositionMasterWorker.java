@@ -26,8 +26,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
@@ -91,8 +91,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionDocument getPositionByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getPositionByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(uid, now, now);
-    final PositionSearchHistoricResult result = getMaster().searchPositionHistoric(request);
+    final PositionHistoryRequest request = new PositionHistoryRequest(uid, now, now);
+    final PositionHistoryResult result = getMaster().historyPosition(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Position not found: " + uid);
     }
@@ -186,7 +186,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  protected PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
+  protected PositionHistoryResult searchPositionHistoric(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_oid", extractOid(request.getPositionId()))
@@ -197,7 +197,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     final String[] sql = sqlSearchPositionHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
+    final PositionHistoryResult result = new PositionHistoryResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
@@ -211,7 +211,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchPositionHistoric(final PositionSearchHistoricRequest request) {
+  protected String[] sqlSearchPositionHistoric(final PositionHistoryRequest request) {
     String where = "WHERE oid = :position_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";

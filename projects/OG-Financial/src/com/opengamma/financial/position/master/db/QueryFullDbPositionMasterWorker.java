@@ -31,8 +31,8 @@ import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -81,11 +81,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   protected Position getFullPosition(final FullPositionGetRequest request) {
     s_logger.debug("getFullPosition: {}", request);
     final Instant now = Instant.now(getTimeSource());
-    final PositionSearchHistoricRequest searchRequest = new PositionSearchHistoricRequest(
+    final PositionHistoryRequest searchRequest = new PositionHistoryRequest(
         request.getPositionId(),
         Objects.firstNonNull(request.getVersionAsOfInstant(), now),
         Objects.firstNonNull(request.getCorrectedToInstant(), now));
-    final PositionSearchHistoricResult searchResult = getMaster().searchPositionHistoric(searchRequest);
+    final PositionHistoryResult searchResult = getMaster().historyPosition(searchRequest);
     final ManageablePosition firstPosition = searchResult.getFirstPosition();
     if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;

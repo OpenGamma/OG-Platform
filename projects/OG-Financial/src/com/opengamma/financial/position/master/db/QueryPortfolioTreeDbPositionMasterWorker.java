@@ -26,8 +26,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -95,9 +95,9 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   protected PortfolioTreeDocument getPortfolioTreeByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getPortfolioTreeByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final PortfolioTreeSearchHistoricRequest request = new PortfolioTreeSearchHistoricRequest(uid, now, now);
+    final PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(uid, now, now);
     request.setDepth(-1);
-    final PortfolioTreeSearchHistoricResult result = getMaster().searchPortfolioTreeHistoric(request);
+    final PortfolioTreeHistoryResult result = getMaster().historyPortfolioTree(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
     }
@@ -220,7 +220,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  protected PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
+  protected PortfolioTreeHistoryResult searchPortfolioTreeHistoric(final PortfolioTreeHistoryRequest request) {
     s_logger.debug("searchPortfolioTreeHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("portfolio_oid", extractOid(request.getPortfolioId()))
@@ -232,7 +232,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     final String[] sql = sqlSearchPortfolioTreeHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final PortfolioTreeSearchHistoricResult result = new PortfolioTreeSearchHistoricResult();
+    final PortfolioTreeHistoryResult result = new PortfolioTreeHistoryResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
@@ -246,7 +246,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
+  protected String[] sqlSearchPortfolioTreeHistoric(final PortfolioTreeHistoryRequest request) {
     String where = "WHERE oid = :portfolio_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       where += "AND (ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant) ";
