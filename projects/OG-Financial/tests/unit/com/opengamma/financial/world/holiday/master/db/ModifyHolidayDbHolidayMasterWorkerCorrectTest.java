@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -126,8 +126,8 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getHoliday(), old.getHoliday());
     
-    HolidaySearchHistoricRequest search = new HolidaySearchHistoricRequest(base.getHolidayId(), now, null);
-    HolidaySearchHistoricResult searchResult = _queryWorker.searchHistoric(search);
+    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getHolidayId(), now, null);
+    HolidayHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

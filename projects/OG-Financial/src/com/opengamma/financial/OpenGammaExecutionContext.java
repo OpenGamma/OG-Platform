@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.world.exchange.master.ExchangeSource;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.RegionSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -22,7 +22,7 @@ import com.opengamma.financial.world.region.RegionSource;
 public final class OpenGammaExecutionContext {
 
   /**
-   * The name under which an instance of {@link TimeSeriesSource} should be bound.
+   * The name under which an instance of {@link HistoricalDataSource} should be bound.
    */
   public static final String HISTORICAL_DATA_SOURCE_NAME = "historicalDataSource";
   /**
@@ -42,7 +42,7 @@ public final class OpenGammaExecutionContext {
    */
   public static final String CONFIG_SOURCE_NAME = "configSource";
   /**
-   * The name under which an instance of {@link {ExchangeSource} should be bound.
+   * The name under which an instance of {@link ExchangeSource} should be bound.
    */
   public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
 

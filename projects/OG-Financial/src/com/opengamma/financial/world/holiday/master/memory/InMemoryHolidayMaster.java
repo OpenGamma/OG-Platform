@@ -17,8 +17,8 @@ import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
@@ -41,7 +41,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemHol";
 
   /**
    * A cache of holidays by identifier.
@@ -79,8 +79,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getRegionId() != null &&
-            request.getProviderId().equals(doc.getProviderId());
+          return request.getProviderId().equals(doc.getProviderId());
         }
       });
     }
@@ -154,6 +153,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueIdentifier(uid);
+    document.setHolidayId(uid);
     final Instant now = Instant.nowSystemClock();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
@@ -199,11 +199,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidaySearchHistoricResult searchHistoric(final HolidaySearchHistoricRequest request) {
+  public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
     
-    final HolidaySearchHistoricResult result = new HolidaySearchHistoricResult();
+    final HolidayHistoryResult result = new HolidayHistoryResult();
     final HolidayDocument doc = get(request.getHolidayId());
     if (doc != null) {
       result.getDocuments().add(doc);

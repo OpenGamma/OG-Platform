@@ -31,9 +31,9 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.financial.world.region.master.RegionSource;
 import com.opengamma.id.Identifier;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -57,11 +57,11 @@ public class TenorSwapSecurityToTenorSwapConverter {
   
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
   protected Calendar getCalendar(Identifier regionId) {
-    if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
+    if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
       String[] regions = regionId.getValue().split("\\+");
       Set<Region> resultRegions = new HashSet<Region>();
       for (String region : regions) {
-        resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));
+        resultRegions.add(_regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(_holidaySource, resultRegions);
     } else {

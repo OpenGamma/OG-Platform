@@ -8,9 +8,11 @@ package com.opengamma.financial.world.holiday.master;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.world.holiday.Holiday;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A source of holiday information as accessed by the main application.
@@ -19,6 +21,15 @@ import com.opengamma.id.IdentifierBundle;
  * This may be backed by a full-featured holiday master, or by a much simpler data structure.
  */
 public interface HolidaySource {
+
+  /**
+   * Finds a specific holiday by unique identifier.
+   * 
+   * @param uid  the unique identifier, null returns null
+   * @return the holiday, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
+   */
+  Holiday getHoliday(UniqueIdentifier uid);
 
   /**
    * Checks if a date is a holiday for a CURRENCY type.

@@ -16,7 +16,7 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Returned by a {@link FunctionResolver} to do the actual resolution.
+ * Returned by a {@link FunctionResolver} to do the actual resolution for a specific timestamp.
  */
 @PublicAPI
 public interface CompiledFunctionResolver {

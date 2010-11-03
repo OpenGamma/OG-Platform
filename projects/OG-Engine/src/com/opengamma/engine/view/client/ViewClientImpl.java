@@ -20,7 +20,7 @@ import com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProvide
 import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**

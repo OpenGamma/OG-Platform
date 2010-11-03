@@ -17,14 +17,14 @@ import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -203,12 +203,12 @@ public class DbPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(final PortfolioTreeSearchHistoricRequest request) {
+  public PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
     checkScheme(request.getPortfolioId());
     
-    return getWorkers().getSearchHistoricPortfolioTreesWorker().searchPortfolioTreeHistoric(request);
+    return getWorkers().getHistoryPortfolioTreesWorker().historyPortfolioTree(request);
   }
 
   //-------------------------------------------------------------------------
@@ -271,12 +271,12 @@ public class DbPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
+  public PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     checkScheme(request.getPositionId());
     
-    return getWorkers().getSearchHistoricPositionsWorker().searchPositionHistoric(request);
+    return getWorkers().getHistoryPositionsWorker().historyPosition(request);
   }
 
   //-------------------------------------------------------------------------

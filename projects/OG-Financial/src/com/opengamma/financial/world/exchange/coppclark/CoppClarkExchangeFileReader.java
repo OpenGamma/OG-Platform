@@ -21,15 +21,14 @@ import org.apache.commons.lang.StringUtils;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.exchange.ExchangeCalendarEntry;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
-import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
+import com.opengamma.financial.world.exchange.master.ManageableExchangeCalendarEntry;
+import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
@@ -62,11 +61,14 @@ public class CoppClarkExchangeFileReader {
   /**
    * The exchange source to populate.
    */
-  private ExchangeSource _exchangeSource;
+  private MasterExchangeSource _exchangeSource;
 
   /**
-   * Creates a populated in-memory exchange source.
-   * @return the exchange source, not null
+   * Creates a populated in-memory master and source.
+   * <p>
+   * The values can be extracted using the accessor methods.
+   * 
+   * @return the exchange reader, not null
    */
   public static CoppClarkExchangeFileReader createPopulated() {
     CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader();
@@ -104,7 +106,7 @@ public class CoppClarkExchangeFileReader {
    * Gets the exchange source.
    * @return the exchange source, not null
    */
-  public ExchangeSource getExchangeSource() {
+  public MasterExchangeSource getExchangeSource() {
     return _exchangeSource;
   }
 
@@ -129,21 +131,21 @@ public class CoppClarkExchangeFileReader {
 
   private void readLine(String[]rawFields) {
     String countryISO = rawFields[2];
-    Identifier region = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, countryISO);
+    Identifier region = RegionUtils.countryRegionId(countryISO);
     String exchangeMIC = rawFields[3];
     Identifier mic = Identifier.of(ExchangeUtils.ISO_MIC, exchangeMIC);
     String exchangeName = rawFields[4];
     Identifier coppClarkName = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, exchangeName);
     IdentifierBundle identifiers = IdentifierBundle.of(mic, coppClarkName);
-    Exchange exchange = _exchangeSource.getSingleExchange(identifiers);
+    ManageableExchange exchange = _exchangeSource.getSingleExchange(identifiers);
     if (exchange == null) {
-      ExchangeDocument addDoc = new ExchangeDocument(new Exchange(identifiers, exchangeName, region));
-      exchange = _exchangeMaster.addExchange(addDoc).getExchange();
+      ExchangeDocument addDoc = new ExchangeDocument(new ManageableExchange(identifiers, exchangeName, region));
+      exchange = _exchangeMaster.add(addDoc).getExchange();
     }
     exchange.getCalendarEntries().add(readCalendarEntryLine(rawFields));    
   }
 
-  private ExchangeCalendarEntry readCalendarEntryLine(String[] rawFields) {
+  private ManageableExchangeCalendarEntry readCalendarEntryLine(String[] rawFields) {
     String group = optionalStringField(rawFields[5]);
     String product = requiredStringField(rawFields[6]);
     String type = optionalStringField(rawFields[7]); // should be required, but isn't there on one entry.
@@ -163,7 +165,7 @@ public class CoppClarkExchangeFileReader {
     LocalDate lastConfirmed = parseDate(rawFields[21]);
     String notes = optionalStringField(rawFields[22]);
     TimeZone timeZone = TimeZone.of(requiredStringField(rawFields[27]));
-    return new ExchangeCalendarEntry(group, product, type, code, calStart, calEnd, dayStart, rangeType, dayEnd, 
+    return new ManageableExchangeCalendarEntry(group, product, type, code, calStart, calEnd, dayStart, rangeType, dayEnd, 
                                      phase, phaseStarts, phaseEnds, randomStartMin, randomStartMax, 
                                      randomEndMin, randomEndMax, lastConfirmed, notes, timeZone);
   }

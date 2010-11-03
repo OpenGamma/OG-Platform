@@ -23,8 +23,8 @@ import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
@@ -87,9 +87,9 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   protected SecurityDocument getByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getSecurityByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(uid, now, now);
+    final SecurityHistoryRequest request = new SecurityHistoryRequest(uid, now, now);
     request.setFullDetail(true);
-    final SecuritySearchHistoricResult result = getMaster().searchHistoric(request);
+    final SecurityHistoryResult result = getMaster().history(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Security not found: " + uid);
     }
@@ -200,7 +200,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
+  protected SecurityHistoryResult history(final SecurityHistoryRequest request) {
     s_logger.debug("searchSecurityHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("security_oid", extractOid(request.getSecurityId()))
@@ -211,7 +211,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     final String[] sql = sqlSearchSecurityHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
+    final SecurityHistoryResult result = new SecurityHistoryResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
@@ -228,7 +228,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchSecurityHistoric(final SecuritySearchHistoricRequest request) {
+  protected String[] sqlSearchSecurityHistoric(final SecurityHistoryRequest request) {
     String where = "WHERE oid = :security_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";

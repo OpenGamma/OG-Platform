@@ -27,8 +27,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -165,9 +165,9 @@ public class SecurityMasterResource {
 
   @POST
   @Path(SECURITYMASTER_HISTORIC)
-  public FudgeMsgEnvelope searchHistoric(final FudgeMsgEnvelope payload) {
-    final SecuritySearchHistoricRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecuritySearchHistoricRequest.class, payload.getMessage());
-    final SecuritySearchHistoricResult result = getSecurityMaster().searchHistoric(request);
+  public FudgeMsgEnvelope history(final FudgeMsgEnvelope payload) {
+    final SecurityHistoryRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecurityHistoryRequest.class, payload.getMessage());
+    final SecurityHistoryResult result = getSecurityMaster().history(request);
     return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
   }
 

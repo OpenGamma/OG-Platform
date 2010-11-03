@@ -26,11 +26,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -75,7 +75,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      ExchangeSearchResult searchResult = data().getExchangeMaster().searchExchanges(searchRequest);
+      ExchangeSearchResult searchResult = data().getExchangeMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
@@ -118,9 +118,9 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     }
     Identifier id = Identifier.of(idScheme, idValue);
     Identifier region = Identifier.of(regionScheme, regionValue);
-    Exchange exchange = new Exchange(IdentifierBundle.of(id), name, region);
+    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, region);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument added = data().getExchangeMaster().addExchange(doc);
+    ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
@@ -129,7 +129,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @Path("{exchangeId}")
   public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
-    ExchangeDocument exchangeDoc = data().getExchangeMaster().getExchange(UniqueIdentifier.parse(idStr));
+    ExchangeDocument exchangeDoc = data().getExchangeMaster().get(UniqueIdentifier.parse(idStr));
     data().setExchange(exchangeDoc);
     return new WebExchangeResource(this);
   }

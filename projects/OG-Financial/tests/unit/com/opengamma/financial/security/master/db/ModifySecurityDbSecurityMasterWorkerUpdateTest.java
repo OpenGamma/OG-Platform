@@ -22,8 +22,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -124,8 +124,8 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getSecurity(), old.getSecurity());
     
-    SecuritySearchHistoricRequest search = new SecuritySearchHistoricRequest(base.getSecurityId(), null, now);
-    SecuritySearchHistoricResult searchResult = _queryWorker.searchHistoric(search);
+    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getSecurityId(), null, now);
+    SecurityHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

@@ -12,16 +12,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
-import com.opengamma.id.Identifier;
+import com.opengamma.financial.world.region.RegionUtils;
 
 @Ignore
 public class RegionTest extends FinancialTestBase {
+
   private final Logger s_logger = LoggerFactory.getLogger(getClass());
   
   private Region getRef() {
-    return getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "GB"));
+    return getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("GB"));
   }
 
   @Test

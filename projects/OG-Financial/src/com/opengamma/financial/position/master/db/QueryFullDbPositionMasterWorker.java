@@ -31,8 +31,8 @@ import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -81,11 +81,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   protected Position getFullPosition(final FullPositionGetRequest request) {
     s_logger.debug("getFullPosition: {}", request);
     final Instant now = Instant.now(getTimeSource());
-    final PositionSearchHistoricRequest searchRequest = new PositionSearchHistoricRequest(
+    final PositionHistoryRequest searchRequest = new PositionHistoryRequest(
         request.getPositionId(),
         Objects.firstNonNull(request.getVersionAsOfInstant(), now),
         Objects.firstNonNull(request.getCorrectedToInstant(), now));
-    final PositionSearchHistoricResult searchResult = getMaster().searchPositionHistoric(searchRequest);
+    final PositionHistoryResult searchResult = getMaster().historyPosition(searchRequest);
     final ManageablePosition firstPosition = searchResult.getFirstPosition();
     if (firstPosition == null || (request.getPositionId().isVersioned() && request.getPositionId().equals(firstPosition.getUniqueIdentifier()) == false)) {
       return null;
@@ -104,7 +104,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolio(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
-    return (Portfolio) namedJdbc.query(sql, args, extractor);
+    return namedJdbc.query(sql, args, extractor);
   }
 
   /**
@@ -160,7 +160,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
-    Portfolio portfolio = (Portfolio) namedJdbc.query(sql, args, extractor);
+    Portfolio portfolio = namedJdbc.query(sql, args, extractor);
     return (portfolio != null ? portfolio.getRootNode() : null);
   }
 
@@ -217,11 +217,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   /**
    * Mapper from SQL rows to a Portfolio.
    */
-  protected final class FullPortfolioDocumentExtractor implements ResultSetExtractor {
+  protected final class FullPortfolioDocumentExtractor implements ResultSetExtractor<Portfolio> {
     private final Stack<LongObjectPair<PortfolioNodeImpl>> _nodes = new Stack<LongObjectPair<PortfolioNodeImpl>>();
 
     @Override
-    public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Portfolio extractData(ResultSet rs) throws SQLException, DataAccessException {
       String fixedInstants = null;
       PortfolioImpl portfolio = null;
       long lastNodeId = -1;

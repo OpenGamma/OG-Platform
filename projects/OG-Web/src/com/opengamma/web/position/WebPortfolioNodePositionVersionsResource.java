@@ -17,8 +17,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -39,8 +39,8 @@ public class WebPortfolioNodePositionVersionsResource extends AbstractWebPortfol
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(data().getPosition().getPositionId());
-    PositionSearchHistoricResult result = data().getPositionMaster().searchPositionHistoric(request);
+    PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getPositionId());
+    PositionHistoryResult result = data().getPositionMaster().historyPosition(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);

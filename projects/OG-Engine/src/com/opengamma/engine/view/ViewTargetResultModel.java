@@ -17,8 +17,19 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public interface ViewTargetResultModel {
 
+  /**
+   * Returns all configuration names this target was defined in.
+   * 
+   * @return the configuration names
+   */
   Collection<String> getCalculationConfigurationNames();
 
+  /**
+   * Returns all of the values calculated for a target for a given configuration.
+   * 
+   * @param calcConfigurationName the calculation configuration
+   * @return the values as a map of value name to computed value, or {@code null} if the configuration name is invalid
+   */
   Map<String, ComputedValue> getValues(String calcConfigurationName);
 
 }

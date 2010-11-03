@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -122,8 +122,8 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getSecurity(), old.getSecurity());
     
-    SecuritySearchHistoricRequest search = new SecuritySearchHistoricRequest(base.getSecurityId(), now, null);
-    SecuritySearchHistoricResult searchResult = _queryWorker.searchHistoric(search);
+    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getSecurityId(), now, null);
+    SecurityHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

@@ -8,7 +8,6 @@ package com.opengamma.financial.batch;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
@@ -26,8 +25,6 @@ import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.financial.world.holiday.coppclark.CoppClarkHolidayFileReader;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
-import com.opengamma.financial.world.region.RegionFileReader;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -95,10 +92,6 @@ public class BatchJobTest {
   
   @Test
   public void dateRangeCommandLineHolidayMaster() {
-    InMemoryRegionMaster regionRepo = new InMemoryRegionMaster();
-    RegionFileReader.populateMaster(regionRepo, new File(RegionFileReader.REGIONS_FILE_PATH));
-//    RegionSource regionSource = new DefaultRegionSource(regionRepo);
-//    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
     HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster());
     
     BatchJob job = new BatchJob();

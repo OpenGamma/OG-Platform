@@ -51,9 +51,8 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   @PropertyDefinition
   private HolidayType _type;
   /**
-   * The identifier of the data provider.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
+   * The identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
   private Identifier _providerId;
@@ -69,7 +68,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   private Currency _currency;
   /**
    * The region identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday region identifier matches on of the search identifiers.
+   * This will return holidays where the holiday region identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    */
@@ -77,7 +76,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   private IdentifierBundle _regionIdentifiers;
   /**
    * The exchange identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday exchange identifier matches on of the search identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    */
@@ -308,9 +307,8 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
+   * Gets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
   public Identifier getProviderId() {
@@ -318,9 +316,8 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   }
 
   /**
-   * Sets the identifier of the data provider.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
+   * Sets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
    * @param providerId  the new value of the property
    */
   public void setProviderId(Identifier providerId) {
@@ -329,8 +326,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code providerId} property.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
+   * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
   public final Property<Identifier> providerId() {
@@ -390,7 +386,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the region identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday region identifier matches on of the search identifiers.
+   * This will return holidays where the holiday region identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @return the value of the property
@@ -401,7 +397,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   /**
    * Sets the region identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday region identifier matches on of the search identifiers.
+   * This will return holidays where the holiday region identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @param regionIdentifiers  the new value of the property
@@ -412,7 +408,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code regionIdentifiers} property.
-   * This will return holidays where the holiday region identifier matches on of the search identifiers.
+   * This will return holidays where the holiday region identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @return the property, not null
@@ -424,7 +420,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the exchange identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday exchange identifier matches on of the search identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @return the value of the property
@@ -435,7 +431,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   /**
    * Sets the exchange identifiers to match, null to not match on this field.
-   * This will return holidays where the holiday exchange identifier matches on of the search identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @param exchangeIdentifiers  the new value of the property
@@ -446,7 +442,7 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code exchangeIdentifiers} property.
-   * This will return holidays where the holiday exchange identifier matches on of the search identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
    * Note that an empty bundle will not match any holidays, whereas a null bundle places
    * no restrictions on the result.
    * @return the property, not null

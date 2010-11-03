@@ -111,6 +111,11 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   private final Map<String, Integer> _riskValueName2Id = new HashMap<String, Integer>();
   
   /**
+   * -> references rsk_function_unique_id(id)
+   */
+  private final Map<String, Integer> _functionUniqueId2Id = new HashMap<String, Integer>();
+  
+  /**
    * -> references rsk_compute_node(id)
    */
   private final Map<String, Integer> _computeNodeId2Id = 
@@ -373,6 +378,38 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     _riskValueName2Id.put(name, dbId);
     return dbId;
   }
+  
+  public int getFunctionUniqueId(String uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "Function unique ID");
+    
+    Integer dbId = _functionUniqueId2Id.get(uniqueId);
+    if (dbId != null) {
+      return dbId;
+    }
+
+    BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+    dbManager.setDbSource(_dbSource);
+    
+    // try twice to handle situation where two threads contend to insert
+    RuntimeException lastException = null;
+    for (int i = 0; i < 2; i++) {
+      try {
+        getSessionFactory().getCurrentSession().beginTransaction();
+        dbId = dbManager.getFunctionUniqueId(uniqueId).getId();
+        getSessionFactory().getCurrentSession().getTransaction().commit();
+        lastException = null;
+        break;
+      } catch (RuntimeException e) {
+        getSessionFactory().getCurrentSession().getTransaction().rollback();
+        lastException = e;
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
+    _functionUniqueId2Id.put(uniqueId, dbId);
+    return dbId;
+  }
 
   public Integer getRiskRunId() {
     return _riskRunId;
@@ -520,18 +557,21 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
           }
           
           Object outputValue = cache.getValue(output);
+          @SuppressWarnings("unchecked")
           ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(outputValue);
           Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
-  
+          
           int computationTargetId = getComputationTargetId(output.getTargetSpecification());
           
           for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
             int valueNameId = getValueNameId(riskValueEntry.getKey());
+            int functionUniqueId = getFunctionUniqueId(output.getFunctionUniqueId());
 
             RiskValue riskValue = new RiskValue();
             riskValue.setId(generateUniqueId());
             riskValue.setCalculationConfigurationId(calcConfId);
             riskValue.setValueNameId(valueNameId);
+            riskValue.setFunctionUniqueId(functionUniqueId);
             riskValue.setComputationTargetId(computationTargetId);
             riskValue.setRunId(riskRunId);
             riskValue.setValue(riskValueEntry.getValue());
@@ -553,12 +593,14 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         for (ValueSpecification outputValue : item.getOutputs()) {
           
           int valueNameId = getValueNameId(outputValue.getValueName());
+          int functionUniqueId = getFunctionUniqueId(outputValue.getFunctionUniqueId());
           int computationTargetId = getComputationTargetId(outputValue.getTargetSpecification());
         
           RiskFailure failure = new RiskFailure();
           failure.setId(generateUniqueId());
           failure.setCalculationConfigurationId(calcConfId);
           failure.setValueNameId(valueNameId);
+          failure.setFunctionUniqueId(functionUniqueId);
           failure.setComputationTargetId(computationTargetId);
           failure.setRunId(riskRunId);
           failure.setEvalInstant(evalInstant);
@@ -1045,7 +1087,9 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   
   
   /**
-   * Useful in tests
+   * Useful in tests. Assumes there is only one value for the
+   * given computation target with the given name
+   * (i.e., that no two functions produce the same value).
    * 
    * @param calcConfName Calc conf name
    * @param valueName Value name

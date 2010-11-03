@@ -17,13 +17,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricResult;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -41,7 +41,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemExg";
 
   /**
    * A cache of exchanges by identifier.
@@ -71,7 +71,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchResult searchExchanges(final ExchangeSearchRequest request) {
+  public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final ExchangeSearchResult result = new ExchangeSearchResult();
     Collection<ExchangeDocument> docs = _exchanges.values();
@@ -103,7 +103,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument getExchange(final UniqueIdentifier uid) {
+  public ExchangeDocument get(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final ExchangeDocument document = _exchanges.get(uid);
     if (document == null) {
@@ -114,13 +114,14 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument addExchange(final ExchangeDocument document) {
+  public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
     final UniqueIdentifier uid = _uidSupplier.get();
-    final Exchange exchange = document.getExchange().clone();
+    final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueIdentifier(uid);
+    document.setExchangeId(uid);
     final Instant now = Instant.nowSystemClock();
     final ExchangeDocument doc = new ExchangeDocument();
     doc.setExchange(exchange);
@@ -133,7 +134,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument updateExchange(final ExchangeDocument document) {
+  public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
@@ -156,7 +157,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void removeExchange(final UniqueIdentifier uid) {
+  public void remove(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
     if (_exchanges.remove(uid) == null) {
@@ -166,12 +167,12 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchHistoricResult searchHistoricExchange(final ExchangeSearchHistoricRequest request) {
+  public ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
     
-    final ExchangeSearchHistoricResult result = new ExchangeSearchHistoricResult();
-    final ExchangeDocument doc = getExchange(request.getExchangeId());
+    final ExchangeHistoryResult result = new ExchangeHistoryResult();
+    final ExchangeDocument doc = get(request.getExchangeId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
@@ -180,8 +181,8 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   }
 
   @Override
-  public ExchangeDocument correctExchange(final ExchangeDocument document) {
-    return updateExchange(document);
+  public ExchangeDocument correct(final ExchangeDocument document) {
+    return update(document);
   }
 
 }

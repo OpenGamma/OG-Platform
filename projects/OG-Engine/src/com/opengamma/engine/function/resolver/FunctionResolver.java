@@ -17,6 +17,13 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public interface FunctionResolver {
 
+  /**
+   * Returns a {@link CompiledFunctionResolver} to perform the actual resolution with functions compiled for use at the given
+   * snapshot time.
+   * 
+   * @param atInstant snapshot time the functions will be used at
+   * @return the function resolver
+   */
   CompiledFunctionResolver compile(InstantProvider atInstant);
 
 }

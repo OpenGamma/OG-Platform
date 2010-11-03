@@ -10,12 +10,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.apache.http.util.LangUtils;
 
 /**
- * An immutable pair consisting of an {@code int} and {@code double}.
+ * An immutable pair consisting of an {@code int} and {@code Object}.
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
+ * <p>
+ * This class is immutable and thread-safe if the stored object is immutable.
  *
- * @param <T> The entity type for the Second side of the underlying Pair.
+ * @param <T> the type of the second side of the pair
  */
 public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
 
@@ -26,6 +28,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
 
   /**
    * Creates a pair inferring the types.
+   * 
    * @param <B> the second element type
    * @param first  the first element, may be null
    * @param second  the second element, may be null
@@ -37,6 +40,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
 
   /**
    * Constructor.
+   * 
    * @param first  the first element
    * @param second  the second element
    */

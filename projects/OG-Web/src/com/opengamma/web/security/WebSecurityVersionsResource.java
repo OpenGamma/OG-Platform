@@ -16,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -38,9 +38,9 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest();
+    SecurityHistoryRequest request = new SecurityHistoryRequest();
     request.setSecurityId(data().getSecurity().getSecurityId());
-    SecuritySearchHistoricResult result = data().getSecurityMaster().searchHistoric(request);
+    SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);

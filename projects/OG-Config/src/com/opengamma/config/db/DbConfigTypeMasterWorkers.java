@@ -25,7 +25,7 @@ public class DbConfigTypeMasterWorkers<T> {
   /** Worker. */
   private DbConfigTypeMasterWorker<T> _removeWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
-  private DbConfigTypeMasterWorker<T> _searchHistoricWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
+  private DbConfigTypeMasterWorker<T> _historyWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
 
   /**
    * Creates an instance.
@@ -43,7 +43,7 @@ public class DbConfigTypeMasterWorkers<T> {
     _addWorker.init(master);
     _updateWorker.init(master);
     _removeWorker.init(master);
-    _searchHistoricWorker.init(master);
+    _historyWorker.init(master);
   }
 
   //-------------------------------------------------------------------------
@@ -133,19 +133,19 @@ public class DbConfigTypeMasterWorkers<T> {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchHistoricWorker field.
-   * @return the searchHistoricWorker
+   * Gets the historyWorker field.
+   * @return the historyWorker
    */
-  public DbConfigTypeMasterWorker<T> getSearchHistoricWorker() {
-    return _searchHistoricWorker;
+  public DbConfigTypeMasterWorker<T> getHistoryWorker() {
+    return _historyWorker;
   }
 
   /**
-   * Sets the searchHistoricWorker field.
-   * @param searchHistoricWorker  the searchHistoricWorker
+   * Sets the historyWorker field.
+   * @param historyWorker  the historyWorker
    */
-  public void setSearchHistoricWorker(DbConfigTypeMasterWorker<T> searchHistoricWorker) {
-    _searchHistoricWorker = searchHistoricWorker;
+  public void setHistoryWorker(DbConfigTypeMasterWorker<T> historyWorker) {
+    _historyWorker = historyWorker;
   }
 
   //-------------------------------------------------------------------------

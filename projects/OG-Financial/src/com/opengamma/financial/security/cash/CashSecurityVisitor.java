@@ -7,7 +7,7 @@
 package com.opengamma.financial.security.cash;
 
 /**
- * Visitor for the CashSecurity subclasses.
+ * Visitor for the {@code CashSecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.position.Position;
@@ -47,7 +48,7 @@ public final class ValueRequirement implements Serializable {
   private final ValueProperties _constraints;
 
   /**
-   * Creates a requirement.
+   * Creates a requirement with no value constraints.
    * @param valueName  the value to load, not null
    * @param targetType  the target type, not null
    * @param targetIdentifier  the target identifier, may be null
@@ -56,12 +57,19 @@ public final class ValueRequirement implements Serializable {
     this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier));
   }
 
+  /**
+   * Creates a requirement with value constraints.
+   * @param valueName the name of the value to load, not {@code null}
+   * @param targetType the target type, not {@code null}
+   * @param targetIdentifier the unique identifier of the target, not {@code null}
+   * @param constraints value constraints that must be satisfied
+   */
   public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier), constraints);
   }
 
   /**
-   * Creates a requirement from an object.
+   * Creates a requirement from an object with no value constraints.
    * Example objects are {@link Position} and {@link Security}.
    * @param valueName  the value to load, not null
    * @param target  the target object, may be null
@@ -70,12 +78,19 @@ public final class ValueRequirement implements Serializable {
     this(valueName, new ComputationTargetSpecification(target));
   }
 
+  /**
+   * Creates a requirement from an object with value constraints.
+   * Example objects are {@link Position} and {@link Security}.
+   * @param valueName the name of the value to load, not {@code null}
+   * @param target the target object, may be {@code null}
+   * @param constraints value constraints that must be satisfied
+   */
   public ValueRequirement(String valueName, Object target, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(target), constraints);
   }
 
   /**
-   * Creates a requirement.
+   * Creates a requirement from a target specification with no value constraints.
    * @param valueName  the value to load, not null
    * @param targetSpecification  the target specification, not null
    */
@@ -83,6 +98,12 @@ public final class ValueRequirement implements Serializable {
     this(valueName, targetSpecification, ValueProperties.none());
   }
 
+  /**
+   * Creates a requirement from a target specification with value constraints.
+   * @param valueName the name of the value to load, not {@code null}
+   * @param targetSpecification the target specification, not {@code null}
+   * @param constraints the value constraints that must be satisfied
+   */
   public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification, ValueProperties constraints) {
     ArgumentChecker.notNull(valueName, "Value name");
     ArgumentChecker.notNull(targetSpecification, "Computation target specification");
@@ -109,10 +130,23 @@ public final class ValueRequirement implements Serializable {
     return _targetSpecification;
   }
 
+  /**
+   * Returns the constraints that must be satisfied.
+   * 
+   * @return the constraints
+   */
   public ValueProperties getConstraints() {
     return _constraints;
   }
 
+  /**
+   * Returns a specific constraint that must be specified.
+   * 
+   * @param constraintName the constraint to query
+   * @return the constraint value, or {@code null} if it is not defined. If the constraint
+   * allows multiple specific values an arbitrary one is returned. 
+   * @throws IllegalArgumentException if the constraint is a wild-card definition.
+   */
   public String getConstraint(final String constraintName) {
     final Set<String> values = _constraints.getValues(constraintName);
     if (values == null) {
@@ -153,10 +187,27 @@ public final class ValueRequirement implements Serializable {
     return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(", ").append(getConstraints()).append(']').toString();
   }
 
+  /**
+   * Creates and returns the live data specification for market data corresponding to the target.
+   * 
+   * @param securitySource a security source to resolve securities against
+   * @return the live data specification
+   */
   public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
     return getTargetSpecification().getRequiredLiveData(securitySource);
   }
 
+  /**
+   * Tests if this requirement can be satisfied by a given {@link ValueSpecification}. A value specification
+   * can satisfy a requirement if:
+   * <ul>
+   * <li>it is for the same value on the same computation target; and
+   * <li>the properties associated with the value satisfy the constraints on the requirement
+   * </ul>
+   * 
+   * @param valueSpecification the value specification to test, not {@code null}
+   * @return {@code true} if this requirement is satisfied by the specification, {@code false} otherwise.
+   */
   public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
     // value names are interned by this and specifications
     if (getValueName() != valueSpecification.getValueName()) {

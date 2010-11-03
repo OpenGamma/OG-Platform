@@ -73,7 +73,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   private final List<LocalDate> _holidayDates = new ArrayList<LocalDate>();
 
   /**
-   * Create an instance for deserialization.
+   * Creates an instance.
    */
   public ManageableHoliday() {
   }

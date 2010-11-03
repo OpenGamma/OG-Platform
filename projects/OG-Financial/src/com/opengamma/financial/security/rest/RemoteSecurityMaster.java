@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifiables;
@@ -134,17 +134,17 @@ public class RemoteSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public SecuritySearchHistoricResult searchHistoric(SecuritySearchHistoricRequest request) {
+  public SecurityHistoryResult history(SecurityHistoryRequest request) {
     // POST is wrong; but is easy to write if we have a "request" document
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(request);
-    s_logger.debug("searchHistoric-post {} to {}", payload, _targetHistoric);
+    s_logger.debug("history-post {} to {}", payload, _targetHistoric);
     final FudgeMsgEnvelope env = getRestClient().post(_targetHistoric, payload);
     if (env == null) {
-      s_logger.debug("searchHistoric-recv NULL");
+      s_logger.debug("history-recv NULL");
       return null;
     }
-    s_logger.debug("searchHistoric-recv {}", env.getMessage());
-    return getFudgeDeserializationContext().fudgeMsgToObject(SecuritySearchHistoricResult.class, env.getMessage());
+    s_logger.debug("history-recv {}", env.getMessage());
+    return getFudgeDeserializationContext().fudgeMsgToObject(SecurityHistoryResult.class, env.getMessage());
   }
 
   @Override

@@ -8,9 +8,10 @@ package com.opengamma.financial.world.exchange.master;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -106,21 +107,30 @@ public class MasterExchangeSource implements ExchangeSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Exchange getSingleExchange(Identifier identifier) {
+  public ManageableExchange getExchange(UniqueIdentifier uid) {
+    try {
+      return getExchangeMaster().get(uid).getExchange();
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
+  }
+
+  @Override
+  public ManageableExchange getSingleExchange(Identifier identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 
   @Override
-  public Exchange getSingleExchange(IdentifierBundle identifiers) {
+  public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 
   //-------------------------------------------------------------------------

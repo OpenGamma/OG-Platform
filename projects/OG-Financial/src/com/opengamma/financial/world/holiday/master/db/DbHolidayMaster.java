@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -193,12 +193,12 @@ public class DbHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidaySearchHistoricResult searchHistoric(final HolidaySearchHistoricRequest request) {
+  public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
     checkScheme(request.getHolidayId());
     
-    return getWorkers().getSearchHistoricWorker().searchHistoric(request);
+    return getWorkers().getHistoryWorker().history(request);
   }
 
   //-------------------------------------------------------------------------

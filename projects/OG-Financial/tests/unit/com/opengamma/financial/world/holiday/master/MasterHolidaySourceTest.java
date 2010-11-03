@@ -18,10 +18,13 @@ import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.world.holiday.Holiday;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test MasterHolidaySource.
@@ -31,6 +34,7 @@ public class MasterHolidaySourceTest {
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
   private static final Currency GBP = Currency.getInstance("GBP");
+  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
 
@@ -47,6 +51,35 @@ public class MasterHolidaySourceTest {
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor3arg_nullMaster() throws Exception {
     new MasterHolidaySource(null, null, null);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getHoliday_found() throws Exception {
+    Instant now = Instant.nowSystemClock();
+    HolidayMaster mock = mock(HolidayMaster.class);
+    
+    Holiday hol = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
+    HolidayDocument doc = new HolidayDocument(hol);
+    when(mock.get(UID)).thenReturn(doc);
+    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    Holiday testResult = test.getHoliday(UID);
+    verify(mock, times(1)).get(UID);
+    
+    assertEquals(hol, testResult);
+  }
+
+  @Test
+  public void test_getHoliday_notFound() throws Exception {
+    Instant now = Instant.nowSystemClock();
+    HolidayMaster mock = mock(HolidayMaster.class);
+    
+    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
+    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    Holiday testResult = test.getHoliday(UID);
+    verify(mock, times(1)).get(UID);
+    
+    assertEquals(null, testResult);
   }
 
   //-------------------------------------------------------------------------

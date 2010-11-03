@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicAPI;
 
 /**

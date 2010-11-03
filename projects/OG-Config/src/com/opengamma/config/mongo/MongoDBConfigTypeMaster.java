@@ -33,8 +33,8 @@ import com.mongodb.Mongo;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.ConfigTypeMaster;
@@ -377,7 +377,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
+  public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getConfigId(), "request.configId");
     checkScheme(request.getConfigId());
@@ -411,7 +411,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     BasicDBObject sortObj = new BasicDBObject(VERSION_FROM_INSTANT_FIELD_NAME, -1);
     
     ConfigSearchResult<T> configSearchResult = find(queryObj, sortObj, request.getPagingRequest());
-    ConfigSearchHistoricResult<T> result = new ConfigSearchHistoricResult<T>();
+    ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     result.setPaging(configSearchResult.getPaging());
     result.setDocuments(configSearchResult.getDocuments());
     return result;

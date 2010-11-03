@@ -13,11 +13,12 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.util.PublicAPI;
+
 /**
  * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.
- *
- * @author kirk
  */
+@PublicAPI
 public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     Serializable {
   private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequenceNumber";
@@ -59,8 +60,8 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
       msg.add(FIELDS_FIELD_NAME, getFields());
     }
     return msg;
-  }
   
+  }
   public static LiveDataValueUpdateBean fromFudgeMsg(FudgeFieldContainer msg) {
     Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
     FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);

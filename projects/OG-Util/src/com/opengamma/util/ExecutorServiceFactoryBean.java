@@ -9,71 +9,114 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-
 /**
  * Creates an ExecutorService using the {@link Executors} utility methods.
+ * <p>
+ * This factory bean aids construction of executor services from Spring.
  */
 public class ExecutorServiceFactoryBean extends SingletonFactoryBean<ExecutorService> {
 
   /**
-   * Style of executor; corresponds to the names from the {@link Executors} class.
+   * The style of executor required.
+   * The names correspond to those in the {@link Executors} class.
    */
   public static enum Style {
     /**
-     * {@link Executors#newCachedThreadPool}.
+     * Creates using {@link Executors#newCachedThreadPool}.
      */
     CACHED,
     /**
-     * {@link Executors#newFixedThreadPool}.
+     * Creates using {@link Executors#newFixedThreadPool}.
      */
     FIXED,
     /**
-     * {@link Executors#newScheduledThreadPool}.
+     * Creates using {@link Executors#newScheduledThreadPool}.
      */
     SCHEDULED,
     /**
-     * {@link Executors#newSingleThreadExecutor}.
+     * Creates using {@link Executors#newSingleThreadExecutor}.
      */
     SINGLE,
     /**
-     * {@link Executors#newSingleScheduledThreadExecutor}.
+     * Creates using {@link Executors#newSingleThreadScheduledExecutor}.
      */
     SINGLE_SCHEDULED;
   }
 
+  /**
+   * The thread factory.
+   */
   private ThreadFactory _threadFactory;
+  /**
+   * The number of threads.
+   */
   private int _numThreads;
+  /**
+   * The style required.
+   */
   private Style _style;
 
-  public void setThreadFactory(final ThreadFactory threadFactory) {
-    _threadFactory = threadFactory;
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the thread factory.
+   * @return the thread factory
+   */
   public ThreadFactory getThreadFactory() {
     return _threadFactory;
   }
 
-  public void setNumberOfThreads(final int numThreads) {
-    ArgumentChecker.notNegativeOrZero(numThreads, "numThreads");
-    _numThreads = numThreads;
+  /**
+   * Sets the thread factory.
+   * @param threadFactory  the thread factory
+   */
+  public void setThreadFactory(final ThreadFactory threadFactory) {
+    _threadFactory = threadFactory;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the number of threads.
+   * @return the thread factory
+   */
   public int getNumberOfThreads() {
     return _numThreads;
   }
 
-  public void setStyle(final Style style) {
-    _style = style;
+  /**
+   * Sets the number of threads.
+   * @param numberOfThreads  the number of threads, 1 or greater
+   */
+  public void setNumberOfThreads(final int numberOfThreads) {
+    ArgumentChecker.notNegativeOrZero(numberOfThreads, "numberOfThreads");
+    _numThreads = numberOfThreads;
   }
 
-  public void setStyleName(final String style) {
-    setStyle(Style.valueOf(style));
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the required style.
+   * @return the required style
+   */
   public Style getStyle() {
     return _style;
   }
 
+  /**
+   * Sets the required style.
+   * @param style  the required style
+   */
+  public void setStyle(final Style style) {
+    _style = style;
+  }
+
+  /**
+   * Sets the required style.
+   * @param style  the required style name
+   */
+  public void setStyleName(final String style) {
+    setStyle(Style.valueOf(style));
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected ExecutorService createObject() {
     ArgumentChecker.notNull(getStyle(), "style");

@@ -16,8 +16,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -196,7 +196,7 @@ public class DbSecurityMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected SecuritySearchHistoricResult searchHistoric(SecuritySearchHistoricRequest request) {
+  protected SecurityHistoryResult history(SecurityHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

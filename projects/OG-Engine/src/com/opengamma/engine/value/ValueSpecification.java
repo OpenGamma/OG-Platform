@@ -14,9 +14,9 @@ import com.opengamma.util.PublicAPI;
  * An immutable representation of the metadata that describes an actual value. This may be a value
  * a function is capable of producing, or the describe resolved value passed into a function to
  * satisfy a {@link ValueRequirement}.
- * 
- * For example the {@code ValueRequirement} for an FX function may state a constraint such as
- * "any currency" on a value. After the graph has been built, the actual value will be specified
+ * <p>
+ * For example the {@code ValueRequirement} for a currency converting function may state a constraint such as
+ * "any currency" on its input values. After the graph has been built, the actual value will be specified
  * including the specific currency. Similarly a constraint on a {@link ValueRequirement} might restrict
  * the function to be used (or the default of omission allows any) whereas the {@link ValueSpecification}
  * will indicate which function was used to compute that value.
@@ -39,6 +39,13 @@ public class ValueSpecification implements java.io.Serializable {
    */
   private final ValueProperties _properties;
 
+  /**
+   * Creates a new specification to satisfy the the given requirement. The properties of the new specification
+   * are the constraints from the requirement with the function identifier added.
+   * 
+   * @param requirementSpecification a value requirement, not {@code null}
+   * @param functionIdentifier the unique identifier of the function producing this value, not {@code null}
+   */
   public ValueSpecification(ValueRequirement requirementSpecification, String functionIdentifier) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(functionIdentifier, "functionIdentifier");
@@ -48,6 +55,13 @@ public class ValueSpecification implements java.io.Serializable {
     _properties = requirementSpecification.getConstraints().copy().with(ValuePropertyNames.FUNCTION, functionIdentifier).get();
   }
 
+  /**
+   * Creates a new specification to satisfy the given requirement. The properties must include the function identifier and be
+   * able to satisfy the contraints of the original requirement.
+   * 
+   * @param requirementSpecification a requirement, not {@code null}
+   * @param properties the value properties, not {@code null} and must include the function identifier
+   */
   public ValueSpecification(ValueRequirement requirementSpecification, ValueProperties properties) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(properties, "properties");
@@ -59,6 +73,13 @@ public class ValueSpecification implements java.io.Serializable {
     _properties = properties;
   }
 
+  /**
+   * Creates a new specification from a targe tspecification. The properties must include the function identifier.
+   * 
+   * @param valueName the name of the value created, not {@code null}
+   * @param targetSpecification the target specification, not {@code null}
+   * @param properties the value properties, not {@code null} and must include the function identifier
+   */
   public ValueSpecification(final String valueName, final ComputationTargetSpecification targetSpecification, final ValueProperties properties) {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(targetSpecification, "targetSpecification");
@@ -69,18 +90,41 @@ public class ValueSpecification implements java.io.Serializable {
     _properties = properties;
   }
 
+  /**
+   * Returns the value name.
+   * 
+   * @return the value name
+   */
   public String getValueName() {
     return _valueName;
   }
 
+  /**
+   * Returns the target specification.
+   * 
+   * @return the target specification
+   */
   public ComputationTargetSpecification getTargetSpecification() {
     return _targetSpecification;
   }
 
+  /**
+   * Returns the value properties. At the minimum the property set will contain the function identifier.
+   * 
+   * @return the properties
+   */
   public ValueProperties getProperties() {
     return _properties;
   }
 
+  /**
+   * Returns a specific property, if set, for the value. If multiple values are set for a property then an arbitrary
+   * choice is made.
+   * 
+   * @param propertyName name of the property to search for, not {@code null}
+   * @return a property value, or {@code null} if not found
+   * @throws IllegalArgumentException if the property has a wild-card definition
+   */
   public String getProperty(final String propertyName) {
     final Set<String> values = _properties.getValues(propertyName);
     if (values == null) {
@@ -93,7 +137,7 @@ public class ValueSpecification implements java.io.Serializable {
   }
 
   /**
-   * Creates the maximal {@link ValueRequirement} that would be satisfied by this value specification.
+   * Creates a maximal {@link ValueRequirement} that would be satisfied by this value specification.
    * 
    * @return the value requirement
    */

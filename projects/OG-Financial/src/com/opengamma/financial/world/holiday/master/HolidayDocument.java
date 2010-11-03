@@ -41,23 +41,27 @@ public class HolidayDocument extends DirectBean implements Serializable {
   private UniqueIdentifier _holidayId;
   /**
    * The start of an interval that the version of the holiday is accurate for.
+   * This field is populated and managed by the {@code HolidayMaster}.
    */
   @PropertyDefinition
   private Instant _versionFromInstant;
   /**
    * The end of an interval that the version of the holiday is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code HolidayMaster}.
    */
   @PropertyDefinition
   private Instant _versionToInstant;
   /**
    * The start of an interval that the correction of the version of the holiday is accurate for.
+   * This field is populated and managed by the {@code HolidayMaster}.
    */
   @PropertyDefinition
   private Instant _correctionFromInstant;
   /**
    * The end of an interval that the correction of the version of the holiday is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code HolidayMaster}.
    */
   @PropertyDefinition
   private Instant _correctionToInstant;
@@ -90,7 +94,7 @@ public class HolidayDocument extends DirectBean implements Serializable {
    * <p>
    * This will call {@link #createName()} to build a suitable name.
    * 
-   * @param holiday  the exchange, not null
+   * @param holiday  the holiday, not null
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");

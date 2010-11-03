@@ -7,7 +7,7 @@ package com.opengamma.engine.test;
 
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 public class TestDeltaResultListener extends AbstractTestResultListener<ViewDeltaResultModel>
     implements DeltaComputationResultListener {

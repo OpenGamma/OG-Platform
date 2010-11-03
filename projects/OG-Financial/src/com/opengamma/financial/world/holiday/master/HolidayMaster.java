@@ -40,7 +40,7 @@ public interface HolidayMaster {
   HolidayDocument get(UniqueIdentifier uid);
 
   /**
-   * Adds an holiday to the data store.
+   * Adds a holiday to the data store.
    * <p>
    * The specified document must contain the holiday.
    * 
@@ -52,14 +52,14 @@ public interface HolidayMaster {
   HolidayDocument add(HolidayDocument document);
 
   /**
-   * Updates an holiday in the data store.
+   * Updates a holiday in the data store.
    * <p>
    * The specified document must contain the holiday and the unique identifier.
    * If the identifier has a version it must be the latest version.
    * <p>
    * A full holiday master will store detailed historic information on holidays,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #history}.
    * 
    * @param document  the document, not null
    * @return the updated holiday document, not null
@@ -69,7 +69,7 @@ public interface HolidayMaster {
   HolidayDocument update(HolidayDocument document);
 
   /**
-   * Removes an holiday from the data store.
+   * Removes a holiday from the data store.
    * <p>
    * A full holiday master will store detailed historic information on holidays.
    * Thus, a removal does not prevent retrieval or correction of an earlier version.
@@ -83,24 +83,24 @@ public interface HolidayMaster {
   void remove(final UniqueIdentifier uid);
 
   /**
-   * Searches for holidays matching the specified search criteria.
+   * Queries the history of a single holiday.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the holiday.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the holiday history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  HolidaySearchHistoricResult searchHistoric(HolidaySearchHistoricRequest request);
+  HolidayHistoryResult history(HolidayHistoryRequest request);
 
   /**
-   * Corrects an holiday in the data store.
+   * Corrects a holiday in the data store.
    * <p>
    * A full holiday master will store detailed historic information on holidays
    * and will support correction of each holiday.
    * To update the holiday with a new version, use {@link #update}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #history}.
    * <p>
    * The specified document must contain the holiday and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the holiday.

@@ -8,6 +8,7 @@ package com.opengamma.financial.world.exchange.master;
 import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A source of exchanges as accessed by the main application.
@@ -16,6 +17,15 @@ import com.opengamma.id.IdentifierBundle;
  * This may be backed by a full-featured exchange master, or by a much simpler data structure.
  */
 public interface ExchangeSource {
+
+  /**
+   * Finds a specific exchange by unique identifier.
+   * 
+   * @param uid  the unique identifier, null returns null
+   * @return the exchange, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
+   */
+  Exchange getExchange(UniqueIdentifier uid);
 
   /**
    * Finds a specific exchange by identifier.

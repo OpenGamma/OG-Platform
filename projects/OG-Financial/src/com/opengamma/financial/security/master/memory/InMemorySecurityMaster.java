@@ -18,8 +18,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifiables;
@@ -40,7 +40,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemSec";
 
   /**
    * A cache of securities by identifier.
@@ -168,11 +168,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
+  public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getSecurityId(), "request.securityId");
     
-    final SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
+    final SecurityHistoryResult result = new SecurityHistoryResult();
     final SecurityDocument doc = get(request.getSecurityId());
     if (doc != null) {
       result.getDocuments().add(doc);

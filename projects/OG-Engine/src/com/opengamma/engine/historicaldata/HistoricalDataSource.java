@@ -80,7 +80,7 @@ public interface HistoricalDataSource {
    * Finds a timeseries with all the available data points 
    * 
    * @param identifiers the identifier bundle, not-null
-   * @param configDocName the name of {@link TimeSeriesMetaDataConfiguration} document to use
+   * @param configDocName the name of a configuration document to use for additional parameters
    * @return the (uid, timeseries) pair, (null,empty) if not found
    */
   Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName);
@@ -90,7 +90,7 @@ public interface HistoricalDataSource {
    * 
    * @param identifiers the identifier bundle, not-null
    * @param currentDate the current date if applicable
-   * @param configDocName the name of {@link TimeSeriesMetaDataConfiguration} document to use
+   * @param configDocName the name of a configuration document to use for additional parameters
    * @return the (uid, timeseries) pair, (null,empty) if not found
    */
   Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName);
@@ -99,7 +99,7 @@ public interface HistoricalDataSource {
    * Finds a timeseries with data points between start and end dates
    * 
    * @param identifiers the identifier bundle, not-null
-   * @param configDocName the name of {@link TimeSeriesMetaDataConfiguration} document to use
+   * @param configDocName the name of a configuration document to use for additional parameters
    * @param start the start date, if null will load the earliest date 
    * @param inclusiveStart whether or not the start date is included in the result.
    * @param end the end date, if null will load the latest date
@@ -113,7 +113,7 @@ public interface HistoricalDataSource {
    * 
    * @param identifiers the identifier bundle, not-null
    * @param currentDate the current date if applicable
-   * @param configDocName the name of {@link TimeSeriesMetaDataConfiguration} document to use
+   * @param configDocName the name of a configuration document to use for additional parameters
    * @param start the start date, if null will load the earliest date 
    * @param inclusiveStart whether or not the start date is included in the result.
    * @param end the end date, if null will load the latest date

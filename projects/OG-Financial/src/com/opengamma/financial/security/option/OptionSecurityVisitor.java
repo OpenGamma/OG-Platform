@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 /**
- * Visitor for the OptionSecurity subclasses.
+ * Visitor for the {@code OptionSecurity} subclasses.
  * 
  * @param <T> return type of the visit methods
  */

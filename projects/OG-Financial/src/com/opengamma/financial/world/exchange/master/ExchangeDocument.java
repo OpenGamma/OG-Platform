@@ -19,7 +19,6 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,23 +35,27 @@ public class ExchangeDocument extends DirectBean {
   private UniqueIdentifier _exchangeId;
   /**
    * The start of an interval that the version of the exchange is accurate for.
+   * This field is populated and managed by the {@code ExchangeMaster}.
    */
   @PropertyDefinition
   private Instant _versionFromInstant;
   /**
    * The end of an interval that the version of the exchange is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code ExchangeMaster}.
    */
   @PropertyDefinition
   private Instant _versionToInstant;
   /**
    * The start of an interval that the correction of the version of the exchange is accurate for.
+   * This field is populated and managed by the {@code ExchangeMaster}.
    */
   @PropertyDefinition
   private Instant _correctionFromInstant;
   /**
    * The end of an interval that the correction of the version of the exchange is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code ExchangeMaster}.
    */
   @PropertyDefinition
   private Instant _correctionToInstant;
@@ -60,7 +63,7 @@ public class ExchangeDocument extends DirectBean {
    * The exchange.
    */
   @PropertyDefinition
-  private Exchange _exchange;
+  private ManageableExchange _exchange;
 
   /**
    * Creates an instance.
@@ -72,7 +75,7 @@ public class ExchangeDocument extends DirectBean {
    * Creates an instance from an exchange.
    * @param exchange  the exchange, not null
    */
-  public ExchangeDocument(final Exchange exchange) {
+  public ExchangeDocument(final ManageableExchange exchange) {
     ArgumentChecker.notNull(exchange, "exchange");
     setExchangeId(exchange.getUniqueIdentifier());
     setExchange(exchange);
@@ -131,7 +134,7 @@ public class ExchangeDocument extends DirectBean {
         setCorrectionToInstant((Instant) newValue);
         return;
       case 1989774883:  // exchange
-        setExchange((Exchange) newValue);
+        setExchange((ManageableExchange) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -273,7 +276,7 @@ public class ExchangeDocument extends DirectBean {
    * Gets the exchange.
    * @return the value of the property
    */
-  public Exchange getExchange() {
+  public ManageableExchange getExchange() {
     return _exchange;
   }
 
@@ -281,7 +284,7 @@ public class ExchangeDocument extends DirectBean {
    * Sets the exchange.
    * @param exchange  the new value of the property
    */
-  public void setExchange(Exchange exchange) {
+  public void setExchange(ManageableExchange exchange) {
     this._exchange = exchange;
   }
 
@@ -289,7 +292,7 @@ public class ExchangeDocument extends DirectBean {
    * Gets the the {@code exchange} property.
    * @return the property, not null
    */
-  public final Property<Exchange> exchange() {
+  public final Property<ManageableExchange> exchange() {
     return metaBean().exchange().createProperty(this);
   }
 
@@ -326,7 +329,7 @@ public class ExchangeDocument extends DirectBean {
     /**
      * The meta-property for the {@code exchange} property.
      */
-    private final MetaProperty<Exchange> _exchange = DirectMetaProperty.ofReadWrite(this, "exchange", Exchange.class);
+    private final MetaProperty<ManageableExchange> _exchange = DirectMetaProperty.ofReadWrite(this, "exchange", ManageableExchange.class);
     /**
      * The meta-properties.
      */
@@ -404,7 +407,7 @@ public class ExchangeDocument extends DirectBean {
      * The meta-property for the {@code exchange} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Exchange> exchange() {
+    public final MetaProperty<ManageableExchange> exchange() {
       return _exchange;
     }
 

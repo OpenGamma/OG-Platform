@@ -25,8 +25,8 @@ import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
@@ -96,8 +96,8 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   protected HolidayDocument getByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getHolidayByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final HolidaySearchHistoricRequest request = new HolidaySearchHistoricRequest(uid, now, now);
-    final HolidaySearchHistoricResult result = getMaster().searchHistoric(request);
+    final HolidayHistoryRequest request = new HolidayHistoryRequest(uid, now, now);
+    final HolidayHistoryResult result = getMaster().history(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Holiday not found: " + uid);
     }
@@ -229,7 +229,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
 
   //-------------------------------------------------------------------------
   @Override
-  protected HolidaySearchHistoricResult searchHistoric(final HolidaySearchHistoricRequest request) {
+  protected HolidayHistoryResult history(final HolidayHistoryRequest request) {
     s_logger.debug("searchHolidayHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("holiday_oid", extractOid(request.getHolidayId()))
@@ -240,7 +240,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     final String[] sql = sqlSearchHolidayHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final HolidaySearchHistoricResult result = new HolidaySearchHistoricResult();
+    final HolidayHistoryResult result = new HolidayHistoryResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final HolidayDocumentExtractor extractor = new HolidayDocumentExtractor();
@@ -254,7 +254,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchHolidayHistoric(final HolidaySearchHistoricRequest request) {
+  protected String[] sqlSearchHolidayHistoric(final HolidayHistoryRequest request) {
     String where = "WHERE oid = :holiday_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";

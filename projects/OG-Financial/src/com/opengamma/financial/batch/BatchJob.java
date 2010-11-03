@@ -42,7 +42,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -73,8 +73,8 @@ import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -156,7 +156,7 @@ public class BatchJob {
   /**
    * Used to load a ViewDefinition (whose name will be given on the command line)
    */
-  private ConfigSource _configSource;
+  private MasterConfigSource _configSource;
 
   /**
    * Used to load Functions (needed for building the dependency graph)
@@ -388,11 +388,11 @@ public class BatchJob {
     return getPositionMasterAsViewedAtTime(); // assume this for now
   }
 
-  public ConfigSource getConfigSource() {
+  public MasterConfigSource getConfigSource() {
     return _configSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(MasterConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -620,7 +620,7 @@ public class BatchJob {
    * Finds the configuration.
    */
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
-    ConfigDocument<ViewDefinition> doc = _configSource.getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
+    ConfigDocument<ViewDefinition> doc = getConfigSource().getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
     if (doc == null) {
       throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
           _viewDateTime.toInstant() + " in config db");

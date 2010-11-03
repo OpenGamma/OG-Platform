@@ -20,8 +20,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
@@ -108,12 +108,12 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioTreeSearchHistoricRequest request = decodeBean(PortfolioTreeSearchHistoricRequest.class, providers, msgBase64);
+  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
+    PortfolioTreeHistoryRequest request = decodeBean(PortfolioTreeHistoryRequest.class, providers, msgBase64);
     if (getUrlPortfolioId().equalsIgnoringVersion(request.getPortfolioId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
-    PortfolioTreeSearchHistoricResult result = getPositionMaster().searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult result = getPositionMaster().historyPortfolioTree(request);
     return Response.ok(result).build();
   }
 

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.financial.security.master.SecurityLoader;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -34,6 +35,11 @@ public class WebSecuritiesData extends DirectBean {
    */
   @PropertyDefinition
   private SecurityMaster _securityMaster;
+  /**
+   * The security loader.
+   */
+  @PropertyDefinition
+  private SecurityLoader _securityLoader;
   /**
    * The JSR-311 URI information.
    */
@@ -107,6 +113,8 @@ public class WebSecuritiesData extends DirectBean {
     switch (propertyName.hashCode()) {
       case -887218750:  // securityMaster
         return getSecurityMaster();
+      case -903470221:  // securityLoader
+        return getSecurityLoader();
       case -173275078:  // uriInfo
         return getUriInfo();
       case 1433303815:  // uriSecurityId
@@ -126,6 +134,9 @@ public class WebSecuritiesData extends DirectBean {
     switch (propertyName.hashCode()) {
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
+        return;
+      case -903470221:  // securityLoader
+        setSecurityLoader((SecurityLoader) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -169,6 +180,31 @@ public class WebSecuritiesData extends DirectBean {
    */
   public final Property<SecurityMaster> securityMaster() {
     return metaBean().securityMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security loader.
+   * @return the value of the property
+   */
+  public SecurityLoader getSecurityLoader() {
+    return _securityLoader;
+  }
+
+  /**
+   * Sets the security loader.
+   * @param securityLoader  the new value of the property
+   */
+  public void setSecurityLoader(SecurityLoader securityLoader) {
+    this._securityLoader = securityLoader;
+  }
+
+  /**
+   * Gets the the {@code securityLoader} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityLoader> securityLoader() {
+    return metaBean().securityLoader().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -311,6 +347,10 @@ public class WebSecuritiesData extends DirectBean {
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(this, "securityMaster", SecurityMaster.class);
     /**
+     * The meta-property for the {@code securityLoader} property.
+     */
+    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(this, "securityLoader", SecurityLoader.class);
+    /**
      * The meta-property for the {@code uriInfo} property.
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
@@ -339,6 +379,7 @@ public class WebSecuritiesData extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("securityMaster", _securityMaster);
+      temp.put("securityLoader", _securityLoader);
       temp.put("uriInfo", _uriInfo);
       temp.put("uriSecurityId", _uriSecurityId);
       temp.put("uriVersionId", _uriVersionId);
@@ -369,6 +410,14 @@ public class WebSecuritiesData extends DirectBean {
      */
     public final MetaProperty<SecurityMaster> securityMaster() {
       return _securityMaster;
+    }
+
+    /**
+     * The meta-property for the {@code securityLoader} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityLoader> securityLoader() {
+      return _securityLoader;
     }
 
     /**

@@ -62,8 +62,6 @@ public abstract class Territory {
     //-----------------------------------------------------------------------
     /**
      * Constructor.
-     *
-     * @param id  the territory id, not null
      */
     protected Territory() {
         super();
@@ -83,7 +81,7 @@ public abstract class Territory {
      *
      * @return the array of zones, never null
      */
-	public abstract TimeZone[] getZones();
+    public abstract TimeZone[] getZones();
 
     /**
      * Gets the time zone for the territory, selecting the zone of the most

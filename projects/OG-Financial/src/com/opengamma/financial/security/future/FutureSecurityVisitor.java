@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.future;
 
 /**
- * Visitor for the FutureSecurity subclasses.
+ * Visitor for the {@code FutureSecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */

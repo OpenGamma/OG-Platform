@@ -24,7 +24,7 @@ import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.DateUtil;
 
@@ -35,7 +35,7 @@ import com.opengamma.util.time.DateUtil;
 public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
-  private static final Identifier REGION_ID = Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US");
+  private static final Identifier REGION_ID = RegionUtils.countryRegionId("US");
   private static final Notional NOTIONAL = new Notional() {
 
     @Override

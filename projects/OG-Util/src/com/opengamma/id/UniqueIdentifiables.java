@@ -11,6 +11,8 @@ package com.opengamma.id;
  * <p>
  * For example, code in the database layer will need to update the unique identifier
  * when the object is stored.
+ * <p>
+ * This class is a thread-safe static utility class.
  */
 public final class UniqueIdentifiables {
 
@@ -22,6 +24,7 @@ public final class UniqueIdentifiables {
 
   /**
    * Sets the unique identifier of an object if it implements {@code MutableUniqueIdentifiable}.
+   * 
    * @param object  the object to set into
    * @param uid  the unique identifier to set
    */
