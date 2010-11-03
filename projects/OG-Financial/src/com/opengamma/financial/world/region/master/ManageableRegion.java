@@ -97,6 +97,7 @@ public class ManageableRegion extends DirectBean implements Region {
     setClassification(region.getClassification());
     setParentRegionIds(region.getParentRegionIds());
     setName(region.getName());
+    setFullName(region.getFullName());
     setIdentifiers(region.getIdentifiers());
     setData(region.getData());
   }
@@ -112,32 +113,39 @@ public class ManageableRegion extends DirectBean implements Region {
   }
 
   /**
-   * Adds a search for a currency by adding the matching bundle.
+   * Sets the country, stored in the identifier set.
    * 
-   * @param countryISO  the country ISO code to search for, not null
+   * @param countryISO  the country to set, null to remove any country
    */
-  public void addCountryISO(String countryISO) {
-    addIdentifier(RegionUtils.countryRegionId(countryISO));
+  public void setCountryISO(String countryISO) {
+    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
+    if (countryISO != null) {
+      addIdentifier(RegionUtils.countryRegionId(countryISO));
+    }
   }
 
   /**
-   * Adds a search for a currency by adding the matching bundle.
+   * Sets the currency, stored in the identifier set.
    * 
-   * @param currency  the currency to search for, not null
+   * @param currency  the currency to set, null to remove any currency
    */
-  public void addCurrency(Currency currency) {
-    ArgumentChecker.notNull(currency, "currency");
-    addIdentifier(RegionUtils.currencyRegionId(currency));
+  public void setCurrency(Currency currency) {
+    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
+    if (currency != null) {
+      addIdentifier(RegionUtils.currencyRegionId(currency));
+    }
   }
 
   /**
-   * Adds a search for a time-zone by adding the matching bundle.
+   * Sets the time-zone, stored in the identifier set.
    * 
-   * @param timeZone  the time-zone to search for, not null
+   * @param timeZone  the time-zone to set, null to remove any time-zone
    */
-  public void addTimeZone(TimeZone timeZone) {
-    ArgumentChecker.notNull(timeZone, "timeZone");
-    addIdentifier(RegionUtils.timeZoneRegionId(timeZone));
+  public void setTimeZone(TimeZone timeZone) {
+    setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
+    if (timeZone != null) {
+      addIdentifier(RegionUtils.timeZoneRegionId(timeZone));
+    }
   }
 
   //-------------------------------------------------------------------------

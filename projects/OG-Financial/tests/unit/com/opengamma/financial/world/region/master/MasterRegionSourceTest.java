@@ -146,9 +146,9 @@ public class MasterRegionSourceTest {
     ManageableRegion region = new ManageableRegion();
     region.setUniqueIdentifier(UID);
     region.setName("United Kingdom");
-    region.addCurrency(GBP);
-    region.addCountryISO("GB");
-    region.addTimeZone(TimeZone.of("Europe/London"));
+    region.setCurrency(GBP);
+    region.setCountryISO("GB");
+    region.setTimeZone(TimeZone.of("Europe/London"));
     return region;
   }
 

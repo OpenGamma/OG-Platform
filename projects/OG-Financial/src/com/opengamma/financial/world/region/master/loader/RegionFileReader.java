@@ -225,11 +225,11 @@ public class RegionFileReader {
         region.setName(name);
         region.setFullName(fullName);
         if (countryISO != null) {
-          region.addCountryISO(countryISO);
+          region.setCountryISO(countryISO);
           region.addIdentifier(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
         }
         if (currencyISO != null) {
-          region.addCurrency(Currency.getInstance(currencyISO));
+          region.setCurrency(Currency.getInstance(currencyISO));
         }
         if (sovereignity != null) {
           ManageableRegion parent = regions.get(sovereignity);
