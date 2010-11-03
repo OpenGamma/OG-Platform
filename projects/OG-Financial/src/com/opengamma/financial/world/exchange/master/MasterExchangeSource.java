@@ -9,7 +9,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -108,7 +107,7 @@ public class MasterExchangeSource implements ExchangeSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Exchange getExchange(UniqueIdentifier uid) {
+  public ManageableExchange getExchange(UniqueIdentifier uid) {
     try {
       return getExchangeMaster().get(uid).getExchange();
     } catch (DataNotFoundException ex) {
@@ -117,7 +116,7 @@ public class MasterExchangeSource implements ExchangeSource {
   }
 
   @Override
-  public Exchange getSingleExchange(Identifier identifier) {
+  public ManageableExchange getSingleExchange(Identifier identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
@@ -126,7 +125,7 @@ public class MasterExchangeSource implements ExchangeSource {
   }
 
   @Override
-  public Exchange getSingleExchange(IdentifierBundle identifiers) {
+  public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);

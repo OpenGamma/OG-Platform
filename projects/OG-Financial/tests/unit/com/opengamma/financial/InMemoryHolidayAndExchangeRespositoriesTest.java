@@ -14,11 +14,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
 import com.opengamma.financial.world.exchange.coppclark.CoppClarkExchangeFileReader;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeSource;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.financial.world.holiday.HolidayType;
@@ -47,7 +46,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     RegionFileReader.populate(regionMaster);
     RegionSource regionSource = new MasterRegionSource(regionMaster);
     InMemoryExchangeMaster exchangeRepo = new InMemoryExchangeMaster();
-    ExchangeSource exchangeSource = new MasterExchangeSource(exchangeRepo);
+    MasterExchangeSource exchangeSource = new MasterExchangeSource(exchangeRepo);
     
     Region uk = regionSource.getHighestLevelRegion(RegionUtils.countryRegionId("GB"));
     
@@ -77,11 +76,11 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
 //    IdentifierBundle notRightIDs = new IdentifierBundle(Arrays.asList(new Identifier[] { batsMIC, gemmaMIC, euronextLiffeCCName }));
     // store the euronext LIFFE bundle with it's name and region
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
-    ExchangeDocument addDoc1 = new ExchangeDocument(new Exchange(euronextLiffeIDs, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
+    ExchangeDocument addDoc1 = new ExchangeDocument(new ManageableExchange(euronextLiffeIDs, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
     exchangeRepo.add(addDoc1);
     
     // try pulling it out with the first id in the bundle and check the fields of the returned object
-    Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeMIC);
+    ManageableExchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeMIC);
     Assert.assertEquals(euronextLiffeCCName.getValue(), euronextLiffe.getName());
     Assert.assertEquals(uk, regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()));
     Assert.assertEquals("MemExg", euronextLiffe.getUniqueIdentifier().getScheme());
@@ -95,14 +94,14 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     Assert.assertEquals(euronextLiffe, exchangeSource.getSingleExchange(euronextLiffeIDs));
     
     // try bundle with an extra 'unknown id' in it and one of the original missing.
-    Exchange euronextLiffe5 = exchangeSource.getSingleExchange(euronextLiffeIDsWithExtra);
+    ManageableExchange euronextLiffe5 = exchangeSource.getSingleExchange(euronextLiffeIDsWithExtra);
     Assert.assertEquals(euronextLiffe5, euronextLiffe);
     
     Assert.assertNull(exchangeSource.getSingleExchange(euronextLiffeExtra));
     
     // put it again with the extra/missing bundle
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
-    ExchangeDocument addDoc2 = new ExchangeDocument(new Exchange(euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
+    ExchangeDocument addDoc2 = new ExchangeDocument(new ManageableExchange(euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
     exchangeRepo.add(addDoc2);
     
     // this needs fixing.  It should add the identifier to the bundle, but it can't, so we should probably not allow the above operation.
@@ -114,10 +113,10 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     InMemoryRegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populate(regionMaster);
     RegionSource regionSource = new MasterRegionSource(regionMaster);
-    ExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
+    MasterExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
     HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster()); 
     Identifier euronextLiffeId = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
-    Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
+    ManageableExchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeId);
     Assert.assertNotNull(euronextLiffe);
     Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.SETTLEMENT, euronextLiffeId));
     Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.SETTLEMENT, euronextLiffeId));

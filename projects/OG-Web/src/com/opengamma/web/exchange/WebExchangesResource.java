@@ -26,11 +26,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -118,7 +118,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     }
     Identifier id = Identifier.of(idScheme, idValue);
     Identifier region = Identifier.of(regionScheme, regionValue);
-    Exchange exchange = new Exchange(IdentifierBundle.of(id), name, region);
+    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, region);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();

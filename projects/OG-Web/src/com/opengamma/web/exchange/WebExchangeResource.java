@@ -20,8 +20,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -79,7 +79,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       String html = getFreemarker().build("exchanges/exchange-update.ftl", out);
       return Response.ok(html).build();
     }
-    Exchange exchange = data().getExchange().getExchange().clone();
+    ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
     exchange.setRegionId(Identifier.of(regionScheme, regionValue));

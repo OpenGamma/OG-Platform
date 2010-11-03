@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.financial.world.exchange.master;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
@@ -12,7 +12,7 @@ import javax.time.calendar.TimeZone;
 /**
  * Detail about when an exchange opens and closes.
  */
-public class ExchangeCalendarEntry {
+public class ManageableExchangeCalendarEntry {
 
   private String _group; /* e.g. Certificates, Derivatives, Debt Market etc. */ // NULLABLE
   private String _product; /* e.g. Transferrable, Treasury Bond, Options on Wheat etc... */ // REQUIRED
@@ -57,7 +57,7 @@ public class ExchangeCalendarEntry {
    * @param notes  textual notes, may be null
    * @param timeZone  the JSR-310 time-zone, not null
    */
-  public ExchangeCalendarEntry(String group, String product, String type, String code, LocalDate calendarStart, LocalDate calendarEnd, 
+  public ManageableExchangeCalendarEntry(String group, String product, String type, String code, LocalDate calendarStart, LocalDate calendarEnd, 
                                String dayStart, String rangeType, String dayEnd, String phase, LocalTime phaseStarts, LocalTime phaseEnds, 
                                LocalTime randomStartMin, LocalTime randomStartMax, LocalTime randomEndMin, LocalTime randomEndMax, 
                                LocalDate lastConfirmed, String notes, TimeZone timeZone) {

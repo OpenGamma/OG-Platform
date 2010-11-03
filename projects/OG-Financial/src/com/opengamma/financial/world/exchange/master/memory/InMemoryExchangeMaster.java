@@ -17,13 +17,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
 import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
+import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -119,7 +119,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
     final UniqueIdentifier uid = _uidSupplier.get();
-    final Exchange exchange = document.getExchange().clone();
+    final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueIdentifier(uid);
     document.setExchangeId(uid);
     final Instant now = Instant.nowSystemClock();
