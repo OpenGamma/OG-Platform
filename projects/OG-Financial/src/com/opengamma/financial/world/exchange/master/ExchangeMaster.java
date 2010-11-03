@@ -23,7 +23,7 @@ public interface ExchangeMaster {
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  ExchangeSearchResult searchExchanges(ExchangeSearchRequest request);
+  ExchangeSearchResult search(ExchangeSearchRequest request);
 
   /**
    * Gets a exchange by unique identifier.
@@ -37,7 +37,7 @@ public interface ExchangeMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no exchange with that unique identifier
    */
-  ExchangeDocument getExchange(UniqueIdentifier uid);
+  ExchangeDocument get(UniqueIdentifier uid);
 
   /**
    * Adds an exchange to the data store.
@@ -49,7 +49,7 @@ public interface ExchangeMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no parent node with the specified identifier
    */
-  ExchangeDocument addExchange(ExchangeDocument document);
+  ExchangeDocument add(ExchangeDocument document);
 
   /**
    * Updates an exchange in the data store.
@@ -59,14 +59,14 @@ public interface ExchangeMaster {
    * <p>
    * A full exchange master will store detailed historic information on exchanges,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoricExchange}.
+   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
    * 
    * @param document  the document, not null
    * @return the updated exchange document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no exchange with that unique identifier
    */
-  ExchangeDocument updateExchange(ExchangeDocument document);
+  ExchangeDocument update(ExchangeDocument document);
 
   /**
    * Removes an exchange from the data store.
@@ -80,7 +80,7 @@ public interface ExchangeMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no exchange with that unique identifier
    */
-  void removeExchange(final UniqueIdentifier uid);
+  void remove(final UniqueIdentifier uid);
 
   /**
    * Searches for exchanges matching the specified search criteria.
@@ -91,16 +91,16 @@ public interface ExchangeMaster {
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  ExchangeSearchHistoricResult searchHistoricExchange(ExchangeSearchHistoricRequest request);
+  ExchangeSearchHistoricResult searchHistoric(ExchangeSearchHistoricRequest request);
 
   /**
    * Corrects an exchange in the data store.
    * <p>
    * A full exchange master will store detailed historic information on exchanges
    * and will support correction of each exchange.
-   * To update the exchange with a new version, use {@link #updateExchange}.
+   * To update the exchange with a new version, use {@link #update}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoricExchange}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
    * <p>
    * The specified document must contain the exchange and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the exchange.
@@ -110,6 +110,6 @@ public interface ExchangeMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no exchange with that unique identifier
    */
-  ExchangeDocument correctExchange(ExchangeDocument document);
+  ExchangeDocument correct(ExchangeDocument document);
 
 }

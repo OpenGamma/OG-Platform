@@ -78,7 +78,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     // store the euronext LIFFE bundle with it's name and region
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
     ExchangeDocument addDoc1 = new ExchangeDocument(new Exchange(euronextLiffeIDs, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
-    exchangeRepo.addExchange(addDoc1);
+    exchangeRepo.add(addDoc1);
     
     // try pulling it out with the first id in the bundle and check the fields of the returned object
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeMIC);
@@ -103,7 +103,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     // put it again with the extra/missing bundle
     // REVIEW: jim 13-Aug-2010 -- change this to use a bundle rather than the first thing from a bundle
     ExchangeDocument addDoc2 = new ExchangeDocument(new Exchange(euronextLiffeIDsWithExtra, euronextLiffeCCName.getValue(), uk.getIdentifiers().iterator().next()));
-    exchangeRepo.addExchange(addDoc2);
+    exchangeRepo.add(addDoc2);
     
     // this needs fixing.  It should add the identifier to the bundle, but it can't, so we should probably not allow the above operation.
     Assert.assertEquals(3, exchangeSource.getSingleExchange(euronextLiffeExtra).getIdentifiers().size());

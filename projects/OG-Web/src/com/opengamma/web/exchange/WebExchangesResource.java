@@ -75,7 +75,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      ExchangeSearchResult searchResult = data().getExchangeMaster().searchExchanges(searchRequest);
+      ExchangeSearchResult searchResult = data().getExchangeMaster().search(searchRequest);
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
@@ -120,7 +120,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     Identifier region = Identifier.of(regionScheme, regionValue);
     Exchange exchange = new Exchange(IdentifierBundle.of(id), name, region);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument added = data().getExchangeMaster().addExchange(doc);
+    ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
@@ -129,7 +129,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @Path("{exchangeId}")
   public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
-    ExchangeDocument exchangeDoc = data().getExchangeMaster().getExchange(UniqueIdentifier.parse(idStr));
+    ExchangeDocument exchangeDoc = data().getExchangeMaster().get(UniqueIdentifier.parse(idStr));
     data().setExchange(exchangeDoc);
     return new WebExchangeResource(this);
   }

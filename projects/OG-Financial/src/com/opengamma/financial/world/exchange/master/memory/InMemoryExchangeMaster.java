@@ -71,7 +71,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchResult searchExchanges(final ExchangeSearchRequest request) {
+  public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final ExchangeSearchResult result = new ExchangeSearchResult();
     Collection<ExchangeDocument> docs = _exchanges.values();
@@ -103,7 +103,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument getExchange(final UniqueIdentifier uid) {
+  public ExchangeDocument get(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     final ExchangeDocument document = _exchanges.get(uid);
     if (document == null) {
@@ -114,7 +114,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument addExchange(final ExchangeDocument document) {
+  public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
@@ -134,7 +134,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument updateExchange(final ExchangeDocument document) {
+  public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
@@ -157,7 +157,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void removeExchange(final UniqueIdentifier uid) {
+  public void remove(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     
     if (_exchanges.remove(uid) == null) {
@@ -167,12 +167,12 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchHistoricResult searchHistoricExchange(final ExchangeSearchHistoricRequest request) {
+  public ExchangeSearchHistoricResult searchHistoric(final ExchangeSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
     
     final ExchangeSearchHistoricResult result = new ExchangeSearchHistoricResult();
-    final ExchangeDocument doc = getExchange(request.getExchangeId());
+    final ExchangeDocument doc = get(request.getExchangeId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
@@ -181,8 +181,8 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   }
 
   @Override
-  public ExchangeDocument correctExchange(final ExchangeDocument document) {
-    return updateExchange(document);
+  public ExchangeDocument correct(final ExchangeDocument document) {
+    return update(document);
   }
 
 }

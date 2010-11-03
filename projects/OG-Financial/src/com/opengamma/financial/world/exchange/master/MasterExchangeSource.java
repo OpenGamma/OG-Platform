@@ -111,7 +111,7 @@ public class MasterExchangeSource implements ExchangeSource {
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 
   @Override
@@ -120,7 +120,7 @@ public class MasterExchangeSource implements ExchangeSource {
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return getExchangeMaster().searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 
   //-------------------------------------------------------------------------

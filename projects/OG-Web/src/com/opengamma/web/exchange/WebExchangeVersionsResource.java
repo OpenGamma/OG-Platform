@@ -40,7 +40,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   public String get() {
     ExchangeSearchHistoricRequest request = new ExchangeSearchHistoricRequest();
     request.setExchangeId(data().getExchange().getExchangeId());
-    ExchangeSearchHistoricResult result = data().getExchangeMaster().searchHistoricExchange(request);
+    ExchangeSearchHistoricResult result = data().getExchangeMaster().searchHistoric(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
@@ -68,7 +68,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     ExchangeDocument doc = data().getExchange();
     UniqueIdentifier combined = doc.getExchangeId().withVersion(idStr);
     if (doc.getExchangeId().equals(combined) == false) {
-      ExchangeDocument versioned = data().getExchangeMaster().getExchange(combined);
+      ExchangeDocument versioned = data().getExchangeMaster().get(combined);
       data().setVersioned(versioned);
     } else {
       data().setVersioned(doc);

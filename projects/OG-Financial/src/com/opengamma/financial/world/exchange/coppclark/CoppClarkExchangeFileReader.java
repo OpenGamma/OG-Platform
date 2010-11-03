@@ -141,7 +141,7 @@ public class CoppClarkExchangeFileReader {
     Exchange exchange = _exchangeSource.getSingleExchange(identifiers);
     if (exchange == null) {
       ExchangeDocument addDoc = new ExchangeDocument(new Exchange(identifiers, exchangeName, region));
-      exchange = _exchangeMaster.addExchange(addDoc).getExchange();
+      exchange = _exchangeMaster.add(addDoc).getExchange();
     }
     exchange.getCalendarEntries().add(readCalendarEntryLine(rawFields));    
   }

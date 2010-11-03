@@ -84,7 +84,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
     exchange.setRegionId(Identifier.of(regionScheme, regionValue));
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    doc = data().getExchangeMaster().updateExchange(doc);
+    doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);
     URI uri = WebExchangeResource.uri(data());
     return Response.seeOther(uri).build();
@@ -93,7 +93,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   @DELETE
   public Response delete() {
     ExchangeDocument doc = data().getExchange();
-    data().getExchangeMaster().removeExchange(doc.getExchangeId());
+    data().getExchangeMaster().remove(doc.getExchangeId());
     URI uri = WebExchangesResource.uri(data());
     return Response.seeOther(uri).build();
   }
