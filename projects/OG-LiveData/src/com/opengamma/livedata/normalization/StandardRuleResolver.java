@@ -11,9 +11,8 @@ import com.opengamma.livedata.resolver.NormalizationRuleResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author pietari
+ * A {@code NormalizationRuleResolver} that gets the normalization rule set 
+ * from a fixed collection.
  */
 public class StandardRuleResolver implements NormalizationRuleResolver {
   

@@ -17,8 +17,7 @@ import com.opengamma.util.PublicAPI;
 
 
 /**
- * The core interface through which clients are able to interact
- * with the rest of the OpenGamma Live Data system.
+ * The core interface through which clients interact with the rest of the OpenGamma LiveData system.
  */
 @PublicAPI
 public interface LiveDataClient extends LiveDataEntitlementChecker {
@@ -28,31 +27,55 @@ public interface LiveDataClient extends LiveDataEntitlementChecker {
    * Returns immediately without waiting for a reply from the server.
    * The reply will be sent later to the listener.
    * 
-   * @param user User credentials. As part of subscribing to market data, there will automatically be an 
+   * @param user user credentials. As part of subscribing to market data, there will automatically be an 
    * entitlement check, and if it fails, a 
    * {@link com.opengamma.livedata.msg.LiveDataSubscriptionResult#NOT_AUTHORIZED}
    * response will be returned.
-   * @param requestedSpecification What market data you want to subscribe to, and in which 
-   * standardized format you want the server to give it to you
-   * @param listener Will receive the results of the subscription request
+   * @param requestedSpecification what market data you want to subscribe to, and in which 
+   * standardized format you want the server to give it to you.
+   * @param listener will receive the results of the subscription request.
    */
   void subscribe(UserPrincipal user,
       LiveDataSpecification requestedSpecification, 
       LiveDataListener listener);
   
   /**
+   * Creates a number of non-persistent subscriptions to market data.
+   * <p>
    * Equivalent to calling {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
    * for each specification individually, but may be more efficient. 
    * 
-   * @param user See {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
-   * @param requestedSpecifications See {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
-   * @param listener See {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
+   * @param user user credentials. As part of subscribing to market data, there will automatically be an 
+   * entitlement check, and if it fails, a 
+   * {@link com.opengamma.livedata.msg.LiveDataSubscriptionResult#NOT_AUTHORIZED}
+   * response will be returned.
+   * @param requestedSpecifications what market data you want to subscribe to, and in which 
+   * standardized format you want the server to give it to you.
+   * @param listener will receive the results of the subscription request.
    */
   void subscribe(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications, 
       LiveDataListener listener);
   
+  /**
+   * Deletes a market data subscription.
+   * 
+   * @param user user credentials
+   * @param fullyQualifiedSpecification what market data you no longer want to subscribe to.
+   * @param listener will receive the results of the unsubscription request.
+   */
   void unsubscribe(UserPrincipal user, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener);
+  
+  /**
+   * Deletes a number of market data subscriptions.
+   * <p>
+   * Equivalent to calling {@link #unsubscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
+   * for each specification individually, but may be more efficient. 
+   * 
+   * @param user user credentials
+   * @param fullyQualifiedSpecifications what market data you no longer want to subscribe to.
+   * @param listener will receive the results of the unsubscription request.
+   */
   void unsubscribe(UserPrincipal user, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener);
   
   /**
@@ -62,45 +85,53 @@ public interface LiveDataClient extends LiveDataEntitlementChecker {
    * Always contacts the server, even if there is an active
    * subscription to this market data.   
    * 
-   * @param user User credentials. As part of doing the snapshot, there will automatically be an 
+   * @param user user credentials. As part of doing the snapshot, there will automatically be an 
    * entitlement check, and if it fails, a 
    * {@link com.opengamma.livedata.msg.LiveDataSubscriptionResult#NOT_AUTHORIZED}
    * response will be returned.
-   * @param requestedSpecification What market data you want to subscribe to, and in which 
+   * @param requestedSpecification what market data you want to subscribe to, and in which 
    * standardized format you want the server to give it to you
-   * @param timeout In milliseconds. If the timeout is non-positive, this method will not wait at all, so null will be returned.
-   * @throws OpenGammaRuntimeException If timeout was reached without reply from server
-   * @return The snapshot
+   * @param timeout milliseconds. If the timeout is non-positive, this method will not wait at all, so null will be returned.
+   * @throws OpenGammaRuntimeException if timeout was reached without reply from server
+   * @return the snapshot
    */
   LiveDataSubscriptionResponse snapshot(UserPrincipal user,
       LiveDataSpecification requestedSpecification,
       long timeout);
   
   /**
+   * Asks for a number of snapshots from the server.
+   * <p>
    * Equivalent to calling {@link #snapshot(UserPrincipal, LiveDataSpecification, long)}
    * for each specification individually, but may be more efficient.
    * 
-   * @param user See {@link #snapshot(UserPrincipal, LiveDataSpecification, long)}
-   * @param requestedSpecifications See {@link #snapshot(UserPrincipal, LiveDataSpecification, long)}
-   * @param timeout See {@link #snapshot(UserPrincipal, LiveDataSpecification, long)}
-   * @return The returned response will be complete, i.e., it will contain <code>requestedSpecifications.size()</code> entries.
-   * @throws OpenGammaRuntimeException If timeout was reached without reply from server 
+   * @param user user credentials. As part of doing the snapshot, there will automatically be an 
+   * entitlement check, and if it fails, a 
+   * {@link com.opengamma.livedata.msg.LiveDataSubscriptionResult#NOT_AUTHORIZED}
+   * response will be returned.
+   * @param requestedSpecifications what market data you want to subscribe to, and in which 
+   * standardized format you want the server to give it to you
+   * @param timeout milliseconds. If the timeout is non-positive, this method will not wait at all, so null will be returned.
+   * @throws OpenGammaRuntimeException if timeout was reached without reply from server
+   * @return the snapshot. The response will be complete, i.e., it will contain <code>requestedSpecifications.size()</code> entries.
    */
   Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout);
   
   /**
+   * Gets the client's default normalization rule set ID.
+   * <p>
    * If you do not particularly care what format the data should be returned in
    * (as in certain automated JUnit tests), this method can be used to choose a default
-   * normalization scheme when building {@link LiveDataSpecifications LiveDataSpecification}. 
+   * normalization scheme when building a {@link LiveDataSpecification}. 
    * 
-   * @return Default normalization rule set ID 
+   * @return the client's default normalization rule set ID 
    */
   String getDefaultNormalizationRuleSetId();
   
   /**
-   * Shut down the client, releasing any underlying resources used to connect to the server.
+   * Shuts down the client, releasing any underlying resources used to connect to the server.
    */
   void close();
 

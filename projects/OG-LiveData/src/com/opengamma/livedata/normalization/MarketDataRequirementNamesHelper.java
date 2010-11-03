@@ -12,10 +12,15 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
+ * Constructs a list of all valid {@link MarketDataRequirementNames}.
  */
 public class MarketDataRequirementNamesHelper {
   
+  /**
+   * Constructs a list of all valid {@link MarketDataRequirementNames}.
+   * 
+   * @return a list of all valid {@link MarketDataRequirementNames}.
+   */
   public static Set<String> constructValidRequirementNames() {
     Set<String> result = new HashSet<String>();
     
