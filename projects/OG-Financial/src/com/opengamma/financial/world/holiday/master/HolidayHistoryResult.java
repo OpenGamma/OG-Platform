@@ -23,10 +23,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for holiday history.
+ * Result providing the history of a holiday.
+ * <p>
+ * The returned documents may be a mixture of versions and corrections.
+ * The document instant fields are used to identify which are which.
+ * See {@link HolidayHistoryRequest} for more details.
  */
 @BeanDefinition
-public class HolidaySearchHistoricResult extends DirectBean {
+public class HolidayHistoryResult extends DirectBean {
 
   /**
    * The paging information.
@@ -42,14 +46,14 @@ public class HolidaySearchHistoricResult extends DirectBean {
   /**
    * Creates an instance.
    */
-  public HolidaySearchHistoricResult() {
+  public HolidayHistoryResult() {
   }
 
   /**
    * Creates an instance.
    * @param coll  the collection of documents to add, not null
    */
-  public HolidaySearchHistoricResult(Collection<HolidayDocument> coll) {
+  public HolidayHistoryResult(Collection<HolidayDocument> coll) {
     _documents.addAll(coll);
     _paging = Paging.of(coll);
   }
@@ -107,13 +111,13 @@ public class HolidaySearchHistoricResult extends DirectBean {
    * The meta-bean for {@code HolidaySearchHistoricResult}.
    * @return the meta-bean, not null
    */
-  public static HolidaySearchHistoricResult.Meta meta() {
-    return HolidaySearchHistoricResult.Meta.INSTANCE;
+  public static HolidayHistoryResult.Meta meta() {
+    return HolidayHistoryResult.Meta.INSTANCE;
   }
 
   @Override
-  public HolidaySearchHistoricResult.Meta metaBean() {
-    return HolidaySearchHistoricResult.Meta.INSTANCE;
+  public HolidayHistoryResult.Meta metaBean() {
+    return HolidayHistoryResult.Meta.INSTANCE;
   }
 
   @Override
@@ -225,13 +229,13 @@ public class HolidaySearchHistoricResult extends DirectBean {
     }
 
     @Override
-    public HolidaySearchHistoricResult createBean() {
-      return new HolidaySearchHistoricResult();
+    public HolidayHistoryResult createBean() {
+      return new HolidayHistoryResult();
     }
 
     @Override
-    public Class<? extends HolidaySearchHistoricResult> beanType() {
-      return HolidaySearchHistoricResult.class;
+    public Class<? extends HolidayHistoryResult> beanType() {
+      return HolidayHistoryResult.class;
     }
 
     @Override

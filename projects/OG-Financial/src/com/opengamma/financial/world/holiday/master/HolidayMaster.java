@@ -83,15 +83,15 @@ public interface HolidayMaster {
   void remove(final UniqueIdentifier uid);
 
   /**
-   * Searches for holidays matching the specified search criteria.
+   * Queries the history of a single holiday.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the holiday.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the holiday history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  HolidaySearchHistoricResult searchHistoric(HolidaySearchHistoricRequest request);
+  HolidayHistoryResult history(HolidayHistoryRequest request);
 
   /**
    * Corrects a holiday in the data store.

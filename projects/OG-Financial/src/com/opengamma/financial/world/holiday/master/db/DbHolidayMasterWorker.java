@@ -12,8 +12,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -172,7 +172,7 @@ public class DbHolidayMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected HolidaySearchHistoricResult searchHistoric(HolidaySearchHistoricRequest request) {
+  protected HolidayHistoryResult searchHistoric(HolidayHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

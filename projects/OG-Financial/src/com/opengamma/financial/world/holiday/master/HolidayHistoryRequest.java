@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historic holiday information.
+ * Request for the history of a holiday.
  * <p>
  * A full holiday master implements historical storage of data.
  * History can be stored in two dimensions and this request provides searching.
@@ -46,7 +46,7 @@ import com.opengamma.util.db.PagingRequest;
  * Versions are represented by instants in the search.
  */
 @BeanDefinition
-public class HolidaySearchHistoricRequest extends DirectBean {
+public class HolidayHistoryRequest extends DirectBean {
 
   /**
    * The request for paging.
@@ -95,7 +95,7 @@ public class HolidaySearchHistoricRequest extends DirectBean {
    * Creates an instance.
    * The object identifier must be added before searching.
    */
-  public HolidaySearchHistoricRequest() {
+  public HolidayHistoryRequest() {
   }
 
   /**
@@ -103,7 +103,7 @@ public class HolidaySearchHistoricRequest extends DirectBean {
    * With no further customization this will retrieve all versions and corrections.
    * @param oid  the object identifier
    */
-  public HolidaySearchHistoricRequest(final UniqueIdentifier oid) {
+  public HolidayHistoryRequest(final UniqueIdentifier oid) {
     this(oid, null, null);
   }
 
@@ -113,7 +113,7 @@ public class HolidaySearchHistoricRequest extends DirectBean {
    * @param versionInstantProvider  the version instant to retrieve, null for all versions
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
-  public HolidaySearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+  public HolidayHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
     setHolidayId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
@@ -133,13 +133,13 @@ public class HolidaySearchHistoricRequest extends DirectBean {
    * The meta-bean for {@code HolidaySearchHistoricRequest}.
    * @return the meta-bean, not null
    */
-  public static HolidaySearchHistoricRequest.Meta meta() {
-    return HolidaySearchHistoricRequest.Meta.INSTANCE;
+  public static HolidayHistoryRequest.Meta meta() {
+    return HolidayHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
-  public HolidaySearchHistoricRequest.Meta metaBean() {
-    return HolidaySearchHistoricRequest.Meta.INSTANCE;
+  public HolidayHistoryRequest.Meta metaBean() {
+    return HolidayHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
@@ -424,13 +424,13 @@ public class HolidaySearchHistoricRequest extends DirectBean {
     }
 
     @Override
-    public HolidaySearchHistoricRequest createBean() {
-      return new HolidaySearchHistoricRequest();
+    public HolidayHistoryRequest createBean() {
+      return new HolidayHistoryRequest();
     }
 
     @Override
-    public Class<? extends HolidaySearchHistoricRequest> beanType() {
-      return HolidaySearchHistoricRequest.class;
+    public Class<? extends HolidayHistoryRequest> beanType() {
+      return HolidayHistoryRequest.class;
     }
 
     @Override

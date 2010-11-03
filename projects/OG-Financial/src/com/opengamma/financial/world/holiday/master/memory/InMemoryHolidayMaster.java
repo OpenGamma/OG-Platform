@@ -17,8 +17,8 @@ import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
@@ -199,11 +199,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidaySearchHistoricResult searchHistoric(final HolidaySearchHistoricRequest request) {
+  public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
     
-    final HolidaySearchHistoricResult result = new HolidaySearchHistoricResult();
+    final HolidayHistoryResult result = new HolidayHistoryResult();
     final HolidayDocument doc = get(request.getHolidayId());
     if (doc != null) {
       result.getDocuments().add(doc);
