@@ -12,10 +12,13 @@ import javax.time.InstantProvider;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.world.holiday.Holiday;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -113,6 +116,15 @@ public class MasterHolidaySource implements HolidaySource {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public Holiday getHoliday(UniqueIdentifier uid) {
+    try {
+      return getHolidayMaster().get(uid).getHoliday();
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
+  }
+
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     HolidaySearchRequest request = new HolidaySearchRequest(currency);
