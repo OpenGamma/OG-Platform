@@ -100,8 +100,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   @Override
-  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final boolean isEOMConvention) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention);
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
+      final int exDividendDays, final int settlementDays) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays);
     final UniqueIdentifier uid = _mapper.add(bundle, convention);
     convention.setUniqueIdentifier(uid);
     return uid;
@@ -391,6 +392,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addUSDTreasuryBondCouponDateConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_COUPON_DATE_CONVENTION")), "USD_TREASURY_COUPON_DATE_CONVENTION", true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_COUPON_DATE_CONVENTION")), "USD_TREASURY_COUPON_DATE_CONVENTION", true, true, 0, 1);
   }
 }

@@ -40,5 +40,5 @@ public interface ConventionBundleMaster {
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, String capmRiskFreeRateName, String capmMarketName);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention);
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays);
 }

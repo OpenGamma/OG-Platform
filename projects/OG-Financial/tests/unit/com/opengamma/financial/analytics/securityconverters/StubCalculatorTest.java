@@ -20,7 +20,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class StubTest {
+public class StubCalculatorTest {
   private static final ZonedDateTime[] NO_STUB1 = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 1, 1), DateUtil.getUTCDate(2008, 4, 1), DateUtil.getUTCDate(2008, 7, 1),
       DateUtil.getUTCDate(2008, 10, 1), DateUtil.getUTCDate(2009, 1, 1), DateUtil.getUTCDate(2009, 4, 1), DateUtil.getUTCDate(2009, 7, 1), DateUtil.getUTCDate(2009, 10, 1),
       DateUtil.getUTCDate(2010, 1, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2011, 1, 1),
@@ -88,6 +88,86 @@ public class StubTest {
       SHORT_END_STUB2[i] = SHORT_END_STUB1[i].toLocalDate();
       LONG_END_STUB2[i] = LONG_END_STUB1[i].toLocalDate();
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSchedule1() {
+    StubCalculator.getStartStubType((LocalDate[]) null, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSchedule2() {
+    StubCalculator.getStartStubType((ZonedDateTime[]) null, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSchedule3() {
+    StubCalculator.getEndStubType((LocalDate[]) null, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSchedule4() {
+    StubCalculator.getEndStubType((ZonedDateTime[]) null, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInSchedule1() {
+    StubCalculator.getStartStubType(new LocalDate[] {null, null}, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInSchedule2() {
+    StubCalculator.getStartStubType(new ZonedDateTime[] {null, null}, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInSchedule3() {
+    StubCalculator.getEndStubType(new LocalDate[] {null, null}, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInSchedule4() {
+    StubCalculator.getEndStubType(new ZonedDateTime[] {null, null}, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePayments1() {
+    StubCalculator.getStartStubType(NO_STUB1, -1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePayments2() {
+    StubCalculator.getStartStubType(NO_STUB2, -1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePayments3() {
+    StubCalculator.getEndStubType(NO_STUB1, -1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePayments4() {
+    StubCalculator.getEndStubType(NO_STUB2, -1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadPayments1() {
+    StubCalculator.getStartStubType(NO_STUB1, 5);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadPayments2() {
+    StubCalculator.getStartStubType(NO_STUB2, 5);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadPayments3() {
+    StubCalculator.getEndStubType(NO_STUB1, 5);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadPayments4() {
+    StubCalculator.getEndStubType(NO_STUB2, 5);
   }
 
   @Test

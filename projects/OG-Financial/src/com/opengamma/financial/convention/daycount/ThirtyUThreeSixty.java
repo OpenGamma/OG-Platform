@@ -14,6 +14,11 @@ import com.opengamma.util.time.DateUtil;
  */
 public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
 
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
+      final boolean isEOMConvention) {
+    return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
+  }
+
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     return getDayCountFraction(firstDate, secondDate, false);

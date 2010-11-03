@@ -60,6 +60,8 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   // bonds
   private boolean _isEOMConvention;
+  private boolean _calculateScheduleFromMaturity;
+  private int _exDividendDays;
 
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
@@ -145,10 +147,15 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   //Bonds
-  public ConventionBundleImpl(final String name, final boolean isEOMConvention) {
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays) {
     Validate.notNull(name, "name");
+    Validate.isTrue(exDividendDays >= 0);
+    Validate.isTrue(settlementDays >= 0);
     _name = name;
     _isEOMConvention = isEOMConvention;
+    _calculateScheduleFromMaturity = calculateScheduleFromMaturity;
+    _exDividendDays = exDividendDays;
+    _settlementDays = settlementDays;
   }
 
   @Override
@@ -383,5 +390,15 @@ public class ConventionBundleImpl implements ConventionBundle {
   @Override
   public boolean isEOMConvention() {
     return _isEOMConvention;
+  }
+
+  @Override
+  public boolean calculateScheduleFromMaturity() {
+    return _calculateScheduleFromMaturity;
+  }
+
+  @Override
+  public int getExDividendDays() {
+    return _exDividendDays;
   }
 }

@@ -219,4 +219,16 @@ public interface ConventionBundle {
    * @return if the convention is EOM
    */
   boolean isEOMConvention();
+
+  /**
+   * Whether to calculate the payment schedule from maturity (i.e. backwards) or forward from the first coupon
+   * @return how to calculate the schedule
+   */
+  boolean calculateScheduleFromMaturity();
+
+  /**
+   * Gets the number of days that a bond is ex-dividend
+   * @return the number of ex-dividend days
+   */
+  int getExDividendDays();
 }
