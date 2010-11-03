@@ -71,7 +71,7 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
-    assertEquals("Memory", added.getSecurityId().getScheme());
+    assertEquals("MemSec", added.getSecurityId().getScheme());
   }
 
   @Test

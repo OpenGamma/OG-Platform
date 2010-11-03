@@ -84,7 +84,7 @@ public class InMemoryHolidayAndExchangeRespositoriesTest {
     Exchange euronextLiffe = exchangeSource.getSingleExchange(euronextLiffeMIC);
     Assert.assertEquals(euronextLiffeCCName.getValue(), euronextLiffe.getName());
     Assert.assertEquals(uk, regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()));
-    Assert.assertEquals("Memory", euronextLiffe.getUniqueIdentifier().getScheme());
+    Assert.assertEquals("MemExg", euronextLiffe.getUniqueIdentifier().getScheme());
     Assert.assertEquals("1", euronextLiffe.getUniqueIdentifier().getValue());
     
     // try the other two ids in the bundle

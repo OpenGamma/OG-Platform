@@ -40,7 +40,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemSec";
 
   /**
    * A cache of securities by identifier.

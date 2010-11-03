@@ -41,7 +41,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemExg";
 
   /**
    * A cache of exchanges by identifier.

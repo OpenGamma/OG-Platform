@@ -41,7 +41,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemHol";
 
   /**
    * A cache of holidays by identifier.
