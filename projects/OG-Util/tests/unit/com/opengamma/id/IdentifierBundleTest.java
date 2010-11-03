@@ -209,6 +209,33 @@ public class IdentifierBundleTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void withoutScheme_match() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutScheme(new IdentificationScheme("A"));
+    assertEquals(1, base.size());
+    assertEquals(0, test.size());
+  }
+
+  @Test
+  public void withoutScheme_noMatch() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutScheme(IdentificationScheme.BLOOMBERG_BUID);
+    assertEquals(1, base.size());
+    assertEquals(1, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
+  }
+
+  @Test
+  public void withoutScheme_null() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutScheme(null);
+    assertEquals(1, base.size());
+    assertEquals(1, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_size() {
     assertEquals(0, new IdentifierBundle().size());
     assertEquals(1, new IdentifierBundle(_id11).size());

@@ -198,6 +198,24 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Returns a new bundle with all references to the specified scheme removed.
+   * This instance is immutable and unaffected by this method call.
+   * 
+   * @param scheme  the scheme to remove from the returned bundle, null ignored
+   * @return the new bundle, not null
+   */
+  public IdentifierBundle withoutScheme(IdentificationScheme scheme) {
+    Set<Identifier> ids = new HashSet<Identifier>(_identifiers.size());
+    for (Identifier id : _identifiers) {
+      if (id.isScheme(scheme) == false) {
+        ids.add(id);
+      }
+    }
+    return new IdentifierBundle(ids);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the number of identifiers in the bundle.
    * 
    * @return the bundle size, zero or greater
