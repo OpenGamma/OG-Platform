@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historic exchanges.
+ * Request for the history of an exchange.
  * <p>
  * A full exchange master implements historical storage of data.
  * History can be stored in two dimensions and this request provides searching.
@@ -46,7 +46,7 @@ import com.opengamma.util.db.PagingRequest;
  * Versions are represented by instants in the search.
  */
 @BeanDefinition
-public class ExchangeSearchHistoricRequest extends DirectBean {
+public class ExchangeHistoryRequest extends DirectBean {
 
   /**
    * The request for paging.
@@ -103,7 +103,7 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
    * Creates an instance.
    * The object identifier must be added before searching.
    */
-  public ExchangeSearchHistoricRequest() {
+  public ExchangeHistoryRequest() {
   }
 
   /**
@@ -111,7 +111,7 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
    * With no further customization this will retrieve all versions and corrections.
    * @param oid  the object identifier
    */
-  public ExchangeSearchHistoricRequest(final UniqueIdentifier oid) {
+  public ExchangeHistoryRequest(final UniqueIdentifier oid) {
     this(oid, null, null);
   }
 
@@ -121,7 +121,7 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
    * @param versionInstantProvider  the version instant to retrieve, null for all versions
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
-  public ExchangeSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+  public ExchangeHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
     setExchangeId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
@@ -141,13 +141,13 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
    * The meta-bean for {@code ExchangeSearchHistoricRequest}.
    * @return the meta-bean, not null
    */
-  public static ExchangeSearchHistoricRequest.Meta meta() {
-    return ExchangeSearchHistoricRequest.Meta.INSTANCE;
+  public static ExchangeHistoryRequest.Meta meta() {
+    return ExchangeHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
-  public ExchangeSearchHistoricRequest.Meta metaBean() {
-    return ExchangeSearchHistoricRequest.Meta.INSTANCE;
+  public ExchangeHistoryRequest.Meta metaBean() {
+    return ExchangeHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
@@ -476,13 +476,13 @@ public class ExchangeSearchHistoricRequest extends DirectBean {
     }
 
     @Override
-    public ExchangeSearchHistoricRequest createBean() {
-      return new ExchangeSearchHistoricRequest();
+    public ExchangeHistoryRequest createBean() {
+      return new ExchangeHistoryRequest();
     }
 
     @Override
-    public Class<? extends ExchangeSearchHistoricRequest> beanType() {
-      return ExchangeSearchHistoricRequest.class;
+    public Class<? extends ExchangeHistoryRequest> beanType() {
+      return ExchangeHistoryRequest.class;
     }
 
     @Override

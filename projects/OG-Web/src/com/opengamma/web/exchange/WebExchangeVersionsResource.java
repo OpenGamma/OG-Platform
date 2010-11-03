@@ -16,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricResult;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -38,9 +38,9 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ExchangeSearchHistoricRequest request = new ExchangeSearchHistoricRequest();
+    ExchangeHistoryRequest request = new ExchangeHistoryRequest();
     request.setExchangeId(data().getExchange().getExchangeId());
-    ExchangeSearchHistoricResult result = data().getExchangeMaster().searchHistoric(request);
+    ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);

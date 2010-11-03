@@ -25,10 +25,14 @@ import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for historic exchanges.
+ * Result providing the history of an exchange.
+ * <p>
+ * The returned documents may be a mixture of versions and corrections.
+ * The document instant fields are used to identify which are which.
+ * See {@link ExchangeHistoryRequest} for more details.
  */
 @BeanDefinition
-public class ExchangeSearchHistoricResult extends DirectBean {
+public class ExchangeHistoryResult extends DirectBean {
 
   /**
    * The paging information.
@@ -44,14 +48,14 @@ public class ExchangeSearchHistoricResult extends DirectBean {
   /**
    * Creates an instance.
    */
-  public ExchangeSearchHistoricResult() {
+  public ExchangeHistoryResult() {
   }
 
   /**
    * Creates an instance.
    * @param coll  the collection of documents to add, not null
    */
-  public ExchangeSearchHistoricResult(Collection<ExchangeDocument> coll) {
+  public ExchangeHistoryResult(Collection<ExchangeDocument> coll) {
     _documents.addAll(coll);
     _paging = Paging.of(coll);
   }
@@ -108,13 +112,13 @@ public class ExchangeSearchHistoricResult extends DirectBean {
    * The meta-bean for {@code ExchangeSearchHistoricResult}.
    * @return the meta-bean, not null
    */
-  public static ExchangeSearchHistoricResult.Meta meta() {
-    return ExchangeSearchHistoricResult.Meta.INSTANCE;
+  public static ExchangeHistoryResult.Meta meta() {
+    return ExchangeHistoryResult.Meta.INSTANCE;
   }
 
   @Override
-  public ExchangeSearchHistoricResult.Meta metaBean() {
-    return ExchangeSearchHistoricResult.Meta.INSTANCE;
+  public ExchangeHistoryResult.Meta metaBean() {
+    return ExchangeHistoryResult.Meta.INSTANCE;
   }
 
   @Override
@@ -226,13 +230,13 @@ public class ExchangeSearchHistoricResult extends DirectBean {
     }
 
     @Override
-    public ExchangeSearchHistoricResult createBean() {
-      return new ExchangeSearchHistoricResult();
+    public ExchangeHistoryResult createBean() {
+      return new ExchangeHistoryResult();
     }
 
     @Override
-    public Class<? extends ExchangeSearchHistoricResult> beanType() {
-      return ExchangeSearchHistoricResult.class;
+    public Class<? extends ExchangeHistoryResult> beanType() {
+      return ExchangeHistoryResult.class;
     }
 
     @Override

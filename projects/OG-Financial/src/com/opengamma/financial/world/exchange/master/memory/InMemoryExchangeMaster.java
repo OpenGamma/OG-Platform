@@ -20,8 +20,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchHistoricResult;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -167,11 +167,11 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeSearchHistoricResult searchHistoric(final ExchangeSearchHistoricRequest request) {
+  public ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
     
-    final ExchangeSearchHistoricResult result = new ExchangeSearchHistoricResult();
+    final ExchangeHistoryResult result = new ExchangeHistoryResult();
     final ExchangeDocument doc = get(request.getExchangeId());
     if (doc != null) {
       result.getDocuments().add(doc);
