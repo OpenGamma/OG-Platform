@@ -23,10 +23,14 @@ import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for historic securities.
+ * Result providing the history of a security.
+ * <p>
+ * The returned documents may be a mixture of versions and corrections.
+ * The document instant fields are used to identify which are which.
+ * See {@link SecurityHistoryRequest} for more details.
  */
 @BeanDefinition
-public class SecuritySearchHistoricResult extends DirectBean {
+public class SecurityHistoryResult extends DirectBean {
 
   /**
    * The paging information.
@@ -42,7 +46,7 @@ public class SecuritySearchHistoricResult extends DirectBean {
   /**
    * Creates an instance.
    */
-  public SecuritySearchHistoricResult() {
+  public SecurityHistoryResult() {
   }
 
   //-------------------------------------------------------------------------
@@ -82,13 +86,13 @@ public class SecuritySearchHistoricResult extends DirectBean {
    * The meta-bean for {@code SecuritySearchHistoricResult}.
    * @return the meta-bean, not null
    */
-  public static SecuritySearchHistoricResult.Meta meta() {
-    return SecuritySearchHistoricResult.Meta.INSTANCE;
+  public static SecurityHistoryResult.Meta meta() {
+    return SecurityHistoryResult.Meta.INSTANCE;
   }
 
   @Override
-  public SecuritySearchHistoricResult.Meta metaBean() {
-    return SecuritySearchHistoricResult.Meta.INSTANCE;
+  public SecurityHistoryResult.Meta metaBean() {
+    return SecurityHistoryResult.Meta.INSTANCE;
   }
 
   @Override
@@ -200,13 +204,13 @@ public class SecuritySearchHistoricResult extends DirectBean {
     }
 
     @Override
-    public SecuritySearchHistoricResult createBean() {
-      return new SecuritySearchHistoricResult();
+    public SecurityHistoryResult createBean() {
+      return new SecurityHistoryResult();
     }
 
     @Override
-    public Class<? extends SecuritySearchHistoricResult> beanType() {
-      return SecuritySearchHistoricResult.class;
+    public Class<? extends SecurityHistoryResult> beanType() {
+      return SecurityHistoryResult.class;
     }
 
     @Override

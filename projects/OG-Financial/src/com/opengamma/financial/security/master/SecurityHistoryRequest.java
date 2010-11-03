@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historic securities.
+ * Request for the history of a security.
  * <p>
  * A full security master implements historical storage of data.
  * History can be stored in two dimensions and this request provides searching.
@@ -46,7 +46,7 @@ import com.opengamma.util.db.PagingRequest;
  * Versions are represented by instants in the search.
  */
 @BeanDefinition
-public class SecuritySearchHistoricRequest extends DirectBean {
+public class SecurityHistoryRequest extends DirectBean {
 
   /**
    * The request for paging.
@@ -103,7 +103,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
    * Creates an instance.
    * The object identifier must be added before searching.
    */
-  public SecuritySearchHistoricRequest() {
+  public SecurityHistoryRequest() {
   }
 
   /**
@@ -111,7 +111,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
    * With no further customization this will retrieve all versions and corrections.
    * @param oid  the object identifier
    */
-  public SecuritySearchHistoricRequest(final UniqueIdentifier oid) {
+  public SecurityHistoryRequest(final UniqueIdentifier oid) {
     this(oid, null, null);
   }
 
@@ -121,7 +121,7 @@ public class SecuritySearchHistoricRequest extends DirectBean {
    * @param versionInstantProvider  the version instant to retrieve, null for all versions
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
-  public SecuritySearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+  public SecurityHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
     setSecurityId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
@@ -141,13 +141,13 @@ public class SecuritySearchHistoricRequest extends DirectBean {
    * The meta-bean for {@code SecuritySearchHistoricRequest}.
    * @return the meta-bean, not null
    */
-  public static SecuritySearchHistoricRequest.Meta meta() {
-    return SecuritySearchHistoricRequest.Meta.INSTANCE;
+  public static SecurityHistoryRequest.Meta meta() {
+    return SecurityHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
-  public SecuritySearchHistoricRequest.Meta metaBean() {
-    return SecuritySearchHistoricRequest.Meta.INSTANCE;
+  public SecurityHistoryRequest.Meta metaBean() {
+    return SecurityHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
@@ -476,13 +476,13 @@ public class SecuritySearchHistoricRequest extends DirectBean {
     }
 
     @Override
-    public SecuritySearchHistoricRequest createBean() {
-      return new SecuritySearchHistoricRequest();
+    public SecurityHistoryRequest createBean() {
+      return new SecurityHistoryRequest();
     }
 
     @Override
-    public Class<? extends SecuritySearchHistoricRequest> beanType() {
-      return SecuritySearchHistoricRequest.class;
+    public Class<? extends SecurityHistoryRequest> beanType() {
+      return SecurityHistoryRequest.class;
     }
 
     @Override
