@@ -250,7 +250,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<YieldConvention> values) {
         values.add(SimpleYieldConvention.US_STREET);
-        values.add(SimpleYieldConvention.US_TREASURY_EQUIVILANT);
+        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
         values.add(SimpleYieldConvention.TRUE);
       }
     });

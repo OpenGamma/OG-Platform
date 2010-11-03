@@ -13,18 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 public interface DayCount {
 
   /**
-   * Gets the basis of the day count for the specified date.
-   * <p>
-   * The basis is the number of days the convention defines as being in a year.
-   * This method is needed because some day count conventions define a year length
-   * as 366 in a leap year but 365 otherwise.
-   * 
-   * @param date  the date for which the basis is required, not null
-   * @return the number of days in a year
-   */
-  double getBasis(final ZonedDateTime date);
-
-  /**
    * Gets the day count between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
@@ -35,6 +23,8 @@ public interface DayCount {
    * @return the day count fraction
    */
   double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate);
+
+  double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear);
 
   /**
    * Gets the name of the convention.

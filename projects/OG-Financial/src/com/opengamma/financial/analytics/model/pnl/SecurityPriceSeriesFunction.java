@@ -51,7 +51,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   }
 
   public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String scheduleName, final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getSchedule(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
   }
 
   public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate) {
