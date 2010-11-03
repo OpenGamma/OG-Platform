@@ -17,8 +17,8 @@ import org.junit.Test;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.memory.InMemoryConfigMaster;
@@ -106,7 +106,7 @@ public class FunctionCostTest {
     }
 
     @Override
-    public ConfigSearchHistoricResult<T> searchHistoric(ConfigSearchHistoricRequest request) {
+    public ConfigHistoryResult<T> history(ConfigHistoryRequest request) {
       throw new UnsupportedOperationException();
     }
 

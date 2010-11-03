@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
@@ -26,14 +26,14 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
-public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbConfigTypeMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorkerHistoryTest.class);
 
   private DbConfigTypeMasterWorker<Identifier> _worker;
 
-  public QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest(String databaseType, String databaseVersion) {
+  public QueryConfigDbConfigTypeMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -54,10 +54,10 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_documents() {
+  public void test_history_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getDocuments().size());
     ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);  // new version
@@ -77,10 +77,10 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_documentCountWhenMultipleSecurities() {
+  public void test_history_documentCountWhenMultipleSecurities() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "102");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -96,10 +96,10 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants() {
+  public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -114,11 +114,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants_pageOne() {
+  public void test_history_noInstants_pageOne() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -130,11 +130,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_noInstants_pageTwo() {
+  public void test_history_noInstants_pageTwo() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -150,11 +150,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsFrom_preFirst() {
+  public void test_history_versionsFrom_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -166,11 +166,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_firstToSecond() {
+  public void test_history_versionsFrom_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -182,11 +182,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_postSecond() {
+  public void test_history_versionsFrom_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -197,11 +197,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsTo_preFirst() {
+  public void test_history_versionsTo_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -209,11 +209,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_firstToSecond() {
+  public void test_history_versionsTo_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -223,11 +223,11 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_postSecond() {
+  public void test_history_versionsTo_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(oid);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    ConfigSearchHistoricResult<Identifier> test = _worker.searchHistoric(request);
+    ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

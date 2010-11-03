@@ -14,8 +14,8 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -107,8 +107,8 @@ public class MasterConfigSource implements ConfigSource {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
     if (_versionAsOfInstant != null) {
-      ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, _versionAsOfInstant);
-      ConfigSearchHistoricResult<T> result = _configMaster.typed(clazz).searchHistoric(request);
+      ConfigHistoryRequest request = new ConfigHistoryRequest(uid, _versionAsOfInstant);
+      ConfigHistoryResult<T> result = _configMaster.typed(clazz).history(request);
       if (result.getDocuments().isEmpty()) {
         return null;
       }

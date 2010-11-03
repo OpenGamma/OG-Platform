@@ -62,7 +62,7 @@ public interface ConfigTypeMaster<T> {
    * If the identifier has a version it must be the latest version.
    * <p>
    * A full configuration master will store detailed historic information, including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #history}.
    * 
    * @param document  the document, not null
    * @return the updated document, not null
@@ -86,14 +86,14 @@ public interface ConfigTypeMaster<T> {
   void remove(final UniqueIdentifier uid);
 
   /**
-   * Searches for configuration documents matching the specified search criteria.
+   * Queries the history of a single piece of configuration.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the configuration.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the configuration history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  ConfigSearchHistoricResult<T> searchHistoric(ConfigSearchHistoricRequest request);
+  ConfigHistoryResult<T> history(ConfigHistoryRequest request);
 
 }

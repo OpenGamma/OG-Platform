@@ -16,8 +16,8 @@ import javax.ws.rs.core.MediaType;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -39,9 +39,9 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest();
+    ConfigHistoryRequest request = new ConfigHistoryRequest();
     request.setConfigId(data().getConfig().getConfigId());
-    ConfigSearchHistoricResult<T> result = data().getConfigTypeMaster().searchHistoric(request);
+    ConfigHistoryResult<T> result = data().getConfigTypeMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);

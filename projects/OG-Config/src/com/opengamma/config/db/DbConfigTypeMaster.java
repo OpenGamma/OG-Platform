@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -212,12 +212,12 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
+  public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getConfigId(), "request.configId");
     checkScheme(request.getConfigId());
     
-    return getWorkers().getSearchHistoricWorker().searchHistoric(request);
+    return getWorkers().getHistoryWorker().history(request);
   }
 
   //-------------------------------------------------------------------------

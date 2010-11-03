@@ -13,8 +13,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -181,7 +181,7 @@ public class DbConfigTypeMasterWorker<T> {
     throw new UnsupportedOperationException();
   }
 
-  protected ConfigSearchHistoricResult<T> searchHistoric(ConfigSearchHistoricRequest request) {
+  protected ConfigHistoryResult<T> history(ConfigHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

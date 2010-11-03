@@ -17,8 +17,8 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.ConfigTypeMaster;
@@ -151,11 +151,11 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
+  public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getConfigId(), "request.configId");
     
-    final ConfigSearchHistoricResult<T> result = new ConfigSearchHistoricResult<T>();
+    final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     final ConfigDocument<T> doc = get(request.getConfigId());
     if (doc != null) {
       result.getDocuments().add(doc);

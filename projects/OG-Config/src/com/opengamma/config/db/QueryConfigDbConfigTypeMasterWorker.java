@@ -24,8 +24,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -84,8 +84,8 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
   protected ConfigDocument<T> getByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getConfigByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, now);
-    final ConfigSearchHistoricResult<T> result = getMaster().searchHistoric(request);
+    final ConfigHistoryRequest request = new ConfigHistoryRequest(uid, now);
+    final ConfigHistoryResult<T> result = getMaster().history(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Config not found: " + uid);
     }
@@ -161,8 +161,8 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
 
   //-------------------------------------------------------------------------
   @Override
-  protected ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
-    s_logger.debug("searchConfigHistoric: {}", request);
+  protected ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
+    s_logger.debug("historyConfig: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("config_oid", extractOid(request.getConfigId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
@@ -171,7 +171,7 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
     final String[] sql = sqlSearchConfigHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final ConfigSearchHistoricResult<T> result = new ConfigSearchHistoricResult<T>();
+    final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final ConfigDocumentExtractor extractor = new ConfigDocumentExtractor();
@@ -185,7 +185,7 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchConfigHistoric(final ConfigSearchHistoricRequest request) {
+  protected String[] sqlSearchConfigHistoric(final ConfigHistoryRequest request) {
     String where = "WHERE oid = :config_oid " +
       "AND config_type = :config_type ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
