@@ -9,7 +9,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.memory.InMemoryConfigMaster;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
@@ -27,7 +26,7 @@ public class CurveConfigurationSetupHelper {
 
   private final ClassPathXmlApplicationContext _applicationContext;
   private final ConfigMaster _configMaster;
-  private final ConfigSource _configSource;
+  private final MasterConfigSource _configSource;
   private final RegionSource _regionSource;
   private final SecuritySource _secSource;
 
@@ -65,7 +64,7 @@ public class CurveConfigurationSetupHelper {
    * Gets the config source.
    * @return the config source, not null
    */
-  public ConfigSource getConfigSource() {
+  public MasterConfigSource getConfigSource() {
     return _configSource;
   }
 
