@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.world.region.master.memory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -19,9 +21,9 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionDocumentComparator;
-import com.opengamma.financial.world.region.master.RegionMaster;
 import com.opengamma.financial.world.region.master.RegionHistoryRequest;
 import com.opengamma.financial.world.region.master.RegionHistoryResult;
+import com.opengamma.financial.world.region.master.RegionMaster;
 import com.opengamma.financial.world.region.master.RegionSearchRequest;
 import com.opengamma.financial.world.region.master.RegionSearchResult;
 import com.opengamma.id.IdentifierBundle;
@@ -125,8 +127,9 @@ public class InMemoryRegionMaster implements RegionMaster {
       });
     }
     result.setPaging(Paging.of(docs, request.getPagingRequest()));
-    result.getDocuments().addAll(request.getPagingRequest().select(docs));
-    Collections.sort(result.getDocuments(), RegionDocumentComparator.ASC);
+    List<RegionDocument> list = new ArrayList<RegionDocument>(docs);
+    Collections.sort(list, RegionDocumentComparator.ASC);
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 
