@@ -12,8 +12,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
 /**
- * 
- *
+ * A job that gets events from the underlying market data API,
+ * then sends them to {@code AbstractLiveDataServer}.
  */
 public abstract class AbstractEventDispatcher extends TerminatableJob {
   

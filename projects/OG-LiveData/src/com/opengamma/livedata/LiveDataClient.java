@@ -3,14 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata;
 
 import java.util.Collection;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.livedata.LiveDataListener;
-import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.PublicAPI;

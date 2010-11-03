@@ -23,8 +23,8 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
 /**
- * 
- *
+ * A {@code LiveDataClient} that works completely in memory
+ * and actually does not contact any server.
  */
 public class TestLiveDataClient extends AbstractLiveDataClient {
   

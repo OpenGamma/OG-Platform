@@ -198,12 +198,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   protected abstract boolean snapshotOnSubscriptionStartRequired(Subscription subscription);
   
   /**
-   * Whether the server is connected to underlying market data API or not
+   * Is the server connected to underlying market data API?
    */
   public enum ConnectionStatus {
-    /** Connection established */
+    /** Connection active */
     CONNECTED,
-    /** Connection not established */
+    /** Connection not active */
     NOT_CONNECTED
   }
   

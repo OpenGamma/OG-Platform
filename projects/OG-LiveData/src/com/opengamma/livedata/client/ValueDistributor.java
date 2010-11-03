@@ -16,7 +16,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 
 /**
  * A stand-alone class which distributes live data values to all subscribed
- * listeners.
+ * {@link LiveDataListener}'s.
  * This is separate from all live data client instances as it needs to be
  * compact to be able to have efficient concurrency.
  *

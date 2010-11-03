@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
@@ -33,7 +34,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * This {@link LiveDataClient} talks to a remote LiveData server. 
+ * A client that talks to a remote LiveData server through an unspecified protocol.
+ * Possibilities are JMS, Fudge, direct socket connection, and so on. 
  */
 @PublicAPI
 public class DistributedLiveDataClient extends AbstractLiveDataClient implements FudgeMessageReceiver {

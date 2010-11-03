@@ -12,9 +12,9 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author pietari
+ * This class produces a {@code DistributionSpecification}
+ * using an underlying {@code IdResolver}, {@code NormalizationRuleResolver}, and
+ * {@code JmsTopicNameResolver}.   
  */
 public class DefaultDistributionSpecificationResolver implements DistributionSpecificationResolver {
   

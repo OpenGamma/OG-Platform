@@ -10,7 +10,7 @@ import com.opengamma.livedata.UserPrincipal;
 
 
 /**
- * 
+ * Always allows the user access to LiveData.
  */
 public class PermissiveLiveDataEntitlementChecker extends AbstractEntitlementChecker {
 
