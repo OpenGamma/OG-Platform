@@ -59,7 +59,7 @@ public interface RegionMaster {
    * <p>
    * A full region master will store detailed historic information on regions,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #history}.
    * 
    * @param document  the document, not null
    * @return the updated region document, not null
@@ -100,7 +100,7 @@ public interface RegionMaster {
    * and will support correction of each region.
    * To update the region with a new version, use {@link #update}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #history}.
    * <p>
    * The specified document must contain the region and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the region.
