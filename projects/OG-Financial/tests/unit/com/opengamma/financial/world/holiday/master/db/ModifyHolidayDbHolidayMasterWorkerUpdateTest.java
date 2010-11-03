@@ -24,8 +24,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchHistoricResult;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
+import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -129,8 +129,8 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getHoliday(), old.getHoliday());
     
-    HolidaySearchHistoricRequest search = new HolidaySearchHistoricRequest(base.getHolidayId(), null, now);
-    HolidaySearchHistoricResult searchResult = _queryWorker.searchHistoric(search);
+    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getHolidayId(), null, now);
+    HolidayHistoryResult searchResult = _queryWorker.searchHistoric(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 
