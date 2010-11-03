@@ -9,7 +9,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- *
+ * Transforms a set of IDs into a unique ID.
  */
 public interface IdResolver {
   
@@ -19,8 +19,8 @@ public interface IdResolver {
    * <p>
    * If the input is already a unique ID, it is returned as it is: no validation is performed.
    * 
-   * @param ids Input IDs
-   * @return The unique ID. Null if it was not found.
+   * @param ids input IDs
+   * @return the unique ID. Null if it was not found.
    */
   Identifier resolve(IdentifierBundle ids);
 

@@ -32,7 +32,7 @@ import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
- * This client is implemented using JMS's asynchronous
+ * A JMS LiveData client. This client is implemented using JMS's asynchronous
  * onMessage() notification capability.
  * The client creates 10 JMS sessions by default. New market data
  * subscriptions are assigned to sessions in round-robin fashion.

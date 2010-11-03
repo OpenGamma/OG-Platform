@@ -21,7 +21,6 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * Specifies what data you want, in what format.
- * Used on the client side.
  */
 @PublicAPI
 public class LiveDataSpecification {

@@ -5,6 +5,6 @@
  */
 
 /**
- * Provides classes for interacting with the OpenGamma LiveData system. 
+ * Classes used by clients interacting with the OpenGamma LiveData system. 
  */
 package com.opengamma.livedata;

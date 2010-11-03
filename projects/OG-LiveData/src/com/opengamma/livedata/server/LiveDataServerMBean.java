@@ -20,7 +20,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * JMX management of a LiveData server.
  */
 @ManagedResource(
     objectName = "com.opengamma:name=LiveDataServer",

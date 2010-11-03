@@ -5,6 +5,6 @@
  */
 
 /**
- * Provides classes implementing a LiveData client.
+ * A JMS implementation of a LiveData client.
  */
 package com.opengamma.livedata.client;
