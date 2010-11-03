@@ -17,7 +17,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
- * 
+ * Utility methods to test the conformity of messages to standard
+ * normalization rules.
  */
 public class StandardRulesUtils {
   

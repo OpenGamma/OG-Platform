@@ -3,47 +3,43 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.holiday;
+package com.opengamma.web.region;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.financial.world.region.master.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
-import com.opengamma.web.exchange.WebExchangeData;
-import com.opengamma.web.exchange.WebExchangeUris;
-import com.opengamma.web.region.WebRegionData;
-import com.opengamma.web.region.WebRegionUris;
 
 /**
- * Abstract base class for RESTful holiday resources.
+ * Abstract base class for RESTful region resources.
  */
-public abstract class AbstractWebHolidayResource extends AbstractWebResource {
+public abstract class AbstractWebRegionResource extends AbstractWebResource {
 
   /**
    * The backing bean.
    */
-  private final WebHolidayData _data;
+  private final WebRegionData _data;
 
   /**
    * Creates the resource.
-   * @param holidayMaster  the holiday master, not null
+   * @param regionMaster  the region master, not null
    */
-  protected AbstractWebHolidayResource(final HolidayMaster holidayMaster) {
-    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
-    _data = new WebHolidayData();
-    data().setHolidayMaster(holidayMaster);
+  protected AbstractWebRegionResource(final RegionMaster regionMaster) {
+    ArgumentChecker.notNull(regionMaster, "regionMaster");
+    _data = new WebRegionData();
+    data().setRegionMaster(regionMaster);
   }
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  protected AbstractWebHolidayResource(final AbstractWebHolidayResource parent) {
+  protected AbstractWebRegionResource(final AbstractWebRegionResource parent) {
     super(parent);
     _data = parent._data;
   }
@@ -67,20 +63,16 @@ public abstract class AbstractWebHolidayResource extends AbstractWebResource {
   protected FlexiBean createRootData() {
     FlexiBean out = getFreemarker().createRootData();
     out.put("homeUris", new WebHomeUris(data().getUriInfo()));
-    out.put("uris", new WebHolidayUris(data()));
-    WebExchangeData exchangeData = new WebExchangeData(data().getUriInfo());
-    out.put("exchangeUris", new WebExchangeUris(exchangeData));
-    WebRegionData regionData = new WebRegionData(data().getUriInfo());
-    out.put("regionUris", new WebRegionUris(regionData));
+    out.put("uris", new WebRegionUris(data()));
     return out;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the backing bean.
-   * @return the backing bean, not null
+   * @return the beacking bean, not null
    */
-  protected WebHolidayData data() {
+  protected WebRegionData data() {
     return _data;
   }
 

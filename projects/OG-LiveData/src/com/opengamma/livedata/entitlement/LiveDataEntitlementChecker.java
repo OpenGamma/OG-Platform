@@ -21,7 +21,7 @@ import com.opengamma.livedata.UserPrincipal;
 // to provide additional feedback to the user as to WHY so that they can have IT staff
 // fix it easily. Otherwise all failures will result in expensive debugging and log-checking.
 /**
- * 
+ * Checks if a user is entitled to LiveData.
  *
  */
 public interface LiveDataEntitlementChecker {

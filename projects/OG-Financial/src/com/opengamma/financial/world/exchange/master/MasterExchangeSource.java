@@ -13,6 +13,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
@@ -118,6 +119,7 @@ public class MasterExchangeSource implements ExchangeSource {
   @Override
   public ManageableExchange getSingleExchange(Identifier identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
+    searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
@@ -127,6 +129,7 @@ public class MasterExchangeSource implements ExchangeSource {
   @Override
   public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
+    searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);

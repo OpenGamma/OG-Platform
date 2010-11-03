@@ -15,6 +15,10 @@ package com.opengamma.financial.world.region;
 public enum RegionClassification {
 
   /**
+   * The root of the hierarchy, such as the world.
+   */
+  ROOT,
+  /**
    * A super-national grouping, such as Europe, Asia and EuroZone.
    */
   SUPER_NATIONAL,

@@ -9,9 +9,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 
 
 /**
- * A market data sender sends market data messages to external systems.
- *
- * @author kirk
+ * Sends market data messages to external systems.
  */
 public interface MarketDataSender {
 

@@ -13,6 +13,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
+ * Makes implementing {@link LiveDataEntitlementChecker} easier.
  * Implements {@link #isEntitled(UserPrincipal, Collection)} so you don't need to.
  */
 public abstract class AbstractEntitlementChecker implements LiveDataEntitlementChecker {
