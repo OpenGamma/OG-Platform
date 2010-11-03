@@ -25,7 +25,7 @@ import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Maps client LiveData IDs to server LiveData IDs by contacting a remote LiveData server. 
  *
  */
 public class DistributedSpecificationResolver {

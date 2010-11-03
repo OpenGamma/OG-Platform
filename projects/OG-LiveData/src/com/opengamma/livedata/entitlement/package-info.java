@@ -5,6 +5,6 @@
  */
 
 /**
- * Provides classes for entitling LiveData users to market data.
+ * Classes for entitling LiveData users to market data.
  */
 package com.opengamma.livedata.entitlement;

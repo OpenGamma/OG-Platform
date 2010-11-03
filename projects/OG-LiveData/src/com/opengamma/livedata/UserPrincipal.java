@@ -9,15 +9,17 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * User credentials.
+ * <p>
+ * In LiveData, user credentials include user name and the IP address of the user.
  */
 @PublicAPI
 public class UserPrincipal implements java.io.Serializable {
 
   /**
-   * Returns a local user.
+   * Gets a local user by user name.
    * 
-   * @param userName User name, not null
-   * @return User with ipAddress = {@code java.net.InetAddress.getLocalHost().toString()}
+   * @param userName user name, not null
+   * @return user with the specified user name and IP address {@code java.net.InetAddress.getLocalHost().toString()}
    */
   public static UserPrincipal getLocalUser(String userName) {
     try {
@@ -29,10 +31,10 @@ public class UserPrincipal implements java.io.Serializable {
   }
 
   /**
-   * Returns a local user.
+   * Gets a local user.
    * 
-   * @return User with userName = {@code System.getProperty("user.name")},
-   * ipAddress = {@code java.net.InetAddress.getLocalHost().toString()}
+   * @return user with user name {@code System.getProperty("user.name")} and
+   * IP address {@code java.net.InetAddress.getLocalHost().toString()}
    */
   public static UserPrincipal getLocalUser() {
     String userName = System.getProperty("user.name");
@@ -45,10 +47,9 @@ public class UserPrincipal implements java.io.Serializable {
   private static final UserPrincipal TEST_USER = new UserPrincipal("Test user", "127.0.0.1");
 
   /**
-   * Returns a test user.
+   * Gets a test user.
    * 
-   * @return User with userName = {@code Test user},
-   * ipAddress = {@code 127.0.0.1}
+   * @return user with user name {@code Test user} and IP address {@code 127.0.0.1}
    */
   public static UserPrincipal getTestUser() {
     return TEST_USER;
@@ -56,12 +57,25 @@ public class UserPrincipal implements java.io.Serializable {
 
   private static final long serialVersionUID = -9633023788096L;
   
-  private String _userName;
-  private String _ipAddress;
+  /**
+   * User name
+   */
+  private final String _userName;
+  
+  /**
+   * IP address
+   */
+  private final String _ipAddress;
   
   private static final String USER_NAME_KEY = "userName";
   private static final String IP_ADDRESS_KEY = "ipAddress";
 
+  /**
+   * Constructs a new user.
+   * 
+   * @param userName user name, not null
+   * @param ipAddress IP address, not null
+   */
   public UserPrincipal(String userName, String ipAddress) {
     if (userName == null) {
       throw new NullPointerException("userName' cannot be null");
@@ -141,26 +155,22 @@ public class UserPrincipal implements java.io.Serializable {
     return new UserPrincipal(fudgeMsg);
   }
 
+  /**
+   * Gets the user name of the user.
+   * 
+   * @return the user name, not null
+   */
   public String getUserName() {
     return _userName;
   }
 
-  public void setUserName(String userName) {
-    if (userName == null) {
-      throw new NullPointerException("userName' cannot be null");
-    }
-    _userName = userName;
-  }
-
+  /**
+   * Gets the IP address of the user
+   * 
+   * @return the IP address, not null
+   */
   public String getIpAddress() {
     return _ipAddress;
-  }
-
-  public void setIpAddress(String ipAddress) {
-    if (ipAddress == null) {
-      throw new NullPointerException("ipAddress' cannot be null");
-    }
-    _ipAddress = ipAddress;
   }
 
   public boolean equals(final Object o) {

@@ -5,6 +5,6 @@
  */
 
 /**
- * Resolvers to map user-provided ID's to underlying market data API ID's and LiveData normalization rules.   
+ * Resolvers to map user-provided ID's to underlying market data API ID's.   
  */
 package com.opengamma.livedata.resolver;

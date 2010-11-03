@@ -33,8 +33,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * 
- *
+ * This {@link LiveDataClient} talks to a remote LiveData server. 
  */
 @PublicAPI
 public class DistributedLiveDataClient extends AbstractLiveDataClient implements FudgeMessageReceiver {

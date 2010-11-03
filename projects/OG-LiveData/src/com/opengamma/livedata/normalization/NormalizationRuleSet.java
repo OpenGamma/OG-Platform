@@ -19,9 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
- * 
- *
- * @author pietari
+ * An ordered set of normalization rules.
  */
 public class NormalizationRuleSet {
   private final String _id;
@@ -55,6 +53,16 @@ public class NormalizationRuleSet {
     _rules = new ArrayList<NormalizationRule>(rules);    
   }
   
+  /**
+   * Gets a normalized message.
+   * This is done by applying the set of normalization rules
+   * to the raw message. 
+   * 
+   * @param msg message received from underlying market data API in its native format.
+   * @param fieldHistory history of field values  
+   * @return the normalized message. Null if one of the normalization rules
+   * rejected the message.
+   */
   public FudgeFieldContainer getNormalizedMessage(
       FudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
@@ -69,12 +77,19 @@ public class NormalizationRuleSet {
     return normalizedMsg;
   }
   
+  /**
+   * Gets the ID of this normalization rule set.
+   * 
+   * @return the ID of this normalization rule set.
+   */
   public String getId() {
     return _id;
   }
   
   /**
-   * Return value, if non-empty, will always start with {@link JmsTopicNameResolver#SEPARATOR}.
+   * Gets the Jms topic suffix of this normalization rule set.
+   * <p>
+   * The return value, if non-empty, will always start with {@link JmsTopicNameResolver#SEPARATOR}.
    * However, an empty string is also a possibility.
    * 
    * @return the JMS topic suffix
