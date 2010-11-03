@@ -198,7 +198,7 @@ public class DbHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
     checkScheme(request.getHolidayId());
     
-    return getWorkers().getSearchHistoricWorker().searchHistoric(request);
+    return getWorkers().getHistoryWorker().history(request);
   }
 
   //-------------------------------------------------------------------------

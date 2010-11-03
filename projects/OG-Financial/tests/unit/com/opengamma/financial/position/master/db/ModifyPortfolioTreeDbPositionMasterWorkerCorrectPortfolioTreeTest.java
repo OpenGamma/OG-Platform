@@ -139,7 +139,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
         newer.getPortfolio().getRootNode().getUniqueIdentifier().getVersion()));
     
     PortfolioTreeHistoryRequest search = new PortfolioTreeHistoryRequest(base.getPortfolioId(), _version1Instant.plusSeconds(5), null);
-    PortfolioTreeHistoryResult searchResult = _queryWorker.searchPortfolioTreeHistoric(search);
+    PortfolioTreeHistoryResult searchResult = _queryWorker.historyPortfolioTree(search);
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(corrected.getPortfolioId(), searchResult.getDocuments().get(0).getPortfolioId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getPortfolioId());

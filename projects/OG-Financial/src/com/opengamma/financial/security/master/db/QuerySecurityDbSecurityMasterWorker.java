@@ -200,7 +200,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected SecurityHistoryResult searchHistoric(final SecurityHistoryRequest request) {
+  protected SecurityHistoryResult history(final SecurityHistoryRequest request) {
     s_logger.debug("searchSecurityHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("security_oid", extractOid(request.getSecurityId()))

@@ -216,7 +216,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
 
   //-------------------------------------------------------------------------
   @Override
-  protected PortfolioTreeHistoryResult searchPortfolioTreeHistoric(final PortfolioTreeHistoryRequest request) {
+  protected PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     s_logger.debug("searchPortfolioTreeHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("portfolio_oid", extractOid(request.getPortfolioId()))

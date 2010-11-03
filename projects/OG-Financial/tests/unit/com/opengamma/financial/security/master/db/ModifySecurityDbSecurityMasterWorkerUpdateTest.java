@@ -125,7 +125,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(base.getSecurity(), old.getSecurity());
     
     SecurityHistoryRequest search = new SecurityHistoryRequest(base.getSecurityId(), null, now);
-    SecurityHistoryResult searchResult = _queryWorker.searchHistoric(search);
+    SecurityHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

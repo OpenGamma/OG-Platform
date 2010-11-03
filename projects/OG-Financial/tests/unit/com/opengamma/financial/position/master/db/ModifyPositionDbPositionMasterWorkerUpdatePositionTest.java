@@ -128,7 +128,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(base.getPosition(), old.getPosition());
     
     PositionHistoryRequest search = new PositionHistoryRequest(base.getPositionId(), null, now);
-    PositionHistoryResult searchResult = _queryWorker.searchPositionHistoric(search);
+    PositionHistoryResult searchResult = _queryWorker.historyPosition(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

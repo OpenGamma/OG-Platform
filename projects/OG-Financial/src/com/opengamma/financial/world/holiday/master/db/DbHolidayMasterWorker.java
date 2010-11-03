@@ -172,7 +172,7 @@ public class DbHolidayMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected HolidayHistoryResult searchHistoric(HolidayHistoryRequest request) {
+  protected HolidayHistoryResult history(HolidayHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

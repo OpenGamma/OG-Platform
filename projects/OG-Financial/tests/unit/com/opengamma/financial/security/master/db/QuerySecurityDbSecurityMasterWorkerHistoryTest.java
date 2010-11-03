@@ -29,14 +29,14 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
  */
-public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends AbstractDbSecurityMasterWorkerTest {
+public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerSearchHistoricTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerHistoryTest.class);
 
   private DbSecurityMasterWorker _worker;
 
-  public QuerySecurityDbSecurityMasterWorkerSearchHistoricTest(String databaseType, String databaseVersion) {
+  public QuerySecurityDbSecurityMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -57,10 +57,10 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchSecurityHistoric_documents() {
+  public void test_history_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getDocuments().size());
     SecurityDocument doc0 = test.getDocuments().get(0);  // new version
@@ -98,10 +98,10 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_documentCountWhenMultipleSecurities() {
+  public void test_history_documentCountWhenMultipleSecurities() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "102");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -127,10 +127,10 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants() {
+  public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -145,11 +145,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants_pageOne() {
+  public void test_history_noInstants_pageOne() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -161,11 +161,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_noInstants_pageTwo() {
+  public void test_history_noInstants_pageTwo() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -181,11 +181,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsFrom_preFirst() {
+  public void test_history_versionsFrom_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -197,11 +197,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_firstToSecond() {
+  public void test_history_versionsFrom_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -213,11 +213,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_postSecond() {
+  public void test_history_versionsFrom_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -228,11 +228,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsTo_preFirst() {
+  public void test_history_versionsTo_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -240,11 +240,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_firstToSecond() {
+  public void test_history_versionsTo_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -254,11 +254,11 @@ public class QuerySecurityDbSecurityMasterWorkerSearchHistoricTest extends Abstr
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_postSecond() {
+  public void test_history_versionsTo_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.searchHistoric(request);
+    SecurityHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

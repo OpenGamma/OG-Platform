@@ -137,13 +137,13 @@ public class RemoteSecurityMaster implements SecurityMaster {
   public SecurityHistoryResult history(SecurityHistoryRequest request) {
     // POST is wrong; but is easy to write if we have a "request" document
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(request);
-    s_logger.debug("searchHistoric-post {} to {}", payload, _targetHistoric);
+    s_logger.debug("history-post {} to {}", payload, _targetHistoric);
     final FudgeMsgEnvelope env = getRestClient().post(_targetHistoric, payload);
     if (env == null) {
-      s_logger.debug("searchHistoric-recv NULL");
+      s_logger.debug("history-recv NULL");
       return null;
     }
-    s_logger.debug("searchHistoric-recv {}", env.getMessage());
+    s_logger.debug("history-recv {}", env.getMessage());
     return getFudgeDeserializationContext().fudgeMsgToObject(SecurityHistoryResult.class, env.getMessage());
   }
 

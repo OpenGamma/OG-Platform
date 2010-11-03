@@ -196,7 +196,7 @@ public class DbSecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(request.getSecurityId(), "request.securityId");
     checkScheme(request.getSecurityId());
     
-    return getWorkers().getSearchHistoricWorker().searchHistoric(request);
+    return getWorkers().getHistoryWorker().history(request);
   }
 
   //-------------------------------------------------------------------------

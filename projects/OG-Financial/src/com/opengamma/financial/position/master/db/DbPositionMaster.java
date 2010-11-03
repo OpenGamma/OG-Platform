@@ -208,7 +208,7 @@ public class DbPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
     checkScheme(request.getPortfolioId());
     
-    return getWorkers().getSearchHistoricPortfolioTreesWorker().searchPortfolioTreeHistoric(request);
+    return getWorkers().getHistoryPortfolioTreesWorker().historyPortfolioTree(request);
   }
 
   //-------------------------------------------------------------------------
@@ -276,7 +276,7 @@ public class DbPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
     checkScheme(request.getPositionId());
     
-    return getWorkers().getSearchHistoricPositionsWorker().searchPositionHistoric(request);
+    return getWorkers().getHistoryPositionsWorker().historyPosition(request);
   }
 
   //-------------------------------------------------------------------------

@@ -235,7 +235,7 @@ public class DbPositionMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeHistoryResult searchPortfolioTreeHistoric(PortfolioTreeHistoryRequest request) {
+  protected PortfolioTreeHistoryResult historyPortfolioTree(PortfolioTreeHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 
@@ -264,7 +264,7 @@ public class DbPositionMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected PositionHistoryResult searchPositionHistoric(PositionHistoryRequest request) {
+  protected PositionHistoryResult historyPosition(PositionHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

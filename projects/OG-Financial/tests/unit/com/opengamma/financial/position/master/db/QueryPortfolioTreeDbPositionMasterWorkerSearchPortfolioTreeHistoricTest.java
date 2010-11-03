@@ -57,7 +57,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
   public void test_searchPortfolioTreeHistoric_documents_noInstants_nodeTree_depthZero() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(2, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);  // new version
@@ -86,7 +86,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "101");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setDepth(1);
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
@@ -110,7 +110,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "101");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setDepth(-1);
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getDocuments().size());
     PortfolioTreeDocument doc0 = test.getDocuments().get(0);
@@ -137,7 +137,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
   public void test_searchPortfolioTreeHistoric_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -156,7 +156,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -172,7 +172,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -192,7 +192,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -208,7 +208,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -224,7 +224,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -239,7 +239,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -251,7 +251,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -265,7 +265,7 @@ public class QueryPortfolioTreeDbPositionMasterWorkerSearchPortfolioTreeHistoric
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "201");
     PortfolioTreeHistoryRequest request = new PortfolioTreeHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    PortfolioTreeHistoryResult test = _worker.searchPortfolioTreeHistoric(request);
+    PortfolioTreeHistoryResult test = _worker.historyPortfolioTree(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

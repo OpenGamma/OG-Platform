@@ -183,7 +183,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected PositionHistoryResult searchPositionHistoric(final PositionHistoryRequest request) {
+  protected PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_oid", extractOid(request.getPositionId()))

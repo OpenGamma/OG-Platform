@@ -24,14 +24,14 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
  */
-public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends AbstractDbHolidayMasterWorkerTest {
+public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHolidayMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerSearchHistoricTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerHistoryTest.class);
 
   private DbHolidayMasterWorker _worker;
 
-  public QueryHolidayDbHolidayMasterWorkerSearchHistoricTest(String databaseType, String databaseVersion) {
+  public QueryHolidayDbHolidayMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -52,10 +52,10 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHolidayHistoric_documents() {
+  public void test_history_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -63,10 +63,10 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_documentCountWhenMultipleHolidays() {
+  public void test_history_documentCountWhenMultipleHolidays() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "102");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -76,10 +76,10 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants() {
+  public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -92,11 +92,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_noInstants_pageOne() {
+  public void test_history_noInstants_pageOne() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -107,11 +107,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_noInstants_pageTwo() {
+  public void test_history_noInstants_pageTwo() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -126,11 +126,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsFrom_preFirst() {
+  public void test_history_versionsFrom_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -140,11 +140,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_firstToSecond() {
+  public void test_history_versionsFrom_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -154,11 +154,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_versionsFrom_postSecond() {
+  public void test_history_versionsFrom_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -168,11 +168,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchHistoric_versionsTo_preFirst() {
+  public void test_history_versionsTo_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -180,11 +180,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_firstToSecond() {
+  public void test_history_versionsTo_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -193,11 +193,11 @@ public class QueryHolidayDbHolidayMasterWorkerSearchHistoricTest extends Abstrac
   }
 
   @Test
-  public void test_searchHistoric_versionsTo_postSecond() {
+  public void test_history_versionsTo_postSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    HolidayHistoryResult test = _worker.searchHistoric(request);
+    HolidayHistoryResult test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

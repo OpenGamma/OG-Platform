@@ -61,7 +61,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
   public void test_searchPositionHistoric_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);  // new version
@@ -104,7 +104,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
   public void test_searchPositionHistoric_documentCountWhenMultipleSecurities() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "121");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -134,7 +134,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
   public void test_searchPositionHistoric_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -153,7 +153,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -169,7 +169,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -189,7 +189,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -205,7 +205,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -221,7 +221,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -236,7 +236,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -248,7 +248,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -262,7 +262,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     UniqueIdentifier oid = UniqueIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    PositionHistoryResult test = _worker.searchPositionHistoric(request);
+    PositionHistoryResult test = _worker.historyPosition(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     

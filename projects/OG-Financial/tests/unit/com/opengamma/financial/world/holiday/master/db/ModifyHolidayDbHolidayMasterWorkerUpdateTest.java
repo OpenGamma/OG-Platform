@@ -130,7 +130,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(base.getHoliday(), old.getHoliday());
     
     HolidayHistoryRequest search = new HolidayHistoryRequest(base.getHolidayId(), null, now);
-    HolidayHistoryResult searchResult = _queryWorker.searchHistoric(search);
+    HolidayHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

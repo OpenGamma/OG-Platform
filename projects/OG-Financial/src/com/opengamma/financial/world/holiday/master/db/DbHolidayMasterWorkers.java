@@ -23,7 +23,7 @@ public class DbHolidayMasterWorkers {
   /** Worker. */
   private DbHolidayMasterWorker _removeWorker = new ModifyHolidayDbHolidayMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _searchHistoricWorker = new QueryHolidayDbHolidayMasterWorker();
+  private DbHolidayMasterWorker _historyWorker = new QueryHolidayDbHolidayMasterWorker();
   /** Worker. */
   private DbHolidayMasterWorker _correctWorker = new ModifyHolidayDbHolidayMasterWorker();
 
@@ -43,7 +43,7 @@ public class DbHolidayMasterWorkers {
     _addWorker.init(master);
     _updateWorker.init(master);
     _removeWorker.init(master);
-    _searchHistoricWorker.init(master);
+    _historyWorker.init(master);
     _correctWorker.init(master);
   }
 
@@ -134,19 +134,19 @@ public class DbHolidayMasterWorkers {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchHistoricWorker field.
-   * @return the searchHistoricWorker
+   * Gets the historyWorker field.
+   * @return the historyWorker
    */
-  public DbHolidayMasterWorker getSearchHistoricWorker() {
-    return _searchHistoricWorker;
+  public DbHolidayMasterWorker getHistoryWorker() {
+    return _historyWorker;
   }
 
   /**
-   * Sets the searchHistoricWorker field.
-   * @param searchHistoricWorker  the searchHistoricWorker
+   * Sets the historyWorker field.
+   * @param historyWorker  the historyWorker
    */
-  public void setSearchHistoricWorker(DbHolidayMasterWorker searchHistoricWorker) {
-    _searchHistoricWorker = searchHistoricWorker;
+  public void setHistoryWorker(DbHolidayMasterWorker historyWorker) {
+    _historyWorker = historyWorker;
   }
 
   //-------------------------------------------------------------------------

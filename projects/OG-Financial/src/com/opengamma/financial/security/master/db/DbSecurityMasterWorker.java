@@ -196,7 +196,7 @@ public class DbSecurityMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected SecurityHistoryResult searchHistoric(SecurityHistoryRequest request) {
+  protected SecurityHistoryResult history(SecurityHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

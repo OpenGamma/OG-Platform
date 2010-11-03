@@ -25,7 +25,7 @@ public class DbSecurityMasterWorkers {
   /** Worker. */
   private DbSecurityMasterWorker _removeWorker = new ModifySecurityDbSecurityMasterWorker();
   /** Worker. */
-  private DbSecurityMasterWorker _searchHistoricWorker = new QuerySecurityDbSecurityMasterWorker();
+  private DbSecurityMasterWorker _historyWorker = new QuerySecurityDbSecurityMasterWorker();
   /** Worker. */
   private DbSecurityMasterWorker _correctWorker = new ModifySecurityDbSecurityMasterWorker();
   /** The detail provider worker. */
@@ -47,7 +47,7 @@ public class DbSecurityMasterWorkers {
     _addWorker.init(master);
     _updateWorker.init(master);
     _removeWorker.init(master);
-    _searchHistoricWorker.init(master);
+    _historyWorker.init(master);
     _correctWorker.init(master);
     _detailProvider.init(master);
   }
@@ -139,19 +139,19 @@ public class DbSecurityMasterWorkers {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchHistoricWorker field.
-   * @return the searchHistoricWorker
+   * Gets the historyWorker field.
+   * @return the historyWorker
    */
-  public DbSecurityMasterWorker getSearchHistoricWorker() {
-    return _searchHistoricWorker;
+  public DbSecurityMasterWorker getHistoryWorker() {
+    return _historyWorker;
   }
 
   /**
-   * Sets the searchHistoricWorker field.
-   * @param searchHistoricWorker  the searchHistoricWorker
+   * Sets the historyWorker field.
+   * @param historyWorker  the historyWorker
    */
-  public void setSearchHistoricWorker(DbSecurityMasterWorker searchHistoricWorker) {
-    _searchHistoricWorker = searchHistoricWorker;
+  public void setHistoryWorker(DbSecurityMasterWorker historyWorker) {
+    _historyWorker = historyWorker;
   }
 
   //-------------------------------------------------------------------------

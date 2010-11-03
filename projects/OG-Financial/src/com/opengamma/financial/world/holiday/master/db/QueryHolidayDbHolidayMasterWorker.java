@@ -229,7 +229,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
 
   //-------------------------------------------------------------------------
   @Override
-  protected HolidayHistoryResult searchHistoric(final HolidayHistoryRequest request) {
+  protected HolidayHistoryResult history(final HolidayHistoryRequest request) {
     s_logger.debug("searchHolidayHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("holiday_oid", extractOid(request.getHolidayId()))
