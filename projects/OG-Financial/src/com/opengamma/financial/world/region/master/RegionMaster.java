@@ -83,15 +83,15 @@ public interface RegionMaster {
   void remove(final UniqueIdentifier uid);
 
   /**
-   * Searches for regions matching the specified search criteria.
+   * Queries the history of a single region.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the region.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the region history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  RegionSearchHistoricResult searchHistoric(RegionSearchHistoricRequest request);
+  RegionHistoryResult history(RegionHistoryRequest request);
 
   /**
    * Corrects a region in the data store.

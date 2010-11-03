@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * Request for searching for historic region information.
+ * Request for the history of a region.
  * <p>
  * A full region master implements historical storage of data.
  * History can be stored in two dimensions and this request provides searching.
@@ -46,7 +46,7 @@ import com.opengamma.util.db.PagingRequest;
  * Versions are represented by instants in the search.
  */
 @BeanDefinition
-public class RegionSearchHistoricRequest extends DirectBean {
+public class RegionHistoryRequest extends DirectBean {
 
   /**
    * The request for paging.
@@ -95,7 +95,7 @@ public class RegionSearchHistoricRequest extends DirectBean {
    * Creates an instance.
    * The object identifier must be added before searching.
    */
-  public RegionSearchHistoricRequest() {
+  public RegionHistoryRequest() {
   }
 
   /**
@@ -103,7 +103,7 @@ public class RegionSearchHistoricRequest extends DirectBean {
    * With no further customization this will retrieve all versions and corrections.
    * @param oid  the object identifier
    */
-  public RegionSearchHistoricRequest(final UniqueIdentifier oid) {
+  public RegionHistoryRequest(final UniqueIdentifier oid) {
     this(oid, null, null);
   }
 
@@ -113,7 +113,7 @@ public class RegionSearchHistoricRequest extends DirectBean {
    * @param versionInstantProvider  the version instant to retrieve, null for all versions
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
-  public RegionSearchHistoricRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
+  public RegionHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
     setRegionId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
@@ -133,13 +133,13 @@ public class RegionSearchHistoricRequest extends DirectBean {
    * The meta-bean for {@code RegionSearchHistoricRequest}.
    * @return the meta-bean, not null
    */
-  public static RegionSearchHistoricRequest.Meta meta() {
-    return RegionSearchHistoricRequest.Meta.INSTANCE;
+  public static RegionHistoryRequest.Meta meta() {
+    return RegionHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
-  public RegionSearchHistoricRequest.Meta metaBean() {
-    return RegionSearchHistoricRequest.Meta.INSTANCE;
+  public RegionHistoryRequest.Meta metaBean() {
+    return RegionHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
@@ -424,13 +424,13 @@ public class RegionSearchHistoricRequest extends DirectBean {
     }
 
     @Override
-    public RegionSearchHistoricRequest createBean() {
-      return new RegionSearchHistoricRequest();
+    public RegionHistoryRequest createBean() {
+      return new RegionHistoryRequest();
     }
 
     @Override
-    public Class<? extends RegionSearchHistoricRequest> beanType() {
-      return RegionSearchHistoricRequest.class;
+    public Class<? extends RegionHistoryRequest> beanType() {
+      return RegionHistoryRequest.class;
     }
 
     @Override

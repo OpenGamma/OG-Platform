@@ -23,10 +23,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result from searching for region history.
+ * Result providing the history of a region.
+ * <p>
+ * The returned documents may be a mixture of versions and corrections.
+ * The document instant fields are used to identify which are which.
+ * See {@link RegionHistoryRequest} for more details.
  */
 @BeanDefinition
-public class RegionSearchHistoricResult extends DirectBean {
+public class RegionHistoryResult extends DirectBean {
 
   /**
    * The paging information.
@@ -42,14 +46,14 @@ public class RegionSearchHistoricResult extends DirectBean {
   /**
    * Creates an instance.
    */
-  public RegionSearchHistoricResult() {
+  public RegionHistoryResult() {
   }
 
   /**
    * Creates an instance.
    * @param coll  the collection of documents to add, not null
    */
-  public RegionSearchHistoricResult(Collection<RegionDocument> coll) {
+  public RegionHistoryResult(Collection<RegionDocument> coll) {
     _documents.addAll(coll);
     _paging = Paging.of(coll);
   }
@@ -107,13 +111,13 @@ public class RegionSearchHistoricResult extends DirectBean {
    * The meta-bean for {@code RegionSearchHistoricResult}.
    * @return the meta-bean, not null
    */
-  public static RegionSearchHistoricResult.Meta meta() {
-    return RegionSearchHistoricResult.Meta.INSTANCE;
+  public static RegionHistoryResult.Meta meta() {
+    return RegionHistoryResult.Meta.INSTANCE;
   }
 
   @Override
-  public RegionSearchHistoricResult.Meta metaBean() {
-    return RegionSearchHistoricResult.Meta.INSTANCE;
+  public RegionHistoryResult.Meta metaBean() {
+    return RegionHistoryResult.Meta.INSTANCE;
   }
 
   @Override
@@ -225,13 +229,13 @@ public class RegionSearchHistoricResult extends DirectBean {
     }
 
     @Override
-    public RegionSearchHistoricResult createBean() {
-      return new RegionSearchHistoricResult();
+    public RegionHistoryResult createBean() {
+      return new RegionHistoryResult();
     }
 
     @Override
-    public Class<? extends RegionSearchHistoricResult> beanType() {
-      return RegionSearchHistoricResult.class;
+    public Class<? extends RegionHistoryResult> beanType() {
+      return RegionHistoryResult.class;
     }
 
     @Override

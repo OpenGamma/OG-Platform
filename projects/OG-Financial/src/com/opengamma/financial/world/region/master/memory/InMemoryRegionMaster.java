@@ -20,8 +20,8 @@ import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionDocumentComparator;
 import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.RegionSearchHistoricRequest;
-import com.opengamma.financial.world.region.master.RegionSearchHistoricResult;
+import com.opengamma.financial.world.region.master.RegionHistoryRequest;
+import com.opengamma.financial.world.region.master.RegionHistoryResult;
 import com.opengamma.financial.world.region.master.RegionSearchRequest;
 import com.opengamma.financial.world.region.master.RegionSearchResult;
 import com.opengamma.id.IdentifierBundle;
@@ -195,11 +195,11 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionSearchHistoricResult searchHistoric(final RegionSearchHistoricRequest request) {
+  public RegionHistoryResult history(final RegionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getRegionId(), "request.regionId");
     
-    final RegionSearchHistoricResult result = new RegionSearchHistoricResult();
+    final RegionHistoryResult result = new RegionHistoryResult();
     final RegionDocument doc = get(request.getRegionId());
     if (doc != null) {
       result.getDocuments().add(doc);
