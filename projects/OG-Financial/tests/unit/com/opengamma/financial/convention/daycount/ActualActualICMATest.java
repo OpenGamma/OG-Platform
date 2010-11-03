@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 
-import com.opengamma.financial.analytics.securityconverters.Stub.StubType;
+import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -115,7 +115,7 @@ public class ActualActualICMATest {
 
   @Test
   public void test2() {
-    assertEquals(DC2.getConventionName(), "Actual/Actual ICMA (Normal)");
+    assertEquals(DC2.getConventionName(), "Actual/Actual ICMA Normal");
     assertEquals(DC2.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 }

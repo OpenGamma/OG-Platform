@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.analytics.securityconverters.Stub.StubType;
+import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**

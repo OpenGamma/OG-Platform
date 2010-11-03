@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.analytics.securityconverters.Stub.StubType;
+import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**

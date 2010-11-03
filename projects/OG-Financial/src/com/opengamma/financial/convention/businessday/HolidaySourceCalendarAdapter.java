@@ -33,6 +33,7 @@ public class HolidaySourceCalendarAdapter implements Calendar {
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
     Validate.notNull(region);
     Validate.notNull(holidaySource);
+    Validate.noNullElements(region);
     _holidaySource = holidaySource;
     _regions = region;
     _type = HolidayType.BANK;
