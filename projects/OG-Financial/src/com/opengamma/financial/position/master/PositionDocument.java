@@ -45,23 +45,27 @@ public class PositionDocument extends DirectBean {
   private UniqueIdentifier _positionId;
   /**
    * The start of an interval that the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    */
   @PropertyDefinition
   private Instant _versionFromInstant;
   /**
    * The end of an interval that the version of the position is accurate for.
    * Null indicates this is the latest version.
+   * This field is populated and managed by the {@code PositionMaster}.
    */
   @PropertyDefinition
   private Instant _versionToInstant;
   /**
    * The start of an interval that the correction of the version of the position is accurate for.
+   * This field is populated and managed by the {@code PositionMaster}.
    */
   @PropertyDefinition
   private Instant _correctionFromInstant;
   /**
    * The end of an interval that the correction of the version of the position is accurate for.
    * Null indicates this is the latest correction.
+   * This field is populated and managed by the {@code PositionMaster}.
    */
   @PropertyDefinition
   private Instant _correctionToInstant;

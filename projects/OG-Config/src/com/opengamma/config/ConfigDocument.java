@@ -39,14 +39,14 @@ public class ConfigDocument<T> extends DirectBean {
   private UniqueIdentifier _configId;
   /**
    * The start of an interval that the version of the configuration is accurate for.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    */
   @PropertyDefinition
   private Instant _versionFromInstant;
   /**
    * The end of an interval that the version of the configuration is accurate for.
    * Null indicates this is the latest version.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    */
   @PropertyDefinition
   private Instant _versionToInstant;
