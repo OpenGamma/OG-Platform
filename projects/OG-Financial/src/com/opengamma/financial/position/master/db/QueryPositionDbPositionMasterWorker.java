@@ -104,14 +104,13 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @param uid  the unique identifier
    * @return the position document, null if not found
    */
-  @SuppressWarnings("unchecked")
   protected PositionDocument getPositionById(final UniqueIdentifier uid) {
     s_logger.debug("getPositionById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_id", extractRowId(uid));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PositionDocument> docs = (List<PositionDocument>) namedJdbc.query(sqlGetPositionById(), args, extractor);
+    final List<PositionDocument> docs = namedJdbc.query(sqlGetPositionById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Position not found: " + uid);
     }
@@ -127,7 +126,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected PositionSearchResult searchPositions(PositionSearchRequest request) {
     s_logger.debug("searchPositions: {}", request);
@@ -151,7 +149,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -184,7 +182,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected PositionHistoryResult searchPositionHistoric(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
@@ -201,7 +198,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -248,14 +245,14 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   /**
    * Mapper from SQL rows to a PositionDocument.
    */
-  protected final class PositionDocumentExtractor implements ResultSetExtractor {
+  protected final class PositionDocumentExtractor implements ResultSetExtractor<List<PositionDocument>> {
     private long _lastPositionId = -1;
     private ManageablePosition _position;
     private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
     @Override
-    public Object extractData(final ResultSet rs) throws SQLException, DataAccessException {
+    public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {

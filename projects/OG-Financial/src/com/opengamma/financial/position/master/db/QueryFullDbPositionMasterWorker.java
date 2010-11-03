@@ -104,7 +104,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolio(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
-    return (Portfolio) namedJdbc.query(sql, args, extractor);
+    return namedJdbc.query(sql, args, extractor);
   }
 
   /**
@@ -160,7 +160,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
-    Portfolio portfolio = (Portfolio) namedJdbc.query(sql, args, extractor);
+    Portfolio portfolio = namedJdbc.query(sql, args, extractor);
     return (portfolio != null ? portfolio.getRootNode() : null);
   }
 
@@ -217,11 +217,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   /**
    * Mapper from SQL rows to a Portfolio.
    */
-  protected final class FullPortfolioDocumentExtractor implements ResultSetExtractor {
+  protected final class FullPortfolioDocumentExtractor implements ResultSetExtractor<Portfolio> {
     private final Stack<LongObjectPair<PortfolioNodeImpl>> _nodes = new Stack<LongObjectPair<PortfolioNodeImpl>>();
 
     @Override
-    public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Portfolio extractData(ResultSet rs) throws SQLException, DataAccessException {
       String fixedInstants = null;
       PortfolioImpl portfolio = null;
       long lastNodeId = -1;

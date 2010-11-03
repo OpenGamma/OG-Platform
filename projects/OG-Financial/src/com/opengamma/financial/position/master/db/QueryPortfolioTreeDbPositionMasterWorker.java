@@ -109,7 +109,6 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    * @param uid  the full portfolio uid, not null
    * @return the portfolio tree uid, not null
    */
-  @SuppressWarnings("unchecked")
   protected PortfolioTreeDocument getPortfolioTreeByFullPortfolioId(final UniqueIdentifier uid) {
     s_logger.debug("getPortfolioTreeByFullPortfolioId {}", uid);
     final String[] splitVersion  = StringUtils.split(uid.getVersion(), '-');
@@ -126,7 +125,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addTimestamp("corrected_to", correctedTo);
     final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlSelectPortfolioTreeByOidInstants(), args, extractor);
+    final List<PortfolioTreeDocument> docs = namedJdbc.query(sqlSelectPortfolioTreeByOidInstants(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
     }
@@ -149,14 +148,13 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
    * @param uid  the unique identifier
    * @return the portfolio document, null if not found
    */
-  @SuppressWarnings("unchecked")
   protected PortfolioTreeDocument getPortfolioTreeById(final UniqueIdentifier uid) {
     s_logger.debug("getPortfolioTreeById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("portfolio_id", extractRowId(uid));
     final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PortfolioTreeDocument> docs = (List<PortfolioTreeDocument>) namedJdbc.query(sqlSelectPortfolioTreeById(), args, extractor);
+    final List<PortfolioTreeDocument> docs = namedJdbc.query(sqlSelectPortfolioTreeById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("PortfolioTree not found: " + uid);
     }
@@ -173,7 +171,6 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {
     s_logger.debug("searchPortfolioTrees: {}", request);
@@ -190,7 +187,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
-      result.getDocuments().addAll((List<PortfolioTreeDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -218,7 +215,6 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected PortfolioTreeHistoryResult searchPortfolioTreeHistoric(final PortfolioTreeHistoryRequest request) {
     s_logger.debug("searchPortfolioTreeHistoric: {}", request);
@@ -236,7 +232,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
-      result.getDocuments().addAll((List<PortfolioTreeDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -287,14 +283,14 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   /**
    * Mapper from SQL rows to a PortfolioTreeDocument.
    */
-  protected final class PortfolioTreeDocumentExtractor implements ResultSetExtractor {
+  protected final class PortfolioTreeDocumentExtractor implements ResultSetExtractor<List<PortfolioTreeDocument>> {
     private long _lastPortfolioId = -1;
     private ManageablePortfolio _portfolio;
     private List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
     private final Stack<LongObjectPair<ManageablePortfolioNode>> _nodes = new Stack<LongObjectPair<ManageablePortfolioNode>>();
 
     @Override
-    public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public List<PortfolioTreeDocument> extractData(ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long portfolioId = rs.getLong("PORTFOLIO_ID");
         if (_lastPortfolioId != portfolioId) {
