@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.coppclark;
+package com.opengamma.financial.world.holiday.master.loader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
