@@ -117,7 +117,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     }
     Identifier id = Identifier.of(idScheme, idValue);
     Identifier region = Identifier.of(regionScheme, regionValue);
-    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, region);
+    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();

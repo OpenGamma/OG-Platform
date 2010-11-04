@@ -7,6 +7,8 @@ package com.opengamma.financial.world.exchange.master.memory;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.time.calendar.TimeZone;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,14 +30,14 @@ public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";
   private static Identifier ID_LIFFE_MIC = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
-  private static Identifier ID_LIFFE_CCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "979");
-  private static Identifier ID_LIFFE_CCNAME = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
+  private static Identifier ID_LIFFE_CCID = Identifier.of("COPP_CLARK_CENTER_ID", "979");
+  private static Identifier ID_LIFFE_CCNAME = Identifier.of("COPP_CLARK_NAME", "Euronext LIFFE (UK contracts)");
   private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "EURONEXT LIFFE");
   private static Identifier ID_OTHER2 = Identifier.of("TEST_SCHEME", "LIFFE");
   private static IdentifierBundle BUNDLE_FULL = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_LIFFE_CCID);
   private static IdentifierBundle BUNDLE_PART = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCID);
   private static IdentifierBundle BUNDLE_OTHER = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_OTHER1);
-  private static Identifier GB = RegionUtils.countryRegionId("GB");
+  private static IdentifierBundle GB = IdentifierBundle.of(RegionUtils.countryRegionId("GB"));
 
   private InMemoryExchangeMaster master;
   private ExchangeDocument addedDoc;
@@ -43,7 +45,7 @@ public class InMemoryExchangeMasterTest {
   @Before
   public void setUp() {
     master = new InMemoryExchangeMaster();
-    ManageableExchange inputExchange = new ManageableExchange(BUNDLE_FULL, NAME, GB);
+    ManageableExchange inputExchange = new ManageableExchange(BUNDLE_FULL, NAME, GB, TimeZone.of("Europe/London"));
     ExchangeDocument inputDoc = new ExchangeDocument(inputExchange);
     addedDoc = master.add(inputDoc);
   }

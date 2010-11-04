@@ -27,9 +27,7 @@ import com.opengamma.id.IdentifierBundle;
 public class CoppClarkExchangeFileReaderTest {
 
   private static String NAME = "Euronext LIFFE (UK contracts)";
-  private static Identifier ID_LIFFE_MIC = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
-//  private static Identifier ID_LIFFE_CCID = Identifier.of(ExchangeUtils.COPP_CLARK_CENTER_ID, "979");
-  private static Identifier ID_LIFFE_CCNAME = Identifier.of(ExchangeUtils.COPP_CLARK_NAME, "Euronext LIFFE (UK contracts)");
+  private static Identifier ID_LIFFE_MIC = ExchangeUtils.isoMicExchangeId("XLIF");
 
   private ExchangeMaster master;
 
@@ -51,8 +49,8 @@ public class CoppClarkExchangeFileReaderTest {
     assertNotNull(doc.getCorrectionFromInstant());
     assertEquals(doc.getExchangeId(), doc.getExchange().getUniqueIdentifier());
     assertEquals(NAME, doc.getExchange().getName());
-    assertEquals(RegionUtils.countryRegionId("GB"), doc.getExchange().getRegionId());
-    assertEquals(IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME), doc.getExchange().getIdentifiers());
+    assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionId());
+    assertEquals(IdentifierBundle.of(ID_LIFFE_MIC), doc.getExchange().getIdentifiers());
   }
 
 }
