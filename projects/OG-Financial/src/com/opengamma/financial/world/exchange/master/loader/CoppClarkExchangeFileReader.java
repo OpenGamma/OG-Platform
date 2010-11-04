@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.coppclark;
+package com.opengamma.financial.world.exchange.master.loader;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
