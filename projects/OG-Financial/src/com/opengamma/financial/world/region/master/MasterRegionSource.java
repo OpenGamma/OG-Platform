@@ -121,8 +121,7 @@ public class MasterRegionSource implements RegionSource {
 
   @Override
   public ManageableRegion getHighestLevelRegion(Identifier regionId) {
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(regionId);
+    RegionSearchRequest request = new RegionSearchRequest(regionId);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(getVersionAsOfInstant());
     request.setCorrectedToInstant(getCorrectedToInstant());
@@ -130,8 +129,7 @@ public class MasterRegionSource implements RegionSource {
   }
 
   public ManageableRegion getHighestLevelRegion(IdentifierBundle regionIds) {
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(regionIds);
+    RegionSearchRequest request = new RegionSearchRequest(regionIds);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(getVersionAsOfInstant());
     request.setCorrectedToInstant(getCorrectedToInstant());
