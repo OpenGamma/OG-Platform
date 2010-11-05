@@ -12,8 +12,8 @@ import java.util.Timer;
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
@@ -21,14 +21,13 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 
 /**
- * 
- *
+ * Test ExpirationManager.
  */
 public class ExpirationManagerTest {
   
   @Test
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {
-    IdentificationScheme identificationDomain = new IdentificationScheme("BbgId");
+    IdentificationScheme identificationDomain = IdentificationScheme.of("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
@@ -42,7 +41,7 @@ public class ExpirationManagerTest {
     // subscribe on the client side - starts sending heartbeats
     LiveDataSpecification subscription = new LiveDataSpecification(
         dataServer.getDefaultNormalizationRuleSetId(),
-        new Identifier(identificationDomain, "USSw5 Curncy"));
+        Identifier.of(identificationDomain, "USSw5 Curncy"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     valueDistributor.addListener(subscription, listener);
     
@@ -68,7 +67,7 @@ public class ExpirationManagerTest {
   
   @Test
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
-    IdentificationScheme identificationDomain = new IdentificationScheme("BbgId");
+    IdentificationScheme identificationDomain = IdentificationScheme.of("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
@@ -77,7 +76,7 @@ public class ExpirationManagerTest {
     // subscribe on the server side
     LiveDataSpecification subscription = new LiveDataSpecification(
         dataServer.getDefaultNormalizationRuleSetId(),
-        new Identifier(identificationDomain, "USSw5 Curncy"));
+        Identifier.of(identificationDomain, "USSw5 Curncy"));
     dataServer.subscribe("USSw5 Curncy");
     
     assertEquals(1, dataServer.getActualSubscriptions().size());

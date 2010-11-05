@@ -76,7 +76,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
     PositionDocument doc = data().getPosition();
     ManageablePosition position = doc.getPosition();
     position.setQuantity(new BigDecimal(quantityStr));
-    position.setSecurityKey(new IdentifierBundle(Identifier.of(idScheme, idValue)));
+    position.setSecurityKey(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
     doc = data().getPositionMaster().updatePosition(doc);
     data().setPosition(doc);
     URI uri = WebPortfolioNodePositionResource.uri(data());

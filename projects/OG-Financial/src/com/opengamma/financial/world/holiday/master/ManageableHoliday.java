@@ -61,11 +61,11 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @PropertyDefinition
   private Identifier _exchangeId;
   /**
-   * The ISO currency, used when this is a holiday of type CURRENCY.
+   * The currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
    */
   @PropertyDefinition
-  private String _currencyISO;
+  private Currency _currency;
   /**
    * The list of dates that the target (currency/region/exchange) is on holiday.
    */
@@ -91,7 +91,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     setType(holiday.getType());
     setRegionId(holiday.getRegionId());
     setExchangeId(holiday.getExchangeId());
-    setCurrencyISO(holiday.getCurrencyISO());
+    setCurrency(holiday.getCurrency());
     setHolidayDates(holiday.getHolidayDates());
   }
 
@@ -106,7 +106,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   public ManageableHoliday(Currency currency, Collection<LocalDate> holidaySeries) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(holidaySeries, "holidaySeries");
-    setCurrencyISO(currency.getISOCode());
+    setCurrency(currency);
     setType(HolidayType.CURRENCY);
     getHolidayDates().addAll(holidaySeries);
   }
@@ -166,8 +166,8 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
         return getRegionId();
       case 913218206:  // exchangeId
         return getExchangeId();
-      case 586606260:  // currencyISO
-        return getCurrencyISO();
+      case 575402001:  // currency
+        return getCurrency();
       case -367347:  // holidayDates
         return getHolidayDates();
     }
@@ -190,8 +190,8 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
       case 913218206:  // exchangeId
         setExchangeId((Identifier) newValue);
         return;
-      case 586606260:  // currencyISO
-        setCurrencyISO((String) newValue);
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
         return;
       case -367347:  // holidayDates
         setHolidayDates((List<LocalDate>) newValue);
@@ -308,30 +308,30 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ISO currency, used when this is a holiday of type CURRENCY.
+   * Gets the currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
    * @return the value of the property
    */
-  public String getCurrencyISO() {
-    return _currencyISO;
+  public Currency getCurrency() {
+    return _currency;
   }
 
   /**
-   * Sets the ISO currency, used when this is a holiday of type CURRENCY.
+   * Sets the currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
-   * @param currencyISO  the new value of the property
+   * @param currency  the new value of the property
    */
-  public void setCurrencyISO(String currencyISO) {
-    this._currencyISO = currencyISO;
+  public void setCurrency(Currency currency) {
+    this._currency = currency;
   }
 
   /**
-   * Gets the the {@code currencyISO} property.
+   * Gets the the {@code currency} property.
    * This must be null if the type is not CURRENCY.
    * @return the property, not null
    */
-  public final Property<String> currencyISO() {
-    return metaBean().currencyISO().createProperty(this);
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -387,9 +387,9 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
      */
     private final MetaProperty<Identifier> _exchangeId = DirectMetaProperty.ofReadWrite(this, "exchangeId", Identifier.class);
     /**
-     * The meta-property for the {@code currencyISO} property.
+     * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<String> _currencyISO = DirectMetaProperty.ofReadWrite(this, "currencyISO", String.class);
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
     /**
      * The meta-property for the {@code holidayDates} property.
      */
@@ -407,7 +407,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
       temp.put("type", _type);
       temp.put("regionId", _regionId);
       temp.put("exchangeId", _exchangeId);
-      temp.put("currencyISO", _currencyISO);
+      temp.put("currency", _currency);
       temp.put("holidayDates", _holidayDates);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -461,11 +461,11 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     }
 
     /**
-     * The meta-property for the {@code currencyISO} property.
+     * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> currencyISO() {
-      return _currencyISO;
+    public final MetaProperty<Currency> currency() {
+      return _currency;
     }
 
     /**

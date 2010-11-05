@@ -114,7 +114,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       return Response.ok(html).build();
     }
     List<IdentifierBundle> errors = new ArrayList<IdentifierBundle>();
-    IdentificationScheme scheme = new IdentificationScheme(idScheme);
+    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
     Map<IdentifierBundle, DefaultSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
@@ -151,7 +151,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       String identifierValue = bundle.getIdentifier(scheme);
       identifiers.add(Identifier.of(scheme, identifierValue));
     }
-    return new IdentifierBundle(identifiers);
+    return IdentifierBundle.of(identifiers);
   }
 
   //-------------------------------------------------------------------------

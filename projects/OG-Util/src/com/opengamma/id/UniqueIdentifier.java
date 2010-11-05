@@ -188,8 +188,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    */
   @Deprecated
   public IdentificationScheme getSchemeObject() {
-    // TODO: this is probably an invalid conversion
-    return new IdentificationScheme(getScheme());
+    return IdentificationScheme.of(getScheme());
   }
 
   /**

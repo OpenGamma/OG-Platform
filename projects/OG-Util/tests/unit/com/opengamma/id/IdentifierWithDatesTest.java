@@ -17,11 +17,11 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
 /**
- * Test Identifier with dates. 
+ * Test IdentifierWithDates. 
  */
 public class IdentifierWithDatesTest {
 
-  private static final IdentificationScheme SCHEME = new IdentificationScheme("Scheme");
+  private static final IdentificationScheme SCHEME = IdentificationScheme.of("Scheme");
   private static final Identifier IDENTIFIER = Identifier.of(SCHEME, "value");
   private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
   private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);
@@ -65,45 +65,6 @@ public class IdentifierWithDatesTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_constructor_Identifier_LocalDate_LocalDate() {
-    IdentifierWithDates test = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
-    assertEquals(IDENTIFIER, test.asIdentifier());
-    assertEquals(VALID_FROM, test.getValidFrom());
-    assertEquals(VALID_TO, test.getValidTo());
-    assertEquals("Scheme::value:S:2010-01-01:E:2010-12-01", test.toString());
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void test_constructor_Identifier_LocalDate_LocalDate_nullIdentifier() {
-    new IdentifierWithDates((Identifier) null, VALID_FROM, VALID_TO);
-  }
-
-  @Test
-  public void test_constructor_Identifier_LocalDate_LocalDate_nullValidFrom() {
-    IdentifierWithDates test = new IdentifierWithDates(IDENTIFIER, (LocalDate) null, VALID_TO);
-    assertEquals(IDENTIFIER, test.asIdentifier());
-    assertNull(test.getValidFrom());
-    assertEquals(VALID_TO, test.getValidTo());
-    assertEquals("Scheme::value:E:2010-12-01", test.toString());
-  }
-
-  @Test
-  public void test_constructor_Identifier_LocalDate_LocalDate_nullValidTo() {
-    IdentifierWithDates test = new IdentifierWithDates(IDENTIFIER, VALID_FROM, (LocalDate) null);
-    assertEquals(IDENTIFIER, test.asIdentifier());
-    assertNull(test.getValidTo());
-    assertEquals(VALID_FROM, test.getValidFrom());
-    assertEquals("Scheme::value:S:2010-01-01", test.toString());
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void test_constructor_validFrom_after_validTo() {
-    new IdentifierWithDates(IDENTIFIER, VALID_TO, VALID_FROM);
-  }
-
-
-  //-------------------------------------------------------------------------
-  @Test
   public void test_parse() {
     IdentifierWithDates test = IdentifierWithDates.parse("Scheme::value:S:2010-01-01:E:2010-12-01");
     assertEquals(IDENTIFIER, test.asIdentifier());
@@ -129,16 +90,16 @@ public class IdentifierWithDatesTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getIdentityKey() {
-    IdentifierWithDates test = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
+    IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     assertEquals(IDENTIFIER, test.getIdentityKey());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_equals() {
-    IdentifierWithDates d1a = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
-    IdentifierWithDates d1b = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
-    IdentifierWithDates d2 = new IdentifierWithDates(IDENTIFIER, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 12, 1));
+    IdentifierWithDates d1a = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
+    IdentifierWithDates d1b = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
+    IdentifierWithDates d2 = IdentifierWithDates.of(IDENTIFIER, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 12, 1));
     
     assertEquals(true, d1a.equals(d1a));
     assertEquals(true, d1a.equals(d1b));
@@ -158,8 +119,8 @@ public class IdentifierWithDatesTest {
 
   @Test
   public void test_hashCode() {
-    IdentifierWithDates d1a = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
-    IdentifierWithDates d1b = new IdentifierWithDates(IDENTIFIER, VALID_FROM, VALID_TO);
+    IdentifierWithDates d1a = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
+    IdentifierWithDates d1b = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }

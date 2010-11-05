@@ -82,8 +82,7 @@ public class MasterRegionSourceTest {
   public void test_getRegion_Identifier_found() throws Exception {
     Instant now = Instant.nowSystemClock();
     RegionMaster mock = mock(RegionMaster.class);
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(ID);
+    RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
@@ -103,8 +102,7 @@ public class MasterRegionSourceTest {
   public void test_getRegion_Identifier_noFound() throws Exception {
     Instant now = Instant.nowSystemClock();
     RegionMaster mock = mock(RegionMaster.class);
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(ID);
+    RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
@@ -124,8 +122,7 @@ public class MasterRegionSourceTest {
   public void test_getRegion_IdentifierBundle_found() throws Exception {
     Instant now = Instant.nowSystemClock();
     RegionMaster mock = mock(RegionMaster.class);
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(BUNDLE);
+    RegionSearchRequest request = new RegionSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));

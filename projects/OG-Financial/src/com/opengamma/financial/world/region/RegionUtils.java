@@ -20,20 +20,20 @@ public class RegionUtils {
   /**
    * Identification scheme for the ISO alpha 2 country code ISO standard.
    */
-  public static final IdentificationScheme ISO_COUNTRY_ALPHA2 = new IdentificationScheme("ISO_COUNTRY_ALPHA2");
+  public static final IdentificationScheme ISO_COUNTRY_ALPHA2 = IdentificationScheme.of("ISO_COUNTRY_ALPHA2");
   /**
    * Identification scheme for the ISO alpha 3 currency code ISO standard.
    */
-  public static final IdentificationScheme ISO_CURRENCY_ALPHA3 = new IdentificationScheme("ISO_CURRENCY_ALPHA3");
+  public static final IdentificationScheme ISO_CURRENCY_ALPHA3 = IdentificationScheme.of("ISO_CURRENCY_ALPHA3");
   /**
    * Identification scheme for the tz database time-zone standard.
    */
-  public static final IdentificationScheme TZDB_TIME_ZONE = new IdentificationScheme("TZDB_TIME_ZONE");
+  public static final IdentificationScheme TZDB_TIME_ZONE = IdentificationScheme.of("TZDB_TIME_ZONE");
   /**
    * Identification scheme for financial activity.
    * This currently tends to be the country code, but can be more complex.
    */
-  public static final IdentificationScheme FINANCIAL = new IdentificationScheme("FINANCIAL_REGION");
+  public static final IdentificationScheme FINANCIAL = IdentificationScheme.of("FINANCIAL_REGION");
 
   /**
    * Restricted constructor.

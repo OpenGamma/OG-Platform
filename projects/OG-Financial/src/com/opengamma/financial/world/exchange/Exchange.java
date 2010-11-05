@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.world.exchange;
 
-import com.opengamma.id.Identifier;
+import javax.time.calendar.TimeZone;
+
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -27,22 +28,29 @@ public interface Exchange {
   /**
    * Gets the bundle of identifiers that define the exchange.
    * 
-   * @return the bundle of identifiers
+   * @return the bundle of identifiers, not null
    */
   IdentifierBundle getIdentifiers();
 
   /**
    * Gets the name of the exchange intended for display purposes.
    * 
-   * @return the name of the exchange
+   * @return the name of the exchange, not null
    */
   String getName();
 
   /**
-   * Gets the identifier of the region where the exchange is located.
+   * Gets the bundle of identifiers that define where the exchange is located.
    * 
-   * @return the region identifier of the exchange
+   * @return the region identifier bundle of the exchange, null if no location
    */
-  Identifier getRegionId();
+  IdentifierBundle getRegionId();
+
+  /**
+   * Gets the time-zone of the exchange.
+   * 
+   * @return the time-zone of the exchange, null if time-zone unknown
+   */
+  TimeZone getTimeZone();
 
 }

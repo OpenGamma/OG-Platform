@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
+import com.opengamma.financial.timeseries.TimeSeriesLoader;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -28,12 +29,16 @@ import com.opengamma.id.UniqueIdentifier;
  */
 @BeanDefinition
 public class WebTimeSeriesData extends DirectBean {
-  
   /**
    * The time series master.
    */
   @PropertyDefinition
   private TimeSeriesMaster<?> _timeSeriesMaster;
+  /**
+   * The timeseries loader
+   */
+  @PropertyDefinition
+  private TimeSeriesLoader _timeSeriesLoader;
   /**
    * The JSR-311 URI information.
    */
@@ -82,6 +87,8 @@ public class WebTimeSeriesData extends DirectBean {
     switch (propertyName.hashCode()) {
       case 1946549030:  // timeSeriesMaster
         return getTimeSeriesMaster();
+      case 1930297559:  // timeSeriesLoader
+        return getTimeSeriesLoader();
       case -173275078:  // uriInfo
         return getUriInfo();
       case -377735317:  // uriTimeSeriesId
@@ -92,12 +99,14 @@ public class WebTimeSeriesData extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 1946549030:  // timeSeriesMaster
         setTimeSeriesMaster((TimeSeriesMaster<?>) newValue);
+        return;
+      case 1930297559:  // timeSeriesLoader
+        setTimeSeriesLoader((TimeSeriesLoader) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -135,6 +144,31 @@ public class WebTimeSeriesData extends DirectBean {
    */
   public final Property<TimeSeriesMaster<?>> timeSeriesMaster() {
     return metaBean().timeSeriesMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the timeseries loader
+   * @return the value of the property
+   */
+  public TimeSeriesLoader getTimeSeriesLoader() {
+    return _timeSeriesLoader;
+  }
+
+  /**
+   * Sets the timeseries loader
+   * @param timeSeriesLoader  the new value of the property
+   */
+  public void setTimeSeriesLoader(TimeSeriesLoader timeSeriesLoader) {
+    this._timeSeriesLoader = timeSeriesLoader;
+  }
+
+  /**
+   * Gets the the {@code timeSeriesLoader} property.
+   * @return the property, not null
+   */
+  public final Property<TimeSeriesLoader> timeSeriesLoader() {
+    return metaBean().timeSeriesLoader().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -228,6 +262,10 @@ public class WebTimeSeriesData extends DirectBean {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<TimeSeriesMaster<?>> _timeSeriesMaster = DirectMetaProperty.ofReadWrite(this, "timeSeriesMaster", (Class) TimeSeriesMaster.class);
     /**
+     * The meta-property for the {@code timeSeriesLoader} property.
+     */
+    private final MetaProperty<TimeSeriesLoader> _timeSeriesLoader = DirectMetaProperty.ofReadWrite(this, "timeSeriesLoader", TimeSeriesLoader.class);
+    /**
      * The meta-property for the {@code uriInfo} property.
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
@@ -249,6 +287,7 @@ public class WebTimeSeriesData extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("timeSeriesMaster", _timeSeriesMaster);
+      temp.put("timeSeriesLoader", _timeSeriesLoader);
       temp.put("uriInfo", _uriInfo);
       temp.put("uriTimeSeriesId", _uriTimeSeriesId);
       temp.put("timeSeries", _timeSeries);
@@ -277,6 +316,14 @@ public class WebTimeSeriesData extends DirectBean {
      */
     public final MetaProperty<TimeSeriesMaster<?>> timeSeriesMaster() {
       return _timeSeriesMaster;
+    }
+
+    /**
+     * The meta-property for the {@code timeSeriesLoader} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<TimeSeriesLoader> timeSeriesLoader() {
+      return _timeSeriesLoader;
     }
 
     /**

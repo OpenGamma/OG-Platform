@@ -9,14 +9,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -25,6 +23,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -61,6 +60,41 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   private transient volatile int _hashCode;
 
   /**
+   * Obtains an {@code IdentifierBundle} from an identifier.
+   * 
+   * @param identifier  the identifier to wrap in a bundle, not null
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    return new IdentifierBundle(ImmutableSet.of(identifier));
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from an array of identifiers.
+   * 
+   * @param identifiers  the collection of identifiers, not null, no nulls in array
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Identifier... identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.noNulls(identifiers, "identifiers");
+    return new IdentifierBundle(ImmutableSet.copyOf(identifiers));
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from a collection of identifiers.
+   * 
+   * @param identifiers  the collection of identifiers, not null, no nulls in array
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Collection<Identifier> identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.noNulls(identifiers, "identifiers");
+    return new IdentifierBundle(identifiers);
+  }
+
+  /**
    * Creates an empty bundle.
    */
   public IdentifierBundle() {
@@ -69,58 +103,13 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
-   * Creates a bundle from a single identifier.
+   * Creates a bundle from a set of identifiers.
    * 
-   * @param identifier  the identifier, null returns an empty bundle
+   * @param identifiers  the set of identifiers, assigned, not null
    */
-  public IdentifierBundle(Identifier identifier) {
-    if (identifier == null) {
-      _identifiers = Collections.emptySet();
-    } else {
-      _identifiers = Collections.singleton(identifier);
-    }
+  private IdentifierBundle(Collection<Identifier> identifiers) {
+    _identifiers = ImmutableSet.copyOf(identifiers);
     _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from an array of identifiers.
-   * 
-   * @param identifiers  the array of identifiers, null returns an empty bundle
-   */
-  public IdentifierBundle(Identifier... identifiers) {
-    if ((identifiers == null) || (identifiers.length == 0)) {
-      _identifiers = Collections.emptySet();
-    } else {
-      ArgumentChecker.noNulls(identifiers, "identifiers");
-      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(Arrays.asList(identifiers)));
-    }
-    _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from a collection of identifiers.
-   * 
-   * @param identifiers  the collection of identifiers, null returns an empty bundle, no nulls in array
-   */
-  public IdentifierBundle(Collection<? extends Identifier> identifiers) {
-    if (identifiers == null) {
-      _identifiers = Collections.emptySet();
-    } else {
-      ArgumentChecker.noNulls(identifiers, "identifiers");
-      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(identifiers));
-    }
-    _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from a collection of identifiers.
-   * 
-   * @param identifiers  the collection of identifiers, not null, no nulls in array
-   * @return the identifier bundle, not null
-   */
-  public static IdentifierBundle of(Identifier... identifiers) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    return new IdentifierBundle(identifiers);
   }
 
   /**
@@ -160,6 +149,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * @return the new bundle, not null
    */
   public IdentifierBundle withIdentifier(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
     Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
     ids.add(identifier);
     return new IdentifierBundle(ids);

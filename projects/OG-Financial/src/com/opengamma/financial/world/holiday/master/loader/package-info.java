@@ -7,4 +7,4 @@
 /**
  * Holiday loader providing the ability to load a holiday master from an external file.
  */
-package com.opengamma.financial.world.holiday.coppclark;
+package com.opengamma.financial.world.holiday.master.loader;

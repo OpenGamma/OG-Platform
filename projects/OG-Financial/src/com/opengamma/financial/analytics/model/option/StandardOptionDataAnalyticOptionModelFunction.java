@@ -37,7 +37,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
       s_logger.warn("Didn't have market value for {}", option.getUnderlyingIdentifier());
@@ -55,7 +55,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));

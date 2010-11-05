@@ -282,7 +282,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public LiveDataSpecification getLiveDataSpecification(String securityUniqueId) {
     LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
         getDefaultNormalizationRuleSetId(),
-        new Identifier(getUniqueIdDomain(), securityUniqueId));
+        Identifier.of(getUniqueIdDomain(), securityUniqueId));
     return liveDataSpecification;
   }
 

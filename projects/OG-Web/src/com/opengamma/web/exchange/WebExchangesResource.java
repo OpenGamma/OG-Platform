@@ -69,8 +69,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      IdentifierBundle old = (searchRequest.getIdentityKey() != null ? searchRequest.getIdentityKey() : IdentifierBundle.EMPTY);
-      searchRequest.setIdentityKey(old.withIdentifier(id));
+      searchRequest.addIdentifierBundle(id);
     }
     out.put("searchRequest", searchRequest);
     
@@ -118,7 +117,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     }
     Identifier id = Identifier.of(idScheme, idValue);
     Identifier region = Identifier.of(regionScheme, regionValue);
-    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, region);
+    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();

@@ -31,8 +31,8 @@ public class DefaultComputationTargetResolverTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), new IdentifierBundle());
-  private static final DefaultSecurity SECURITY = new DefaultSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", new IdentifierBundle());
+  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final DefaultSecurity SECURITY = new DefaultSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
 
   //-------------------------------------------------------------------------
   @Test

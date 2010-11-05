@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.Currency;
 import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
@@ -335,7 +336,9 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       if (exchangeScheme != null && exchangeValue != null) {
         holiday.setExchangeId(Identifier.of(exchangeScheme, exchangeValue));
       }
-      holiday.setCurrencyISO(currencyISO);
+      if (currencyISO != null) {
+        holiday.setCurrency(Currency.getInstance(currencyISO));
+      }
       HolidayDocument doc = new HolidayDocument(holiday);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));

@@ -154,7 +154,7 @@ public class BatchResultWriterTest extends HibernateTest {
         new PositionImpl(
             UniqueIdentifier.of("Mock", "AAPL Stock UID"), 
             new BigDecimal(500), 
-            new Identifier("Mock", "AAPL Stock ID")));
+            Identifier.of("Mock", "AAPL Stock ID")));
     _mockFunctionOutput = new Double(4000.50);   
     _mockFunction = CalculationNodeUtils.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
     

@@ -15,14 +15,12 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
 
 /**
- * 
- *
- * @author pietari
+ * Test LiveDataSpecification.
  */
 public class LiveDataSpecificationTest {
   
-  public static final IdentificationScheme TEST_IDENTIFICATION_SCHEME = new IdentificationScheme("bar");
-  public static final LiveDataSpecification TEST_LIVE_DATA_SPEC = new LiveDataSpecification("Foo", new Identifier(TEST_IDENTIFICATION_SCHEME, "baz"));
+  public static final IdentificationScheme TEST_IDENTIFICATION_SCHEME = IdentificationScheme.of("bar");
+  public static final LiveDataSpecification TEST_LIVE_DATA_SPEC = new LiveDataSpecification("Foo", Identifier.of(TEST_IDENTIFICATION_SCHEME, "baz"));
   
   @Test
   public void fudge() {
@@ -31,7 +29,7 @@ public class LiveDataSpecificationTest {
     LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(container);
     assertNotNull(deserialized);
     assertEquals("Foo", deserialized.getNormalizationRuleSetId());    
-    assertEquals("baz", deserialized.getIdentifier(new IdentificationScheme("bar")));
+    assertEquals("baz", deserialized.getIdentifier(IdentificationScheme.of("bar")));
   }
 
 }

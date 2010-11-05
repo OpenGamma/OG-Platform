@@ -168,7 +168,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addValue("region_value", (holiday.getRegionId() != null ? holiday.getRegionId().getValue() : null))
       .addValue("exchange_scheme", (holiday.getExchangeId() != null ? holiday.getExchangeId().getScheme().getName() : null))
       .addValue("exchange_value", (holiday.getExchangeId() != null ? holiday.getExchangeId().getValue() : null))
-      .addValue("currency_iso", holiday.getCurrencyISO());
+      .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getISOCode() : null));
     // the arguments for inserting into the date table
     final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
     for (LocalDate date : holiday.getHolidayDates()) {

@@ -58,7 +58,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   private final String _value;
 
   /**
-   * Obtains an identifier from a scheme and value.
+   * Obtains an {@code Identifier} from a scheme and value.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
@@ -69,18 +69,18 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Obtains an identifier from a scheme and value.
+   * Obtains an {@code Identifier} from a scheme and value.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
    */
   public static Identifier of(String scheme, String value) {
-    return new Identifier(scheme, value);
+    return new Identifier(IdentificationScheme.of(scheme), value);
   }
 
   /**
-   * Obtains an identifier from a formatted scheme and value.
+   * Parses an {@code Identifier} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>::<VALUE>}.
@@ -94,30 +94,20 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
     if (pos < 0) {
       throw new IllegalArgumentException("Invalid identifier format: " + str);
     }
-    return new Identifier(str.substring(0, pos), str.substring(pos + 2));
+    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
   }
 
   /**
-   * Constructs an identifier from the scheme and standalone identifier.
+   * Creates an identifier from the scheme and standalone identifier.
    * 
    * @param scheme  the scheme, not null
    * @param standaloneId  the standalone identifier, not empty, not null
    */
-  public Identifier(IdentificationScheme scheme, String standaloneId) {
+  private Identifier(IdentificationScheme scheme, String standaloneId) {
     ArgumentChecker.notNull(scheme, "scheme");
     ArgumentChecker.notEmpty(standaloneId, "standaloneId");
     _scheme = scheme;
     _value = standaloneId;
-  }
-
-  /**
-   * Constructs an identifier from the scheme and standalone identifier.
-   * 
-   * @param schemeName  the scheme name, not null
-   * @param standaloneId  the standalone identifier, not null
-   */
-  public Identifier(String schemeName, String standaloneId) {
-    this(new IdentificationScheme(schemeName), standaloneId);
   }
 
   //-------------------------------------------------------------------------
@@ -144,21 +134,21 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   /**
    * Checks if the identification scheme equals the specified scheme.
    * 
-   * @param scheme  the scheme to check for, null returns true
-   * @return true if the schemes are different
-   */
-  public boolean isNotScheme(IdentificationScheme scheme) {
-    return _scheme.equals(scheme) == false;
-  }
-
-  /**
-   * Checks if the identification scheme equals the specified scheme.
-   * 
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
   public boolean isScheme(String scheme) {
     return _scheme.getName().equals(scheme);
+  }
+
+  /**
+   * Checks if the identification scheme equals the specified scheme.
+   * 
+   * @param scheme  the scheme to check for, null returns true
+   * @return true if the schemes are different
+   */
+  public boolean isNotScheme(IdentificationScheme scheme) {
+    return _scheme.equals(scheme) == false;
   }
 
   /**

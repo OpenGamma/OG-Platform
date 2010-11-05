@@ -62,17 +62,17 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
   private Identifier _providerId;
   /**
    * The unique identifier to get children of, null to not retrieve based on children.
-   * Only the immediate children will be matched.
+   * Only the immediate children of the identifier will be matched.
    */
   @PropertyDefinition
   private UniqueIdentifier _childrenOfId;
   /**
-   * The region identifier bundles to match, empty to not match on this field.
+   * The region identifier bundles to match, empty to not match on this field, not null.
    * A region matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    */
   @PropertyDefinition(set = "setClearAddAll")
-  private Set<IdentifierBundle> _identifiers = new HashSet<IdentifierBundle>();
+  private final Set<IdentifierBundle> _identifiers = new HashSet<IdentifierBundle>();
   /** 
    * The instant to search for a version at, null treated as the latest version.
    */
@@ -88,6 +88,25 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
    * Creates an instance.
    */
   public RegionSearchRequest() {
+  }
+
+  /**
+   * Creates an instance using a single search identifier.
+   * 
+   * @param identifier  the identifier to look up, not null
+   */
+  public RegionSearchRequest(Identifier identifier) {
+    addIdentifierBundle(IdentifierBundle.of(identifier));
+  }
+
+  /**
+   * Creates an instance using a bundle of identifiers.
+   * 
+   * @param bundle  the bundle of identifiers to look up, not null
+   */
+  public RegionSearchRequest(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "identifiers");
+    addIdentifierBundle(bundle);
   }
 
   //-------------------------------------------------------------------------
@@ -110,6 +129,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
     getIdentifiers().add(bundle);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds a search for a currency by adding the matching bundle.
    * 
@@ -318,7 +338,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier to get children of, null to not retrieve based on children.
-   * Only the immediate children will be matched.
+   * Only the immediate children of the identifier will be matched.
    * @return the value of the property
    */
   public UniqueIdentifier getChildrenOfId() {
@@ -327,7 +347,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
 
   /**
    * Sets the unique identifier to get children of, null to not retrieve based on children.
-   * Only the immediate children will be matched.
+   * Only the immediate children of the identifier will be matched.
    * @param childrenOfId  the new value of the property
    */
   public void setChildrenOfId(UniqueIdentifier childrenOfId) {
@@ -336,7 +356,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
 
   /**
    * Gets the the {@code childrenOfId} property.
-   * Only the immediate children will be matched.
+   * Only the immediate children of the identifier will be matched.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> childrenOfId() {
@@ -345,7 +365,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region identifier bundles to match, empty to not match on this field.
+   * Gets the region identifier bundles to match, empty to not match on this field, not null.
    * A region matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    * @return the value of the property
@@ -355,7 +375,7 @@ public class RegionSearchRequest extends DirectBean implements Serializable {
   }
 
   /**
-   * Sets the region identifier bundles to match, empty to not match on this field.
+   * Sets the region identifier bundles to match, empty to not match on this field, not null.
    * A region matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    * @param identifiers  the new value of the property

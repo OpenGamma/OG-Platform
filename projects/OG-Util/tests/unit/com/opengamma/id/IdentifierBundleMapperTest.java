@@ -5,13 +5,9 @@
  */
 package com.opengamma.id;
 
-import java.util.Arrays;
+import junit.framework.Assert;
 
 import org.junit.Test;
-
-import com.opengamma.OpenGammaRuntimeException;
-
-import junit.framework.Assert;
 
 /**
  * Unit tests for {@link IdentifierBundleMapper}
@@ -20,23 +16,23 @@ public class IdentifierBundleMapperTest {
 
   @Test
   public void testIdentifierBundleMapper() {
-    Identifier idA1 = new Identifier("TEST_SCHEME_A", "1");
-    Identifier idB1 = new Identifier("TEST_SCHEME_B", "1");
-    Identifier idC1 = new Identifier("TEST_SCHEME_C", "1");
-    Identifier idD1 = new Identifier("TEST_SCHEME_D", "1");
-    Identifier idA2 = new Identifier("TEST_SCHEME_A", "2");
-    Identifier idB2 = new Identifier("TEST_SCHEME_B", "2");
-    Identifier idC2 = new Identifier("TEST_SCHEME_C", "2");
+    Identifier idA1 = Identifier.of("TEST_SCHEME_A", "1");
+    Identifier idB1 = Identifier.of("TEST_SCHEME_B", "1");
+    Identifier idC1 = Identifier.of("TEST_SCHEME_C", "1");
+    Identifier idD1 = Identifier.of("TEST_SCHEME_D", "1");
+    Identifier idA2 = Identifier.of("TEST_SCHEME_A", "2");
+    Identifier idB2 = Identifier.of("TEST_SCHEME_B", "2");
+    Identifier idC2 = Identifier.of("TEST_SCHEME_C", "2");
         
     // first some bundles with overlapping ids.
-    IdentifierBundle bundleA1B1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1 })); 
-    IdentifierBundle bundleB1C1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idB1, idC1 }));  
-    IdentifierBundle bundleA1B1C1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1, idC1 }));
-    IdentifierBundle bundleA1B1C1D1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1, idC1, idD1 }));
-    IdentifierBundle bundleA2B2 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA2, idB2 }));
-    IdentifierBundle bundleA1B2 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB2 }));
+    IdentifierBundle bundleA1B1 = IdentifierBundle.of(idA1, idB1); 
+    IdentifierBundle bundleB1C1 = IdentifierBundle.of(idB1, idC1);  
+    IdentifierBundle bundleA1B1C1 = IdentifierBundle.of(idA1, idB1, idC1);
+    IdentifierBundle bundleA1B1C1D1 = IdentifierBundle.of(idA1, idB1, idC1, idD1);
+    IdentifierBundle bundleA2B2 = IdentifierBundle.of(idA2, idB2);
+    IdentifierBundle bundleA1B2 = IdentifierBundle.of(idA1, idB2);
     final String testSchemeName = "TEST_SCHEME_1";
-    IdentificationScheme testScheme = new IdentificationScheme(testSchemeName);
+    IdentificationScheme testScheme = IdentificationScheme.of(testSchemeName);
     IdentifierBundleMapper<String> mapper = new IdentifierBundleMapper<String>(testSchemeName);
     String obj = "TEST1";
     UniqueIdentifier uid1 = mapper.add(bundleA1B1, obj);
