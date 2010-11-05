@@ -88,6 +88,7 @@ public class BondSecurityToBondConverter {
     return new Bond(payments, coupon / 100., 1. / periodsPerYear, periodsPerYear * accruedInterest / coupon, curveName);
   }
 
+  //TODO not sure if this is right
   private double getPaymentTime(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     final int y1 = firstDate.getYear();
     final int y2 = secondDate.getYear();

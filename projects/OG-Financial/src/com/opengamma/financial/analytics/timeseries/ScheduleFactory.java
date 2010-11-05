@@ -25,6 +25,9 @@ public class ScheduleFactory {
   }
 
   public static LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final Frequency frequency, final boolean endOfMonth, final boolean fromEnd) {
+    Validate.notNull(startDate, "start date");
+    Validate.notNull(endDate, "end date");
+    Validate.notNull(frequency, "frequency");
     SimpleFrequency simple;
     if (frequency instanceof SimpleFrequency) {
       simple = (SimpleFrequency) frequency;
@@ -34,7 +37,7 @@ public class ScheduleFactory {
       throw new IllegalArgumentException("Can only handle SimpleFrequency and PeriodFrequency");
     }
     final int periodsPerYear = (int) simple.getPeriodsPerYear();
-    return getSchedule(startDate, endDate, periodsPerYear, endOfMonth);
+    return getSchedule(startDate, endDate, periodsPerYear, endOfMonth, fromEnd);
   }
 
   public static LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final int periodsPerYear, final boolean fromEnd) {
@@ -59,8 +62,17 @@ public class ScheduleFactory {
     if (periodsPerYear == 52) {
       result = ScheduleCalculatorFactory.WEEKLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
     }
+    if (periodsPerYear == 365 || periodsPerYear == 366) {
+      result = ScheduleCalculatorFactory.DAILY_CALCULATOR.getSchedule(startDate, endDate);
+    }
     Validate.notNull(result, "schedule");
     if (endOfMonth) {
+      if (periodsPerYear == 52) {
+        throw new IllegalArgumentException("Could not get EOM adjustment for a weekly frequency");
+      }
+      if (periodsPerYear == 365 || periodsPerYear == 366) {
+        throw new IllegalArgumentException("Could not get EOM adjustment for a daily frequency");
+      }
       final int n = result.length;
       if (fromEnd) {
         final LocalDate lastDate = result[n - 1];
@@ -122,10 +134,19 @@ public class ScheduleFactory {
     if (periodsPerYear == 52) {
       result = ScheduleCalculatorFactory.WEEKLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
     }
+    if (periodsPerYear == 365 || periodsPerYear == 366) {
+      result = ScheduleCalculatorFactory.DAILY_CALCULATOR.getSchedule(startDate, endDate);
+    }
     Validate.notNull(result, "schedule");
     if (endOfMonth) {
       final int n = result.length;
       if (fromEnd) {
+        if (periodsPerYear == 52) {
+          throw new IllegalArgumentException("Could not get EOM adjustment for a weekly frequency");
+        }
+        if (periodsPerYear == 365 || periodsPerYear == 366) {
+          throw new IllegalArgumentException("Could not get EOM adjustment for a daily frequency");
+        }
         final ZonedDateTime lastDate = result[n - 1];
         if (lastDate.getDayOfMonth() == lastDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(lastDate))) {
           for (int i = 0; i < n - 1; i++) {
