@@ -33,7 +33,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.timeseries.IdentifierProvider;
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesLoader;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
@@ -155,7 +154,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
       return Response.ok(html).build();
     }
     
-    IdentificationScheme scheme = new IdentificationScheme(idScheme);
+    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Set<Identifier> identifiers = buildSecurityRequest(scheme, idValue);
     TimeSeriesLoader timeSeriesLoader = data().getTimeSeriesLoader();
     Map<Identifier, UniqueIdentifier> added = timeSeriesLoader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
