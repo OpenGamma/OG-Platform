@@ -52,7 +52,7 @@ public final class TimeSeriesConstant {
   /**
    * key name  for getTimeSeriesKeyByID SQL
    */
-  public static final String GET_TIME_SERIES_KEY_BY_ID = "getTimeSeriesKeyByID";
+  public static final String GET_ACTIVE_TIME_SERIES_KEY_BY_ID = "getActiveTimeSeriesKeyByID";
   /**
    * key name  for insertDataField SQL
    */
