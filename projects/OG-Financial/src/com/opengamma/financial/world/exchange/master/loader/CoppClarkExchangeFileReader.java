@@ -148,7 +148,7 @@ public class CoppClarkExchangeFileReader {
     }
     String timeZoneId = requiredStringField(rawFields[27]);
     if (TimeZone.of(timeZoneId).equals(doc.getExchange().getTimeZone()) == false) {
-      throw new OpenGammaRuntimeException("Multiple time-zone entries for exchange");
+      throw new OpenGammaRuntimeException("Multiple time-zone entries for exchange: " + doc.getExchange());
     }
     doc.getExchange().getCalendarEntries().add(readCalendarEntryLine(rawFields));    
   }

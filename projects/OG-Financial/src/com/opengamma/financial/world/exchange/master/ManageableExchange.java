@@ -89,6 +89,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
     setIdentifiers(identifiers);
     setName(name);
     setRegionId(regionId);
+    setTimeZone(timeZone);
   }
 
   /**
