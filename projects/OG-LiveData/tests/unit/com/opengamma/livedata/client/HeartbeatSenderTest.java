@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
@@ -53,10 +52,10 @@ public class HeartbeatSenderTest {
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
     LiveDataSpecification spec1 = new LiveDataSpecification(
         "Test",
-        new Identifier(new IdentificationScheme("foo"), "bar"));
+        Identifier.of("foo", "bar"));
     LiveDataSpecification spec2 = new LiveDataSpecification(
         "Test",
-        new Identifier(new IdentificationScheme("foo"), "baz"));
+        Identifier.of("foo", "baz"));
     valueDistributor.addListener(spec1, listener1);
     valueDistributor.addListener(spec2, listener1);
     

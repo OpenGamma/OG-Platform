@@ -7,4 +7,4 @@
 /**
  * Exchange loader providing the ability to load a exchange master from an external file.
  */
-package com.opengamma.financial.world.exchange.coppclark;
+package com.opengamma.financial.world.exchange.master.loader;

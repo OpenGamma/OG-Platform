@@ -235,8 +235,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<IdentifierBundle> values) {
         values.add(IdentifierBundle.EMPTY);
-        values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
-        values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
+        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
+        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
             RandomStringUtils.randomAlphanumeric(16))));
       }
     });

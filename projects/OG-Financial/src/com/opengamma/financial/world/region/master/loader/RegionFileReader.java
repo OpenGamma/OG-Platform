@@ -149,7 +149,7 @@ public class RegionFileReader {
    * @return the region source, not null
    */
   public MasterRegionSource getRegionSource() {
-    return new MasterRegionSource(_regionMaster);
+    return new MasterRegionSource(getRegionMaster());
   }
 
   //-------------------------------------------------------------------------
@@ -245,7 +245,7 @@ public class RegionFileReader {
         }
         
         // store
-        RegionDocument doc = _regionMaster.add(new RegionDocument(region));
+        RegionDocument doc = getRegionMaster().add(new RegionDocument(region));
         if (rowSubRegions.size() > 0) {
           subRegions.put(doc.getRegionId(), rowSubRegions);
         }

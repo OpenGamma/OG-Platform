@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.financial.world.holiday.master.loader.CoppClarkHolidayFileReader;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 

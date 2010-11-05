@@ -102,9 +102,9 @@ public class DistributedLiveDataClientTest {
     _server.start();
     
     LiveDataSpecification spec1 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        new Identifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
+        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
     LiveDataSpecification spec2 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        new Identifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
+        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
     
     Collection<LiveDataSubscriptionResponse> responses = _client.snapshot(TEST_USER, Sets.newHashSet(spec1, spec2), 1000);
     assertNotNull(responses);
@@ -151,9 +151,9 @@ public class DistributedLiveDataClientTest {
     _server.start();
     
     LiveDataSpecification spec1 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        new Identifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
+        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
     LiveDataSpecification spec2 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        new Identifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
+        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
     
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     

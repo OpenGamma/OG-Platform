@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.coppclark;
+package com.opengamma.financial.world.holiday.master.loader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -48,7 +48,7 @@ public class CoppClarkHolidayFileReader {
   /**
    * The Copp Clark scheme.
    */
-  private static final IdentificationScheme COPP_CLARK_SCHEME = new IdentificationScheme("COPP_CLARK");
+  private static final IdentificationScheme COPP_CLARK_SCHEME = IdentificationScheme.of("COPP_CLARK");
   /**
    * The date format.
    */
@@ -236,7 +236,7 @@ public class CoppClarkHolidayFileReader {
       String isoMICCode = row[isoMICCodeIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
-      Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
+      Identifier micId = Identifier.of(ExchangeUtils.ISO_MIC, isoMICCode);
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.SETTLEMENT, micId, EMPTY_DATE_LIST));
@@ -264,7 +264,7 @@ public class CoppClarkHolidayFileReader {
       String isoMICCode = row[isoMICCodeIdx];
       String eventDateStr = row[eventDateIdx];
       LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
-      Identifier micId = new Identifier(ExchangeUtils.ISO_MIC, isoMICCode);
+      Identifier micId = Identifier.of(ExchangeUtils.ISO_MIC, isoMICCode);
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.TRADING, micId, EMPTY_DATE_LIST));

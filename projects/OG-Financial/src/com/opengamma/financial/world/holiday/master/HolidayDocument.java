@@ -114,7 +114,7 @@ public class HolidayDocument extends DirectBean implements Serializable {
         setName(holiday.getRegionId().getValue());
         break;
       case CURRENCY:
-        setName(holiday.getCurrencyISO());
+        setName(holiday.getCurrency().getISOCode());
         break;
       case SETTLEMENT:
       case TRADING:

@@ -75,7 +75,7 @@ public class UserSecuritySource implements SecuritySource {
   private UniqueIdentifier getUid(IdentifierBundle secKey) {
     // TODO: improve
     final String userScheme = getScheme();
-    String idValue = secKey.getIdentifier(new IdentificationScheme(userScheme));
+    String idValue = secKey.getIdentifier(IdentificationScheme.of(userScheme));
     if (idValue != null) {
       return UniqueIdentifier.of(userScheme, idValue);
     } else {

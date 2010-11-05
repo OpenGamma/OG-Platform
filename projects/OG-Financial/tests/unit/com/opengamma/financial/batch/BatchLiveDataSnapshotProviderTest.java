@@ -39,7 +39,7 @@ public class BatchLiveDataSnapshotProviderTest {
     InMemoryHistoricalDataProvider historicalDataProvider = new InMemoryHistoricalDataProvider();
     
     Identifier identifier = Identifier.of("mytimeseries", "500");
-    IdentifierBundle bundle = new IdentifierBundle(identifier);
+    IdentifierBundle bundle = IdentifierBundle.of(identifier);
     historicalDataProvider.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
     HistoricalLiveDataSnapshotProvider snapshotProvider = new HistoricalLiveDataSnapshotProvider(historicalDataProvider, "BLOOMBERG", "CMPL", "PX_LAST");

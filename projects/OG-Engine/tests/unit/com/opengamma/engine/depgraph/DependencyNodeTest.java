@@ -20,14 +20,14 @@ public class DependencyNodeTest {
   
   @Test
   public void testDependentNodes() {
-    IdentificationScheme domain = new IdentificationScheme("test");
+    IdentificationScheme domain = IdentificationScheme.of("test");
     
-    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "0")));
-    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "1")));
-    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "2")));
-    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "3")));
-    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "4")));
-    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "5")));
+    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "0")));
+    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "1")));
+    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "2")));
+    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "3")));
+    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "4")));
+    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "5")));
     
     node0.addInputNode(node1);
     node0.addInputNode(node2);

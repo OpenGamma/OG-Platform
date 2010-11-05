@@ -34,7 +34,7 @@ public class ValueRequirementTest {
 
   private static final UniqueIdentifier USD = UniqueIdentifier.of("currency", "USD");  
   private static final UniqueIdentifier GBP = UniqueIdentifier.of("currency", "GBP");
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), new IdentifierBundle());
+  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
   @Test

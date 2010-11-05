@@ -100,7 +100,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @param validFrom  the valid from date, may be null
    * @param validTo  the valid to date, may be null
    */
-  public IdentifierWithDates(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
+  private IdentifierWithDates(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
     ArgumentChecker.notNull(identifier, "identifier");
     if (validFrom != null && validTo != null) {
       ArgumentChecker.isTrue(validTo.isAfter(validFrom) || validTo.equals(validFrom), "ValidTo must be after or eqauls to ValidFrom");

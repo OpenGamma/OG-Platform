@@ -68,7 +68,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
-    _securityKey = new IdentifierBundle(securityKey);
+    _securityKey = IdentifierBundle.of(securityKey);
     _security = null;
   }
 
@@ -97,7 +97,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(securityKey, "security key");
     _identifier = identifier;
     _quantity = quantity;
-    _securityKey = new IdentifierBundle(securityKey);
+    _securityKey = IdentifierBundle.of(securityKey);
     _security = null;
   }
 
