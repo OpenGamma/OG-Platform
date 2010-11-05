@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -50,11 +51,11 @@ public interface Holiday {
   Identifier getExchangeId();
 
   /**
-   * The ISO currency, used when this is a holiday of type CURRENCY.
+   * The currency, used when this is a holiday of type CURRENCY.
    * 
    * @return a currency, if this is a CURRENCY holiday, null otherwise
    */
-  String getCurrencyISO();
+  Currency getCurrency();
 
   /**
    * The list of dates on which the holiday occurs.

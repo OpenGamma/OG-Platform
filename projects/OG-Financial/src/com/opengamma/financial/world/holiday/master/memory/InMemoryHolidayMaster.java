@@ -87,8 +87,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getCurrencyISO() != null &&
-            doc.getHoliday().getCurrencyISO().equals(request.getCurrency().getISOCode());
+          return request.getCurrency().equals(doc.getHoliday().getCurrency());
         }
       });
     }
