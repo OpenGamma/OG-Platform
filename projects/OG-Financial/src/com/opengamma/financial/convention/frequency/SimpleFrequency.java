@@ -81,7 +81,7 @@ public class SimpleFrequency implements Frequency {
 
   @Override
   public String toString() {
-    return "Frequency[" + "name =  " + _name + " pa = " + _periodsPerYear + "]";
+    return "Frequency[" + "name = " + _name + " pa = " + _periodsPerYear + "]";
   }
 
   // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 

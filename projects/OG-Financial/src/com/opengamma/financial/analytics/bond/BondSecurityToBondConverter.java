@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.analytics.bond;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -17,9 +18,9 @@ import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -29,6 +30,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -51,8 +53,6 @@ public class BondSecurityToBondConverter {
     final ZonedDateTime maturityDate = security.getMaturity().getExpiry();
     Validate.isTrue(now.isBefore(maturityDate), "The bond has expired");
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-    final ZonedDateTime datedDate = security.getInterestAccrualDate().toZonedDateTime();
-    final ZonedDateTime firstCouponDate = security.getFirstCouponDate().toZonedDateTime();
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
     if (frequency instanceof PeriodFrequency) {
@@ -60,70 +60,63 @@ public class BondSecurityToBondConverter {
     } else if (frequency instanceof SimpleFrequency) {
       simpleFrequency = (SimpleFrequency) frequency;
     } else {
-      throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
+      throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
 
     final double paymentYearFraction = 1.0 / simpleFrequency.getPeriodsPerYear();
     final Currency currency = security.getCurrency();
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
-    ZonedDateTime[] couponDates = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
-    couponDates = Arrays.copyOfRange(couponDates, 1, couponDates.length);
-    if (convention.calculateScheduleFromMaturity() && firstCouponDate != null) {
-      Validate.isTrue(couponDates[0].equals(firstCouponDate), "Calculated first coupon date did not match that in the security definition");
+    final ZonedDateTime datedDate = security.getInterestAccrualDate().toZonedDateTime();
+    final ZonedDateTime[] bondSchedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
+    final ZonedDateTime[] adjustedBondSchedule = ScheduleCalculator.getSettlementDateSchedule(bondSchedule, calendar, convention.getSettlementDays());
+    final DayCount daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, convention.getSettlementDays()), bondSchedule, security.getCouponRate(),
+        (int) simpleFrequency.getPeriodsPerYear(),
+        convention.isEOMConvention());
+    final List<Double> paymentTimes = new ArrayList<Double>();
+    for (int i = 1; i < adjustedBondSchedule.length; i++) {
+      if (now.isBefore(adjustedBondSchedule[i])) {
+        paymentTimes.add((int) simpleFrequency.getPeriodsPerYear()
+            * AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule, security.getCouponRate(),
+                (int) simpleFrequency.getPeriodsPerYear(),
+                convention.isEOMConvention()) / security.getCouponRate());
+        //paymentTimes.add(getPaymentTime(getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule[i]));
+      }
     }
-    final int n = couponDates.length;
-    //adjust all coupon dates to fall on business days 
-    final ZonedDateTime[] couponPaymentDates = ScheduleCalculator.getAdjustedDateSchedule(couponDates, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), calendar);
-    final ZonedDateTime[] exDividendDates = getExDividendDates(couponDates, convention.getExDividendDays());
-
-    //for a seasoned bond, find out the next coupon
-    //TODO if a bonds nominal coupon payment date is a non-business day, does it count as being ex-dividend on that date even if the actual payment may have rolled a
-    //few days forward to the next business day?
-    int index = 0;
-    while (!now.isBefore(couponDates[index])) { //if now is on or after nominalCouponDate[index], assume coupon has been paid
-      index++;
+    final double[] payments = new double[paymentTimes.size()];
+    for (int i = 0; i < payments.length; i++) {
+      payments[i] = paymentTimes.get(i);
     }
-
-    //Accrued interest calculated from nominal coupon dates
-    ZonedDateTime previousCouponDate;
-    if (index == 0) {
-      previousCouponDate = security.getInterestAccrualDate().toZonedDateTime();
-    } else {
-      previousCouponDate = couponDates[index - 1];
-    }
-
-    final double periodYearFrac = security.getDayCountConvention().getDayCountFraction(previousCouponDate, couponDates[index]);
-
-    double accrualFraction;
-    if (now.isBefore(exDividendDates[index])) {
-      final double accualTime = security.getDayCountConvention().getDayCountFraction(previousCouponDate, now);
-      accrualFraction = accualTime / periodYearFrac;
-    } else {
-      final double accualTime = -security.getDayCountConvention().getDayCountFraction(now, couponDates[index]);
-      accrualFraction = accualTime / periodYearFrac;
-      index++; //drop the next coupon from the bond as we are ex-dividend 
-    }
-    //TODO what happens when this is zero, i.e. the last coupon has go ex-dividend - does the buyer still get the principle (in which case the bond still has value)?
-    final int nPayments = n + 1 - index;
-    final double[] paymentTimes = new double[nPayments];
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
-    for (int i = 0; i < nPayments; i++) {
-      paymentTimes[i] = actAct.getDayCountFraction(now, couponPaymentDates[i + index]);
-    }
-
-    return new Bond(paymentTimes, security.getCouponRate() / 100., paymentYearFraction, accrualFraction, curveName);
+    return new Bond(payments, security.getCouponRate() / 100., paymentYearFraction, simpleFrequency.getPeriodsPerYear() * accruedInterest / security.getCouponRate(), curveName);
   }
 
-  /**
-   * @param nominalCouponDate
-   * @return
-   */
-  private ZonedDateTime[] getExDividendDates(final ZonedDateTime[] nominalCouponDates, final int exDividendDays) {
-    for (int i = 0; i < nominalCouponDates.length; i++) {
-      nominalCouponDates[i] = nominalCouponDates[i].minusDays(exDividendDays);
+  private double getPaymentTime(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+    final int y1 = firstDate.getYear();
+    final int y2 = secondDate.getYear();
+    if (y1 == y2) {
+      final double basis = DateUtil.isLeapYear(firstDate) ? 366 : 365;
+      return DateUtil.getExactDaysBetween(firstDate, secondDate) / basis;
     }
-    return nominalCouponDates; //TODO get these dates from somewhere 
+    final ZonedDateTime firstNewYear = firstDate.withDate(y1 + 1, 1, 1).withTime(0, 0);
+    final ZonedDateTime secondNewYear = secondDate.withDate(y2, 1, 1).withTime(0, 0);
+    final double firstBasis = DateUtil.isLeapYear(firstDate) ? 366 : 365;
+    final double secondBasis = DateUtil.isLeapYear(secondDate) ? 366 : 365;
+    return DateUtil.getExactDaysBetween(firstDate, firstNewYear) / firstBasis + DateUtil.getExactDaysBetween(secondNewYear, secondDate) / secondBasis + (y2 - y1 - 1);
   }
 
+  private ZonedDateTime getSettlementDate(final ZonedDateTime now, final Calendar calendar, final int settlementDays) {
+    int count = 0;
+    int adjusted = 0;
+    final ZonedDateTime date = now;
+    while (adjusted < settlementDays) {
+      if (calendar.isWorkingDay(date.plusDays(count + 1).toLocalDate())) {
+        count++;
+        adjusted++;
+      } else {
+        count++;
+      }
+    }
+    return now.plusDays(count);
+  }
 }

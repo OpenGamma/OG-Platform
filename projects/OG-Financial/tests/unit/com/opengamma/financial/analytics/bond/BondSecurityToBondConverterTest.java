@@ -39,7 +39,7 @@ public class BondSecurityToBondConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondConverter CONVERTER = new BondSecurityToBondConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2007, 10, 1);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2007, 10, 2);
   private static final BondSecurity BOND = new GovernmentBondSecurity("US",
                                                                         "Government",
                                                                         "US",

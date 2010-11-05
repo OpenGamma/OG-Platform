@@ -60,11 +60,11 @@ public class FixedFloatSwapSecurityToSwapConverter {
   }
 
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
-  protected Calendar getCalendar(Identifier regionId) {
+  protected Calendar getCalendar(final Identifier regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
-      String[] regions = regionId.getValue().split("\\+");
-      Set<Region> resultRegions = new HashSet<Region>();
-      for (String region : regions) {
+      final String[] regions = regionId.getValue().split("\\+");
+      final Set<Region> resultRegions = new HashSet<Region>();
+      for (final String region : regions) {
         resultRegions.add(_regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(_holidaySource, resultRegions);
@@ -73,8 +73,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
       return new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
     }
   }
-    
-  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,  
+
+  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,
       final double initialRate, final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
@@ -101,9 +101,9 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
-    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), 
+    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar),
         getFloatLeg(floatLeg, now, effectiveDate, maturityDate,
-        fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
+            fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
 
   }
 
@@ -113,7 +113,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
         + ", liborCurveName" + liborCurveName + ", calendar=" + calendar + ", settlementDays=" + settlementDays);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     s_logger.debug("unadjustedDates=" + Arrays.asList(unadjustedDates));
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
     s_logger.debug("adjustedDates=" + Arrays.asList(adjustedDates));
     final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
     s_logger.debug("resetDates=" + Arrays.asList(resetDates));
@@ -166,7 +166,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
         + ", fundingCurveName=" + fundingCurveName + ", calendar=" + calendar);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
     s_logger.debug("unadjustedDates = " + Arrays.asList(unadjustedDates));
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar);
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar, 0);
     s_logger.debug("adjustedDates = " + Arrays.asList(adjustedDates));
     double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.debug("paymentTimes = " + Doubles.asList(paymentTimes));

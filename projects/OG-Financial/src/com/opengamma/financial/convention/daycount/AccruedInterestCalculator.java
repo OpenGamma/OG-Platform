@@ -17,30 +17,30 @@ import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubT
  */
 public class AccruedInterestCalculator {
 
-  public double getAccruedInterest(final String daycountName, final ZonedDateTime date, final ZonedDateTime[] schedule, final double coupon, final int paymentsPerYear, final boolean isEOMConvention) {
-    Validate.notNull(daycountName, "day-count name");
-    Validate.notNull(date, "date");
+  public static double getAccruedInterest(final DayCount dayCount, final ZonedDateTime settlementDate, final ZonedDateTime[] schedule, final double coupon, final int paymentsPerYear,
+      final boolean isEOMConvention) {
+    Validate.notNull(dayCount, "day-count");
+    Validate.notNull(settlementDate, "date");
     Validate.notNull(schedule, "schedule");
     Validate.noNullElements(schedule, "schedule");
     Validate.isTrue(paymentsPerYear > 0);
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(daycountName);
     boolean foundDates = false;
     int index = 0;
     final int length = schedule.length;
     for (int i = 0; i < length - 1; i++) {
-      if (schedule[i].isBefore(date) && schedule[i + 1].isAfter(date)) {
+      if (schedule[i].isBefore(settlementDate) && schedule[i + 1].isAfter(settlementDate)) {
         foundDates = true;
         index = i;
       }
     }
     if (!foundDates) {
-      throw new IllegalArgumentException("Could not get previous and next coupon for date " + date);
+      throw new IllegalArgumentException("Could not get previous and next coupon for date " + settlementDate);
     }
-    return getAccruedInterest(dayCount, index, length, schedule[index], date, schedule[index + 1], coupon, paymentsPerYear, isEOMConvention);
+    return getAccruedInterest(dayCount, index, length, schedule[index], settlementDate, schedule[index + 1], coupon, paymentsPerYear, isEOMConvention);
   }
 
-  private double getAccruedInterest(final DayCount dayCount, final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear, final boolean isEOMConvention) {
+  private static double getAccruedInterest(final DayCount dayCount, final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime date,
+      final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear, final boolean isEOMConvention) {
     if (dayCount instanceof ActualActualICMANormal) {
       final StubType stubType = getStubType(index, length, previousCouponDate, nextCouponDate, paymentsPerYear, isEOMConvention);
       return ((ActualActualICMANormal) dayCount).getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, stubType);
@@ -54,7 +54,7 @@ public class AccruedInterestCalculator {
 
   }
 
-  private StubType getStubType(final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime nextCouponDate, final int paymentsPerYear,
+  private static StubType getStubType(final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime nextCouponDate, final int paymentsPerYear,
       final boolean isEOMConvention) {
     StubType stubType;
     if (index == 0) {

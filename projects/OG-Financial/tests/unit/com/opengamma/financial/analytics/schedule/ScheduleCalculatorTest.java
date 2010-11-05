@@ -95,7 +95,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDateArray1() {
-    ScheduleCalculator.getAdjustedDateSchedule(null, new ModifiedFollowingBusinessDayConvention(), ALL);
+    ScheduleCalculator.getAdjustedDateSchedule(null, new ModifiedFollowingBusinessDayConvention(), ALL, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -105,7 +105,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDateArray1() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[0], new ModifiedFollowingBusinessDayConvention(), ALL);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[0], new ModifiedFollowingBusinessDayConvention(), ALL, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -115,12 +115,12 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullConvention() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, null, ALL);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, null, ALL, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalendar() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ModifiedFollowingBusinessDayConvention(), null);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ModifiedFollowingBusinessDayConvention(), null, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)

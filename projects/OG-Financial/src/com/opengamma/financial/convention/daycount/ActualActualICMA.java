@@ -88,11 +88,12 @@ public class ActualActualICMA extends ActualTypeDayCount {
     return "Actual/Actual ICMA";
   }
 
-  private LocalDate getEOMAdjustedDate(final LocalDate comparison, LocalDate date) {
+  private LocalDate getEOMAdjustedDate(final LocalDate comparison, final LocalDate date) {
+    LocalDate result = date;
     if (comparison.getDayOfMonth() == comparison.getMonthOfYear().lengthInDays(DateUtil.isLeapYear(comparison))) {
       final MonthOfYear month = date.getMonthOfYear();
-      date = LocalDate.of(date.getYear(), month, date.getMonthOfYear().lengthInDays(DateUtil.isLeapYear(date)));
+      result = LocalDate.of(date.getYear(), month, date.getMonthOfYear().lengthInDays(DateUtil.isLeapYear(date)));
     }
-    return date;
+    return result;
   }
 }
