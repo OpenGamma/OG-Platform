@@ -71,14 +71,10 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * Creates a bundle from a single identifier.
    * 
-   * @param identifier  the identifier, null returns an empty bundle
+   * @param identifier  the identifier, not null
    */
-  public IdentifierBundle(Identifier identifier) {
-    if (identifier == null) {
-      _identifiers = Collections.emptySet();
-    } else {
-      _identifiers = Collections.singleton(identifier);
-    }
+  private IdentifierBundle(Identifier identifier) {
+    _identifiers = Collections.singleton(identifier);
     _hashCode = calcHashCode();
   }
 
@@ -112,8 +108,29 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     _hashCode = calcHashCode();
   }
 
+//  /**
+//   * Creates a bundle from a set of identifiers.
+//   * 
+//   * @param identifiers  the set of identifiers, assigned, not null
+//   */
+//  private IdentifierBundle(Set<Identifier> identifiers) {
+//    _identifiers = identifiers;
+//    _hashCode = calcHashCode();
+//  }
+
   /**
-   * Creates a bundle from a collection of identifiers.
+   * Obtains an {@code IdentifierBundle} from an identifier.
+   * 
+   * @param identifier  the identifier to wrap in a bundle, not null
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    return new IdentifierBundle(identifier);
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from an array of identifiers.
    * 
    * @param identifiers  the collection of identifiers, not null, no nulls in array
    * @return the identifier bundle, not null

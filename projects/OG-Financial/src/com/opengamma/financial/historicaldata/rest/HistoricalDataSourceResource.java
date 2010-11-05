@@ -84,7 +84,7 @@ public class HistoricalDataSourceResource {
   }
 
   private IdentifierBundle identifiersToBundle(final List<String> identifiers) {
-    IdentifierBundle bundle = new IdentifierBundle();
+    IdentifierBundle bundle = IdentifierBundle.EMPTY;
     for (String identifier : identifiers) {
       bundle = bundle.withIdentifier(Identifier.parse(identifier));
     }

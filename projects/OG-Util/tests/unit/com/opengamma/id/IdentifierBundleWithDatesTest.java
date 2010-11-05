@@ -32,13 +32,13 @@ import com.google.common.collect.Sets;
  */
 public class IdentifierBundleWithDatesTest {
 
-  private final Identifier _id11 = Identifier.of(new IdentificationScheme("D1"), "V1");
+  private final Identifier _id11 = Identifier.of("D1", "V1");
   private final IdentifierWithDates _idwd11 = IdentifierWithDates.of(_id11, LocalDate.of(2000, MonthOfYear.JANUARY, 1), LocalDate.of(2001, MonthOfYear.JANUARY, 1));
-  private final Identifier _id21 = Identifier.of(new IdentificationScheme("D2"), "V1");
+  private final Identifier _id21 = Identifier.of("D2", "V1");
   private final IdentifierWithDates _idwd21 = IdentifierWithDates.of(_id21, null, null);
-  private final Identifier _id12 = Identifier.of(new IdentificationScheme("D1"), "V2");
+  private final Identifier _id12 = Identifier.of("D1", "V2");
   private final IdentifierWithDates _idwd12 = IdentifierWithDates.of(_id12, LocalDate.of(2001, MonthOfYear.JANUARY, 2), null);
-  private final Identifier _id22 = Identifier.of(new IdentificationScheme("D2"), "V2");
+  private final Identifier _id22 = Identifier.of("D2", "V2");
   private final IdentifierWithDates _idwd22 = IdentifierWithDates.of(_id22, null, LocalDate.of(2010, MonthOfYear.DECEMBER, 30));
   
   @Test

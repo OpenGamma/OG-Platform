@@ -28,7 +28,7 @@ public class UnderlyingTypeToValueRequirementMapper {
   public static ValueRequirement getValueRequirement(SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
-      Security optionUnderlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      Security optionUnderlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       switch (underlying) {
         case SPOT_PRICE:
           return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());

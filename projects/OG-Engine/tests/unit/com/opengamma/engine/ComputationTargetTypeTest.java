@@ -30,7 +30,7 @@ public class ComputationTargetTypeTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl();
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), new IdentifierBundle());
+  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final Security SECURITY = new DefaultSecurity("");
 
   @Test

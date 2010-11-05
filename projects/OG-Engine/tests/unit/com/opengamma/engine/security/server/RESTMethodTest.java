@@ -45,13 +45,13 @@ public class RESTMethodTest {
   @Before
   public void configureService() {
     MockSecuritySource securitySource = new MockSecuritySource();
-    Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
-    Identifier secId2 = new Identifier(new IdentificationScheme("d2"), "v2");
+    Identifier secId1 = Identifier.of(IdentificationScheme.of("d1"), "v1");
+    Identifier secId2 = Identifier.of(IdentificationScheme.of("d2"), "v2");
     DefaultSecurity sec1 = new DefaultSecurity("t1");
-    sec1.setIdentifiers (new IdentifierBundle(secId1));
+    sec1.setIdentifiers (IdentifierBundle.of(secId1));
     securitySource.addSecurity(sec1);
     DefaultSecurity sec2 = new DefaultSecurity("t2");
-    sec2.setIdentifiers (new IdentifierBundle(secId2));
+    sec2.setIdentifiers (IdentifierBundle.of(secId2));
     securitySource.addSecurity(sec2);
     getSecuritySourceService().setSecuritySource(securitySource);
     _uid1 = sec1.getUniqueIdentifier();

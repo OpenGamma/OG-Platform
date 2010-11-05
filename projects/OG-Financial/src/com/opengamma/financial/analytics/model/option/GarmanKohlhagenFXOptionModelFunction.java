@@ -38,7 +38,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final FXOptionSecurity fxOption = (FXOptionSecurity) option;
-    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
+    final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
@@ -67,7 +67,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
     if (canApplyTo(context, target)) {
       final FXOptionSecurity option = (FXOptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option));

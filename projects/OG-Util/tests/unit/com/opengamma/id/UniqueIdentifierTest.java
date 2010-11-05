@@ -163,7 +163,7 @@ public class UniqueIdentifierTest {
   @Test
   public void test_getSchemeAsObject() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(new IdentificationScheme("id1"), test.getSchemeObject());
+    assertEquals(IdentificationScheme.of("id1"), test.getSchemeObject());
   }
 
   @Test

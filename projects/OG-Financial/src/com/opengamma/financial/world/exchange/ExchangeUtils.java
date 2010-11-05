@@ -17,7 +17,7 @@ public class ExchangeUtils {
   /**
    * Identification scheme for the MIC exchange code ISO standard.
    */
-  public static final IdentificationScheme ISO_MIC = new IdentificationScheme("ISO_MIC");
+  public static final IdentificationScheme ISO_MIC = IdentificationScheme.of("ISO_MIC");
 
   /**
    * Restricted constructor.
