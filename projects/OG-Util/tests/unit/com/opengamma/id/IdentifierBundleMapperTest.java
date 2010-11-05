@@ -5,8 +5,6 @@
  */
 package com.opengamma.id;
 
-import java.util.Arrays;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -27,12 +25,12 @@ public class IdentifierBundleMapperTest {
     Identifier idC2 = Identifier.of("TEST_SCHEME_C", "2");
         
     // first some bundles with overlapping ids.
-    IdentifierBundle bundleA1B1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1 })); 
-    IdentifierBundle bundleB1C1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idB1, idC1 }));  
-    IdentifierBundle bundleA1B1C1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1, idC1 }));
-    IdentifierBundle bundleA1B1C1D1 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB1, idC1, idD1 }));
-    IdentifierBundle bundleA2B2 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA2, idB2 }));
-    IdentifierBundle bundleA1B2 = new IdentifierBundle(Arrays.asList(new Identifier[] { idA1, idB2 }));
+    IdentifierBundle bundleA1B1 = IdentifierBundle.of(idA1, idB1); 
+    IdentifierBundle bundleB1C1 = IdentifierBundle.of(idB1, idC1);  
+    IdentifierBundle bundleA1B1C1 = IdentifierBundle.of(idA1, idB1, idC1);
+    IdentifierBundle bundleA1B1C1D1 = IdentifierBundle.of(idA1, idB1, idC1, idD1);
+    IdentifierBundle bundleA2B2 = IdentifierBundle.of(idA2, idB2);
+    IdentifierBundle bundleA1B2 = IdentifierBundle.of(idA1, idB2);
     final String testSchemeName = "TEST_SCHEME_1";
     IdentificationScheme testScheme = IdentificationScheme.of(testSchemeName);
     IdentifierBundleMapper<String> mapper = new IdentifierBundleMapper<String>(testSchemeName);

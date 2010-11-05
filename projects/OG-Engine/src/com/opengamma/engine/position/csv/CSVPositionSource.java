@@ -214,7 +214,7 @@ public class CSVPositionSource implements PositionSource {
       Identifier id = Identifier.of(idScheme, idValue);
       securityIdentifiers.add(id);
     }
-    IdentifierBundle securityKey = new IdentifierBundle(securityIdentifiers);
+    IdentifierBundle securityKey = IdentifierBundle.of(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     return new PositionImpl(positionId, quantity, securityKey);

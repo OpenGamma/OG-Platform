@@ -296,7 +296,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   }
   
   private IdentifierBundle getIdentifierBundle(ValueSpecification specification) {
-    return new IdentifierBundle(specification.getTargetSpecification().getIdentifier());
+    return IdentifierBundle.of(specification.getTargetSpecification().getIdentifier());
   }
   
   // --------------------------------------------------------------------------

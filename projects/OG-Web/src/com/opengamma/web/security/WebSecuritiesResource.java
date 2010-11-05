@@ -151,7 +151,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       String identifierValue = bundle.getIdentifier(scheme);
       identifiers.add(Identifier.of(scheme, identifierValue));
     }
-    return new IdentifierBundle(identifiers);
+    return IdentifierBundle.of(identifiers);
   }
 
   //-------------------------------------------------------------------------

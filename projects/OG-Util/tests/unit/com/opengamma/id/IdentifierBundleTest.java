@@ -41,6 +41,19 @@ public class IdentifierBundleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test(expected = IllegalArgumentException.class)
+  public void factory_of_Identifier_null() {
+    IdentifierBundle.of((Identifier) null);
+  }
+
+  @Test
+  public void factory_of_Identifier() {
+    IdentifierBundle test = IdentifierBundle.of(_id11);
+    assertEquals(1, test.size());
+    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void factory_of_varargs_noIdentifiers() {
     IdentifierBundle test = IdentifierBundle.of();
@@ -73,6 +86,30 @@ public class IdentifierBundleTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void factory_of_Collection_empty() {
+    IdentifierBundle test = IdentifierBundle.of(new ArrayList<Identifier>());
+    assertEquals(0, test.size());
+  }
+
+  @Test
+  public void factory_of_Collection_two() {
+    IdentifierBundle test = IdentifierBundle.of(Arrays.asList(_id11, _id12));
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void factory_of_Collection_null() {
+    IdentifierBundle.of((Collection<Identifier>) null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void factory_of_Collection_noNulls() {
+    IdentifierBundle.of(Arrays.asList(_id11, null, _id12));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void constructor_noargs() {
     IdentifierBundle test = new IdentifierBundle();
     assertEquals(0, test.size());
@@ -80,72 +117,14 @@ public class IdentifierBundleTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void constructor_varargs_empty() {
-    IdentifierBundle test = new IdentifierBundle(new Identifier[0]);
-    assertEquals(0, test.size());
-  }
-
-  @Test
-  public void constructor_varargs_one() {
-    Identifier[] array = new Identifier[] {_id11};
-    IdentifierBundle test = new IdentifierBundle(array);
-    assertEquals(1, test.size());
-    assertEquals(Sets.newHashSet(_id11), test.getIdentifiers());
-  }
-
-  @Test
-  public void constructor_varargs_two() {
-    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
-    assertEquals(2, test.size());
-    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
-  }
-
-  @Test
-  public void constructor_varargs_null() {
-    IdentifierBundle test = new IdentifierBundle((Identifier[]) null);
-    assertEquals(0, test.size());
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void constructor_varargs_noNulls() {
-    new IdentifierBundle(_id11, null, _id12);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void constructor_Collection_empty() {
-    IdentifierBundle test = new IdentifierBundle(new ArrayList<Identifier>());
-    assertEquals(0, test.size());
-  }
-
-  @Test
-  public void constructor_Collection_two() {
-    IdentifierBundle test = new IdentifierBundle(Arrays.asList(_id11, _id12));
-    assertEquals(2, test.size());
-    assertEquals(Sets.newHashSet(_id11, _id12), test.getIdentifiers());
-  }
-
-  @Test
-  public void constructor_Collection_null() {
-    IdentifierBundle test = new IdentifierBundle((Collection<Identifier>) null);
-    assertEquals(0, test.size());
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void constructor_Collection_noNulls() {
-    new IdentifierBundle(Arrays.asList(_id11, null, _id12));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
   public void singleIdentifierDifferentConstructors() {
-    assertTrue(new IdentifierBundle(_id11).equals(new IdentifierBundle(Collections.singleton(_id11))));
+    assertTrue(IdentifierBundle.of(_id11).equals(IdentifierBundle.of(Collections.singleton(_id11))));
   }
 
   @Test
   public void singleVersusMultipleIdentifier() {
-    assertFalse(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id11, _id12)));
-    assertFalse(new IdentifierBundle(_id11, _id12).equals(new IdentifierBundle(_id11)));
+    assertFalse(IdentifierBundle.of(_id11).equals(IdentifierBundle.of(_id11, _id12)));
+    assertFalse(IdentifierBundle.of(_id11, _id12).equals(IdentifierBundle.of(_id11)));
   }
 
   //-------------------------------------------------------------------------

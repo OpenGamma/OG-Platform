@@ -111,7 +111,7 @@ public class IdentifierBundleMapper<T> {
    * @return the matching bundle, not null
    */
   public IdentifierBundle getIdentifierBundle(T obj) {
-    return new IdentifierBundle(_fromMap.get(obj));
+    return IdentifierBundle.of(_fromMap.get(obj));
   }
 
   /**

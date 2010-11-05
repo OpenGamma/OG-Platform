@@ -58,7 +58,7 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
     for (IdentifierBean identifierBean : identifierBeans) {
       identifiers.add(identifierBeanToIdentifier(identifierBean));
     }
-    return new BondFutureDeliverable(new IdentifierBundle(identifiers), futureBundleBean.getConversionFactor());
+    return new BondFutureDeliverable(IdentifierBundle.of(identifiers), futureBundleBean.getConversionFactor());
   }
 
   @Override
