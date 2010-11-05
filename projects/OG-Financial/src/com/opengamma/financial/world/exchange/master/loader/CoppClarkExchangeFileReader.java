@@ -150,10 +150,10 @@ public class CoppClarkExchangeFileReader {
     if (TimeZone.of(timeZoneId).equals(doc.getExchange().getTimeZone()) == false) {
       throw new OpenGammaRuntimeException("Multiple time-zone entries for exchange: " + doc.getExchange());
     }
-    doc.getExchange().getCalendarEntries().add(readCalendarEntryLine(rawFields));    
+    doc.getExchange().getDetail().add(readDetailLine(rawFields));    
   }
 
-  private ManageableExchangeDetail readCalendarEntryLine(String[] rawFields) {
+  private ManageableExchangeDetail readDetailLine(String[] rawFields) {
     ManageableExchangeDetail detail = new ManageableExchangeDetail();
     detail.setProductGroup(optionalStringField(rawFields[5]));
     detail.setProductName(requiredStringField(rawFields[6]));

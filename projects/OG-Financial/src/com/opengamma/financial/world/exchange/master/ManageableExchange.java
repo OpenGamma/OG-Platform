@@ -67,7 +67,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * The detailed information about when an exchange is open or closed.
    */
   @PropertyDefinition
-  private final List<ManageableExchangeDetail> _calendarEntries = new ArrayList<ManageableExchangeDetail>();
+  private final List<ManageableExchangeDetail> _detail = new ArrayList<ManageableExchangeDetail>();
 
   /**
    * Creates an exchange.
@@ -102,7 +102,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
     cloned._name = _name;
     cloned._identifiers = _identifiers;
     cloned._regionId = _regionId;
-    cloned._calendarEntries.addAll(_calendarEntries);
+    cloned._detail.addAll(_detail);
     return cloned;
   }
 
@@ -134,8 +134,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
         return getRegionId();
       case -2077180903:  // timeZone
         return getTimeZone();
-      case -658202766:  // calendarEntries
-        return getCalendarEntries();
+      case -1335224239:  // detail
+        return getDetail();
     }
     return super.propertyGet(propertyName);
   }
@@ -159,8 +159,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
       case -2077180903:  // timeZone
         setTimeZone((TimeZone) newValue);
         return;
-      case -658202766:  // calendarEntries
-        setCalendarEntries((List<ManageableExchangeDetail>) newValue);
+      case -1335224239:  // detail
+        setDetail((List<ManageableExchangeDetail>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -305,25 +305,25 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * Gets the detailed information about when an exchange is open or closed.
    * @return the value of the property
    */
-  public List<ManageableExchangeDetail> getCalendarEntries() {
-    return _calendarEntries;
+  public List<ManageableExchangeDetail> getDetail() {
+    return _detail;
   }
 
   /**
    * Sets the detailed information about when an exchange is open or closed.
-   * @param calendarEntries  the new value of the property
+   * @param detail  the new value of the property
    */
-  public void setCalendarEntries(List<ManageableExchangeDetail> calendarEntries) {
-    this._calendarEntries.clear();
-    this._calendarEntries.addAll(calendarEntries);
+  public void setDetail(List<ManageableExchangeDetail> detail) {
+    this._detail.clear();
+    this._detail.addAll(detail);
   }
 
   /**
-   * Gets the the {@code calendarEntries} property.
+   * Gets the the {@code detail} property.
    * @return the property, not null
    */
-  public final Property<List<ManageableExchangeDetail>> calendarEntries() {
-    return metaBean().calendarEntries().createProperty(this);
+  public final Property<List<ManageableExchangeDetail>> detail() {
+    return metaBean().detail().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -357,10 +357,10 @@ public class ManageableExchange extends DirectBean implements Exchange {
      */
     private final MetaProperty<TimeZone> _timeZone = DirectMetaProperty.ofReadWrite(this, "timeZone", TimeZone.class);
     /**
-     * The meta-property for the {@code calendarEntries} property.
+     * The meta-property for the {@code detail} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ManageableExchangeDetail>> _calendarEntries = DirectMetaProperty.ofReadWrite(this, "calendarEntries", (Class) List.class);
+    private final MetaProperty<List<ManageableExchangeDetail>> _detail = DirectMetaProperty.ofReadWrite(this, "detail", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -374,7 +374,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
       temp.put("name", _name);
       temp.put("regionId", _regionId);
       temp.put("timeZone", _timeZone);
-      temp.put("calendarEntries", _calendarEntries);
+      temp.put("detail", _detail);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -435,11 +435,11 @@ public class ManageableExchange extends DirectBean implements Exchange {
     }
 
     /**
-     * The meta-property for the {@code calendarEntries} property.
+     * The meta-property for the {@code detail} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ManageableExchangeDetail>> calendarEntries() {
-      return _calendarEntries;
+    public final MetaProperty<List<ManageableExchangeDetail>> detail() {
+      return _detail;
     }
 
   }
