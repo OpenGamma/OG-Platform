@@ -16,7 +16,7 @@ public abstract class AnnuityCalculations {
 
   public static double[] getLiborRates(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
 
-    int n = annuity.getNumberOfpayments();
+    int n = annuity.getNumberOfPayments();
     double[] libors = new double[n];
 
     for (int i = 0; i < n; i++) {

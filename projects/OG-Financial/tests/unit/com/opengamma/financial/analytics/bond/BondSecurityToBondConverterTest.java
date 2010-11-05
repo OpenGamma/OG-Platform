@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.bond;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -19,7 +21,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -46,11 +50,11 @@ public class BondSecurityToBondConverterTest {
                                                                         "Treasury",
                                                                         Currency.getInstance("USD"),
                                                                         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"),
-                                                                        new Expiry(DateUtil.getUTCDate(2009, 9, 30)),
+                                                                        new Expiry(DateUtil.getUTCDate(2008, 9, 30)),
                                                                         "",
-                                                                        0.04,
+                                                                        4.,
                                                                         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME),
-                                                                        DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
+                                                                        DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
                                                                         new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)),
                                                                         new DateTimeWithZone(DateUtil.getUTCDate(2007, 10, 3)),
                                                                         new DateTimeWithZone(DateUtil.getUTCDate(2008, 3, 31)),
@@ -60,6 +64,8 @@ public class BondSecurityToBondConverterTest {
                                                                         1000,
                                                                         100,
                                                                         100);
+  private static final String NAME = "BOND_YIELD";
+  private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullHolidaySource() {
@@ -93,7 +99,16 @@ public class BondSecurityToBondConverterTest {
 
   @Test
   public void test() {
-    final Bond bond = CONVERTER.getBond(BOND, "", DATE);
+    final Bond bond = CONVERTER.getBond(BOND, NAME, DATE);
+    assertEquals(bond.getAccruedInterestFraction(), 3. / 183, EPS);
+    final GenericAnnuity<FixedPayment> annuity = bond.getAnnuity();
+    assertEquals(annuity.getNumberOfPayments(), 3);
+    final FixedPayment[] payments = annuity.getPayments();
+    for (int i = 0; i < 2; i++) {
+      assertEquals(payments[i].getAmount(), 0.02, 0);
+      assertEquals(payments[i].getPaymentTime(), 0.5 + (i / 2.), 1e-2);
+      assertEquals(payments[i].getFundingCurveName(), NAME);
+    }
   }
 
   private static class MyHolidaySource implements HolidaySource {

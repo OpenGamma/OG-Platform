@@ -39,7 +39,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
 
   }
 
-  public int getNumberOfpayments() {
+  public int getNumberOfPayments() {
     return _payments.length;
   }
 

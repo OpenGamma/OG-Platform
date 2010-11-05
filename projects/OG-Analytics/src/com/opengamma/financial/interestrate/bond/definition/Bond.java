@@ -86,7 +86,7 @@ public class Bond implements InterestRateDerivativeWithRate {
    * @return the annuity
    */
   public GenericAnnuity<FixedPayment> getAnnuity() {
-    final int n = _coupons.getNumberOfpayments();
+    final int n = _coupons.getNumberOfPayments();
     final FixedPayment[] temp = new FixedPayment[n + 1];
 
     // temp = Arrays.copyOf(_coupons.getPayments(), n + 1);
@@ -120,7 +120,7 @@ public class Bond implements InterestRateDerivativeWithRate {
    */
   public GenericAnnuity<FixedCouponPayment> getUnitCouponAnnuity() {
 
-    final int n = _coupons.getNumberOfpayments();
+    final int n = _coupons.getNumberOfPayments();
     final FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i).withUnitCoupon();

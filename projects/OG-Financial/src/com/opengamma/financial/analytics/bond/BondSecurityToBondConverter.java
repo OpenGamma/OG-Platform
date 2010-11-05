@@ -62,29 +62,30 @@ public class BondSecurityToBondConverter {
     } else {
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
-
-    final double paymentYearFraction = 1.0 / simpleFrequency.getPeriodsPerYear();
     final Currency currency = security.getCurrency();
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     final ZonedDateTime datedDate = security.getInterestAccrualDate().toZonedDateTime();
-    final ZonedDateTime[] bondSchedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
-    final ZonedDateTime[] adjustedBondSchedule = ScheduleCalculator.getSettlementDateSchedule(bondSchedule, calendar, convention.getSettlementDays());
-    final DayCount daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, convention.getSettlementDays()), bondSchedule, security.getCouponRate(),
-        (int) simpleFrequency.getPeriodsPerYear(),
-        convention.isEOMConvention());
+    final ZonedDateTime[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
+    final ZonedDateTime[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays());
+    final DayCount daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); //TODO remove this when the definitions for USD treasuries are correct
+    final int settlementDays = convention.getSettlementDays();
+    final double coupon = security.getCouponRate();
+    final double periodsPerYear = simpleFrequency.getPeriodsPerYear();
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, settlementDays), schedule, coupon,
+        (int) simpleFrequency.getPeriodsPerYear(), convention.isEOMConvention());
     final List<Double> paymentTimes = new ArrayList<Double>();
-    for (int i = 1; i < adjustedBondSchedule.length; i++) {
-      if (now.isBefore(adjustedBondSchedule[i])) {
-        paymentTimes.add(getPaymentTime(getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule[i]));
+    for (final ZonedDateTime settlementDate : settlementDateSchedule) {
+      if (now.isBefore(settlementDate)) {
+        paymentTimes.add(getPaymentTime(now, settlementDate));
       }
     }
     final double[] payments = new double[paymentTimes.size()];
     for (int i = 0; i < payments.length; i++) {
       payments[i] = paymentTimes.get(i);
     }
-    return new Bond(payments, security.getCouponRate() / 100., paymentYearFraction, simpleFrequency.getPeriodsPerYear() * accruedInterest / security.getCouponRate(), curveName);
+    //TODO have to deal with negative accrual for ex-dividend bonds
+    return new Bond(payments, coupon / 100., 1. / periodsPerYear, periodsPerYear * accruedInterest / coupon, curveName);
   }
 
   private double getPaymentTime(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {

@@ -42,6 +42,9 @@ public class AccruedInterestCalculator {
   private static double getAccruedInterest(final DayCount dayCount, final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime date,
       final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear, final boolean isEOMConvention) {
     if (dayCount instanceof ActualActualICMANormal) {
+      if (isEOMConvention) {
+        throw new IllegalArgumentException("Inconsistent definition; asked for accrual with EOM convention but are not using Actual/Actual ICMA");
+      }
       final StubType stubType = getStubType(index, length, previousCouponDate, nextCouponDate, paymentsPerYear, isEOMConvention);
       return ((ActualActualICMANormal) dayCount).getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, stubType);
     } else if (dayCount instanceof ActualActualICMA) {

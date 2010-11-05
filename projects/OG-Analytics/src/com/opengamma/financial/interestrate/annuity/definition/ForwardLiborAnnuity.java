@@ -136,7 +136,7 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   public ForwardLiborAnnuity withZeroSpread() {
-    int n = getNumberOfpayments();
+    int n = getNumberOfPayments();
     ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withZeroSpread();
@@ -145,7 +145,7 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   public FixedCouponAnnuity withUnitCoupons() {
-    int n = getNumberOfpayments();
+    int n = getNumberOfPayments();
     FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withUnitCoupon();
@@ -154,7 +154,7 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   public ForwardLiborAnnuity withSpread(double rate) {
-    int n = getNumberOfpayments();
+    int n = getNumberOfPayments();
     ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withSpread(rate);

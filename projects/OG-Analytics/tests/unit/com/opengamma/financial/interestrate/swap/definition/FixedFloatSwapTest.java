@@ -90,14 +90,14 @@ public class FixedFloatSwapTest {
   @Test
   public void testGetters() {
     GenericAnnuity<FixedCouponPayment> fixedLeg = SWAP.getFixedLeg();
-    assertEquals(fixedLeg.getNumberOfpayments(), FIXED_PAYMENTS.length, 0);
+    assertEquals(fixedLeg.getNumberOfPayments(), FIXED_PAYMENTS.length, 0);
     for (int i = 0; i < FIXED_PAYMENTS.length; i++) {
       assertEquals(fixedLeg.getNthPayment(i).getPaymentTime(), FIXED_PAYMENTS[i], 0);
       assertEquals(fixedLeg.getNthPayment(i).getCoupon(), COUPON_RATE, 0);
     }
 
     GenericAnnuity<ForwardLiborPayment> floatLeg = SWAP.getFloatingLeg();
-    assertEquals(floatLeg.getNumberOfpayments(), FLOAT_PAYMENTS.length, 0);
+    assertEquals(floatLeg.getNumberOfPayments(), FLOAT_PAYMENTS.length, 0);
     for (int i = 0; i < FLOAT_PAYMENTS.length; i++) {
       assertEquals(floatLeg.getNthPayment(i).getPaymentTime(), FLOAT_PAYMENTS[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getLiborFixingTime(), INDEX_FIXING[i], 0);

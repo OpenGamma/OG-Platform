@@ -61,7 +61,7 @@ public final class YieldSensitivityCalculator {
     Validate.notNull(annuity, "annuity");
     double sum = 0;
 
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     FixedPayment temp;
     for (int i = 0; i < n; i++) {
       temp = annuity.getNthPayment(i);
@@ -98,7 +98,7 @@ public final class YieldSensitivityCalculator {
 
     double t;
     double tPower;
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     FixedPayment temp;
     for (int i = 0; i < n; i++) {
       temp = annuity.getNthPayment(i);

@@ -62,7 +62,7 @@ public class BondPriceCalculator {
   public static double forwardCleanPrice(final Bond bond, final double forwardDirtyPrice, final double forwardTime) {
     final GenericAnnuity<FixedCouponPayment> coupons = bond.getCouponAnnuity();
     int n = 0;
-    while (forwardTime > coupons.getNthPayment(n).getPaymentTime() && n < coupons.getNumberOfpayments()) {
+    while (forwardTime > coupons.getNthPayment(n).getPaymentTime() && n < coupons.getNumberOfPayments()) {
       n++;
     }
 

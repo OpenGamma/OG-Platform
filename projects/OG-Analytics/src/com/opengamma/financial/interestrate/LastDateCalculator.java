@@ -83,7 +83,7 @@ public class LastDateCalculator implements InterestRateDerivativeVisitor<Object,
 
   @Override
   public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, Object data) {
-    return getValue(annuity.getNthPayment(annuity.getNumberOfpayments() - 1), data);
+    return getValue(annuity.getNthPayment(annuity.getNumberOfPayments() - 1), data);
   }
 
   @Override
