@@ -77,11 +77,7 @@ public class BondSecurityToBondConverter {
     final List<Double> paymentTimes = new ArrayList<Double>();
     for (int i = 1; i < adjustedBondSchedule.length; i++) {
       if (now.isBefore(adjustedBondSchedule[i])) {
-        paymentTimes.add((int) simpleFrequency.getPeriodsPerYear()
-            * AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule, security.getCouponRate(),
-                (int) simpleFrequency.getPeriodsPerYear(),
-                convention.isEOMConvention()) / security.getCouponRate());
-        //paymentTimes.add(getPaymentTime(getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule[i]));
+        paymentTimes.add(getPaymentTime(getSettlementDate(now, calendar, convention.getSettlementDays()), adjustedBondSchedule[i]));
       }
     }
     final double[] payments = new double[paymentTimes.size()];
