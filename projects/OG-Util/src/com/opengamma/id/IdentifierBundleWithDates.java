@@ -256,7 +256,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
     for (IdentifierWithDates identifier : _identifiers) {
       ids.add(identifier.asIdentifier());
     }
-    return new IdentifierBundle(ids);
+    return IdentifierBundle.of(ids);
   }
 
   //-------------------------------------------------------------------
