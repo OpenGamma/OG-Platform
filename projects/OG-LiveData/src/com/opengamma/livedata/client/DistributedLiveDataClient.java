@@ -19,22 +19,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
- * 
- *
+ * A client that talks to a remote LiveData server through an unspecified protocol.
+ * Possibilities are JMS, Fudge, direct socket connection, and so on. 
  */
+@PublicAPI
 public class DistributedLiveDataClient extends AbstractLiveDataClient implements FudgeMessageReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedLiveDataClient.class);
   // Injected Inputs:

@@ -5,21 +5,18 @@
  */
 package com.opengamma.financial.test;
 
-import java.io.File;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.memory.InMemoryConfigMaster;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
-import com.opengamma.financial.world.region.RegionFileReader;
-import com.opengamma.financial.world.region.RegionMaster;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.master.MasterRegionSource;
+import com.opengamma.financial.world.region.master.RegionMaster;
+import com.opengamma.financial.world.region.master.RegionSource;
+import com.opengamma.financial.world.region.master.loader.RegionFileReader;
+import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -29,7 +26,7 @@ public class CurveConfigurationSetupHelper {
 
   private final ClassPathXmlApplicationContext _applicationContext;
   private final ConfigMaster _configMaster;
-  private final ConfigSource _configSource;
+  private final MasterConfigSource _configSource;
   private final RegionSource _regionSource;
   private final SecuritySource _secSource;
 
@@ -43,8 +40,8 @@ public class CurveConfigurationSetupHelper {
     _configSource = new MasterConfigSource(cfgMaster);
     
     RegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
-    RegionSource regionSource = new DefaultRegionSource(regionMaster);
+    RegionFileReader.populate(regionMaster);
+    RegionSource regionSource = new MasterRegionSource(regionMaster);
     _regionSource = regionSource;
     
     _secSource = _applicationContext.getBean("sharedSecuritySource", SecuritySource.class);
@@ -67,7 +64,7 @@ public class CurveConfigurationSetupHelper {
    * Gets the config source.
    * @return the config source, not null
    */
-  public ConfigSource getConfigSource() {
+  public MasterConfigSource getConfigSource() {
     return _configSource;
   }
 

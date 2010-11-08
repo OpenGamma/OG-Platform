@@ -8,9 +8,7 @@ package com.opengamma.livedata.server.distribution;
 import java.util.Collection;
 
 /**
- * 
- *
- * @author pietari
+ * Creates {@code MarketDataSender}'s.
  */
 public interface MarketDataSenderFactory {
   

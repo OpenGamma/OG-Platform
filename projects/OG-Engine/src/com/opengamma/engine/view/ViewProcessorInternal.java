@@ -15,8 +15,8 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.livedata.client.LiveDataClient;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Exposes engine-level access to a view processor, including access to data structures which should not be available

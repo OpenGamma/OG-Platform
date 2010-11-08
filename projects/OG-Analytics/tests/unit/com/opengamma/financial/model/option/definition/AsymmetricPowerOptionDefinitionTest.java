@@ -13,8 +13,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -29,8 +30,8 @@ public class AsymmetricPowerOptionDefinitionTest {
   private static final double POWER = 1.1;
   private static final OptionDefinition CALL = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER, true);
   private static final OptionDefinition PUT = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new ConstantVolatilitySurface(0.1), STRIKE,
-      DateUtil.getUTCDate(2010, 1, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
+      STRIKE, DateUtil.getUTCDate(2010, 1, 1));
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDataBundle() {

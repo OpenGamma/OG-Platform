@@ -51,7 +51,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   }
 
   public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String scheduleName, final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getSchedule(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName));
   }
 
   public SecurityPriceSeriesFunction(final String dataSourceName, final String fieldName, final LocalDate startDate) {
@@ -88,7 +88,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     }
     final DoubleTimeSeries<?> resultTS;
     if (_scheduleCalculator != null && _samplingFunction != null) {
-      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true); //REVIEW emcleod should "fromEnd" be hard-coded?
+      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
       resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
     } else {
       resultTS = ts;
@@ -103,8 +103,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement> emptySet();
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return Collections.<ValueRequirement>emptySet();
   }
 
   @Override

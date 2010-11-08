@@ -1,0 +1,5 @@
+<project name="og-web" default="compile">
+	<property file="build.properties"/>
+	
+	<import file="${common.dir}/common.xml"/>
+</project>

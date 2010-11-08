@@ -87,7 +87,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
       return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode), new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));

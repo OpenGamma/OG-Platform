@@ -7,6 +7,8 @@ package com.opengamma.math;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -29,12 +31,27 @@ public class ParallelArrayBinarySortTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testDoubleNullValues() {
-    ParallelArrayBinarySort.parallelBinarySort(X1, null);
+    ParallelArrayBinarySort.parallelBinarySort(X1, (double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testDoubleDifferentLengths() {
     ParallelArrayBinarySort.parallelBinarySort(X1, new double[] {2, 4, 6});
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDoubleObjectNullKeys() {
+    ParallelArrayBinarySort.parallelBinarySort((double[]) null, Y1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDoubleObjectNullValues() {
+    ParallelArrayBinarySort.parallelBinarySort(X1, (Object[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDoubleObjectDifferentLengths() {
+    ParallelArrayBinarySort.parallelBinarySort(X1, new Object[] {2, 4, 6});
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -54,15 +71,31 @@ public class ParallelArrayBinarySortTest {
 
   @Test
   public void testDoubles() {
-    ParallelArrayBinarySort.parallelBinarySort(X2, Y2);
-    assertArrayEquals(X1, X2, 0);
-    assertArrayEquals(Y1, Y2, 0);
+    final int n = X2.length;
+    final double[] x2 = Arrays.copyOf(X2, n);
+    final double[] y2 = Arrays.copyOf(Y2, n);
+    ParallelArrayBinarySort.parallelBinarySort(x2, y2);
+    assertArrayEquals(X1, x2, 0);
+    assertArrayEquals(Y1, y2, 0);
   }
 
   @Test
   public void testObjects() {
-    ParallelArrayBinarySort.parallelBinarySort(F2, Y4);
-    assertArrayEquals(F1, F2);
-    assertArrayEquals(Y3, Y4);
+    final int n = F2.length;
+    final Float[] f2 = Arrays.copyOf(F2, n);
+    final Double[] y4 = Arrays.copyOf(Y4, n);
+    ParallelArrayBinarySort.parallelBinarySort(f2, y4);
+    assertArrayEquals(F1, f2);
+    assertArrayEquals(Y3, y4);
+  }
+
+  @Test
+  public void testDoubleObject() {
+    final int n = X2.length;
+    final double[] x2 = Arrays.copyOf(X2, n);
+    final Double[] y4 = Arrays.copyOf(Y4, n);
+    ParallelArrayBinarySort.parallelBinarySort(x2, y4);
+    assertArrayEquals(X1, x2, 0);
+    assertArrayEquals(Y3, y4);
   }
 }

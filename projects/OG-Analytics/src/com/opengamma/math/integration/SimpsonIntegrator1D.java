@@ -42,7 +42,7 @@ public class SimpsonIntegrator1D extends Integrator1D<Double, Function1D<Double,
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new com.opengamma.math.ConvergenceException(e);
+      throw new MathException(e);
     }
   }
 

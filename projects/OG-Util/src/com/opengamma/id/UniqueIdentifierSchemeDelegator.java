@@ -16,6 +16,8 @@ import com.opengamma.util.ArgumentChecker;
  * Delegator that switches between multiple implementations based on the scheme of a unique identifier.
  * <p>
  * This class can be used on its own, however it is best used by creating a subclass.
+ * <p>
+ * This class is mutable and thread-safe via internal synchronization.
  * 
  * @param <T>  the type of the delegate
  */
@@ -32,6 +34,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
 
   /**
    * Creates an instance specifying the default delegate.
+   * 
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    */
   protected UniqueIdentifierSchemeDelegator(final T defaultDelegate) {
@@ -41,6 +44,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
 
   /**
    * Creates an instance specifying the default delegate.
+   * 
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
    * @param delegates  the map of delegates by scheme to switch on, not null
    */
@@ -56,6 +60,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
   //-------------------------------------------------------------------------
   /**
    * Gets the default delegate.
+   * 
    * @return the default delegate, not null
    */
   protected T getDefaultDelegate() {
@@ -64,6 +69,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
 
   /**
    * Gets the map of registered delegates.
+   * 
    * @return the registered delegates, unmodifiable, not null
    */
   protected Map<String, T> getDelegates() {
@@ -73,6 +79,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
   //-------------------------------------------------------------------------
   /**
    * Chooses the delegate for a specific unique identifier.
+   * 
    * @param uid  the unique identifier, not null
    * @return the delegate, not null
    */
@@ -84,9 +91,10 @@ public class UniqueIdentifierSchemeDelegator<T> {
   //-------------------------------------------------------------------------
   /**
    * Registers a delegate based on a scheme.
+   * 
    * @param scheme  the scheme to match, not null
    * @param delegate  the delegate to use, not null
-   * @return  <code>false</code> if a delegate with the given scheme was previously registered, <code>true</code> otherwise.
+   * @return false if a delegate with the given scheme was previously registered, true otherwise
    */
   public boolean registerDelegate(final String scheme, final T delegate) {
     ArgumentChecker.notNull(scheme, "scheme");
@@ -96,6 +104,7 @@ public class UniqueIdentifierSchemeDelegator<T> {
 
   /**
    * Removes a delegate from those being used.
+   * 
    * @param scheme  the scheme to remove, not null
    */
   public void removeDelegate(final String scheme) {

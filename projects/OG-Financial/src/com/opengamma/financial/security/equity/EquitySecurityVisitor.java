@@ -7,7 +7,7 @@
 package com.opengamma.financial.security.equity;
 
 /**
- * Visitor for the EquitySecurity subclasses.
+ * Visitor for the {@code EquitySecurity} subclasses.
  * 
  * @param <T> visitor method return type
  */

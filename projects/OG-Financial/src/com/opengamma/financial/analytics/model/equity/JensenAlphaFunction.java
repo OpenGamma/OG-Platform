@@ -114,7 +114,7 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();

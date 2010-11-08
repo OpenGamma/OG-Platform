@@ -32,11 +32,6 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ResultModelDefinition implements Serializable {
   
-  private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";
-  private static final String POSITION_OUTPUT_MODE_FIELD = "positionOutputMode";
-  private static final String SECURITY_OUTPUT_MODE_FIELD = "securityOutputMode";
-  private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
-  
   private ResultOutputMode _aggregatePositionOutputMode;
   private ResultOutputMode _positionOutputMode;
   private ResultOutputMode _securityOutputMode;
@@ -188,7 +183,7 @@ public class ResultModelDefinition implements Serializable {
   public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(outputSpecification, "outputSpecification");
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
-    ComputationTargetType targetType = outputSpecification.getRequirementSpecification().getTargetSpecification().getType();
+    ComputationTargetType targetType = outputSpecification.getTargetSpecification().getType();
     return getOutputMode(targetType).shouldOutputResult(outputSpecification, dependencyGraph);
   }
   
@@ -204,36 +199,6 @@ public class ResultModelDefinition implements Serializable {
     return getOutputMode(targetType).shouldOutputFromNode(dependencyNode);
   }
   
-  /**
-   * Serializes this object to a Fudge message.
-   * 
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
-    ArgumentChecker.notNull(factory, "Fudge Context");
-    MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD,  _aggregatePositionOutputMode.name());
-    msg.add(POSITION_OUTPUT_MODE_FIELD, _positionOutputMode.name());
-    msg.add(SECURITY_OUTPUT_MODE_FIELD, _securityOutputMode.name());
-    msg.add(PRIMITIVE_OUTPUT_MODE_FIELD, _primitiveOutputMode.name());
-    return msg;
-  }
-  
-  /**
-   * Deserializes a Fudge message into a ResultModelDefinition.
-   * @param msg  the Fudge message, not null
-   * @return the ResultModelDefinition, not null
-   */
-  public static ResultModelDefinition fromFudgeMsg(FudgeFieldContainer msg) {
-    ResultModelDefinition result = new ResultModelDefinition();
-    result.setAggregatePositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
-    result.setPositionOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(POSITION_OUTPUT_MODE_FIELD)));
-    result.setSecurityOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(SECURITY_OUTPUT_MODE_FIELD)));
-    result.setPrimitiveOutputMode(msg.getFieldValue(ResultOutputMode.class, msg.getByName(PRIMITIVE_OUTPUT_MODE_FIELD)));
-    return result;
-  }
-
   @Override
   public int hashCode() {
     return HashCodeBuilder.reflectionHashCode(this);

@@ -58,7 +58,7 @@ public interface SecurityMaster {
    * <p>
    * A full security master will store detailed historic information on securities,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #history}.
    * 
    * @param document  the document, not null
    * @return the updated security document, not null
@@ -82,15 +82,15 @@ public interface SecurityMaster {
   void remove(final UniqueIdentifier uid);
 
   /**
-   * Searches for securities matching the specified search criteria.
+   * Queries the history of a single security.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the security.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the security history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  SecuritySearchHistoricResult searchHistoric(SecuritySearchHistoricRequest request);
+  SecurityHistoryResult history(SecurityHistoryRequest request);
 
   /**
    * Corrects a security in the data store.
@@ -99,7 +99,7 @@ public interface SecurityMaster {
    * and will support correction of each security.
    * To update the security with a new version, use {@link #update}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #history}.
    * <p>
    * The specified document must contain the security and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the security.

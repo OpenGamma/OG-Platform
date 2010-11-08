@@ -68,7 +68,7 @@
         		<entry key="selectSchemeID" value="SELECT id FROM tss_identification_scheme WHERE name = :name"/>
         		<entry key="loadAllScheme" value="SELECT id, name, description FROM tss_identification_scheme"/>
         		<entry> 
-        			<key><value>getTimeSeriesKeyByID</value></key>
+        			<key><value>getActiveTimeSeriesKeyByID</value></key>
         			<value>
         				<![CDATA[
         					SELECT tskey.id 
@@ -78,6 +78,7 @@
         					AND tskey.data_provider_id = :dpid 
         					AND tskey.data_field_id = :dfid 
         					AND tskey.observation_time_id = :otid
+        					AND tsKey.active = 1
         				]]>
         			</value>
         		</entry>

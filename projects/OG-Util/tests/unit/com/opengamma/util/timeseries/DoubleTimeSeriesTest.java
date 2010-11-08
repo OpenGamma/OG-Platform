@@ -302,10 +302,11 @@ public abstract class DoubleTimeSeriesTest<E> {
       assertTrue(CompareUtils.closeEquals((double)i+1, item.getValue()));
     }
     assertEquals(4, dts.subSeries(testDates[0], testDates[4]).size());
-    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], false).size());
+    assertEquals(4, dts.subSeries(testDates[0], true, testDates[4], true).size());
     assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
-    assertEquals(0, dts.subSeries(testDates[4], false, testDates[5], false).size());
-    assertEquals(1, dts.subSeries(testDates[5], true, testDates[5], true).size());
+    assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], false).size());
+    assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], true).size());
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -18,13 +18,15 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 
@@ -50,9 +52,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
     // REVIEW jonathan 2010-08-13 -- This is really messy, but we're fighting against two problems:
-    //  - ViewDefinitions are stored in Mongo, which means they need field names for absolutely everything
-    //  - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
-    //    both at once. 
+    // - ViewDefinitions are stored in Mongo, which means they need field names for absolutely everything
+    // - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
+    // both at once.
     MutableFudgeFieldContainer message = context.newMessage();
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
@@ -75,11 +77,12 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       MutableFudgeFieldContainer calcConfigMsg = context.newMessage();
       calcConfigMsg.add(NAME_FIELD, null, calcConfig.getName());
       // Can't use the default map serialisation here because every field needs to have a name for Mongo
-      for (Map.Entry<String, Set<String>> securityTypeRequirements : calcConfig.getPortfolioRequirementsBySecurityType().entrySet()) {
+      for (Map.Entry<String, Set<Pair<String, ValueProperties>>> securityTypeRequirements : calcConfig.getPortfolioRequirementsBySecurityType().entrySet()) {
         MutableFudgeFieldContainer securityTypeRequirementsMsg = context.newMessage();
         securityTypeRequirementsMsg.add(SECURITY_TYPE_FIELD, securityTypeRequirements.getKey());
-        for (String requirement : securityTypeRequirements.getValue()) {
-          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, requirement);
+        for (Pair<String, ValueProperties> requirement : securityTypeRequirements.getValue()) {
+          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, requirement.getFirst());
+          // TODO put the value constraints into the message if they're specified
         }
         calcConfigMsg.add(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, securityTypeRequirementsMsg);
       }
@@ -94,11 +97,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    ViewDefinition viewDefinition = new ViewDefinition(
-        message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
-        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
-        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
-        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
+    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)), context.fieldValueToObject(UniqueIdentifier.class, message
+        .getByName(IDENTIFIER_FIELD)), context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)), context.fieldValueToObject(ResultModelDefinition.class, message
+        .getByName(RESULT_MODEL_DEFINITION_FIELD)));
     if (message.hasField(MIN_DELTA_CALC_PERIOD_FIELD)) {
       viewDefinition.setMinDeltaCalculationPeriod(message.getLong(MIN_DELTA_CALC_PERIOD_FIELD));
     }
@@ -118,9 +119,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       for (FudgeField securityTypeRequirementsField : calcConfigMsg.getAllByName(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD)) {
         FudgeFieldContainer securityTypeRequirementsMsg = (FudgeFieldContainer) securityTypeRequirementsField.getValue();
         String securityType = securityTypeRequirementsMsg.getString(SECURITY_TYPE_FIELD);
-        Set<String> requirements = new HashSet<String>();
+        Set<Pair<String, ValueProperties>> requirements = new HashSet<Pair<String, ValueProperties>>();
         for (FudgeField requirement : securityTypeRequirementsMsg.getAllByName(PORTFOLIO_REQUIREMENT_FIELD)) {
-          requirements.add((String) requirement.getValue());
+          // TODO fetch the value constraints from the message
+          requirements.add(Pair.of((String) requirement.getValue(), ValueProperties.none()));
         }
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }

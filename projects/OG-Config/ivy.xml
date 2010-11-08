@@ -10,11 +10,8 @@
 	<dependencies>
         <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
         
-		<dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
-		<dependency org="org.apache.commons" name="commons-io" rev="1.4"/>
-		<dependency org="org.junit" name="junit" rev="[4.7,5.0["/>
-		<dependency org="org.slf4j" name="slf4j" rev="[1.5.8,2.0[" conf="*->core"/>
-		<dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
-		<dependency org="javax.time" name="jsr-310-ri" rev="0.6.2" conf="core->*" />
+        <dependency org="org.junit" name="junit" rev="[4.7,5.0["/>
+        <dependency org="org.slf4j" name="slf4j" rev="[1.5.8,2.0[" conf="*->core"/>
+        <dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
 	</dependencies>
 </ivy-module>

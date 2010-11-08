@@ -15,6 +15,7 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
@@ -89,7 +90,7 @@ public class GridInterpolator2DTest {
     INTERPOLATOR_2D.interpolate(data, DoublesPair.of(0., 2.));
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = MathException.class)
   public void testNonGrid() {
     final Map<DoublesPair, Double> nonGrid = new HashMap<DoublesPair, Double>(FLAT_DATA);
     nonGrid.put(Pair.of(5., 8.), 0.);

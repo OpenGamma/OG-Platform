@@ -60,7 +60,7 @@ public final class ZSpreadCalculator {
 
     double sum = 0;
 
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
@@ -76,7 +76,7 @@ public final class ZSpreadCalculator {
 
     double sum = 0;
 
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
@@ -112,8 +112,8 @@ public final class ZSpreadCalculator {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
-    double dPrice_dz = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
-    Validate.isTrue(dPrice_dz != 0.0, "Price Sensitivity To ZSpread is zero");
+    double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
+    Validate.isTrue(dPricedZ != 0.0, "Price Sensitivity To ZSpread is zero");
 
     Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
 
@@ -122,7 +122,7 @@ public final class ZSpreadCalculator {
       List<DoublesPair> unadjusted = temp.get(name);
       ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
       for (DoublesPair pair : unadjusted) {
-        DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPrice_dz);
+        DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPricedZ);
         adjusted.add(newPair);
       }
       result.put(name, adjusted);

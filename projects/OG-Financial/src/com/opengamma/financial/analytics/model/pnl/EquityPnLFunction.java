@@ -58,7 +58,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Position position = target.getPosition();
       final EquitySecurity equity = (EquitySecurity) position.getSecurity();

@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -27,8 +27,8 @@ public class StandardTwoAssetOptionDataBundleTest {
   private static final YieldAndDiscountCurve CURVE2 = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double B1 = 0.04;
   private static final double B2 = 0.06;
-  private static final VolatilitySurface SURFACE1 = new ConstantVolatilitySurface(0.2);
-  private static final VolatilitySurface SURFACE2 = new ConstantVolatilitySurface(0.3);
+  private static final VolatilitySurface SURFACE1 = new VolatilitySurface(ConstantDoublesSurface.from(0.2));
+  private static final VolatilitySurface SURFACE2 = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double SPOT1 = 100;
   private static final double SPOT2 = 90;
   private static final double RHO = 0.5;

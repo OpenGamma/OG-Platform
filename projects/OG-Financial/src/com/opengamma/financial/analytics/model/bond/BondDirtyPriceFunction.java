@@ -23,21 +23,21 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondDirtyPriceFunction extends BondFunction {
+
   public BondDirtyPriceFunction() {
-    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(Position position, Bond bond, double cleanPrice) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
+    final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueIdentifier());
-    double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
+    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
   }
 
-
-
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, target.getPosition()), getUniqueIdentifier()));
     }

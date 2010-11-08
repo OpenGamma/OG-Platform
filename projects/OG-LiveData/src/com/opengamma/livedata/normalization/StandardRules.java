@@ -9,7 +9,6 @@ import java.util.Collections;
 
 /**
  * Normalization rules that are known to be part of the OpenGamma standard package.
- *
  */
 public class StandardRules {
   
@@ -19,16 +18,33 @@ public class StandardRules {
         Collections.<NormalizationRule>emptyList());
   
   /**
-   * @return Will include:
+   * Gets the ID of the standard OpenGamma normalization rule set. 
+   * <p>
+   * Market data messages normalized with the standard OpenGamma 
+   * scheme will include:
    * <ul>
-   * <li>MARKET_VALUE
-   * <li>VOLUME (if available)
+   * <li>{@link MarketDataRequirementNames#MARKET_VALUE}
+   * <li>{@link MarketDataRequirementNames#VOLUME} (if available)
+   * <li>{@link MarketDataRequirementNames#IMPLIED_VOLATILITY} (if available)
+   * <li>{@link MarketDataRequirementNames#YIELD_CONVENTION_MID} (if available)
+   * <li>{@link MarketDataRequirementNames#YIELD_YIELD_TO_MATURITY_MID} (if available)
+   * <li>{@link MarketDataRequirementNames#DIRTY_PRICE_MID} (if available)
    * </ul>
+   * 
+   * @return the ID of the standard OpenGamma normalization rule set. 
    */
   public static String getOpenGammaRuleSetId() {
     return "OpenGamma";
   }
   
+  /**
+   * Gets the ID of the standard "no-normalization" rule set.
+   * <p>
+   * This normalization rule will pass messages from the
+   * underlying market data API to the client unmodified.
+   *  
+   * @return the ID of the standard "no-normalization" rule set.
+   */
   public static NormalizationRuleSet getNoNormalization() {
     return NO_NORMALIZATION;
   }

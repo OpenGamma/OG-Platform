@@ -74,6 +74,11 @@ public class CurveShiftFunctionFactoryTest {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongCurveType2() {
+    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, "M");
+  }
+
   @Test
   public void testGetShiftedCurve1() {
     final double shift = 2;
@@ -100,11 +105,37 @@ public class CurveShiftFunctionFactoryTest {
     expected = new SpreadCurveShiftFunction().evaluate(SPREAD, shift);
     assertEquals(shifted.getClass(), expected.getClass());
     assertEquals(shifted.getYValue(1.5), expected.getYValue(1.5));
+
+    final String newName = "F";
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, shift, newName);
+    expected = new ConstantCurveShiftFunction().evaluate(CONSTANT, shift, newName);
+    assertEquals(expected, shifted);
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(INTERPOLATED, shift, newName);
+    expected = new InterpolatedCurveShiftFunction().evaluate(INTERPOLATED, shift, newName);
+    assertEquals(expected, shifted);
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(NODAL, shift, newName);
+    expected = new NodalCurveShiftFunction().evaluate(NODAL, shift, newName);
+    assertEquals(expected, shifted);
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, shift, newName);
+    expected = new FunctionalCurveShiftFunction().evaluate(FUNCTIONAL, shift, newName);
+    assertEquals(shifted.getClass(), expected.getClass());
+    assertEquals(shifted.getYValue(0.), expected.getYValue(0.));
+    assertEquals(shifted.getName(), expected.getName());
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(SPREAD, shift, newName);
+    expected = new SpreadCurveShiftFunction().evaluate(SPREAD, shift, newName);
+    assertEquals(shifted.getClass(), expected.getClass());
+    assertEquals(shifted.getYValue(1.5), expected.getYValue(1.5));
+    assertEquals(shifted.getName(), expected.getName());
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testWrongCurveType2() {
+  public void testWrongCurveType3() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongCurveType4() {
+    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, 1, "J");
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -122,6 +153,21 @@ public class CurveShiftFunctionFactoryTest {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, 1, 1);
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift4() {
+    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, 1, 1, "L");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift5() {
+    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, 1, 1, "P");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift6() {
+    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, 1, 1, "O");
+  }
+
   @Test
   public void testGetShiftedCurve2() {
     final double x = 1;
@@ -137,26 +183,53 @@ public class CurveShiftFunctionFactoryTest {
     assertEquals(shifted.getClass(), expected.getClass());
     assertArrayEquals(shifted.getXData(), expected.getXData());
     assertArrayEquals(shifted.getYData(), expected.getYData());
+    final String newName = "H";
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(INTERPOLATED, x, shift, newName);
+    expected = new InterpolatedCurveShiftFunction().evaluate(INTERPOLATED, x, shift, newName);
+    assertEquals(shifted, expected);
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(NODAL, x, shift, newName);
+    expected = new NodalCurveShiftFunction().evaluate(NODAL, x, shift, newName);
+    assertEquals(shifted, expected);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testWrongCurveType3() {
+  public void testWrongCurveType5() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1});
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongCurveType6() {
+    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1}, "N");
+  }
+
   @Test(expected = UnsupportedOperationException.class)
-  public void testUnsupportedShift4() {
+  public void testUnsupportedShift7() {
     CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1});
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testUnsupportedShift5() {
+  public void testUnsupportedShift8() {
     CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1});
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testUnsupportedShift6() {
+  public void testUnsupportedShift9() {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1});
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift10() {
+    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1}, "L");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift11() {
+    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1}, "K");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUnsupportedShift12() {
+    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1}, "J");
   }
 
   @Test
@@ -174,6 +247,14 @@ public class CurveShiftFunctionFactoryTest {
     assertEquals(shifted.getClass(), expected.getClass());
     assertArrayEquals(shifted.getXData(), expected.getXData());
     assertArrayEquals(shifted.getYData(), expected.getYData());
+    final String newName = "M";
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(INTERPOLATED, x, y, newName);
+    expected = new InterpolatedCurveShiftFunction().evaluate(INTERPOLATED, x, y, newName);
+    assertEquals(shifted, expected);
+    assertEquals(((InterpolatedDoublesCurve) shifted).getInterpolator(), ((InterpolatedDoublesCurve) expected).getInterpolator());
+    shifted = CurveShiftFunctionFactory.getShiftedCurve(NODAL, x, y, newName);
+    expected = new NodalCurveShiftFunction().evaluate(NODAL, x, y, newName);
+    assertEquals(shifted, expected);
   }
 
 }

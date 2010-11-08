@@ -25,7 +25,7 @@ public class InMemoryConfigMaster extends DefaultConfigMaster {
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "Memory";
+  public static final String DEFAULT_UID_SCHEME = "MemCfg";
 
   /**
    * The supplied of identifiers.

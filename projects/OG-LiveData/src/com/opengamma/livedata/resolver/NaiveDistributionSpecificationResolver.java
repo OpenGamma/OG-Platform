@@ -10,9 +10,9 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
 
 /**
+ * A naive implementation of {@code DistributionSpecificationResolver}.
+ * <p>
  * This class is only useful in tests.
- *
- * @author pietari
  */
 public class NaiveDistributionSpecificationResolver implements DistributionSpecificationResolver {
 

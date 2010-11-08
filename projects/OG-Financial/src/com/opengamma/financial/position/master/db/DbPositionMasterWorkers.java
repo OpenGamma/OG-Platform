@@ -23,7 +23,7 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _removePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchHistoricPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _historyPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _correctPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
   /** Worker. */
@@ -37,7 +37,7 @@ public class DbPositionMasterWorkers {
   /** Worker. */
   private DbPositionMasterWorker _removePositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchHistoricPositionsWorker = new QueryPositionDbPositionMasterWorker();
+  private DbPositionMasterWorker _historyPositionsWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
   private DbPositionMasterWorker _correctPositionWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
@@ -63,14 +63,14 @@ public class DbPositionMasterWorkers {
     _addPortfolioTreeWorker.init(master);
     _updatePortfolioTreeWorker.init(master);
     _removePortfolioTreeWorker.init(master);
-    _searchHistoricPortfolioTreesWorker.init(master);
+    _historyPortfolioTreesWorker.init(master);
     _correctPortfolioTreeWorker.init(master);
     _searchPositionsWorker.init(master);
     _getPositionWorker.init(master);
     _addPositionWorker.init(master);
     _updatePositionWorker.init(master);
     _removePositionWorker.init(master);
-    _searchHistoricPositionsWorker.init(master);
+    _historyPositionsWorker.init(master);
     _correctPositionWorker.init(master);
     _getFullPortfolioWorker.init(master);
     _getFullPortfolioNodeWorker.init(master);
@@ -164,19 +164,19 @@ public class DbPositionMasterWorkers {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchHistoricPortfolioTreesWorker field.
-   * @return the searchHistoricPortfolioTreesWorker
+   * Gets the historyPortfolioTreesWorker field.
+   * @return the historyPortfolioTreesWorker
    */
-  public DbPositionMasterWorker getSearchHistoricPortfolioTreesWorker() {
-    return _searchHistoricPortfolioTreesWorker;
+  public DbPositionMasterWorker getHistoryPortfolioTreesWorker() {
+    return _historyPortfolioTreesWorker;
   }
 
   /**
-   * Sets the searchHistoricPortfolioTreesWorker field.
-   * @param searchHistoricPortfolioTreesWorker  the searchHistoricPortfolioTreesWorker
+   * Sets the historyPortfolioTreesWorker field.
+   * @param historyPortfolioTreesWorker  the historyPortfolioTreesWorker
    */
-  public void setSearchHistoricPortfolioTreesWorker(DbPositionMasterWorker searchHistoricPortfolioTreesWorker) {
-    _searchHistoricPortfolioTreesWorker = searchHistoricPortfolioTreesWorker;
+  public void setHistoryPortfolioTreesWorker(DbPositionMasterWorker historyPortfolioTreesWorker) {
+    _historyPortfolioTreesWorker = historyPortfolioTreesWorker;
   }
 
   //-------------------------------------------------------------------------
@@ -283,19 +283,19 @@ public class DbPositionMasterWorkers {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchHistoricPositionsWorker field.
-   * @return the searchHistoricPositionsWorker
+   * Gets the historyPositionsWorker field.
+   * @return the historyPositionsWorker
    */
-  public DbPositionMasterWorker getSearchHistoricPositionsWorker() {
-    return _searchHistoricPositionsWorker;
+  public DbPositionMasterWorker getHistoryPositionsWorker() {
+    return _historyPositionsWorker;
   }
 
   /**
-   * Sets the searchHistoricPositionsWorker field.
-   * @param searchHistoricPositionsWorker  the searchHistoricPositionsWorker
+   * Sets the historyPositionsWorker field.
+   * @param historyPositionsWorker  the historyPositionsWorker
    */
-  public void setSearchHistoricPositionsWorker(DbPositionMasterWorker searchHistoricPositionsWorker) {
-    _searchHistoricPositionsWorker = searchHistoricPositionsWorker;
+  public void setHistoryPositionsWorker(DbPositionMasterWorker historyPositionsWorker) {
+    _historyPositionsWorker = historyPositionsWorker;
   }
 
   //-------------------------------------------------------------------------

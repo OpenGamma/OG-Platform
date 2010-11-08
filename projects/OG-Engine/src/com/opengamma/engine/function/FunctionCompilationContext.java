@@ -25,9 +25,17 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
 
+  /**
+   * Creates an empty function compilation context.
+   */
   public FunctionCompilationContext() {
   }
 
+  /**
+   * Creates a function compilation context as a deep copy of an existing one.
+   * 
+   * @param copyFrom context to copy elements from, not {@code null}
+   */
   protected FunctionCompilationContext(final FunctionCompilationContext copyFrom) {
     super(copyFrom);
   }

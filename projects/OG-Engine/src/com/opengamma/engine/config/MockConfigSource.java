@@ -15,6 +15,7 @@ import javax.time.Instant;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.memory.InMemoryConfigMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +27,7 @@ import com.opengamma.util.RegexUtils;
  * This class is intended for testing scenarios.
  * It is not thread-safe and must not be used in production.
  */
-public class MockConfigSource implements ConfigSource {
+public class MockConfigSource extends MasterConfigSource {
   // this is public to allow testing
 
   /**
@@ -42,6 +43,7 @@ public class MockConfigSource implements ConfigSource {
    * Creates the instance.
    */
   public MockConfigSource() {
+    super(new InMemoryConfigMaster());
     _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
@@ -61,16 +63,10 @@ public class MockConfigSource implements ConfigSource {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T get(Class<T> clazz, UniqueIdentifier uid) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uid, "uid");
-    ConfigDocument<?> config = _configs.get(uid);
-    if (clazz.isInstance(config.getValue())) {
-      return (T) config.getValue();
-    }
-    return null;
+    ConfigDocument<T> doc = getDocument(clazz, uid);
+    return (doc != null ? doc.getValue() : null);
   }
 
   @Override
@@ -82,6 +78,18 @@ public class MockConfigSource implements ConfigSource {
   public <T> T getByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ConfigDocument<T> doc = getDocumentByName(clazz, name, versionAsOf);
     return doc == null ? null : doc.getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueIdentifier uid) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(uid, "uid");
+    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uid);
+    if (clazz.isInstance(config.getValue())) {
+      return config;
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")

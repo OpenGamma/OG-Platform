@@ -23,7 +23,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * 

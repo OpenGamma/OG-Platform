@@ -37,14 +37,14 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
     final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     final double b = 0;
     return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);
   }
@@ -60,14 +60,14 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       return requirements;
     }
     return null;

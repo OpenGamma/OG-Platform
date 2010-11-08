@@ -14,26 +14,23 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 
 /**
- * 
- *
+ * Test MockLiveDataServer.
  */
 public class MockLiveDataServerTest {
   
@@ -42,7 +39,7 @@ public class MockLiveDataServerTest {
   
   @Before
   public void setUp() {
-    _domain = new IdentificationScheme("test");
+    _domain = IdentificationScheme.of("test");
     _server = new MockLiveDataServer(_domain);
     _server.connect();
   }
@@ -60,19 +57,19 @@ public class MockLiveDataServerTest {
   private LiveDataSpecification getSpec(String uniqueId) {
     LiveDataSpecification spec = new LiveDataSpecification(
         _server.getDefaultNormalizationRuleSetId(),
-        new Identifier(_server.getUniqueIdDomain(), uniqueId));
+        Identifier.of(_server.getUniqueIdDomain(), uniqueId));
     return spec;
   }
   
   private void getMethods(String uniqueId, boolean persistent) {
     LiveDataSpecification spec = getSpec(uniqueId);    
     
-    SubscriptionResult result = _server.subscribe(uniqueId, persistent);
+    LiveDataSubscriptionResponse result = _server.subscribe(uniqueId, persistent);
 
     assertNotNull(result);
-    assertTrue(result.getResult() == LiveDataSubscriptionResult.SUCCESS);
+    assertTrue(result.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS);
     
-    DistributionSpecification distributionSpec = result.getDistributionSpecification();
+    String distributionSpec = result.getTickDistributionSpecification();
     assertNotNull(distributionSpec);
     
     
@@ -102,10 +99,8 @@ public class MockLiveDataServerTest {
     MarketDataDistributor distributor = subscription.getDistributors().iterator().next();
         
     assertSame(distributor, subscription.getMarketDataDistributor(spec));
-    assertSame(distributor, subscription.getMarketDataDistributor(distributionSpec));
     
     assertSame(distributor, _server.getMarketDataDistributor(spec));
-    assertSame(distributor, _server.getMarketDataDistributor(distributionSpec));
     
     assertTrue(distributor.isPersistent() == persistent);
     assertNull(distributor.getExpiry());
@@ -144,7 +139,7 @@ public class MockLiveDataServerTest {
     
     LiveDataSpecification requestedSpec = new LiveDataSpecification(
         StandardRules.getNoNormalization().getId(), 
-        new Identifier(_domain, "testsub"));
+        Identifier.of(_domain, "testsub"));
     
     LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
         user,
@@ -209,7 +204,7 @@ public class MockLiveDataServerTest {
     
     LiveDataSpecification requestedSpec = new LiveDataSpecification(
         StandardRules.getNoNormalization().getId(), 
-        new Identifier(_domain, "testsub"));
+        Identifier.of(_domain, "testsub"));
     
     LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
         user,

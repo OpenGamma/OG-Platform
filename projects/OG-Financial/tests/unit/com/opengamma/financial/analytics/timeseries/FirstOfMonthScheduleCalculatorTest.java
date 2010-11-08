@@ -5,76 +5,116 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
+
+import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
-public class FirstOfMonthScheduleCalculatorTest {
-  private static final Schedule CALCULATOR = new FirstOfMonthScheduleCalculator();
+public class FirstOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCase {
+  private static final FirstOfMonthScheduleCalculator CALCULATOR = new FirstOfMonthScheduleCalculator();
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullStart() {
-    CALCULATOR.getSchedule(null, LocalDate.of(2000, 1, 1), true);
+  @Override
+  public Schedule getScheduleCalculator() {
+    return CALCULATOR;
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullEnd() {
-    CALCULATOR.getSchedule(LocalDate.of(2000, 1, 1), null, true);
+  public void testStartAndEndSameButInvalid1() {
+    CALCULATOR.getSchedule(LocalDate.of(2001, 2, 3), LocalDate.of(2001, 2, 3), false, true);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testStartAfterEnd() {
-    CALCULATOR.getSchedule(LocalDate.of(2001, 1, 1), LocalDate.of(2000, 1, 1), true);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testStartAndEndSameButInvalid() {
-    CALCULATOR.getSchedule(LocalDate.of(2001, 2, 3), LocalDate.of(2001, 2, 3), false);
+  public void testStartAndEndSameButInvalid2() {
+    CALCULATOR.getSchedule(DateUtil.getUTCDate(2001, 2, 3), DateUtil.getUTCDate(2001, 2, 3), false, true);
   }
 
   @Test
-  public void test() {
+  public void test1() {
     LocalDate startDate = LocalDate.of(2000, 1, 1);
     LocalDate endDate = LocalDate.of(2000, 1, 30);
-    LocalDate[] forward = CALCULATOR.getSchedule(startDate, endDate, false);
-    LocalDate[] backward = CALCULATOR.getSchedule(startDate, endDate, true);
+    LocalDate[] forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, 1);
-    assertEquals(backward.length, 1);
     assertEquals(forward[0], startDate);
-    assertEquals(backward[0], startDate);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
     startDate = LocalDate.of(2002, 2, 2);
     endDate = LocalDate.of(2002, 2, 9);
-    forward = CALCULATOR.getSchedule(startDate, endDate, false);
-    backward = CALCULATOR.getSchedule(startDate, endDate, true);
+    forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, 0);
-    assertEquals(backward.length, 0);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
     startDate = LocalDate.of(2000, 1, 1);
     endDate = LocalDate.of(2002, 2, 9);
     final int months = 26;
-    forward = CALCULATOR.getSchedule(startDate, endDate, false);
-    backward = CALCULATOR.getSchedule(startDate, endDate, true);
+    forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, months);
-    assertEquals(backward.length, months);
     assertEquals(forward[0], startDate);
-    assertEquals(backward[0], startDate);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
     final LocalDate lastDate = LocalDate.of(2002, 2, 1);
     assertEquals(forward[months - 1], lastDate);
-    assertEquals(backward[months - 1], lastDate);
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
         assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), 1);
       } else {
         assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), -11);
       }
       assertEquals(forward[i].getDayOfMonth(), 1);
-      assertEquals(backward[i].getDayOfMonth(), 1);
     }
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
+  }
+
+  @Test
+  public void test2() {
+    ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
+    ZonedDateTime endDate = DateUtil.getUTCDate(2000, 1, 30);
+    ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
+    assertEquals(forward.length, 1);
+    assertEquals(forward[0], startDate);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
+    startDate = DateUtil.getUTCDate(2002, 2, 2);
+    endDate = DateUtil.getUTCDate(2002, 2, 9);
+    forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
+    assertEquals(forward.length, 0);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
+    startDate = DateUtil.getUTCDate(2000, 1, 1);
+    endDate = DateUtil.getUTCDate(2002, 2, 9);
+    final int months = 26;
+    forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
+    assertEquals(forward.length, months);
+    assertEquals(forward[0], startDate);
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
+    final ZonedDateTime lastDate = DateUtil.getUTCDate(2002, 2, 1);
+    assertEquals(forward[months - 1], lastDate);
+    for (int i = 1; i < months; i++) {
+      if (forward[i].getYear() == forward[i - 1].getYear()) {
+        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
+      } else {
+        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
+      }
+      assertEquals(forward[i].getDayOfMonth(), 1);
+    }
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
+    assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
   }
 }

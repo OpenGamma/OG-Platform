@@ -20,8 +20,9 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.ModifiedCorradoSuSkewnessKurtosisModel;
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -33,10 +34,12 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new ConstantVolatilitySurface(0.3), 10.,
+  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
+      ConstantDoublesSurface.from(0.3)), 10.,
       DATE, 0., 3.);
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE, 1.,
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
+      ConstantDoublesSurface.from(0.3)), 10., DATE, 1.,
       3.);
   @SuppressWarnings("unused")
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.FAIR_PRICE);

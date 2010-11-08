@@ -5,6 +5,7 @@
  */
 package com.opengamma.config;
 
+
 /**
  * A general-purpose configuration master.
  * <p>

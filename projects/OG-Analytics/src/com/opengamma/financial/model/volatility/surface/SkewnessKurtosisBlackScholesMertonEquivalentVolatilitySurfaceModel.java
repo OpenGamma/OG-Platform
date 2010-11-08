@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * 
@@ -27,7 +28,7 @@ public class SkewnessKurtosisBlackScholesMertonEquivalentVolatilitySurfaceModel 
     final double skew = data.getAnnualizedSkew();
     final double kurtosis = data.getAnnualizedFisherKurtosis();
     final double d1 = (Math.log(s / k) + t * (b + sigma * sigma * 0.5)) / sigma / Math.sqrt(t);
-    return new ConstantVolatilitySurface(sigma * (1 - skew * d1 / 6 - kurtosis * (1 - d1 * d1) / 24));
+    return new VolatilitySurface(ConstantDoublesSurface.from(sigma * (1 - skew * d1 / 6 - kurtosis * (1 - d1 * d1) / 24)));
   }
 
 }

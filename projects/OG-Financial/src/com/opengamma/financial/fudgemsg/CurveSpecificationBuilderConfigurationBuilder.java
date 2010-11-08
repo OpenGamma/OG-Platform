@@ -124,7 +124,9 @@ public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuild
     for (FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
       tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
-    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders, swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders);
+    return new CurveSpecificationBuilderConfiguration(
+      cashInstrumentProviders, fraInstrumentProviders, rateInstrumentProviders, futureInstrumentProviders,
+      swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders);
   }
 
 }

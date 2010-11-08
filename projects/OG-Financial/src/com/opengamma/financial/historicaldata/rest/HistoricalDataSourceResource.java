@@ -84,7 +84,7 @@ public class HistoricalDataSourceResource {
   }
 
   private IdentifierBundle identifiersToBundle(final List<String> identifiers) {
-    IdentifierBundle bundle = new IdentifierBundle();
+    IdentifierBundle bundle = IdentifierBundle.EMPTY;
     for (String identifier : identifiers) {
       bundle = bundle.withIdentifier(Identifier.parse(identifier));
     }
@@ -145,22 +145,26 @@ public class HistoricalDataSourceResource {
   }
   
   @GET
-  @Path("default/{currentDate}")
-  public FudgeMsgEnvelope getDefault(@PathParam("currentDate") String currentDate, @QueryParam("id") List<String> identifiers) {
-    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers), 
-        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate)));
+  @Path("default/{currentDate}/{configDocName}")
+  public FudgeMsgEnvelope getDefault(@PathParam("currentDate") String currentDate, 
+      @PathParam("configDocName") String configDocName, 
+      @QueryParam("id") List<String> identifiers) {
+    return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers),
+        NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate), NULL_VALUE.equals(configDocName) ? null : configDocName));
   }
 
   @GET
-  @Path("defaultByDate/{currentDate}/{start}/{includeStart}/{end}/{excludeEnd}")
+  @Path("defaultByDate/{currentDate}/{configDocName}/{start}/{includeStart}/{end}/{excludeEnd}")
   public FudgeMsgEnvelope getDefaultByDate(@PathParam("currentDate") String currentDate,
       @PathParam("start") String start, 
+      @PathParam("configDocName") String configDocName, 
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end, 
       @PathParam("excludeEnd") String excludeEnd,
       @QueryParam("id") List<String> identifiers) {
     return encodePairMessage(getHistoricalDataSource().getHistoricalData(identifiersToBundle(identifiers),
         NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        NULL_VALUE.equals(configDocName) ? null : configDocName,
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
   }

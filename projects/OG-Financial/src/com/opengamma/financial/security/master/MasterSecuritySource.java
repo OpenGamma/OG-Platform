@@ -12,6 +12,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
@@ -81,16 +82,44 @@ public class MasterSecuritySource implements SecuritySource {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying security master.
+   * 
+   * @return the security master, not null
+   */
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
   // -------------------------------------------------------------------------
   @Override
-  public Security getSecurity(final UniqueIdentifier uid) {
+  public DefaultSecurity getSecurity(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     if ((_versionAsOfInstant != null) || (_correctedToInstant != null)) {
       // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
       // versions and then pick one. Perhaps we should not use the "full detail" mode in this case depending on what comes back.
-      SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(uid, _versionAsOfInstant, _correctedToInstant);
+      SecurityHistoryRequest request = new SecurityHistoryRequest(uid, _versionAsOfInstant, _correctedToInstant);
       request.setFullDetail(true);
-      SecuritySearchHistoricResult result = _securityMaster.searchHistoric(request);
+      SecurityHistoryResult result = getSecurityMaster().history(request);
       if (result.getDocuments().isEmpty()) {
         return null;
       }
@@ -125,7 +154,7 @@ public class MasterSecuritySource implements SecuritySource {
     } else {
       // Just want the latest (or version) asked for, so don't use the more costly historic search operation
       try {
-        final SecurityDocument document = _securityMaster.get(uid);
+        final SecurityDocument document = getSecurityMaster().get(uid);
         return document.getSecurity();
       } catch (DataNotFoundException e) {
         return null;
@@ -133,7 +162,7 @@ public class MasterSecuritySource implements SecuritySource {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
@@ -142,7 +171,7 @@ public class MasterSecuritySource implements SecuritySource {
     request.setCorrectedToInstant(_correctedToInstant);
     request.setIdentityKey(securityKey);
     request.setFullDetail(true);
-    return (Collection) _securityMaster.search(request).getSecurities();
+    return (Collection) getSecurityMaster().search(request).getSecurities();  // cast safe as supplied list will not be altered
   }
 
   @Override
@@ -151,6 +180,19 @@ public class MasterSecuritySource implements SecuritySource {
     final Collection<Security> securities = getSecurities(securityKey);
     // simply picks the first returned security
     return securities.isEmpty() ? null : securities.iterator().next();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterSecuritySource[" + getSecurityMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    if (_versionAsOfInstant != null) {
+      str += ",correctedTo=" + _correctedToInstant;
+    }
+    return str + "]";
   }
 
 }

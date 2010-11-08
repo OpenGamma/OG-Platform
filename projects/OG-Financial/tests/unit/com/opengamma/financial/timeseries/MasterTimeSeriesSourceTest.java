@@ -12,21 +12,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
-
 import javax.time.calendar.LocalDate;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.timeseries.MasterTimeSeriesSource;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
-import com.opengamma.financial.timeseries.TimeSeriesMetaDataResolver;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
+import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataResolver;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -42,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * Test that MasterTimeSeriesSource makes the right method calls to the underlying TimeSeriesMaster and TimeSeriesResolver
  */
 public class MasterTimeSeriesSourceTest {
-  
+  private static final String TEST_CONFIG = "TEST_CONFIG";
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "1");
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
@@ -56,6 +48,7 @@ public class MasterTimeSeriesSourceTest {
   /**
    * @throws java.lang.Exception
    */
+  @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     _mockMaster = mock(TimeSeriesMaster.class);
@@ -82,6 +75,7 @@ public class MasterTimeSeriesSourceTest {
   
   @Test(expected = IllegalArgumentException.class)
   public void constructorWith2ArgNull() throws Exception {
+    @SuppressWarnings("unchecked")
     TimeSeriesMaster<LocalDate> mock = mock(TimeSeriesMaster.class);
     new MasterTimeSeriesSource(mock, null);
   }
@@ -90,9 +84,9 @@ public class MasterTimeSeriesSourceTest {
   public void constructorWithNull() throws Exception {
     new MasterTimeSeriesSource(null, null);
   }
-  
+    
   @Test
-  public void getHistoricalDataByIdentifier() throws Exception {
+  public void getHistoricalDataByIdentifierWithMetaData() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
     request.setDataSource(BBG_DATA_SOURCE);
@@ -111,6 +105,40 @@ public class MasterTimeSeriesSourceTest {
     when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
     
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    verify(_mockMaster, times(1)).searchTimeSeries(request);
+    
+    assertEquals(UID, tsPair.getFirst());
+    assertEquals(tsDoc.getTimeSeries().times(), tsPair.getSecond().times());
+    assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
+  }
+  
+  @Test
+  public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
+    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
+    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
+    request.setDataSource(BBG_DATA_SOURCE);
+    request.setDataProvider(CMPL_DATA_PROVIDER);
+    request.setDataField(CLOSE_DATA_FIELD);
+    request.setStart(null);
+    request.setEnd(null);
+    request.setLoadTimeSeries(true);
+    
+    TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
+    TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
+    tsDoc.setTimeSeries(randomTimeSeries());
+    tsDoc.setUniqueIdentifier(UID);
+    searchResult.getDocuments().add(tsDoc);
+    
+    TimeSeriesMetaData metaData = new TimeSeriesMetaData();
+    metaData.setDataField(CLOSE_DATA_FIELD);
+    metaData.setDataProvider(CMPL_DATA_PROVIDER);
+    metaData.setDataSource(BBG_DATA_SOURCE);
+    metaData.setIdentifiers(IDENTIFIERS);
+    
+    when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
+    when(_mockResolver.getDefaultMetaData(IDENTIFIERS, TEST_CONFIG)).thenReturn(metaData);
+    
+    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).searchTimeSeries(request);
     
     assertEquals(UID, tsPair.getFirst());
@@ -199,38 +227,4 @@ public class MasterTimeSeriesSourceTest {
     assertEquals(tsDoc.getTimeSeries().values(), timeSeries.values());
   }
   
-  @Test
-  public void getHistoricalDataWithoutMetaData() throws Exception {
-    TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
-    request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
-    request.setDataSource(BBG_DATA_SOURCE);
-    request.setDataProvider(CMPL_DATA_PROVIDER);
-    request.setDataField(CLOSE_DATA_FIELD);
-    request.setStart(null);
-    request.setEnd(null);
-    request.setLoadTimeSeries(true);
-    
-    TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
-    TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
-    tsDoc.setTimeSeries(randomTimeSeries());
-    tsDoc.setUniqueIdentifier(UID);
-    searchResult.getDocuments().add(tsDoc);
-    
-    TimeSeriesMetaData metaData = new TimeSeriesMetaData();
-    metaData.setDataField(CLOSE_DATA_FIELD);
-    metaData.setDataProvider(CMPL_DATA_PROVIDER);
-    metaData.setDataSource(BBG_DATA_SOURCE);
-    metaData.setIdentifiers(IDENTIFIERS);
-    
-    when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
-    when(_mockResolver.getDefaultMetaData(IDENTIFIERS)).thenReturn(metaData);
-    
-    Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = _tsSource.getHistoricalData(IDENTIFIERS);
-    verify(_mockMaster, times(1)).searchTimeSeries(request);
-    
-    assertEquals(UID, tsPair.getFirst());
-    assertEquals(tsDoc.getTimeSeries().times(), tsPair.getSecond().times());
-    assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
-  }
-
 }

@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
-
-import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -26,24 +26,34 @@ import com.opengamma.engine.value.ValueSpecification;
  * 
  */
 public class PositionWeightFunction extends AbstractFunction.NonCompiledInvoker {
-  private final double _nav;
 
-  public PositionWeightFunction(final String nav) {
-    Validate.notNull(nav, "nav");
-    _nav = Double.parseDouble(nav);
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final Position position = target.getPosition();
+    final Object fairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, position));
+    if (fairValueObject == null) {
+      throw new NullPointerException("Could not get fair value for position " + position);
+    }
+    final double fairValue = (Double) fairValueObject;
+    Object portfolioValueObject = null;
+    final Collection<ComputedValue> computed = inputs.getAllValues();
+    //TODO this needs to be removed when we can get the portfolio structure from the execution context [ENG-236]
+    for (final ComputedValue c : computed) {
+      if (c.getSpecification().getTargetSpecification().getType() == ComputationTargetType.PORTFOLIO_NODE
+          && c.getSpecification().getValueName().equals(ValueRequirementNames.FAIR_VALUE)) {
+        portfolioValueObject = c.getValue();
+      }
+    }
+    if (portfolioValueObject == null) {
+      throw new NullPointerException("Could not get fair value for portfolio ");
+    }
+    return Collections.singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, position), getUniqueIdentifier()),
+        fairValue / (Double) portfolioValueObject));
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Position position = target.getPosition();
-    final Object fairValueObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, position));
-    if (fairValueObj != null) {
-      final double fairValue = (Double) fairValueObj;
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(
-          ValueRequirementNames.WEIGHT, position), getUniqueIdentifier()), fairValue / _nav));
-    }
-    return null;
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.POSITION;
   }
 
   @Override
@@ -52,9 +62,11 @@ public class PositionWeightFunction extends AbstractFunction.NonCompiledInvoker 
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.getPosition()));
+      final Position position = target.getPosition();
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, position),
+          new ValueRequirement(ValueRequirementNames.FAIR_VALUE, context.getPortfolioStructure().getRootPortfolioNode(position)));
     }
     return null;
   }
@@ -62,19 +74,13 @@ public class PositionWeightFunction extends AbstractFunction.NonCompiledInvoker 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target
-          .getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target.getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
 
   @Override
   public String getShortName() {
-    return "PortfolioNodeWeight";
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return "PositionWeight";
   }
 }

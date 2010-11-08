@@ -10,7 +10,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.function.Function1D;
 
@@ -57,7 +57,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     try {
       BRACKETER.getBracketedPoints(LINEAR, 0., 1.);
       fail();
-    } catch (final ConvergenceException e) {
+    } catch (final MathException e) {
       // Expected
     }
   }

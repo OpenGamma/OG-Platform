@@ -32,7 +32,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          final Security underlyingSecurity = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+          final Security underlyingSecurity = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
           final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = source.getHistoricalData(underlyingSecurity.getIdentifiers(), dataSourceName, dataProviderName, LAST_PRICE);
           if (tsPair == null) {
             throw new NullPointerException("Could not get time series pair for " + underlying + " for security " + security);

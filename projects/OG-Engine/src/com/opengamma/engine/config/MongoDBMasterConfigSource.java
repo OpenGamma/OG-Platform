@@ -128,14 +128,4 @@ public class MongoDBMasterConfigSource implements ConfigSource {
     }
   }
 
-  @Override
-  public <T> ConfigDocument<T> getDocumentByName(Class<T> clazz, String name, Instant versionAsOf) {
-    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
-    searchRequest.setVersionAsOfInstant(versionAsOf);
-    searchRequest.setName(name);
-    MongoDBConfigTypeMaster<T> configMaster = getConfigMasterFor(clazz);
-    ConfigSearchResult<T> searchResult = configMaster.search(searchRequest);
-    return searchResult.getFirstDocument();
-  }
-
 }

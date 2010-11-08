@@ -18,8 +18,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * 
+ * JMX management of persistent subscriptions.
  */
 @ManagedResource(
     objectName = "com.opengamma:name=PersistentSubscriptionManager",

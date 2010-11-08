@@ -33,11 +33,11 @@ import com.mongodb.Mongo;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MongoDBConnectionSettings;
@@ -72,10 +72,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    * Mongo key for the oid.
    */
   private static final String OID_FIELD_NAME = "oid";
-  /**
-   * Mongo key for the version.
-   */
-  private static final String VERSION_FIELD_NAME = "version";
   /**
    * Mongo key for the name.
    */
@@ -120,10 +116,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    */
   private final Mongo _mongo;
   /**
-   * Whether to update the last read time.
-   */
-  private final boolean _updateLastReadTime;
-  /**
    * The scheme to use for unique identifiers.
    */
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
@@ -138,16 +130,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    * @param mongoSettings  the Mongo connection settings, not null
    */
   public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings) {
-    this(documentClazz, mongoSettings, true);
-  }
-
-  /**
-   * Creates an instance.
-   * @param documentClazz  the element type, not null
-   * @param mongoSettings  the Mongo connection settings, not null
-   * @param updateLastRead  whether to update the last read flag
-   */
-  public MongoDBConfigTypeMaster(final Class<T> documentClazz, final MongoDBConnectionSettings mongoSettings, boolean updateLastRead) {
     ArgumentChecker.notNull(documentClazz, "document class");
     ArgumentChecker.notNull(mongoSettings, "MongoDB settings");
     
@@ -164,9 +146,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     }
     
     ensureIndices();
-    _updateLastReadTime = updateLastRead;
-    String status = _updateLastReadTime ? "updateLastReadTime" : "readWithoutUpdate";
-    s_logger.info("creating MongoDBConfigurationRepo for {}", status);
   }
 
   private void ensureIndices() {
@@ -300,17 +279,9 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     DBObject updateObj = new BasicDBObject("$set", new BasicDBObject(LAST_READ_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
     DBCollection dbCollection = createDBCollection();
     DBObject matched;
-    if (_updateLastReadTime) {
-      matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
-      if (matched == null) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
-    } else {
-      DBCursor cursor = dbCollection.find(queryObj).sort(sortObj).skip(0).limit(1);
-      if (cursor.hasNext()) {
-        throw new DataNotFoundException("Configuration not found: " + uid);
-      }
-      matched = cursor.next();
+    matched = dbCollection.findAndModify(queryObj, null, sortObj, false, updateObj, true, false);
+    if (matched == null) {
+      throw new DataNotFoundException("Configuration not found: " + uid);
     }
     return convertFromDb(matched);
   }
@@ -325,10 +296,8 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     Instant now = Instant.now(getTimeSource());
     String id = ObjectId.get().toString();
     document.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id, id));
-    document.setVersionNumber(1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
-    document.setLastReadInstant(now);
     DBObject insertDoc = convertToDb(document);
     s_logger.debug("Config add, insert={}", insertDoc);
     createDBCollection().insert(insertDoc).getLastError().throwOnError();
@@ -357,10 +326,8 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     Instant now = Instant.now(getTimeSource());
     ObjectId id = ObjectId.get();
     document.setConfigId(document.getConfigId().withVersion(id.toString()));
-    document.setVersionNumber(oldDoc.getVersionNumber() + 1);
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
-    document.setLastReadInstant(now);
     DBObject insertDoc = convertToDb(document);
     s_logger.debug("Config update, insert={}", insertDoc);
     // prepare to update old row
@@ -410,7 +377,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigSearchHistoricResult<T> searchHistoric(final ConfigSearchHistoricRequest request) {
+  public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getConfigId(), "request.configId");
     checkScheme(request.getConfigId());
@@ -444,7 +411,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     BasicDBObject sortObj = new BasicDBObject(VERSION_FROM_INSTANT_FIELD_NAME, -1);
     
     ConfigSearchResult<T> configSearchResult = find(queryObj, sortObj, request.getPagingRequest());
-    ConfigSearchHistoricResult<T> result = new ConfigSearchHistoricResult<T>();
+    ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     result.setPaging(configSearchResult.getPaging());
     result.setDocuments(configSearchResult.getDocuments());
     return result;
@@ -504,15 +471,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     for (DBObject dbObject : cursor) {
       result.getDocuments().add(convertFromDb(dbObject));
     }
-    if (_updateLastReadTime) {
-      for (ConfigDocument<T> doc : result.getDocuments()) {
-        DBObject updateQueryObj = new BasicDBObject();
-        updateQueryObj.put(ID_FIELD_NAME, extractRowId(doc.getConfigId()));
-        updateQueryObj.put(LAST_READ_INSTANT_FIELD_NAME, new Date(doc.getLastReadInstant().toEpochMillisLong()));
-        dbCollection.update(updateQueryObj, updateObj).getLastError().throwOnError();
-        doc.setLastReadInstant(now);
-      }
-    }
     return result;
   }
 
@@ -532,15 +490,12 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ObjectId id = (ObjectId) dbObject.get("_id");
     String oid = (String) dbObject.get(OID_FIELD_NAME);
     doc.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), oid, id.toString()));
-    doc.setVersionNumber((Integer) dbObject.get(VERSION_FIELD_NAME));
     doc.setName((String) dbObject.get(NAME_FIELD_NAME));
     Date versionFromTime = (Date) dbObject.get(VERSION_FROM_INSTANT_FIELD_NAME);
     doc.setVersionFromInstant(Instant.ofEpochMillis(versionFromTime.getTime()));
     Date versionToTime = (Date) dbObject.get(VERSION_TO_INSTANT_FIELD_NAME);
     Instant versionToInstant = Instant.ofEpochMillis(versionToTime.getTime());
     doc.setVersionToInstant(versionToInstant.equals(MAX_INSTANT) ? null : versionToInstant);
-    Date lastRead = (Date) dbObject.get(LAST_READ_INSTANT_FIELD_NAME);
-    doc.setLastReadInstant(Instant.ofEpochMillis(lastRead.getTime()));
     doc.setValue(value);
     return doc;
   }
@@ -556,7 +511,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     DBObject insertDoc = new BasicDBObject();
     insertDoc.put(ID_FIELD_NAME, extractRowId(document.getConfigId()));
     insertDoc.put(OID_FIELD_NAME, extractOid(document.getConfigId()));
-    insertDoc.put(VERSION_FIELD_NAME, document.getVersionNumber());
     insertDoc.put(NAME_FIELD_NAME, document.getName());
     insertDoc.put(VERSION_FROM_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     if (document.getVersionToInstant() != null) {
@@ -564,7 +518,6 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     } else {
       insertDoc.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
     }
-    insertDoc.put(LAST_READ_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     insertDoc.put(VALUE_FIELD_NAME, getFudgeContext().fromFudgeMsg(DBObject.class, msg.getMessage()));
     s_logger.trace("Config converted config doc to object={}", insertDoc);
     return insertDoc;

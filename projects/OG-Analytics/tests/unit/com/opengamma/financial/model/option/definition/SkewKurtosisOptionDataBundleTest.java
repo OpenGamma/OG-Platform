@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -27,14 +27,14 @@ public class SkewKurtosisOptionDataBundleTest {
   private static final double SIGMA = 0.25;
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final double B = 0.03;
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
+  private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final double SKEW = 1.2;
   private static final double KURTOSIS = 4.5;
   private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(R + 1));
   private static final double OTHER_B = B + 1;
-  private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(SIGMA + 1);
+  private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA + 1));
   private static final double OTHER_SPOT = SPOT + 1;
   private static final ZonedDateTime OTHER_DATE = DateUtil.getDateOffsetWithYearFraction(DATE, 1);
   private static final double OTHER_SKEW = 0.1;

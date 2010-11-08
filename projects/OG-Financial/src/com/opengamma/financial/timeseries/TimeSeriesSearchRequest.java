@@ -205,10 +205,10 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
         setEnd((T) newValue);
         return;
       case 1833789738:  // loadTimeSeries
-        setLoadTimeSeries((boolean) (Boolean) newValue);
+        setLoadTimeSeries((Boolean) newValue);
         return;
       case 1364095295:  // loadDates
-        setLoadDates((boolean) (Boolean) newValue);
+        setLoadDates((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -581,7 +581,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -599,7 +599,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<Identifier>> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", (Class) List.class);
     /**
      * The meta-property for the {@code currentDate} property.
@@ -624,12 +624,12 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
     /**
      * The meta-property for the {@code start} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _start = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "start", Object.class);
     /**
      * The meta-property for the {@code end} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _end = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "end", Object.class);
     /**
      * The meta-property for the {@code loadTimeSeries} property.
@@ -644,7 +644,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
@@ -668,7 +668,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
       return new TimeSeriesSearchRequest<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends TimeSeriesSearchRequest<T>> beanType() {
       return (Class) TimeSeriesSearchRequest.class;

@@ -9,21 +9,19 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.client.DistributedEntitlementChecker;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 
 /**
  * Integration test between {@link DistributedEntitlementChecker} and {@link EntitlementServer}.
- *
  */
 public class DistributedEntitlementCheckerTest {
-  
+
   @Test
   public void testRequestResponse() {
     
@@ -38,10 +36,9 @@ public class DistributedEntitlementCheckerTest {
     
     LiveDataSpecification testSpec = new LiveDataSpecification(
         "TestNormalization",
-        new Identifier(new IdentificationScheme("test1"), "test1"));
+        Identifier.of("test1", "test1"));
     UserPrincipal megan = new UserPrincipal("megan", "127.0.0.1");
     assertTrue(client.isEntitled(megan, testSpec));
-    
   }
 
 }

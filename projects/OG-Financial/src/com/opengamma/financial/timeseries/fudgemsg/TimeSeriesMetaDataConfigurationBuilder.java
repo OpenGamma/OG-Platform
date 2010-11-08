@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.timeseries.fudgemsg;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -17,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration;
+import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataRating;
 
 /**
  * Builder for converting TimeSeriesMataDataConfiguration instances to/from Fudge messages.
@@ -27,105 +29,22 @@ public class TimeSeriesMetaDataConfigurationBuilder implements FudgeBuilder<Time
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final TimeSeriesMetaDataConfiguration object) {
     MutableFudgeFieldContainer message = context.newMessage();
-    String securityType = object.getSecurityType();
-    if (securityType != null) {
-      message.add("securityType", securityType);
-    }
-    String defaultDataSource = object.getDefaultDataSource();
-    if (defaultDataSource != null) {
-      message.add("defaultDataSource", defaultDataSource);
-    }
-    Set<String> dataSources = object.getDataSources();
-    if (dataSources != null) {
-      for (String dataSource : dataSources) {
-        if (dataSource != null) {
-          message.add("dataSources", dataSource);
-        }
-      }
-    }
-    String defaultDataField = object.getDefaultDataField();
-    if (defaultDataField != null) {
-      message.add("defaultDataField", defaultDataField);
-    }
-    Set<String> dataFields = object.getDataFields();
-    if (dataFields != null) {
-      for (String dataField : dataFields) {
-        if (dataField != null) {
-          message.add("dataFields", dataField);
-        }
-      }
-    }
-    String defaultDataProvider = object.getDefaultDataProvider();
-    if (defaultDataProvider != null) {
-      message.add("defaultDataProvider", defaultDataProvider);
-    }
-    Set<String> dataProviders = object.getDataProviders();
-    if (dataProviders != null) {
-      for (String dataProvider : dataProviders) {
-        if (dataProvider != null) {
-          message.add("dataProviders", dataProvider);
-        }
-      }
+    for (TimeSeriesMetaDataRating rule : object.getRules()) {
+//      message.add("rule", context.objectToFudgeMsg(rule));
+      context.objectToFudgeMsg(message, "rules", null, rule);
     }
     return message;
   }
 
   @Override
   public TimeSeriesMetaDataConfiguration buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-
-    String securityType = message.getString("securityType");
-    if (securityType == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'securityType' is not present");
+    Collection<FudgeField> fields = message.getAllByName("rules");
+    final List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>(fields.size());
+    for (FudgeField field : fields) {
+      TimeSeriesMetaDataRating rule = context.fudgeMsgToObject(TimeSeriesMetaDataRating.class, (FudgeFieldContainer) field.getValue());
+      rules.add(rule);
     }
-
-    String defaultDataSource = message.getString("defaultDataSource");
-    if (defaultDataSource == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'defaultDataSource' is not present");
-    }
-
-    String defaultDataField = message.getString("defaultDataField");
-    if (defaultDataField == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'defaultDataField' is not present");
-    }
-
-    String defaultDataProvider = message.getString("defaultDataProvider");
-    if (defaultDataProvider == null) {
-      throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'defaultDataProvider' is not present");
-    }
-
-    TimeSeriesMetaDataConfiguration configuration = new TimeSeriesMetaDataConfiguration(securityType, defaultDataSource, defaultDataField, defaultDataProvider);
-
-    List<FudgeField> allByName = message.getAllByName("dataSources");
-    for (FudgeField fudgeField : allByName) {
-      Object value = fudgeField.getValue();
-      if (value instanceof String) {
-        configuration.addDataSource((String) value);
-      } else {
-        throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'dataSources' is not string");
-      }
-    }
-
-    allByName = message.getAllByName("dataFields");
-    for (FudgeField fudgeField : allByName) {
-      Object value = fudgeField.getValue();
-      if (value instanceof String) {
-        configuration.addDataField((String) value);
-      } else {
-        throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'dataFields' is not string");
-      }
-    }
-
-    allByName = message.getAllByName("dataProviders");
-    for (FudgeField fudgeField : allByName) {
-      Object value = fudgeField.getValue();
-      if (value instanceof String) {
-        configuration.addDataProvider((String) value);
-      } else {
-        throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataConfiguration - field 'dataProviders' is not string");
-      }
-    }
-
-    return configuration;
+    return new TimeSeriesMetaDataConfiguration(rules);
   }
 
 }

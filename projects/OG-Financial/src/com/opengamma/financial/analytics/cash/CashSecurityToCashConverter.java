@@ -16,21 +16,48 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converts a CashSecurity to an OG-Analytics Cash object (see {@link Cash})
+ * Converts a {@code CashSecurity} to an analytics cash loan instance.
+ * <p>
+ * This extracts information about the security to create a {@link Cash} instance.
  */
 public class CashSecurityToCashConverter {
 
+  /**
+   * The holiday source.
+   */
   private final HolidaySource _holidaySource;
+  /**
+   * The convention source.
+   */
   private final ConventionBundleSource _conventionSource;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param holidaySource  the holiday source, not null
+   * @param conventionSource  the convention source, not null
+   */
   public CashSecurityToCashConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
+    ArgumentChecker.notNull(holidaySource, "holidaySource");
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the analytics cash loan definition for the specified security.
+   * 
+   * @param security  the security to use to create the analytics object, not null
+   * @param curveName  the name of the curve, not null
+   * @param marketRate  the market rate
+   * @param now  the applicable time, not null
+   * @return the analytic cash load instance, not null
+   */
   public Cash getCash(final CashSecurity security, final String curveName, final double marketRate, final ZonedDateTime now) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
@@ -42,8 +69,9 @@ public class CashSecurityToCashConverter {
     final double paymentTime = actAct.getDayCountFraction(now, maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(startDate, maturityDate);
     if (startDate.isAfter(maturityDate)) {
-      throw new OpenGammaRuntimeException("startDate "+startDate+" is after maturity date "+maturityDate+" probably caused by market holiday, so no data anyway");
+      throw new OpenGammaRuntimeException("startDate " + startDate + " is after maturity date " + maturityDate + " probably caused by market holiday, so no data anyway");
     }
     return new Cash(paymentTime, marketRate, tradeTime, yearFraction, curveName);
   }
+
 }

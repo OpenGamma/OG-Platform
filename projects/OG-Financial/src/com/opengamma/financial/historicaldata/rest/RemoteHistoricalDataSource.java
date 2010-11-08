@@ -122,27 +122,30 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+      .resolveBase((configDocName != null) ? configDocName : NULL_VALUE)
       .resolveQuery("id", identifiers.toStringList());
     return decodePairMessage(getRestClient().getMsg(target));
   }
 
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers) {
-    return getHistoricalData(identifiers, (LocalDate) null);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
+    return getHistoricalData(identifiers, (LocalDate) null, configDocName);
   }
-
+  
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
     
     final RestTarget target = getTargetBase().resolveBase(REQUEST_DEFAULT_BY_DATE)
       .resolveBase((currentDate != null) ? currentDate.toString() : NULL_VALUE)
+      .resolveBase((configDocName != null) ? configDocName : NULL_VALUE)
       .resolveBase(start.toString())
       .resolveBase(String.valueOf(inclusiveStart))
       .resolveBase(end.toString())
@@ -152,10 +155,11 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    return getHistoricalData(identifiers, (LocalDate) null, start, inclusiveStart, end, exclusiveEnd);
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName, 
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    return getHistoricalData(identifiers, (LocalDate) null, configDocName, start, inclusiveStart, end, exclusiveEnd);
   }
-
+  
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
@@ -178,8 +182,8 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   }
   
   @Override
-  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, 
+      String dataProvider, String dataField, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");

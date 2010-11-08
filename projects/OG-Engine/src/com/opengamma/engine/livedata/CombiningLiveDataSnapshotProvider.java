@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.livedata.PendingCombinedLiveDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 

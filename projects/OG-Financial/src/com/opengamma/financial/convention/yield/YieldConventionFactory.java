@@ -35,7 +35,7 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.US_IL_REAL);
     store(SimpleYieldConvention.US_IL_REAL, "U.S. I/L REAL YLD");
     store(SimpleYieldConvention.US_STREET, "STREET CONVENTION");
-    store(SimpleYieldConvention.US_TREASURY_EQUIVILANT);
+    store(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
     store(SimpleYieldConvention.JGB_SIMPLE);
     store(SimpleYieldConvention.MONEY_MARKET);
     store(SimpleYieldConvention.TRUE);

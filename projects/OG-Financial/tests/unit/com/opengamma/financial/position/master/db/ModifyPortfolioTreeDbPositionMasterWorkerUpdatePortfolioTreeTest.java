@@ -25,8 +25,8 @@ import com.opengamma.financial.position.master.ManageablePortfolio;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.ManageablePortfolioNode;
 import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
@@ -147,8 +147,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     assertEquals(false, old.getPortfolio().getRootNode().getUniqueIdentifier().getVersion().equals(
         newer.getPortfolio().getRootNode().getUniqueIdentifier().getVersion()));
     
-    PortfolioTreeSearchHistoricRequest search = new PortfolioTreeSearchHistoricRequest(base.getPortfolioId(), null, now);
-    PortfolioTreeSearchHistoricResult searchResult = _queryWorker.searchPortfolioTreeHistoric(search);
+    PortfolioTreeHistoryRequest search = new PortfolioTreeHistoryRequest(base.getPortfolioId(), null, now);
+    PortfolioTreeHistoryResult searchResult = _queryWorker.historyPortfolioTree(search);
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(updated.getPortfolioId(), searchResult.getDocuments().get(0).getPortfolioId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getPortfolioId());

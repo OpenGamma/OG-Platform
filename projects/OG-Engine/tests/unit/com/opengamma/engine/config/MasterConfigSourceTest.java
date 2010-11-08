@@ -18,8 +18,8 @@ import org.junit.Test;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.Identifier;
@@ -70,7 +70,7 @@ public class MasterConfigSourceTest {
           throw new UnsupportedOperationException();
         }
         @Override
-        public ConfigSearchHistoricResult<Identifier> searchHistoric(ConfigSearchHistoricRequest request) {
+        public ConfigHistoryResult<Identifier> history(ConfigHistoryRequest request) {
           throw new UnsupportedOperationException();
         }
       };

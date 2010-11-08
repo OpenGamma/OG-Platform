@@ -13,8 +13,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -36,9 +37,9 @@ public class FloatingStrikeLookbackOptionDefinitionTest {
   private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100529, 20100530, 20100531}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
   private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new ConstantVolatilitySurface(0.2), SPOT, DateUtil.getUTCDate(2010, 6, 1), HIGH_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), HIGH_TS);
   private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new ConstantVolatilitySurface(0.2), SPOT, DateUtil.getUTCDate(2010, 6, 1), LOW_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), LOW_TS);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDataBundle() {

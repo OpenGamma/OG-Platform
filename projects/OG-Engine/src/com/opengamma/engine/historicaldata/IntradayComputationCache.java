@@ -22,7 +22,7 @@ import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 public interface IntradayComputationCache {
   
   /**
-   * Instructs the cache to store historical information at the given resolution
+   * Instructs the cache to store historical information at the given resolution.
    * If this resolution already exists, changes numPoints to the given value.
    * 
    * @param resolution The resolution you want, not null

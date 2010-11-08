@@ -148,8 +148,8 @@ public class MarketDataDistributor {
   }
   
   /**
-   * @param msg Message received from underlying market data API in its native format.
-   * @return The normalized message. Null if in the process of normalization,
+   * @param msg message received from underlying market data API in its native format.
+   * @return the normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
   private FudgeFieldContainer normalize(FudgeFieldContainer msg) {

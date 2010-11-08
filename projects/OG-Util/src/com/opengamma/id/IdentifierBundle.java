@@ -9,14 +9,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -25,14 +23,20 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable bundle of identifiers.
  * <p>
- * Each identifier in the bundle will typically refer to the same physical item.
- * The identifiers represent different ways to represent the item, for example in multiple schemes.
+ * A bundle allows multiple identifiers to be used that all refer to the same conceptual object.
+ * Each bundle will typically be in a different scheme.
+ * <p>
+ * For example, the United States might be referred to by an identifier referencing the 2 letter
+ * ISO country code {@code US} in one identifier and the 3 letter currency code {@code USD} in another.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
@@ -56,6 +60,41 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   private transient volatile int _hashCode;
 
   /**
+   * Obtains an {@code IdentifierBundle} from an identifier.
+   * 
+   * @param identifier  the identifier to wrap in a bundle, not null
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    return new IdentifierBundle(ImmutableSet.of(identifier));
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from an array of identifiers.
+   * 
+   * @param identifiers  the collection of identifiers, not null, no nulls in array
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Identifier... identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.noNulls(identifiers, "identifiers");
+    return new IdentifierBundle(ImmutableSet.copyOf(identifiers));
+  }
+
+  /**
+   * Obtains an {@code IdentifierBundle} from a collection of identifiers.
+   * 
+   * @param identifiers  the collection of identifiers, not null, no nulls in array
+   * @return the identifier bundle, not null
+   */
+  public static IdentifierBundle of(Collection<Identifier> identifiers) {
+    ArgumentChecker.notNull(identifiers, "identifiers");
+    ArgumentChecker.noNulls(identifiers, "identifiers");
+    return new IdentifierBundle(identifiers);
+  }
+
+  /**
    * Creates an empty bundle.
    */
   public IdentifierBundle() {
@@ -64,58 +103,18 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
-   * Creates a bundle from a single identifier.
-   * @param identifier  the identifier, null returns an empty bundle
+   * Creates a bundle from a set of identifiers.
+   * 
+   * @param identifiers  the set of identifiers, assigned, not null
    */
-  public IdentifierBundle(Identifier identifier) {
-    if (identifier == null) {
-      _identifiers = Collections.emptySet();
-    } else {
-      _identifiers = Collections.singleton(identifier);
-    }
+  private IdentifierBundle(Collection<Identifier> identifiers) {
+    _identifiers = ImmutableSet.copyOf(identifiers);
     _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from an array of identifiers.
-   * @param identifiers  the array of identifiers, null returns an empty bundle
-   */
-  public IdentifierBundle(Identifier... identifiers) {
-    if ((identifiers == null) || (identifiers.length == 0)) {
-      _identifiers = Collections.emptySet();
-    } else {
-      ArgumentChecker.noNulls(identifiers, "identifiers");
-      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(Arrays.asList(identifiers)));
-    }
-    _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from a collection of identifiers.
-   * @param identifiers  the collection of identifiers, null returns an empty bundle, no nulls in array
-   */
-  public IdentifierBundle(Collection<? extends Identifier> identifiers) {
-    if (identifiers == null) {
-      _identifiers = Collections.emptySet();
-    } else {
-      ArgumentChecker.noNulls(identifiers, "identifiers");
-      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(identifiers));
-    }
-    _hashCode = calcHashCode();
-  }
-
-  /**
-   * Creates a bundle from a collection of identifiers.
-   * @param identifiers  the collection of identifiers, not null, no nulls in array
-   * @return the identifier bundle, not null
-   */
-  public static IdentifierBundle of(Identifier... identifiers) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    return new IdentifierBundle(identifiers);
   }
 
   /**
    * Recalculate the hash code on deserialization.
+   * 
    * @param in  the input stream
    */
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -123,6 +122,11 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     _hashCode = calcHashCode();
   }
 
+  /**
+   * Calculate the hash code.
+   * 
+   * @return the hash code
+   */
   private int calcHashCode() {
     return 31 + _identifiers.hashCode();
   }
@@ -130,6 +134,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   //-------------------------------------------------------------------------
   /**
    * Gets the collection of identifiers in the bundle.
+   * 
    * @return the identifier collection, unmodifiable, not null
    */
   public Set<Identifier> getIdentifiers() {
@@ -139,10 +144,12 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
+   * 
    * @param identifier  the identifier to add to the returned bundle, not null
    * @return the new bundle, not null
    */
   public IdentifierBundle withIdentifier(Identifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
     Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
     ids.add(identifier);
     return new IdentifierBundle(ids);
@@ -151,6 +158,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * Returns a new bundle with the specified identifier removed.
    * This instance is immutable and unaffected by this method call.
+   * 
    * @param identifier  the identifier to remove from the returned bundle, null ignored
    * @return the new bundle, not null
    */
@@ -166,6 +174,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * <p>
    * This returns the first identifier in the internal set that matches.
    * The set is not sorted, so this method is not consistent.
+   * 
    * @param scheme  the scheme to query, null returns null
    * @return the standalone identifier, null if not found
    */
@@ -179,7 +188,26 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Returns a new bundle with all references to the specified scheme removed.
+   * This instance is immutable and unaffected by this method call.
+   * 
+   * @param scheme  the scheme to remove from the returned bundle, null ignored
+   * @return the new bundle, not null
+   */
+  public IdentifierBundle withoutScheme(IdentificationScheme scheme) {
+    Set<Identifier> ids = new HashSet<Identifier>(_identifiers.size());
+    for (Identifier id : _identifiers) {
+      if (id.isScheme(scheme) == false) {
+        ids.add(id);
+      }
+    }
+    return new IdentifierBundle(ids);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the number of identifiers in the bundle.
+   * 
    * @return the bundle size, zero or greater
    */
   public int size() {
@@ -188,6 +216,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Returns an iterator over the identifiers in the bundle.
+   * 
    * @return the identifiers in the bundle, not null
    */
   public Iterator<Identifier> iterator() {
@@ -195,8 +224,25 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
+   * Checks if this bundle contains all the keys from the specified bundle.
+   * 
+   * @param bundle  the bundle to search for, empty returns true, not null
+   * @return true if this bundle contains all the keys from the specified bundle
+   */
+  public boolean containsAll(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    for (Identifier identifier : bundle.getIdentifiers()) {
+      if (_identifiers.contains(identifier) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Checks if this bundle contains any key from the specified bundle.
-   * @param bundle  the bundle to search for, not null
+   * 
+   * @param bundle  the bundle to search for, empty returns false, not null
    * @return true if this bundle contains any key from the specified bundle
    */
   public boolean containsAny(IdentifierBundle bundle) {
@@ -211,6 +257,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Checks if this bundle contains the specified key.
+   * 
    * @param identifier  the key to search for, null returns false
    * @return true if this bundle contains any key from the specified bundle
    */
@@ -220,6 +267,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   /**
    * Converts this bundle to a list of formatted strings.
+   * 
    * @return the list of identifiers as strings, not null
    */
   public List<String> toStringList() {
@@ -281,6 +329,14 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
 
   //-------------------------------------------------------------------------
 
+  /**
+   * Serializes this identifier bundle to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @param message the message to serialize into, not {@code null}
+   * @return the serialized message
+   */
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
@@ -291,18 +347,22 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
-   * Serializes this pair to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
+   * Serializes this identifier bundle to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @return the serialized Fudge message
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**
-   * Deserializes this pair from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
+   * Deserializes an identifier bundle from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param msg the Fudge message, not {@code null}
+   * @return the identifier bundle
    */
   public static IdentifierBundle fromFudgeMsg(FudgeFieldContainer msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();

@@ -6,16 +6,24 @@
 package com.opengamma.livedata;
 
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.util.PublicAPI;
 
 
 /**
  * An interface through which clients can receive updates on their
- * live data subscriptions. This is the main interface you
- * need to implement in your LiveData client application.
+ * LiveData subscriptions.
+ * <p> 
+ * This is the main interface you  need to implement in your LiveData client application.
  * 
  */
+@PublicAPI
 public interface LiveDataListener {
   
+  /**
+   * Called when a subscription result is received from a LiveData server.
+   * 
+   * @param subscriptionResult subscription result is received from server
+   */
   void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult);
   
   /**
@@ -25,26 +33,25 @@ public interface LiveDataListener {
    * {@link #valueUpdate(LiveDataValueUpdate)} corresponding to this specification
    * will come in after an invocation of this method.
    * 
-   * @param fullyQualifiedSpecification Matches the {@link LiveDataSubscriptionResponse#getFullyQualifiedSpecification()}
-   * in {@link #subscriptionResultReceived(LiveDataSubscriptionResponse)}.
+   * @param fullyQualifiedSpecification subscription that was stopped. 
+   * @see LiveDataSubscriptionResponse#getFullyQualifiedSpecification
    */
   void subscriptionStopped(LiveDataSpecification fullyQualifiedSpecification);
   
   /**
    * Called when a market data update is received from the LiveData server. 
    * <p> 
-   * Important implementation note to listener implementors:
-   * THIS METHOD MUST EXECUTE QUICKLY. The way the Live Data Client works,
+   * <i>This method must execute quickly.</i> The way the Live Data Client works,
    * several market data lines may be handled by the same Live Data Client
    * thread. If the execution of this method is slow, for example
    * because it uses external resources such as files or the network
    * in some way, or executes a complicated algorithm, then 
-   * market data updates for OTHER market data lines will not received
+   * market data updates for <i>other</i> market data lines will not be received
    * until this method returns. Thus, if you need to execute a
    * non-trivial operation when you receive new market data, 
    * do it in a new thread.      
    * 
-   * @param valueUpdate New market data
+   * @param valueUpdate new market data
    */
   void valueUpdate(LiveDataValueUpdate valueUpdate);
 

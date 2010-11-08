@@ -59,7 +59,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   public OptionGreekUnderlyingPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String valueRequirementName, final String scheduleName,
       final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, ScheduleCalculatorFactory.getSchedule(scheduleName), TimeSeriesSamplingFunctionFactory
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory
         .getFunction(samplingFunctionName));
   }
 
@@ -99,7 +99,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
       }
       final DoubleTimeSeries<?> resultTS;
       if (_scheduleCalculator != null && _samplingFunction != null) {
-        final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true); //REVIEW emcleod should "fromEnd" be hard-coded?
+        final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
         resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
       } else {
         resultTS = ts;
@@ -120,8 +120,8 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.<ValueRequirement> emptySet();
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return Collections.<ValueRequirement>emptySet();
   }
 
   @Override

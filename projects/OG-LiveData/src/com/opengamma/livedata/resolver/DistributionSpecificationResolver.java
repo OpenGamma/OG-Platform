@@ -9,17 +9,16 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.DistributionSpecification;
 
 /**
- * Determines the distribution specification for a particular live data
- * specification.
- *
- * @author kirk
+ * Determines how market data should be distributed to clients.
  */
 public interface DistributionSpecificationResolver {
 
   /**
-   * @param liveDataSpecificationFromClient What the client wants. Different specs from the client can map to the same distribution spec. 
-   * @return A valid distribution specification. Never null.
-   * @throws IllegalArgumentException If the distribution spec cannot be built.  
+   * Determines how market data should be distributed to clients.
+   * 
+   * @param liveDataSpecificationFromClient what the client wants. Different specs from the client can map to the same distribution spec. 
+   * @return a valid distribution specification. Not null.
+   * @throws IllegalArgumentException if the distribution spec cannot be built.  
    */
   DistributionSpecification getDistributionSpecification(LiveDataSpecification liveDataSpecificationFromClient) throws IllegalArgumentException;
   

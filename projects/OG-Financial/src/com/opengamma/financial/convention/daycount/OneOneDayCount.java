@@ -15,11 +15,6 @@ import javax.time.calendar.ZonedDateTime;
 public class OneOneDayCount extends StatelessDayCount {
 
   @Override
-  public double getBasis(final ZonedDateTime date) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     return 1;
   }
@@ -27,6 +22,11 @@ public class OneOneDayCount extends StatelessDayCount {
   @Override
   public String getConventionName() {
     return "1/1";
+  }
+
+  @Override
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+    return coupon / paymentsPerYear;
   }
 
 }

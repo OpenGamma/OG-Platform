@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * 
@@ -20,28 +19,45 @@ import com.opengamma.financial.convention.calendar.Calendar;
 public class DailyScheduleCalculator extends Schedule {
 
   @Override
-  public LocalDate[] getScheduleWorkingDaysOnly(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final Calendar holidayCalendar) {
+  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final boolean generateRecursive) {
+    return getSchedule(startDate, endDate);
+  }
+
+  public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    if (fromEnd) {
-      LocalDate date = endDate;
-      while (!date.isBefore(startDate)) {
-        if (holidayCalendar.isWorkingDay(date)) {
-          dates.add(date);
-        }
-        date = date.minusDays(1);
-      }
-      return getReversedDates(dates);
+    if (startDate.equals(endDate)) {
+      return new LocalDate[] {startDate};
     }
+    final List<LocalDate> dates = new ArrayList<LocalDate>();
     LocalDate date = startDate;
     while (!date.isAfter(endDate)) {
-      if (holidayCalendar.isWorkingDay(date)) {
-        dates.add(date);
-      }
+      dates.add(date);
       date = date.plusDays(1);
     }
-    return dates.toArray(EMPTY_ARRAY);
+    return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
   }
+
+  @Override
+  public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd, final boolean generateRecursive) {
+    return getSchedule(startDate, endDate);
+  }
+
+  public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    Validate.notNull(startDate, "start date");
+    Validate.notNull(endDate, "end date");
+    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    if (startDate.equals(endDate)) {
+      return new ZonedDateTime[] {startDate};
+    }
+    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    ZonedDateTime date = startDate;
+    while (!date.isAfter(endDate)) {
+      dates.add(date);
+      date = date.plusDays(1);
+    }
+    return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
+  }
+
 }

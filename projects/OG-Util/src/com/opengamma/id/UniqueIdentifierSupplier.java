@@ -11,8 +11,14 @@ import com.google.common.base.Supplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Factory producing
- * This will provide a sequence of unique identifiers with the provided scheme
+ * A supplier of unique identifiers.
+ * <p>
+ * A unique identifier consists of a scheme, value and version.
+ * This class creates unique identifiers for a fixed scheme name, where each
+ * value is an incrementing number. The values are created in a thread-safe way.
+ * The version will always be null.
+ * <p>
+ * This class is thread-safe and not externally mutable.
  */
 public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
 
@@ -27,6 +33,7 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
 
   /**
    * Creates an instance specifying the scheme.
+   * 
    * @param scheme  the scheme, not empty
    */
   public UniqueIdentifierSupplier(final String scheme) {
@@ -37,6 +44,7 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
   //-------------------------------------------------------------------------
   /**
    * Generates the next unique identifier.
+   * 
    * @return the next unique identifier, not null
    */
   public UniqueIdentifier get() {
@@ -46,12 +54,19 @@ public class UniqueIdentifierSupplier implements Supplier<UniqueIdentifier> {
 
   /**
    * Generates the next unique identifier prefixing the value.
+   * 
    * @param valuePrefix  the prefix for the value, not null
    * @return the next unique identifier, not null
    */
   public UniqueIdentifier getWithValuePrefix(final String valuePrefix) {
     final long id = _idCount.incrementAndGet();
     return UniqueIdentifier.of(_scheme, valuePrefix + Long.toString(id));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "UniqueIdentifierSupplier[" + _scheme + "]";
   }
 
 }

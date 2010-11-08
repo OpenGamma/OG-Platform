@@ -25,7 +25,7 @@ public class MongoDBPersistentSubscriptionManagerTest {
   @Test
   public void persistentSubscriptionManagement() {
     
-    IdentificationScheme identificationDomain = new IdentificationScheme("TestDomain");
+    IdentificationScheme identificationDomain = IdentificationScheme.of("TestDomain");
     
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
     server.connect();

@@ -11,8 +11,9 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -25,8 +26,8 @@ public class AssetOrNothingOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2010, 8, 1));
   private static final AssetOrNothingOptionDefinition CALL = new AssetOrNothingOptionDefinition(STRIKE, EXPIRY, true);
   private static final AssetOrNothingOptionDefinition PUT = new AssetOrNothingOptionDefinition(STRIKE, EXPIRY, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0, new ConstantVolatilitySurface(0.1), STRIKE,
-      DateUtil.getUTCDate(2010, 7, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
+      STRIKE, DateUtil.getUTCDate(2010, 7, 1));
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {

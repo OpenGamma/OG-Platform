@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchHistoricRequest;
-import com.opengamma.financial.security.master.SecuritySearchHistoricResult;
+import com.opengamma.financial.security.master.SecurityHistoryRequest;
+import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -191,12 +191,12 @@ public class DbSecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public SecuritySearchHistoricResult searchHistoric(final SecuritySearchHistoricRequest request) {
+  public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getSecurityId(), "request.securityId");
     checkScheme(request.getSecurityId());
     
-    return getWorkers().getSearchHistoricWorker().searchHistoric(request);
+    return getWorkers().getHistoryWorker().history(request);
   }
 
   //-------------------------------------------------------------------------

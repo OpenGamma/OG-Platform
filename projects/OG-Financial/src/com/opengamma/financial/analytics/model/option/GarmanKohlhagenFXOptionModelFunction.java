@@ -38,13 +38,13 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final FXOptionSecurity fxOption = (FXOptionSecurity) option;
-    final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
+    final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     //TODO check call / put are actually the right way around
     final YieldAndDiscountCurve domesticCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getCallCurrency().getUniqueIdentifier()));
     final YieldAndDiscountCurve foreignCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getPutCurrency().getUniqueIdentifier()));
@@ -63,14 +63,14 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final FXOptionSecurity option = (FXOptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       requirements.add(getYieldCurveMarketDataRequirement(option.getCallCurrency().getUniqueIdentifier()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getPutCurrency().getUniqueIdentifier()));
       return requirements;

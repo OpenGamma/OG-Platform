@@ -37,7 +37,7 @@ public class ExtendedTrapezoidIntegrator1D extends Integrator1D<Double, Function
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new com.opengamma.math.ConvergenceException(e);
+      throw new MathException(e);
     }
   }
 }

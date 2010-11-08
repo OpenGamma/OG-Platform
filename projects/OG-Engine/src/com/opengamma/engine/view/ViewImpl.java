@@ -45,9 +45,10 @@ import com.opengamma.engine.view.permission.ViewPermissionException;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.tuple.Pair;
 
 // REVIEW jonathan 2010-09-13 -- rather than throwing an exception if the view hasn't been initialised when attempting
 // an operation that needs it to be, should we just initialise it / tear it down automatically based on clients being
@@ -267,13 +268,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public Set<ValueRequirement> getRequiredLiveData() {
     assertInitialized();
     ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
-    Set<ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
-
-    Set<ValueRequirement> returnValue = new HashSet<ValueRequirement>();
-    for (ValueSpecification requiredSpec : requiredSpecs) {
-      returnValue.add(requiredSpec.getRequirementSpecification());
-    }
-    return returnValue;
+    Map<ValueRequirement, ValueSpecification> requiredSpecs = viewEvaluationModel.getAllLiveDataRequirements();
+    return requiredSpecs.keySet();
   }
 
   @Override
@@ -535,9 +531,9 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   @Override
   public void valueChanged(ValueRequirement value) {
     ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
-    Set<ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+    Map<ValueRequirement, ValueSpecification> liveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     ViewRecalculationJob recalcJob = getRecalcJob();
-    if (recalcJob != null && liveDataRequirements.contains(valueSpecification)) {
+    if (recalcJob != null && liveDataRequirements.containsKey(valueSpecification)) {
       recalcJob.liveDataChanged();
     }
   }

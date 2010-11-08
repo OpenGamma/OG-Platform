@@ -48,7 +48,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final SecuritySource securityMaster = executionContext.getSecuritySource();
-    final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final Security underlying = securityMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
     final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
@@ -77,7 +77,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       // TODO: need most liquid options on same underlying OR all options around the strike + time to expiry of this
@@ -87,7 +87,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
       final SecuritySource securityMaster = context.getSecuritySource();
-      final Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      final Security underlying = securityMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       optionRequirements.add(getPriceRequirement(underlying.getUniqueIdentifier()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       // TODO: add the other stuff

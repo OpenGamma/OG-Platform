@@ -67,7 +67,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.setView(ViewTestUtils.getMockView());
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setConfigId(UniqueIdentifier.of("Test", "1", "1"));
-    doc.setVersionNumber(1);
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
@@ -135,8 +134,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ComputeNode node1 = _dbManager.getLocalComputeNode();
     assertNotNull(node1);
     assertEquals(_dbManager.getLocalComputeHost(), node1.getComputeHost());
-    assertEquals("UNDEFINED", node1.getConfigOid());
-    assertEquals(1, node1.getConfigVersion());
     assertEquals(InetAddress.getLocalHost().getHostName(), node1.getNodeName());
     
     // get
@@ -200,7 +197,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       LiveDataSnapshotEntry entry = snapshot.getEntry(spec, "field_name");
       assertNotNull(entry);
       assertEquals(snapshot, entry.getSnapshot());
-      assertEquals(spec, entry.getComputationTarget().toSpec());
+      assertEquals(spec, entry.getComputationTarget().toNormalizedSpec());
       assertEquals("field_name", entry.getField().getName());
       assertEquals(123.45, entry.getValue(), 0.000001);
     }
@@ -341,6 +338,18 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     // get
     RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
     assertEquals(valueName1, valueName2);
+  }
+  
+  @Test
+  public void getFunctionUniqueId() {
+    // create
+    FunctionUniqueId id1 = _dbManager.getFunctionUniqueId("test_id");
+    assertNotNull(id1);
+    assertEquals("test_id", id1.getUniqueId());
+    
+    // get
+    FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
+    assertEquals(id1, id2);
   }
     
 }

@@ -23,6 +23,12 @@ public class ParameterizedFunction {
   private final CompiledFunctionDefinition _function;
   private final FunctionParameters _parameters;
 
+  /**
+   * Creates a function/parameter pair.
+   * 
+   * @param function the function definition, not {@code null}
+   * @param parameters the function parameters, not {@code null}
+   */
   public ParameterizedFunction(CompiledFunctionDefinition function, FunctionParameters parameters) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(parameters, "parameters");
@@ -31,18 +37,38 @@ public class ParameterizedFunction {
     _parameters = parameters;
   }
 
+  /**
+   * Returns the unique identifier of the parameterized function, if set.
+   * 
+   * @return the unique identifier or {@code null} if none is set
+   */
   public String getUniqueId() {
     return _uniqueId;
   }
 
+  /**
+   * Sets the unique identifier of the parameterized function.
+   * 
+   * @param uniqueId the unique identifier
+   */
   public void setUniqueId(String uniqueId) {
     _uniqueId = uniqueId;
   }
 
+  /**
+   * Returns the function definition.
+   * 
+   * @return the function definition
+   */
   public CompiledFunctionDefinition getFunction() {
     return _function;
   }
 
+  /**
+   * Returns the function parameters.
+   * 
+   * @return the function parameters
+   */
   public FunctionParameters getParameters() {
     return _parameters;
   }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +45,7 @@ public class DBTool extends Task {
   
   private static final Logger s_logger = LoggerFactory.getLogger(DBTool.class);
 
-  private static final String DATABASE_FOLDER = "db";
+  private static final String DATABASE_INSTALL_FOLDER = "install/db";
   private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
@@ -68,8 +69,8 @@ public class DBTool extends Task {
   private String _testDbType;
   private String _testPropertiesDir;
   private Collection<String> _dbScriptDirs = new ArrayList<String>();
-  private String _targetVersion;
-  private String _createVersion;
+  private Integer _targetVersion;
+  private Integer _createVersion;
   
   // What to do it on - can change
   private DBDialect _dialect;
@@ -263,18 +264,26 @@ public class DBTool extends Task {
   }
   
   public void setCreateVersion(final String createVersion) {
+    _createVersion = Integer.parseInt(createVersion);
+  }
+  
+  public void setCreateVersion(final Integer createVersion) {
     _createVersion = createVersion;
   }
   
-  public String getCreateVersion() {
+  public Integer getCreateVersion() {
     return _createVersion;
   }
   
   public void setTargetVersion(final String targetVersion) {
+    _targetVersion = Integer.parseInt(targetVersion);
+  }
+  
+  public void setTargetVersion(final Integer targetVersion) {
     _targetVersion = targetVersion;
   }
   
-  public String getTargetVersion() {
+  public Integer getTargetVersion() {
     return _targetVersion;
   }
   
@@ -315,7 +324,7 @@ public class DBTool extends Task {
   }
   
   public static String getTestCatalogStatic() {
-    return "test_" + System.getProperty("user.name").replace('.','_');
+    return "test_" + System.getProperty("user.name").replace('.', '_');
   }
   
   public String getTestCatalog() {
@@ -414,15 +423,15 @@ public class DBTool extends Task {
     if (index < 0) {
       throw new IllegalArgumentException("Invalid creation or target version (" + getCreateVersion() + "/" + getTargetVersion() + ")");
     }
-    final String version = scriptDirs[index].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length());
-    if (getTargetVersion().compareTo(version) >= 0) {
-      if (getCreateVersion().compareTo(version) >= 0) {
+    final int version = Integer.parseInt(scriptDirs[index].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
+    if (getTargetVersion() >= version) {
+      if (getCreateVersion() >= version) {
         final File createFile = new File(scriptDirs[index], DATABASE_CREATE_SCRIPT);
         if (createFile.exists()) {
           s_logger.info("Creating DB version " + version);
           executeCreateScript(catalog, createFile);
           if (callback != null) {
-            callback.tablesCreatedOrUpgraded(version);
+            callback.tablesCreatedOrUpgraded(Integer.toString(version));
           }
           return;
         }
@@ -433,7 +442,7 @@ public class DBTool extends Task {
         s_logger.info("Upgrading to DB version " + version);
         executeCreateScript(catalog, upgradeFile);
         if (callback != null) {
-          callback.tablesCreatedOrUpgraded(version);
+          callback.tablesCreatedOrUpgraded(Integer.toString(version));
         }
         return;
       }
@@ -445,7 +454,7 @@ public class DBTool extends Task {
   private File[] getScriptDirs() {
     final List<File> scriptDirs = new ArrayList<File>();
     for (String scriptDir : _dbScriptDirs) {
-      final File file = new File(scriptDir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+      final File file = new File(scriptDir, DATABASE_INSTALL_FOLDER + File.separatorChar + _dialect.getDatabaseName());
       if (!file.exists()) {
         throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
       }
@@ -457,7 +466,19 @@ public class DBTool extends Task {
       });
       scriptDirs.addAll(Arrays.asList(scriptSubDirs));
     }
-    Collections.sort(scriptDirs);
+    Collections.sort(scriptDirs, new Comparator<File>() {
+      @Override
+      public int compare(File o1, File o2) {
+        String patchNo1 = o1.getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length());
+        Integer patchNo1Int = Integer.parseInt(patchNo1);
+        String patchNo2 = o2.getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length());
+        Integer patchNo2Int = Integer.parseInt(patchNo2);
+        return patchNo1Int.compareTo(patchNo2Int);
+      }
+    });
+    if (scriptDirs.isEmpty()) {
+      throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
+    }
     return scriptDirs.toArray(new File[0]);
   }
   

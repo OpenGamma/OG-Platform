@@ -20,8 +20,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.LogOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -58,7 +59,7 @@ public class LogOptionModelTest {
   }
 
   private StandardOptionDataBundle getBundle(final double sigma) {
-    return new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(sigma), SPOT, DATE);
+    return new StandardOptionDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), SPOT, DATE);
   }
 
   private LogOptionDefinition getDefinition(final double strike) {

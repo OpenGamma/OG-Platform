@@ -13,9 +13,7 @@ import java.util.WeakHashMap;
 import org.springframework.jms.core.JmsTemplate;
 
 /**
- * 
- *
- * @author pietari
+ * Creates {@link JmsSender}'s.
  */
 public class JmsSenderFactory implements MarketDataSenderFactory {
   

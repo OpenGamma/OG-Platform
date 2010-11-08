@@ -21,6 +21,7 @@ public class RiskValue {
   private long _id;
   private int _calculationConfigurationId;
   private int _valueNameId;
+  private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
   private double _value;
@@ -49,6 +50,14 @@ public class RiskValue {
 
   public void setValueNameId(int valueNameId) {
     _valueNameId = valueNameId;
+  }
+  
+  public int getFunctionUniqueId() {
+    return _functionUniqueId;
+  }
+
+  public void setFunctionUniqueId(int functionUniqueId) {
+    _functionUniqueId = functionUniqueId;
   }
 
   public int getComputationTargetId() {
@@ -96,6 +105,7 @@ public class RiskValue {
     source.addValue("id", getId());   
     source.addValue("calculation_configuration_id", getCalculationConfigurationId());
     source.addValue("value_name_id", getValueNameId());
+    source.addValue("function_unique_id", getFunctionUniqueId());
     source.addValue("computation_target_id", getComputationTargetId());
     source.addValue("run_id", getRunId());
     source.addValue("value", getValue());
@@ -106,10 +116,10 @@ public class RiskValue {
   
   public static String sqlInsertRisk() {
     return "INSERT INTO rsk_value " +
-              "(id, calculation_configuration_id, value_name_id, computation_target_id, run_id, value, " +
+              "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, run_id, value, " +
               "eval_instant, compute_node_id) " +
             "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :computation_target_id, :run_id, :value," +
+              "(:id, :calculation_configuration_id, :value_name_id, :function_unique_id, :computation_target_id, :run_id, :value," +
               ":eval_instant, :compute_node_id)";
   }
   
@@ -134,6 +144,7 @@ public class RiskValue {
       riskValue.setId(rs.getLong("id"));
       riskValue.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
       riskValue.setValueNameId(rs.getInt("value_name_id"));
+      riskValue.setFunctionUniqueId(rs.getInt("function_unique_id"));
       riskValue.setComputationTargetId(rs.getInt("computation_target_id"));
       riskValue.setRunId(rs.getInt("run_id"));
       riskValue.setValue(rs.getDouble("value"));

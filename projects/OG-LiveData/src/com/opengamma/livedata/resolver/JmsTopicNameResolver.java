@@ -9,7 +9,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 
 /**
- * 
+ * Produces a JMS topic name where to send market data.  
  *
  */
 public interface JmsTopicNameResolver {
@@ -18,10 +18,12 @@ public interface JmsTopicNameResolver {
   String SEPARATOR = ".";
   
   /**
-   * @param marketDataUniqueId What market data the server is going to publish
-   * @param normalizationRule What normalization rule will be applied to the raw market data
-   * @return Must not return null.
-   * @throws IllegalArgumentException If input data is invalid
+   * Gets a JMS topic name.
+   * 
+   * @param marketDataUniqueId what market data the server is going to publish
+   * @param normalizationRule what normalization rule will be applied to the raw market data
+   * @return must not return null.
+   * @throws IllegalArgumentException if input data is invalid
    */
   String resolve(Identifier marketDataUniqueId, NormalizationRuleSet normalizationRule);
 

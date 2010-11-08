@@ -91,7 +91,12 @@
 		<mkdir dir="${docs.dir}/javadoc" />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
-			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
+			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
+          <link href="http://download.oracle.com/javase/6/docs/api/" />
+          <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+          <link href="https://jsr-310.dev.java.net/nonav/doc-2010-06-22/" />
+          <link href="http://joda-beans.sourceforge.net/apidocs/" />
+	    </javadoc>
 	</target>
 	
 	<target name="javadoc-copyup" depends="load-ivy" description="copies appropriate files up to top level"/>
@@ -328,8 +333,12 @@
 	</target>
 
 	<target name="clean-build" description="--> clean the project build files">
-		<delete includeemptydirs="true" dir="${build.dir}" />
+		<mkdir dir="${build.dir}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${build.dir}" includes="**/*" excludes="bootstrap/*" />
+		</delete>
 		<delete includeemptydirs="true" dir="${tests.classes.dir}" />
+        <delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
 	
 	<target name="clean-dist" description="--> clean the project distribution files">

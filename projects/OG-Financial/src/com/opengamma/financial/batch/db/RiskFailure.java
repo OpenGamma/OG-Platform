@@ -18,6 +18,7 @@ public class RiskFailure {
   private long _id;
   private int _calculationConfigurationId;
   private int _valueNameId;
+  private int _functionUniqueId;
   private int _computationTargetId;
   private int _runId;
   private Date _evalInstant;
@@ -47,6 +48,14 @@ public class RiskFailure {
     _valueNameId = valueNameId;
   }
   
+  public int getFunctionUniqueId() {
+    return _functionUniqueId;
+  }
+
+  public void setFunctionUniqueId(int functionUniqueId) {
+    _functionUniqueId = functionUniqueId;
+  }
+
   public int getComputationTargetId() {
     return _computationTargetId;
   }
@@ -84,6 +93,7 @@ public class RiskFailure {
     source.addValue("id", getId());   
     source.addValue("calculation_configuration_id", getCalculationConfigurationId());
     source.addValue("value_name_id", getValueNameId());
+    source.addValue("function_unique_id", getFunctionUniqueId());
     source.addValue("computation_target_id", getComputationTargetId());
     source.addValue("run_id", getRunId());
     source.addValue("eval_instant", getEvalInstant());
@@ -97,10 +107,10 @@ public class RiskFailure {
   
   public static String sqlInsertRiskFailure() {
     return "INSERT INTO rsk_failure " +
-              "(id, calculation_configuration_id, value_name_id, computation_target_id, " +
+              "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, " +
               "run_id, eval_instant, compute_node_id) " +
             "VALUES " +
-              "(:id, :calculation_configuration_id, :value_name_id, :computation_target_id, " +
+              "(:id, :calculation_configuration_id, :value_name_id, :function_unique_id, :computation_target_id, " +
               ":run_id, :eval_instant, :compute_node_id)";
   }
   

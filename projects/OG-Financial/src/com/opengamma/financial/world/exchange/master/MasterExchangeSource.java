@@ -8,10 +8,12 @@ package com.opengamma.financial.world.exchange.master;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
@@ -77,22 +79,74 @@ public class MasterExchangeSource implements ExchangeSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying exchange master.
+   * 
+   * @return the exchange master, not null
+   */
+  public ExchangeMaster getExchangeMaster() {
+    return _exchangeMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
+  }
+
+  /**
+   * Gets the instant that the data should be corrected to.
+   * 
+   * @return the instant that the data should be corrected to, null for latest correction
+   */
+  public Instant getCorrectedToInstant() {
+    return _correctedToInstant;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public Exchange getSingleExchange(Identifier identifier) {
-    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
-    searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
-    searchRequest.setCorrectedToInstant(_correctedToInstant);
-    searchRequest.setFullDetail(true);
-    return _exchangeMaster.searchExchanges(searchRequest).getSingleExchange();
+  public ManageableExchange getExchange(UniqueIdentifier uid) {
+    try {
+      return getExchangeMaster().get(uid).getExchange();
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
   }
 
   @Override
-  public Exchange getSingleExchange(IdentifierBundle identifiers) {
-    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
+  public ManageableExchange getSingleExchange(Identifier identifier) {
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
+    searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
     searchRequest.setFullDetail(true);
-    return _exchangeMaster.searchExchanges(searchRequest).getSingleExchange();
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
+  }
+
+  @Override
+  public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
+    searchRequest.setPagingRequest(PagingRequest.ONE);
+    searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
+    searchRequest.setCorrectedToInstant(_correctedToInstant);
+    searchRequest.setFullDetail(true);
+    return getExchangeMaster().search(searchRequest).getSingleExchange();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterExchangeSource[" + getExchangeMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    if (_versionAsOfInstant != null) {
+      str += ",correctedTo=" + _correctedToInstant;
+    }
+    return str + "]";
   }
 
 }

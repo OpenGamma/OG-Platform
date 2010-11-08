@@ -19,21 +19,58 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public interface ViewResultModel {
-  
+
+  /**
+   * Returns the name of the view this contains results for.
+   * 
+   * @return the view name
+   */
   String getViewName();
 
+  /**
+   * Returns the snapshot time at which live data values were taken for this result.
+   * 
+   * @return the snapshot time
+   */
   Instant getValuationTime();
 
+  /**
+   * Returns the time at which these results became available.
+   * 
+   * @return the time at which the results were posted
+   */
   Instant getResultTimestamp();
 
+  /**
+   * Returns all of the target specifications for the terminal outputs.
+   * 
+   * @return the target specifications
+   */
   // REVIEW kirk 2009-12-31 -- This is intended to cross network boundaries,
   // so has to be at the level of specifications.
   Collection<ComputationTargetSpecification> getAllTargets();
 
+  /**
+   * Returns all of the calculation configuration names.
+   * 
+   * @return the calculation configuration names
+   */
   Collection<String> getCalculationConfigurationNames();
 
+  /**
+   * Returns the calculation result for a given configuration.
+   * 
+   * @param calcConfigurationName name of the configuration, not {@code null}
+   * @return the calculation results, or {@code null} if the configuration was not found
+   */
   ViewCalculationResultModel getCalculationResult(String calcConfigurationName);
 
+  /**
+   * Returns the calculation result for all configurations for a given target.
+   * 
+   * @param targetSpecification the target to query, not {@code null}
+   * @return the calculation results, or {@code null} if the target was not found
+   */
   ViewTargetResultModel getTargetResult(ComputationTargetSpecification targetSpecification);
 
 }

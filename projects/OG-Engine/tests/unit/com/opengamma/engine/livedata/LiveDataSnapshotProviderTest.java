@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.livedata.test.TestLiveDataClient;
 

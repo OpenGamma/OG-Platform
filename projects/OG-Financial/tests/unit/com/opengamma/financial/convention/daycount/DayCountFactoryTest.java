@@ -16,11 +16,14 @@ public class DayCountFactoryTest {
 
   @Test
   public void testDayCountFactory() {
-    DayCount a365f = new ActualThreeSixtyFiveFixedDayCount();
+    final DayCount u30_360 = new ThirtyUThreeSixty();
+    assertEquals(u30_360, DayCountFactory.INSTANCE.getDayCount("30/360"));
+    assertEquals(u30_360, DayCountFactory.INSTANCE.getDayCount("360/360"));
+    final DayCount a365f = new ActualThreeSixtyFive();
     assertEquals(a365f, DayCountFactory.INSTANCE.getDayCount("A/365F"));
-    DayCount oneone = new OneOneDayCount();
+    final DayCount oneone = new OneOneDayCount();
     assertEquals(oneone, DayCountFactory.INSTANCE.getDayCount("1/1"));
-    DayCount thirtyE = new ThirtyEThreeSixtyDayCount();
+    final DayCount thirtyE = new ThirtyEThreeSixty();
     assertEquals(thirtyE, DayCountFactory.INSTANCE.getDayCount("30E/360"));
     assertEquals(thirtyE, DayCountFactory.INSTANCE.getDayCount("EuroBond Basis"));
   }

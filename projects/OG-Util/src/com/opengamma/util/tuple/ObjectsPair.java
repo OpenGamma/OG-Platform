@@ -13,10 +13,14 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 /**
  * An immutable pair consisting of two {@code Object} elements.
  * <p>
- * The pair is only immutable if the objects that are added are immutable, or treated as such.
+ * Although the implementation is immutable, there is no restriction on the objects
+ * that may be stored. If mutable objects are stored in the pair, then the pair
+ * itself effectively becomes mutable.
+ * <p>
+ * This class is immutable and thread-safe if the stored objects are immutable.
  *
- * @param <A> the first element type
- * @param <B> the second element type
+ * @param <A> the type of the first side of the pair
+ * @param <B> the type of the second side of the pair
  */
 public final class ObjectsPair<A, B> extends Pair<A, B> {
 
@@ -27,6 +31,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
 
   /**
    * Creates a pair inferring the types.
+   * 
    * @param <A> the first element type
    * @param <B> the second element type
    * @param first  the first element, may be null
@@ -39,6 +44,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
 
   /**
    * Constructs a pair.
+   * 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    */

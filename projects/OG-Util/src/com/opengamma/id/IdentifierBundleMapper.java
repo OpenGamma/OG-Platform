@@ -15,26 +15,40 @@ import com.google.common.collect.Multimap;
 
 /**
  * A class to manage Identifier, IdentifierBundle and UniqueIdentifier references to generic objects.
- * The uniqueIdScheme in the constructor is used to construct monotonically increasing UniqueIdentifier
- * values associated with each object put into the map.
+ * <p>
+ * This is an optimized data structure for storing multiple different references to the same object.
+ * The mapper also creates the unique identifier using the specified scheme.
+ * <p>
+ * This class is mutable and thread-safe via synchronization.
+ * 
  * @param <T> the type of the object being referred to by the Identifiers
  */
 public class IdentifierBundleMapper<T> {
-  private Multimap<Identifier, T> _toMap = HashMultimap.create();
-  private Multimap<T, Identifier> _fromMap = HashMultimap.create();
-  private BiMap<UniqueIdentifier, T> _uniqueIdMap = HashBiMap.create();
+
+  private final Multimap<Identifier, T> _toMap = HashMultimap.create();
+  private final Multimap<T, Identifier> _fromMap = HashMultimap.create();
+  private final BiMap<UniqueIdentifier, T> _uniqueIdMap = HashBiMap.create();
   private final String _uniqueIdScheme;
-  private UniqueIdentifierSupplier _idSupplier;
-  
+  private final UniqueIdentifierSupplier _idSupplier;
+
   /**
-   * Constructor taking the name of the scheme to use for the unique ids that this class generates.  No
-   * @param uniqueIdScheme the scheme to use for the automatically allocated unique ids
+   * Constructor taking the name of the scheme to use for the unique identifiers that this class generates.
+   * 
+   * @param uniqueIdScheme  the scheme to use for the automatically allocated unique identifiers
    */
   public IdentifierBundleMapper(String uniqueIdScheme) {
     _uniqueIdScheme = uniqueIdScheme;
     _idSupplier = new UniqueIdentifierSupplier(_uniqueIdScheme);
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a mapping from a bundle to an object.
+   * 
+   * @param bundle  the bundle that the object is referred to as, not null
+   * @param obj  the object being referred to, not null
+   * @return the created unique identifier, not null
+   */
   public synchronized UniqueIdentifier add(IdentifierBundle bundle, T obj) {
     _fromMap.putAll(obj, bundle.getIdentifiers());
     for (Identifier identifier : bundle.getIdentifiers()) {
@@ -48,8 +62,18 @@ public class IdentifierBundleMapper<T> {
       return uniqueId;
     }
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets those objects which match the specified bundle.
+   * <p>
+   * Note that this method erroneously treats a bundle as a collection of individual identifiers.
+   * 
+   * @param bundle  the bundle to search for, not null
+   * @return the matching objects, not null
+   */
   public Collection<T> get(IdentifierBundle bundle) {
+    // TODO: semantics are wrong
     Collection<T> results = new HashSet<T>();
     for (Identifier identifier : bundle) {
       if (_toMap.containsKey(identifier)) {
@@ -58,20 +82,46 @@ public class IdentifierBundleMapper<T> {
     }
     return results;
   }
-  
+
+  /**
+   * Gets those objects which match the specified bundle.
+   * 
+   * @param identifier  the identifier to search for, not null
+   * @return the matching objects, not null
+   */
   public Collection<T> get(Identifier identifier) {
     return _toMap.get(identifier);
   }
-  
+
+  /**
+   * Gets those objects which match the specified unique identifier.
+   * 
+   * @param uid  the unique identifier to search for, not null
+   * @return the matching objects, not null
+   */
   public T get(UniqueIdentifier uid) {
     return _uniqueIdMap.get(uid);
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the bundle of identifiers associated with the object.
+   * 
+   * @param obj  the object to search for, not null
+   * @return the matching bundle, not null
+   */
   public IdentifierBundle getIdentifierBundle(T obj) {
-    return new IdentifierBundle(_fromMap.get(obj));
+    return IdentifierBundle.of(_fromMap.get(obj));
   }
-  
+
+  /**
+   * Gets the unique identifier associated with the object.
+   * 
+   * @param obj  the object to search for, not null
+   * @return the matching unique identifier, not null
+   */
   public UniqueIdentifier getUniqueIdentifier(T obj) {
     return _uniqueIdMap.inverse().get(obj);
   }
+
 }

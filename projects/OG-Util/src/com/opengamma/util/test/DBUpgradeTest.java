@@ -56,7 +56,7 @@ abstract public class DBUpgradeTest extends DBTest {
        * System.out.println(comparison.getFirst() + " found:");
        * System.out.println(comparison.getThird());
        */
-      assertEquals (comparison.getFirst (), comparison.getSecond (), comparison.getThird ());
+      assertEquals(getDatabaseType() + ": " + comparison.getFirst (), comparison.getSecond (), comparison.getThird ());
     }
   }
   

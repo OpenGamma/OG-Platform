@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import org.apache.commons.math.MathException;
 import org.apache.commons.math.special.Gamma;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,8 +50,8 @@ public class IncompleteGammaFunction extends Function1D<Double, Double> {
   public Double evaluate(final Double x) {
     try {
       return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
-    } catch (final MathException e) {
-      throw new ConvergenceException(e);
+    } catch (final org.apache.commons.math.MathException e) {
+      throw new MathException(e);
     }
   }
 

@@ -8,7 +8,7 @@ package com.opengamma.livedata.entitlement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.security.user.User;
@@ -16,14 +16,14 @@ import com.opengamma.security.user.UserManager;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This class checks user permissions against a user database (as represented by
+ * Checks user permissions against a user database (as represented by
  * {@link com.opengamma.security.user.UserManager}).
  * <p>
  * For access to be granted, the user must have a permission to the JMS topic
  * name, with dots in the name replaced by slashes.  
  * <p>
- * Say {@link #isEntitled(String, DistributionSpecification)} is called with a
- * <code>DistributionSpecification</code> with JMS topic name LiveData.Reuters.AAPL.O.
+ * Say {@link #isEntitled(UserPrincipal, DistributionSpecification)} is called with a
+ * {@link DistributionSpecification} with JMS topic name LiveData.Reuters.AAPL.O.
  * If the user for example has <code>Authority</code>
  * LiveData/Reuters/&#42;, access is granted. But if the user has no
  * compatible <code>Authority</code>, access is denied.

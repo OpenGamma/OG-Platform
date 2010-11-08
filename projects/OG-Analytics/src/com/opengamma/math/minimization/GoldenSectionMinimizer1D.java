@@ -8,7 +8,7 @@ package com.opengamma.math.minimization;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -56,7 +56,7 @@ public class GoldenSectionMinimizer1D implements ScalarMinimizer {
       }
       i++;
       if (i > MAX_ITER) {
-        throw new ConvergenceException("Could not find minimum: this should not happen because minimum should have been successfully bracketted");
+        throw new MathException("Could not find minimum: this should not happen because minimum should have been successfully bracketted");
       }
     }
     if (f1 < f2) {

@@ -19,7 +19,7 @@ public final class SecurityMasterServiceNames {
    */
   public static final String SECURITYMASTER_SEARCH = "search";
   /**
-   * For searchHistoric (GET).
+   * For history (GET).
    */
   public static final String SECURITYMASTER_HISTORIC = "historic";
 

@@ -91,6 +91,16 @@ public final class PostgresDialect extends AbstractDBDialect {
       "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
+  
+  @Override
+  public String getAllViewsSQL(String catalog, String schema) {
+    if (schema == null) {
+      schema = POSTGRES_DEFAULT_SCHEMA;
+    }
+    String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'VIEW'";
+    return sql;
+  }
 
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {

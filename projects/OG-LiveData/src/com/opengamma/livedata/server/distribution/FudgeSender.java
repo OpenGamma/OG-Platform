@@ -12,9 +12,9 @@ import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A simple implementation of {@link MarketDataSender} that is useful in tests. 
- *
- * @author kirk
+ * A simple implementation of {@link MarketDataSender} that sends
+ * market data to a {@link FudgeMessageSender}. 
+ * Useful in tests. 
  */
 public class FudgeSender implements MarketDataSender {
   private final FudgeMessageSender _fudgeMessageSender;

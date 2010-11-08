@@ -42,7 +42,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -72,9 +72,9 @@ import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.world.holiday.HolidaySource;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -156,7 +156,7 @@ public class BatchJob {
   /**
    * Used to load a ViewDefinition (whose name will be given on the command line)
    */
-  private ConfigSource _configSource;
+  private MasterConfigSource _configSource;
 
   /**
    * Used to load Functions (needed for building the dependency graph)
@@ -316,6 +316,10 @@ public class BatchJob {
   public void setViewDateTime(String viewDateTime) {
     _viewDateTime = parseDateTime(viewDateTime);
   }
+  
+  public void setViewDateTime(OffsetDateTime viewDateTime) {
+    _viewDateTime = viewDateTime;
+  }
 
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
     return getView().getDefinition().getAllCalculationConfigurations();
@@ -333,8 +337,8 @@ public class BatchJob {
     return _viewDefinitionConfig.getConfigId().getValue();
   }
 
-  public int getViewVersion() {
-    return _viewDefinitionConfig.getVersionNumber();
+  public String getViewVersion() {
+    return _viewDefinitionConfig.getConfigId().getVersion();
   }
 
   public boolean isForceNewRun() {
@@ -384,11 +388,11 @@ public class BatchJob {
     return getPositionMasterAsViewedAtTime(); // assume this for now
   }
 
-  public ConfigSource getConfigSource() {
+  public MasterConfigSource getConfigSource() {
     return _configSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(MasterConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -502,14 +506,6 @@ public class BatchJob {
     _runs.add(run);
   }
 
-  private OffsetDateTime getLastValuationTime() {
-    if (getRuns().isEmpty()) {
-      throw new IllegalStateException("No runs defined");
-    }
-    BatchJobRun lastRun = getRuns().get(getRuns().size() - 1);
-    return lastRun.getValuationTime();
-  }
-
   // --------------------------------------------------------------------------
 
   public InMemoryLKVSnapshotProvider getSnapshotProvider(BatchJobRun run) {
@@ -551,13 +547,13 @@ public class BatchJob {
   // --------------------------------------------------------------------------
 
   public void createViewDefinition() {
-
+    
     if (getViewName() == null) {
       throw new IllegalStateException("Please specify view name.");
     }
 
     if (_viewDateTime == null) {
-      _viewDateTime = getLastValuationTime();
+      _viewDateTime = getCreationTime().toOffsetDateTime();
     }
     
     if (_configSource == null) {
@@ -592,6 +588,8 @@ public class BatchJob {
     
     // this needs to be fixed, at the moment because of this line you can't run multiple days in parallel
     getFunctionCompilationService().getFunctionCompilationContext().setSecuritySource(securitySource);
+    
+    getFunctionCompilationService().initialize();
 
     DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
@@ -622,7 +620,7 @@ public class BatchJob {
    * Finds the configuration.
    */
   private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
-    ConfigDocument<ViewDefinition> doc = _configSource.getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
+    ConfigDocument<ViewDefinition> doc = getConfigSource().getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
     if (doc == null) {
       throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
           _viewDateTime.toInstant() + " in config db");
@@ -638,10 +636,14 @@ public class BatchJob {
     options.addOption("observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
     options.addOption("observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
     options.addOption("valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
-        + "is given, the system time zone is used. Default - system clock on observation date.");
+        + "is given, the system time zone is used. Default - system clock on observation date. " 
+        + "Note that this default is not good enough for repeatable runs in a " 
+        + "production environment.");
 
     options.addOption("view", true, "View name in configuration database. You must specify this.");
-    options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. Default - same as valuationtime.");
+    options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. " +
+        "Default - system clock. Note that this default is not good enough for repeatable runs in a " +
+        "production environment.");
 
     options.addOption("snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
     options.addOption("snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
@@ -743,7 +745,7 @@ public class BatchJob {
           if (runDate.getDayOfWeek() == DayOfWeek.SATURDAY || runDate.getDayOfWeek() == DayOfWeek.SUNDAY) { 
             whyNotRunReason = "this day is a weekend"; 
           } else {
-            boolean isHoliday = getHolidaySource().isHoliday(getHolidayCurrency(), runDate);
+            boolean isHoliday = getHolidaySource().isHoliday(runDate, getHolidayCurrency());
             if (isHoliday) {
               whyNotRunReason = "this day is a holiday";
             }
@@ -775,6 +777,7 @@ public class BatchJob {
       try {
         s_logger.info("Running {}", run);
   
+        createViewDefinition();
         createView(run);
   
         _batchDbManager.startBatch(run);
@@ -787,7 +790,7 @@ public class BatchJob {
       
       } catch (Exception e) {
         run.setFailed(true);
-        s_logger.error("Failed " + run, e);                        
+        s_logger.error("Failed to run " + run, e);                        
       }
     }
   }
@@ -815,14 +818,6 @@ public class BatchJob {
       System.exit(-1);
     }
 
-    try {
-      job.createViewDefinition();
-    } catch (Exception e) {
-      s_logger.error("Failed to run batch", e);
-      usage();
-      System.exit(-1);
-    }
-    
     job.execute();
 
     boolean failed = false;
@@ -833,8 +828,10 @@ public class BatchJob {
     }
     
     if (failed) {
+      s_logger.info("Batch failed.");
       System.exit(-1);
     } else {
+      s_logger.info("Batch succeeded.");
       System.exit(0);
     }
   }

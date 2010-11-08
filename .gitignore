@@ -1,5 +1,5 @@
 /db/
-derby.log
+*.log
 projects/Fudge-Java/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
@@ -10,3 +10,5 @@ repository/
 ivy/
 bootstrap/
 tests/output/
+docs/
+lib/

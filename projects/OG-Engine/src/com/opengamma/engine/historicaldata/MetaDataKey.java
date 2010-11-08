@@ -20,13 +20,15 @@ import com.opengamma.id.IdentifierBundle;
   private final String _dataProvider;
   private final String _field;
   private final LocalDate _currentDate;
+  private final String _configName;
 
-  public MetaDataKey(LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
+  public MetaDataKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
     _dsids = dsids;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _field = field;
     _currentDate = currentDate;
+    _configName = configName;
   }
 
   @Override
@@ -45,7 +47,8 @@ import com.opengamma.id.IdentifierBundle;
           ObjectUtils.equals(_dsids, _dsids) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
           ObjectUtils.equals(_dataSource, other._dataSource) &&
-          ObjectUtils.equals(_currentDate, other._currentDate);
+          ObjectUtils.equals(_currentDate, other._currentDate) &&
+          ObjectUtils.equals(_configName, other._configName);
     }
     return false;
   }

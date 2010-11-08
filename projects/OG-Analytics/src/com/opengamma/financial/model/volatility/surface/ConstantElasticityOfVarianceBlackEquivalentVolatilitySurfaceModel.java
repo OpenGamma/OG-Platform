@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.definition.ConstantElasticityOfVarianceModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,7 +39,7 @@ public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel i
     final double f = 0.5 * (forward + k);
     final double beta1 = 1 - beta;
     final double sigmaAdjusted = sigma * (1 + beta1 * (2 + beta) * (f - k) * (f - k) / 24 / f / f + beta1 * beta1 * sigma * sigma * t / 24 / Math.pow(f, 2 * beta1)) / Math.pow(f, beta1);
-    return new ConstantVolatilitySurface(sigmaAdjusted);
+    return new VolatilitySurface(ConstantDoublesSurface.from(sigmaAdjusted));
   }
 
 }

@@ -9,17 +9,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This LiveDataEntitlementChecker maps the given LiveDataSpecification
+ * A base class that makes it easier to
+ * create a rich, complex entitlement check.
+ * <p>
+ * The class maps {@link LiveDataSpecification}
  * (which contains unresolved information, i.e., just IDs) to
- * a DistributionSpecification (which contains resolved information,
- * i.e., IDs mapped to actual objects). It is then easier to
- * make a rich, complex entitlement check.
+ * {@link DistributionSpecification} (which contains resolved information,
+ * i.e., IDs mapped to actual objects). This additional information can be used
+ * to create a richer entitlement check. 
  */
 public abstract class DistributionSpecEntitlementChecker extends AbstractEntitlementChecker {
   
@@ -29,7 +32,7 @@ public abstract class DistributionSpecEntitlementChecker extends AbstractEntitle
   
   /**
    * 
-   * @param resolver Used to get a DistributionSpecification from a LiveDataSpecification
+   * @param resolver used to get a {@code DistributionSpecification} from a {@code LiveDataSpecification}
    */
   public DistributionSpecEntitlementChecker(DistributionSpecificationResolver resolver) {
     ArgumentChecker.notNull(resolver, "Distribution Specification Resolver");
@@ -49,11 +52,11 @@ public abstract class DistributionSpecEntitlementChecker extends AbstractEntitle
   }
   
   /**
-   * Override this method in your subclasses
+   * Override this method in your subclasses.
    * 
-   * @param user User requesting access to market data
-   * @param distributionSpecification Market data that the user requested
-   * @return Whether the user is entitled to the given market data
+   * @param user user requesting access to market data
+   * @param distributionSpecification market data that the user requested
+   * @return true if the user is entitled to the given market data, false otherwise
    */
   public abstract boolean isEntitled(UserPrincipal user, DistributionSpecification distributionSpecification);
 

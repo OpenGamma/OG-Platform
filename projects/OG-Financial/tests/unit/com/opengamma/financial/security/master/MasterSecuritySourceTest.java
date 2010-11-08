@@ -24,7 +24,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Test MasterPositionSource.
+ * Test MasterSecuritySource.
  */
 public class MasterSecuritySourceTest {
 
@@ -52,16 +52,16 @@ public class MasterSecuritySourceTest {
   public void test_getSecurityByUID() throws Exception {
     Instant now = Instant.nowSystemClock();
     SecurityMaster mock = mock(SecurityMaster.class);
-    SecuritySearchHistoricRequest request = new SecuritySearchHistoricRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
+    SecurityHistoryRequest request = new SecurityHistoryRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
     request.setFullDetail(true);
     DefaultSecurity security = new DefaultSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
-    SecuritySearchHistoricResult result = new SecuritySearchHistoricResult();
+    SecurityHistoryResult result = new SecurityHistoryResult();
     result.getDocuments().add(new SecurityDocument(security));
     
-    when(mock.searchHistoric(request)).thenReturn(result);
+    when(mock.history(request)).thenReturn(result);
     MasterSecuritySource test = new MasterSecuritySource(mock, now.minusSeconds(2), now.minusSeconds(1));
     Security testResult = test.getSecurity(UID);
-    verify(mock, times(1)).searchHistoric(request);
+    verify(mock, times(1)).history(request);
     
     assertEquals(UID, testResult.getUniqueIdentifier());
     assertEquals("Test", testResult.getName());

@@ -13,9 +13,9 @@ import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -70,11 +70,21 @@ public class MasterConfigSource implements ConfigSource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying master.
-   * @return the underlying master, not null
+   * Gets the underlying config master.
+   * 
+   * @return the config master, not null
    */
   public ConfigMaster getMaster() {
     return _configMaster;
+  }
+
+  /**
+   * Gets the version instant to retrieve.
+   * 
+   * @return the version instant to retrieve, null for latest version
+   */
+  public Instant getVersionAsOfInstant() {
+    return _versionAsOfInstant;
   }
 
   //-------------------------------------------------------------------------
@@ -94,26 +104,8 @@ public class MasterConfigSource implements ConfigSource {
 
   @Override
   public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uid, "uid");
-    if (_versionAsOfInstant != null) {
-      ConfigSearchHistoricRequest request = new ConfigSearchHistoricRequest(uid, _versionAsOfInstant);
-      ConfigSearchHistoricResult<T> result = _configMaster.typed(clazz).searchHistoric(request);
-      if (result.getDocuments().isEmpty()) {
-        return null;
-      }
-      if (uid.isVersioned() && uid.getVersion().equals(result.getFirstDocument().getConfigId().getVersion()) == false) {
-        return null;  // config found, but not matching the version we asked for
-      }
-      return result.getFirstValue();
-    } else {
-      // just want the latest (or version) asked for, so don't use the more costly historic search operation
-      try {
-        return _configMaster.typed(clazz).get(uid).getValue();
-      } catch (DataNotFoundException ex) {
-        return null;
-      }
-    }
+    ConfigDocument<T> doc = getDocument(clazz, uid);
+    return (doc != null ? doc.getValue() : null);
   }
 
   @Override
@@ -127,7 +119,50 @@ public class MasterConfigSource implements ConfigSource {
     return doc == null ? null : doc.getValue();
   }
 
-  @Override
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a configuration document by unique identifier.
+   * 
+   * @param <T>  the type of configuration element
+   * @param clazz  the configuration element type, not null
+   * @param uid  the unique identifier, not null
+   * @return the configuration document, null if not found
+   */
+  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueIdentifier uid) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(uid, "uid");
+    if (_versionAsOfInstant != null) {
+      ConfigHistoryRequest request = new ConfigHistoryRequest(uid, _versionAsOfInstant);
+      ConfigHistoryResult<T> result = _configMaster.typed(clazz).history(request);
+      if (result.getDocuments().isEmpty()) {
+        return null;
+      }
+      if (uid.isVersioned() && uid.getVersion().equals(result.getFirstDocument().getConfigId().getVersion()) == false) {
+        return null;  // config found, but not matching the version we asked for
+      }
+      return result.getFirstDocument();
+    } else {
+      // just want the latest (or version) asked for, so don't use the more costly historic search operation
+      try {
+        return _configMaster.typed(clazz).get(uid);
+      } catch (DataNotFoundException ex) {
+        return null;
+      }
+    }
+  }
+
+  /**
+   * Searches for a configuration document matching the specified name.
+   * <p>
+   * This will always return the version requested, ignoring any other version constraints
+   * of the implementation.
+   * 
+   * @param <T>  the type of configuration element
+   * @param clazz  the configuration element type, not null
+   * @param name  the element name to search for, wildcards allowed, not null
+   * @param versionAsOf  the version to fetch, null means latest
+   * @return the versioned configuration document matching the request, null if not found
+   */  
   public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
@@ -137,6 +172,16 @@ public class MasterConfigSource implements ConfigSource {
     request.setName(name);
     ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
     return searchResult.getFirstDocument();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    String str = "MasterConfigSource[" + getMaster();
+    if (_versionAsOfInstant != null) {
+      str += ",versionAsOf=" + _versionAsOfInstant;
+    }
+    return str + "]";
   }
 
 }

@@ -19,9 +19,8 @@ import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * Receives market data subscription requests
+ * from clients. 
  */
 public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionRequestReceiver.class);

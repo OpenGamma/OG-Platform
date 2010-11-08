@@ -5,14 +5,12 @@
  */
 package com.opengamma.util.timeseries.fast;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
+import com.opengamma.util.timeseries.ToStringHelper;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
@@ -229,23 +227,8 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
 //    return new ListYearOffsetObjectTimeSeries(timeZone, zeroDate, toFastMutableLongMillisDTS());
 //  }
   
+  @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getSimpleName());
-    sb.append("["); 
-    Iterator<Entry<FAST_DATE_T, T>> iterator = iterator();
-    while (iterator.hasNext()) {
-      Entry<FAST_DATE_T, T> next = iterator.next();
-      sb.append("(");
-      sb.append(next.getKey());
-      sb.append(", ");
-      sb.append(next.getValue());
-      sb.append(")");
-      if (iterator.hasNext()) {
-        sb.append(", ");
-      }
-    }
-    sb.append("]");
-    return sb.toString();
+    return ToStringHelper.toString(this);
   }
 }

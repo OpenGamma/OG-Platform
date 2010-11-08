@@ -15,7 +15,7 @@ import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.UniformInterfaceException;
 

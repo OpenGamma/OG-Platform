@@ -9,6 +9,7 @@ import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
@@ -16,7 +17,7 @@ import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
- * Creates a LiveDataClient that connects to JMS published data.
+ * Creates a {@link JmsLiveDataClient}.
  */
 public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> {
 

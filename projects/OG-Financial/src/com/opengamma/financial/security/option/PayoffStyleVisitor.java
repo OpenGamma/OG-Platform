@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 /**
- * Visitor for the PayoffStyle subclasses.
+ * Visitor for the {@code PayoffStyle} subclasses.
  * 
  * @param <T> visitor method return type
  */

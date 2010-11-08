@@ -85,8 +85,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   }
   
   @Override
-  public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
-    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
+  public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean exclusiveEnd) {
+    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd);
   }
 
   @Override

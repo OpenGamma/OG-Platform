@@ -9,21 +9,21 @@ import com.opengamma.engine.position.DelegatingPositionSource;
 import com.opengamma.engine.position.PositionSource;
 
 /**
- * Delegates between a {@link UserPositionSource} and a default {@link PositionSource}. Just a wrapper to aid
- * registration.
+ * Delegates between a user position source and a default.
+ * Just a wrapper to aid registration.
  */
 public class UserDelegatingPositionSource extends DelegatingPositionSource {
-  
+
   /**
-   * Constructs a new {@link UserDelegatingPositionSource}.
+   * Creates an instance combining a user position source with a default.
    * 
-   * @param defaultSource  the underlying {@link PositionSource}
-   * @param userScheme  the scheme of the user positions
-   * @param userSource  the {@link UserPositionSource}
+   * @param defaultSource  the default source to fall back to, not null
+   * @param userScheme  the scheme of the user positions, not null
+   * @param userSource  the user position source, not null
    */
   public UserDelegatingPositionSource(PositionSource defaultSource, String userScheme, PositionSource userSource) {
     super(defaultSource);
     registerDelegate(userScheme, userSource);
   }
-  
+
 }

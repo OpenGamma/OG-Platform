@@ -5,49 +5,98 @@
  */
 package com.opengamma.financial.world.region;
 
-import java.util.Comparator;
 import java.util.Set;
 
 import javax.time.calendar.TimeZone;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.Currency;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * General interface for Regions
+ * A region of the world.
+ * <p>
+ * Many aspects of business, algorithms and contracts are specific to a region.
+ * The region may be of any size, from a municipality to a super-national group.
  */
 public interface Region {
+
   /**
-   * Comparator for regions that orders by RegionType, and then by name.
+   * Gets the unique identifier of the region.
+   * 
+   * @return the unique identifier for this region entry, not null
    */
-  Comparator<Region> COMPARATOR = new Comparator<Region>() {
-    @Override
-    public int compare(Region r1, Region r2) {
-      int type = r1.getRegionType().compareTo(r2.getRegionType());
-      if (type != 0) { return type; }
-      int name = r1.getName().compareTo(r2.getName());
-      if (name != 0) { return name; }
-      if (r1.equals(r2)) {
-        return 0;
-      } else {
-        throw new OpenGammaRuntimeException("Non-unique name/region type present");
-      }
-    }
-  };
   UniqueIdentifier getUniqueIdentifier();
-  IdentifierBundle getIdentifiers();
+
+  /**
+   * Gets the classification of the region.
+   * 
+   * @return the classification of region, such as SUPER_NATIONAL or INDEPENDENT_STATE, not null
+   */
+  RegionClassification getClassification();
+
+  /**
+   * Gets the unique identifiers of the regions that this region is a member of.
+   * For example, a country might be a member of the World, UN, European Union and NATO.
+   * 
+   * @return the parent unique identifiers, null if this is the root entry
+   */
+  Set<UniqueIdentifier> getParentRegionIds();
+
+  /**
+   * Gets the short descriptive name of the region.
+   * 
+   * @return the name of the region, not null
+   */
   String getName();
-  RegionType getRegionType();
-  FudgeFieldContainer getDataUp();
-  FudgeFieldContainer getData();
-  Region getSuperRegion();
-  Set<Region> getSubRegions();
-  String getCountryISO2();
-  String getCurrencyISO3();
+
+  /**
+   * Gets the full descriptive name of the region.
+   * 
+   * @return the full name of the region, not null
+   */
+  String getFullName();
+
+  /**
+   * Gets the identifiers defining the region.
+   * <p>
+   * This will include the country, currency and time-zone.
+   * 
+   * @return the identifiers, null if not applicable
+   */
+  IdentifierBundle getIdentifiers();
+
+  /**
+   * Gets the country ISO code.
+   * 
+   * @return the 2 letter country code, null if not applicable
+   */
+  String getCountryISO();
+
+  /**
+   * Gets the currency.
+   * 
+   * @return the currency, null if not applicable
+   */
+  Currency getCurrency();
+
+  /**
+   * Gets the time-zone.
+   * For larger regions, there can be multiple time-zones, so this is only reliable
+   * for municipalities.
+   * 
+   * @return the time-zone, null if not applicable
+   */
   TimeZone getTimeZone();
+
+  /**
+   * Gets the extensible data store for additional information.
+   * Applications may store additional region based information here.
+   * 
+   * @return the additional data, not null
+   */
+  FlexiBean getData();
+
 }

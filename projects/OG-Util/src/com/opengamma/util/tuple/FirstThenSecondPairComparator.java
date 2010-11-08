@@ -16,6 +16,8 @@ import java.util.Comparator;
  * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> < y<sub>2</sub></i><br>
  * <p>
  * This comparator does not support {@code null} elements in the pair.
+ * <p>
+ * This class is immutable and thread-safe.
  *
  * @param <A> the first element type
  * @param <B> the second element type
@@ -25,7 +27,7 @@ public final class FirstThenSecondPairComparator<A extends Comparable<A>, B exte
   /**
    * Singleton instance that relies on both elements in the pair being {@link Comparable}.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static final Comparator<Pair<?, ?>> INSTANCE = new FirstThenSecondPairComparator();
 
   /**

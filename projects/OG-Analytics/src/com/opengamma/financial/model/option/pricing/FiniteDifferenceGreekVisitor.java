@@ -12,10 +12,10 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
@@ -57,11 +57,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitVega() {
-    final ZonedDateTime date = _data.getDate();
-    final double t = _definition.getTimeToExpiry(date);
-    final Double sigma = _data.getVolatility(t, _definition.getStrike());
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
     return getFirstDerivative(dataUp, dataDown);
@@ -194,11 +191,9 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitUltima() {
-    final double t = _definition.getTimeToExpiry(_data.getDate());
-    final double sigma = _data.getVolatility(t, _definition.getStrike());
-    final VolatilitySurface upUpSurface = new ConstantVolatilitySurface(sigma + 2 * EPS);
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upUpSurface = _data.getVolatilitySurface().withParallelShift(2 * EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUpUp = (S) _data.withVolatilitySurface(upUpSurface);
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
@@ -207,13 +202,11 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitVanna() {
-    final double t = _definition.getTimeToExpiry(_data.getDate());
-    final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp1Up2 = (S) _data.withSpot(sUp).withVolatilitySurface(upSurface);
     final S dataUp1Down2 = (S) _data.withSpot(sDown).withVolatilitySurface(upSurface);
     final S dataDown1Up2 = (S) _data.withSpot(sUp).withVolatilitySurface(downSurface);
@@ -226,9 +219,9 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(_data.getDate());
     final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double variance = sigma * sigma;
-    final VolatilitySurface upUpSurface = new ConstantVolatilitySurface(Math.sqrt(variance + 2 * EPS));
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
+    final VolatilitySurface upUpSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance + 2 * EPS)));
+    final VolatilitySurface upSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance + EPS)));
+    final VolatilitySurface downSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance - EPS)));
     final S dataUpUp = (S) _data.withVolatilitySurface(upUpSurface);
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
@@ -243,8 +236,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
+    final VolatilitySurface upSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance + EPS)));
+    final VolatilitySurface downSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance - EPS)));
     final S dataUp1Up2 = (S) _data.withVolatilitySurface(upSurface).withSpot(sUp);
     final S dataUp1Down2 = (S) _data.withVolatilitySurface(upSurface).withSpot(sDown);
     final S dataDown1Up2 = (S) _data.withVolatilitySurface(downSurface).withSpot(sUp);
@@ -257,8 +250,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(_data.getDate());
     final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double variance = sigma * sigma;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
+    final VolatilitySurface upSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance + EPS)));
+    final VolatilitySurface downSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance - EPS)));
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
     return getFirstDerivative(dataUp, dataDown);
@@ -269,8 +262,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(_data.getDate());
     final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double variance = sigma * sigma;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
+    final VolatilitySurface upSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance + EPS)));
+    final VolatilitySurface downSurface = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(variance - EPS)));
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
     return getSecondDerivative(dataUp, dataDown, _data);
@@ -280,9 +273,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   public Double visitVegaBleed() {
     final ZonedDateTime upDate = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), EPS);
     final ZonedDateTime downDate = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
-    final double sigma = _data.getVolatility(_definition.getTimeToExpiry(_data.getDate()), _definition.getStrike());
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp1Up2 = (S) _data.withVolatilitySurface(upSurface).withDate(upDate);
     final S dataUp1Down2 = (S) _data.withVolatilitySurface(upSurface).withDate(downDate);
     final S dataDown1Up2 = (S) _data.withVolatilitySurface(downSurface).withDate(upDate);
@@ -299,10 +291,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitVomma() {
-    final double t = _definition.getTimeToExpiry(_data.getDate());
-    final double sigma = _data.getVolatility(t, _definition.getStrike());
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown = (S) _data.withVolatilitySurface(downSurface);
     return getSecondDerivative(dataUp, dataDown, _data);
@@ -327,13 +317,11 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitZomma() {
-    final double t = _definition.getTimeToExpiry(_data.getDate());
-    final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp1Up1 = (S) _data.withSpot(sUp).withVolatilitySurface(upSurface);
     final S dataUp2 = (S) _data.withVolatilitySurface(upSurface);
     final S dataDown1Up2 = (S) _data.withSpot(sDown).withVolatilitySurface(upSurface);
@@ -350,13 +338,11 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitDVannaDVol() {
-    final double t = _definition.getTimeToExpiry(_data.getDate());
-    final double sigma = _data.getVolatility(t, _definition.getStrike());
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final VolatilitySurface upSurface = new ConstantVolatilitySurface(sigma + EPS);
-    final VolatilitySurface downSurface = new ConstantVolatilitySurface(sigma - EPS);
+    final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
+    final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp1Up1 = (S) _data.withVolatilitySurface(upSurface).withSpot(sUp);
     final S dataUp2 = (S) _data.withSpot(sUp);
     final S dataDown1Up2 = (S) _data.withVolatilitySurface(downSurface).withSpot(sUp);

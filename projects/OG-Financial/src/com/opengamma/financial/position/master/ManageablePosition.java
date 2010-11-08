@@ -70,7 +70,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     _quantity = quantity;
-    _securityKey = new IdentifierBundle(securityKey);
+    _securityKey = IdentifierBundle.of(securityKey);
   }
 
   /**

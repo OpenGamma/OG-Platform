@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -32,8 +32,8 @@ public class RelativeOutperformanceOptionDefinitionTest {
   private static final double B2 = 0.05;
   private static final double S1 = 100;
   private static final double S2 = 120;
-  private static final VolatilitySurface SIGMA1 = new ConstantVolatilitySurface(0.4);
-  private static final VolatilitySurface SIGMA2 = new ConstantVolatilitySurface(0.6);
+  private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
+  private static final VolatilitySurface SIGMA2 = new VolatilitySurface(ConstantDoublesSurface.from(0.6));
   private static final double RHO = 0;
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(R, B1, B2, SIGMA1, SIGMA2, S1, S2, RHO, DATE);
 

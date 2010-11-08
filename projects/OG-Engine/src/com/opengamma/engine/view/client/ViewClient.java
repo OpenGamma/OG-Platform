@@ -10,15 +10,27 @@ import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Represents a managed client of a specific view. Provides access to properties of the view, and adds client-oriented
- * functionality. This is the unit of external interaction for accessing computation results.
+ * Represents a managed client of a specific view in the context of a particular user. Provides access to properties of
+ * the view, and adds client-oriented functionality. This is the unit of external interaction for accessing computation
+ * results.
  * <p>
- * Always call {@link #close()} to allow resources associated with the managed view to be released when the client is
- * no longer required.
+ * Typically, a {@link ViewClient} will be created for each view in each instance of a client application. If the
+ * application requires asynchronous updates, it must set a full or delta result listener (or both) as required: any
+ * new computation results will be delivered through these listeners. The application may poll for the latest full
+ * result by calling {@link #getLatestResult()}.
+ * <p>
+ * The per-client flow of results is controlled through {@link #pauseLive()}, {@link #startLive()} and
+ * {@link #stopLive()}. Initially, results are stopped. A stopped client does not cause the underlying view to be
+ * computed, but other, active clients may keep the computation running. When results are paused, computation takes
+ * place but the results are incrementally batched to be delivered as a single, collapsed result when they are resumed.
+ * Use {@link #setLiveUpdatePeriod(long)} to throttle the frequency of updates exposed through this client.
+ * <p>
+ * Always call {@link #shutdown()} from any state to allow resources associated with the managed view to be released
+ * when the client is no longer required.
  */
 @PublicAPI
 public interface ViewClient {
@@ -26,7 +38,7 @@ public interface ViewClient {
   /**
    * Gets the unique identifier for the view client, to make it easier to refer to the view client externally.
    * 
-   * @return  the unique identifier, not null
+   * @return the unique identifier, not null
    */
   UniqueIdentifier getUniqueIdentifier();
   
@@ -50,7 +62,7 @@ public interface ViewClient {
    * flow restrictions being applied through this view client, so does not necessarily reflect the live state of the
    * view.
    * 
-   * @return  <code>true</code> if a computation result is available, <code>false</code> otherwise
+   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
    */
   boolean isResultAvailable();
   
@@ -58,7 +70,7 @@ public interface ViewClient {
    * Gets the full result from the last computation cycle. This is consistent with any data flow restrictions being
    * applied through this view client, so does not necessarily represent the live state of the view.
    *  
-   * @return  the latest result, or <code>null</code> if no result yet exists
+   * @return the latest result, or <code>null</code> if no result yet exists
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
@@ -80,7 +92,7 @@ public interface ViewClient {
   /**
    * Gets the state of this view client.
    * 
-   * @return  the state of this view client, not null
+   * @return the state of this view client, not null
    */
   ViewClientState getState();
   
@@ -119,7 +131,7 @@ public interface ViewClient {
   
   /**
    * Terminates this client, disconnecting it from any listeners and releasing any resources. This method <b>must</b>
-   * be called to avoid resource leaks. 
+   * be called to avoid resource leaks. A terminated client is no longer useful and must be discarded.
    */
   void shutdown();
   

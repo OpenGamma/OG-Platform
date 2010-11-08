@@ -71,7 +71,7 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on portfolios,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #historyPortfolioTree}.
    * 
    * @param document  the document, not null
    * @return the updated tree document, not null
@@ -97,25 +97,24 @@ public interface PositionMaster {
   void removePortfolioTree(final UniqueIdentifier uid);
 
   /**
-   * Searches for portfolio trees matching the specified search criteria.
+   * Queries the history of a single portfolio tree.
    * <p>
-   * The result will never contain positions, and may contain the node tree depending
-   * on the depth parameter in the request.
+   * The request must contain an object identifier to identify the portfolio tree.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the portfolio tree history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(PortfolioTreeSearchHistoricRequest request);
+  PortfolioTreeHistoryResult historyPortfolioTree(PortfolioTreeHistoryRequest request);
 
   /**
    * Corrects a portfolio tree in the data store.
    * <p>
    * A full position master will store detailed historic information on portfolios
    * and will support correction of each node.
-   * To update the node with a new version, use {@link #update}.
+   * To update the node with a new version, use {@link #updatePortfolioTree}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #historyPortfolioTree}.
    * <p>
    * The specified document must contain the portfolio tree and the portfolio unique identifier.
    * The unique identifier must specify the last correction of a specific version of the portfolio.
@@ -171,7 +170,7 @@ public interface PositionMaster {
    * <p>
    * A full position master will store detailed historic information on positions,
    * including a full version history.
-   * Older versions can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions can be accessed using a versioned identifier or {@link #historyPosition}.
    * 
    * @param document  the document, not null
    * @return the updated position document, not null
@@ -195,24 +194,24 @@ public interface PositionMaster {
   void removePosition(final UniqueIdentifier uid);
 
   /**
-   * Searches for positions matching the specified search criteria.
+   * Queries the history of a single position.
    * <p>
-   * The request must contain an object identifier that must not have a version.
+   * The request must contain an object identifier to identify the position.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param request  the history request, not null
+   * @return the position history, not null
    * @throws IllegalArgumentException if the request is invalid
    */
-  PositionSearchHistoricResult searchPositionHistoric(PositionSearchHistoricRequest request);
+  PositionHistoryResult historyPosition(PositionHistoryRequest request);
 
   /**
    * Corrects a position in the data store.
    * <p>
    * A full position master will store detailed historic information on positions
    * and will support correction of each position.
-   * To update the position with a new version, use {@link #update}.
+   * To update the position with a new version, use {@link #updatePosition}.
    * To correct a previously stored version, use this method.
-   * Older versions and corrections can be accessed using a versioned identifier or {@link #searchHistoric}.
+   * Older versions and corrections can be accessed using a versioned identifier or {@link #historyPosition}.
    * <p>
    * The specified document must contain the position and the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the position.

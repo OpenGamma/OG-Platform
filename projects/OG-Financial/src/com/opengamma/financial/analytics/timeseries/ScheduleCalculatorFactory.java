@@ -31,14 +31,18 @@ public class ScheduleCalculatorFactory {
   public static final String END_OF_MONTH = "EndOfMonth";
   /** Monthly on day */
   public static final String MONTHLY_ON_DAY = "MonthlyOnDay";
-  /** Yearly */
-  public static final String YEARLY = "Yearly";
+  /** Quarterly */
+  public static final String QUARTERLY = "Quarterly";
+  /** Semi-annual */
+  public static final String SEMI_ANNUAL = "SemiAnnual";
+  /** Annual */
+  public static final String ANNUAL = "Annual";
   /** First of year */
   public static final String FIRST_OF_YEAR = "FirstOfYear";
   /** End of year */
   public static final String END_OF_YEAR = "EndOfYear";
-  /** Yearly on day of month */
-  public static final String YEAR_ON_DAY_OF_MONTH = "YearlyOnDayOfMonth";
+  /** Annual on day and month */
+  public static final String ANNUAL_ON_DAY_AND_MONTH = "AnnualOnDayAndMonth";
   /** Daily calculator */
   public static final DailyScheduleCalculator DAILY_CALCULATOR = new DailyScheduleCalculator();
   /** Weekly calculator */
@@ -49,8 +53,12 @@ public class ScheduleCalculatorFactory {
   public static final FirstOfMonthScheduleCalculator FIRST_OF_MONTH_CALCULATOR = new FirstOfMonthScheduleCalculator();
   /** End of month calculator */
   public static final EndOfMonthScheduleCalculator END_OF_MONTH_CALCULATOR = new EndOfMonthScheduleCalculator();
-  /** Yearly calculator */
-  public static final YearlyScheduleCalculator YEARLY_CALCULATOR = new YearlyScheduleCalculator();
+  /** Quarterly calculator */
+  public static final QuarterlyScheduleCalculator QUARTERLY_CALCULATOR = new QuarterlyScheduleCalculator();
+  /** Semi-annual calculator */
+  public static final SemiAnnualScheduleCalculator SEMI_ANNUAL_CALCULATOR = new SemiAnnualScheduleCalculator();
+  /** Annual calculator */
+  public static final AnnualScheduleCalculator ANNUAL_CALCULATOR = new AnnualScheduleCalculator();
   /** First of year calculator */
   public static final FirstOfYearScheduleCalculator FIRST_OF_YEAR_CALCULATOR = new FirstOfYearScheduleCalculator();
   /** End of year calculator */
@@ -66,10 +74,12 @@ public class ScheduleCalculatorFactory {
     s_instances.put(FIRST_OF_YEAR, FIRST_OF_YEAR_CALCULATOR);
     s_instances.put(MONTHLY, MONTHLY_CALCULATOR);
     s_instances.put(WEEKLY, WEEKLY_CALCULATOR);
-    s_instances.put(YEARLY, YEARLY_CALCULATOR);
+    s_instances.put(ANNUAL, ANNUAL_CALCULATOR);
+    s_instances.put(QUARTERLY, QUARTERLY_CALCULATOR);
+    s_instances.put(SEMI_ANNUAL, SEMI_ANNUAL_CALCULATOR);
   }
 
-  public static Schedule getSchedule(final String name) {
+  public static Schedule getScheduleCalculator(final String name) {
     final Schedule schedule = s_instances.get(name);
     if (schedule == null) {
       throw new IllegalArgumentException("Could not get schedule calculator with name " + name);
@@ -77,7 +87,7 @@ public class ScheduleCalculatorFactory {
     return schedule;
   }
 
-  public static Schedule getSchedule(final String name, final DayOfWeek dayOfWeek) {
+  public static Schedule getScheduleCalculator(final String name, final DayOfWeek dayOfWeek) {
     Validate.notNull(name, "name");
     if (!name.equals(WEEKLY_ON_DAY)) {
       throw new IllegalArgumentException("Can only ask for " + WEEKLY_ON_DAY + " schedule");
@@ -85,11 +95,11 @@ public class ScheduleCalculatorFactory {
     return new WeeklyScheduleOnDayCalculator(dayOfWeek);
   }
 
-  public static Schedule getSchedule(final String name, final int dayOfMonth, final MonthOfYear monthOfYear) {
+  public static Schedule getScheduleCalculator(final String name, final int dayOfMonth, final MonthOfYear monthOfYear) {
     Validate.notNull(name, "name");
-    if (!name.equals(YEAR_ON_DAY_OF_MONTH)) {
-      throw new IllegalArgumentException("Can only ask for " + YEAR_ON_DAY_OF_MONTH + " schedule");
+    if (!name.equals(ANNUAL_ON_DAY_AND_MONTH)) {
+      throw new IllegalArgumentException("Can only ask for " + ANNUAL_ON_DAY_AND_MONTH + " schedule");
     }
-    return new YearlyScheduleOnDayAndMonthCalculator(dayOfMonth, monthOfYear);
+    return new AnnualScheduleOnDayAndMonthCalculator(dayOfMonth, monthOfYear);
   }
 }

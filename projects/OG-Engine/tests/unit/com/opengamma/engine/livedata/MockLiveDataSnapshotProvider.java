@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * 

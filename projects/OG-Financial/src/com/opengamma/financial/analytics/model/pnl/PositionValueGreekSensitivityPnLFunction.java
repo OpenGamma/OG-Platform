@@ -83,7 +83,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       _valueGreeks.add(AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName));
     }
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName, CalculationMode.STRICT);
-    _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
+    _scheduleCalculator = ScheduleCalculatorFactory.getScheduleCalculator(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
   }
 
@@ -107,7 +107,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
         for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
           final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
               position.getSecurity());
-          final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true);
+          final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
           final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
           tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
         }
@@ -127,7 +127,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (!canApplyTo(context, target)) {
       return null;
     }

@@ -515,6 +515,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
         //do nothing
       }
     }
+    addAndTestTimeSeries();
   }
   
   @Test
@@ -724,20 +725,18 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void searchMetaDataWithDates() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      //set timeseries to null for metadata test and set dates
-      tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
-      tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
-      tsDoc.setTimeSeries(null);
-    }
     //return all timeseries meta data with dates without loading timeseries data points
     TimeSeriesSearchResult<T> searchResult = search(null, null, null, null, null, null, null, false, true);
     assertNotNull(searchResult);
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     assertNotNull(documents);
     assertTrue(tsList.size() == documents.size());
-    for (TimeSeriesDocument<T> expectedDoc : tsList) {
-      assertTrue(documents.contains(expectedDoc));
+    for (TimeSeriesDocument<T> tsDoc : tsList) {
+      //set timeseries to null for metadata test and set dates
+      tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
+      tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
+      tsDoc.setTimeSeries(null);
+      assertTrue(documents.contains(tsDoc));
     }
   }
   

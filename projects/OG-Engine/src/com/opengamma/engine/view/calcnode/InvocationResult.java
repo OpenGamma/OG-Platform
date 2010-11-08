@@ -15,10 +15,6 @@ public enum InvocationResult {
    */
   SUCCESS,
   /**
-   * The invocation was attempted, but took too long without a successful response.
-   */
-  FUNCTION_TIMED_OUT,
-  /**
    * The invocation failed because the function unexpected threw an exception
    */
   FUNCTION_THREW_EXCEPTION,

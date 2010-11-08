@@ -12,6 +12,7 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
@@ -37,7 +38,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(new double[0], new double[0]), null);
   }
 
-  @Test(expected = InterpolationException.class)
+  @Test(expected = MathException.class)
   public void testInsufficentData() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(new double[] {1, 2}, new double[] {3, 4}), 1.5);
   }

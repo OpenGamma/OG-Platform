@@ -7,7 +7,6 @@ package com.opengamma.engine.function.resolver;
 
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +67,9 @@ public class ResolutionRule {
    * </ul>  
    * @param context This should really be refactored out.
    * @return Null if this the function advertised by this rule cannot produce 
-   * the desired output, a valid ValueSpecification otherwise
+   * the desired output, a valid ValueSpecification otherwise - as returned by
+   * the function. The specification is not composed against the requirement
+   * constraints.
    */
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
     CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
@@ -80,15 +81,20 @@ public class ResolutionRule {
       return null;
     }
 
-    Set<ValueSpecification> resultSpecs = function.getResults(context, target);
+    Set<ValueSpecification> resultSpecs = null;
+    try {
+      resultSpecs = function.getResults(context, target);
+    } catch (Throwable t) {
+      s_logger.debug("Exception thrown by getResults", t);
+    }
     if (resultSpecs == null) {
-      s_logger.error("For function {} can apply to {} but results are null", function.getClass(), target);
-      throw new NullPointerException("For function " + function.getClass() + " can apply to target but results are null");
+      // Exceptions and null returns are okay - the backtracking will hopefully find a way to satisfy the graph requirements
+      return null;
     }
 
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {
-      if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), output)) {
+      if (output.isSatisfiedBy(resultSpec)) {
         validSpec = resultSpec;
       }
     }
@@ -97,7 +103,7 @@ public class ResolutionRule {
       return null;
     }
 
-    // Then check that he function (applied to the same computation target) is not already
+    // Then check that the function (applied to the same computation target) is not already
     // in the dep graph above the current node (i.e., no cycles)
 
     DependencyNode parent = atNode.getDependentNode();

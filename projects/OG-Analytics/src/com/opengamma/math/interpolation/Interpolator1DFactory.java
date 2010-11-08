@@ -8,10 +8,11 @@ package com.opengamma.math.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+
 /**
  * 
  */
-@SuppressWarnings("unchecked")
 public final class Interpolator1DFactory {
   /** Linear */
   public static final String LINEAR = "Linear";
@@ -47,14 +48,12 @@ public final class Interpolator1DFactory {
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
-  /** Flat extrapolator instance */
-  public static final FlatExtrapolator1D FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1D();
 
-  private static final Map<String, Interpolator1D> s_staticInstances;
+  private static final Map<String, Interpolator1D<? extends Interpolator1DDataBundle>> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Interpolator1D> staticInstances = new HashMap<String, Interpolator1D>();
+    final Map<String, Interpolator1D<? extends Interpolator1DDataBundle>> staticInstances = new HashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
     staticInstances.put(LINEAR, LINEAR_INSTANCE);
     instanceNames.put(LinearInterpolator1D.class, LINEAR);
@@ -68,17 +67,17 @@ public final class Interpolator1DFactory {
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
-    staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
-    s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
+    s_staticInstances = new HashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
 
   private Interpolator1DFactory() {
   }
 
-  public static Interpolator1D getInterpolator(final String interpolatorName) {
-    final Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
+  public static <T extends Interpolator1DDataBundle> Interpolator1D<T> getInterpolator(final String interpolatorName) {
+    @SuppressWarnings("unchecked")
+    final Interpolator1D<T> interpolator = (Interpolator1D<T>) s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
       return interpolator;
     }
@@ -87,7 +86,7 @@ public final class Interpolator1DFactory {
     throw new IllegalArgumentException("Interpolator not handled: " + interpolatorName);
   }
 
-  public static String getInterpolatorName(final Interpolator1D interpolator) {
+  public static String getInterpolatorName(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     if (interpolator == null) {
       return null;
     }
@@ -96,6 +95,9 @@ public final class Interpolator1DFactory {
     // Barycentric, Polynomial, and RationalFunction.
     if (interpolator instanceof LinearExtrapolator1D) {
       return LINEAR_EXTRAPOLATOR;
+    }
+    if (interpolator instanceof FlatExtrapolator1D) {
+      return FLAT_EXTRAPOLATOR;
     }
     return interpolatorName;
   }

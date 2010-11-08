@@ -164,6 +164,7 @@ public abstract class AbstractDBDialect implements DBDialect {
   
   public abstract String getAllSchemasSQL(String catalog);
   public abstract String getAllTablesSQL(String catalog, String schema);
+  public abstract String getAllViewsSQL(String catalog, String schema);
   public abstract String getAllColumnsSQL(String catalog, String schema, String table);
   public abstract String getAllSequencesSQL(String catalog, String schema);
   public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
@@ -180,6 +181,16 @@ public abstract class AbstractDBDialect implements DBDialect {
   private List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
+    while (rs.next()) {
+      tables.add(rs.getString("name"));
+    }
+    rs.close();
+    return tables;
+  }
+  
+  private List<String> getAllViews(String catalog, String schema, Statement statement) throws SQLException {
+    List<String> tables = new LinkedList<String>();
+    ResultSet rs = statement.executeQuery(getAllViewsSQL(catalog, schema));
     while (rs.next()) {
       tables.add(rs.getString("name"));
     }
@@ -360,6 +371,14 @@ public abstract class AbstractDBDialect implements DBDialect {
         }
       }
       
+      // Drop views SQL
+      for (String name : getAllViews(catalog, schema, statement)) {
+        Table table = new Table(name);
+        String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
+        dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
+        script.add(dropViewStr);
+      }
+      
       // Drop tables SQL
       for (String name : getAllTables(catalog, schema, statement)) {
         Table table = new Table(name);
@@ -452,7 +471,7 @@ public abstract class AbstractDBDialect implements DBDialect {
         try {
           statement.execute(sqlStatement);
         } catch (SQLException e) {
-          throw new OpenGammaRuntimeException("Failed to execute statement " + sqlStatement, e);
+          throw new OpenGammaRuntimeException("Failed to execute statement (" + _dbServerHost + ") " + sqlStatement, e);
         }
       }
       statement.close();

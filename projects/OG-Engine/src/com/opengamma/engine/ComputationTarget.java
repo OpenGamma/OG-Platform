@@ -133,6 +133,7 @@ public class ComputationTarget implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

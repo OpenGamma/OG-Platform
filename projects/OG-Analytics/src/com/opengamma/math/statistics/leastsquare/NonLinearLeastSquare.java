@@ -7,7 +7,7 @@ package com.opengamma.math.statistics.leastsquare;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
@@ -48,11 +48,11 @@ public class NonLinearLeastSquare {
    */
   public LeastSquareResults solve(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma,
       final ParameterizedFunction<Double, DoubleMatrix1D, Double> func, final DoubleMatrix1D startPos) {
-    ArgumentChecker.notNull(x, "x");
-    ArgumentChecker.notNull(y, "y");
-    ArgumentChecker.notNull(x, "sigma");
+    Validate.notNull(x, "x");
+    Validate.notNull(y, "y");
+    Validate.notNull(x, "sigma");
 
-    int n = x.getNumberOfElements();
+    final int n = x.getNumberOfElements();
     if (y.getNumberOfElements() != n) {
       throw new IllegalArgumentException("y wrong length");
     }
@@ -60,12 +60,12 @@ public class NonLinearLeastSquare {
       throw new IllegalArgumentException("sigma wrong length");
     }
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
-        double[] res = new double[m];
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D theta) {
+        final int m = x.getNumberOfElements();
+        final double[] res = new double[m];
         for (int i = 0; i < m; i++) {
           res[i] = func.evaluate(x.getEntry(i), theta);
         }
@@ -93,7 +93,7 @@ public class NonLinearLeastSquare {
     ArgumentChecker.notNull(y, "y");
     ArgumentChecker.notNull(x, "sigma");
 
-    int n = x.getNumberOfElements();
+    final int n = x.getNumberOfElements();
     if (y.getNumberOfElements() != n) {
       throw new IllegalArgumentException("y wrong length");
     }
@@ -101,12 +101,12 @@ public class NonLinearLeastSquare {
       throw new IllegalArgumentException("sigma wrong length");
     }
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func1D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
-        double[] res = new double[m];
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D theta) {
+        final int m = x.getNumberOfElements();
+        final double[] res = new double[m];
         for (int i = 0; i < m; i++) {
           res[i] = func.evaluate(x.getEntry(i), theta);
         }
@@ -114,14 +114,14 @@ public class NonLinearLeastSquare {
       }
     };
 
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D theta) {
-        int m = x.getNumberOfElements();
-        double[][] res = new double[m][];
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D theta) {
+        final int m = x.getNumberOfElements();
+        final double[][] res = new double[m][];
         for (int i = 0; i < m; i++) {
-          DoubleMatrix1D temp = grad.evaluate(x.getEntry(i), theta);
+          final DoubleMatrix1D temp = grad.evaluate(x.getEntry(i), theta);
           res[i] = temp.getData();
         }
         return new DoubleMatrix2D(res);
@@ -166,7 +166,7 @@ public class NonLinearLeastSquare {
     Validate.notNull(func, " func");
     Validate.notNull(jac, " jac");
     Validate.notNull(startPos, "startPos");
-    int n = observedValues.getNumberOfElements();
+    final int n = observedValues.getNumberOfElements();
     Validate.isTrue(n == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
     Validate.isTrue(n >= startPos.getNumberOfElements(),
         "must have data points greater or equal to number of parameters");
@@ -181,13 +181,13 @@ public class NonLinearLeastSquare {
 
     oldChiSqr = getChiSqr(error);
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
-    double g0 = _algebra.getNorm2(beta);
+    final double g0 = _algebra.getNorm2(beta);
 
     for (int count = 0; count < 100; count++) {
       DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, lambda);
       DecompositionResult decmp = _decomposition.evaluate(alpha);
-      DoubleMatrix1D deltaTheta = decmp.solve(beta);
-      DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
+      final DoubleMatrix1D deltaTheta = decmp.solve(beta);
+      final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
       newError = getError(func, observedValues, sigma, newTheta);
       newChiSqr = getChiSqr(newError);
       if (newChiSqr < oldChiSqr) {
@@ -201,7 +201,7 @@ public class NonLinearLeastSquare {
         if (_algebra.getNorm2(beta) < _eps * g0) {
           alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
           decmp = _decomposition.evaluate(alpha);
-          DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
+          final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
           return new LeastSquareResults(newChiSqr, newTheta, covariance);
         }
         oldChiSqr = newChiSqr;
@@ -212,17 +212,17 @@ public class NonLinearLeastSquare {
         lambda *= 10;
       }
     }
-    throw new ConvergenceException("failed to converge");
+    throw new MathException("failed to converge");
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
-    int n = observedValues.getNumberOfElements();
-    DoubleMatrix1D modelValues = func.evaluate(theta);
+    final int n = observedValues.getNumberOfElements();
+    final DoubleMatrix1D modelValues = func.evaluate(theta);
     if (modelValues.getNumberOfElements() != n) {
       throw new IllegalArgumentException("Number of data points different between model and observed");
     }
-    double[] res = new double[n];
+    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = (observedValues.getEntry(i) - modelValues.getEntry(i)) / sigma.getEntry(i);
     }
@@ -230,12 +230,12 @@ public class NonLinearLeastSquare {
     return new DoubleMatrix1D(res);
   }
 
-  private DoubleMatrix2D getJacobian(Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, DoubleMatrix1D sigma,
+  private DoubleMatrix2D getJacobian(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D sigma,
       final DoubleMatrix1D theta) {
-    DoubleMatrix2D res = jac.evaluate(theta);
-    double[][] data = res.getData();
-    int m = res.getNumberOfRows();
-    int n = res.getNumberOfColumns();
+    final DoubleMatrix2D res = jac.evaluate(theta);
+    final double[][] data = res.getData();
+    final int m = res.getNumberOfRows();
+    final int n = res.getNumberOfColumns();
     if (theta.getNumberOfElements() != n || sigma.getNumberOfElements() != m) {
       throw new IllegalArgumentException("Jacobian is wrong size");
     }
@@ -257,11 +257,11 @@ public class NonLinearLeastSquare {
   }
 
   private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda) {
-    int n = jacobian.getNumberOfRows();
-    int m = jacobian.getNumberOfColumns();
+    final int n = jacobian.getNumberOfRows();
+    final int m = jacobian.getNumberOfColumns();
 
-    DoubleMatrix2D res = new DoubleMatrix2D(m, m);
-    double[][] alpha = res.getData();
+    final DoubleMatrix2D res = new DoubleMatrix2D(m, m);
+    final double[][] alpha = res.getData();
 
     for (int i = 0; i < m; i++) {
       double sum = 0.0;

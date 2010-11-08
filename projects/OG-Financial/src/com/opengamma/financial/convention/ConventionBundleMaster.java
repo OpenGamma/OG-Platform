@@ -28,15 +28,17 @@ public interface ConventionBundleMaster {
       int settlementDays, double pointValue);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention,
-      Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays, Identifier swapFixedLegRegion,  
+      Frequency swapFixedLegFrequency, Integer swapFixedLegSettlementDays, Identifier swapFixedLegRegion,
       DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,
       Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, Identifier swapFloatingLegInitialRate, Identifier swapFloatingLegRegion);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, 
-      DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, Frequency basisSwapPayFloatingLegFrequency, 
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name,
+      DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, Frequency basisSwapPayFloatingLegFrequency,
       Integer basisSwapPayFloatingLegSettlementDays, Identifier basisSwapPayFloatingLegInitialRate, Identifier basisSwapPayFloatingLegRegion,
-      DayCount basisSwapReceiveFloatingLegDayCount, BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, Frequency basisSwapReceiveFloatingLegFrequency, 
+      DayCount basisSwapReceiveFloatingLegDayCount, BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, Frequency basisSwapReceiveFloatingLegFrequency,
       Integer basisSwapReceiveFloatingLegSettlementDays, Identifier basisSwapReceiveFloatingLegInitialRate, Identifier basisSwapReceiveFloatingLegRegion);
-  
+
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, String capmRiskFreeRateName, String capmMarketName);
+
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays);
 }

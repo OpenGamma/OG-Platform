@@ -11,11 +11,11 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
- * At the moment, the field history only stores the last value.
+ * A store of historical message field values.
  * <p>
+ * At the moment, the field history only stores the last value.
  * This class could be extended in future to store the last N 
  * values, values at a certain interval for the last N minutes, etc. 
- *
  */
 public class FieldHistoryStore {
   

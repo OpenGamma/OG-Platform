@@ -34,7 +34,6 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -212,10 +211,10 @@ public class CSVPositionSource implements PositionSource {
     for (int i = 1; i < (tokens.length - 1); i++) {
       String idScheme = tokens[i].trim();
       String idValue = tokens[++i].trim();
-      Identifier id = new Identifier(new IdentificationScheme(idScheme), idValue);
+      Identifier id = Identifier.of(idScheme, idValue);
       securityIdentifiers.add(id);
     }
-    IdentifierBundle securityKey = new IdentifierBundle(securityIdentifiers);
+    IdentifierBundle securityKey = IdentifierBundle.of(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     return new PositionImpl(positionId, quantity, securityKey);

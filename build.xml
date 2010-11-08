@@ -81,12 +81,6 @@
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="*/build.xml" />
-				<exclude name="Fudge-CSharp/**" />
-				<exclude name="fudgemsg-dist/**" />
-				<exclude name="Hermit/**" />
-				<exclude name="jsr-310*/**" />
-				<exclude name="OG-PrivateIvy/**" />
-				<exclude name="sysadmin/**" />
 			</fileset>
 		</ivy:buildlist>
 	</target>
@@ -176,10 +170,12 @@
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db/clover-db-" />
+            <cloverDb span="30 mins"  initstring="projects/OG-Web/tests/output/clover.db/clover-db-" />
 		</clover-merge>
 		<clover-html-report
 			initstring="${clover.db.dir}"
 			outdir="${clover.html.report.dir}"
+			numThreads="1"
 		>
 		</clover-html-report>
 	</target>
@@ -189,29 +185,33 @@
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
 		<copy toDir="${docs.dir}/temp-src">
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
-			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java **/package.html">
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${projects.dir}/OG-Config/src" includes="**/*.java **/package.html">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
 		</copy>
 		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-	    </javadoc>
+			<link href="http://download.oracle.com/javase/6/docs/api/" />
+			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+			<link href="https://jsr-310.dev.java.net/nonav/doc-2010-06-22/" />
+			<link href="http://joda-beans.sourceforge.net/apidocs/" />
+		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
 	</target>
 	

@@ -11,8 +11,9 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -27,8 +28,8 @@ public class EuropeanOptionOnEuropeanVanillaOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2011, 6, 1));
   private static final EuropeanVanillaOptionDefinition UNDERLYING = new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, UNDERLYING_EXPIRY, true);
   private static final EuropeanOptionOnEuropeanVanillaOptionDefinition OPTION = new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, UNDERLYING);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new ConstantVolatilitySurface(0.), SPOT, DateUtil.getUTCDate(
-      2010, 7, 1));
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT,
+      DateUtil.getUTCDate(2010, 7, 1));
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullUnderlying() {

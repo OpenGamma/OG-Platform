@@ -22,14 +22,14 @@ import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchHistoricResult;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
+import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
 import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
 import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -235,7 +235,7 @@ public class DbPositionMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeSearchHistoricResult searchPortfolioTreeHistoric(PortfolioTreeSearchHistoricRequest request) {
+  protected PortfolioTreeHistoryResult historyPortfolioTree(PortfolioTreeHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 
@@ -264,7 +264,7 @@ public class DbPositionMasterWorker {
     throw new UnsupportedOperationException();
   }
 
-  protected PositionSearchHistoricResult searchPositionHistoric(PositionSearchHistoricRequest request) {
+  protected PositionHistoryResult historyPosition(PositionHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 

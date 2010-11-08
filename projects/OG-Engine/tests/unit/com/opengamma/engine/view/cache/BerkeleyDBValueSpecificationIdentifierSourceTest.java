@@ -128,7 +128,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   public void reloadPreservesMaxValue() throws IOException {
     File dbDir = createDbDir("reloadPreservesMaxValue");
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     
     BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
@@ -162,7 +162,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
     File dbDir = createDbDir("putPerformanceTest" + bulkOperation);
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     
@@ -191,7 +191,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
     File dbDir = createDbDir("getPerformanceTest" + bulkOperation);
     Environment dbEnvironment = createDbEnvironment(dbDir);
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     BerkeleyDBIdentifierMap idSource = new BerkeleyDBIdentifierMap(dbEnvironment, fudgeContext);
     idSource.start();
     

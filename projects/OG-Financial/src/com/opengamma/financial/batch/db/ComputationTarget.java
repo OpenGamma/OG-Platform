@@ -63,7 +63,13 @@ public class ComputationTarget {
     _idValue = idValue;
   }
 
-  public ComputationTargetSpecification toSpec() {
+  /**
+   * The spec is called normalized because no version information is stored for the unique ID.
+   * 
+   * @return The normalized spec
+   */
+  public ComputationTargetSpecification toNormalizedSpec() {
+    // Is this 'normalized' business really necessary - should we store the version info in batch DB?
     for (ComputationTargetType type : ComputationTargetType.values()) {
       if (type.ordinal() == _computationTargetType) {
         return new ComputationTargetSpecification(
@@ -74,6 +80,19 @@ public class ComputationTarget {
     }
     
     throw new IllegalStateException("Cannot find type with ordinal " + _computationTargetType); 
+  }
+  
+  /**
+   * The spec is called normalized because no version information is stored for the unique ID.
+   * 
+   * @param spec Unnormalized spec (with version information)
+   * @return The normalized spec (no version information)
+   */
+  public static ComputationTargetSpecification toNormalizedSpec(ComputationTargetSpecification spec) {
+    // Is this 'normalized' business really necessary - should we store the version info in batch DB?
+    return new ComputationTargetSpecification(
+        spec.getType(),
+        UniqueIdentifier.of(spec.getIdentifier().getScheme().getName(), spec.getIdentifier().getValue()));   
   }
   
   @Override

@@ -16,8 +16,8 @@ import com.opengamma.util.PublicSPI;
 /**
  * The interface through which a Function will be invoked on a calculation node during
  * view execution.
- * This is separate from the metadata for the function (available through
- * {@link FunctionDefinition} as it's entirely possible that certain functions may require
+ * This is separate from the metadata for the function (available through {@link FunctionDefinition} and
+ * {@link CompiledFunctionDefinition}) as it's entirely possible that certain functions may require
  * native libraries that are not supported on every node.
  */
 @PublicSPI

@@ -14,8 +14,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -31,7 +32,8 @@ public class AmericanVanillaOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, true);
   private static final OptionDefinition PUT = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0., new ConstantVolatilitySurface(0.2), STRIKE, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+      STRIKE, DATE);
   private static final double EPS = 1e-15;
 
   @Test(expected = IllegalArgumentException.class)

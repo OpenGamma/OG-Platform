@@ -24,7 +24,7 @@ public class SimpleYieldConvention implements YieldConvention {
   /**
    * The US treasury equivalent yield convention. 
    */
-  public static final YieldConvention US_TREASURY_EQUIVILANT = new SimpleYieldConvention("US Treasury equivalent");
+  public static final YieldConvention US_TREASURY_EQUIVALANT = new SimpleYieldConvention("US Treasury equivalent");
   /**
    * The money market yield convention.
    */

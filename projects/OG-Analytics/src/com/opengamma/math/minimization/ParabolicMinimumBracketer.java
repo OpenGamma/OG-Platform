@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -86,6 +86,6 @@ public class ParabolicMinimumBracketer extends MinimumBracketer {
       f2 = f3;
       f3 = fu;
     }
-    throw new ConvergenceException("Could not bracket a minimum in " + MAX_ITER + " attempts");
+    throw new MathException("Could not bracket a minimum in " + MAX_ITER + " attempts");
   }
 }

@@ -8,7 +8,7 @@ package com.opengamma.math.integration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.NaturalLogGammaFunction;
 import com.opengamma.util.ArgumentChecker;
@@ -77,7 +77,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
         }
       }
       if (j == max) {
-        throw new ConvergenceException("Could not converge in " + max + " iterations");
+        throw new MathException("Could not converge in " + max + " iterations");
       }
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);

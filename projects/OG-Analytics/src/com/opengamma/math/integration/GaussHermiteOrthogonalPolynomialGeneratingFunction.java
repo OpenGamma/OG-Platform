@@ -8,7 +8,7 @@ package com.opengamma.math.integration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -71,7 +71,7 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends Orthogon
         }
       }
       if (j == max) {
-        throw new ConvergenceException("Could not converge in " + max + " iterations");
+        throw new MathException("Could not converge in " + max + " iterations");
       }
       x[i] = -z;
       x[n - 1 - i] = z;

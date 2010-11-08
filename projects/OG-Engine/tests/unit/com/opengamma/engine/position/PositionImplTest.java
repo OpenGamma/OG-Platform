@@ -46,7 +46,7 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_BigDecimal_IdentifierBundle() {
-    PositionImpl test = new PositionImpl(BigDecimal.ONE, new IdentifierBundle(Identifier.of("A", "B")));
+    PositionImpl test = new PositionImpl(BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(null, test.getUniqueIdentifier());
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
@@ -56,7 +56,7 @@ public class PositionImplTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_BigDecimal_IdentifierBundle_nullBigDecimal() {
-    new PositionImpl(null, new IdentifierBundle(Identifier.of("A", "B")));
+    new PositionImpl(null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -93,7 +93,7 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle() {
-    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, new IdentifierBundle(Identifier.of("A", "B")));
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
@@ -108,7 +108,7 @@ public class PositionImplTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullBigDecimal() {
-    new PositionImpl(UniqueIdentifier.of("B", "C"), null, new IdentifierBundle(Identifier.of("A", "B")));
+    new PositionImpl(UniqueIdentifier.of("B", "C"), null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -120,7 +120,7 @@ public class PositionImplTest {
   @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Security() {
     DefaultSecurity sec = new DefaultSecurity ("A");
-    sec.setIdentifiers (new IdentifierBundle (Identifier.of ("A", "B")));
+    sec.setIdentifiers (IdentifierBundle.of (Identifier.of ("A", "B")));
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.ONE, test.getQuantity());
@@ -136,7 +136,7 @@ public class PositionImplTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullBigDecimal() {
-    new PositionImpl(UniqueIdentifier.of("B", "C"), null, new IdentifierBundle(Identifier.of("A", "B")));
+    new PositionImpl(UniqueIdentifier.of("B", "C"), null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
   @Test(expected=IllegalArgumentException.class)

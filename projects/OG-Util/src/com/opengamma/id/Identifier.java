@@ -29,10 +29,12 @@ import com.opengamma.util.PublicAPI;
  *   <li>Cusip</li>
  *   <li>Isin</li>
  *   <li>RIC code</li>
- *   <li>Bloomberg ID</li>
+ *   <li>Bloomberg BUID</li>
  *   <li>Bloomberg Ticker</li>
  *   <li>Trading system OTC trade ID</li>
  * </ul>
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class Identifier implements Identifiable, Comparable<Identifier>, Cloneable, Serializable {
@@ -56,7 +58,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   private final String _value;
 
   /**
-   * Obtains an identifier from a scheme and value.
+   * Obtains an {@code Identifier} from a scheme and value.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
@@ -66,20 +69,22 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Obtains an identifier from a scheme and value.
+   * Obtains an {@code Identifier} from a scheme and value.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
    */
   public static Identifier of(String scheme, String value) {
-    return new Identifier(scheme, value);
+    return new Identifier(IdentificationScheme.of(scheme), value);
   }
 
   /**
-   * Obtains an identifier from a formatted scheme and value.
+   * Parses an {@code Identifier} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>::<VALUE>}.
+   * 
    * @param str  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
@@ -89,33 +94,26 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
     if (pos < 0) {
       throw new IllegalArgumentException("Invalid identifier format: " + str);
     }
-    return new Identifier(str.substring(0, pos), str.substring(pos + 2));
+    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
   }
 
   /**
-   * Constructs an identifier from the scheme and standalone identifier.
+   * Creates an identifier from the scheme and standalone identifier.
+   * 
    * @param scheme  the scheme, not null
    * @param standaloneId  the standalone identifier, not empty, not null
    */
-  public Identifier(IdentificationScheme scheme, String standaloneId) {
+  private Identifier(IdentificationScheme scheme, String standaloneId) {
     ArgumentChecker.notNull(scheme, "scheme");
     ArgumentChecker.notEmpty(standaloneId, "standaloneId");
     _scheme = scheme;
     _value = standaloneId;
   }
 
-  /**
-   * Constructs an identifier from the scheme and standalone identifier.
-   * @param schemeName  the scheme name, not null
-   * @param standaloneId  the standalone identifier, not null
-   */
-  public Identifier(String schemeName, String standaloneId) {
-    this(new IdentificationScheme(schemeName), standaloneId);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the identification scheme.
+   * 
    * This provides the universe within which the standalone identifier has meaning.
    * @return the scheme, not null
    */
@@ -124,7 +122,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
@@ -133,16 +132,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
-   * @param scheme  the scheme to check for, null returns true
-   * @return true if the schemes are different
-   */
-  public boolean isNotScheme(IdentificationScheme scheme) {
-    return _scheme.equals(scheme) == false;
-  }
-
-  /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns false
    * @return true if the schemes match
    */
@@ -151,7 +142,18 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Checks of the identification scheme equals the specified scheme.
+   * Checks if the identification scheme equals the specified scheme.
+   * 
+   * @param scheme  the scheme to check for, null returns true
+   * @return true if the schemes are different
+   */
+  public boolean isNotScheme(IdentificationScheme scheme) {
+    return _scheme.equals(scheme) == false;
+  }
+
+  /**
+   * Checks if the identification scheme equals the specified scheme.
+   * 
    * @param scheme  the scheme to check for, null returns true
    * @return true if the schemes are different
    */
@@ -161,22 +163,26 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Gets the standalone identifier.
+   * 
    * @return the value, not null
    */
   public String getValue() {
     return _value;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Identifier getIdentityKey() {
     return this;
   }
-  
+
   /**
    * Converts this Identifier to a UniqueIdentifier.
    * 
-   * @return A UniqueIdentifier with the same scheme and value as this Identifier
+   * @return a UniqueIdentifier with the same scheme and value as this Identifier
+   * @deprecated this is an invalid conversion
    */
+  @Deprecated
   public UniqueIdentifier toUniqueIdentifier() {
     return UniqueIdentifier.of(getScheme().getName(), getValue());
   }
@@ -184,6 +190,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   //-------------------------------------------------------------------------
   /**
    * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * 
    * @param other  the other identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
@@ -215,6 +222,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * 
    * @return the identifier, not null
    */
   @Override
@@ -224,6 +232,14 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   //-------------------------------------------------------------------------
 
+  /**
+   * Serializes this identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @param message the message to serialize into, not {@code null}
+   * @return the serialized message
+   */
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
@@ -233,18 +249,22 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   /**
-   * Serializes this pair to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
+   * Serializes this identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @return the serialized Fudge message
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**
-   * Deserializes this pair from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
+   * Deserializes an identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param msg the Fudge message, not {@code null}
+   * @return the identifier
    */
   public static Identifier fromFudgeMsg(FudgeFieldContainer msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);

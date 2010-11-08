@@ -14,6 +14,8 @@ import java.util.Comparator;
  * <i>(x<sub>2</sub>, y<sub>2</sub>)</i> if one of these is true:<br />
  * <i>x<sub>1</sub> < x<sub>2</sub></i><br>
  * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> < y<sub>2</sub></i><br>
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class FirstThenSecondDoublesPairComparator implements Comparator<DoublesPair> {
 

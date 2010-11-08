@@ -17,11 +17,12 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Specifies what data you want, in what format.
- * Used on the client side.
  */
+@PublicAPI
 public class LiveDataSpecification {
   
   private static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
@@ -41,8 +42,8 @@ public class LiveDataSpecification {
     this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Collection<? extends Identifier> identifiers) {
-    this(normalizationRuleSetId, new IdentifierBundle(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, Collection<Identifier> identifiers) {
+    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, Identifier identifier) {

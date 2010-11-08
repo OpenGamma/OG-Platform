@@ -6,10 +6,12 @@
 package com.opengamma.id;
 
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang.ObjectUtils;
-
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A classification scheme for identifiers.
@@ -27,8 +29,11 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>A trading system instance name for trades and positions.</li>
  *   <li>RIC for a Reuters-provided market data object.</li>
  * </ul>
+ * <p>
+ * This class is immutable and thread-safe.
  */
-public class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
+@PublicAPI
+public final class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
   /**
    * Scheme for Bloomberg BUIDs.
@@ -54,6 +59,16 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
    * Scheme for SEDOL1.
    */
   public static final IdentificationScheme SEDOL1 = new IdentificationScheme("SEDOL1");
+  /**
+   * Computing cache for the schemes.
+   */
+  private static final ConcurrentMap<String, IdentificationScheme> s_cache =
+      new MapMaker().initialCapacity(256).concurrencyLevel(4).makeComputingMap(new Function<String, IdentificationScheme>() {
+        @Override
+        public IdentificationScheme apply(String key) {
+          return new IdentificationScheme(key);
+        }
+      });
 
   /**
    * The scheme name.
@@ -61,17 +76,29 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
   private final String _name;
 
   /**
+   * Obtains an {@code IdentificationScheme} scheme using the specified name.
+   * 
+   * @param name  the scheme name, not empty, not null
+   * @return the scheme, not null
+   */
+  public static IdentificationScheme of(final String name) {
+    ArgumentChecker.notEmpty(name, "name");
+    return s_cache.get(name);
+  }
+
+  /**
    * Constructs a scheme using the specified name.
+   * 
    * @param name  the scheme name, not empty, not null
    */
-  public IdentificationScheme(String name) {
-    ArgumentChecker.notEmpty(name, "name");
+  private IdentificationScheme(final String name) {
     _name = name;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme name.
+   * 
    * @return the scheme name, not null
    */
   public String getName() {
@@ -80,18 +107,18 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
 
   //-------------------------------------------------------------------------
   @Override
-  public int compareTo(IdentificationScheme obj) {
+  public int compareTo(final IdentificationScheme obj) {
     return _name.compareTo(obj._name);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (obj instanceof IdentificationScheme) {
       IdentificationScheme other = (IdentificationScheme) obj;
-      return ObjectUtils.equals(_name, other._name);
+      return _name.equals(other._name);
     }
     return false;
   }

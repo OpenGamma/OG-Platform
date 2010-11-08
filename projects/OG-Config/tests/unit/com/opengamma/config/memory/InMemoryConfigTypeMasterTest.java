@@ -64,7 +64,7 @@ public class InMemoryConfigTypeMasterTest {
     doc.setName("ONE");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
-    assertEquals("Memory", added.getConfigId().getScheme());
+    assertEquals("MemCfg", added.getConfigId().getScheme());
   }
 
   @Test

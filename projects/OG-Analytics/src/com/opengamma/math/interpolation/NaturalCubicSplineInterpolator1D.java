@@ -7,6 +7,7 @@ package com.opengamma.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 
@@ -29,7 +30,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolato
     }
     final double delta = xData[high] - xData[low];
     if (Math.abs(delta) < getEPS()) {
-      throw new InterpolationException("x data points were not distinct");
+      throw new MathException("x data points were not distinct");
     }
     final double a = (xData[high] - value) / delta;
     final double b = (value - xData[low]) / delta;

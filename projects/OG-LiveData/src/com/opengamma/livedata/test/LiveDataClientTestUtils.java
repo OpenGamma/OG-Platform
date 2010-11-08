@@ -25,8 +25,7 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
- * 
- *
+ * Utility methods to get LiveData clients suitable for testing.
  */
 public class LiveDataClientTestUtils {
   

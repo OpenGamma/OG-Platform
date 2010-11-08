@@ -17,7 +17,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
- * 
+ * Utility methods to test the conformity of messages to standard
+ * normalization rules.
  */
 public class StandardRulesUtils {
   
@@ -27,7 +28,10 @@ public class StandardRulesUtils {
     Set<String> acceptableFields = Sets.newHashSet(
         MarketDataRequirementNames.MARKET_VALUE,
         MarketDataRequirementNames.VOLUME,
-        MarketDataRequirementNames.IMPLIED_VOLATILITY);
+        MarketDataRequirementNames.IMPLIED_VOLATILITY,
+        MarketDataRequirementNames.YIELD_CONVENTION_MID,
+        MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
+        MarketDataRequirementNames.DIRTY_PRICE_MID);
     for (FudgeField field : msg.getAllFields()) {
       assertTrue(acceptableFields + " does not contain " + field.getName(), acceptableFields.contains(field.getName()));
     }

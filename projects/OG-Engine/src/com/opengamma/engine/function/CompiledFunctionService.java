@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * Combines a function repository and repository to give access to compiled functions. 
+ * Combines a function repository and compiler to give access to compiled functions. 
  */
 public class CompiledFunctionService {
 
@@ -36,8 +36,7 @@ public class CompiledFunctionService {
   private ExecutorService _executorService;
   private boolean _initialized;
 
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
-      final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
@@ -120,11 +119,11 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(this, Instant.ofEpochMillis(timestamp));
+    return getFunctionRepositoryCompiler().compile(getFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final InstantProvider timestamp) {
-    return getFunctionRepositoryCompiler().compile(this, timestamp);
+    return getFunctionRepositoryCompiler().compile(getFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
   }
 
   public ExecutorService getExecutorService() {

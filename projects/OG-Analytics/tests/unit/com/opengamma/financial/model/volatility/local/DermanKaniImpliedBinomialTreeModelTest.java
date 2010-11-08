@@ -16,9 +16,10 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.FunctionalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -43,7 +44,7 @@ public class DermanKaniImpliedBinomialTreeModelTest {
     }
 
   };
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(R, B, new FunctionalVolatilitySurface(SMILE), SPOT, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(R, B, new VolatilitySurface(FunctionalDoublesSurface.from(SMILE)), SPOT, DATE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {

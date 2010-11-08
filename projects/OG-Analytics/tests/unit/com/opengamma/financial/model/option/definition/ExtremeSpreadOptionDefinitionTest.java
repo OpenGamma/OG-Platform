@@ -13,8 +13,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -36,7 +37,7 @@ public class ExtremeSpreadOptionDefinitionTest {
       DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
       4, 15, 4, 4, 0, 4, 4, 4});
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0,
-      new ConstantVolatilitySurface(0), 2, DATE, SPOT_SERIES);
+      new VolatilitySurface(ConstantDoublesSurface.from(0)), 2, DATE, SPOT_SERIES);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPeriodEnd() {

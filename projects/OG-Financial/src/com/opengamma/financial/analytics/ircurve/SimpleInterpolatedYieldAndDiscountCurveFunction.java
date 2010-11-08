@@ -52,15 +52,14 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
-
-  @SuppressWarnings("unchecked")
-  private Interpolator1D _interpolator;
+  private Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
@@ -93,7 +92,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     return _isYieldCurve;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -130,7 +129,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
     final Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
-      final ComputationTargetSpecification targetSpecification = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+      final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
       if (value.getValue() instanceof Double) {
         marketDataMap.put(targetSpecification.getIdentifier(), (Double) value.getValue());
       }
@@ -164,7 +163,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           return requirements;
         }
@@ -180,7 +179,6 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
         return ObjectUtils.equals(target.getUniqueIdentifier(), specification.getCurrency().getUniqueIdentifier());
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
@@ -189,8 +187,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
         // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
         // the crazy IndicativeValue name.
         final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-            OpenGammaExecutionContext
-                .getConventionBundleSource(executionContext), executionContext.getSecuritySource());
+            OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
         final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, buildMarketDataMap(inputs));
         final Clock snapshotClock = executionContext.getSnapshotClock();
         final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times

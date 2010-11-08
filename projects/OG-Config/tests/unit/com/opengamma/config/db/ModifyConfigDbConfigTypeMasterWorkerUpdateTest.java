@@ -21,8 +21,8 @@ import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchHistoricRequest;
-import com.opengamma.config.ConfigSearchHistoricResult;
+import com.opengamma.config.ConfigHistoryRequest;
+import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -116,8 +116,8 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getValue(), old.getValue());
     
-    ConfigSearchHistoricRequest search = new ConfigSearchHistoricRequest(base.getConfigId(), null);
-    ConfigSearchHistoricResult<Identifier> searchResult = _queryWorker.searchHistoric(search);
+    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getConfigId(), null);
+    ConfigHistoryResult<Identifier> searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

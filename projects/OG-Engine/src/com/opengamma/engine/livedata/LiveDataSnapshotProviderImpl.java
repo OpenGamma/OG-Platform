@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
-import com.opengamma.livedata.client.LiveDataClient;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**

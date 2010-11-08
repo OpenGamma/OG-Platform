@@ -21,9 +21,10 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -50,8 +51,8 @@ public class TwoAssetAnalyticOptionModelTest {
   };
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DATE), true);
-  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0, 0, new ConstantVolatilitySurface(0.1),
-      new ConstantVolatilitySurface(0.15), 100, 90, 1, DATE);
+  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0, 0, new VolatilitySurface(
+      ConstantDoublesSurface.from(0.1)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), 100, 90, 1, DATE);
   private static final Set<Greek> REQUIRED_GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
 
   @Test(expected = IllegalArgumentException.class)

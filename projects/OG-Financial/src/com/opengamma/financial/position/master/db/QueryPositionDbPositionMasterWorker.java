@@ -26,8 +26,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
@@ -91,8 +91,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionDocument getPositionByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getPositionByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final PositionSearchHistoricRequest request = new PositionSearchHistoricRequest(uid, now, now);
-    final PositionSearchHistoricResult result = getMaster().searchPositionHistoric(request);
+    final PositionHistoryRequest request = new PositionHistoryRequest(uid, now, now);
+    final PositionHistoryResult result = getMaster().historyPosition(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Position not found: " + uid);
     }
@@ -104,14 +104,13 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @param uid  the unique identifier
    * @return the position document, null if not found
    */
-  @SuppressWarnings("unchecked")
   protected PositionDocument getPositionById(final UniqueIdentifier uid) {
     s_logger.debug("getPositionById {}", uid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_id", extractRowId(uid));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PositionDocument> docs = (List<PositionDocument>) namedJdbc.query(sqlGetPositionById(), args, extractor);
+    final List<PositionDocument> docs = namedJdbc.query(sqlGetPositionById(), args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Position not found: " + uid);
     }
@@ -127,7 +126,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected PositionSearchResult searchPositions(PositionSearchRequest request) {
     s_logger.debug("searchPositions: {}", request);
@@ -151,7 +149,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -184,9 +182,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
-  protected PositionSearchHistoricResult searchPositionHistoric(final PositionSearchHistoricRequest request) {
+  protected PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_oid", extractOid(request.getPositionId()))
@@ -197,11 +194,11 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     final String[] sql = sqlSearchPositionHistoric(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final int count = namedJdbc.queryForInt(sql[1], args);
-    final PositionSearchHistoricResult result = new PositionSearchHistoricResult();
+    final PositionHistoryResult result = new PositionHistoryResult();
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll((List<PositionDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
     }
     return result;
   }
@@ -211,7 +208,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @param request  the request, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchPositionHistoric(final PositionSearchHistoricRequest request) {
+  protected String[] sqlSearchPositionHistoric(final PositionHistoryRequest request) {
     String where = "WHERE oid = :position_oid ";
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       where += "AND ver_from_instant <= :versions_from_instant AND ver_to_instant > :versions_from_instant ";
@@ -248,14 +245,14 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   /**
    * Mapper from SQL rows to a PositionDocument.
    */
-  protected final class PositionDocumentExtractor implements ResultSetExtractor {
+  protected final class PositionDocumentExtractor implements ResultSetExtractor<List<PositionDocument>> {
     private long _lastPositionId = -1;
     private ManageablePosition _position;
     private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
     @Override
-    public Object extractData(final ResultSet rs) throws SQLException, DataAccessException {
+    public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {

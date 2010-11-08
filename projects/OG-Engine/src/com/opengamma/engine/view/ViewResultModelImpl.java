@@ -110,7 +110,7 @@ public abstract class ViewResultModelImpl implements ViewResultModel, Serializab
   }
 
   public void addValue(final String calcConfigurationName, final ComputedValue value) {
-    final ComputationTargetSpecification target = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+    final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
     _resultsByConfiguration.get(calcConfigurationName).addValue(target, value);
     ViewTargetResultModelImpl targetResult = _resultsByTarget.get(target);
     if (targetResult == null) {

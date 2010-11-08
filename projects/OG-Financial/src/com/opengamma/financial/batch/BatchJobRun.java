@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewInternal;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -226,7 +226,7 @@ public class BatchJobRun {
     return getJob().getViewOid();
   }
   
-  public int getViewVersion() {
+  public String getViewVersion() {
     return getJob().getViewVersion();    
   } 
   

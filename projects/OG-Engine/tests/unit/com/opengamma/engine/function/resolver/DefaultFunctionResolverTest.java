@@ -52,7 +52,7 @@ public class DefaultFunctionResolverTest {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
 
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target));
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target)).get (0);
 
     assertEquals(_parameterizedF2, result.getFirst());
   }
@@ -62,12 +62,12 @@ public class DefaultFunctionResolverTest {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, new ApplyToSubtree(_target.toSpecification()), 200));
 
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target));
+    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), new DependencyNode(_target)).get (0);
 
     assertEquals(_parameterizedF2, result.getFirst());
 
     ComputationTarget anotherTarget = new ComputationTarget(UniqueIdentifier.of("scheme", "target2"));
-    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), new DependencyNode(anotherTarget));
+    result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), new DependencyNode(anotherTarget)).get (0);
 
     assertEquals(_parameterizedF1, result.getFirst());
   }

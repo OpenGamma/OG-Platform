@@ -38,7 +38,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
       return x1;
     }
     if (y1 * y2 >= 0) {
-      throw new RootNotFoundException(x1 + " and " + xHigh + " do not bracket a root");
+      throw new MathException(x1 + " and " + xHigh + " do not bracket a root");
     }
     double xMid, yMid, denom, xNew, yNew;
     for (int i = 0; i < MAX_ITER; i++) {
@@ -46,7 +46,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
       yMid = function.evaluate(xMid);
       denom = Math.sqrt(yMid * yMid - y1 * y2);
       if (Math.abs(denom) < ZERO) {
-        throw new RootNotFoundException("Denominator of updating formula was zero");
+        throw new MathException("Denominator of updating formula was zero");
       }
       xNew = xMid + (xMid - x1) * (y1 >= y2 ? 1 : -1) * yMid / denom;
       yNew = function.evaluate(xNew);
@@ -71,6 +71,6 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
         return xNew;
       }
     }
-    throw new RootNotFoundException("Could not find root in " + MAX_ITER + " attempts");
+    throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }
 }

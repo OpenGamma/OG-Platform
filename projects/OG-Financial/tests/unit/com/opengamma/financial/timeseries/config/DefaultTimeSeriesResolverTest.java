@@ -6,124 +6,142 @@
 package com.opengamma.financial.timeseries.config;
 
 
+import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.STAR_VALUE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.time.calendar.LocalDate;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.engine.config.MockConfigSource;
-import com.opengamma.engine.security.MockSecuritySource;
-import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.config.ConfigTypeMaster;
+import com.opengamma.config.memory.InMemoryConfigMaster;
+import com.opengamma.engine.config.MasterConfigSource;
+import com.opengamma.financial.timeseries.TimeSeriesDocument;
+import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.financial.timeseries.TimeSeriesMetaData;
-import com.opengamma.financial.timeseries.TimeSeriesMetaDataResolver;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
+import com.opengamma.financial.timeseries.db.TimeSeriesMasterTest;
+import com.opengamma.financial.timeseries.memory.InMemoryLocalDateTimeSeriesMaster;
+import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Test DefaultTimeSeriesResolver.
+ * Test DefaultTimeSeriesResolver 
  */
 public class DefaultTimeSeriesResolverTest {
+  private static final int TS_DATASET_SIZE = 1;
+  private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
+  private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
+  private static final String DEFAULT_DATA_PROVIDER = "CMPL";
+  
+  private static final String[] DATA_FIELDS = new String[] { TimeSeriesMetaDataResolver.DEFAULT_DATA_FIELD, "VOLUME" };
+  private static final String[] DATA_PROVIDERS = new String[] { "UNKNOWN", "CMPL", "CMPT" };
+  private static final String[] DATA_SOURCES = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
+  private static final String CONFIG_DOC_NAME = "TEST";
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesResolverTest.class);
-  private TimeSeriesMetaDataResolver _metaDataResolver;
-  private MockSecuritySource _mockSecuritySource;
+  private DefaultTimeSeriesResolver<LocalDate> _metaDataResolver;
+  private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
+  /**
+   * @throws java.lang.Exception
+   */
   @Before
   public void setUp() throws Exception {
-    _mockSecuritySource = new MockSecuritySource();
-    ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
-    ConfigSource configsource = setUpConfigSource();
-    DefaultTimeSeriesResolver defaultResolver = new DefaultTimeSeriesResolver(_mockSecuritySource, exchangeDataProvider, configsource);
-    _metaDataResolver = defaultResolver;
+    InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
+    populateConfigMaster(configMaster);
+    _metaDataResolver = new DefaultTimeSeriesResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
+  }
+
+  private void populateConfigMaster(InMemoryConfigMaster configMaster) {
+    ConfigTypeMaster<TimeSeriesMetaDataConfiguration> timeSeriesConfigMaster = configMaster.typed(TimeSeriesMetaDataConfiguration.class);
+    ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
+    testDoc.setName(CONFIG_DOC_NAME);
+    testDoc.setValue(createRules());
+    timeSeriesConfigMaster.add(testDoc);
+  }
+
+  private TimeSeriesMetaDataConfiguration createRules() {
+    List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>();
+    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "BLOOMBERG", 3));
+    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "REUTERS", 2));
+    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "JPM", 1));
+    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "XXX", 0));
+    rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, STAR_VALUE, 0));
+    
+    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPL", 3));
+    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPT", 2));
+    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "CMPN", 1));
+    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, "EXCH_LSE", 0));
+    rules.add(new TimeSeriesMetaDataRating(DATA_PROVIDER_NAME, STAR_VALUE, 0));
+    
+    TimeSeriesMetaDataConfiguration config = new TimeSeriesMetaDataConfiguration(rules);
+    return config;
   }
 
   @After
   public void tearDown() throws Exception {
     _metaDataResolver = null;
-    _mockSecuritySource = null;
+    _tsMaster = null;
   }
-
-  private ConfigSource setUpConfigSource() {
-    MockConfigSource cfgSource = new MockConfigSource();
-    //add tsmetadata configuration
-    ConfigDocument<TimeSeriesMetaDataConfiguration> doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
-    //set up config for equity security
-    TimeSeriesMetaDataConfiguration definition = new TimeSeriesMetaDataConfiguration("EQUITY", "BLOOMBERG", "PX_LAST", "EXCH");
-    definition.addDataSource("REUTERS");
-    definition.addDataField("VOLUME");
-    doc.setName("EQUITY");
-    doc.setValue(definition);
-    cfgSource.add(doc);
-    //set up config for bond security
-    doc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
-    definition = new TimeSeriesMetaDataConfiguration("BOND", "BLOOMBERG", "PX_LAST", "CMPL");
-    definition.addDataSource("REUTERS");
-    definition.addDataField("VOLUME");
-    definition.addDataProvider("CMPN");
-    definition.addDataProvider("CMPT");
-    doc.setName("BOND");
-    doc.setValue(definition);
-    cfgSource.add(doc);
-    return cfgSource;
-  }
-
-//  @Test
-//  public void testBondSecurity() {
-//    CorporateBondSecurity security = TimeseriesMasterTestUtils.makeExpectedCorporateBondSecurity();
-//    IdentifierBundle identifierBundle = security.getIdentifiers();
-//    TimeSeriesMetaData metaData = _metaDataResolver.getDefaultMetaData(identifierBundle);
-//    assertEquals("BLOOMBERG", metaData.getDataSource());
-//    assertEquals("PX_LAST", metaData.getDataField());
-//    assertEquals("CMPL", metaData.getDataProvider());
-//    assertEquals("LONDON_CLOSE", metaData.getObservationTime());
-//    
-//    Set<String> expectedDataFields = Sets.newHashSet("PX_LAST", "VOLUME");
-//    Set<String> expectedDataSources = Sets.newHashSet("BLOOMBERG", "REUTERS");
-//    Set<String> expectedDataProviders = Sets.newHashSet("CMPL", "CMPN", "CMPT");
-//    Collection<TimeSeriesMetaData> availableMetaData = _metaDataResolver.getAvailableMetaData(identifierBundle);
-//    assertNotNull(availableMetaData);
-//    assertTrue(availableMetaData.size() == 12);
-//    for (TimeSeriesMetaData timeSeriesMetaData : availableMetaData) {
-//      assertTrue(expectedDataFields.contains(timeSeriesMetaData.getDataField()));
-//      assertTrue(expectedDataSources.contains(timeSeriesMetaData.getDataSource()));
-//      String dataProvider = timeSeriesMetaData.getDataProvider();
-//      assertTrue(expectedDataProviders.contains(dataProvider));
-//      String expectedObservationTime = DefaultTimeSeriesResolver.NON_EXCHANGE_DATA_MAP.get(dataProvider);
-//      assertEquals(expectedObservationTime, timeSeriesMetaData.getObservationTime());
-//    }
-//  }
-
+  
   @Test
-  public void testEquitySecurity() {
-    EquitySecurity equitySecurity = TimeseriesMasterTestUtils.makeExpectedAAPLEquitySecurity();
-    _mockSecuritySource.addSecurity(equitySecurity);
-    IdentifierBundle identifierBundle = equitySecurity.getIdentifiers();
-    s_logger.debug("sec exchange={} for ID={}", equitySecurity.getExchangeCode(), identifierBundle);
-    TimeSeriesMetaData metaData = _metaDataResolver.getDefaultMetaData(identifierBundle);
-    assertEquals("BLOOMBERG", metaData.getDataSource());
-    assertEquals("PX_LAST", metaData.getDataField());
-    String expectedDataProvider = DefaultTimeSeriesResolver.EXCH_PREFIX + equitySecurity.getExchangeCode();
-    assertEquals(expectedDataProvider , metaData.getDataProvider());
-    assertEquals("NEWYORK_CLOSE", metaData.getObservationTime());
-    
-//    Set<String> expectedDataFields = Sets.newHashSet("PX_LAST", "VOLUME");
-//    Set<String> expectedDataSources = Sets.newHashSet("BLOOMBERG", "REUTERS");
-//    Collection<TimeSeriesMetaData> availableMetaData = _metaDataResolver.getAvailableMetaData(identifierBundle);
-//    assertNotNull(availableMetaData);
-//    
-//    assertTrue(availableMetaData.size() == 4);
-//    for (TimeSeriesMetaData timeSeriesMetaData : availableMetaData) {
-//      assertTrue(expectedDataFields.contains(timeSeriesMetaData.getDataField()));
-//      assertTrue(expectedDataSources.contains(timeSeriesMetaData.getDataSource()));
-//      assertEquals(expectedDataProvider , metaData.getDataProvider());
-//      assertEquals("NEWYORK_CLOSE", metaData.getObservationTime());
-//    }
+  public void test() throws Exception {
+    addAndTestTimeSeries();
+    List<IdentifierBundleWithDates> identifiers = _tsMaster.getAllIdentifiers();
+    for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
+      TimeSeriesMetaData defaultMetaData = _metaDataResolver.getDefaultMetaData(identifierBundleWithDates.asIdentifierBundle(), CONFIG_DOC_NAME);
+      assertNotNull(defaultMetaData);
+      assertEquals(DEFAULT_DATA_SOURCE, defaultMetaData.getDataSource());
+      assertEquals(DEFAULT_DATA_PROVIDER, defaultMetaData.getDataProvider());
+      assertEquals(TimeSeriesMetaDataResolver.DEFAULT_DATA_FIELD, defaultMetaData.getDataField());
+    }
   }
 
+  protected List<TimeSeriesDocument<LocalDate>> addAndTestTimeSeries() {
+    List<TimeSeriesDocument<LocalDate>> result = new ArrayList<TimeSeriesDocument<LocalDate>>(); 
+    for (int i = 0; i < TS_DATASET_SIZE; i++) {
+      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "ticker" + i), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "buid" + i));
+      LocalDate start = DateUtil.previousWeekDay().minusDays(7);
+      for (String dataSource : DATA_SOURCES) {
+        for (String dataProvider : DATA_PROVIDERS) {
+          for (String datafield : DATA_FIELDS) {
+            TimeSeriesDocument<LocalDate> tsDocument = new TimeSeriesDocument<LocalDate>();
+            tsDocument.setDataField(datafield);
+            tsDocument.setDataProvider(dataProvider);
+            tsDocument.setDataSource(dataSource);
+            tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
+            tsDocument.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+            DoubleTimeSeries<LocalDate> timeSeries = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(start, 7);
+            assertTrue(timeSeries.size() == 7);
+            assertEquals(start, timeSeries.getEarliestTime());
+            tsDocument.setTimeSeries(timeSeries);
+            
+            tsDocument = _tsMaster.addTimeSeries(tsDocument);
+            
+            assertNotNull(tsDocument);
+            assertNotNull(tsDocument.getUniqueIdentifier());
+            
+            TimeSeriesDocument<LocalDate> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
+            assertNotNull(actualDoc);
+            assertEquals(timeSeries, actualDoc.getTimeSeries());
+            result.add(tsDocument);
+          }
+        }
+      }
+    }
+    return result;
+  }
 }

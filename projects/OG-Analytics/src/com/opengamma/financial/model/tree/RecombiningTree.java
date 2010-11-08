@@ -80,7 +80,6 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -92,7 +91,7 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final RecombiningTree other = (RecombiningTree) obj;
+    final RecombiningTree<?> other = (RecombiningTree<?>) obj;
     if (ObjectUtils.equals(_tree, other._tree)) {
       return true;
     }

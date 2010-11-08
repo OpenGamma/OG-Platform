@@ -24,6 +24,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -35,7 +36,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final BlackScholesMertonImpliedVolatilitySurfaceModel MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0.1, new ConstantVolatilitySurface(0.01), 100.,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0.1, new VolatilitySurface(ConstantDoublesSurface.from(0.01)),
+      100.,
       DateUtil.getUTCDate(2010, 1, 1));
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final double EPS = 1e-3;
@@ -74,7 +76,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       isCall = RANDOM.nextDouble() < 0.5 ? true : false;
       definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
       initialData = new StandardOptionDataBundle(curve, b, null, spot, DATE);
-      data = new StandardOptionDataBundle(curve, b, new ConstantVolatilitySurface(sigma), spot, DATE);
+      data = new StandardOptionDataBundle(curve, b, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), spot, DATE);
       price = BSM.getPricingFunction(definition).evaluate(data);
       assertEquals(sigma, MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(definition, price), initialData).getVolatility(DoublesPair.of(0., 0.)), EPS);
     }

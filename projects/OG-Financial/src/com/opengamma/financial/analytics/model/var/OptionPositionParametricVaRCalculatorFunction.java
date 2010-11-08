@@ -100,7 +100,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
     final CovarianceCalculator covarianceCalculator = new HistoricalCovarianceCalculator();
     _covarianceMatrixCalculator = new VaRCovarianceMatrixCalculator(new CovarianceMatrixCalculator(covarianceCalculator));
-    _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
+    _scheduleCalculator = ScheduleCalculatorFactory.getScheduleCalculator(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
     _normalVaRCalculator = new NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>>(1, 1, Double.valueOf(confidenceLevel), _meanCalculator, _stdCalculator); //TODO
   }
@@ -126,7 +126,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
           for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
             final DoubleTimeSeries<?> timeSeries = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataProvider, _dataSourceName, null, securitySource, underlyingType,
                 position.getSecurity());
-            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true);
+            final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false);
             final DoubleTimeSeries<?> sampledTS = _samplingCalculator.getSampledTimeSeries(timeSeries, schedule);
             tsReturns.put(underlyingType, _returnCalculator.evaluate(sampledTS));
           }
@@ -137,6 +137,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
       }
     }
     final Map<Integer, ParametricVaRDataBundle> data = _covarianceMatrixCalculator.evaluate(dataBundleArray);
+    @SuppressWarnings("unchecked")
     final Double result = _normalVaRCalculator.evaluate(data);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
@@ -153,7 +154,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final String valueGreekRequirementName : _valueGreekRequirementNames) {

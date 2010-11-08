@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.world.exchange.Exchange;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -61,8 +60,8 @@ public class ExchangeSearchResult extends DirectBean {
    * Gets the returned exchanges from within the documents.
    * @return the exchanges, not null
    */
-  public List<Exchange> getExchanges() {
-    List<Exchange> result = new ArrayList<Exchange>();
+  public List<ManageableExchange> getExchanges() {
+    List<ManageableExchange> result = new ArrayList<ManageableExchange>();
     if (_documents != null) {
       for (ExchangeDocument doc : _documents) {
         result.add(doc.getExchange());
@@ -83,7 +82,7 @@ public class ExchangeSearchResult extends DirectBean {
    * Gets the first exchange, or null if no documents.
    * @return the first exchange, null if none
    */
-  public Exchange getFirstExchange() {
+  public ManageableExchange getFirstExchange() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getExchange() : null;
   }
 
@@ -94,7 +93,7 @@ public class ExchangeSearchResult extends DirectBean {
    * Thus, this method implies an assumption about uniqueness of the queried exchange.
    * @return the matching exchange, or null if none
    */
-  public Exchange getSingleExchange() {
+  public ManageableExchange getSingleExchange() {
     if (_documents.size() > 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + _documents.size());
     } else {

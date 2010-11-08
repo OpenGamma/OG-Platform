@@ -212,7 +212,7 @@ public class DataPointDocument<T> extends DirectBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -226,7 +226,7 @@ public class DataPointDocument<T> extends DirectBean {
     /**
      * The meta-property for the {@code date} property.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T> _date = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "date", Object.class);
     /**
      * The meta-property for the {@code value} property.
@@ -237,7 +237,7 @@ public class DataPointDocument<T> extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("timeSeriesId", _timeSeriesId);
@@ -252,7 +252,7 @@ public class DataPointDocument<T> extends DirectBean {
       return new DataPointDocument<T>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public Class<? extends DataPointDocument<T>> beanType() {
       return (Class) DataPointDocument.class;

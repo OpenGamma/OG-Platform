@@ -15,11 +15,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * JMX management of a LiveData server.
  */
 @ManagedResource(
     objectName = "com.opengamma:name=LiveDataServer",
@@ -94,12 +95,11 @@ public class LiveDataServerMBean {
       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String subscribe(String securityUniqueId) {
     try {
-      SubscriptionResult result = _server.subscribe(securityUniqueId);
-      if (result.getResult() != LiveDataSubscriptionResult.SUCCESS) {
-        throw result.getException();
+      LiveDataSubscriptionResponse response = _server.subscribe(securityUniqueId);
+      if (response.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS) {
+        throw new RuntimeException("Unsuccessful subscription: " + response.getUserMessage());
       }
-      DistributionSpecification distributionSpec = result.getDistributionSpecification();
-      return distributionSpec.getJmsTopic();
+      return response.getTickDistributionSpecification();
     } catch (RuntimeException e) {
       s_logger.error("subscribe(" + securityUniqueId + ") failed", e);
       throw new RuntimeException(e.getMessage());

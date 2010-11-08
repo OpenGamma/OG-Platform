@@ -25,7 +25,7 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Mock view providing some view behavior for testing downstream components, without any engine dependencies.

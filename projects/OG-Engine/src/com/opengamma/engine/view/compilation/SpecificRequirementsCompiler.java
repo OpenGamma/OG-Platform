@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ValueRequirement;
@@ -38,11 +36,7 @@ public final class SpecificRequirementsCompiler {
           // automatically if it is needed for some other terminal output.
           continue;
         }
-        ComputationTarget target = compilationContext.getServices().getComputationTargetResolver().resolve(targetSpecification);
-        if (target == null) {
-          throw new OpenGammaRuntimeException("The target specified by " + targetSpecification + " could not be resolved");
-        }
-        builder.addTarget(target, requirement);
+        builder.addTarget(requirement);
       }
     }
   }

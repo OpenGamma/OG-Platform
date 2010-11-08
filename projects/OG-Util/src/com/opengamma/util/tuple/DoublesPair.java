@@ -19,6 +19,8 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
@@ -88,6 +90,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
 
   /**
    * Constructs a pair.
+   * 
    * @param first  the first element
    * @param second  the second element
    */
@@ -109,6 +112,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
 
   /**
    * Gets the first element as a primitive {@code double}.
+   * 
    * @return the primitive
    */
   public double getFirstDouble() {
@@ -117,6 +121,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
 
   /**
    * Gets the second element as a primitive {@code double}.
+   * 
    * @return the primitive
    */
   public double getSecondDouble() {

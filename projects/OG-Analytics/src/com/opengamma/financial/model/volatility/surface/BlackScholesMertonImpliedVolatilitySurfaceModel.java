@@ -18,6 +18,7 @@ import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -41,7 +42,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     final Double price = entry.getValue();
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
-    return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(0)), optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(10)))
+    return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0))),
+        optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(10))))
         .getVolatilitySurface();
   }
 
@@ -82,13 +84,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
       for (int i = 0; i < MAX_ATTEMPTS; i++) {
         dVol *= 0.5;
         midVol = rootVol + dVol;
-        midVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(midVol));
+        midVolData = _data.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from((midVol))));
         highPrice = function.evaluate(midVolData) - _price;
         if (highPrice <= 0) {
           rootVol = midVol;
         }
         if (Math.abs(dVol) < ACCURACY || Math.abs(highVol) < ZERO) {
-          return _data.withVolatilitySurface(new ConstantVolatilitySurface(rootVol));
+          return _data.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from((midVol))));
         }
       }
       throw new OptionPricingException("Could not find volatility in " + MAX_ATTEMPTS + " attempts");

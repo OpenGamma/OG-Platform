@@ -21,8 +21,8 @@ import javax.ws.rs.ext.Providers;
 
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
@@ -108,12 +108,12 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response searchHistoric(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PositionSearchHistoricRequest request = decodeBean(PositionSearchHistoricRequest.class, providers, msgBase64);
+  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
+    PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
     if (getUrlPositionId().equalsIgnoringVersion(request.getPositionId()) == false) {
       throw new IllegalArgumentException("Document positionId does not match URI");
     }
-    PositionSearchHistoricResult result = getPositionMaster().searchPositionHistoric(request);
+    PositionHistoryResult result = getPositionMaster().historyPosition(request);
     return Response.ok(result).build();
   }
 

@@ -21,6 +21,10 @@ public class UnsatisfiableDependencyGraphException extends
     super(message);
   }
   
+  public UnsatisfiableDependencyGraphException(String message, Throwable cause) {
+    super(message, cause);
+  }
+  
   // TODO kirk 2009-09-04 -- Add in all the various missing dependencies.
 
 }

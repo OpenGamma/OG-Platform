@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 
 // REVIEW kirk 2009-10-04 -- While this is fine initially, eventually this needs to be changed
@@ -21,7 +21,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
 // to provide additional feedback to the user as to WHY so that they can have IT staff
 // fix it easily. Otherwise all failures will result in expensive debugging and log-checking.
 /**
- * 
+ * Checks if a user is entitled to LiveData.
  *
  */
 public interface LiveDataEntitlementChecker {

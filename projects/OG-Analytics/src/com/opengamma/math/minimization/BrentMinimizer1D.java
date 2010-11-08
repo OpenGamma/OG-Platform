@@ -12,7 +12,6 @@ import org.apache.commons.math.optimization.GoalType;
 import org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 
-import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
@@ -25,7 +24,7 @@ public class BrentMinimizer1D implements ScalarMinimizer {
   private static final AbstractUnivariateRealOptimizer OPTIMIZER = new BrentOptimizer();
 
   @Override
-  public double minimize(Function1D<Double, Double> function, double startPosition, double lowerBound, double upperBound) {
+  public double minimize(final Function1D<Double, Double> function, final double startPosition, final double lowerBound, final double upperBound) {
     Validate.notNull(function, "function");
     final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrapUnivariate(function);
     try {
@@ -33,12 +32,12 @@ public class BrentMinimizer1D implements ScalarMinimizer {
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new ConvergenceException(e);
+      throw new MathException(e);
     }
   }
 
   @Override
-  public Double minimize(Function1D<Double, Double> function, Double startPosition) {
+  public Double minimize(final Function1D<Double, Double> function, final Double startPosition) {
     Validate.notNull(function, "function");
     final UnivariateRealFunction commonsFunction = CommonsMathWrapper.wrapUnivariate(function);
     try {
@@ -46,7 +45,7 @@ public class BrentMinimizer1D implements ScalarMinimizer {
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new ConvergenceException(e);
+      throw new MathException(e);
     }
   }
 }

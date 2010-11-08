@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.time.Instant;
 
-import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
@@ -69,19 +68,5 @@ public interface ConfigSource {
    * @return the versioned configuration element matching the request, null if not found
    */  
   <T> T getByName(Class<T> clazz, String name, Instant versionAsOf);
-
-  /**
-   * Searches for a configuration document matching the specified name.
-   * <p>
-   * This will always return the version requested, ignoring any other version constraints
-   * of the implementation.
-   * 
-   * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param name  the element name to search for, wildcards allowed, not null
-   * @param versionAsOf  the version to fetch, null means latest
-   * @return the versioned configuration document matching the request, null if not found
-   */  
-  <T> ConfigDocument<T> getDocumentByName(Class<T> clazz, String name, Instant versionAsOf);
 
 }

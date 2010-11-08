@@ -6,11 +6,6 @@
 package com.opengamma.engine.view;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.util.PublicAPI;
@@ -18,12 +13,10 @@ import com.opengamma.util.PublicAPI;
 /**
  * Encapsulates the logic for deciding whether the difference between any two {@link ComputedValue}s is sufficient to
  * be treated as a delta (in the context of a change). In the absence of a specific comparer, the implementation will
- * fall back onto {@link ObjectUtils.#equals(Object)}.
+ * fall back onto {@link ObjectUtils#equals(Object)}.
  */
 @PublicAPI
 public class DeltaDefinition {
-  
-  private static final String NUMBER_COMPARER_FIELD = "numberComparer";
   
   private DeltaComparer<Number> _numberComparer;
   
@@ -67,39 +60,6 @@ public class DeltaDefinition {
     return !ObjectUtils.equals(previousValue, newValue);
   }
   
-  /**
-   * Serialises this object to a Fudge message.
-   * 
-   * @param fudgeContext  the context
-   * @return  a Fudge representation of this object
-   */
-  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
-    if (_numberComparer != null) {
-      MutableFudgeFieldContainer numberComparerMsg = fudgeContext.objectToFudgeMsg(_numberComparer);
-      FudgeSerializationContext.addClassHeader(numberComparerMsg, _numberComparer.getClass());
-      msg.add(NUMBER_COMPARER_FIELD, numberComparerMsg);
-    }
-    return msg;
-  }
-  
-  /**
-   * Deserialises a DeltaDefinition from a Fudge message.
-   * 
-   * @param fudgeContext  the context
-   * @param msg  the message
-   * @return  the deserialised DeltaDefinition
-   */
-  @SuppressWarnings("unchecked")
-  public static DeltaDefinition fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
-    DeltaDefinition deltaDefinition = new DeltaDefinition();
-    FudgeField numberComparerField = msg.getByName(NUMBER_COMPARER_FIELD);
-    if (numberComparerField != null) {
-      deltaDefinition.setNumberComparer(fudgeContext.fieldValueToObject(DeltaComparer.class, numberComparerField)); 
-    }
-    return deltaDefinition;
-  }
-
   @Override
   public int hashCode() {
     return ObjectUtils.hashCode(_numberComparer);

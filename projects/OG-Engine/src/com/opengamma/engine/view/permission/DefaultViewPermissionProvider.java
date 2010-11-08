@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.permission;
 
 import com.opengamma.engine.view.View;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**

@@ -38,6 +38,8 @@ import com.opengamma.util.PublicAPI;
  * <ul>
  *   <li>Database key - SecurityDB::123456::1</li>
  * </ul>
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Serializable, UniqueIdentifiable {
@@ -71,6 +73,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   /**
    * Obtains an identifier from a scheme and value indicating the latest version
    * of the identifier, also used for non-versioned identifiers.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @return the identifier, not null
@@ -81,6 +84,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Obtains an identifier from a scheme and value.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
@@ -95,6 +99,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>::<VALUE>::<VERSION>}.
+   * 
    * @param uidStr  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
@@ -112,7 +117,8 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Constructor.
+   * Creates an instance.
+   * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @param version  the version of the identifier, null if latest version
@@ -128,7 +134,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme of the identifier.
+   * <p>
    * This is not expected to be the same as {@code IdentificationScheme}.
+   * 
    * @return the scheme, not empty, not null
    */
   public String getScheme() {
@@ -137,6 +145,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Gets the value of the identifier.
+   * 
    * @return the value, not empty, not null
    */
   public String getValue() {
@@ -145,6 +154,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Gets the version of the identifier.
+   * 
    * @return the version, null if latest version
    */
   public String getVersion() {
@@ -153,6 +163,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Returns a copy of this identifier with the specified version.
+   * 
    * @param version  the new version of the identifier, empty treated as null, null treated as latest version
    * @return the created identifier with the specified version, never null
    */
@@ -171,16 +182,31 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Gets the scheme as an {@code IdentificationScheme}.
+   * 
    * @return the scheme, not null
+   * @deprecated this is an invalid conversion
    */
+  @Deprecated
   public IdentificationScheme getSchemeObject() {
-    // TODO: this is probably an invalid conversion
-    return new IdentificationScheme(getScheme());
+    return IdentificationScheme.of(getScheme());
+  }
+
+  /**
+   * Returns a generic identifier representing the same scheme and value as this unique identifier.
+   * 
+   * @return the identifier, not null
+   * @deprecated this is an invalid conversion
+   */
+  @Deprecated
+  public Identifier toIdentifier() {
+    return Identifier.of(getSchemeObject(), getValue());
   }
 
   /**
    * Checks if this represents the latest version of the item.
+   * <p>
    * This simply checks if the version is null.
+   * 
    * @return true if this is the latest version
    */
   public boolean isLatest() {
@@ -189,7 +215,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Checks if this represents a versioned reference to the item.
+   * <p>
    * This simply checks if the version is non null.
+   * 
    * @return true if this is a versioned reference
    */
   public boolean isVersioned() {
@@ -198,7 +226,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Returns a unique identifier based on this with the version set to null.
+   * <p>
    * The returned identifier will represent the latest version of the item.
+   * 
    * @return an identifier representing the latest version of the item, not null
    */
   public UniqueIdentifier toLatest() {
@@ -211,6 +241,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Compares this identifier to another based on the scheme and value, ignoring the version.
+   * 
    * @param other  the other identifier, null returns false
    * @return true if equal ignoring the version
    */
@@ -228,6 +259,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   //-------------------------------------------------------------------------
   /**
    * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * 
    * @param other  the other identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
@@ -263,6 +295,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * 
    * @return the identifier, not null
    */
   @Override
@@ -275,15 +308,16 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     return buf.toString();
   }
 
-  /**
-   * Returns a generic identifier representing the same scheme and value as this unique identifier.
-   * @return the identifier, not null
-   */
-  public Identifier toIdentifier() {
-    return Identifier.of(getSchemeObject(), getValue());
-  }
-
   //-------------------------------------------------------------------------
+
+  /**
+   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @param msg the message to serialize into, not {@code null}
+   * @return the serialized message
+   */
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(msg, "msg");
@@ -296,18 +330,22 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Serializes this pair to a Fudge message.
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
+   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param factory a message creator, not {@code null}
+   * @return the serialized Fudge message
    */
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
   /**
-   * Deserializes this pair from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
+   * Deserializes an unique identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * 
+   * @param msg the Fudge message, not {@code null}
+   * @return the unique identifier
    */
   public static UniqueIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);

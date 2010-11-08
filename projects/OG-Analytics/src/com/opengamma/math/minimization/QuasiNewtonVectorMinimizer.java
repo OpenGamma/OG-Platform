@@ -7,7 +7,7 @@ package com.opengamma.math.minimization;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -61,9 +61,6 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
   @Override
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
     throw new NotImplementedException("Please supply gradient function or use ConjugateGradient");
-    //    ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
-    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.derivative(function);
-    //    return minimize(function, grad, startPosition);
   }
 
   @Override
@@ -76,7 +73,7 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     data.setInverseHessianEsimate(getInitializedMatrix(function, startPosition));
 
     if (!getNextPosition(function, grad, data)) {
-      throw new ConvergenceException("Cannot work with this starting position. Please choose another point");
+      throw new MathException("Cannot work with this starting position. Please choose another point");
     }
 
     int count = 0;
@@ -93,13 +90,13 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
         data.setInverseHessianEsimate(getInitializedMatrix(function, startPosition));
         resetCount = 1;
         if (!getNextPosition(function, grad, data)) {
-          throw new ConvergenceException("Failed to converge in backtracking");
+          throw new MathException("Failed to converge in backtracking");
         }
       }
       count++;
       resetCount++;
       if (count > _maxSteps) {
-        throw new ConvergenceException("Failed to converge after " + _maxSteps + " iterations. Final point reached: " + data.getX().toString());
+        throw new MathException("Failed to converge after " + _maxSteps + " iterations. Final point reached: " + data.getX().toString());
       }
     }
     return data.getX();
@@ -143,10 +140,6 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     final DoubleMatrix1D gradNew = grad.evaluate(data.getX());
     data.setDeltaGrad((DoubleMatrix1D) MA.subtract(gradNew, data.getGrad()));
     data.setGrad(gradNew);
-
-    //if (data.getX().getEntry(0) > 0.99 && data.getX().getEntry(1) > 0.99) {
-    //   System.out.println("position:," + data.getX().getEntry(0) + "," + data.getX().getEntry(1));
-    // }
     return true;
   }
 

@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtil;
 public class FXOptionDataBundleTest {
   private static final YieldAndDiscountCurve DOMESTIC = new YieldCurve(ConstantDoublesCurve.from(0.03));
   private static final YieldAndDiscountCurve FOREIGN = new YieldCurve(ConstantDoublesCurve.from(0.05));
-  private static final VolatilitySurface SIGMA = new ConstantVolatilitySurface(0.3);
+  private static final VolatilitySurface SIGMA = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double SPOT = 1.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final FXOptionDataBundle DATA = new FXOptionDataBundle(DOMESTIC, FOREIGN, SIGMA, SPOT, DATE);
@@ -46,7 +46,7 @@ public class FXOptionDataBundleTest {
     assertFalse(other.equals(DATA));
     other = new FXOptionDataBundle(DOMESTIC, DOMESTIC, SIGMA, SPOT, DATE);
     assertFalse(other.equals(DATA));
-    other = new FXOptionDataBundle(DOMESTIC, FOREIGN, new ConstantVolatilitySurface(0.2), SPOT, DATE);
+    other = new FXOptionDataBundle(DOMESTIC, FOREIGN, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DATE);
     assertFalse(other.equals(DATA));
     other = new FXOptionDataBundle(DOMESTIC, FOREIGN, SIGMA, SPOT + 1, DATE);
     assertFalse(other.equals(DATA));

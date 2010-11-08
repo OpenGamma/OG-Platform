@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePosition;
 import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchHistoricRequest;
-import com.opengamma.financial.position.master.PositionSearchHistoricResult;
+import com.opengamma.financial.position.master.PositionHistoryRequest;
+import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -124,8 +124,8 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getPosition(), old.getPosition());
     
-    PositionSearchHistoricRequest search = new PositionSearchHistoricRequest(base.getPositionId(), now, null);
-    PositionSearchHistoricResult searchResult = _queryWorker.searchPositionHistoric(search);
+    PositionHistoryRequest search = new PositionHistoryRequest(base.getPositionId(), now, null);
+    PositionHistoryResult searchResult = _queryWorker.historyPosition(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 

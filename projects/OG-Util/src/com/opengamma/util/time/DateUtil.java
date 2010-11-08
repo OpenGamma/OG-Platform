@@ -273,7 +273,7 @@ public class DateUtil {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / SECONDS_PER_DAY;
+    return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / (double) SECONDS_PER_DAY;
   }
   
   /**

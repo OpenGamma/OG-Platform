@@ -18,6 +18,8 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -56,11 +58,15 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option), getUniqueIdentifier());
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
+      final ComputedValue resultValue = new ComputedValue(getResultSpecification(dV.getValueName(), target, option), greekResult);
       results.add(resultValue);
     }
     return results;
+  }
+
+  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final OptionSecurity security) {
+    // REVIEW 2010-10-28 Andrew -- Do all values produced have a currency? Aren't the derivitive greeks unitless?
+    return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getISOCode()).get());
   }
 
   @Override
@@ -71,7 +77,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     final OptionSecurity security = (OptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
+      results.add(getResultSpecification(valueName, target, security));
     }
     return results;
   }
@@ -82,6 +88,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
+    // TODO 2010-10-28 Andrew -- We're assuming the underlying is in the same currency as the PUT/CALL price. Detect if it's different and act accordingly.
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
@@ -93,8 +100,9 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, uid);
+  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final OptionSecurity security) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueIdentifier(), ValueProperties.with(ValuePropertyNames.CURRENCY,
+        security.getCurrency().getISOCode()).get());
   }
 
   protected abstract <S extends OptionDefinition, T extends StandardOptionDataBundle> AnalyticOptionModel<S, T> getModel();

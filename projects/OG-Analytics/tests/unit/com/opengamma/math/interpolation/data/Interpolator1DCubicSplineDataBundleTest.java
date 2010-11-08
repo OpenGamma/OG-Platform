@@ -26,7 +26,7 @@ public class Interpolator1DCubicSplineDataBundleTest {
   private static final Function1D<Double, Double> NORMAL = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       return Math.exp(-x * x / 2);
     }
   };
@@ -115,7 +115,7 @@ public class Interpolator1DCubicSplineDataBundleTest {
     assertEquals(y2[0], 0, EPS);
     assertEquals(y2[y2.length - 1], 0, EPS);
 
-    for (double element : y2) {
+    for (final double element : y2) {
       assertEquals(0.0, element, 0.0);
     }
 
@@ -130,9 +130,8 @@ public class Interpolator1DCubicSplineDataBundleTest {
 
     y2 = data.getSecondDerivatives();
     for (int i = 0; i < n; i++) {
-      double temp = (x[i] * x[i] - 1) * Math.exp(-x[i] * x[i] / 2.0);
+      final double temp = (x[i] * x[i] - 1) * Math.exp(-x[i] * x[i] / 2.0);
       assertEquals(temp, y2[i], 1e-2);
-      // System.out.println(y2[i] + "," + temp);
     }
   }
 
@@ -154,8 +153,8 @@ public class Interpolator1DCubicSplineDataBundleTest {
   @Test
   public void testSecondDerivativesSensitivities() {
 
-    double[][] sense = DATA.getSecondDerivativesSensitivities();
-    int n = X.length;
+    final double[][] sense = DATA.getSecondDerivativesSensitivities();
+    final int n = X.length;
     assertEquals(sense.length, n, 0);
     assertEquals(sense[0].length, n, 0);
     for (int i = 0; i < n; i++) {

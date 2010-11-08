@@ -9,9 +9,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * 
+ * This {@code IdResolver} returns the ID as-is.  
  *
- * @author kirk
  */
 public class IdentityIdResolver implements IdResolver {
 

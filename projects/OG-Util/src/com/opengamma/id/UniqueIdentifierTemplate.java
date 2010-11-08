@@ -21,16 +21,34 @@ import com.opengamma.util.ArgumentChecker;
  * <li>An optional prefix for the value of the identifiers
  * </ul>
  * No assumptions are made about the format of the scheme or value prefix themselves.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class UniqueIdentifierTemplate {
-  
+
+  /**
+   * The scheme.
+   */
   private final String _scheme;
+  /**
+   * The value prefix.
+   */
   private final String _valuePrefix;
-  
+
+  /**
+   * Creates an instance using a scheme.
+   * 
+   * @param scheme  the scheme to use, not null
+   */
   public UniqueIdentifierTemplate(String scheme) {
     this(scheme, null);
   }
-  
+
+  /**
+   * Creates a supplier that acts as a factory for unique identifiers.
+   * 
+   * @return the supplier, not null
+   */
   public Supplier<UniqueIdentifier> createSupplier() {
     return new Supplier<UniqueIdentifier>() {
       private int _count;
@@ -45,8 +63,8 @@ public class UniqueIdentifierTemplate {
   /**
    * Constructs a new instance.
    * 
-   * @param scheme  the scheme of the {@link UniqueIdentifier}, not null
-   * @param valuePrefix  the prefix of the {@link UniqueIdentifier} value, possibly null to indicate no prefix
+   * @param scheme  the scheme of the unique identifier, not null
+   * @param valuePrefix  the prefix of the unique identifier value, possibly null to indicate no prefix
    */
   public UniqueIdentifierTemplate(String scheme, String valuePrefix) {
     ArgumentChecker.notNull(scheme, "scheme");

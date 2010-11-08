@@ -100,10 +100,21 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
           Map<UniqueIdentifier, Collection<DependencyNode>> target2SecurityAndPositionNodes = 
             passNumber2Target2SecurityAndPositionNodes.get(passNumber);
           
-          Collection<DependencyNode> nodeCollection = target2SecurityAndPositionNodes.get(node.getComputationTarget().getUniqueIdentifier());
+          UniqueIdentifier uniqueIdentifier;
+          if (node.getComputationTarget().getType() == ComputationTargetType.SECURITY) {
+            uniqueIdentifier = node.getComputationTarget().getUniqueIdentifier(); 
+          } else if (node.getComputationTarget().getType() == ComputationTargetType.POSITION) {
+            // execute positions with underlying securities
+            DependencyNode securityNode = getSecurityNode(node); 
+            uniqueIdentifier = securityNode.getComputationTarget().getUniqueIdentifier();
+          } else {
+            throw new RuntimeException("Should not get here");
+          }
+          
+          Collection<DependencyNode> nodeCollection = target2SecurityAndPositionNodes.get(uniqueIdentifier);
           if (nodeCollection == null) {
             nodeCollection = new HashSet<DependencyNode>();
-            target2SecurityAndPositionNodes.put(node.getComputationTarget().getUniqueIdentifier(), nodeCollection);
+            target2SecurityAndPositionNodes.put(uniqueIdentifier, nodeCollection);
           }
           nodeCollection.add(node);
           break;
@@ -139,7 +150,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     for (Map<UniqueIdentifier, Collection<DependencyNode>> target2SecurityAndPositionNodes : 
       passNumber2Target2SecurityAndPositionNodes) {
       
-      s_logger.info("Executing pass number {}", passNumber);
+      s_logger.info("Executing pass number {}", passNumber, target2SecurityAndPositionNodes.size());
       
       LinkedList<Future<?>> secAndPositionFutures = new LinkedList<Future<?>>();
       int nodeCount = 0;
@@ -220,17 +231,25 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
         }
         return maxPass;
       case POSITION:
-        if (node.getInputNodes().size() != 1) {
-          throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
-        }
-        DependencyNode input = node.getInputNodes().iterator().next();
-        if (input.getComputationTarget().getType() != ComputationTargetType.SECURITY) {
-          throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
-        }
-        return determinePassNumber(input);
+        DependencyNode securityNode = getSecurityNode(node);
+        return determinePassNumber(securityNode);
       default:
         throw new IllegalArgumentException("Unexpected node type " + node);
     }
+  }
+
+  private DependencyNode getSecurityNode(DependencyNode positionNode) {
+    if (positionNode.getComputationTarget().getType() != ComputationTargetType.POSITION) {
+      throw new IllegalArgumentException("Please pass in a POSITION node");
+    }
+    if (positionNode.getInputNodes().size() != 1) {
+      throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
+    }
+    DependencyNode securityNode = positionNode.getInputNodes().iterator().next();
+    if (securityNode.getComputationTarget().getType() != ComputationTargetType.SECURITY) {
+      throw new IllegalArgumentException("A POSITION node should only depend on its SECURITY");
+    }
+    return securityNode;
   }
   
   private class BatchExecutorFuture extends FutureTask<Object> {

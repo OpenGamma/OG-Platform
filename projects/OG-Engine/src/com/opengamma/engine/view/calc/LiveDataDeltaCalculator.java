@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
@@ -13,9 +13,11 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Determines which nodes in a graph have changed. A node has 'changed' if and only 
@@ -23,16 +25,16 @@ import com.opengamma.util.ArgumentChecker;
  * Note that this excludes changes due to passage of the system clock. 
  */
 public class LiveDataDeltaCalculator {
-  
+
   private final DependencyGraph _graph;
-  private final ViewComputationCache _cache; 
+  private final ViewComputationCache _cache;
   private final ViewComputationCache _previousCache;
-  
+
   private final Set<DependencyNode> _changedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _unchangedNodes = new HashSet<DependencyNode>();
-  
+
   private boolean _done; // = false
-  
+
   /**
    * For the delta calculation to be meaningful, the caches should be populated with LiveData 
    * inputs required to compute the given dependency graph. 
@@ -43,9 +45,7 @@ public class LiveDataDeltaCalculator {
    * @param cache Contains CurrentLiveDataInputs (for the given graph)
    * @param previousCache Contains PreviousLiveDataInputs (for the given graph)
    */
-  public LiveDataDeltaCalculator(DependencyGraph graph,
-      ViewComputationCache cache,
-      ViewComputationCache previousCache) {
+  public LiveDataDeltaCalculator(DependencyGraph graph, ViewComputationCache cache, ViewComputationCache previousCache) {
     ArgumentChecker.notNull(graph, "Graph");
     ArgumentChecker.notNull(cache, "Cache");
     ArgumentChecker.notNull(previousCache, "Previous cache");
@@ -53,18 +53,18 @@ public class LiveDataDeltaCalculator {
     _cache = cache;
     _previousCache = previousCache;
   }
-  
+
   public Set<DependencyNode> getChangedNodes() {
     if (!_done) {
-      throw new IllegalStateException("Call computeDelta() first");      
+      throw new IllegalStateException("Call computeDelta() first");
     }
-    
+
     return Collections.unmodifiableSet(_changedNodes);
   }
 
   public Set<DependencyNode> getUnchangedNodes() {
     if (!_done) {
-      throw new IllegalStateException("Call computeDelta() first");      
+      throw new IllegalStateException("Call computeDelta() first");
     }
 
     return Collections.unmodifiableSet(_unchangedNodes);
@@ -72,49 +72,49 @@ public class LiveDataDeltaCalculator {
 
   public void computeDelta() {
     if (_done) {
-      throw new IllegalStateException("Cannot determine delta twice");     
+      throw new IllegalStateException("Cannot determine delta twice");
     }
-    
+
     for (DependencyNode rootNode : _graph.getRootNodes()) {
       computeDelta(rootNode);
     }
-    
+
     _done = true;
   }
-  
+
   private boolean computeDelta(DependencyNode node) {
     if (_changedNodes.contains(node)) {
-      return true; 
-    } 
+      return true;
+    }
     if (_unchangedNodes.contains(node)) {
       return false;
     }
-    
+
     boolean hasChanged = false;
     for (DependencyNode inputNode : node.getInputNodes()) {
       // if any children changed, this node automatically requires recomputation.
-      hasChanged |= computeDelta(inputNode);      
+      hasChanged |= computeDelta(inputNode);
     }
-    
+
     if (!hasChanged) {
       // if no children changed, the node may still require recomputation
       // due to LiveData changes affecting the function of the node.
-      for (ValueSpecification liveDataRequirement : node.getRequiredLiveData()) {
-        Object oldValue = _previousCache.getValue(liveDataRequirement);
-        Object newValue = _cache.getValue(liveDataRequirement);
+      Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
+      if (liveData != null) {
+        Object oldValue = _previousCache.getValue(liveData.getSecond());
+        Object newValue = _cache.getValue(liveData.getSecond());
         if (!ObjectUtils.equals(oldValue, newValue)) {
           hasChanged = true;
-          break;
         }
       }
     }
-    
+
     if (hasChanged) {
-      _changedNodes.add(node);        
+      _changedNodes.add(node);
     } else {
       _unchangedNodes.add(node);
     }
-    
+
     return hasChanged;
   }
 }

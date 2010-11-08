@@ -71,7 +71,7 @@ public class PrivateToSharedTransferTest {
         assertEquals("Test View", cache.getViewName());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
-        int i = Integer.parseInt(spec.getRequirementSpecification().getValueName());
+        int i = Integer.parseInt(spec.getValueName());
         missing.add(i);
         switch (i) {
           case 0:

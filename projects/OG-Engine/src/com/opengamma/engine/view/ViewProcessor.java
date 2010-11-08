@@ -7,26 +7,23 @@ package com.opengamma.engine.view;
 
 import java.util.Set;
 
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A view processor manages the computation of views, and is responsible for initializing the computation context of
- * these views. A view processor can manage only one instance of any view, but potentially there can be many view
- * processors responsible for possibly-overlapping sets of views.
- * <p>
- * This interface exposes full control over the view processor, for example using through
- * {@link #stopProcessing(String)}, and is designed for internal use by the engine. The {@link ViewProcessorClient}
- * interface is designed to provide more restricted access to a {@link ViewProcessor} for external use.
+ * A view processor manages a set of views and provides these with a common computation context, including the source
+ * of positions, securities, live data and computation resources. Only one instance of any view can be managed by an
+ * individual view processor, but potentially there can be many view processors responsible for possibly-overlapping
+ * sets of views.
  */
 @PublicAPI
 public interface ViewProcessor {
 
   /**
-   * Gets the names of the views which the view processor can provide access to. Not all of these views are necessarily
+   * Gets the names of the views to which the view processor can provide access. Not all of these views are necessarily
    * initialized, less so being processed.
    * 
-   * @return  a set of view names
+   * @return a set of view names
    */
   Set<String> getViewNames();
   
@@ -35,7 +32,7 @@ public interface ViewProcessor {
    * 
    * @param name  the name of the view to obtain, not null
    * @param credentials  the user attempting to access the view, not null
-   * @return  the view
+   * @return the view
    */
   View getView(String name, UserPrincipal credentials);
 

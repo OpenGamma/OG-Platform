@@ -13,7 +13,8 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This class produces a {@code DistributionSpecification}
+ * from a fixed map. 
  */
 public class FixedDistributionSpecificationResolver implements DistributionSpecificationResolver {
   

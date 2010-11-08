@@ -21,8 +21,11 @@ import com.opengamma.util.ArgumentChecker;
  * An immutable identifier with valid dates for an item.
  * <p>
  * It is made up of an {@link Identifier identifier} with valid start and end date
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Cloneable, Serializable {
+
   /**
    * Fudge message key for the valid_from.
    */
@@ -43,13 +46,61 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * The valid end date
    */
   private final LocalDate _validTo;
-  
+
   /**
-   * @param identifier
-   * @param validFrom
-   * @param validTo
+   * Obtains an identifier with dates from an identifier and dates.
+   * 
+   * @param identifier  the identifier, not empty, not null
+   * @param validFrom  the valid from date, may be null
+   * @param validTo  the valid to date, may be null
+   * @return the identifier, not null
    */
-  public IdentifierWithDates(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
+  public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
+    return new IdentifierWithDates(identifier, validFrom, validTo);
+  }
+
+  /**
+   * Obtains an identifier with dates from a formatted scheme and value.
+   * <p>
+   * This parses the identifier from the form produced by {@code toString()}
+   * which is {@code <SCHEME>::<VALUE>:S:<VALID_FROM>:E:<VALID_TO>}.
+   * 
+   * @param str  the identifier to parse, not null
+   * @return the identifier, not null
+   * @throws IllegalArgumentException if the identifier cannot be parsed
+   */
+  public static IdentifierWithDates parse(String str) {
+    ArgumentChecker.notNull(str, "parse string");
+    Identifier identifier = null;
+    LocalDate validFrom = null;
+    LocalDate validTo = null;
+    int startPos = str.indexOf(":S:");
+    int endPos = str.indexOf(":E");
+    if (startPos > 0) {
+      identifier = Identifier.parse(str.substring(0, startPos));
+      if (endPos > 0) {
+        validFrom = LocalDate.parse(str.substring(startPos + 3, endPos));
+        validTo = LocalDate.parse(str.substring(endPos + 3));
+      } else {
+        validFrom = LocalDate.parse(str.substring(startPos + 3));
+      }
+    } else if (endPos > 0) {
+      identifier = Identifier.parse(str.substring(0, endPos));
+      validTo = LocalDate.parse(str.substring(endPos + 3));
+    } else {
+      identifier = Identifier.parse(str);
+    }
+    return new IdentifierWithDates(identifier, validFrom, validTo);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param identifier  the identifier, not null
+   * @param validFrom  the valid from date, may be null
+   * @param validTo  the valid to date, may be null
+   */
+  private IdentifierWithDates(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
     ArgumentChecker.notNull(identifier, "identifier");
     if (validFrom != null && validTo != null) {
       ArgumentChecker.isTrue(validTo.isAfter(validFrom) || validTo.equals(validFrom), "ValidTo must be after or eqauls to ValidFrom");
@@ -58,44 +109,42 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
     _validFrom = validFrom;
     _validTo = validTo;
   }
-  
-  /**
-   * Obtains an identifier with dates from an identifier and the dates.
-   * @param identifier  the identifier, not empty, not null
-   * @param validFrom  the value of the identifier if applicable
-   * @param validTo the 
-   * @return the identifier, not null
-   */
-  public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
-    return new IdentifierWithDates(identifier, validFrom, validTo);
-  }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Identifier getIdentityKey() {
     return _identifier;
   }
-  
+
   /**
-   * Returns the Identifier
-   */
-  public Identifier asIdentifier() {
-    return _identifier;
-  }
-  /**
-   * Gets the validFrom field.
-   * @return the validFrom
+   * Gets the valid from date.
+   * 
+   * @return the valid from date, may be null
    */
   public LocalDate getValidFrom() {
     return _validFrom;
   }
+
   /**
-   * Gets the validTo field.
-   * @return the validTo
+   * Gets the valid to date.
+   * 
+   * @return the valid to date, may be null
    */
   public LocalDate getValidTo() {
     return _validTo;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the identifier without dates.
+   * 
+   * @return the identifier without dates, not null
+   */
+  public Identifier asIdentifier() {
+    return _identifier;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -119,9 +168,10 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   public int compareTo(IdentifierWithDates other) {
     return _identifier.compareTo(other._identifier);
   }
-  
+
   /**
    * Returns the identifier in the form {@code <SCHEME>::<VALUE>:S:<VALID_FROM>:E:<VALID_TO>}.
+   * 
    * @return the identifier, not null
    */
   @Override
@@ -135,42 +185,8 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
     }
     return buf.toString();
   }
-  
-  /**
-   * Obtains an identifier with dates from a formatted scheme and value.
-   * <p>
-   * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>:S:<VALID_FROM>:E:<VALID_TO>}.
-   * @param str  the identifier to parse, not null
-   * @return the identifier, not null
-   * @throws IllegalArgumentException if the identifier cannot be parsed
-   */
-  public static IdentifierWithDates parse(String str) {
-    ArgumentChecker.notNull(str, "parse string");
-    Identifier identifier = null;
-    LocalDate validFrom = null;
-    LocalDate validTo = null;
-    int startPos = str.indexOf(":S:");
-    int endPos = str.indexOf(":E");
-    if (startPos > 0) {
-      identifier = Identifier.parse(str.substring(0, startPos));
-      if (endPos > 0) {
-        validFrom = LocalDate.parse(str.substring(startPos + 3, endPos));
-        validTo = LocalDate.parse(str.substring(endPos + 3));
-      } else {
-        validFrom = LocalDate.parse(str.substring(startPos + 3));
-      }
-    } else if (endPos > 0){
-      identifier = Identifier.parse(str.substring(0, endPos));
-      validTo = LocalDate.parse(str.substring(endPos + 3));
-    } else {
-      identifier = Identifier.parse(str);
-    }
-    return new IdentifierWithDates(identifier, validFrom, validTo);
-  }
-  
-  //-------------------------------------------------------------------------
 
+  //-------------------------------------------------------------------------
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
@@ -212,5 +228,5 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
     }
     return IdentifierWithDates.of(identifier, validFrom, validTo);
   }
-  
+
 }

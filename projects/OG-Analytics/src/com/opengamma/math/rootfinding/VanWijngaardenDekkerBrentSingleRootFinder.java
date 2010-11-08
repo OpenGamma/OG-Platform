@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -30,7 +31,7 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
     double fa = function.evaluate(a);
     double fb = function.evaluate(b);
     if (fa > 0 && fb > 0 || fa < 0 && fb < 0) {
-      throw new RootNotFoundException("Root was not bracketed by " + x1 + " and " + x2);
+      throw new MathException("Root was not bracketed by " + x1 + " and " + x2);
     }
     double fc = fb;
     double p, q, r, s, eps, xMid, min1, min2;
@@ -94,6 +95,6 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
       fb = function.evaluate(b);
       fc = function.evaluate(c);
     }
-    throw new RootNotFoundException("Could not converge to root in " + MAX_ITER + " attempts");
+    throw new MathException("Could not converge to root in " + MAX_ITER + " attempts");
   }
 }

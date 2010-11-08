@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ComputedValue;
       _values.put(key, values);
     }
     if (value != null) {
-      values.put(value.getSpecification().getRequirementSpecification().getValueName(), value);
+      values.put(value.getSpecification().getValueName(), value);
     }
   }
 

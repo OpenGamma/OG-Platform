@@ -18,11 +18,11 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * It first tries to see if the requested snapshot data is in the batch db.
  * If so, that data is returned. But if the data is not found in the batch db,
- * the provider goes to a historical data provider (in practice, the time
+ * the provider goes to an underlying data provider (in practice, the time
  * series database), to see if the data could be found there. If so,
  * that data is copied over to the batch database and returned.
  * <p>
- * The copying of the data from the historical data provider to the batch
+ * The copying of the data from the underlying data provider to the batch
  * database ensures that if the batch is restarted, it will be run
  * using the exact same market data as on the first attempt. If 
  * the data in the historical data provider is completely fixed, 
@@ -83,6 +83,14 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     addValue(requirement, valueInTimeSeriesDb);
     
     return valueInTimeSeriesDb;
+  }
+  
+  @Override
+  public boolean isAvailable(ValueRequirement requirement) {
+    if (super.isAvailable(requirement)) {
+      return true;
+    }
+    return _historicalDataProvider.isAvailable(requirement);
   }
   
 }

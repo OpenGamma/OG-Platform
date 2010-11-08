@@ -18,8 +18,9 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SimpleChooserOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -34,7 +35,8 @@ public class SimpleChooserOptionModelTest {
   private static final double STRIKE = 50;
   private static final double SPOT = 50;
   private static final SimpleChooserOptionDefinition DEFINITION = new SimpleChooserOptionDefinition(CHOOSE_DATE, STRIKE, UNDERLYING_EXPIRY);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new ConstantVolatilitySurface(0.25), SPOT, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(ConstantDoublesSurface.from(0.25)),
+      SPOT, DATE);
   private static final AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> MODEL = new SimpleChooserOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
 
@@ -51,7 +53,7 @@ public class SimpleChooserOptionModelTest {
   @Test
   public void test() {
     double strike = SPOT;
-    final StandardOptionDataBundle data = DATA.withVolatilitySurface(new ConstantVolatilitySurface(0));
+    final StandardOptionDataBundle data = DATA.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0)));
     SimpleChooserOptionDefinition chooser = new SimpleChooserOptionDefinition(new Expiry(DATE), strike, UNDERLYING_EXPIRY);
     OptionDefinition vanilla = new EuropeanVanillaOptionDefinition(strike, UNDERLYING_EXPIRY, true);
     assertEquals(MODEL.getPricingFunction(chooser).evaluate(DATA), BSM.getPricingFunction(vanilla).evaluate(DATA), 1e-9);

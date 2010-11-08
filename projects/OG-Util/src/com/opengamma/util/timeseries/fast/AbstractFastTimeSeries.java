@@ -16,24 +16,23 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MAXIMUM_OP
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MINIMUM_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MULTIPLY_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NEGATE_OPERATOR;
+import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.POWER_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
-import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.ToStringHelper;
 import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.ListDateDoubleTimeSeries;
@@ -642,24 +641,9 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     return new ListYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastMutableLongMillisDTS());
   }
   
+  @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getSimpleName());
-    sb.append("["); 
-    Iterator<Entry<T, Double>> iterator = iterator();
-    while (iterator.hasNext()) {
-      Entry<T, Double> next = iterator.next();
-      sb.append("(");
-      sb.append(next.getKey());
-      sb.append(", ");
-      sb.append(next.getValue());
-      sb.append(")");
-      if (iterator.hasNext()) {
-        sb.append(", ");
-      }
-    }
-    sb.append("]");
-    return sb.toString();
+    return ToStringHelper.toString(this);
   }
 
 }

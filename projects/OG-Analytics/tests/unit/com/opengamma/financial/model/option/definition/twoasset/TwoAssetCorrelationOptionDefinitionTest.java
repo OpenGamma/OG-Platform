@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -33,8 +33,8 @@ public class TwoAssetCorrelationOptionDefinitionTest {
   private static final double B2 = 0.;
   private static final double S1 = 100;
   private static final double S2 = 80;
-  private static final VolatilitySurface SIGMA1 = new ConstantVolatilitySurface(0.1);
-  private static final VolatilitySurface SIGMA2 = new ConstantVolatilitySurface(0.11);
+  private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.1));
+  private static final VolatilitySurface SIGMA2 = new VolatilitySurface(ConstantDoublesSurface.from(0.11));
   private static final double RHO = 0.9;
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(R, B1, B2, SIGMA1, SIGMA2, S1, S2, RHO, DATE);
   private static final TwoAssetCorrelationOptionDefinition CALL = new TwoAssetCorrelationOptionDefinition(K, EXPIRY, true, PAYOUT);

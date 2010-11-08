@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -25,6 +26,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -72,13 +74,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (!canApplyTo(context, target)) {
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     SecuritySource securityMaster = context.getSecuritySource();
-    Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
+    Security underlying = securityMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
@@ -95,17 +97,16 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     if (!canApplyTo(context, target)) {
       return null;
     }
-    return Collections.singleton(createResultSpecification(target.getSecurity()));
+    return Collections.singleton(createResultSpecification(target.toSpecification(), (OptionSecurity) target.getSecurity()));
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime today = executionContext.getSnapshotClock().zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
-    
+
     SecuritySource secMaster = executionContext.getSecuritySource();
-    Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
+    Security underlying = secMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueIdentifier());
@@ -133,14 +134,14 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
 
     // Package the result
-    final ValueSpecification resultSpec = createResultSpecification(optionSec);
+    final ValueSpecification resultSpec = createResultSpecification(target.toSpecification(), optionSec);
     final ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
     return Collections.singleton(resultValue);
   }
 
-  protected ValueSpecification createResultSpecification(final Security security) {
-    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, security);
-    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueIdentifier());
+  protected ValueSpecification createResultSpecification(final ComputationTargetSpecification target, final OptionSecurity targetSecurity) {
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, createValueProperties().with(ValuePropertyNames.CURRENCY,
+        targetSecurity.getCurrency().getISOCode()).get());
     return resultSpec;
   }
 

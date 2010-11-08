@@ -115,7 +115,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final FutureSecurity future = (FutureSecurity) target.getSecurity();
       final Identifier underlying = future.accept(_visitor);

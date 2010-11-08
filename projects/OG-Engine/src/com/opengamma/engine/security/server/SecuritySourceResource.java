@@ -104,7 +104,7 @@ public class SecuritySourceResource {
   @Path("securities")
   public FudgeMsgEnvelope getSecurities(@QueryParam("id") List<String> idStrs) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
-    IdentifierBundle bundle = new IdentifierBundle();
+    IdentifierBundle bundle = IdentifierBundle.EMPTY;
     for (String idStr : idStrs) {
       bundle = bundle.withIdentifier(Identifier.parse(idStr));
     }
@@ -126,7 +126,7 @@ public class SecuritySourceResource {
   @Path("securities/security")
   public FudgeMsgEnvelope getSecurity(@QueryParam("id") List<String> idStrs) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
-    IdentifierBundle bundle = new IdentifierBundle();
+    IdentifierBundle bundle = IdentifierBundle.EMPTY;
     for (String idStr : idStrs) {
       bundle = bundle.withIdentifier(Identifier.parse(idStr));
     }

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
@@ -79,7 +80,7 @@ public class GridInterpolator2D extends Interpolator2D {
     while (iter.hasNext()) {
       entry = iter.next();
       if (entry.getValue().size() != size) {
-        throw new InterpolationException("Data were not on a grid");
+        throw new MathException("Data were not on a grid");
       }
       result.put(entry.getKey(), _yInterpolator.getDataBundle(entry.getValue()));
     }

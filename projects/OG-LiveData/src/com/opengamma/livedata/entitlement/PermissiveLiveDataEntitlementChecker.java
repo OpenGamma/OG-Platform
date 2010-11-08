@@ -6,11 +6,11 @@
 package com.opengamma.livedata.entitlement;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 
 /**
- * 
+ * Always allows the user access to LiveData.
  */
 public class PermissiveLiveDataEntitlementChecker extends AbstractEntitlementChecker {
 

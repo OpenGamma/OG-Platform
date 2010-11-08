@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import org.apache.commons.math.MathException;
 import org.apache.commons.math.special.Beta;
 
-import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -84,8 +83,8 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
     }
     try {
       return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);
-    } catch (final MathException e) {
-      throw new ConvergenceException(e);
+    } catch (final org.apache.commons.math.MathException e) {
+      throw new MathException(e);
     }
   }
 }

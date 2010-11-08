@@ -12,9 +12,7 @@ import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author pietari
+ * Creates {@link FudgeSender}'s.
  */
 public class FudgeSenderFactory implements MarketDataSenderFactory {
   

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.swap;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,20 +30,17 @@ import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
-
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.holiday.HolidaySource;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.financial.world.region.master.RegionSource;
 import com.opengamma.id.Identifier;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * 
@@ -62,12 +60,12 @@ public class FixedFloatSwapSecurityToSwapConverter {
   }
 
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
-  protected Calendar getCalendar(Identifier regionId) {
-    if (regionId.getScheme().equals(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2) && regionId.getValue().contains("+")) {
-      String[] regions = regionId.getValue().split("\\+");
-      Set<Region> resultRegions = new HashSet<Region>();
-      for (String region : regions) {
-        resultRegions.add(_regionSource.getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.REGION_FILE_SCHEME_ISO2, region)));
+  protected Calendar getCalendar(final Identifier regionId) {
+    if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
+      final String[] regions = regionId.getValue().split("\\+");
+      final Set<Region> resultRegions = new HashSet<Region>();
+      for (final String region : regions) {
+        resultRegions.add(_regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(_holidaySource, resultRegions);
     } else {
@@ -75,8 +73,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
       return new HolidaySourceCalendarAdapter(_holidaySource, payRegion);
     }
   }
-    
-  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,  
+
+  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate,
       final double initialRate, final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
@@ -103,9 +101,9 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
-    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar), 
+    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar),
         getFloatLeg(floatLeg, now, effectiveDate, maturityDate,
-        fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
+            fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
 
   }
 
@@ -115,7 +113,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
         + ", liborCurveName" + liborCurveName + ", calendar=" + calendar + ", settlementDays=" + settlementDays);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     s_logger.debug("unadjustedDates=" + Arrays.asList(unadjustedDates));
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar);
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
     s_logger.debug("adjustedDates=" + Arrays.asList(adjustedDates));
     final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
     s_logger.debug("resetDates=" + Arrays.asList(resetDates));
@@ -168,7 +166,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
         + ", fundingCurveName=" + fundingCurveName + ", calendar=" + calendar);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
     s_logger.debug("unadjustedDates = " + Arrays.asList(unadjustedDates));
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar);
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar, 0);
     s_logger.debug("adjustedDates = " + Arrays.asList(adjustedDates));
     double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     s_logger.debug("paymentTimes = " + Doubles.asList(paymentTimes));

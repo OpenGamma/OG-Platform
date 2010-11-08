@@ -15,8 +15,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.twoasset.ProductOptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -48,9 +49,10 @@ public class ProductOptionModelTest {
   @Test
   public void test() {
     ProductOptionDefinition option = new ProductOptionDefinition(15000, EXPIRY1, true);
-    StandardTwoAssetOptionDataBundle data = new StandardTwoAssetOptionDataBundle(R, B1, B2, new ConstantVolatilitySurface(0.2), new ConstantVolatilitySurface(0.3), S1, S2, -0.5, DATE);
+    StandardTwoAssetOptionDataBundle data = new StandardTwoAssetOptionDataBundle(R, B1, B2, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), new VolatilitySurface(
+        ConstantDoublesSurface.from(0.3)), S1, S2, -0.5, DATE);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 0.0028, EPS);
-    data = data.withFirstVolatilitySurface(new ConstantVolatilitySurface(0.3)).withCorrelation(0);
+    data = data.withFirstVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0.3))).withCorrelation(0);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 2.4026, EPS);
     option = new ProductOptionDefinition(15000, EXPIRY2, true);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 266.1594, EPS);

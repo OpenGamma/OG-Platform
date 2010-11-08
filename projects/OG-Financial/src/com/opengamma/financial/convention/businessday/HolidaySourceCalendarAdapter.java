@@ -16,8 +16,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.holiday.HolidaySource;
 import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.region.Region;
 
 /**
@@ -33,6 +33,7 @@ public class HolidaySourceCalendarAdapter implements Calendar {
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
     Validate.notNull(region);
     Validate.notNull(holidaySource);
+    Validate.noNullElements(region);
     _holidaySource = holidaySource;
     _regions = region;
     _type = HolidayType.BANK;
@@ -84,15 +85,15 @@ public class HolidaySourceCalendarAdapter implements Calendar {
       case BANK:
         boolean isHoliday = false;
         for (final Region region : _regions) {
-          isHoliday |= _holidaySource.isHoliday(region.getIdentifiers(), date, _type);
+          isHoliday |= _holidaySource.isHoliday(date, _type, region.getIdentifiers());
         }
         return !isHoliday;
       case CURRENCY:
-        return !_holidaySource.isHoliday(_currency, date);
+        return !_holidaySource.isHoliday(date, _currency);
       case SETTLEMENT:
-        return !_holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
+        return !_holidaySource.isHoliday(date, _type, _exchange.getIdentifiers());
       case TRADING:
-        return !_holidaySource.isHoliday(_exchange.getIdentifiers(), date, _type);
+        return !_holidaySource.isHoliday(date, _type, _exchange.getIdentifiers());
     }
     throw new OpenGammaRuntimeException("switch doesn't support " + _type);
   }

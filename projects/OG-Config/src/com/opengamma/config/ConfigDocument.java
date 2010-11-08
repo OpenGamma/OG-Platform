@@ -20,12 +20,14 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A configuration document type
  *
  * @param <T> the type of configuration document
  */
+@PublicAPI
 @BeanDefinition
 public class ConfigDocument<T> extends DirectBean {
 
@@ -36,31 +38,18 @@ public class ConfigDocument<T> extends DirectBean {
   @PropertyDefinition
   private UniqueIdentifier _configId;
   /**
-   * The human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   */
-  @PropertyDefinition
-  private int _versionNumber;
-  /**
    * The start of an interval that the version of the configuration is accurate for.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    */
   @PropertyDefinition
   private Instant _versionFromInstant;
   /**
    * The end of an interval that the version of the configuration is accurate for.
    * Null indicates this is the latest version.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    */
   @PropertyDefinition
   private Instant _versionToInstant;
-  /**
-   * The instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   */
-  @PropertyDefinition
-  private Instant _lastReadInstant;
   /**
    * The name of this configuration element.
    */
@@ -121,14 +110,10 @@ public class ConfigDocument<T> extends DirectBean {
     switch (propertyName.hashCode()) {
       case -580140035:  // configId
         return getConfigId();
-      case 632283713:  // versionNumber
-        return getVersionNumber();
       case 2006263519:  // versionFromInstant
         return getVersionFromInstant();
       case 1577022702:  // versionToInstant
         return getVersionToInstant();
-      case -889566475:  // lastReadInstant
-        return getLastReadInstant();
       case 3373707:  // name
         return getName();
       case 111972721:  // value
@@ -144,17 +129,11 @@ public class ConfigDocument<T> extends DirectBean {
       case -580140035:  // configId
         setConfigId((UniqueIdentifier) newValue);
         return;
-      case 632283713:  // versionNumber
-        setVersionNumber((Integer) newValue);
-        return;
       case 2006263519:  // versionFromInstant
         setVersionFromInstant((Instant) newValue);
         return;
       case 1577022702:  // versionToInstant
         setVersionToInstant((Instant) newValue);
-        return;
-      case -889566475:  // lastReadInstant
-        setLastReadInstant((Instant) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -192,34 +171,6 @@ public class ConfigDocument<T> extends DirectBean {
    */
   public final Property<UniqueIdentifier> configId() {
     return metaBean().configId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the value of the property
-   */
-  public int getVersionNumber() {
-    return _versionNumber;
-  }
-
-  /**
-   * Sets the human readable version number.
-   * This field is managed by the {@code ConfigMaster}.
-   * @param versionNumber  the new value of the property
-   */
-  public void setVersionNumber(int versionNumber) {
-    this._versionNumber = versionNumber;
-  }
-
-  /**
-   * Gets the the {@code versionNumber} property.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the property, not null
-   */
-  public final Property<Integer> versionNumber() {
-    return metaBean().versionNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -279,37 +230,6 @@ public class ConfigDocument<T> extends DirectBean {
    */
   public final Property<Instant> versionToInstant() {
     return metaBean().versionToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the value of the property
-   */
-  public Instant getLastReadInstant() {
-    return _lastReadInstant;
-  }
-
-  /**
-   * Sets the instant that the configuration element was last read.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @param lastReadInstant  the new value of the property
-   */
-  public void setLastReadInstant(Instant lastReadInstant) {
-    this._lastReadInstant = lastReadInstant;
-  }
-
-  /**
-   * Gets the the {@code lastReadInstant} property.
-   * This can be used to determine if a configuration is being used.
-   * This field is managed by the {@code ConfigMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> lastReadInstant() {
-    return metaBean().lastReadInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -378,10 +298,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     private final MetaProperty<UniqueIdentifier> _configId = DirectMetaProperty.ofReadWrite(this, "configId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code versionNumber} property.
-     */
-    private final MetaProperty<Integer> _versionNumber = DirectMetaProperty.ofReadWrite(this, "versionNumber", Integer.TYPE);
-    /**
      * The meta-property for the {@code versionFromInstant} property.
      */
     private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
@@ -389,10 +305,6 @@ public class ConfigDocument<T> extends DirectBean {
      * The meta-property for the {@code versionToInstant} property.
      */
     private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
-    /**
-     * The meta-property for the {@code lastReadInstant} property.
-     */
-    private final MetaProperty<Instant> _lastReadInstant = DirectMetaProperty.ofReadWrite(this, "lastReadInstant", Instant.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -411,10 +323,8 @@ public class ConfigDocument<T> extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("configId", _configId);
-      temp.put("versionNumber", _versionNumber);
       temp.put("versionFromInstant", _versionFromInstant);
       temp.put("versionToInstant", _versionToInstant);
-      temp.put("lastReadInstant", _lastReadInstant);
       temp.put("name", _name);
       temp.put("value", _value);
       _map = Collections.unmodifiableMap(temp);
@@ -446,14 +356,6 @@ public class ConfigDocument<T> extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code versionNumber} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> versionNumber() {
-      return _versionNumber;
-    }
-
-    /**
      * The meta-property for the {@code versionFromInstant} property.
      * @return the meta-property, not null
      */
@@ -467,14 +369,6 @@ public class ConfigDocument<T> extends DirectBean {
      */
     public final MetaProperty<Instant> versionToInstant() {
       return _versionToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code lastReadInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> lastReadInstant() {
-      return _lastReadInstant;
     }
 
     /**

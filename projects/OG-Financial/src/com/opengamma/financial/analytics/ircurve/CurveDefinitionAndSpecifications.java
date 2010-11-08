@@ -155,7 +155,8 @@ public class CurveDefinitionAndSpecifications {
     liborRateInstrumentProviders.put(new Tenor(Period.ofDays(7)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0001W Index")));
     liborRateInstrumentProviders.put(new Tenor(Period.ofDays(14)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US0002W Index")));
     for (int i = 1; i <= 12; i++) {
-      liborRateInstrumentProviders.put(new Tenor(Period.ofMonths(i)), new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US00" + (i < 10 ? "0" : "") + i + "M Index")));
+      liborRateInstrumentProviders.put(new Tenor(Period.ofMonths(i)), 
+          new StaticCurveInstrumentProvider(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "US00" + (i < 10 ? "0" : "") + i + "M Index")));
     }
 
     final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();

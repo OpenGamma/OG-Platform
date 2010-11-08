@@ -169,7 +169,7 @@ public final class CalculationJobItem {
     hc *= multiplier;
     return hc;
   }
-  
+
   public static CalculationJobItem create(String functionUniqueIdentifier, FunctionParameters functionParameters, ComputationTargetSpecification computationTargetSpecification, long[] inputs,
       Collection<ValueRequirement> desiredValues) {
     return new CalculationJobItem(functionUniqueIdentifier, functionParameters, computationTargetSpecification, inputs, desiredValues);

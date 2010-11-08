@@ -77,7 +77,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.init(context);
     CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")), null);
     s_logger.info(requirements.toString());
     assertNotNull(requirements);
     //assertEquals(EXPECTED_SIZE, requirements.size());
@@ -121,7 +121,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.init(context);
     CompiledFunctionDefinition compiledFunction = function.compile(context, curveDate.atStartOfDayInZone(TimeZone.UTC));
 
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")), null);
     assertNotNull(requirements);
     // assertEquals(EXPECTED_SIZE, requirements.size());
     Set<Identifier> foundKeys = new TreeSet<Identifier>();
@@ -162,10 +162,10 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.init(context);
     CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
     
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")), null);
     assertNull(requirements);
     
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()), null);
     assertNull(requirements);
   }
 
@@ -186,10 +186,10 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.init(context);
     CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
     
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")), null);
     assertNull(requirements);
     
-    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()));
+    requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioNodeImpl()), null);
     assertNull(requirements);
   }
 

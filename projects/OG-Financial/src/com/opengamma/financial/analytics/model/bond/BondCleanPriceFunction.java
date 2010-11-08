@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
@@ -25,19 +24,17 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondCleanPriceFunction extends BondFunction {
 
   public BondCleanPriceFunction() {
-    _requirementName = MarketDataRequirementNames.MARKET_VALUE;
+    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(Position position, Bond bound, double value) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bound, final Object value) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, position), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
 
-
-
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, target.getPosition()), getUniqueIdentifier()));
     }

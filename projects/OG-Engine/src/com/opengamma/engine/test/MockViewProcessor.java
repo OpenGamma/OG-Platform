@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Mock view processor

@@ -70,9 +70,11 @@ public class DistributionSpecification {
   }
   
   /**
-   * @param msg Message received from underlying market data API in its native format.
-   * @param history History of messages received from underlying market data API in its native format 
-   * @return The normalized message. Null if in the process of normalization,
+   * Gets a normalized message.
+   * 
+   * @param msg message received from underlying market data API in its native format.
+   * @param history history of field values  
+   * @return the normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
   public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg, FieldHistoryStore history) {

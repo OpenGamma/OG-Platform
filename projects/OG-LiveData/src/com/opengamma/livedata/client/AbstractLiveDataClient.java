@@ -24,16 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.SubscriptionType;
-import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * A base class that handles all the in-memory requirements
@@ -41,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
+@PublicAPI
 public abstract class AbstractLiveDataClient implements LiveDataClient {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**

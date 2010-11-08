@@ -7,7 +7,6 @@ package com.opengamma.financial.security.master;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -99,12 +98,13 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.world.region.DefaultRegionSource;
-import com.opengamma.financial.world.region.InMemoryRegionMaster;
 import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionFileReader;
-import com.opengamma.financial.world.region.RegionMaster;
-import com.opengamma.financial.world.region.RegionSource;
+import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.financial.world.region.master.MasterRegionSource;
+import com.opengamma.financial.world.region.master.RegionMaster;
+import com.opengamma.financial.world.region.master.RegionSource;
+import com.opengamma.financial.world.region.master.loader.RegionFileReader;
+import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -184,8 +184,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   private static RegionSource s_regionSource;
   static {
     final RegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populateMaster(regionMaster, new File(RegionFileReader.REGIONS_FILE_PATH));
-    s_regionSource = new DefaultRegionSource(regionMaster);
+    RegionFileReader.populate(regionMaster);
+    s_regionSource = new MasterRegionSource(regionMaster);
   }
 
   protected static RegionSource getRegionSource() {
@@ -235,8 +235,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<IdentifierBundle> values) {
         values.add(IdentifierBundle.EMPTY);
-        values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
-        values.add(new IdentifierBundle(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
+        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
+        values.add(IdentifierBundle.of(Identifier.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), Identifier.of(RandomStringUtils.randomAlphanumeric(8),
             RandomStringUtils.randomAlphanumeric(16))));
       }
     });
@@ -250,7 +250,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
       @Override
       public void getValues(final Collection<YieldConvention> values) {
         values.add(SimpleYieldConvention.US_STREET);
-        values.add(SimpleYieldConvention.US_TREASURY_EQUIVILANT);
+        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
         values.add(SimpleYieldConvention.TRUE);
       }
     });
@@ -463,8 +463,8 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {
       @Override
       public void getValues(final Collection<Region> values) {
-        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.ISO_COUNTRY_2, "US")));
-        values.add(getRegionSource().getHighestLevelRegion(Identifier.of(InMemoryRegionMaster.NAME_COLUMN, "United Kingdom")));
+        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("US")));
+        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId("GB")));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {

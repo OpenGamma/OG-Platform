@@ -181,24 +181,27 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return getComputeHost(InetAddressUtils.getLocalHostName());
   }
   
-  /*package*/ ComputeNode getComputeNode(String nodeId) {
-    final ComputeHost host = getComputeHost(nodeId);
+  /*package*/ ComputeNode getComputeNode(final String nodeId) {
+    String hostName = nodeId; 
+    int slashIndex = nodeId.indexOf('/'); // e.g., mymachine-t5500/0/1, see LocalCalculationNode.java. Should refactor nodeId to a class with two strings, host and node id
+    if (slashIndex != -1) {
+      hostName = nodeId.substring(0, slashIndex);      
+    }
+    final ComputeHost host = getComputeHost(hostName);
     
     ComputeNode node = getHibernateTemplate().execute(new HibernateCallback<ComputeNode>() {
       @Override
       public ComputeNode doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("ComputeNode.one.byHostName");
-        query.setString("hostName", host.getHostName());
+        Query query = session.getNamedQuery("ComputeNode.one.byNodeName");
+        query.setString("nodeName", nodeId);
         return (ComputeNode) query.uniqueResult();
       }
     });
     if (node == null) {
       node = new ComputeNode();
       node.setComputeHost(host);
-      node.setConfigOid("UNDEFINED"); // TODO
-      node.setConfigVersion(1); // TODO
-      node.setNodeName(host.getHostName());
+      node.setNodeName(nodeId);
       getHibernateTemplate().save(node);
     }
     return node;
@@ -297,6 +300,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return riskValueName;
   }
   
+  /*package*/ FunctionUniqueId getFunctionUniqueId(final String uniqueId) {
+    FunctionUniqueId functionUniqueId = getHibernateTemplate().execute(new HibernateCallback<FunctionUniqueId>() {
+      @Override
+      public FunctionUniqueId doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("FunctionUniqueId.one.byUniqueId");
+        query.setString("uniqueId", uniqueId);
+        return (FunctionUniqueId) query.uniqueResult();
+      }
+    });
+    if (functionUniqueId == null) {
+      functionUniqueId = new FunctionUniqueId();
+      functionUniqueId.setUniqueId(uniqueId);
+      getHibernateTemplate().save(functionUniqueId);
+    }
+    return functionUniqueId;
+  }
+  
   /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
     RiskRun riskRun = null;
     
@@ -307,7 +328,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
             SQLException {
           Query query = session.getNamedQuery("RiskRun.one.byViewAndRunTime");
           query.setString("viewOid", job.getViewOid());
-          query.setInteger("viewVersion", job.getViewVersion());
+          query.setString("viewVersion", job.getViewVersion());
           query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
           query.setString("runTime", job.getObservationTime());
           return (RiskRun) query.uniqueResult();
@@ -564,6 +585,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
       } else {
         restartRun(run);
       }
+
+      // make sure calc conf collection is inited
+      for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
+        ;
+      }
       
       Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
       Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
@@ -607,12 +633,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
       _batch = batch;
     }
     
-    private void initialize(BatchResultWriter resultWriter) {
-      resultWriter.setRiskRun(getRiskRunFromHandle(_batch));
-      resultWriter.setComputationTargets(getDbHandle(_batch)._computationTargets);
-      resultWriter.setRiskValueNames(getDbHandle(_batch)._riskValueNames);
-    }
-    
     @Override
     public BatchExecutor createExecutor(SingleComputationCycle cycle) {
       DependencyGraphExecutor<CalculationJobResult> delegate =
@@ -620,13 +640,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriter resultWriter =  new BatchResultWriter(
+      BatchResultWriter resultWriter = new BatchResultWriter(
           _dbSource,
           delegate,
           cycle.getViewDefinition().getResultModelDefinition(),
-          cachesByCalculationConfiguration);
-      
-      initialize(resultWriter);
+          cachesByCalculationConfiguration,
+          getDbHandle(_batch)._computationTargets,
+          getRiskRunFromHandle(_batch),
+          getDbHandle(_batch)._riskValueNames);
       
       return new BatchExecutor(resultWriter);
     }
@@ -639,9 +660,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
           _dbSource,
           delegate,
           new ResultModelDefinition(),
-          new HashMap<String, ViewComputationCache>());
-      
-      initialize(resultWriter);
+          new HashMap<String, ViewComputationCache>(),
+          getDbHandle(_batch)._computationTargets,
+          getRiskRunFromHandle(_batch),
+          getDbHandle(_batch)._riskValueNames);
       
       return resultWriter;
     }

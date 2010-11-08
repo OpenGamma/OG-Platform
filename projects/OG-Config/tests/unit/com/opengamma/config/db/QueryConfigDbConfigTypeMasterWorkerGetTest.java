@@ -71,7 +71,6 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     assertEquals(uid, test.getConfigId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getLastReadInstant());
     assertEquals("TestConfig101", test.getName());
     assertEquals(Identifier.of("A", "B"), test.getValue());
   }
@@ -85,7 +84,6 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     assertEquals(uid, test.getConfigId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getLastReadInstant());
     assertEquals("TestConfig102", test.getName());
     assertEquals(Identifier.of("A", "B"), test.getValue());
   }
@@ -99,7 +97,6 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     assertEquals(uid, test.getConfigId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getLastReadInstant());
     assertEquals("TestConfig201", test.getName());
     assertEquals(Identifier.of("A", "B"), test.getValue());
   }
@@ -113,7 +110,6 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     assertEquals(uid, test.getConfigId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version2Instant, test.getLastReadInstant());
     assertEquals("TestConfig202", test.getName());
     assertEquals(Identifier.of("A", "B"), test.getValue());
   }
@@ -135,7 +131,6 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     assertEquals(uid, test.getConfigId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version2Instant, test.getLastReadInstant());
     assertEquals("TestConfig202", test.getName());
     assertEquals(Identifier.of("A", "B"), test.getValue());
   }

@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function2D;
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
+import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -32,10 +32,12 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   private static final int DEGREE = 5;
   private final LeastSquaresRegression _regression;
   private static final Double[] EMPTY_ARRAY = new Double[0];
-  private final Function<Double, double[]> _independentVariableFunction = new Function2D<Double, double[]>() {
+  private final Function<Double, double[]> _independentVariableFunction = new Function<Double, double[]>() {
 
     @Override
-    public double[] evaluate(final Double t, final Double k) {
+    public double[] evaluate(final Double... x) {
+      final double t = x[0];
+      final double k = x[1];
       final double[] result = new double[DEGREE];
       result[0] = k;
       result[1] = k * k;
@@ -74,7 +76,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
         s_logger.info("Problem getting BSM volatility for " + entry.getKey() + ", not using this option in regression. Error was: ", e);
       }
     }
-    return getVolatilitySurfaceForRegression(getRegressionResult(kList.toArray(EMPTY_ARRAY), tList.toArray(EMPTY_ARRAY), sigmaList.toArray(EMPTY_ARRAY)));
+    return new VolatilitySurface(FunctionalDoublesSurface.from(new MySurfaceFunction(getRegressionResult(kList.toArray(EMPTY_ARRAY), tList.toArray(EMPTY_ARRAY), sigmaList.toArray(EMPTY_ARRAY)))));
   }
 
   private LeastSquaresRegressionResult getRegressionResult(final Double[] kArray, final Double[] tArray, final Double[] sigmaArray) {
@@ -94,30 +96,20 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
     return _regression.regress(x, null, y, true);
   }
 
-  private VolatilitySurface getVolatilitySurfaceForRegression(final LeastSquaresRegressionResult result) {
-    return new VolatilitySurface() {
+  private class MySurfaceFunction implements Function<DoublesPair, Double> {
+    private final LeastSquaresRegressionResult _result;
 
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double getVolatility(final DoublesPair tk) {
-        return result.getPredictedValue(_independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond()));
-      }
+    public MySurfaceFunction(final LeastSquaresRegressionResult result) {
+      _result = result;
+    }
 
-      @Override
-      public VolatilitySurface withMultipleShifts(final Map<DoublesPair, Double> shifts) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public VolatilitySurface withParallelShift(final double shift) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public VolatilitySurface withSingleShift(final DoublesPair xy, final double shift) {
-        throw new UnsupportedOperationException();
-      }
-
-    };
+    @Override
+    public Double evaluate(final DoublesPair... xy) {
+      Validate.notNull(xy, "xy pairs");
+      final DoublesPair pair = xy[0];
+      final double t = pair.first;
+      final double k = pair.second;
+      return _result.getPredictedValue(_independentVariableFunction.evaluate(t, k));
+    }
   }
 }

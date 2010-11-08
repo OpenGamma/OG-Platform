@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
- * Rejects any update that doesn't contain one of a set of fields.
+ * Rejects any update that doesn't contain a set of fields.
  *
  * @author kirk
  */
@@ -37,6 +37,14 @@ public class RequiredFieldFilter implements NormalizationRule {
     return _requiredFieldNames;
   }
 
+  /**
+   * Rejects any update that doesn't contain a set of fields.
+   * 
+   * @param msg message to normalize
+   * @param fieldHistory field history
+   * @return {@code null} if {@code msg} doesn't contain
+   * all required fields, {@code msg} unmodified otherwise
+   */
   @Override
   public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
