@@ -45,22 +45,36 @@ public class ScheduleFactory {
   }
 
   public static LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final int periodsPerYear, final boolean endOfMonth, final boolean fromEnd) {
-    final boolean generateRecursive = endOfMonth ? false : true;
+    //TODO generateRecursive as an input
     LocalDate[] result = null;
-    if (periodsPerYear == 1) {
-      result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
+    if (periodsPerYear == 1) { //TODO EOM
+      result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
     }
     if (periodsPerYear == 2) {
-      result = ScheduleCalculatorFactory.SEMI_ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
+      result = ScheduleCalculatorFactory.SEMI_ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+      if (endOfMonth) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(endDate))) {
+          result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+        }
+      } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(startDate))) {
+        result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+      }
     }
-    if (periodsPerYear == 4) {
-      result = ScheduleCalculatorFactory.QUARTERLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
+    if (periodsPerYear == 4) { //TODO EOM
+      result = ScheduleCalculatorFactory.QUARTERLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
     }
     if (periodsPerYear == 12) {
-      result = ScheduleCalculatorFactory.MONTHLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
+      result = ScheduleCalculatorFactory.MONTHLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+      if (endOfMonth) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(endDate))) {
+          result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+        }
+      } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(startDate))) {
+        result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
+      }
     }
     if (periodsPerYear == 52) {
-      result = ScheduleCalculatorFactory.WEEKLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
+      result = ScheduleCalculatorFactory.WEEKLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, false);
     }
     if (periodsPerYear == 365 || periodsPerYear == 366) {
       result = ScheduleCalculatorFactory.DAILY_CALCULATOR.getSchedule(startDate, endDate);

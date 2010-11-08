@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.bond;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -30,7 +31,6 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -50,8 +50,9 @@ public class BondSecurityToBondConverter {
     Validate.notNull(security, "security");
     Validate.notNull(curveName, "curve name");
     Validate.notNull(now, "now");
-    final ZonedDateTime maturityDate = security.getMaturity().getExpiry();
-    Validate.isTrue(now.isBefore(maturityDate), "The bond has expired");
+    final LocalDate today = now.toLocalDate();
+    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
+    Validate.isTrue(today.isBefore(maturityDate), "The bond has expired");
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
@@ -65,48 +66,60 @@ public class BondSecurityToBondConverter {
     final Currency currency = security.getCurrency();
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
-    final ZonedDateTime datedDate = security.getInterestAccrualDate().toZonedDateTime();
-    final ZonedDateTime[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
-    final ZonedDateTime[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays());
+    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate[] schedule = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
+    final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
+    final double timeBetweenPeriods = 1. / periodsPerYear;
+    final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory
     final DayCount daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); //TODO remove this when the definitions for USD treasuries are correct
     final int settlementDays = convention.getSettlementDays();
     final double coupon = security.getCouponRate();
-    final double periodsPerYear = simpleFrequency.getPeriodsPerYear();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(now, calendar, settlementDays), schedule, coupon,
-        (int) simpleFrequency.getPeriodsPerYear(), convention.isEOMConvention());
+    final boolean isEOMConvention = convention.isEOMConvention();
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(today, calendar, settlementDays), schedule, coupon,
+        periodsPerYear, isEOMConvention, convention.getExDividendDays());
     final List<Double> paymentTimes = new ArrayList<Double>();
-    for (final ZonedDateTime settlementDate : settlementDateSchedule) {
-      if (now.isBefore(settlementDate)) {
-        paymentTimes.add(getPaymentTime(now, settlementDate));
+    final double accrualTime = accruedInterest / coupon;
+    double timeToNextCoupon = timeBetweenPeriods - accrualTime;
+    paymentTimes.add(timeToNextCoupon);
+    int nextCouponIndex = 0;
+    for (final LocalDate element : settlementDateSchedule) {
+      if (today.isAfter(element)) {
+        nextCouponIndex++;
       }
+    }
+    for (int i = nextCouponIndex + 1; i < settlementDateSchedule.length; i++) {
+      timeToNextCoupon += timeBetweenPeriods;
+      paymentTimes.add(timeToNextCoupon);
     }
     final double[] payments = new double[paymentTimes.size()];
     for (int i = 0; i < payments.length; i++) {
       payments[i] = paymentTimes.get(i);
     }
-    //TODO have to deal with negative accrual for ex-dividend bonds
-    return new Bond(payments, coupon / 100., 1. / periodsPerYear, periodsPerYear * accruedInterest / coupon, curveName);
+    return new Bond(payments, coupon / 100., timeBetweenPeriods, periodsPerYear * accrualTime, curveName);
   }
 
-  //TODO not sure if this is right
-  private double getPaymentTime(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    final int y1 = firstDate.getYear();
-    final int y2 = secondDate.getYear();
-    if (y1 == y2) {
-      final double basis = DateUtil.isLeapYear(firstDate) ? 366 : 365;
-      return DateUtil.getExactDaysBetween(firstDate, secondDate) / basis;
+  private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
+    LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
+    // front stub
+    if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+      final int n = schedule.length;
+      final LocalDate[] temp = new LocalDate[n + 1];
+      temp[0] = datedDate;
+      for (int i = 1; i < n + 1; i++) {
+        temp[i] = schedule[i - 1];
+      }
+      schedule = temp;
     }
-    final ZonedDateTime firstNewYear = firstDate.withDate(y1 + 1, 1, 1).withTime(0, 0);
-    final ZonedDateTime secondNewYear = secondDate.withDate(y2, 1, 1).withTime(0, 0);
-    final double firstBasis = DateUtil.isLeapYear(firstDate) ? 366 : 365;
-    final double secondBasis = DateUtil.isLeapYear(secondDate) ? 366 : 365;
-    return DateUtil.getExactDaysBetween(firstDate, firstNewYear) / firstBasis + DateUtil.getExactDaysBetween(secondNewYear, secondDate) / secondBasis + (y2 - y1 - 1);
+    if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
+      throw new IllegalArgumentException("Security first coupon date did not match calculated first coupon date");
+    }
+    return schedule;
   }
 
-  private ZonedDateTime getSettlementDate(final ZonedDateTime now, final Calendar calendar, final int settlementDays) {
+  private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final int settlementDays) {
     int count = 0;
     int adjusted = 0;
-    final ZonedDateTime date = now;
+    final LocalDate date = today;
     while (adjusted < settlementDays) {
       if (calendar.isWorkingDay(date.plusDays(count + 1).toLocalDate())) {
         count++;
@@ -115,6 +128,6 @@ public class BondSecurityToBondConverter {
         count++;
       }
     }
-    return now.plusDays(count);
+    return today.plusDays(count);
   }
 }

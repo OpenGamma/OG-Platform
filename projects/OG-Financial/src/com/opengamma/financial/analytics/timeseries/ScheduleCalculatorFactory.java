@@ -35,6 +35,8 @@ public class ScheduleCalculatorFactory {
   public static final String QUARTERLY = "Quarterly";
   /** Semi-annual */
   public static final String SEMI_ANNUAL = "SemiAnnual";
+  /** Semi-annual EOM*/
+  public static final String SEMI_ANNUAL_EOM = "SemiAnnualEOM";
   /** Annual */
   public static final String ANNUAL = "Annual";
   /** First of year */
@@ -57,6 +59,8 @@ public class ScheduleCalculatorFactory {
   public static final QuarterlyScheduleCalculator QUARTERLY_CALCULATOR = new QuarterlyScheduleCalculator();
   /** Semi-annual calculator */
   public static final SemiAnnualScheduleCalculator SEMI_ANNUAL_CALCULATOR = new SemiAnnualScheduleCalculator();
+  /** Semi-annual EOM calculator */
+  public static final EndOfMonthSemiAnnualScheduleCalculator SEMI_ANNUAL_EOM_CALCULATOR = new EndOfMonthSemiAnnualScheduleCalculator();
   /** Annual calculator */
   public static final AnnualScheduleCalculator ANNUAL_CALCULATOR = new AnnualScheduleCalculator();
   /** First of year calculator */
@@ -77,6 +81,7 @@ public class ScheduleCalculatorFactory {
     s_instances.put(ANNUAL, ANNUAL_CALCULATOR);
     s_instances.put(QUARTERLY, QUARTERLY_CALCULATOR);
     s_instances.put(SEMI_ANNUAL, SEMI_ANNUAL_CALCULATOR);
+    s_instances.put(SEMI_ANNUAL_EOM, SEMI_ANNUAL_EOM_CALCULATOR);
   }
 
   public static Schedule getScheduleCalculator(final String name) {

@@ -37,7 +37,6 @@ public final class YieldSensitivityCalculator {
    */
   public double calculateYield(final GenericAnnuity<? extends FixedPayment> annuity, final double pv) {
     Validate.notNull(annuity, "annuity");
-
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override
