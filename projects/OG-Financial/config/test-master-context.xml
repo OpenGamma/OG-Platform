@@ -40,6 +40,11 @@
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
+  <bean id="hsqldbDbExchangeMaster" class="com.opengamma.financial.world.exchange.master.db.DbExchangeMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbExg" />
+  </bean>
+
   <bean id="hsqldbDbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbHol" />
@@ -67,6 +72,11 @@
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbSec" />
+  </bean>
+
+  <bean id="postgresDbExchangeMaster" class="com.opengamma.financial.world.exchange.master.db.DbExchangeMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbExg" />
   </bean>
 
   <bean id="postgresDbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">

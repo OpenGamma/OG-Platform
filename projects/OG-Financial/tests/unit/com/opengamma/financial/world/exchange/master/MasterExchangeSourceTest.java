@@ -85,7 +85,6 @@ public class MasterExchangeSourceTest {
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
-    request.setFullDetail(true);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     result.getDocuments().add(new ExchangeDocument(example()));
@@ -107,7 +106,6 @@ public class MasterExchangeSourceTest {
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
-    request.setFullDetail(true);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     
@@ -128,7 +126,6 @@ public class MasterExchangeSourceTest {
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
-    request.setFullDetail(true);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     result.getDocuments().add(new ExchangeDocument(example()));

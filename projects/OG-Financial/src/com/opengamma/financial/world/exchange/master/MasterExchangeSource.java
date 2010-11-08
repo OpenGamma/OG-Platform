@@ -122,7 +122,6 @@ public class MasterExchangeSource implements ExchangeSource {
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
-    searchRequest.setFullDetail(true);
     return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 
@@ -132,7 +131,6 @@ public class MasterExchangeSource implements ExchangeSource {
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionAsOfInstant(_versionAsOfInstant);
     searchRequest.setCorrectedToInstant(_correctedToInstant);
-    searchRequest.setFullDetail(true);
     return getExchangeMaster().search(searchRequest).getSingleExchange();
   }
 

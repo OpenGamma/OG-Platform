@@ -91,7 +91,7 @@ public class DbSecurityMaster implements SecurityMaster {
   public void setWorkers(final DbSecurityMasterWorkers workers) {
     ArgumentChecker.notNull(workers, "workers");
     workers.init(this);
-    s_logger.debug("installed DbPositionMasterWorkers: {}", workers);
+    s_logger.debug("installed DbSecurityMasterWorkers: {}", workers);
     _workers = workers;
   }
 
