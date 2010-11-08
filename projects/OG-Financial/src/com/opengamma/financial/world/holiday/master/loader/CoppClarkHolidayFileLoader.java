@@ -3,20 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.coppclark;
+package com.opengamma.financial.world.holiday.master.loader;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.loader.CoppClarkHolidayFileReader;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Loads the holiday data from the Copp-Clark data source.
  * <p>
- * This should be run on an empty database.
+ * This will merge the input with the data already in the database.
  */
 public class CoppClarkHolidayFileLoader {
 
