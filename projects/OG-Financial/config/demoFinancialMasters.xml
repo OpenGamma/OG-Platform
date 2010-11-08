@@ -74,6 +74,15 @@
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
 
+  <!-- ExchangeMaster -->
+  <bean id="dbExchangeMaster" class="com.opengamma.financial.world.exchange.master.db.DbExchangeMaster">
+    <constructor-arg ref="finDbSource" />
+    <property name="identifierScheme" value="${opengamma.refdata.db.exchangemaster.scheme}" />
+  </bean>
+  <bean id="sharedExchangeSource" class="com.opengamma.financial.world.exchange.master.MasterExchangeSource">
+    <constructor-arg ref="dbExchangeMaster"/>
+  </bean>
+
   <!-- HolidayMaster -->
   <bean id="dbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
     <constructor-arg ref="finDbSource" />

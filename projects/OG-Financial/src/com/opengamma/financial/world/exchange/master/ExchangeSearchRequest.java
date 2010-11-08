@@ -60,14 +60,6 @@ public class ExchangeSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private Instant _correctedToInstant;
-  /**
-   * The depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   */
-  @PropertyDefinition
-  private boolean _fullDetail;
 
   /**
    * Creates an instance.
@@ -142,8 +134,6 @@ public class ExchangeSearchRequest extends DirectBean {
         return getVersionAsOfInstant();
       case -28367267:  // correctedToInstant
         return getCorrectedToInstant();
-      case -1233600576:  // fullDetail
-        return isFullDetail();
     }
     return super.propertyGet(propertyName);
   }
@@ -166,9 +156,6 @@ public class ExchangeSearchRequest extends DirectBean {
         return;
       case -28367267:  // correctedToInstant
         setCorrectedToInstant((Instant) newValue);
-        return;
-      case -1233600576:  // fullDetail
-        setFullDetail((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -311,40 +298,6 @@ public class ExchangeSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @return the value of the property
-   */
-  public boolean isFullDetail() {
-    return _fullDetail;
-  }
-
-  /**
-   * Sets the depth of exchange data to return.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @param fullDetail  the new value of the property
-   */
-  public void setFullDetail(boolean fullDetail) {
-    this._fullDetail = fullDetail;
-  }
-
-  /**
-   * Gets the the {@code fullDetail} property.
-   * False will only return the basic information held in the {@code Exchange} class.
-   * True will load the full exchange data, such as calendar entries.
-   * By default this is false to save space in the response.
-   * @return the property, not null
-   */
-  public final Property<Boolean> fullDetail() {
-    return metaBean().fullDetail().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code ExchangeSearchRequest}.
    */
   public static class Meta extends BasicMetaBean {
@@ -375,10 +328,6 @@ public class ExchangeSearchRequest extends DirectBean {
      */
     private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
     /**
-     * The meta-property for the {@code fullDetail} property.
-     */
-    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(this, "fullDetail", Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -391,7 +340,6 @@ public class ExchangeSearchRequest extends DirectBean {
       temp.put("identifiers", _identifiers);
       temp.put("versionAsOfInstant", _versionAsOfInstant);
       temp.put("correctedToInstant", _correctedToInstant);
-      temp.put("fullDetail", _fullDetail);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -449,14 +397,6 @@ public class ExchangeSearchRequest extends DirectBean {
      */
     public final MetaProperty<Instant> correctedToInstant() {
       return _correctedToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code fullDetail} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> fullDetail() {
-      return _fullDetail;
     }
 
   }

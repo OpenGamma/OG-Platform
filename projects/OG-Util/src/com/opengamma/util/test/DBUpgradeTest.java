@@ -41,12 +41,12 @@ abstract public class DBUpgradeTest extends DBTest {
   protected DBUpgradeTest(String databaseType, String databaseVersion) {
     super (databaseType, databaseVersion);
   }
-  
+
   @Parameters
   public static Collection<Object[]> getParameters() {
-    return getParameters (Integer.MAX_VALUE);
+    return getParameters(3);  // MAX_VALUE to test all upgrades
   }
-  
+
   @Test
   public void testDatabaseUpgrade () {
     for (Triple<String,String,String> comparison : _comparisons) {

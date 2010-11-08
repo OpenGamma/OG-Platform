@@ -26,11 +26,15 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.world.exchange.ExchangeUtils;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
+import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
+import com.opengamma.financial.world.exchange.master.ExchangeSource;
 import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.financial.world.exchange.master.ManageableExchangeDetail;
 import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
@@ -73,8 +77,20 @@ public class CoppClarkExchangeFileReader {
    */
   public static CoppClarkExchangeFileReader createPopulated() {
     CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader();
-    fileReader.readFile(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
+    fileReader.readStream(fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE));
     return fileReader;
+  }
+
+  /**
+   * Creates a populated exchange source around the specified master.
+   * @param exchangeMaster  the exchange master to populate, not null
+   * @return the exchange source, not null
+   */
+  public static ExchangeSource createPopulated(ExchangeMaster exchangeMaster) {
+    CoppClarkExchangeFileReader fileReader = new CoppClarkExchangeFileReader(exchangeMaster);
+    InputStream stream = fileReader.getClass().getResourceAsStream(EXCHANGE_HOLIDAYS_REPOST_RESOURCE);
+    fileReader.readStream(stream);
+    return new MasterExchangeSource(exchangeMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -115,7 +131,7 @@ public class CoppClarkExchangeFileReader {
    * Reads the specified input stream, parsing the exchange data.
    * @param inputStream  the input stream, not null
    */
-  public void readFile(InputStream inputStream) {
+  public void readStream(InputStream inputStream) {
     try {
       CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(inputStream)));
       String[] line = reader.readNext();
@@ -124,9 +140,7 @@ public class CoppClarkExchangeFileReader {
         readLine(line);
         line = reader.readNext();
       }
-      for (ExchangeDocument doc : _data.values()) {
-        getExchangeMaster().add(doc);
-      }
+      mergeDocuments();
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not read exchange file, see chained exception", ex);
     }
@@ -150,10 +164,10 @@ public class CoppClarkExchangeFileReader {
     if (TimeZone.of(timeZoneId).equals(doc.getExchange().getTimeZone()) == false) {
       throw new OpenGammaRuntimeException("Multiple time-zone entries for exchange: " + doc.getExchange());
     }
-    doc.getExchange().getCalendarEntries().add(readCalendarEntryLine(rawFields));    
+    doc.getExchange().getDetail().add(readDetailLine(rawFields));    
   }
 
-  private ManageableExchangeDetail readCalendarEntryLine(String[] rawFields) {
+  private ManageableExchangeDetail readDetailLine(String[] rawFields) {
     ManageableExchangeDetail detail = new ManageableExchangeDetail();
     detail.setProductGroup(optionalStringField(rawFields[5]));
     detail.setProductName(requiredStringField(rawFields[6]));
@@ -196,6 +210,42 @@ public class CoppClarkExchangeFileReader {
       throw new OpenGammaRuntimeException("required field is empty");
     }
     return StringUtils.defaultIfEmpty(field, null);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Merges the documents into the database.
+   * @param map  the map of documents, not null
+   */
+  private void mergeDocuments() {
+    for (ExchangeDocument doc : _data.values()) {
+      Identifier mic = ExchangeUtils.isoMicExchangeId(doc.getExchange().getIdentifiers().getIdentifier(ExchangeUtils.ISO_MIC));
+      ExchangeSearchRequest search = new ExchangeSearchRequest(mic);
+      ExchangeSearchResult result = _exchangeMaster.search(search);
+      if (result.getDocuments().size() == 0) {
+        // add new data
+        _exchangeMaster.add(doc);
+      } else if (result.getDocuments().size() == 1) {
+        // update from existing data
+        ExchangeDocument existing = result.getFirstDocument();
+        doc.setExchangeId(existing.getExchangeId());
+        doc.getExchange().setUniqueIdentifier(existing.getExchangeId());
+        // only update if changed
+        doc.setVersionFromInstant(null);
+        doc.setVersionToInstant(null);
+        doc.setCorrectionFromInstant(null);
+        doc.setCorrectionToInstant(null);
+        existing.setVersionFromInstant(null);
+        existing.setVersionToInstant(null);
+        existing.setCorrectionFromInstant(null);
+        existing.setCorrectionToInstant(null);
+        if (doc.equals(existing) == false) {  // only update if changed
+          _exchangeMaster.update(doc);
+        }
+      } else {
+        throw new IllegalStateException("Multiple rows in database for ISO MIC ID: " + mic.getValue());
+      }
+    }
   }
 
 }

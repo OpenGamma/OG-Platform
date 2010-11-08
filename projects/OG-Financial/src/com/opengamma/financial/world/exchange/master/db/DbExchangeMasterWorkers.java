@@ -3,41 +3,41 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.db;
+package com.opengamma.financial.world.exchange.master.db;
 
 /**
- * Configuration object defining the workers in use for {@code DbHolidayMaster}.
+ * Configuration object defining the workers in use for {@code DbExchangeMaster}.
  * <p>
  * This class is designed for injection of alternative implementations.
  */
-public class DbHolidayMasterWorkers {
+public class DbExchangeMasterWorkers {
 
   /** Worker. */
-  private DbHolidayMasterWorker _searchWorker = new QueryHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _searchWorker = new QueryExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _getWorker = new QueryHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _getWorker = new QueryExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _addWorker = new ModifyHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _addWorker = new ModifyExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _updateWorker = new ModifyHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _updateWorker = new ModifyExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _removeWorker = new ModifyHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _removeWorker = new ModifyExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _historyWorker = new QueryHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _historyWorker = new QueryExchangeDbExchangeMasterWorker();
   /** Worker. */
-  private DbHolidayMasterWorker _correctWorker = new ModifyHolidayDbHolidayMasterWorker();
+  private DbExchangeMasterWorker _correctWorker = new ModifyExchangeDbExchangeMasterWorker();
 
   /**
    * Creates an instance.
    */
-  public DbHolidayMasterWorkers() {
+  public DbExchangeMasterWorkers() {
   }
 
   /**
    * Initializes the instance.
-   * @param master  the holiday master, non-null
+   * @param master  the exchange master, non-null
    */
-  protected void init(final DbHolidayMaster master) {
+  protected void init(final DbExchangeMaster master) {
     _searchWorker.init(master);
     _getWorker.init(master);
     _addWorker.init(master);
@@ -52,7 +52,7 @@ public class DbHolidayMasterWorkers {
    * Gets the searchWorker field.
    * @return the searchWorker
    */
-  public DbHolidayMasterWorker getSearchWorker() {
+  public DbExchangeMasterWorker getSearchWorker() {
     return _searchWorker;
   }
 
@@ -60,7 +60,7 @@ public class DbHolidayMasterWorkers {
    * Sets the searchWorker field.
    * @param searchWorker  the searchWorker
    */
-  public void setSearchWorker(DbHolidayMasterWorker searchWorker) {
+  public void setSearchWorker(DbExchangeMasterWorker searchWorker) {
     _searchWorker = searchWorker;
   }
 
@@ -69,7 +69,7 @@ public class DbHolidayMasterWorkers {
    * Gets the getWorker field.
    * @return the getWorker
    */
-  public DbHolidayMasterWorker getGetWorker() {
+  public DbExchangeMasterWorker getGetWorker() {
     return _getWorker;
   }
 
@@ -77,7 +77,7 @@ public class DbHolidayMasterWorkers {
    * Sets the getWorker field.
    * @param getWorker  the getWorker
    */
-  public void setGetWorker(DbHolidayMasterWorker getWorker) {
+  public void setGetWorker(DbExchangeMasterWorker getWorker) {
     _getWorker = getWorker;
   }
 
@@ -86,7 +86,7 @@ public class DbHolidayMasterWorkers {
    * Gets the addWorker field.
    * @return the addWorker
    */
-  public DbHolidayMasterWorker getAddWorker() {
+  public DbExchangeMasterWorker getAddWorker() {
     return _addWorker;
   }
 
@@ -94,7 +94,7 @@ public class DbHolidayMasterWorkers {
    * Sets the addWorker field.
    * @param addWorker  the addWorker
    */
-  public void setAddWorker(DbHolidayMasterWorker addWorker) {
+  public void setAddWorker(DbExchangeMasterWorker addWorker) {
     _addWorker = addWorker;
   }
 
@@ -103,7 +103,7 @@ public class DbHolidayMasterWorkers {
    * Gets the updateWorker field.
    * @return the updateWorker
    */
-  public DbHolidayMasterWorker getUpdateWorker() {
+  public DbExchangeMasterWorker getUpdateWorker() {
     return _updateWorker;
   }
 
@@ -111,7 +111,7 @@ public class DbHolidayMasterWorkers {
    * Sets the updateWorker field.
    * @param updateWorker  the updateWorker
    */
-  public void setUpdateWorker(DbHolidayMasterWorker updateWorker) {
+  public void setUpdateWorker(DbExchangeMasterWorker updateWorker) {
     _updateWorker = updateWorker;
   }
 
@@ -120,7 +120,7 @@ public class DbHolidayMasterWorkers {
    * Gets the removeWorker field.
    * @return the removeWorker
    */
-  public DbHolidayMasterWorker getRemoveWorker() {
+  public DbExchangeMasterWorker getRemoveWorker() {
     return _removeWorker;
   }
 
@@ -128,7 +128,7 @@ public class DbHolidayMasterWorkers {
    * Sets the removeWorker field.
    * @param removeWorker  the removeWorker
    */
-  public void setRemoveWorker(DbHolidayMasterWorker removeWorker) {
+  public void setRemoveWorker(DbExchangeMasterWorker removeWorker) {
     _removeWorker = removeWorker;
   }
 
@@ -137,7 +137,7 @@ public class DbHolidayMasterWorkers {
    * Gets the historyWorker field.
    * @return the historyWorker
    */
-  public DbHolidayMasterWorker getHistoryWorker() {
+  public DbExchangeMasterWorker getHistoryWorker() {
     return _historyWorker;
   }
 
@@ -145,7 +145,7 @@ public class DbHolidayMasterWorkers {
    * Sets the historyWorker field.
    * @param historyWorker  the historyWorker
    */
-  public void setHistoryWorker(DbHolidayMasterWorker historyWorker) {
+  public void setHistoryWorker(DbExchangeMasterWorker historyWorker) {
     _historyWorker = historyWorker;
   }
 
@@ -154,7 +154,7 @@ public class DbHolidayMasterWorkers {
    * Gets the correctWorker field.
    * @return the correctWorker
    */
-  public DbHolidayMasterWorker getCorrectWorker() {
+  public DbExchangeMasterWorker getCorrectWorker() {
     return _correctWorker;
   }
 
@@ -162,7 +162,7 @@ public class DbHolidayMasterWorkers {
    * Sets the correctWorker field.
    * @param correctWorker  the correctWorker
    */
-  public void setCorrectWorker(DbHolidayMasterWorker correctWorker) {
+  public void setCorrectWorker(DbExchangeMasterWorker correctWorker) {
     _correctWorker = correctWorker;
   }
 
