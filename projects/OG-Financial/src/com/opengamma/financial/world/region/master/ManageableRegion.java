@@ -104,9 +104,9 @@ public class ManageableRegion extends DirectBean implements Region {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a bundle representing this identifier to the collection to search for.
+   * Adds an identifier to the bundle representing this region.
    * 
-   * @param identifier  the identifier to add as a bundle, not null
+   * @param identifier  the identifier to add, not null
    */
   public void addIdentifier(Identifier identifier) {
     setIdentifiers(getIdentifiers().withIdentifier(identifier));
@@ -125,7 +125,7 @@ public class ManageableRegion extends DirectBean implements Region {
   /**
    * Sets the country, stored in the identifier set.
    * 
-   * @param countryISO  the country to set, null to remove any country
+   * @param countryISO  the country to set, null to remove any defined country ISO
    */
   public void setCountryISO(String countryISO) {
     setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_COUNTRY_ALPHA2));
