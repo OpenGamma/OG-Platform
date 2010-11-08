@@ -168,7 +168,7 @@ public class DbHolidayMasterWorkers {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a string summary of this holiday master.
+   * Returns a string summary of the workers.
    * @return the string summary, not null
    */
   @Override

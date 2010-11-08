@@ -5,15 +5,14 @@
  */
 package com.opengamma.financial.world.holiday.master.db;
 
-import javax.time.TimeSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.master.db.AbstractDbMaster;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
 import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
+import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.id.UniqueIdentifier;
@@ -23,11 +22,15 @@ import com.opengamma.util.db.DbSource;
 /**
  * A holiday master implementation using a database for persistence.
  * <p>
+ * This is a full implementation of the holiday master using an SQL database.
  * Full details of the API are in {@link HolidayMaster}.
- * This class uses JDBC to store the data via a set of workers.
+ * <p>
+ * This class uses SQL via JDBC to store the data via a set of workers.
  * The workers may be replaced by configuration to allow different SQL on different databases.
+ * <p>
+ * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbHolidayMaster implements HolidayMaster {
+public class DbHolidayMaster extends AbstractDbMaster implements HolidayMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);
@@ -38,18 +41,6 @@ public class DbHolidayMaster implements HolidayMaster {
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbHol";
 
   /**
-   * The database source.
-   */
-  private final DbSource _dbSource;
-  /**
-   * The time-source to use.
-   */
-  private TimeSource _timeSource = TimeSource.system();
-  /**
-   * The scheme in use for UniqueIdentifier.
-   */
-  private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
-  /**
    * The workers.
    */
   private DbHolidayMasterWorkers _workers;
@@ -58,20 +49,9 @@ public class DbHolidayMaster implements HolidayMaster {
    * Creates an instance.
    * @param dbSource  the database source combining all configuration, not null
    */
-  public DbHolidayMaster(DbSource dbSource) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    s_logger.debug("installed DbSource: {}", dbSource);
-    _dbSource = dbSource;
+  public DbHolidayMaster(final DbSource dbSource) {
+    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     setWorkers(new DbHolidayMasterWorkers());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the database source.
-   * @return the database source, non-null
-   */
-  public DbSource getDbSource() {
-    return _dbSource;
   }
 
   //-------------------------------------------------------------------------
@@ -85,62 +65,15 @@ public class DbHolidayMaster implements HolidayMaster {
 
   /**
    * Sets the configured workers to use.
+   * <p>
    * The workers will be {@link DbHolidayMasterWorkers#init initialized} as part of this method call.
    * @param workers  the configured workers, not null
    */
   public void setWorkers(final DbHolidayMasterWorkers workers) {
     ArgumentChecker.notNull(workers, "workers");
     workers.init(this);
-    s_logger.debug("installed DbPositionMasterWorkers: {}", workers);
+    s_logger.debug("installed DbHolidayMasterWorkers: {}", workers);
     _workers = workers;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the time-source that determines the current time.
-   * @return the time-source, not null
-   */
-  public TimeSource getTimeSource() {
-    return _timeSource;
-  }
-
-  /**
-   * Sets the time-source.
-   * @param timeSource  the time-source, not null
-   */
-  public void setTimeSource(final TimeSource timeSource) {
-    ArgumentChecker.notNull(timeSource, "timeSource");
-    s_logger.debug("installed TimeSource: {}", timeSource);
-    _timeSource = timeSource;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the scheme in use for UniqueIdentifier.
-   * @return the scheme, not null
-   */
-  public String getIdentifierScheme() {
-    return _identifierScheme;
-  }
-
-  /**
-   * Sets the scheme in use for UniqueIdentifier.
-   * @param scheme  the scheme, not null
-   */
-  public void setIdentifierScheme(final String scheme) {
-    ArgumentChecker.notNull(scheme, "scheme");
-    s_logger.debug("installed IdentifierScheme: {}", scheme);
-    _identifierScheme = scheme;
-  }
-
-  /**
-   * Checks the scheme is valid.
-   * @param uid  the unique identifier
-   */
-  protected void checkScheme(final UniqueIdentifier uid) {
-    if (getIdentifierScheme().equals(uid.getScheme()) == false) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this holiday master: " + uid);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -164,8 +97,8 @@ public class DbHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getName(), "document.name");
     
     return getWorkers().getAddWorker().add(document);
   }
@@ -174,9 +107,9 @@ public class DbHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument update(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getHolidayId(), "document.holidayId");
+    ArgumentChecker.notNull(document.getName(), "document.name");
     checkScheme(document.getHolidayId());
     
     return getWorkers().getUpdateWorker().update(document);
@@ -210,16 +143,6 @@ public class DbHolidayMaster implements HolidayMaster {
     checkScheme(document.getHolidayId());
     
     return getWorkers().getCorrectWorker().correct(document);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a string summary of this holiday master.
-   * @return the string summary, not null
-   */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
   }
 
 }
