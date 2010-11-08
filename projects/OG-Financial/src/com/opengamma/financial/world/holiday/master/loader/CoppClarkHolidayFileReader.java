@@ -42,6 +42,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Reads the holiday data from the Copp-Clark data source.
+ * <p>
+ * This will merge the input with the data already in the database.
  */
 public class CoppClarkHolidayFileReader {
 
@@ -94,7 +96,7 @@ public class CoppClarkHolidayFileReader {
   private HolidayMaster _holidayMaster;
 
   /**
-   * Creates a populated in-memory holiday source.
+   * Creates a populated holiday source around the specified master.
    * @param holidayMaster  the holiday master to populate, not null
    * @return the holiday source, not null
    */
@@ -189,7 +191,7 @@ public class CoppClarkHolidayFileReader {
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    addDocuments(map);
+    mergeDocuments(map);
   }
 
   private void parseFinancialCentersFile(InputStream financialCentersStream) throws IOException {
@@ -217,7 +219,7 @@ public class CoppClarkHolidayFileReader {
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    addDocuments(map);
+    mergeDocuments(map);
   }
 
   private void parseExchangeSettlementFile(InputStream exchangeSettlementStream) throws IOException {
@@ -245,7 +247,7 @@ public class CoppClarkHolidayFileReader {
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    addDocuments(map);
+    mergeDocuments(map);
   }
 
   private void parseExchangeTradingFile(InputStream exchangeTradingStream) throws IOException {
@@ -273,14 +275,15 @@ public class CoppClarkHolidayFileReader {
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
     }
-    addDocuments(map);
+    mergeDocuments(map);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Adds the documents to the database.
+   * Merges the documents into the database.
    * @param map  the map of documents, not null
    */
-  private void addDocuments(Map<String, HolidayDocument> map) {
+  private void mergeDocuments(Map<String, HolidayDocument> map) {
     for (HolidayDocument doc : map.values()) {
       Collections.sort(doc.getHoliday().getHolidayDates());
       HolidaySearchRequest search = new HolidaySearchRequest(doc.getHoliday().getType());
