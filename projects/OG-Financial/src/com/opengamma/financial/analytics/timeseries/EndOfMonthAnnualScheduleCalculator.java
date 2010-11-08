@@ -16,7 +16,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
+public class EndOfMonthAnnualScheduleCalculator extends Schedule {
   private static final EndOfMonthScheduleCalculator EOM_CALCULATOR = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR;
 
   @Override
@@ -30,12 +30,12 @@ public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
     final LocalDate[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
     final List<LocalDate> result = new ArrayList<LocalDate>();
     if (fromEnd) {
-      for (int i = monthly.length - 1; i >= 0; i -= 6) {
+      for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);
       }
       return getReversedDates(result);
     }
-    for (int i = 0; i < monthly.length; i += 6) {
+    for (int i = 0; i < monthly.length; i += 12) {
       result.add(monthly[i]);
     }
     return result.toArray(EMPTY_LOCAL_DATE_ARRAY);
@@ -52,12 +52,12 @@ public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
     final ZonedDateTime[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
     final List<ZonedDateTime> result = new ArrayList<ZonedDateTime>();
     if (fromEnd) {
-      for (int i = monthly.length - 1; i >= 0; i -= 6) {
+      for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);
       }
       return getReversedDates(result);
     }
-    for (int i = 0; i < monthly.length; i += 6) {
+    for (int i = 0; i < monthly.length; i += 12) {
       result.add(monthly[i]);
     }
     return result.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);

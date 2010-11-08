@@ -33,6 +33,8 @@ public class ScheduleCalculatorFactory {
   public static final String MONTHLY_ON_DAY = "MonthlyOnDay";
   /** Quarterly */
   public static final String QUARTERLY = "Quarterly";
+  /** Quarterly EOM */
+  public static final String QUARTERLY_EOM = "QuarterlyEOM";
   /** Semi-annual */
   public static final String SEMI_ANNUAL = "SemiAnnual";
   /** Semi-annual EOM*/
@@ -45,6 +47,8 @@ public class ScheduleCalculatorFactory {
   public static final String END_OF_YEAR = "EndOfYear";
   /** Annual on day and month */
   public static final String ANNUAL_ON_DAY_AND_MONTH = "AnnualOnDayAndMonth";
+  /** Annual EOM */
+  public static final String ANNUAL_EOM = "AnnualEOM";
   /** Daily calculator */
   public static final DailyScheduleCalculator DAILY_CALCULATOR = new DailyScheduleCalculator();
   /** Weekly calculator */
@@ -57,6 +61,8 @@ public class ScheduleCalculatorFactory {
   public static final EndOfMonthScheduleCalculator END_OF_MONTH_CALCULATOR = new EndOfMonthScheduleCalculator();
   /** Quarterly calculator */
   public static final QuarterlyScheduleCalculator QUARTERLY_CALCULATOR = new QuarterlyScheduleCalculator();
+  /** Quarterly EOM calculator */
+  public static final EndOfMonthQuarterlyScheduleCalculator QUARTERLY_EOM_CALCULATOR = new EndOfMonthQuarterlyScheduleCalculator();
   /** Semi-annual calculator */
   public static final SemiAnnualScheduleCalculator SEMI_ANNUAL_CALCULATOR = new SemiAnnualScheduleCalculator();
   /** Semi-annual EOM calculator */
@@ -67,6 +73,8 @@ public class ScheduleCalculatorFactory {
   public static final FirstOfYearScheduleCalculator FIRST_OF_YEAR_CALCULATOR = new FirstOfYearScheduleCalculator();
   /** End of year calculator */
   public static final EndOfYearScheduleCalculator END_OF_YEAR_CALCULATOR = new EndOfYearScheduleCalculator();
+  /** Annual EOM calculator */
+  public static final EndOfMonthAnnualScheduleCalculator ANNUAL_EOM_CALCULATOR = new EndOfMonthAnnualScheduleCalculator();
 
   private static final Map<String, Schedule> s_instances = new HashMap<String, Schedule>();
 
@@ -80,8 +88,10 @@ public class ScheduleCalculatorFactory {
     s_instances.put(WEEKLY, WEEKLY_CALCULATOR);
     s_instances.put(ANNUAL, ANNUAL_CALCULATOR);
     s_instances.put(QUARTERLY, QUARTERLY_CALCULATOR);
+    s_instances.put(QUARTERLY_EOM, QUARTERLY_EOM_CALCULATOR);
     s_instances.put(SEMI_ANNUAL, SEMI_ANNUAL_CALCULATOR);
     s_instances.put(SEMI_ANNUAL_EOM, SEMI_ANNUAL_EOM_CALCULATOR);
+    s_instances.put(ANNUAL_EOM, ANNUAL_EOM_CALCULATOR);
   }
 
   public static Schedule getScheduleCalculator(final String name) {
