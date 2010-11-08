@@ -54,11 +54,6 @@ public class SwapScheduleCalculatorTest {
   private static final DayCount DAY_COUNT = new DayCount() {
 
     @Override
-    public double getBasis(final ZonedDateTime date) {
-      return 0;
-    }
-
-    @Override
     public String getConventionName() {
       return "";
     }
@@ -66,6 +61,11 @@ public class SwapScheduleCalculatorTest {
     @Override
     public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
       return secondDate.getYear() - firstDate.getYear() + ((double) secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue()) / 12.;
+    }
+
+    @Override
+    public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+      return 0;
     }
 
   };

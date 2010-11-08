@@ -16,7 +16,7 @@ import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_M
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TIME_SERIES_BY_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TIME_SERIES_KEY_BY_ID;
+import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_TIME_SERIES_KEY_BY_ID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TS_DATE_RANGE_BY_OID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_FIELD;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_PROVIDER;
@@ -132,7 +132,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       FIND_DATA_POINT_BY_DATE_AND_ID,
       GET_ACTIVE_META_DATA_BY_OID,
       GET_TIME_SERIES_BY_ID,
-      GET_TIME_SERIES_KEY_BY_ID,
+      GET_ACTIVE_TIME_SERIES_KEY_BY_ID,
       GET_TS_DATE_RANGE_BY_OID,
       INSERT_DATA_FIELD,
       INSERT_DATA_PROVIDER,
@@ -489,14 +489,14 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     
     getJdbcTemplate().update(sql, parameterSource);
     
-    return getTimeSeriesKey(bundleId, dataSourceBean.getId(), dataProviderBean.getId(), dataFieldBean.getId(), observationTimeBean.getId());
+    return getActiveTimeSeriesKey(bundleId, dataSourceBean.getId(), dataProviderBean.getId(), dataFieldBean.getId(), observationTimeBean.getId());
   }
 
-  private long getTimeSeriesKey(long quotedObjId, long dataSourceId, long dataProviderId, long dataFieldId, long observationTimeId) {
+  private long getActiveTimeSeriesKey(long quotedObjId, long dataSourceId, long dataProviderId, long dataFieldId, long observationTimeId) {
     long result = INVALID_KEY;
     s_logger.debug("looking up timeSeriesKey quotedObjId={}, dataSourceId={}, dataProviderId={}, dataFieldId={}, observationTimeId={}", 
         new Object[]{quotedObjId, dataSourceId, dataProviderId, dataFieldId, observationTimeId});
-    String sql = _namedSQLMap.get(GET_TIME_SERIES_KEY_BY_ID);
+    String sql = _namedSQLMap.get(GET_ACTIVE_TIME_SERIES_KEY_BY_ID);
     SqlParameterSource parameterSource = new MapSqlParameterSource()
       .addValue("qoid", quotedObjId, Types.BIGINT)
       .addValue("dsid", dataSourceId, Types.BIGINT)

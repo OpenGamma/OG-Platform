@@ -25,7 +25,7 @@ public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
     double notional = annuity.getNthPayment(0).getNotional();
     FixedPayment[] fixedPayments = new FixedPayment[2];
     fixedPayments[0] = new FixedPayment(0, notional, curveName);
-    fixedPayments[1] = new FixedPayment(annuity.getNthPayment(annuity.getNumberOfpayments() - 1).getPaymentTime(), -notional, curveName);
+    fixedPayments[1] = new FixedPayment(annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
 
     return new GenericAnnuity<FixedPayment>(fixedPayments);
   }

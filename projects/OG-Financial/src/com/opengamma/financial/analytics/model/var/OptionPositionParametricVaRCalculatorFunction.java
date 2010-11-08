@@ -100,7 +100,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
     final CovarianceCalculator covarianceCalculator = new HistoricalCovarianceCalculator();
     _covarianceMatrixCalculator = new VaRCovarianceMatrixCalculator(new CovarianceMatrixCalculator(covarianceCalculator));
-    _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
+    _scheduleCalculator = ScheduleCalculatorFactory.getScheduleCalculator(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
     _normalVaRCalculator = new NormalLinearVaRCalculator<Map<Integer, ParametricVaRDataBundle>>(1, 1, Double.valueOf(confidenceLevel), _meanCalculator, _stdCalculator); //TODO
   }

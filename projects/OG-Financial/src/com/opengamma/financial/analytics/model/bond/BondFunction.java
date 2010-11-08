@@ -15,10 +15,10 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.world.holiday.master.HolidaySource;
@@ -34,20 +35,20 @@ import com.opengamma.financial.world.holiday.master.HolidaySource;
  * 
  */
 public abstract class BondFunction extends NonCompiledInvoker {
-
   private final String _bondCurveName = "BondCurve";
-  private String _requirementName;
- // protected String _fieldName;
+  private final String _requirementName;
+  private final String _fieldName;
 
-  public BondFunction(String requirementName) {
+  public BondFunction(final String requirementName, final String fieldName) {
     Validate.notNull(requirementName, "requirementName");
     _requirementName = requirementName;
+    _fieldName = fieldName;
   }
-  
+
   public String getRequirementName() {
     return _requirementName;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
@@ -55,31 +56,28 @@ public abstract class BondFunction extends NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
     final Object value = inputs.getValue(requirement);
     if (value == null) {
       throw new NullPointerException("Could not get " + requirement);
     }
-  
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    final LocalDate closeOfDay = now.minusDays(1).toLocalDate();
-//    final LocalDate startDate = now.minusDays(7).toLocalDate();
-//    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-//    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), "BLOOMBERG", "CMPL", _fieldName,
-//        startDate, true, closeOfDay, false);
-//    if (tsPair == null) {
-//      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
-//    }
-//    final DoubleTimeSeries<?> ts = tsPair.getSecond();
-//    if (ts == null) {
-//      throw new NullPointerException("Could not get ts for security " + security);
-//    }
-//    final double value = ts.getLatestValue();
+    //    final LocalDate closeOfDay = now.minusDays(1).toLocalDate();
+    //    final LocalDate startDate = now.minusDays(7).toLocalDate();
+    //    final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
+    //    final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), "BLOOMBERG", "CMPL", _fieldName,
+    //            startDate, true, closeOfDay, false);
+    //    if (tsPair == null) {
+    //      throw new NullPointerException("Could not get identifier / price series pair for security " + security);
+    //    }
+    //    final DoubleTimeSeries<?> ts = tsPair.getSecond();
+    //    if (ts == null) {
+    //      throw new NullPointerException("Could not get ts for security " + security);
+    //    }
+    //    final double value = ts.getLatestValue();
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    final Bond bond = new BondSecurityToBondConverter(holidaySource).getBond(security, _bondCurveName, now);
-
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+    final Bond bond = new BondSecurityToBondConverter(holidaySource, conventionSource).getBond(security, _bondCurveName, now);
     return getComputedValues(position, bond, value);
   }
 
@@ -87,7 +85,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
-    //  return Collections.emptySet();
+      //return Collections.emptySet();
     }
     return null;
   }

@@ -15,9 +15,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
 import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -26,18 +30,26 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondYieldFunction extends BondFunction {
 
   public BondYieldFunction() {
-    super(MarketDataRequirementNames.MARKET_VALUE);
-   // _fieldName = "PX_LAST";
+    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
   }
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
-    double cleanPrice = (Double) value;
+    final double cleanPrice = (Double) value;
     final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
     double yield = new BondYieldCalculator().calculate(bond, dirtyPrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueIdentifier());
-
-    yield = 2.0 * (Math.exp(yield / 2.0) - 1.0); //TODO YTM is quoted with compounding frequency depending on the bond's coupon frequency 
+    final BondSecurity security = (BondSecurity) position.getSecurity();
+    final Frequency frequency = security.getCouponFrequency();
+    double paymentsPerYear;
+    if (frequency instanceof SimpleFrequency) {
+      paymentsPerYear = ((SimpleFrequency) frequency).getPeriodsPerYear();
+    } else if (frequency instanceof PeriodFrequency) {
+      paymentsPerYear = ((PeriodFrequency) frequency).toSimpleFrequency().getPeriodsPerYear();
+    } else {
+      throw new IllegalArgumentException("Can only handle SimpleFrequency and PeriodFrequency");
+    }
+    yield = paymentsPerYear * (Math.exp(yield / paymentsPerYear) - 1.0);
     return Sets.newHashSet(new ComputedValue(specification, yield * 100.));
   }
 

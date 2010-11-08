@@ -246,7 +246,7 @@ public class ForwardLiborAnnuityTest {
     final double[] spreads = new double[] {4, 6, 7};
     final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(t, indexFixing, indexMaturity, paymentYearFractions, forwardYearFractions, spreads, notional, FUNDING, LIBOR);
 
-    int n = annuity.getNumberOfpayments();
+    int n = annuity.getNumberOfPayments();
     assertEquals(3, n, 0);
     int index = 0;
     for (ForwardLiborPayment p : annuity.getPayments()) {

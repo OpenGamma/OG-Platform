@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.timeseries.TimeSeriesLoader;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
@@ -28,11 +29,14 @@ public abstract class AbstractWebTimeSeriesResource extends AbstractWebResource 
   /**
    * Creates the resource.
    * @param timeSeriesMaster  the time series master, not null
+   * @param timeSeriesLoader the timeseries loader, not null
    */
-  protected AbstractWebTimeSeriesResource(final TimeSeriesMaster<?> timeSeriesMaster) {
+  protected AbstractWebTimeSeriesResource(final TimeSeriesMaster<?> timeSeriesMaster, final TimeSeriesLoader timeSeriesLoader) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    ArgumentChecker.notNull(timeSeriesLoader, "timeSeriesLoader");
     _data = new WebTimeSeriesData();
     data().setTimeSeriesMaster(timeSeriesMaster);
+    data().setTimeSeriesLoader(timeSeriesLoader);
   }
 
   /**

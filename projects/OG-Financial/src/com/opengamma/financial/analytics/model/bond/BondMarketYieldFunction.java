@@ -24,8 +24,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondMarketYieldFunction extends BondFunction {
 
   public BondMarketYieldFunction() {
-    super(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID);
-   // _fieldName = "YLD_YTM_MID";
+    super(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, "YLD_CNV_MID");
   }
 
   @Override

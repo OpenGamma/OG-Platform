@@ -60,7 +60,7 @@ public final class ZSpreadCalculator {
 
     double sum = 0;
 
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
@@ -76,7 +76,7 @@ public final class ZSpreadCalculator {
 
     double sum = 0;
 
-    final int n = annuity.getNumberOfpayments();
+    final int n = annuity.getNumberOfPayments();
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);

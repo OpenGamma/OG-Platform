@@ -167,11 +167,6 @@ public abstract class YieldCurveFittingSetup {
       assertEquals(data.getMarketRates()[i], data.getMarketValueCalculator().getValue(data.getDerivative(i), bundle), EPS);
     }
 
-    // for (int i = 0; i < 40; i++) {
-    // double t = 0.25 * i;
-    // System.out.println(bundle.getCurve(data.getCurveNames().get(0)).getInterestRate(t));
-    // }
-
     // this test cannot be performed when we don't know what the true yield curves are - i.e. we start from market data
     if (data.getCurveYields() != null) {
       for (final String name : data.getCurveNames()) {
@@ -206,9 +201,6 @@ public abstract class YieldCurveFittingSetup {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(func);
     final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
-
-    // System.out.println("exact: " + jacExact);
-    // System.out.println("FD: " + jacFD);
     assertMatrixEquals(jacExact, jacFD, 1e-5);
 
   }

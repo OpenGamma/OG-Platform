@@ -59,7 +59,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   public OptionGreekUnderlyingPriceSeriesFunction(final String dataSourceName, final String fieldName, final String startDate, final String valueRequirementName, final String scheduleName,
       final String samplingFunctionName) {
-    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, ScheduleCalculatorFactory.getSchedule(scheduleName), TimeSeriesSamplingFunctionFactory
+    this(dataSourceName, fieldName, LocalDate.parse(startDate), valueRequirementName, ScheduleCalculatorFactory.getScheduleCalculator(scheduleName), TimeSeriesSamplingFunctionFactory
         .getFunction(samplingFunctionName));
   }
 

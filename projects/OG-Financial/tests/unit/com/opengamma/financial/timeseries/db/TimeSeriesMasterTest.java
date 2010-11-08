@@ -515,6 +515,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
         //do nothing
       }
     }
+    addAndTestTimeSeries();
   }
   
   @Test

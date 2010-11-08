@@ -87,7 +87,7 @@ public interface ConventionBundle {
    * @return the swapFixedLegSettlementDays
    */
   Integer getSwapFixedLegSettlementDays();
-  
+
   /**
    * Gets the region identifier for the fixed leg
    * @return the region identifier for the fixed leg
@@ -123,7 +123,7 @@ public interface ConventionBundle {
    * @return the swapFloatingLegInitialRate
    */
   Identifier getSwapFloatingLegInitialRate();
-  
+
   /**
    * Gets the region identifier for the floating leg
    * @return the region identifier for the floating leg
@@ -141,7 +141,7 @@ public interface ConventionBundle {
    * @return the name
    */
   String getCAPMMarketName();
-  
+
   /**
    * Gets the basisSwapPayFloatingLegDayCount field.
    * @return the basisSwapPayFloatingLegDayCount
@@ -171,13 +171,13 @@ public interface ConventionBundle {
    * @return the basisSwapPayFloatingLegInitialRate
    */
   Identifier getBasisSwapPayFloatingLegInitialRate();
-  
+
   /**
    * Gets the region identifier for the pay floating leg of the basis swap
    * @return the region identifier for the fixed leg
    */
   Identifier getBasisSwapPayFloatingLegRegion();
-  
+
   /**
    * Gets the basisSwapReceiveFloatingLegDayCount field.
    * @return the basisSwapReceiveFloatingLegDayCount
@@ -207,10 +207,28 @@ public interface ConventionBundle {
    * @return the basisSwapReceiveFloatingLegInitialRate
    */
   Identifier getBasisSwapReceiveFloatingLegInitialRate();
-  
+
   /**
    * Gets the region identifier for the receive floating leg of the basis swap
    * @return the region identifier for the fixed leg
    */
   Identifier getBasisSwapReceiveFloatingLegRegion();
+
+  /**
+   * Whether or not the convention for payments is end-of-month or not (i.e. if the maturity is on the last day of a month, are all other payments)
+   * @return if the convention is EOM
+   */
+  boolean isEOMConvention();
+
+  /**
+   * Whether to calculate the payment schedule from maturity (i.e. backwards) or forward from the first coupon
+   * @return how to calculate the schedule
+   */
+  boolean calculateScheduleFromMaturity();
+
+  /**
+   * Gets the number of days that a bond is ex-dividend
+   * @return the number of ex-dividend days
+   */
+  int getExDividendDays();
 }

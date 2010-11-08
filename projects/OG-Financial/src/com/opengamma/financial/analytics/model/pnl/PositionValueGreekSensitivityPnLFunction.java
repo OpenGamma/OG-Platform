@@ -83,7 +83,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       _valueGreeks.add(AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName));
     }
     _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName, CalculationMode.STRICT);
-    _scheduleCalculator = ScheduleCalculatorFactory.getSchedule(scheduleName);
+    _scheduleCalculator = ScheduleCalculatorFactory.getScheduleCalculator(scheduleName);
     _samplingCalculator = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
   }
 
