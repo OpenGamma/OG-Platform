@@ -38,7 +38,7 @@ public class SecurityHistoryResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched security documents.
+   * The list of matched security documents, not null.
    */
   @PropertyDefinition
   private final List<SecurityDocument> _documents = new ArrayList<SecurityDocument>();
@@ -147,7 +147,7 @@ public class SecurityHistoryResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched security documents.
+   * Gets the list of matched security documents, not null.
    * @return the value of the property
    */
   public List<SecurityDocument> getDocuments() {
@@ -155,7 +155,7 @@ public class SecurityHistoryResult extends DirectBean {
   }
 
   /**
-   * Sets the list of matched security documents.
+   * Sets the list of matched security documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<SecurityDocument> documents) {

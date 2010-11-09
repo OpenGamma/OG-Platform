@@ -38,7 +38,7 @@ public class HolidayHistoryResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched holiday documents.
+   * The list of matched holiday documents, not null.
    */
   @PropertyDefinition
   private final List<HolidayDocument> _documents = new ArrayList<HolidayDocument>();
@@ -172,7 +172,7 @@ public class HolidayHistoryResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched holiday documents.
+   * Gets the list of matched holiday documents, not null.
    * @return the value of the property
    */
   public List<HolidayDocument> getDocuments() {
@@ -180,7 +180,7 @@ public class HolidayHistoryResult extends DirectBean {
   }
 
   /**
-   * Sets the list of matched holiday documents.
+   * Sets the list of matched holiday documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<HolidayDocument> documents) {

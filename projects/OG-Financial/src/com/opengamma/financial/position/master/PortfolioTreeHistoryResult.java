@@ -37,7 +37,7 @@ public class PortfolioTreeHistoryResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched portfolio tree documents.
+   * The list of matched portfolio tree documents, not null.
    */
   @PropertyDefinition
   private final List<PortfolioTreeDocument> _documents = new ArrayList<PortfolioTreeDocument>();
@@ -146,7 +146,7 @@ public class PortfolioTreeHistoryResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched portfolio tree documents.
+   * Gets the list of matched portfolio tree documents, not null.
    * @return the value of the property
    */
   public List<PortfolioTreeDocument> getDocuments() {
@@ -154,7 +154,7 @@ public class PortfolioTreeHistoryResult extends DirectBean {
   }
 
   /**
-   * Sets the list of matched portfolio tree documents.
+   * Sets the list of matched portfolio tree documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<PortfolioTreeDocument> documents) {

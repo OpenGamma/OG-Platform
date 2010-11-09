@@ -38,7 +38,7 @@ public class RegionHistoryResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched region documents.
+   * The list of matched region documents, not null.
    */
   @PropertyDefinition
   private final List<RegionDocument> _documents = new ArrayList<RegionDocument>();
@@ -172,7 +172,7 @@ public class RegionHistoryResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched region documents.
+   * Gets the list of matched region documents, not null.
    * @return the value of the property
    */
   public List<RegionDocument> getDocuments() {
@@ -180,7 +180,7 @@ public class RegionHistoryResult extends DirectBean {
   }
 
   /**
-   * Sets the list of matched region documents.
+   * Sets the list of matched region documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<RegionDocument> documents) {

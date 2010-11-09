@@ -36,7 +36,7 @@ public class ConfigSearchResult<T> extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched exchange documents.
+   * The list of matched exchange documents, not null.
    */
   @PropertyDefinition
   private final List<ConfigDocument<T>> _documents = new ArrayList<ConfigDocument<T>>();
@@ -157,7 +157,7 @@ public class ConfigSearchResult<T> extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched exchange documents.
+   * Gets the list of matched exchange documents, not null.
    * @return the value of the property
    */
   public List<ConfigDocument<T>> getDocuments() {
@@ -165,7 +165,7 @@ public class ConfigSearchResult<T> extends DirectBean {
   }
 
   /**
-   * Sets the list of matched exchange documents.
+   * Sets the list of matched exchange documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<ConfigDocument<T>> documents) {
