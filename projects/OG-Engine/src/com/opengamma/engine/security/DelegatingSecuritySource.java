@@ -40,8 +40,8 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
     ArgumentChecker.notNull(securityKey, "securityKey");
     // TODO: this implementation is poor, but API limits us
     Collection<Security> result; 
-    for (SecuritySource delegateMaster : getDelegates().values()) {
-      result = delegateMaster.getSecurities(securityKey);
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      result = delegateSource.getSecurities(securityKey);
       if (result != null) {
         return result;
       }

@@ -119,7 +119,7 @@ public class EHCachingSecuritySource implements SecuritySource {
       if (value instanceof Collection<?>) {
         result.addAll((Collection<Security>) value);
       } else {
-        s_logger.warn("returned object {} from cache is not a Set<Security>", value);
+        s_logger.warn("returned object {} from cache is not a Collection<Security>", value);
       }
     } else {
       result = getUnderlying().getSecurities(securityKey);

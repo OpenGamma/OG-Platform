@@ -29,8 +29,9 @@ import com.opengamma.id.UniqueIdentifier;
 public class MasterSecuritySourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
-  private static final Identifier ID = Identifier.of("C", "D");
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final Identifier ID1 = Identifier.of("C", "D");
+  private static final Identifier ID2 = Identifier.of("E", "F");
+  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID1, ID2);
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -73,7 +74,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.nowSystemClock();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(BUNDLE);
+    request.addIdentifierBundle(ID1);
+    request.addIdentifierBundle(ID2);
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
@@ -96,7 +98,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.nowSystemClock();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(BUNDLE);
+    request.addIdentifierBundle(ID1);
+    request.addIdentifierBundle(ID2);
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));

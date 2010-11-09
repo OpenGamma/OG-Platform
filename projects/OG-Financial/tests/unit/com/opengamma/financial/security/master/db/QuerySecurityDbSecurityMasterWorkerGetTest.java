@@ -6,7 +6,6 @@
 package com.opengamma.financial.security.master.db;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
@@ -17,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -68,89 +64,28 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
   public void test_getSecurity_versioned_oneSecurityKey() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     SecurityDocument test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
-    assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
-    assertEquals("TestSecurity101", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("TICKER", "ORCL"), idKey.getIdentifiers().iterator().next());
+    assert101(test);
   }
 
   @Test
   public void test_getSecurity_versioned_twoSecurityKeys() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "102", "0");
     SecurityDocument test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
-    assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
-    assertEquals("TestSecurity102", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(2, idKey.size());
-    assertEquals(true, idKey.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
-    assertEquals(true, idKey.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
+    assert102(test);
   }
 
   @Test
   public void test_getSecurity_versioned_notLatest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
     SecurityDocument test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(_version2Instant, test.getVersionToInstant());
-    assertEquals(_version1Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
-    assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
-    assertEquals("TestSecurity201", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("TICKER", "IBMC"), idKey.getIdentifiers().iterator().next());
+    assert201(test);
   }
 
   @Test
   public void test_getSecurity_versioned_latest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
     SecurityDocument test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
-    assertEquals(_version2Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version2Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
-    assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
-    assertEquals("TestSecurity202", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("TICKER", "IBMC"), idKey.getIdentifiers().iterator().next());
+    assert202(test);
   }
 
   //-------------------------------------------------------------------------
@@ -164,23 +99,7 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
   public void test_getSecurity_unversioned() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityDocument test = _worker.get(oid);
-    
-    assertNotNull(test);
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
-    assertEquals(uid, test.getSecurityId());
-    assertEquals(_version2Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals(_version2Instant, test.getCorrectionFromInstant());
-    assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
-    assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
-    assertEquals("TestSecurity202", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("TICKER", "IBMC"), idKey.getIdentifiers().iterator().next());
+    assert202(test);
   }
 
   //-------------------------------------------------------------------------

@@ -6,8 +6,6 @@
 package com.opengamma.financial.security.master.db;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.TimeZone;
 
@@ -17,7 +15,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
@@ -66,23 +63,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(_totalSecurities, test.getDocuments().size());
-    SecurityDocument doc1 = test.getDocuments().get(1);
-    
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
-    assertEquals(_version1Instant, doc1.getVersionFromInstant());
-    assertEquals(null, doc1.getVersionToInstant());
-    assertEquals(_version1Instant, doc1.getCorrectionFromInstant());
-    assertEquals(null, doc1.getCorrectionToInstant());
-    DefaultSecurity security = doc1.getSecurity();
-    assertNotNull(security);
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), security.getUniqueIdentifier());
-    assertEquals("TestSecurity102", security.getName());
-    assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(2, idKey.size());
-    assertTrue(idKey.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
-    assertTrue(idKey.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
   }
 
   //-------------------------------------------------------------------------
@@ -97,10 +80,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    SecurityDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
   }
 
   @Test
@@ -114,8 +95,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc0.getSecurityId());
+    assert202(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------
@@ -135,8 +115,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc0.getSecurityId());
+    assert102(test.getDocuments().get(0));
   }
 
   @Test
@@ -146,8 +125,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc0.getSecurityId());
+    assert102(test.getDocuments().get(0));
   }
 
   @Test
@@ -157,10 +135,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    SecurityDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
   }
 
   @Test
@@ -170,10 +146,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    SecurityDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -194,67 +168,155 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_search_id_emptyBundle() {
+  public void test_search_oneId_AB() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.EMPTY);
+    request.addIdentifierBundle(Identifier.of("A", "B"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+  }
+
+  @Test
+  public void test_search_oneId_CD() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("C", "D"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(3, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
+  }
+
+  @Test
+  public void test_search_oneId_EF() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("E", "F"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert202(test.getDocuments().get(1));
+  }
+
+  @Test
+  public void test_search_oneId_GH() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("G", "H"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_search_oneId_noMatch() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("A", "H"));
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
+  //-------------------------------------------------------------------------
   @Test
-  public void test_search_id_oneOfOne_101() {
+  public void test_search_twoIds_AB_CD() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "ORCL")));
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
     SecuritySearchResult test = _worker.search(request);
     
-    assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "101", "0")), doc0);
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
   }
 
   @Test
-  public void test_search_id_oneOfOneLatest_201() {
+  public void test_search_twoIds_CD_EF() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "IBMC")));
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
     SecuritySearchResult test = _worker.search(request);
     
-    assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "201", "1")), doc0);
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert202(test.getDocuments().get(1));
   }
 
   @Test
-  public void test_search_id_oneOfTwo_102() {
+  public void test_search_twoIds_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT")));
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "H")));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_threeIds_AB_CD_EF() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")));
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+    assert101(test.getDocuments().get(0));
   }
 
   @Test
-  public void test_search_id_twoOfTwo_102() {
+  public void test_search_threeIds_AB_CD_GH() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro")));
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")));
     SecuritySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+    assert102(test.getDocuments().get(0));
   }
 
   @Test
-  public void test_search_id_twoOfTwoWhereOneMatches_102() {
+  public void test_search_threeIds_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(IdentifierBundle.of(Identifier.of("TICKER", "MSFT"), Identifier.of("RUBBISH", "Micro")));
+    request.addIdentifierBundle(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F"), Identifier.of("A", "H")));
     SecuritySearchResult test = _worker.search(request);
     
-    assertEquals(1, test.getDocuments().size());
-    SecurityDocument doc0 = test.getDocuments().get(0);
-    assertEquals(_worker.get(UniqueIdentifier.of("DbSec", "102", "0")), doc0);
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_ids_AB_or_CD() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("A", "B"));
+    request.addIdentifierBundle(Identifier.of("C", "D"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(3, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
+  }
+
+  @Test
+  public void test_search_ids_EF_or_GH() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("E", "F"));
+    request.addIdentifierBundle(Identifier.of("G", "H"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(3, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
+  }
+
+  @Test
+  public void test_search_ids_or_noMatch() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addIdentifierBundle(Identifier.of("E", "H"));
+    request.addIdentifierBundle(Identifier.of("A", "D"));
+    SecuritySearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------
