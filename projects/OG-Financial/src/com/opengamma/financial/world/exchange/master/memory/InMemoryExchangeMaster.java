@@ -11,8 +11,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
@@ -28,6 +26,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -94,11 +93,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
       docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
         @Override
         public boolean apply(final ExchangeDocument doc) {
-          if (name.endsWith("*")) {
-            return StringUtils.startsWith(doc.getExchange().getName(), name.substring(0, name.length() - 1));
-          } else {
-            return StringUtils.equals(doc.getExchange().getName(), name);
-          }
+          return RegexUtils.wildcardsToPattern(name).matcher(doc.getName()).matches();
         }
       });
     }
