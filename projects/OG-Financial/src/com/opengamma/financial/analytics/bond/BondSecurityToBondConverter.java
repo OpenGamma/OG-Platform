@@ -99,7 +99,7 @@ public class BondSecurityToBondConverter {
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
-    LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity());
+    LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
     if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
       final int n = schedule.length;

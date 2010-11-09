@@ -33,7 +33,7 @@ public class ActualActualAFB extends ActualTypeDayCount {
       final double daysInYear = DateUtil.isLeapYear(end) && end.getMonthOfYear().getValue() > 2 ? 366 : 365;
       return daysBetween / daysInYear;
     }
-    final ZonedDateTime[] schedule = ScheduleFactory.getSchedule(firstDate, secondDate, 1, true, true);
+    final ZonedDateTime[] schedule = ScheduleFactory.getSchedule(firstDate, secondDate, 1, true, true, false);
     ZonedDateTime d = schedule[0];
     if (DateUtil.isLeapYear(d) && d.getMonthOfYear() == MonthOfYear.FEBRUARY && d.getDayOfMonth() == 28) {
       d = d.plusDays(1);
