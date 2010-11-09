@@ -7,7 +7,7 @@
 /**
  * Introduce the Currency element as a Fudge-Proto identifier.
  */
-namespace com.opengamma.financial {
+namespace com.opengamma.core.common {
 
   extern typedef Currency = string;
 

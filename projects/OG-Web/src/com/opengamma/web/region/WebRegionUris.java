@@ -7,9 +7,9 @@ package com.opengamma.web.region;
 
 import java.net.URI;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.Region;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

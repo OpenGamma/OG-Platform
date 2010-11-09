@@ -9,12 +9,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.memory.InMemoryConfigMaster;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.world.region.master.MasterRegionSource;
 import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.RegionSource;
 import com.opengamma.financial.world.region.master.loader.RegionFileReader;
 import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.util.PlatformConfigUtils;

@@ -13,12 +13,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.ExchangeUtils;
+import com.opengamma.core.exchange.ExchangeUtils;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
 import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
 import com.opengamma.financial.world.exchange.master.ManageableExchange;
-import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

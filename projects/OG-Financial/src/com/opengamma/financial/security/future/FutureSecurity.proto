@@ -16,7 +16,7 @@ namespace com.opengamma.financial.security.future {
     required util.time.Expiry expiry;
     required string tradingExchange;
     required string settlementExchange;
-    required Currency currency;
+    required com.opengamma.core.common.Currency currency;
   
     binding Java {
       body <<<JAVA

@@ -13,7 +13,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.Holiday;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -27,9 +30,6 @@ import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.financial.world.holiday.Holiday;
-import com.opengamma.financial.world.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

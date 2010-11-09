@@ -17,8 +17,8 @@ import javax.time.calendar.TimeZone;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.Region;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

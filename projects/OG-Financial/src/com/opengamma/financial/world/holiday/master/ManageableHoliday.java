@@ -23,9 +23,9 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.Holiday;
-import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.Holiday;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;

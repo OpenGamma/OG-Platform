@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region;
+package com.opengamma.core.region;
 
 /**
  * The classification of a region.

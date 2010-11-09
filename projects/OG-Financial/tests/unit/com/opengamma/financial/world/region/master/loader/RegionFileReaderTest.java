@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.opengamma.financial.world.region.RegionClassification;
+import com.opengamma.core.region.RegionClassification;
 import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionMaster;

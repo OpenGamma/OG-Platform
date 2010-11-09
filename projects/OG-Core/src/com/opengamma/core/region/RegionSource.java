@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master;
+package com.opengamma.core.region;
 
-import com.opengamma.financial.world.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

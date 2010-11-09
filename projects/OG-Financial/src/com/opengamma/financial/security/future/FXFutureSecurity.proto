@@ -11,8 +11,8 @@ namespace com.opengamma.financial.security.future {
    */
   message FXFutureSecurity extends FutureSecurity {
   
-    required Currency numerator;
-    required Currency denominator;
+    required com.opengamma.core.common.Currency numerator;
+    required com.opengamma.core.common.Currency denominator;
     required double multiplicationFactor [default = 1.0];
     
     binding Java {

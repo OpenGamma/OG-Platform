@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region;
+package com.opengamma.core.region;
 
 import java.util.Set;
 
@@ -11,7 +11,7 @@ import javax.time.calendar.TimeZone;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 

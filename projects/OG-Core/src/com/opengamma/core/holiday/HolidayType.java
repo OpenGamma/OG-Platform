@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday;
+package com.opengamma.core.holiday;
 
 /**
  * The type of a holiday.

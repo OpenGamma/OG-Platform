@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.RegionClassification;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.RegionClassification;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionSearchRequest;

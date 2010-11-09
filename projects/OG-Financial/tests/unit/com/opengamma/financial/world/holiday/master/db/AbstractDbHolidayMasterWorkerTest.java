@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.world.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.db.DbHolidayMaster;

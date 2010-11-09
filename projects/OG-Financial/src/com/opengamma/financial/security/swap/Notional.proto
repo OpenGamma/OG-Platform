@@ -31,7 +31,7 @@ namespace com.opengamma.financial.security.swap {
    * Represents the notional value of an interest rate leg of a swap
    */
   message InterestRateNotional extends Notional {
-    required readonly Currency currency;
+    required readonly com.opengamma.core.common.Currency currency;
     required readonly double amount;
 
     binding Java {

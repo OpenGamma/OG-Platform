@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange;
+package com.opengamma.core.exchange;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;

@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 
 public class CurrencyTest extends FinancialTestBase {
 
