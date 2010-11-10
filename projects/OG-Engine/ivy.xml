@@ -10,7 +10,6 @@
     </publications>
     <dependencies>
     	<dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
-    	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
     	<dependency name="og-config" rev="latest.integration" conf="opengamma->*"/>
     	<dependency name="og-core" rev="latest.integration" conf="opengamma->*"/>
     	
