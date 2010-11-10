@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.loader;
+package com.opengamma.master.holiday.impl;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 

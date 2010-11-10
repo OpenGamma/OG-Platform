@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.ManageableHoliday;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.

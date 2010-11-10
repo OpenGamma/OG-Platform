@@ -22,9 +22,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.db.DbHolidayMaster;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.test.DBTest;
 
 /**

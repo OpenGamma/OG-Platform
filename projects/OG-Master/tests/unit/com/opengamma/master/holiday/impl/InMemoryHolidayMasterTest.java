@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.memory;
+package com.opengamma.master.holiday.impl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,10 +16,11 @@ import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 
 /**
  * Test InMemoryHolidayMaster.

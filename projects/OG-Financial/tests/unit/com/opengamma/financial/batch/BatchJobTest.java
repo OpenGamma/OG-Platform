@@ -23,10 +23,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
-import com.opengamma.financial.world.holiday.master.loader.CoppClarkHolidayFileReader;
-import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.impl.CoppClarkHolidayFileReader;
+import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 
 /**
  * Test batchJob.

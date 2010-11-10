@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
 
 /**

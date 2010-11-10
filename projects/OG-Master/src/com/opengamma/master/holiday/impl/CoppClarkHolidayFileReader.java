@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.loader;
+package com.opengamma.master.holiday.impl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,14 +29,13 @@ import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
-import com.opengamma.financial.world.holiday.master.MasterHolidaySource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.ArgumentChecker;
 

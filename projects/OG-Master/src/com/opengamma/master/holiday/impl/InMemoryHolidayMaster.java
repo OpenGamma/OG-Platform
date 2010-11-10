@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.memory;
+package com.opengamma.master.holiday.impl;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,15 +15,15 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
-import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
-import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;

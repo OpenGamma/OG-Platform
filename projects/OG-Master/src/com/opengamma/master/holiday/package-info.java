@@ -7,4 +7,4 @@
 /**
  * Holiday master API providing the ability to query and update holidays.
  */
-package com.opengamma.financial.world.holiday.master;
+package com.opengamma.master.holiday;

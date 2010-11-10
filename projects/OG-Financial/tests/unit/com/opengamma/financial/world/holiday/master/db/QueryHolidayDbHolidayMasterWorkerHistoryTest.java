@@ -16,9 +16,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
-import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.util.db.PagingRequest;
 
 /**

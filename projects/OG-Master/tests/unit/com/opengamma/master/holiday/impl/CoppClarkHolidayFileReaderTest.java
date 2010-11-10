@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master.loader;
+package com.opengamma.master.holiday.impl;
 
 import java.net.URISyntaxException;
 
@@ -18,12 +18,12 @@ import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.world.holiday.master.loader.CoppClarkHolidayFileReader;
-import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.master.exchange.impl.CoppClarkExchangeFileReader;
 import com.opengamma.master.exchange.impl.MasterExchangeSource;
+import com.opengamma.master.holiday.impl.CoppClarkHolidayFileReader;
+import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;

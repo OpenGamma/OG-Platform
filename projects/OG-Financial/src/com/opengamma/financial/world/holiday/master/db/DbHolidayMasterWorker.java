@@ -6,13 +6,13 @@
 package com.opengamma.financial.world.holiday.master.db;
 
 import com.opengamma.financial.master.db.AbstractDbMasterWorker;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayHistoryRequest;
-import com.opengamma.financial.world.holiday.master.HolidayHistoryResult;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
 
 /**
  * Base worker class for the holiday master.

@@ -88,7 +88,7 @@
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.refdata.db.holidaymaster.scheme}" />
   </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.financial.world.holiday.master.EHCachingMasterHolidaySource">
+  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySource">
     <constructor-arg ref="dbHolidayMaster"/>
     <constructor-arg ref="cacheManager"/>
   </bean>

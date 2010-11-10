@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master;
+package com.opengamma.master.holiday;
 
 import java.io.Serializable;
 import java.util.Collections;

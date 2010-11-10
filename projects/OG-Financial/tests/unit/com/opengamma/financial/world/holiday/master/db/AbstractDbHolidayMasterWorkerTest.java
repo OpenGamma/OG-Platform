@@ -28,11 +28,11 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.db.DbHolidayMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.test.DBTest;
 
 /**

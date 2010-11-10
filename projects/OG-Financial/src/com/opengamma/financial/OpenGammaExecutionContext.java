@@ -14,7 +14,7 @@ import com.opengamma.engine.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMaster;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
