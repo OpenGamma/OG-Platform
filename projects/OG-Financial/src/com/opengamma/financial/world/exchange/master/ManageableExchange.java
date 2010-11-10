@@ -21,8 +21,8 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.exchange.ExchangeUtils;
+import com.opengamma.core.exchange.Exchange;
+import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

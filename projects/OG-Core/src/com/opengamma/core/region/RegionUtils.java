@@ -3,11 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region;
+package com.opengamma.core.region;
 
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;

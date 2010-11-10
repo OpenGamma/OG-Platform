@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import javax.time.Instant;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 
 /**
  * A source of yield curve definitions.

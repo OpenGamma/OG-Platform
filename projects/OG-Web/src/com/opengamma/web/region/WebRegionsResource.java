@@ -22,7 +22,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.region.RegionClassification;
+import com.opengamma.core.region.RegionClassification;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionMaster;
 import com.opengamma.financial.world.region.master.RegionSearchRequest;

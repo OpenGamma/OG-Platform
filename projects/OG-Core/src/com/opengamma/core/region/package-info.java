@@ -5,6 +5,6 @@
  */
 
 /**
- * Base regions API defining locations in the world.
+ * API for regions, defining locations in the world.
  */
-package com.opengamma.financial.world.region;
+package com.opengamma.core.region;

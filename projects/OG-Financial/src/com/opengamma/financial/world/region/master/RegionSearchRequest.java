@@ -23,9 +23,9 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.RegionClassification;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.RegionClassification;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

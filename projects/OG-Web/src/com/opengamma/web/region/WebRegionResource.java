@@ -22,8 +22,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.RegionClassification;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.RegionClassification;
 import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.RegionDocument;
 import com.opengamma.financial.world.region.master.RegionSearchRequest;

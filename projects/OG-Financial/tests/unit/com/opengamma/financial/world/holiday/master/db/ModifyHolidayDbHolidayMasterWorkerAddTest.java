@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.id.Identifier;

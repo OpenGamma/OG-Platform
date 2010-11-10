@@ -3,13 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.holiday.master;
+package com.opengamma.core.holiday;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.Holiday;
-import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

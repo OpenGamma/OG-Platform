@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial;
+package com.opengamma.core.common;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -26,6 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class Currency implements UniqueIdentifiable, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -4051633241450293247L;
   /**
    * A scheme for the unique identifier.
    */

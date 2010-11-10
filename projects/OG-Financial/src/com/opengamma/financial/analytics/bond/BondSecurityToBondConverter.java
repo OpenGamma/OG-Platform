@@ -13,7 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.analytics.schedule.ScheduleCalculator;
 import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -29,7 +30,6 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.Identifier;
 
 /**

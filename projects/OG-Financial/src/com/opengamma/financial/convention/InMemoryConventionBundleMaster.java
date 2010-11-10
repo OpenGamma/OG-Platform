@@ -10,13 +10,13 @@ import static com.opengamma.id.IdentificationScheme.BLOOMBERG_TICKER;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.world.region.RegionUtils;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

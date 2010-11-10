@@ -3,13 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial;
+package com.opengamma.core.common;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
+
+import com.opengamma.core.common.Currency;
 
 /**
  * Test Currency.

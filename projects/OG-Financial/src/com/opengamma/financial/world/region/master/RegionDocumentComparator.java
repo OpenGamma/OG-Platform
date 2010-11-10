@@ -8,7 +8,7 @@ package com.opengamma.financial.world.region.master;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.opengamma.financial.world.region.RegionComparator;
+import com.opengamma.core.region.RegionComparator;
 
 /**
  * Region comparator based on the region type, then name.

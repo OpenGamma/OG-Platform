@@ -16,8 +16,8 @@ import javax.time.Instant;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.exchange.Exchange;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

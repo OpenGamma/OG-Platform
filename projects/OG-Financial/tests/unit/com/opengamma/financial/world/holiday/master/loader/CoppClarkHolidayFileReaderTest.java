@@ -13,17 +13,17 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.exchange.ExchangeUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.exchange.ExchangeUtils;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
 import com.opengamma.financial.world.exchange.master.loader.CoppClarkExchangeFileReader;
-import com.opengamma.financial.world.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.financial.world.holiday.master.loader.CoppClarkHolidayFileReader;
 import com.opengamma.financial.world.holiday.master.memory.InMemoryHolidayMaster;
 import com.opengamma.financial.world.region.master.MasterRegionSource;
-import com.opengamma.financial.world.region.master.RegionSource;
 import com.opengamma.financial.world.region.master.loader.RegionFileReader;
 import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.id.Identifier;

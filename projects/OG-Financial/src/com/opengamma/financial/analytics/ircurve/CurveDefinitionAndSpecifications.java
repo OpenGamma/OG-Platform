@@ -36,7 +36,7 @@ import java.util.Map;
 
 import javax.time.calendar.Period;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1DFactory;

@@ -13,12 +13,12 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.exchange.Exchange;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.region.Region;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.world.exchange.Exchange;
-import com.opengamma.financial.world.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
-import com.opengamma.financial.world.region.Region;
 
 /**
  * Temporary adapter to make the existing Calendar interface work with the holiday repository.  THIS MUST BE REFACTORED.

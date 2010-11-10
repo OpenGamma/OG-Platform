@@ -27,9 +27,9 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.RegionClassification;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.RegionClassification;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.world.region.master.ManageableRegion;
 import com.opengamma.financial.world.region.master.MasterRegionSource;
 import com.opengamma.financial.world.region.master.RegionDocument;

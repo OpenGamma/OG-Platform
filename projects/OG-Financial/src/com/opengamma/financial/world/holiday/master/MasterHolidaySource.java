@@ -13,8 +13,9 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

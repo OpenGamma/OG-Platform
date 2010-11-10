@@ -22,8 +22,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.HolidayType;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;

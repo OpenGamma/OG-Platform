@@ -22,10 +22,10 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionClassification;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.region.Region;
+import com.opengamma.core.region.RegionClassification;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
