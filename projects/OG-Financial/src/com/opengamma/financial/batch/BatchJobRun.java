@@ -6,15 +6,16 @@
 package com.opengamma.financial.batch;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.financial.batch.BatchJob.RunCreationMode;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,80 +28,63 @@ import com.opengamma.util.ArgumentChecker;
 public class BatchJobRun {
   
   // --------------------------------------------------------------------------
-  
-  /**
-   * Used as a default "observation time" for ad hoc batches, i.e., batches that are
-   * started manually by users and whose results should NOT flow to downstream
-   * systems.  
-   */
-  public static final String AD_HOC_OBSERVATION_TIME = "AD_HOC_RUN";
-  
-  // --------------------------------------------------------------------------
   // Variables initialized at construction time
   // --------------------------------------------------------------------------
   
   /**
-   * The job this run belongs to
+   * The job this run belongs to.
    */
   private final BatchJob _job;
   
-  // --------------------------------------------------------------------------
-  
-  /** 
-   * Why the batch is being run. Would typically tell whether the run is an automatic/manual
-   * run, and if manual, who started it and maybe why.
-   * 
-   * Not null.
-   */
-  private String _runReason;
-  
-  /** 
-   * A label for the run. Examples: LDN_CLOSE, AD_HOC_RUN. The exact time of LDN_CLOSE could vary
-   * daily due to this time being set by the head trader.
-   * So one day it might be 16:32, the next 16:46, etc. 
-   * 
-   * Not null.
-   */
-  private String _observationTime;
-  
   /**
    * What day's batch this is. 
-   * 
-   * Not null.
    */
-  private LocalDate _observationDate;
+  private final LocalDate _observationDate;
   
   /**
-   * Valuation time for purposes of calculating all risk figures. Often referred to 'T'
+   * What day's market data snapshot to use. 99.9% of the time will be the same as
+   * _observationDate.
+   */
+  private final LocalDate _snapshotObservationDate;
+  
+  /**
+   * Valuation time for purposes of calculating all risk figures. Often referred to as 'T'
    * in mathematical formulas.
    * 
    * Not null.
    */
-  private OffsetDateTime _valuationTime;
+  private final ZonedDateTime _valuationTime;
   
   /**
-   * The batch will run against a defined set of market data.
-   * 
-   * This variable tells which set exactly. The contents are 
-   * similar to {@link #_observationTime}.
-   * 
-   * Not null.
+   * Historical time used for loading entities out of Config DB.
    */
-  private String _snapshotObservationTime;
-
+  private final ZonedDateTime _configDbTime;
+  
   /**
-   * What day's market data snapshot to use.
-   * 
-   * Not null.
+   * Historical time used for loading entities out of PositionMaster,
+   * SecurityMaster, etc.
    */
-  private LocalDate _snapshotObservationDate;
+  private final ZonedDateTime _staticDataTime;
   
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
   
   /**
-   * Set by _batchDbManager
+   * When the run was first created in database.
+   * If the first run attempt, the value is system clock
+   * when the BatchJob object was created.
+   * If a second, third, ..., run attempt, it's the 
+   * system clock on the first run attempt.
+   * <p>
+   * Set by BatchDbManager. 
+   */
+  private ZonedDateTime _originalCreationTime;
+
+  /**
+   * A handle to the database entry for this run.
+   * <p>
+   * Set by BatchDbManager.
    */
   private Object _dbHandle;
   
@@ -111,81 +95,84 @@ public class BatchJobRun {
 
   //--------------------------------------------------------------------------
   
+  /**
+   * This constructor is useful in tests.
+   * 
+   * @param job Batch job
+   */
   public BatchJobRun(BatchJob job) {
+    this(job,
+        job.getCreationTime().toLocalDate(),
+        job.getCreationTime().toLocalDate(),
+        job.getCreationTime().toLocalDate(),
+        job.getCreationTime().toLocalDate());
+  }
+  
+  public BatchJobRun(BatchJob job, 
+      LocalDate observationDate, 
+      LocalDate snapshotObservationDate,
+      LocalDate configDbDate,
+      LocalDate staticDataDate) {
     ArgumentChecker.notNull(job, "Batch job");
+    ArgumentChecker.notNull(observationDate, "Observation date");
+    ArgumentChecker.notNull(snapshotObservationDate, "Snapshot observation date");
+    ArgumentChecker.notNull(configDbDate, "Config DB date");
+    ArgumentChecker.notNull(staticDataDate, "Static data date");
+    
     _job = job;
+    _observationDate = observationDate;
+    _snapshotObservationDate = snapshotObservationDate;
+    
+    _valuationTime = ZonedDateTime.of(
+        observationDate, 
+        job.getParameters().getValuationTimeObject(), 
+        job.getParameters().getTimeZoneObject());
+    
+    _configDbTime = ZonedDateTime.of(
+        configDbDate,
+        job.getParameters().getConfigDbTimeObject(),
+        job.getParameters().getTimeZoneObject());
+    
+    _staticDataTime = ZonedDateTime.of(
+        staticDataDate,
+        job.getParameters().getStaticDataTimeObject(),
+        job.getParameters().getTimeZoneObject());
   }
   
   //--------------------------------------------------------------------------
   
   public String getRunReason() {
-    return _runReason;
-  }
-
-  public void setRunReason(String runReason) {
-    _runReason = runReason;
+    return getJob().getParameters().getRunReason();
   }
 
   public String getObservationTime() {
-    return _observationTime;
-  }
-
-  public void setObservationTime(String observationTime) {
-    _observationTime = observationTime;
+    return getJob().getParameters().getObservationTime();
   }
 
   public LocalDate getObservationDate() {
     return _observationDate;
   }
 
-  public void setObservationDate(String observationDate) {
-    if (observationDate == null) {
-      _observationDate = null;
-    } else { 
-      _observationDate = parseDate(observationDate);
-    }
-  }
-  
-  public void setObservationDate(LocalDate observationDate) {
-    _observationDate = observationDate;
-  }
-
-  public OffsetDateTime getValuationTime() {
+  public ZonedDateTime getValuationTime() {
     return _valuationTime;
   }
-
-  public void setValuationTime(String valuationTime) {
-    _valuationTime = parseDateTime(valuationTime);
-  }
   
-  public void setValuationTime(OffsetDateTime valuationTime) {
-    _valuationTime = valuationTime;
+  public ZonedDateTime getConfigDbTime() {
+    return _configDbTime;
+  }
+
+  public ZonedDateTime getStaticDataTime() {
+    return _staticDataTime;
   }
 
   public LocalDate getSnapshotObservationDate() {
     return _snapshotObservationDate;
   }
 
-  public void setSnapshotObservationDate(String snapshotObservationDate) {
-    if (snapshotObservationDate == null) {
-      _snapshotObservationDate = null;
-    } else {
-      _snapshotObservationDate = parseDate(snapshotObservationDate);
-    }
-  }
-  
-  public void setSnapshotObservationDate(LocalDate snapshotObservationDate) {
-    _snapshotObservationDate = snapshotObservationDate;
-  }
-  
   public String getSnapshotObservationTime() {
-    return _snapshotObservationTime;
+    return getJob().getParameters().getSnapshotObservationTime();
   }
-  
-  public void setSnapshotObservationTime(String snapshotObservationTime) {
-    _snapshotObservationTime = snapshotObservationTime;
-  }
-  
+
   public SnapshotId getSnapshotId() {
     return new SnapshotId(getSnapshotObservationDate(), getSnapshotObservationTime());
   }
@@ -196,6 +183,14 @@ public class BatchJobRun {
 
   public void setDbHandle(Object dbHandle) {
     _dbHandle = dbHandle;
+  }
+  
+  public ZonedDateTime getOriginalCreationTime() {
+    return _originalCreationTime;
+  }
+
+  public void setOriginalCreationTime(ZonedDateTime originalCreationTime) {
+    _originalCreationTime = originalCreationTime;
   }
   
   public boolean isFailed() {
@@ -214,32 +209,12 @@ public class BatchJobRun {
     return getJob().getUser();
   }
   
-  public OffsetDateTime parseDateTime(String dateTime) {
-    return BatchJob.parseDateTime(dateTime);
-  }
-  
-  public LocalDate parseDate(String date) {
-    return BatchJob.parseDate(date);
-  }
-  
-  public String getViewOid() {
-    return getJob().getViewOid();
-  }
-  
-  public String getViewVersion() {
-    return getJob().getViewVersion();    
-  } 
-  
-  public boolean isForceNewRun() {
-    return getJob().isForceNewRun();    
+  public RunCreationMode getRunCreationMode() {
+    return getJob().getRunCreationMode();
   }
   
   public String getOpenGammaVersion() {
     return getJob().getOpenGammaVersion();
-  }
-  
-  public String getOpenGammaVersionHash() {
-    return getJob().getOpenGammaVersionHash();
   }
   
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
@@ -254,36 +229,8 @@ public class BatchJobRun {
     return getJob().getCreationTime();
   }
   
-  // --------------------------------------------------------------------------
-  
-  public void init() {
-    ZonedDateTime now = getJob().getCreationTime();
-    
-    if (_runReason == null) {
-      _runReason = "Manual run started on " + 
-        now + " by " + 
-        getUser().getUserName();                   
-    }
-    
-    if (_observationDate == null) {
-      _observationDate = now.toLocalDate();
-    }
-    
-    if (_observationTime == null) {
-      _observationTime = AD_HOC_OBSERVATION_TIME;      
-    }
-
-    if (_valuationTime == null) {
-      _valuationTime = OffsetDateTime.of(_observationDate, now, now.getOffset()); 
-    }
-    
-    if (_snapshotObservationDate == null) {
-      _snapshotObservationDate = _observationDate;
-    }
-    
-    if (_snapshotObservationTime == null) {
-      _snapshotObservationTime = _observationTime;
-    }
+  public Map<String, String> getParameters() {
+    return getJob().getParameters().getParameters();
   }
   
   // --------------------------------------------------------------------------

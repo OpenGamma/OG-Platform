@@ -63,7 +63,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     _batchJob = new BatchJob();
     _batchJob.setBatchDbManager(_dbManager);
-    _batchJob.setViewName("test_view");
+    _batchJob.getParameters().setViewName("test_view");
     _batchJob.setView(ViewTestUtils.getMockView());
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setConfigId(UniqueIdentifier.of("Test", "1", "1"));
@@ -74,7 +74,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.setViewDefinitionConfig(doc);
     
     _batchJobRun = new BatchJobRun(_batchJob);
-    _batchJobRun.init();
     _batchJob.addRun(_batchJobRun);
   }
     
@@ -84,7 +83,6 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     OpenGammaVersion version1 = _dbManager.getOpenGammaVersion(_batchJob);
     assertNotNull(version1);
     assertEquals(_batchJob.getOpenGammaVersion(), version1.getVersion());
-    assertEquals(_batchJob.getOpenGammaVersionHash(), version1.getHash());
     
     // get
     OpenGammaVersion version2 = _dbManager.getOpenGammaVersion(_batchJob);
@@ -252,10 +250,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertNotNull(run.getLiveDataSnapshot());
     assertEquals(_dbManager.getLocalComputeHost(), run.getMasterProcessHost());
     assertEquals(_dbManager.getOpenGammaVersion(_batchJob), run.getOpenGammaVersion());
-    assertEquals(_batchJobRun.getRunReason(), run.getRunReason());
     assertNotNull(run.getValuationTime());
-    assertEquals(_batchJob.getViewOid(), run.getViewOid());
-    assertEquals(_batchJob.getViewVersion(), run.getViewVersion());
+    
+    assertEquals(150, run.getPropertiesMap().size());
     
     // get
     RiskRun run2 = _dbManager.getRiskRunFromDb(_batchJobRun);

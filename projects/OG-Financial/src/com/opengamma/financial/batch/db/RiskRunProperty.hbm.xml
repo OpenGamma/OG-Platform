@@ -4,18 +4,18 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.batch.db">
 
-  <class name="OpenGammaVersion" table="rsk_opengamma_version">
+  <class name="RiskRunProperty" table="rsk_run_property">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>
-      	<param name="increment_size">100</param>
+      	<param name="increment_size">10000</param>
       </generator>
     </id>
-    <property name="version" not-null="true"/>
+    <many-to-one name="riskRun" 
+    	column="run_id" 
+    	not-null="true"/>
+    <property name="propertyKey" column="property_key" not-null="true"/>
+    <property name="propertyValue" column="property_value" not-null="true"/>
   </class>
-  
-  <query name="OpenGammaVersion.one.byVersionAndHash">
-  	from OpenGammaVersion as a where 
-  	a.version = :version</query>  
   
 </hibernate-mapping>

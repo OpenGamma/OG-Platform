@@ -17,13 +17,10 @@
    	<many-to-one name="masterProcessHost" 
     	column="master_process_host_id" 
     	not-null="true"/>
-   	<property name="runReason" column="run_reason" not-null="true"/>
    	<many-to-one name="runTime" 
     	column="run_time_id" 
     	not-null="true"/>
    	<property name="valuationTime" column="valuation_time" not-null="true"/>
-   	<property name="viewOid" column="view_oid" not-null="true"/>
-   	<property name="viewVersion" column="view_version"/>
    	<many-to-one name="liveDataSnapshot" 
     	column="live_data_snapshot_id" 
     	not-null="true"/>
@@ -35,13 +32,15 @@
         <key column="run_id"/>
         <one-to-many class="CalculationConfiguration"/>
     </set>
+    <set name="properties" inverse="true">
+        <key column="run_id"/>
+        <one-to-many class="RiskRunProperty"/>
+    </set>
     <property name="complete" not-null="true"/>
   </class>
   
-  <query name="RiskRun.one.byViewAndRunTime">
+  <query name="RiskRun.one.byRunTime">
   	from RiskRun as a where 
-  	a.viewOid = :viewOid and
-  	a.viewVersion = :viewVersion and
   	a.runTime.date = :runDate and
   	a.runTime.observationTime.label = :runTime</query>  
   

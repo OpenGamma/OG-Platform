@@ -16,7 +16,6 @@ public class OpenGammaVersion {
   
   private int _id;
   private String _version;
-  private String _hash;
   
   public int getId() {
     return _id;
@@ -29,12 +28,6 @@ public class OpenGammaVersion {
   }
   public void setVersion(String version) {
     _version = version;
-  }
-  public String getHash() {
-    return _hash;
-  }
-  public void setHash(String hash) {
-    _hash = hash;
   }
   
   @Override

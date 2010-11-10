@@ -22,7 +22,7 @@ public class VersionUtil {
   /**
    * Gets the current OpenGamma build version.
    * <p>
-   * The version is read from a property file with name
+   * The version is read from a property file in the classpath with name
    * <code>"/" + projectName + ".properties"</code>.
    * This file is created by Ant during a Bamboo build. If no such file is found,
    * the method assumes you are running a local build, and it will 
