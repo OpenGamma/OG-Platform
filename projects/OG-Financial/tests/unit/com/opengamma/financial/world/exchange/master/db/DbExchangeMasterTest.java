@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DBTest;
 
 /**

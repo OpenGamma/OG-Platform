@@ -9,13 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.master.db.AbstractDbMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbSource;
 

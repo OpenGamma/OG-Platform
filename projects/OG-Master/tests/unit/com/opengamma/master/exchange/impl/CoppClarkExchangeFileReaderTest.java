@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master.loader;
+package com.opengamma.master.exchange.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -13,13 +13,13 @@ import org.junit.Test;
 
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
-import com.opengamma.financial.world.exchange.master.loader.CoppClarkExchangeFileReader;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.impl.CoppClarkExchangeFileReader;
 
 /**
  * Test InMemoryExchangeMaster.

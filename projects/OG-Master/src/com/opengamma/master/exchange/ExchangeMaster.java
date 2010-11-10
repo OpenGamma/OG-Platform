@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master;
+package com.opengamma.master.exchange;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;

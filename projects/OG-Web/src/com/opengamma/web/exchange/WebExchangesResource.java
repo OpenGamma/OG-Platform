@@ -26,14 +26,14 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 

@@ -20,13 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
+import com.opengamma.master.exchange.ManageableExchange;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.

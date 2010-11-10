@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master;
+package com.opengamma.master.exchange.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -21,6 +21,12 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.exchange.impl.MasterExchangeSource;
 import com.opengamma.util.db.PagingRequest;
 
 /**

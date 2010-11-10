@@ -11,6 +11,7 @@
     <dependencies>
         <dependency name="og-core" rev="latest.integration" conf="opengamma->*"/>
         
+        <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
         <dependency org="com.opengamma" name="worlddata" rev="20100610"/>
         
         <exclude org="org.apache.log4j" module="log4j" />

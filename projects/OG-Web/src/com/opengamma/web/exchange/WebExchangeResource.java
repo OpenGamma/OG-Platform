@@ -20,11 +20,11 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ManageableExchange;
 
 /**
  * RESTful resource for a exchange.

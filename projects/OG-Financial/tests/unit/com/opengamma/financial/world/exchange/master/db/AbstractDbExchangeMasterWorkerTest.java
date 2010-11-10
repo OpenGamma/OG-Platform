@@ -30,11 +30,11 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.test.DBTest;
 

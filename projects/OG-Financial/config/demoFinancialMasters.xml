@@ -79,7 +79,7 @@
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.refdata.db.exchangemaster.scheme}" />
   </bean>
-  <bean id="sharedExchangeSource" class="com.opengamma.financial.world.exchange.master.MasterExchangeSource">
+  <bean id="sharedExchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
     <constructor-arg ref="dbExchangeMaster"/>
   </bean>
 

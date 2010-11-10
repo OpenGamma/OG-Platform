@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master.memory;
+package com.opengamma.master.exchange.impl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,13 +15,14 @@ import org.junit.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
 
 /**
  * Test InMemoryExchangeMaster.

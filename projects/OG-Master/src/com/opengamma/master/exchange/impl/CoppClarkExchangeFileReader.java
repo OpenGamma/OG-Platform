@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master.loader;
+package com.opengamma.master.exchange.impl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,16 +26,14 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
-import com.opengamma.financial.world.exchange.master.ManageableExchangeDetail;
-import com.opengamma.financial.world.exchange.master.MasterExchangeSource;
-import com.opengamma.financial.world.exchange.master.memory.InMemoryExchangeMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.exchange.ManageableExchangeDetail;
 
 /**
  * Reads the exchange data from the Copp-Clark data source.

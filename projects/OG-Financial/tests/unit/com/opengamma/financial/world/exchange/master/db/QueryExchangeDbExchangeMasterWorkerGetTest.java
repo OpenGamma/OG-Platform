@@ -16,10 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
 import com.opengamma.financial.world.exchange.master.db.DbExchangeMasterWorker;
 import com.opengamma.financial.world.exchange.master.db.QueryExchangeDbExchangeMasterWorker;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
 
 /**
  * Tests QueryExchangeDbExchangeMasterWorker.

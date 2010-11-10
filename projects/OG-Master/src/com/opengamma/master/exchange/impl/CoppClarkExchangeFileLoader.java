@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master.loader;
+package com.opengamma.master.exchange.impl;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 

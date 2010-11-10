@@ -7,4 +7,4 @@
 /**
  * Exchange master API providing the ability to query and update exchanges.
  */
-package com.opengamma.financial.world.exchange.master;
+package com.opengamma.master.exchange;

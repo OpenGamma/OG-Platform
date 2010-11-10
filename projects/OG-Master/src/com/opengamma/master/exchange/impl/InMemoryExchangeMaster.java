@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.exchange.master.memory;
+package com.opengamma.master.exchange.impl;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,16 +15,16 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeSearchResult;
-import com.opengamma.financial.world.exchange.master.ManageableExchange;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
