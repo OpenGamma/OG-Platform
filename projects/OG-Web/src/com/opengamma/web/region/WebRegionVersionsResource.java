@@ -15,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionHistoryRequest;
-import com.opengamma.financial.world.region.master.RegionHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionHistoryRequest;
+import com.opengamma.master.region.RegionHistoryResult;
 
 /**
  * RESTful resource for all versions of an region.

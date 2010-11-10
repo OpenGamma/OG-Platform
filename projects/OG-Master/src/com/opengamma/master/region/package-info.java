@@ -7,4 +7,4 @@
 /**
  * Region master API providing the ability to query and update regions.
  */
-package com.opengamma.financial.world.region.master;
+package com.opengamma.master.region;

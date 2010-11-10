@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master;
+package com.opengamma.master.region.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -22,6 +22,12 @@ import com.opengamma.core.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.util.db.PagingRequest;
 
 /**

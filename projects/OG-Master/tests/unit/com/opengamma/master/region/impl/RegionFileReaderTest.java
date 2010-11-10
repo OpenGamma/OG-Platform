@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master.loader;
+package com.opengamma.master.region.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,11 +12,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.financial.world.region.master.ManageableRegion;
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.RegionSearchRequest;
-import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.master.region.impl.InMemoryRegionMaster;
+import com.opengamma.master.region.impl.RegionFileReader;
 
 /**
  * Test RegionFileReader.

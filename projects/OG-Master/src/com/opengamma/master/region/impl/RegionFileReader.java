@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master.loader;
+package com.opengamma.master.region.impl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -30,12 +30,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.region.master.ManageableRegion;
-import com.opengamma.financial.world.region.master.MasterRegionSource;
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.FileUtils;
 

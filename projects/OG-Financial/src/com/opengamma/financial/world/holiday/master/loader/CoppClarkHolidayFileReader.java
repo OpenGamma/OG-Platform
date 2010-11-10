@@ -35,9 +35,9 @@ import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
 import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
 import com.opengamma.financial.world.holiday.master.ManageableHoliday;
 import com.opengamma.financial.world.holiday.master.MasterHolidaySource;
-import com.opengamma.financial.world.region.master.loader.RegionFileReader;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**

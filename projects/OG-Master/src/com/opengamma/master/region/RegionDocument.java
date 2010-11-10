@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master;
+package com.opengamma.master.region;
 
 import java.io.Serializable;
 import java.util.Collections;

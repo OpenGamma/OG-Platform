@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master.memory;
+package com.opengamma.master.region.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,17 +18,17 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.world.region.master.ManageableRegion;
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionDocumentComparator;
-import com.opengamma.financial.world.region.master.RegionHistoryRequest;
-import com.opengamma.financial.world.region.master.RegionHistoryResult;
-import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.RegionSearchRequest;
-import com.opengamma.financial.world.region.master.RegionSearchResult;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionDocumentComparator;
+import com.opengamma.master.region.RegionHistoryRequest;
+import com.opengamma.master.region.RegionHistoryResult;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;

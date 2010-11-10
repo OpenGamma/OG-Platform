@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master.memory;
+package com.opengamma.master.region.impl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,13 +16,14 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.world.region.master.ManageableRegion;
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionSearchRequest;
-import com.opengamma.financial.world.region.master.RegionSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.region.impl.InMemoryRegionMaster;
 
 /**
  * Test InMemoryRegionRepository.

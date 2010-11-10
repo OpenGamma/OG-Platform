@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.world.region.master;
+package com.opengamma.master.region.impl;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -13,6 +13,9 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
 
