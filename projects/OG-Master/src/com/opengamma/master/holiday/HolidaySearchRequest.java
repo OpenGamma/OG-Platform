@@ -34,6 +34,9 @@ import com.opengamma.util.db.PagingRequest;
 @BeanDefinition
 public class HolidaySearchRequest extends DirectBean implements Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The request for paging.
    * By default all matching items will be returned.

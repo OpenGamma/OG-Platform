@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.region;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -37,7 +38,10 @@ import com.opengamma.util.ArgumentChecker;
  * This implementation is used by the region master to store and manipulate the data.
  */
 @BeanDefinition
-public class ManageableRegion extends DirectBean implements Region {
+public class ManageableRegion extends DirectBean implements Region, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The unique identifier of the region.

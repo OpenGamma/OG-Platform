@@ -34,6 +34,9 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class RegionDocument extends DirectBean implements Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The region unique identifier.
    */

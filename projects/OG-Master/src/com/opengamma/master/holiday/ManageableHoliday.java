@@ -38,6 +38,9 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class ManageableHoliday extends DirectBean implements Holiday, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The unique identifier of the holiday.
    */
