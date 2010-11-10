@@ -1,0 +1,19 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-master" status="integration"/>
+    <configurations>
+      <conf name="core"/>
+      <conf name="opengamma" extends="core"/>
+    </configurations>
+    
+    <publications>
+      <artifact name="og-master" type="jar"/>
+    </publications>
+    <dependencies>
+        <dependency name="og-core" rev="latest.integration" conf="opengamma->*"/>
+        
+        <dependency org="com.opengamma" name="worlddata" rev="20100610"/>
+        
+        <exclude org="org.apache.log4j" module="log4j" />
+    </dependencies>
+</ivy-module>
+
