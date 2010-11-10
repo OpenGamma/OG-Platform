@@ -10,7 +10,7 @@
     </publications>
     <dependencies>
         <dependency name="og-analytics" rev="latest.integration" conf="opengamma->*"/>
-        <dependency name="og-master" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-masterdb" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>
