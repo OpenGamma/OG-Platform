@@ -320,7 +320,11 @@ public class BatchJobParameters {
         try {
           Object fieldValue = field.get(this);
           if (fieldValue != null) {
-            returnValue.put(field.getName(), fieldValue.toString());
+            String fieldName = field.getName();
+            if (fieldName.startsWith("_")) {
+              fieldName = fieldName.substring(1);
+            }
+            returnValue.put(fieldName, fieldValue.toString());
           }
         } catch (IllegalAccessException e) {
           throw new RuntimeException("Unexpected IllegalAccessException", e);

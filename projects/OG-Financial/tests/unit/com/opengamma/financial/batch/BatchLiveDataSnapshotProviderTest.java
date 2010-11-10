@@ -34,6 +34,7 @@ public class BatchLiveDataSnapshotProviderTest {
         new double[] { 11.12 });
     
     BatchJob job = new BatchJob();
+    job.getParameters().initializeDefaults(job);
     BatchJobRun run = new BatchJobRun(job,
         date,
         date,

@@ -77,7 +77,6 @@ import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;

@@ -99,3 +99,13 @@ alter table rsk_value add constraint rsk_fk_value2function_id
 alter table rsk_failure add column function_unique_id int not null;
 alter table rsk_failure add constraint rsk_fk_failure2function_id
         foreign key (function_unique_id) references rsk_function_unique_id (id);
+
+alter table rsk_opengamma_version drop constraint rsk_chk_uq_opengamma_version;
+alter table rsk_opengamma_version drop column hash;
+alter table rsk_opengamma_version add constraint rsk_chk_uq_opengamma_version unique (version);
+
+alter table rsk_run drop column run_reason;
+alter table rsk_run drop column view_oid;
+alter table rsk_run drop column view_version;
+
+alter table rsk_run add constraint rsk_chk_uq_run unique (run_time_id);

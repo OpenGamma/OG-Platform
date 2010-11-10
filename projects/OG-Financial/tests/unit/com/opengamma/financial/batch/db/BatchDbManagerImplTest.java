@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -62,6 +63,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _dbManager.setDbSource(getDbSource());
     
     _batchJob = new BatchJob();
+    _batchJob.getParameters().initializeDefaults(_batchJob);
     _batchJob.setBatchDbManager(_dbManager);
     _batchJob.getParameters().setViewName("test_view");
     _batchJob.setView(ViewTestUtils.getMockView());
@@ -252,7 +254,19 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(_dbManager.getOpenGammaVersion(_batchJob), run.getOpenGammaVersion());
     assertNotNull(run.getValuationTime());
     
-    assertEquals(150, run.getPropertiesMap().size());
+    Map<String, String> props = run.getPropertiesMap();
+    assertEquals(7, props.size());
+    assertEquals("AD_HOC_RUN", props.get("observationTime"));
+    assertEquals(_batchJob.getCreationTime().toLocalTime().toString(), props.get("valuationTime"));
+    assertEquals("test_view", props.get("view"));
+    assertEquals(_batchJob.getCreationTime().getZone().toString(), props.get("timeZone"));
+    assertEquals(_batchJob.getCreationTime().toLocalTime().toString(), props.get("staticDataTime"));
+    assertEquals(_batchJob.getCreationTime().toLocalTime().toString(), props.get("configDbTime"));
+    assertEquals("Manual run started on " 
+        + _batchJob.getCreationTime().toString() 
+        + " by " 
+        + System.getProperty("user.name"), 
+        props.get("reason"));
     
     // get
     RiskRun run2 = _dbManager.getRiskRunFromDb(_batchJobRun);
