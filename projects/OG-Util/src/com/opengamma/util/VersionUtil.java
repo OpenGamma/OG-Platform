@@ -19,6 +19,8 @@ public class VersionUtil {
   
   private static final Logger s_logger = LoggerFactory.getLogger(VersionUtil.class);
   
+  private static String s_localBuildVersion;
+  
   /**
    * Gets the current OpenGamma build version.
    * <p>
@@ -26,7 +28,9 @@ public class VersionUtil {
    * <code>"/" + projectName + ".properties"</code>.
    * This file is created by Ant during a Bamboo build. If no such file is found,
    * the method assumes you are running a local build, and it will 
-   * return <code>"local-" + System.currentTimeMillis()</code>.
+   * return <code>"local-" + System.currentTimeMillis()</code> 
+   * where <code>System.currentTimeMillis()</code> becomes fixed on the first
+   * call within this VM.
    * 
    * @param projectName name of the OpenGamma project, for example og-financial, not null
    * @return current version of the specified project, not null
@@ -57,8 +61,12 @@ public class VersionUtil {
     return version;
   }
   
-  private static String getLocalBuildVersion() {
-    return "local-" + System.currentTimeMillis();
+  private static synchronized String getLocalBuildVersion() {
+    if (s_localBuildVersion != null) {
+      return s_localBuildVersion;
+    }
+    s_localBuildVersion = "local-" + System.currentTimeMillis();
+    return s_localBuildVersion;
   }
 
 }

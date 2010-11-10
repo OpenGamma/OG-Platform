@@ -14,7 +14,7 @@
     <property name="version" not-null="true"/>
   </class>
   
-  <query name="OpenGammaVersion.one.byVersionAndHash">
+  <query name="OpenGammaVersion.one.byVersion">
   	from OpenGammaVersion as a where 
   	a.version = :version</query>  
   

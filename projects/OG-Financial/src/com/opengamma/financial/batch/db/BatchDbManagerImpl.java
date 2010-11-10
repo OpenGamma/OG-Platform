@@ -97,7 +97,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       @Override
       public OpenGammaVersion doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("OpenGammaVersion.one.byVersionAndHash");
+        Query query = session.getNamedQuery("OpenGammaVersion.one.byVersion");
         query.setString("version", job.getOpenGammaVersion());
         return (OpenGammaVersion) query.uniqueResult();
       }
