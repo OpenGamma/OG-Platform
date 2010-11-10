@@ -358,6 +358,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     getHibernateTemplate().save(riskRun);
     getHibernateTemplate().saveOrUpdateAll(riskRun.getCalculationConfigurations());
+    getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
     return riskRun;
   }
   

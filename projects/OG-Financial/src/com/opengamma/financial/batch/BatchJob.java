@@ -6,6 +6,7 @@
 package com.opengamma.financial.batch;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -760,10 +761,19 @@ public class BatchJob {
       }
     }
   }
+  
+  private static String getProperty(Properties properties, String propertyName, String configDbConnectionSettingsFile) {
+    String property = properties.getProperty(propertyName);
+    if (property == null) {
+      s_logger.error("Cannot find property " + propertyName + " in " + configDbConnectionSettingsFile);            
+      System.exit(-1);
+    }
+    return property;
+  }
 
   public static void usage() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [options] {name of config}", getOptions());
+    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJob [options] {name of config}", getOptions());
   }
 
   public static void main(String[] args) throws Exception { // CSIGNORE
@@ -783,23 +793,29 @@ public class BatchJob {
     
     String configName = args[args.length - 1];
     
-    final String propertyFile = "BatchJob.properties";
+    final String propertyFile = "batchJob.properties";
     String configDbConnectionSettingsFile = propertyFile;
     if (System.getProperty(propertyFile) != null) {
       configDbConnectionSettingsFile = System.getProperty(propertyFile);      
     }
     
-    FileInputStream fis = new FileInputStream(configDbConnectionSettingsFile);
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(configDbConnectionSettingsFile);
+    } catch (FileNotFoundException e) {
+      s_logger.error("The system cannot find " + configDbConnectionSettingsFile);            
+      System.exit(-1);      
+    }
     Properties configDbProperties = new Properties();
     configDbProperties.load(fis);
     fis.close();
     
-    String driver = configDbProperties.getProperty("opengamma.config.jdbc.driver");
-    String url = configDbProperties.getProperty("opengamma.config.jdbc.url");
-    String username = configDbProperties.getProperty("opengamma.config.jdbc.username");
-    String password = configDbProperties.getProperty("opengamma.config.jdbc.password");
-    String dbhelper = configDbProperties.getProperty("opengamma.config.db.dbhelper");
-    String scheme = configDbProperties.getProperty("opengamma.config.db.configmaster.scheme");
+    String driver = getProperty(configDbProperties, "opengamma.config.jdbc.driver", configDbConnectionSettingsFile);
+    String url = getProperty(configDbProperties, "opengamma.config.jdbc.url", configDbConnectionSettingsFile);
+    String username = getProperty(configDbProperties, "opengamma.config.jdbc.username", configDbConnectionSettingsFile);
+    String password = getProperty(configDbProperties, "opengamma.config.jdbc.password", configDbConnectionSettingsFile);
+    String dbhelper = getProperty(configDbProperties, "opengamma.config.db.dbhelper", configDbConnectionSettingsFile);
+    String scheme = getProperty(configDbProperties, "opengamma.config.db.configmaster.scheme", configDbConnectionSettingsFile);
     
     BasicDataSource cfgDataSource = new BasicDataSource();
     cfgDataSource.setDriverClassName(driver);
@@ -815,6 +831,7 @@ public class BatchJob {
     dbSourceFactory.setDialect(dbhelper);
     dbSourceFactory.setDataSource(cfgDataSource);
     
+    dbSourceFactory.afterPropertiesSet();
     DbSource dbSource = dbSourceFactory.getObject();
     
     DbConfigMaster configMaster = new DbConfigMaster(dbSource);
@@ -858,7 +875,7 @@ public class BatchJob {
     }
     
     if (failed) {
-      s_logger.info("Batch failed.");
+      s_logger.error("Batch failed.");
       System.exit(-1);
     } else {
       s_logger.info("Batch succeeded.");
