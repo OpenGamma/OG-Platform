@@ -9,11 +9,11 @@
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="hibernateMappingFiles">
+    <!--property name="hibernateMappingFiles">
       <list>
         <bean class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles"/>
       </list>
-    </property>
+    </property-->
   </bean>
 
   <!-- ============================================================================== -->
@@ -30,7 +30,7 @@
     <property name="dialect" value="com.opengamma.util.db.HSQLDbHelper"/>
   </bean>
 
-  <bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <!--bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
@@ -38,6 +38,16 @@
   <bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbSec" />
+  </bean-->
+
+  <bean id="hsqldbDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbExg" />
+  </bean>
+
+  <bean id="hsqldbDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbHol" />
   </bean>
 
   <!-- ============================================================================== -->
@@ -54,7 +64,7 @@
     <property name="dialect" value="com.opengamma.util.db.PostgreSQLDbHelper"/>
   </bean>
 
-  <bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <!--bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
@@ -62,6 +72,16 @@
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbSec" />
+  </bean-->
+
+  <bean id="postgresDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbExg" />
+  </bean>
+
+  <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbHol" />
   </bean>
 
 </beans>

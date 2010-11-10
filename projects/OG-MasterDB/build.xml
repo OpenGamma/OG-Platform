@@ -1,4 +1,4 @@
-<project name="og-financial" default="compile">
+<project name="og-masterdb" default="compile">
 	<property file="build.properties" />
 
 	<import file="${common.dir}/common.xml" />
