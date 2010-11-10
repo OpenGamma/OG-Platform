@@ -618,11 +618,10 @@ create table rsk_compute_node (
 create table rsk_opengamma_version (
 	id int not null,
 	version varchar(255) not null, 
-	hash varchar(255) not null,
 	
 	primary key (id),
 	
-	constraint rsk_chk_uq_opengamma_version unique (version, hash)
+	constraint rsk_chk_uq_opengamma_version unique (version)
 );
 
 -- DBTOOLDONOTCLEAR
@@ -714,14 +713,11 @@ create table rsk_live_data_snapshot_entry (
 -------------------------------------
 
 create table rsk_run (
-	id int not null,
-	opengamma_version_id int not null,
-	master_process_host_id int not null,    -- machine where 'master' batch process was started
-    run_reason varchar(255) not null,       -- 15 June main overnight batch run
+    id int not null,
+    opengamma_version_id int not null,
+    master_process_host_id int not null,    -- machine where 'master' batch process was started
     run_time_id int not null,
     valuation_time timestamp not null,	 	-- 15 June 2010 17:00:00 - 'T'
-    view_oid varchar(255) not null,
-    view_version varchar(255),
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
@@ -738,7 +734,9 @@ create table rsk_run (
     constraint rsk_fk_run2obs_datetime
         foreign key (run_time_id) references rsk_observation_datetime (id),
     constraint rsk_fk_run2live_data_snapshot
-        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id)
+        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
+
+    constraint rsk_chk_uq_run unique (run_time_id) 	
 );
 
 create table rsk_calculation_configuration (

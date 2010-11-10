@@ -5,34 +5,35 @@
  */
 package com.opengamma.financial.batch;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.Executors;
 
-import javax.time.Instant;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
 
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +41,9 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
+import com.opengamma.config.ConfigSearchRequest;
+import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.db.DbConfigMaster;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -73,10 +77,15 @@ import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.VersionUtil;
+import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.DbSourceFactoryBean;
+import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
@@ -87,53 +96,6 @@ import com.opengamma.util.time.DateUtil;
 public class BatchJob {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BatchJob.class);
-
-  // --------------------------------------------------------------------------
-
-  /** yyyyMMddHHmmss[Z] */
-  private static final DateTimeFormatter s_dateTimeFormatter;
-
-  /** yyyyMMdd */
-  private static final DateTimeFormatter s_dateFormatter;
-
-  /** HHmmss[Z] */
-  private static final DateTimeFormatter s_timeFormatter;
-
-  static {
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMddHHmmss[Z]");
-    s_dateTimeFormatter = builder.toFormatter();
-
-    builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMdd");
-    s_dateFormatter = builder.toFormatter();
-
-    builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("HHmmss[Z]");
-    s_timeFormatter = builder.toFormatter();
-  }
-
-  /* package */static OffsetDateTime parseDateTime(String dateTime) {
-    if (dateTime == null) {
-      return null;
-    }
-    try {
-      // try first to parse as if time zone explicitly provided, e.g., 20100621162200+0000
-      return s_dateTimeFormatter.parse(dateTime, OffsetDateTime.rule());
-    } catch (CalendricalParseException e) {
-      // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone.
-      LocalDateTime localDateTime = s_dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
-      return OffsetDateTime.of(localDateTime, ZonedDateTime.nowSystemClock().toOffsetDateTime().getOffset());
-    }
-  }
-
-  /* package */static LocalDate parseDate(String date) {
-    return s_dateFormatter.parse(date, LocalDate.rule());
-  }
-
-  /* package */static OffsetTime parseTime(String time) {
-    return s_timeFormatter.parse(time, OffsetTime.rule());
-  }
 
   // --------------------------------------------------------------------------
   // Variables automatically initialized at construction time
@@ -217,25 +179,20 @@ public class BatchJob {
    */
   private HistoricalLiveDataSnapshotProvider _historicalDataProvider;
   
+  /**
+   * This is used to determine the name of the property file from
+   * which to read system version. 
+   */
+  private String _systemVersionPropertyFile = "og-financial";
+  
   // --------------------------------------------------------------------------
   // Variables initialized from command line input
   // --------------------------------------------------------------------------
-
+  
   /**
-   * This view name references the OpenGamma configuration database.
-   * The view will define the portfolio of trades the batch should be run for.
-   * 
-   * Not null.
+   * Most variables from command line input end up in this object.
    */
-  private String _viewName;
-
-  /**
-   * Sometimes you might want to run the batch against a historical
-   * view.
-   * 
-   * Not null.
-   */
-  private OffsetDateTime _viewDateTime;
+  private BatchJobParameters _parameters = new BatchJobParameters();
 
   /**
    * If true, a new run is always created - no existing results are used. 
@@ -246,20 +203,71 @@ public class BatchJob {
    * are already in the database and will try to calculate any
    * missing risk.   
    */
-  private boolean _forceNewRun; // = false
-
+  private RunCreationMode _runCreationMode = RunCreationMode.AUTO; 
+  
   /**
-   * Historical time used for loading entities out of PositionMaster.
-   * 
-   * Not null.
-   */
-  private OffsetDateTime _positionMasterTime;
+   * This enum specifies whether a new run should be created in the batch database 
+   * when a batch run is started - or, more importantly, restarted.
+   */ 
+  public static enum RunCreationMode {
+    /**
+     * Automatic mode.
+     * <p>
+     * When a batch run is started, the system will try to find an existing
+     * run in the database with the same run date and observation time
+     * (for example, 20101105/LDN_CLOSE). If such a run is found,
+     * the system checks that all {@link BatchJobParameters} match
+     * with the previous run. If all parameters match, the run is reused.
+     * Otherwise, an error is thrown.
+     * <p>
+     * Only {@link BatchJobParameters} are checked. Variables 
+     * like OpenGamma version and master process host ID can change
+     * between run attempts and this will not prevent the run
+     * from being reused.  
+     * <p>
+     * Reusing the run means that the system checks what risk figures
+     * are already in the database for that run. The system will then try 
+     * calculate any missing risk. Conversely, not reusing the run means 
+     * that all risk is calculated from scratch. 
+     */
+    AUTO,
+    
+    /**
+     * Always mode.
+     * <p>  
+     * When a batch run is started, the system will always create a new run
+     * in the database. It will not try to find an existing run in the database.
+     * <p>
+     * An error is thrown if there is already a run with the same date and observation
+     * time in the database.
+     */
+    ALWAYS,
+    
+    /**
+     * Never mode.
+     * <p>
+     * When a batch run is started, the the system will try to find an existing
+     * run in the database with the same run date and observation time
+     * (for example, 20101105/LDN_CLOSE). If no such run is found,
+     * or if there is more than one such run,
+     * an error is reported and the process quits. If a unique matching run is found, 
+     * however, that run is used no
+     * matter if the parameters used to start that run were the same
+     * as the parameters used to start the current run.
+     * The user takes responsibility for any inconsistencies or errors
+     * that may result from this.
+     * <p>
+     * This mode may be useful in rare error situations where the user needs to modify
+     * the parameters to make the run complete. It should not normally be used.
+     */
+    NEVER
+  }
 
   /**
    * The batch may be run for multiple days in sequence, therefore we need multiple runs
    */
   private final List<BatchJobRun> _runs = new ArrayList<BatchJobRun>();
-
+  
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
   // --------------------------------------------------------------------------
@@ -286,11 +294,15 @@ public class BatchJob {
   // --------------------------------------------------------------------------
 
   public String getOpenGammaVersion() {
-    return "0.1";
+    return VersionUtil.getVersion(getSystemVersionPropertyFile());
+  }
+  
+  public String getSystemVersionPropertyFile() {
+    return _systemVersionPropertyFile;
   }
 
-  public String getOpenGammaVersionHash() {
-    return "undefined";
+  public void setSystemVersionPropertyFile(String systemVersionPropertyFile) {
+    _systemVersionPropertyFile = systemVersionPropertyFile;
   }
 
   public ViewInternal getView() {
@@ -300,27 +312,7 @@ public class BatchJob {
   public void setView(ViewInternal view) {
     _view = view;
   }
-
-  public String getViewName() {
-    return _viewName;
-  }
-
-  public void setViewName(String viewName) {
-    _viewName = viewName;
-  }
-
-  public OffsetDateTime getViewDateTime() {
-    return _viewDateTime;
-  }
-
-  public void setViewDateTime(String viewDateTime) {
-    _viewDateTime = parseDateTime(viewDateTime);
-  }
   
-  public void setViewDateTime(OffsetDateTime viewDateTime) {
-    _viewDateTime = viewDateTime;
-  }
-
   public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
     return getView().getDefinition().getAllCalculationConfigurations();
   }
@@ -340,52 +332,21 @@ public class BatchJob {
   public String getViewVersion() {
     return _viewDefinitionConfig.getConfigId().getVersion();
   }
-
-  public boolean isForceNewRun() {
-    return _forceNewRun;
+  
+  public BatchJobParameters getParameters() {
+    return _parameters;
+  }
+  
+  public void setParameters(BatchJobParameters parameters) {
+    _parameters = parameters;
   }
 
-  public void setForceNewRun(boolean forceNewRun) {
-    _forceNewRun = forceNewRun;
+  public RunCreationMode getRunCreationMode() {
+    return _runCreationMode;
   }
 
-  /**
-   * @return Historical time used for loading entities out of PositionMaster.
-   * and SecurityMaster. 
-   */
-  public OffsetDateTime getPositionMasterTime() {
-    return _positionMasterTime;
-  }
-
-  public void setPositionMasterTime(OffsetDateTime positionMasterTime) {
-    _positionMasterTime = positionMasterTime;
-  }
-
-  public void setPositionMasterTime(String positionMasterTime) {
-    _positionMasterTime = parseDateTime(positionMasterTime);
-  }
-
-  /**
-   * Some static data masters may have the capability for
-   * their users to modify the historical record. For the purposes of batch,
-   * we want the data returned from the masters to be 100% fixed.
-   * Therefore, we also have the concept of "as viewed at" time,
-   * which ensures that the historical data will always be the same.
-   * 
-   * @return At the moment, the "as viewed at" time
-   * is simply the (original) creation time of the batch. This ensures
-   * that even if the batch is restarted, data will not change. 
-   */
-  public Instant getPositionMasterAsViewedAtTime() {
-    return getCreationTime().toInstant();
-  }
-
-  public OffsetDateTime getSecurityMasterTime() {
-    return getPositionMasterTime(); // assume this for now
-  }
-
-  public Instant getSecurityMasterAsViewedAtTime() {
-    return getPositionMasterAsViewedAtTime(); // assume this for now
+  public void setRunCreationMode(RunCreationMode runCreationMode) {
+    _runCreationMode = runCreationMode;
   }
 
   public MasterConfigSource getConfigSource() {
@@ -546,28 +507,23 @@ public class BatchJob {
 
   // --------------------------------------------------------------------------
 
-  public void createViewDefinition() {
-    
-    if (getViewName() == null) {
-      throw new IllegalStateException("Please specify view name.");
-    }
-
-    if (_viewDateTime == null) {
-      _viewDateTime = getCreationTime().toOffsetDateTime();
-    }
+  public void createViewDefinition(BatchJobRun run) {
     
     if (_configSource == null) {
       throw new IllegalStateException("Config Source not given.");
     }
     
-    _viewDefinitionConfig = getViewByNameWithTime();
+    String viewName = getParameters().getViewName();
+    _viewDefinitionConfig = getConfigSource().getDocumentByName(
+        ViewDefinition.class, 
+        viewName, 
+        run.getConfigDbTime().toInstant());
+
     if (_viewDefinitionConfig == null) {
-      throw new IllegalStateException("Config DB does not contain ViewDefinition with name " + getViewName() + " at " + _viewDateTime);
+      throw new IllegalStateException("Could not find view definition " + viewName + " at " +
+          run.getConfigDbTime().toInstant() + " in config db");
     }
 
-    if (_positionMasterTime == null) {
-      _positionMasterTime = _viewDateTime;
-    }
   }
 
   public void createView(BatchJobRun run) {
@@ -576,11 +532,11 @@ public class BatchJob {
 
     SecuritySource securitySource = getSecuritySource();
     if (securitySource == null) {
-      securitySource = new MasterSecuritySource(getSecurityMaster(), getSecurityMasterTime(), getSecurityMasterAsViewedAtTime());
+      securitySource = new MasterSecuritySource(getSecurityMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
     }
     PositionSource positionSource = getPositionSource();
     if (positionSource == null) {
-      positionSource = new MasterPositionSource(getPositionMaster(), getPositionMasterTime(), getPositionMasterAsViewedAtTime());
+      positionSource = new MasterPositionSource(getPositionMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
     }
     
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext().clone();
@@ -616,52 +572,42 @@ public class BatchJob {
     _view = view;
   }
 
-  /**
-   * Finds the configuration.
-   */
-  private ConfigDocument<ViewDefinition> getViewByNameWithTime() {
-    ConfigDocument<ViewDefinition> doc = getConfigSource().getDocumentByName(ViewDefinition.class, getViewName(), _viewDateTime.toInstant());
-    if (doc == null) {
-      throw new IllegalStateException("Could not find view definition " + getViewName() + " at " +
-          _viewDateTime.toInstant() + " in config db");
-    }
-    return doc;
-  }
-
   public static Options getOptions() {
     Options options = new Options();
 
     options.addOption("reason", true, "Run reason. Default - Manual run started on {yyyy-MM-ddTHH:mm:ssZZ} by {user.name}.");
 
-    options.addOption("observationtime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobRun.AD_HOC_OBSERVATION_TIME + ".");
-    options.addOption("observationdate", true, "Observation date. yyyyMMdd - for example, 20100621. Default - system clock date.");
-    options.addOption("valuationtime", true, "Valuation time. yyyyMMddHHmmss[Z] - for example, 20100621162200+0000. If no time zone (e.g., +0000) "
-        + "is given, the system time zone is used. Default - system clock on observation date. " 
-        + "Note that this default is not good enough for repeatable runs in a " 
-        + "production environment.");
+    options.addOption("observationTime", true, "Observation time - for example, LDN_CLOSE. Default - " + BatchJobParameters.AD_HOC_OBSERVATION_TIME + ".");
+    options.addOption("observationDate", true, "Observation date (= run date). yyyyMMdd - for example, 20100621. Default - system clock date.");
+    options.addOption("valuationTime", true, "Valuation time. HH:mm[:ss] - for example, 16:22:09. Default - system clock.");
 
     options.addOption("view", true, "View name in configuration database. You must specify this.");
-    options.addOption("viewdatetime", true, "Instant at which view should be loaded. yyyyMMddHHmmss[Z]. " +
-        "Default - system clock. Note that this default is not good enough for repeatable runs in a " +
-        "production environment.");
+    options.addOption("viewTime", true, "Time at which view should be loaded. HH:mm[:ss]. Default - system clock.");
 
-    options.addOption("snapshotobservationtime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationtime.");
-    options.addOption("snapshotobservationdate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationdate");
+    options.addOption("snapshotObservationTime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationTime.");
+    options.addOption("snapshotObservationDate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationDate");
 
-    options.addOption("forcenewrun", false, "If specified, a new run is always created "
-        + "- no existing results are used. If not specified, the system first checks if there is already a run "
-        + "in the database for the given view (including the same version) with the same observation date and time. " + "If there is, that run is reused.");
+    options.addOption("runCreationMode", true, "One of auto, always, never (case insensitive). Specifies whether to create a new run in the database." +
+        " See documentation of RunCreationMode Java enum to find out more. Default - auto.");
 
-    options.addOption("positionmastertime", true, "Instant at which positions should be loaded. yyyyMMddHHmmss[Z]. Default - same as viewdatetime.");
+    options.addOption("configDbTime", true, "Time at which documents should be loaded from the configuration database. HH:mm[:ss]. Default - system clock.");
+    options.addOption("staticDataTime", true, "Time at which documents should be loaded from position master, security master, etc. HH:mm[:ss]. Default - system clock.");
 
-    options.addOption("daterangestart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
-        + "observationdate and snapshotobservationdate are calculated from the range and " + "must not be given explicitly. In addition, valuationtime must be a time, "
-        + "HHmmss[Z], instead of a datetime. 1. If holidaySource/holidayCurrency are not given: The batch will be run " 
+    options.addOption("dateRangeStart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
+        + "observationDate and snapshotObservationDate are calculated from the range and must not be given explicitly." 
+        + " 1. If holidaySource/holidayCurrency are not given: The batch will be run "
         + "for those dates within the range for which there is a snapshot in the database. "
         + "If there is no snapshot, that date is simply ignored. " 
         + "2. If holidaySource and holidayCurrency are given: The batch will be run for those dates which are not weekends or holidays.");
-    options.addOption("daterangeend", true, "Last valuation date (inclusive). Optional.");
-
+    options.addOption("dateRangeEnd", true, "Last valuation date (inclusive).");
+    
+    options.addOption("timeZone", true, "Time zone in which times on the command line are given. Default - system time zone.");
+    
+    options.addOption("springXml", true, "Name (relative to current working directory) of Spring XML which contains definition of bean batchJob. " +
+        "If specified, all configuration " +
+        "is assumed to come exclusively from the command line. No configuration is read from the config DB and " +
+        "as a result, no {name of config} needs to be given.");
+    
     return options;
   }
 
@@ -669,8 +615,8 @@ public class BatchJob {
     ArgumentChecker.notNull(dateRangeStart, "Date range start");
     ArgumentChecker.notNull(dateRangeStart, "Date range end");
 
-    LocalDate startDate = parseDate(dateRangeStart);
-    LocalDate endDate = parseDate(dateRangeEnd);
+    LocalDate startDate = BatchJobParameters.parseDate(dateRangeStart);
+    LocalDate endDate = BatchJobParameters.parseDate(dateRangeEnd);
 
     Set<LocalDate> dates = new HashSet<LocalDate>();
 
@@ -682,56 +628,76 @@ public class BatchJob {
 
     return dates;
   }
-
-  private BatchJobRun createRun(CommandLine line) {
-    BatchJobRun run = new BatchJobRun(this);
-
-    // attributes that do not vary by date
-    run.setRunReason(line.getOptionValue("reason"));
-    run.setObservationTime(line.getOptionValue("observationtime"));
-    run.setSnapshotObservationTime(line.getOptionValue("snapshotobservationtime"));
-
+  
+  private BatchJobRun createRun(CommandLine line, LocalDate runDate) {
+    
+    // default snapshot observation date = run date, but this can be overridden
+    // on the command line
+    LocalDate snapshotObservationDate = runDate;
+    String option = line.getOptionValue("snapshotObservationDate");
+    if (option != null) {
+      snapshotObservationDate = BatchJobParameters.parseDate(option); 
+    } 
+    
+    LocalDate configDbDate = runDate;
+    option = line.getOptionValue("configDbDate");
+    if (option != null) {
+      configDbDate = BatchJobParameters.parseDate(option); 
+    }
+    
+    LocalDate staticDataDate = runDate;
+    option = line.getOptionValue("staticDataDate");
+    if (option != null) {
+      staticDataDate = BatchJobParameters.parseDate(option); 
+    }
+    
+    BatchJobRun run = new BatchJobRun(this, 
+        runDate, 
+        snapshotObservationDate,
+        configDbDate,
+        staticDataDate);
     return run;
   }
 
-  public void parse(String[] args) throws CalendricalParseException, OpenGammaRuntimeException {
-    CommandLine line;
-    try {
-      CommandLineParser parser = new PosixParser();
-      line = parser.parse(getOptions(), args);
-    } catch (ParseException e) {
-      throw new OpenGammaRuntimeException("Could not parse command line", e);
+  public void initialize(CommandLine line, BatchJobParameters parameters) throws CalendricalParseException, OpenGammaRuntimeException {
+    getParameters().initializeDefaults(this);
+    
+    if (parameters != null) {
+      getParameters().initialize(parameters);
     }
+    
+    Map<String, String> optionsMap = new HashMap<String, String>();
+    for (Option option : line.getOptions()) {
+      optionsMap.put(option.getOpt(), option.getValue());
+    }
+    
+    getParameters().initialize(optionsMap);
+    getParameters().validate();
 
-    setViewName(line.getOptionValue("view"));
-    setViewDateTime(line.getOptionValue("viewdatetime"));
-    setForceNewRun(line.hasOption("forcenewrun"));
-    setPositionMasterTime(line.getOptionValue("positionmastertime"));
+    if (line.hasOption("runCreationMode")) {
+      String creationMode = line.getOptionValue("runCreationMode");
+      if (creationMode.equalsIgnoreCase("auto")) {
+        setRunCreationMode(RunCreationMode.AUTO);
+      } else if (creationMode.equalsIgnoreCase("always")) {
+        setRunCreationMode(RunCreationMode.ALWAYS);
+      } else if (creationMode.equalsIgnoreCase("never")) {
+        setRunCreationMode(RunCreationMode.NEVER);
+      } else {
+        throw new OpenGammaRuntimeException("Unrecognized runCreationMode. " +
+            "Should be one of AUTO, ALWAYS, NEVER. " +
+            "Was " + creationMode);
+      }
+    } 
 
-    String dateRangeStart = line.getOptionValue("daterangestart");
-    String dateRangeEnd = line.getOptionValue("daterangeend");
+    String dateRangeStart = line.getOptionValue("dateRangeStart");
+    String dateRangeEnd = line.getOptionValue("dateRangeEnd");
 
     if (dateRangeStart != null && dateRangeEnd != null) {
       // multiple runs, on many different dates
       Set<LocalDate> runDates = getDates(dateRangeStart, dateRangeEnd);
 
       for (LocalDate runDate : runDates) {
-        BatchJobRun run = createRun(line);
-
-        run.setObservationDate(runDate);
-        run.setSnapshotObservationDate(runDate);
-
-        String valuationTimePartStr = line.getOptionValue("valuationtime");
-        OffsetTime valuationTimePart;
-        if (valuationTimePartStr == null) {
-          valuationTimePart = getCreationTime().toOffsetTime();
-        } else {
-          valuationTimePart = parseTime(valuationTimePartStr);
-        }
-        OffsetDateTime valuationTime = OffsetDateTime.of(runDate, valuationTimePart, valuationTimePart.getOffset());
-        run.setValuationTime(valuationTime);
-
-        run.init();
+        BatchJobRun run = createRun(line, runDate);
 
         String whyNotRunReason = null;
         
@@ -761,13 +727,14 @@ public class BatchJob {
 
     } else {
       // a single run, on a single date
-      BatchJobRun run = createRun(line);
-
-      run.setObservationDate(line.getOptionValue("observationdate"));
-      run.setSnapshotObservationDate(line.getOptionValue("snapshotobservationdate"));
-      run.setValuationTime(line.getOptionValue("valuationtime"));
-
-      run.init();
+      
+      LocalDate runDate = getCreationTime().toLocalDate();
+      String observationDateStr = line.getOptionValue("observationDate");
+      if (observationDateStr != null) {
+        runDate = BatchJobParameters.parseDate(observationDateStr);
+      } 
+      
+      BatchJobRun run = createRun(line, runDate);
       addRun(run);
     }
   }
@@ -777,7 +744,7 @@ public class BatchJob {
       try {
         s_logger.info("Running {}", run);
   
-        createViewDefinition();
+        createViewDefinition(run);
         createView(run);
   
         _batchDbManager.startBatch(run);
@@ -794,27 +761,107 @@ public class BatchJob {
       }
     }
   }
+  
+  private static String getProperty(Properties properties, String propertyName, String configDbConnectionSettingsFile) {
+    String property = properties.getProperty(propertyName);
+    if (property == null) {
+      s_logger.error("Cannot find property " + propertyName + " in " + configDbConnectionSettingsFile);            
+      System.exit(-1);
+    }
+    return property;
+  }
 
   public static void usage() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.financial.batch.BatchJob [args] {springfile.xml}", getOptions());
+    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJob [options] {name of config}", getOptions());
   }
 
-  public static void main(String[] args) { // CSIGNORE
+  public static void main(String[] args) throws Exception { // CSIGNORE
     if (args.length == 0) {
       usage();
       System.exit(-1);
     }
     
-    String springContextFile = args[args.length - 1];
+    CommandLine line = null;
+    try {
+      CommandLineParser parser = new PosixParser();
+      line = parser.parse(getOptions(), args);
+    } catch (ParseException e) {
+      usage();
+      System.exit(-1);
+    }
+    
+    String configName = args[args.length - 1];
+    
+    final String propertyFile = "batchJob.properties";
+    String configDbConnectionSettingsFile = propertyFile;
+    if (System.getProperty(propertyFile) != null) {
+      configDbConnectionSettingsFile = System.getProperty(propertyFile);      
+    }
+    
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(configDbConnectionSettingsFile);
+    } catch (FileNotFoundException e) {
+      s_logger.error("The system cannot find " + configDbConnectionSettingsFile);            
+      System.exit(-1);      
+    }
+    Properties configDbProperties = new Properties();
+    configDbProperties.load(fis);
+    fis.close();
+    
+    String driver = getProperty(configDbProperties, "opengamma.config.jdbc.driver", configDbConnectionSettingsFile);
+    String url = getProperty(configDbProperties, "opengamma.config.jdbc.url", configDbConnectionSettingsFile);
+    String username = getProperty(configDbProperties, "opengamma.config.jdbc.username", configDbConnectionSettingsFile);
+    String password = getProperty(configDbProperties, "opengamma.config.jdbc.password", configDbConnectionSettingsFile);
+    String dbhelper = getProperty(configDbProperties, "opengamma.config.db.dbhelper", configDbConnectionSettingsFile);
+    String scheme = getProperty(configDbProperties, "opengamma.config.db.configmaster.scheme", configDbConnectionSettingsFile);
+    
+    BasicDataSource cfgDataSource = new BasicDataSource();
+    cfgDataSource.setDriverClassName(driver);
+    cfgDataSource.setUrl(url);
+    cfgDataSource.setUsername(username);
+    cfgDataSource.setPassword(password);
+    
+    DbSourceFactoryBean dbSourceFactory = new DbSourceFactoryBean();
+    dbSourceFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
+    dbSourceFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
+    dbSourceFactory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateSecurityMasterFiles()});
+    dbSourceFactory.setName("Config");
+    dbSourceFactory.setDialect(dbhelper);
+    dbSourceFactory.setDataSource(cfgDataSource);
+    
+    dbSourceFactory.afterPropertiesSet();
+    DbSource dbSource = dbSourceFactory.getObject();
+    
+    DbConfigMaster configMaster = new DbConfigMaster(dbSource);
+    configMaster.setIdentifierScheme(scheme);
+    
+    String springContextFile;
+    BatchJobParameters parameters = null;
+
+    if (line.hasOption("springXml")) {
+      springContextFile = line.getOptionValue("springXml");
+    } else {
+      ConfigSearchRequest request = new ConfigSearchRequest();
+      request.setName(configName);
+      ConfigSearchResult<BatchJobParameters> searchResult = configMaster.getTypedMaster(BatchJobParameters.class).search(request);
+      if (searchResult.getValues().size() != 1) {
+        throw new IllegalStateException("No unique document with name " + configName + " found - search result was: " + searchResult.getValues());      
+      }
+      parameters = searchResult.getFirstValue();
+      springContextFile = parameters.getSpringXml();
+    }
+
     ApplicationContext context = new FileSystemXmlApplicationContext(springContextFile);
     BatchJob job = (BatchJob) context.getBean("batchJob");
+    
+    job.setConfigSource(new MasterConfigSource(configMaster));
 
     try {
-      job.parse(args);
+      job.initialize(line, parameters);
     } catch (Exception e) {
-      s_logger.error("Failed to parse command line", e);
-      usage();
+      s_logger.error("Failed to initialize BatchJob", e);
       System.exit(-1);
     }
 
@@ -828,7 +875,7 @@ public class BatchJob {
     }
     
     if (failed) {
-      s_logger.info("Batch failed.");
+      s_logger.error("Batch failed.");
       System.exit(-1);
     } else {
       s_logger.info("Batch succeeded.");

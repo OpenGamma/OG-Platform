@@ -28,7 +28,8 @@ public class HibernateBatchDbFiles implements HibernateMappingFiles {
       RiskValueName.class,
       FunctionUniqueId.class,
       ComputationTarget.class,
-      RiskValue.class
+      RiskValue.class,
+      RiskRunProperty.class
     };
   }
 }

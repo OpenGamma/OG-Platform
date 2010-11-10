@@ -36,5 +36,6 @@
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0"/>
 		<dependency org="org.mockito" name="mockito" rev="1.6"/>
 		<dependency org="it.unimi.dsi" name="fastutil" rev="5.1.5"/>
+		<dependency org="org.mongodb" name="java-driver" rev="2.1" />
 	</dependencies>
 </ivy-module>

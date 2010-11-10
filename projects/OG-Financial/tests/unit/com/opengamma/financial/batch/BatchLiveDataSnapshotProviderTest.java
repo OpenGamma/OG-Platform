@@ -27,14 +27,20 @@ public class BatchLiveDataSnapshotProviderTest {
   
   @Test
   public void basicCase() {
+    final LocalDate date = LocalDate.of(2005, 11, 12);
+    
     ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(
-        new LocalDate[] { LocalDate.of(2005, 11, 12)},
+        new LocalDate[] { date },
         new double[] { 11.12 });
     
     BatchJob job = new BatchJob();
-    BatchJobRun run = new BatchJobRun(job);
-    run.setSnapshotObservationDate(LocalDate.of(2005, 11, 12));
-    run.setSnapshotObservationTime("LDN_CLOSE");
+    job.getParameters().initializeDefaults(job);
+    BatchJobRun run = new BatchJobRun(job,
+        date,
+        date,
+        date,
+        date);
+    job.getParameters().setSnapshotObservationTime("LDN_CLOSE");
     
     InMemoryHistoricalDataProvider historicalDataProvider = new InMemoryHistoricalDataProvider();
     

@@ -30,6 +30,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -96,16 +97,14 @@ public class BatchDbManagerImpl implements BatchDbManager {
       @Override
       public OpenGammaVersion doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("OpenGammaVersion.one.byVersionAndHash");
+        Query query = session.getNamedQuery("OpenGammaVersion.one.byVersion");
         query.setString("version", job.getOpenGammaVersion());
-        query.setString("hash", job.getOpenGammaVersionHash());
         return (OpenGammaVersion) query.uniqueResult();
       }
     });
     if (version == null) {
       version = new OpenGammaVersion();
       version.setVersion(job.getOpenGammaVersion());
-      version.setHash(job.getOpenGammaVersionHash());
       getHibernateTemplate().save(version);
     }
     return version;
@@ -319,24 +318,16 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
-    RiskRun riskRun = null;
-    
-    if (job.isForceNewRun() == false) {
-      riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
-        @Override
-        public RiskRun doInHibernate(Session session) throws HibernateException,
-            SQLException {
-          Query query = session.getNamedQuery("RiskRun.one.byViewAndRunTime");
-          query.setString("viewOid", job.getViewOid());
-          query.setString("viewVersion", job.getViewVersion());
-          query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
-          query.setString("runTime", job.getObservationTime());
-          return (RiskRun) query.uniqueResult();
-        }
-      });
-      
-      // here, if riskRun != null, we should check a hash of the configuration to see it's still the same as before  
-    } 
+    RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
+      @Override
+      public RiskRun doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        Query query = session.getNamedQuery("RiskRun.one.byRunTime");
+        query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
+        query.setString("runTime", job.getObservationTime());
+        return (RiskRun) query.uniqueResult();
+      }
+    });
     
     return riskRun;
   }
@@ -349,16 +340,17 @@ public class BatchDbManagerImpl implements BatchDbManager {
     RiskRun riskRun = new RiskRun();
     riskRun.setOpenGammaVersion(getOpenGammaVersion(job.getJob()));
     riskRun.setMasterProcessHost(getLocalComputeHost());
-    riskRun.setRunReason(job.getRunReason());
     riskRun.setRunTime(getObservationDateTime(job));
     riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(job.getValuationTime()));
-    riskRun.setViewOid(job.getViewOid());
-    riskRun.setViewVersion(job.getViewVersion());
     riskRun.setLiveDataSnapshot(snapshot);
     riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
+    
+    for (Map.Entry<String, String> parameter : job.getParameters().entrySet()) {
+      riskRun.addProperty(parameter.getKey(), parameter.getValue());      
+    }
     
     for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
       riskRun.addCalculationConfiguration(calcConf);
@@ -366,6 +358,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     getHibernateTemplate().save(riskRun);
     getHibernateTemplate().saveOrUpdateAll(riskRun.getCalculationConfigurations());
+    getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
     return riskRun;
   }
   
@@ -579,11 +572,44 @@ public class BatchDbManagerImpl implements BatchDbManager {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      RiskRun run = getRiskRunFromDb(batch);
-      if (run == null) {
-        run = createRiskRun(batch);
-      } else {
-        restartRun(run);
+      RiskRun run;
+      switch (batch.getRunCreationMode()) {
+        case AUTO:
+          run = getRiskRunFromDb(batch);
+          
+          if (run != null) {
+            // also check parameter equality
+            Map<String, String> existingProperties = run.getPropertiesMap();
+            Map<String, String> newProperties = batch.getParameters();
+            
+            if (!existingProperties.equals(newProperties)) {
+              Set<Map.Entry<String, String>> symmetricDiff = 
+                Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
+              throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
+            }
+          }
+          
+          if (run == null) {
+            run = createRiskRun(batch);
+          } else {
+            restartRun(run);
+          }
+          break;
+        
+        case ALWAYS:
+          run = createRiskRun(batch);
+          break;
+        
+        case NEVER:
+          run = getRiskRunFromDb(batch);
+          if (run == null) {
+            throw new IllegalStateException("Cannot find run in database for " + batch);
+          }
+          restartRun(run);
+          break;
+        
+        default:
+          throw new RuntimeException("Unexpected run creation mode " + batch.getRunCreationMode());
       }
 
       // make sure calc conf collection is inited

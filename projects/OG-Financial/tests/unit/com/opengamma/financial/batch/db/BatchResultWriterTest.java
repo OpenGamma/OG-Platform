@@ -92,7 +92,6 @@ public class BatchResultWriterTest extends HibernateTest {
     
     _openGammaVersion = new OpenGammaVersion();
     _openGammaVersion.setVersion("1.0");
-    _openGammaVersion.setHash("1a2c3d4f");
     _hibernateTemplate.save(_openGammaVersion);
     
     _observationTime = new ObservationTime();
@@ -120,11 +119,8 @@ public class BatchResultWriterTest extends HibernateTest {
     _riskRun = new RiskRun();
     _riskRun.setOpenGammaVersion(_openGammaVersion);
     _riskRun.setMasterProcessHost(_computeHost);
-    _riskRun.setRunReason("BatchResultWriterTest");
     _riskRun.setRunTime(_observationDateTime);
     _riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(now));
-    _riskRun.setViewOid("view-oid");
-    _riskRun.setViewVersion("1");
     _riskRun.setLiveDataSnapshot(_liveDataSnapshot);
     _riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
     _riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
