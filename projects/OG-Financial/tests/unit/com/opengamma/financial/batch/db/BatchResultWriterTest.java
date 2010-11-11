@@ -120,7 +120,6 @@ public class BatchResultWriterTest extends HibernateTest {
     _riskRun.setOpenGammaVersion(_openGammaVersion);
     _riskRun.setMasterProcessHost(_computeHost);
     _riskRun.setRunTime(_observationDateTime);
-    _riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(now));
     _riskRun.setLiveDataSnapshot(_liveDataSnapshot);
     _riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
     _riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));

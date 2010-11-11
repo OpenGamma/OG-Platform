@@ -241,6 +241,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   
   @Test
   public void createThenGetRiskRun() {
+    assertNull(_batchJobRun.getOriginalCreationTime());
+    
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     RiskRun run = _dbManager.createRiskRun(_batchJobRun);
     
@@ -252,10 +254,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertNotNull(run.getLiveDataSnapshot());
     assertEquals(_dbManager.getLocalComputeHost(), run.getMasterProcessHost());
     assertEquals(_dbManager.getOpenGammaVersion(_batchJob), run.getOpenGammaVersion());
-    assertNotNull(run.getValuationTime());
     
     Map<String, String> props = run.getPropertiesMap();
-    assertEquals(7, props.size());
+    assertEquals(10, props.size());
     assertEquals("AD_HOC_RUN", props.get("observationTime"));
     assertEquals(_batchJob.getCreationTime().toLocalTime().toString(), props.get("valuationTime"));
     assertEquals("test_view", props.get("view"));
@@ -267,6 +268,10 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
         + " by " 
         + System.getProperty("user.name"), 
         props.get("reason"));
+    assertEquals(_batchJob.getCreationTime().toInstant().toString(), props.get("valuationInstant"));
+    assertEquals(_batchJob.getCreationTime().toInstant().toString(), props.get("configDbInstant"));
+    assertEquals(_batchJob.getCreationTime().toInstant().toString(), props.get("staticDataInstant"));
+    assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
     
     // get
     RiskRun run2 = _dbManager.getRiskRunFromDb(_batchJobRun);
@@ -305,14 +310,19 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   
   @Test
   public void startBatchTwice() {
+    assertNull(_batchJobRun.getOriginalCreationTime());
+    
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _dbManager.startBatch(_batchJobRun);
+    
+    assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
     
     RiskRun run = _dbManager.getRiskRunFromDb(_batchJobRun);
     assertEquals(0, run.getNumRestarts());
     
     _dbManager.startBatch(_batchJobRun);
     assertEquals(1, run.getNumRestarts());
+    assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
   }
   
   @Test
