@@ -12,12 +12,10 @@
       </generator>
     </id>
     <property name="version" not-null="true"/>
-    <property name="hash" not-null="true"/>
   </class>
   
-  <query name="OpenGammaVersion.one.byVersionAndHash">
+  <query name="OpenGammaVersion.one.byVersion">
   	from OpenGammaVersion as a where 
-  	a.version = :version and 
-  	a.hash = :hash</query>  
+  	a.version = :version</query>  
   
 </hibernate-mapping>

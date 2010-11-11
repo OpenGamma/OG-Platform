@@ -18,8 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
+//TODO Because of the way that accrued interest is calculated (i.e. Julian days, so that whole numbers of days are used), we need extra fields that can contain the accrued interest
+// up to the time today (fractions of a day) as well as the "official" accrued interest.
 public class Bond implements InterestRateDerivativeWithRate {
-
   private final GenericAnnuity<FixedCouponPayment> _coupons;
   private final FixedPayment _principle;
   private final double _accruedInterestFraction;
@@ -46,12 +47,10 @@ public class Bond implements InterestRateDerivativeWithRate {
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-
     final FixedCouponPayment[] payments = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, couponRate, yieldCurveName);
     }
-
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
     _accruedInterestFraction = accrualFraction;
@@ -88,8 +87,6 @@ public class Bond implements InterestRateDerivativeWithRate {
   public GenericAnnuity<FixedPayment> getAnnuity() {
     final int n = _coupons.getNumberOfPayments();
     final FixedPayment[] temp = new FixedPayment[n + 1];
-
-    // temp = Arrays.copyOf(_coupons.getPayments(), n + 1);
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i);
     }
@@ -153,8 +150,8 @@ public class Bond implements InterestRateDerivativeWithRate {
     long temp;
     temp = Double.doubleToLongBits(_accruedInterestFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_coupons == null) ? 0 : _coupons.hashCode());
-    result = prime * result + ((_principle == null) ? 0 : _principle.hashCode());
+    result = prime * result + _coupons.hashCode();
+    result = prime * result + _principle.hashCode();
     return result;
   }
 

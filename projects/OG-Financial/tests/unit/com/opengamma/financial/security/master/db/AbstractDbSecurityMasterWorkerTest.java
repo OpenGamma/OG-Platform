@@ -7,6 +7,8 @@ package com.opengamma.financial.security.master.db;
 
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
@@ -21,7 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
+import com.opengamma.financial.security.master.SecurityDocument;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -73,35 +80,110 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestSecurity202", "EQUITY");
     _totalSecurities = 3;
-//    id bigint not null,
-//    key_scheme varchar(255) not null,
-//    key_value varchar(255) not null,
+//  id bigint not null,
+//  key_scheme varchar(255) not null,
+//  key_value varchar(255) not null,
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
-        1, "TICKER", "ORCL");
+        1, "A", "B");
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
-        2, "TICKER", "MSFT");
+        2, "C", "D");
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
-        3, "NASDAQ", "Micro");
+        3, "E", "F");
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
-        4, "TICKER", "IBMC");
-//    security_id bigint not null,
-//    idkey_id bigint not null,
+        4, "G", "H");
+//  security_id bigint not null,
+//  idkey_id bigint not null,
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
         101, 1);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        101, 2);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        101, 3);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        102, 1);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
         102, 2);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
-        102, 3);
+        102, 4);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
-        201, 4);
+        201, 2);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
-        202, 4);
+        201, 3);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        202, 2);
+    template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
+        202, 3);
   }
 
   @After
   public void tearDown() throws Exception {
     _secMaster = null;
     super.tearDown();
+  }
+
+  //-------------------------------------------------------------------------
+  protected void assert101(final SecurityDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
+    assertNotNull(test);
+    assertEquals(uid, test.getSecurityId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    DefaultSecurity security = test.getSecurity();
+    assertNotNull(security);
+    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals("TestSecurity101", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+  }
+
+  protected void assert102(final SecurityDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "102", "0");
+    assertNotNull(test);
+    assertEquals(uid, test.getSecurityId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    DefaultSecurity security = test.getSecurity();
+    assertNotNull(security);
+    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals("TestSecurity102", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")), security.getIdentifiers());
+  }
+
+  protected void assert201(final SecurityDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
+    assertNotNull(test);
+    assertEquals(uid, test.getSecurityId());
+    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(_version2Instant, test.getVersionToInstant());
+    assertEquals(_version1Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    DefaultSecurity security = test.getSecurity();
+    assertNotNull(security);
+    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals("TestSecurity201", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+  }
+
+  protected void assert202(final SecurityDocument test) {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
+    assertNotNull(test);
+    assertEquals(uid, test.getSecurityId());
+    assertEquals(_version2Instant, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(_version2Instant, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    DefaultSecurity security = test.getSecurity();
+    assertNotNull(security);
+    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals("TestSecurity202", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
   }
 
 }

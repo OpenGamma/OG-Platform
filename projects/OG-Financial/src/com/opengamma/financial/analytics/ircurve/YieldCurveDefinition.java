@@ -22,7 +22,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 import com.opengamma.util.ArgumentChecker;
 
 /**

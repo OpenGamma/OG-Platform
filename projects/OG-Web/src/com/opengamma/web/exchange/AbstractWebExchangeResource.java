@@ -10,7 +10,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.master.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;

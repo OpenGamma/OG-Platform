@@ -28,6 +28,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondYieldFunction extends BondFunction {
+  private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
 
   public BondYieldFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
@@ -35,9 +36,6 @@ public class BondYieldFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
-    final double cleanPrice = (Double) value;
-    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
-    double yield = new BondYieldCalculator().calculate(bond, dirtyPrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueIdentifier());
     final BondSecurity security = (BondSecurity) position.getSecurity();
     final Frequency frequency = security.getCouponFrequency();
@@ -49,7 +47,11 @@ public class BondYieldFunction extends BondFunction {
     } else {
       throw new IllegalArgumentException("Can only handle SimpleFrequency and PeriodFrequency");
     }
-    yield = paymentsPerYear * (Math.exp(yield / paymentsPerYear) - 1.0);
+    final double cleanPrice = (Double) value;
+    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
+    double yield = CALCULATOR.calculate(bond, dirtyPrice);
+    yield = paymentsPerYear * (Math.exp(yield / paymentsPerYear) - 1.0); //TODO this really shouldn't be done in here
+    //TODO not correct for USD in last coupon period - need money market yield then
     return Sets.newHashSet(new ComputedValue(specification, yield * 100.));
   }
 

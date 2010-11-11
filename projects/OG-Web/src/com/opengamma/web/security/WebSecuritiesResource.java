@@ -81,8 +81,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      IdentifierBundle old = (searchRequest.getIdentityKey() != null ? searchRequest.getIdentityKey() : IdentifierBundle.EMPTY);
-      searchRequest.setIdentityKey(old.withIdentifier(id));
+      searchRequest.addIdentifierBundle(id);
     }
     out.put("searchRequest", searchRequest);
     

@@ -15,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.exchange.master.ExchangeDocument;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryRequest;
-import com.opengamma.financial.world.exchange.master.ExchangeHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
 
 /**
  * RESTful resource for all versions of an exchange.

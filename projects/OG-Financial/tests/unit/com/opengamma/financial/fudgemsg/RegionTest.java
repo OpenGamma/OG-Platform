@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.world.region.Region;
-import com.opengamma.financial.world.region.RegionUtils;
+import com.opengamma.core.region.Region;
+import com.opengamma.core.region.RegionUtils;
 
 @Ignore
 public class RegionTest extends FinancialTestBase {

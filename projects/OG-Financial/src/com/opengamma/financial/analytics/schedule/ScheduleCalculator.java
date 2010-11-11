@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -154,6 +155,29 @@ public class ScheduleCalculator {
       int count = 0;
       int adjusted = 0;
       final ZonedDateTime date = dates[i];
+      while (adjusted < settlementDays) {
+        if (calendar.isWorkingDay(date.plusDays(count + 1).toLocalDate())) {
+          count++;
+          adjusted++;
+        } else {
+          count++;
+        }
+      }
+      result[i] = date.plusDays(count);
+    }
+    return result;
+  }
+
+  public static LocalDate[] getSettlementDateSchedule(final LocalDate[] dates, final Calendar calendar, final int settlementDays) {
+    Validate.notNull(dates);
+    Validate.notEmpty(dates);
+    Validate.notNull(calendar);
+    final int n = dates.length;
+    final LocalDate[] result = new LocalDate[n];
+    for (int i = 0; i < n; i++) {
+      int count = 0;
+      int adjusted = 0;
+      final LocalDate date = dates[i];
       while (adjusted < settlementDays) {
         if (calendar.isWorkingDay(date.plusDays(count + 1).toLocalDate())) {
           count++;

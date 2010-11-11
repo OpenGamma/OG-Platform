@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigTypeMaster;
+import com.opengamma.core.common.Currency;
 import com.opengamma.engine.config.MasterConfigSource;
-import com.opengamma.financial.Currency;
 
 /**
  * This class should be removed, it is here just to ease integration with existing tests.

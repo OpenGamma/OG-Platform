@@ -176,7 +176,7 @@ public class ConfigDocument<T> extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the configuration is accurate for.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @return the value of the property
    */
   public Instant getVersionFromInstant() {
@@ -185,7 +185,7 @@ public class ConfigDocument<T> extends DirectBean {
 
   /**
    * Sets the start of an interval that the version of the configuration is accurate for.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @param versionFromInstant  the new value of the property
    */
   public void setVersionFromInstant(Instant versionFromInstant) {
@@ -194,7 +194,7 @@ public class ConfigDocument<T> extends DirectBean {
 
   /**
    * Gets the the {@code versionFromInstant} property.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionFromInstant() {
@@ -205,7 +205,7 @@ public class ConfigDocument<T> extends DirectBean {
   /**
    * Gets the end of an interval that the version of the configuration is accurate for.
    * Null indicates this is the latest version.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @return the value of the property
    */
   public Instant getVersionToInstant() {
@@ -215,7 +215,7 @@ public class ConfigDocument<T> extends DirectBean {
   /**
    * Sets the end of an interval that the version of the configuration is accurate for.
    * Null indicates this is the latest version.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @param versionToInstant  the new value of the property
    */
   public void setVersionToInstant(Instant versionToInstant) {
@@ -225,7 +225,7 @@ public class ConfigDocument<T> extends DirectBean {
   /**
    * Gets the the {@code versionToInstant} property.
    * Null indicates this is the latest version.
-   * This field is managed by the {@code ConfigMaster}.
+   * This field is populated and managed by the {@code ConfigMaster}.
    * @return the property, not null
    */
   public final Property<Instant> versionToInstant() {

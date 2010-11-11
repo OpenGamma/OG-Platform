@@ -18,11 +18,11 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.world.region.master.MasterRegionSource;
-import com.opengamma.financial.world.region.master.RegionMaster;
-import com.opengamma.financial.world.region.master.RegionSource;
-import com.opengamma.financial.world.region.master.loader.RegionFileReader;
-import com.opengamma.financial.world.region.master.memory.InMemoryRegionMaster;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.impl.InMemoryRegionMaster;
+import com.opengamma.master.region.impl.MasterRegionSource;
+import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**

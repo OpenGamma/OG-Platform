@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.fra;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -17,7 +18,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.world.holiday.master.HolidaySource;
 import com.opengamma.id.Identifier;
 /**
  * 

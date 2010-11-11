@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.Currency;
+import com.opengamma.core.common.Currency;
 import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;

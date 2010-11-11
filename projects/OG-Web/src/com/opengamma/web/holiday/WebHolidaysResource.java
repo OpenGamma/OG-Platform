@@ -22,15 +22,15 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.world.holiday.HolidayType;
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
-import com.opengamma.financial.world.holiday.master.HolidaySearchRequest;
-import com.opengamma.financial.world.holiday.master.HolidaySearchResult;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 

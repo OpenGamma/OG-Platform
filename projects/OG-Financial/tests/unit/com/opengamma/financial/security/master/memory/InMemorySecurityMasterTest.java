@@ -38,9 +38,8 @@ public class InMemorySecurityMasterTest {
   private static final Identifier ID2 = Identifier.of("A", "C");
   private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
   private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
-  private static final IdentifierBundle BUNDLE1AND2 = IdentifierBundle.of(ID1, ID2);
-  private static final DefaultSecurity SEC1 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
-  private static final DefaultSecurity SEC2 = new DefaultSecurity(UniqueIdentifier.of ("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
+  private static final DefaultSecurity SEC1 = new DefaultSecurity(UniqueIdentifier.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final DefaultSecurity SEC2 = new DefaultSecurity(UniqueIdentifier.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
   private InMemorySecurityMaster testEmpty;
   private InMemorySecurityMaster testPopulated;
@@ -105,8 +104,7 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_search_populatedMaster_filterByBundle() {
-    SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(BUNDLE1);
+    SecuritySearchRequest request = new SecuritySearchRequest(BUNDLE1);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     assertEquals(1, result.getDocuments().size());
@@ -116,7 +114,8 @@ public class InMemorySecurityMasterTest {
   @Test
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentityKey(BUNDLE1AND2);
+    request.addIdentifierBundle(BUNDLE1);
+    request.addIdentifierBundle(BUNDLE2);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();

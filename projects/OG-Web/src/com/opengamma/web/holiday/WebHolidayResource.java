@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.util.tuple.Pair;
 
 /**

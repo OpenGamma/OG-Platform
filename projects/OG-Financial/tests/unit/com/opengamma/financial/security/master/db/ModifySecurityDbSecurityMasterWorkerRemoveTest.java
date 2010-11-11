@@ -83,10 +83,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
-    assertNotNull(idKey);
-    assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("TICKER", "ORCL"), idKey.getIdentifiers().iterator().next());
+    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
   }
 
   //-------------------------------------------------------------------------

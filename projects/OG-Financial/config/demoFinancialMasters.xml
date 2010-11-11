@@ -74,16 +74,6 @@
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
 
-  <!-- HolidayMaster -->
-  <bean id="dbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
-    <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.refdata.db.holidaymaster.scheme}" />
-  </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.financial.world.holiday.master.EHCachingMasterHolidaySource">
-    <constructor-arg ref="dbHolidayMaster"/>
-    <constructor-arg ref="cacheManager"/>
-  </bean>
-
   <!-- SecurityMaster -->
   <bean id="dbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />

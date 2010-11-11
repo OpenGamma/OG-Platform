@@ -7,7 +7,7 @@ package com.opengamma.web.exchange;
 
 import java.net.URI;
 
-import com.opengamma.financial.world.exchange.Exchange;
+import com.opengamma.core.exchange.Exchange;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

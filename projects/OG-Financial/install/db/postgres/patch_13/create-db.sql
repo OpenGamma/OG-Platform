@@ -38,48 +38,6 @@ create index ix_cfg_config_oid on cfg_config(oid);
 create index ix_cfg_config_config_type on cfg_config(config_type);
 
 
--- create-db-refdata.sql
-
--- Holiday Master design has one document
---  holiday and associated dates
--- bitemporal versioning exists at the document level
--- each time a document is changed, a new row is written
--- with only the end instant being changed on the old row
-
-create sequence hol_holiday_seq
-    start with 1000 increment by 1 no cycle;
--- "as bigint" required by Derby/HSQL, not accepted by Postgresql
-
-create table hol_holiday (
-    id bigint not null,
-    oid bigint not null,
-    ver_from_instant timestamp not null,
-    ver_to_instant timestamp not null,
-    corr_from_instant timestamp not null,
-    corr_to_instant timestamp not null,
-    name varchar(255) not null,
-    provider_scheme varchar(255),
-    provider_value varchar(255),
-    hol_type varchar(255) not null,
-    region_scheme varchar(255),
-    region_value varchar(255),
-    exchange_scheme varchar(255),
-    exchange_value varchar(255),
-    currency_iso varchar(255),
-    primary key (id),
-    constraint hol_chk_holiday_ver_order check (ver_from_instant <= ver_to_instant)
-);
-
-create table hol_date (
-    holiday_id bigint not null,
-    hol_date date not null,
-    constraint hol_fk_date2hol foreign key (holiday_id) references hol_holiday (id)
-);
-
-create index ix_hol_holiday_oid on hol_holiday(oid);
-create index ix_hol_holiday_type on hol_holiday(hol_type);
-
-
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -571,11 +529,10 @@ create table rsk_compute_node (
 create table rsk_opengamma_version (
 	id int not null,
 	version varchar(255) not null, 
-	hash varchar(255) not null,
 	
 	primary key (id),
 	
-	constraint rsk_chk_uq_opengamma_version unique (version, hash)
+	constraint rsk_chk_uq_opengamma_version unique (version)
 );
 
 -- DBTOOLDONOTCLEAR
@@ -670,11 +627,7 @@ create table rsk_run (
 	id int not null,
 	opengamma_version_id int not null,
 	master_process_host_id int not null,    -- machine where 'master' batch process was started
-    run_reason varchar(255) not null,       -- 15 June main overnight batch run
     run_time_id int not null,
-    valuation_time timestamp not null,	 	-- 15 June 2010 17:00:00 - 'T'
-    view_oid varchar(255) not null,
-    view_version varchar(255),
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
@@ -691,7 +644,9 @@ create table rsk_run (
     constraint rsk_fk_run2obs_datetime
         foreign key (run_time_id) references rsk_observation_datetime (id),
     constraint rsk_fk_run2live_data_snapshot
-        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id)
+        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
+
+    constraint rsk_chk_uq_run unique (run_time_id)
 );
 
 create table rsk_calculation_configuration (

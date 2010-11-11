@@ -15,6 +15,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -167,9 +168,11 @@ public class MasterSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest request = new SecuritySearchRequest();
+    for (Identifier identifier : securityKey) {
+      request.addIdentifierBundle(identifier);
+    }
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
-    request.setIdentityKey(securityKey);
     request.setFullDetail(true);
     return (Collection) getSecurityMaster().search(request).getSecurities();  // cast safe as supplied list will not be altered
   }

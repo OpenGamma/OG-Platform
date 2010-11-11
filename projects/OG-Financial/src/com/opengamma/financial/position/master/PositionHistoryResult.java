@@ -37,7 +37,7 @@ public class PositionHistoryResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched position documents.
+   * The list of matched position documents, not null.
    */
   @PropertyDefinition
   private final List<PositionDocument> _documents = new ArrayList<PositionDocument>();
@@ -146,7 +146,7 @@ public class PositionHistoryResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched position documents.
+   * Gets the list of matched position documents, not null.
    * @return the value of the property
    */
   public List<PositionDocument> getDocuments() {
@@ -154,7 +154,7 @@ public class PositionHistoryResult extends DirectBean {
   }
 
   /**
-   * Sets the list of matched position documents.
+   * Sets the list of matched position documents, not null.
    * @param documents  the new value of the property
    */
   public void setDocuments(List<PositionDocument> documents) {

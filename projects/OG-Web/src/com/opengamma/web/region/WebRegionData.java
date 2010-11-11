@@ -21,9 +21,9 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.world.region.master.RegionDocument;
-import com.opengamma.financial.world.region.master.RegionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
 
 /**
  * Data class for web-based regions.

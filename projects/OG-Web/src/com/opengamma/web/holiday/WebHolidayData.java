@@ -19,9 +19,9 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.world.holiday.master.HolidayDocument;
-import com.opengamma.financial.world.holiday.master.HolidayMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
 
 /**
  * Data class for web-based holidays.

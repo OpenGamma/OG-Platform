@@ -75,8 +75,9 @@
 	<target name="compile-src" depends="fudge-proto"
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
+
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
-			classpathref="lib.path.id" debug="${build.debug}" optimize="${build.optimize}"
+			classpath="${lib.path.jar.file}" debug="${build.debug}" optimize="${build.optimize}"
 			memoryMaximumSize="512M" fork="true"
 			verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
@@ -123,7 +124,7 @@
 	<target name="compile-tests-mkdir">
 		<mkdir dir="${tests.classes.dir}" />
 		<path id="tests.build.classpath.id">
-			<path refid="lib.path.id" />
+			<pathelement path="${lib.path.jar.file}" />
 			<pathelement path="${classes.dir}" />
 		</path>
 	</target>
@@ -166,7 +167,7 @@
 		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
 		<junit printSummary="true" fork="true" forkmode="once" maxmemory="${junit.maxheap}" dir="${basedir}">
 			<classpath>
-				<path refid="lib.path.id" />
+				<pathelement path="${lib.path.jar.file}" />
 				<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
 				<pathelement path="${config.dir}" />
@@ -362,9 +363,9 @@
 	<target name="run-hbm2ddl" depends="load-ivy,compile"
 		description="--> Generate Hibernate schema from mapping files">
 		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
-			classpathref="lib.path.id" />
+			classpath="${lib.path.jar.file}" />
 		<mkdir dir="${dbscript.dir}" />
-		<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
+		<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpath="${lib.path.jar.file}" />
 		<dbtool dbServerHost="${jdbc.url}"
 			    user="${hibernate.connection.username}"
 				password="${hibernate.connection.password}"

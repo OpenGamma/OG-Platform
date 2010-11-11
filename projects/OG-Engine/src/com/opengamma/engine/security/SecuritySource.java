@@ -21,7 +21,9 @@ import com.opengamma.util.PublicSPI;
 public interface SecuritySource {
 
   /**
-   * Finds a specific security by identifier.
+   * Finds a specific security by unique identifier.
+   * <p>
+   * Since a unique identifier is unique, there are no complex matching issues.
    * 
    * @param uid  the unique identifier, null returns null
    * @return the security, null if not found
@@ -32,7 +34,14 @@ public interface SecuritySource {
   /**
    * Finds all securities that match the specified bundle of keys.
    * <p>
-   * The result should consist of all securities that match each specified key.
+   * The identifier bundle represents those keys associated with a single security.
+   * In an ideal world, all the identifiers in a bundle would refer to the same security.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * <p>
+   * The simplest implementation of this method will return a security if it matches one of the keys.
+   * A more advanced implementation will choose using some form of priority order which
+   * key or keys from the bundle to search for.
    * 
    * @param secKey  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
@@ -43,8 +52,12 @@ public interface SecuritySource {
   /**
    * Finds the single best-fit security that matches the specified bundle of keys.
    * <p>
-   * It is entirely the responsibility of the implementation to determine which
-   * security matches best for any given bundle of keys.
+   * The identifier bundle represents those keys associated with a single security.
+   * In an ideal world, all the identifiers in a bundle would refer to the same security.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * <p>
+   * An implementation will need some mechanism to decide what the best-fit match is.
    * 
    * @param secKey  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found

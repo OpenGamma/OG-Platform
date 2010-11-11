@@ -40,11 +40,6 @@
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
-  <bean id="hsqldbDbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
-    <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbHol" />
-  </bean>
-
   <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${postgres.jdbc.driver}"/>
@@ -67,11 +62,6 @@
   <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbSec" />
-  </bean>
-
-  <bean id="postgresDbHolidayMaster" class="com.opengamma.financial.world.holiday.master.db.DbHolidayMaster">
-    <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbHol" />
   </bean>
 
 </beans>

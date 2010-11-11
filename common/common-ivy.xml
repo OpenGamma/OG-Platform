@@ -42,6 +42,7 @@
 	<property name="ivy.local.default.root" value="${repository.dir}/local" />
 	<property name="ivy.shared.default.root" value="${repository.dir}/shared" />
 	
+	<property name="lib.path.jar.file" value="${lib.dir}/classpath.jar" />
 	<target name="resolve" depends="clean-lib, load-ivy"
 		description="--> resolve and retrieve dependencies with ivy">
 		<!--
@@ -51,5 +52,13 @@
 		<ivy:resolve file="${ivy.file}" />
 		<ivy:retrieve
 			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
+		<manifestclasspath property="lib.path.mf" jarfile="${lib.path.jar.file}">
+			<classpath refid="lib.path.id" />
+		</manifestclasspath>
+		<jar destfile="${lib.path.jar.file}">
+			<manifest>
+				<attribute name="Class-Path" value="${lib.path.mf}" />
+			</manifest>
+		</jar>
 	</target>
 </project>
