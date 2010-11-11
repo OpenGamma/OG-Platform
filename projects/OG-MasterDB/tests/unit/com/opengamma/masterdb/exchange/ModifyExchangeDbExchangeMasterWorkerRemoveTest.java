@@ -72,7 +72,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     _worker.remove(uid);
     ExchangeDocument test = _queryWorker.get(uid);
     
-    assertEquals(uid, test.getExchangeId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());

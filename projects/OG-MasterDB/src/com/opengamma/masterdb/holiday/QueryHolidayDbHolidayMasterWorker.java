@@ -233,7 +233,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   protected HolidayHistoryResult history(final HolidayHistoryRequest request) {
     s_logger.debug("searchHolidayHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("holiday_oid", extractOid(request.getHolidayId()))
+      .addValue("holiday_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
@@ -344,7 +344,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setHolidayId(uid);
+      doc.setUniqueId(uid);
       doc.setName(name);
       if (providerScheme != null && providerValue != null) {
         doc.setProviderId(Identifier.of(providerScheme, providerValue));

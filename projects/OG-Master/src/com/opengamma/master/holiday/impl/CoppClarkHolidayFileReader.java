@@ -294,8 +294,8 @@ public class CoppClarkHolidayFileReader {
       } else if (result.getDocuments().size() == 1) {
         // update existing data
         HolidayDocument existing = result.getFirstDocument();
-        doc.setHolidayId(existing.getHolidayId());
-        doc.getHoliday().setUniqueIdentifier(existing.getHolidayId());
+        doc.setUniqueId(existing.getUniqueId());
+        doc.getHoliday().setUniqueIdentifier(existing.getUniqueId());
         // merge dates
         if (doc.getHoliday().getHolidayDates().size() > 0) {
           LocalDate newFirstDate = doc.getHoliday().getHolidayDates().get(0);

@@ -10,39 +10,35 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for holidays.
+ * <p>
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results and to search
+ * as at a specific version and correction instant.
+ * See {@link HolidayHistoryRequest} for more details on how history works.
  */
 @BeanDefinition
-public class HolidaySearchRequest extends DirectBean implements Serializable {
+public class HolidaySearchRequest extends AbstractSearchRequest implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The request for paging.
-   * By default all matching items will be returned.
-   */
-  @PropertyDefinition
-  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The holiday name, wildcards allowed, null to not match on name.
    */
@@ -85,16 +81,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
    */
   @PropertyDefinition
   private IdentifierBundle _exchangeIdentifiers;
-  /** 
-   * The instant to search for a version at, null treated as the latest version.
-   */
-  @PropertyDefinition
-  private Instant _versionAsOfInstant;
-  /**
-   * The instant to search for corrections for, null treated as the latest correction.
-   */
-  @PropertyDefinition
-  private Instant _correctedToInstant;
 
   /**
    * Creates an instance.
@@ -169,8 +155,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
       case 3373707:  // name
         return getName();
       case 3575610:  // type
@@ -185,10 +169,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
         return getRegionIdentifiers();
       case -339616057:  // exchangeIdentifiers
         return getExchangeIdentifiers();
-      case 598802432:  // versionAsOfInstant
-        return getVersionAsOfInstant();
-      case -28367267:  // correctedToInstant
-        return getCorrectedToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -196,9 +176,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
@@ -220,42 +197,8 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
       case -339616057:  // exchangeIdentifiers
         setExchangeIdentifiers((IdentifierBundle) newValue);
         return;
-      case 598802432:  // versionAsOfInstant
-        setVersionAsOfInstant((Instant) newValue);
-        return;
-      case -28367267:  // correctedToInstant
-        setCorrectedToInstant((Instant) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the request for paging.
-   * By default all matching items will be returned.
-   * @return the value of the property
-   */
-  public PagingRequest getPagingRequest() {
-    return _pagingRequest;
-  }
-
-  /**
-   * Sets the request for paging.
-   * By default all matching items will be returned.
-   * @param pagingRequest  the new value of the property
-   */
-  public void setPagingRequest(PagingRequest pagingRequest) {
-    this._pagingRequest = pagingRequest;
-  }
-
-  /**
-   * Gets the the {@code pagingRequest} property.
-   * By default all matching items will be returned.
-   * @return the property, not null
-   */
-  public final Property<PagingRequest> pagingRequest() {
-    return metaBean().pagingRequest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -456,68 +399,14 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for a version at, null treated as the latest version.
-   * @return the value of the property
-   */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
-  }
-
-  /**
-   * Sets the instant to search for a version at, null treated as the latest version.
-   * @param versionAsOfInstant  the new value of the property
-   */
-  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
-    this._versionAsOfInstant = versionAsOfInstant;
-  }
-
-  /**
-   * Gets the the {@code versionAsOfInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionAsOfInstant() {
-    return metaBean().versionAsOfInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to search for corrections for, null treated as the latest correction.
-   * @return the value of the property
-   */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
-  }
-
-  /**
-   * Sets the instant to search for corrections for, null treated as the latest correction.
-   * @param correctedToInstant  the new value of the property
-   */
-  public void setCorrectedToInstant(Instant correctedToInstant) {
-    this._correctedToInstant = correctedToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctedToInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctedToInstant() {
-    return metaBean().correctedToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code HolidaySearchRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -547,22 +436,13 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
      */
     private final MetaProperty<IdentifierBundle> _exchangeIdentifiers = DirectMetaProperty.ofReadWrite(this, "exchangeIdentifiers", IdentifierBundle.class);
     /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     */
-    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
       temp.put("type", _type);
       temp.put("providerId", _providerId);
@@ -570,8 +450,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
       temp.put("currency", _currency);
       temp.put("regionIdentifiers", _regionIdentifiers);
       temp.put("exchangeIdentifiers", _exchangeIdentifiers);
-      temp.put("versionAsOfInstant", _versionAsOfInstant);
-      temp.put("correctedToInstant", _correctedToInstant);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -591,14 +469,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PagingRequest> pagingRequest() {
-      return _pagingRequest;
-    }
-
     /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
@@ -653,22 +523,6 @@ public class HolidaySearchRequest extends DirectBean implements Serializable {
      */
     public final MetaProperty<IdentifierBundle> exchangeIdentifiers() {
       return _exchangeIdentifiers;
-    }
-
-    /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionAsOfInstant() {
-      return _versionAsOfInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctedToInstant() {
-      return _correctedToInstant;
     }
 
   }

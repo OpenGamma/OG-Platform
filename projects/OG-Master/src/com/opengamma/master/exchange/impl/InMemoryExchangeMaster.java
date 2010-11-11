@@ -122,11 +122,11 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueIdentifier(uid);
-    document.setExchangeId(uid);
+    document.setUniqueId(uid);
     final Instant now = Instant.nowSystemClock();
     final ExchangeDocument doc = new ExchangeDocument();
     doc.setExchange(exchange);
-    doc.setExchangeId(uid);
+    doc.setUniqueId(uid);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _exchanges.put(uid, doc);  // unique identifier should be unique
@@ -138,9 +138,9 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
-    ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    final UniqueIdentifier uid = document.getExchangeId();
+    final UniqueIdentifier uid = document.getUniqueId();
     final Instant now = Instant.nowSystemClock();
     final ExchangeDocument storedDocument = _exchanges.get(uid);
     if (storedDocument == null) {
@@ -170,10 +170,10 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   @Override
   public ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ExchangeHistoryResult result = new ExchangeHistoryResult();
-    final ExchangeDocument doc = get(request.getExchangeId());
+    final ExchangeDocument doc = get(request.getObjectId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

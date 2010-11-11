@@ -120,7 +120,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getExchangeId().toLatest().toString()).build();
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 

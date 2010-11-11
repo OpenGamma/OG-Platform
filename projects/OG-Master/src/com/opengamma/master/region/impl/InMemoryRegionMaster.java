@@ -153,7 +153,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableRegion region = document.getRegion();
     region.setUniqueIdentifier(uid);
-    document.setRegionId(uid);
+    document.setUniqueId(uid);
     final Instant now = Instant.nowSystemClock();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
@@ -167,10 +167,10 @@ public class InMemoryRegionMaster implements RegionMaster {
   @Override
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
-    ArgumentChecker.notNull(document.getRegionId(), "document.regionId");
     
-    final UniqueIdentifier uid = document.getRegionId();
+    final UniqueIdentifier uid = document.getUniqueId();
     final Instant now = Instant.nowSystemClock();
     final RegionDocument storedDocument = _regions.get(uid);
     if (storedDocument == null) {
@@ -200,10 +200,10 @@ public class InMemoryRegionMaster implements RegionMaster {
   @Override
   public RegionHistoryResult history(final RegionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getRegionId(), "request.regionId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final RegionHistoryResult result = new RegionHistoryResult();
-    final RegionDocument doc = get(request.getRegionId());
+    final RegionDocument doc = get(request.getObjectId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

@@ -59,7 +59,7 @@ public class RegionFileReaderTest {
     assertEquals("GBP", ukRegion.getCurrency().getISOCode());
     assertEquals(2, ukRegion.getParentRegionIds().size());
     
-    RegionDocument gotDoc = _regionMaster.get(doc.getRegionId());
+    RegionDocument gotDoc = _regionMaster.get(doc.getUniqueId());
     assertEquals(doc, gotDoc);
   }
 

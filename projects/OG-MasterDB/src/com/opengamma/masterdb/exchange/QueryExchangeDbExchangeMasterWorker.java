@@ -229,7 +229,7 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
   protected ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
     s_logger.debug("searchExchangeHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("exchange_oid", extractOid(request.getExchangeId()))
+      .addValue("exchange_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
@@ -311,7 +311,7 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
       ManageableExchange exchange = FUDGE_CONTEXT.readObject(ManageableExchange.class, new ByteArrayInputStream(bytes));
       
       ExchangeDocument doc = new ExchangeDocument();
-      doc.setExchangeId(createUniqueIdentifier(configOid, configId));
+      doc.setUniqueId(createUniqueIdentifier(configOid, configId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

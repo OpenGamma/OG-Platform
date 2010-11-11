@@ -14,34 +14,19 @@ import java.util.Map;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.util.db.Paging;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.master.AbstractHistoryResult;
 
 /**
  * Result providing the history of a holiday.
  * <p>
  * The returned documents may be a mixture of versions and corrections.
  * The document instant fields are used to identify which are which.
- * See {@link HolidayHistoryRequest} for more details.
+ * See {@link HolidayHolidayRequest} for more details.
  */
 @BeanDefinition
-public class HolidayHistoryResult extends DirectBean {
-
-  /**
-   * The paging information.
-   */
-  @PropertyDefinition
-  private Paging _paging;
-  /**
-   * The list of matched holiday documents, not null.
-   */
-  @PropertyDefinition
-  private final List<HolidayDocument> _documents = new ArrayList<HolidayDocument>();
+public class HolidayHistoryResult extends AbstractHistoryResult<HolidayDocument> {
 
   /**
    * Creates an instance.
@@ -51,22 +36,23 @@ public class HolidayHistoryResult extends DirectBean {
 
   /**
    * Creates an instance.
+   * 
    * @param coll  the collection of documents to add, not null
    */
   public HolidayHistoryResult(Collection<HolidayDocument> coll) {
-    _documents.addAll(coll);
-    _paging = Paging.of(coll);
+    super(coll);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the returned holidays from within the documents.
+   * 
    * @return the holidays, not null
    */
   public List<ManageableHoliday> getHolidays() {
     List<ManageableHoliday> result = new ArrayList<ManageableHoliday>();
-    if (_documents != null) {
-      for (HolidayDocument doc : _documents) {
+    if (getDocuments() != null) {
+      for (HolidayDocument doc : getDocuments()) {
         result.add(doc.getHoliday());
       }
     }
@@ -74,15 +60,8 @@ public class HolidayHistoryResult extends DirectBean {
   }
 
   /**
-   * Gets the first document, or null if no documents.
-   * @return the first document, null if none
-   */
-  public HolidayDocument getFirstDocument() {
-    return getDocuments().size() > 0 ? getDocuments().get(0) : null;
-  }
-
-  /**
    * Gets the first holiday, or null if no documents.
+   * 
    * @return the first holiday, null if none
    */
   public ManageableHoliday getFirstHoliday() {
@@ -94,14 +73,15 @@ public class HolidayHistoryResult extends DirectBean {
    * <p>
    * This throws an exception if more than 1 result is actually available.
    * Thus, this method implies an assumption about uniqueness of the queried holiday.
+   * 
    * @return the matching holiday, not null
    * @throws IllegalStateException if no holiday was found
    */
   public ManageableHoliday getSingleHoliday() {
-    if (_documents.size() > 1) {
-      throw new IllegalStateException("Expecting zero or single resulting match, and was " + _documents.size());
+    if (getDocuments().size() != 1) {
+      throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getFirstHoliday();
+      return getDocuments().get(0).getHoliday();
     }
   }
 
@@ -111,6 +91,7 @@ public class HolidayHistoryResult extends DirectBean {
    * The meta-bean for {@code HolidayHistoryResult}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("unchecked")
   public static HolidayHistoryResult.Meta meta() {
     return HolidayHistoryResult.Meta.INSTANCE;
   }
@@ -123,98 +104,27 @@ public class HolidayHistoryResult extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        return getPaging();
-      case 943542968:  // documents
-        return getDocuments();
     }
     return super.propertyGet(propertyName);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        setPaging((Paging) newValue);
-        return;
-      case 943542968:  // documents
-        setDocuments((List<HolidayDocument>) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the paging information.
-   * @return the value of the property
-   */
-  public Paging getPaging() {
-    return _paging;
-  }
-
-  /**
-   * Sets the paging information.
-   * @param paging  the new value of the property
-   */
-  public void setPaging(Paging paging) {
-    this._paging = paging;
-  }
-
-  /**
-   * Gets the the {@code paging} property.
-   * @return the property, not null
-   */
-  public final Property<Paging> paging() {
-    return metaBean().paging().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the list of matched holiday documents, not null.
-   * @return the value of the property
-   */
-  public List<HolidayDocument> getDocuments() {
-    return _documents;
-  }
-
-  /**
-   * Sets the list of matched holiday documents, not null.
-   * @param documents  the new value of the property
-   */
-  public void setDocuments(List<HolidayDocument> documents) {
-    this._documents.clear();
-    this._documents.addAll(documents);
-  }
-
-  /**
-   * Gets the the {@code documents} property.
-   * @return the property, not null
-   */
-  public final Property<List<HolidayDocument>> documents() {
-    return metaBean().documents().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code HolidayHistoryResult}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractHistoryResult.Meta<HolidayDocument> {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code paging} property.
-     */
-    private final MetaProperty<Paging> _paging = DirectMetaProperty.ofReadWrite(this, "paging", Paging.class);
-    /**
-     * The meta-property for the {@code documents} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<HolidayDocument>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -222,9 +132,7 @@ public class HolidayHistoryResult extends DirectBean {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("paging", _paging);
-      temp.put("documents", _documents);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -244,22 +152,6 @@ public class HolidayHistoryResult extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code paging} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Paging> paging() {
-      return _paging;
-    }
-
-    /**
-     * The meta-property for the {@code documents} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<HolidayDocument>> documents() {
-      return _documents;
-    }
-
   }
 
   ///CLOVER:ON

@@ -226,8 +226,8 @@ public class CoppClarkExchangeFileReader {
       } else if (result.getDocuments().size() == 1) {
         // update from existing data
         ExchangeDocument existing = result.getFirstDocument();
-        doc.setExchangeId(existing.getExchangeId());
-        doc.getExchange().setUniqueIdentifier(existing.getExchangeId());
+        doc.setUniqueId(existing.getUniqueId());
+        doc.getExchange().setUniqueIdentifier(existing.getUniqueId());
         // only update if changed
         doc.setVersionFromInstant(null);
         doc.setVersionToInstant(null);

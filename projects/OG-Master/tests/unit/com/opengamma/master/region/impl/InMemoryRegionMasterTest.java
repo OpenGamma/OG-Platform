@@ -64,8 +64,8 @@ public class InMemoryRegionMasterTest {
   }
 
   public void test_get_match() {
-    RegionDocument result = master.get(addedDoc.getRegionId());
-    assertEquals(Identifier.of("MemReg", "1"), result.getRegionId());
+    RegionDocument result = master.get(addedDoc.getUniqueId());
+    assertEquals(Identifier.of("MemReg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
