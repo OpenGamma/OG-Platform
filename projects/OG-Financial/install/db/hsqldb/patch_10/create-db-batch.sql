@@ -152,7 +152,6 @@ create table rsk_run (
     opengamma_version_id int not null,
     master_process_host_id int not null,    -- machine where 'master' batch process was started
     run_time_id int not null,
-    valuation_time timestamp not null,	 	-- 15 June 2010 17:00:00 - 'T'
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
     start_instant timestamp not null,       -- can be different from create_instant if is run is restarted

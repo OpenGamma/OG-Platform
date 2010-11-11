@@ -6,8 +6,10 @@
 package com.opengamma.financial.batch;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
@@ -79,7 +81,7 @@ public class BatchJobRun {
    * <p>
    * Set by BatchDbManager. 
    */
-  private ZonedDateTime _originalCreationTime;
+  private Instant _originalCreationTime;
 
   /**
    * A handle to the database entry for this run.
@@ -185,11 +187,11 @@ public class BatchJobRun {
     _dbHandle = dbHandle;
   }
   
-  public ZonedDateTime getOriginalCreationTime() {
+  public Instant getOriginalCreationTime() {
     return _originalCreationTime;
   }
 
-  public void setOriginalCreationTime(ZonedDateTime originalCreationTime) {
+  public void setOriginalCreationTime(Instant originalCreationTime) {
     _originalCreationTime = originalCreationTime;
   }
   
@@ -230,7 +232,14 @@ public class BatchJobRun {
   }
   
   public Map<String, String> getParameters() {
-    return getJob().getParameters().getParameters();
+    Map<String, String> jobLevelParameters = getJob().getParameters().getParameters();
+    
+    Map<String, String> allParameters = new HashMap<String, String>(jobLevelParameters);
+    allParameters.put("valuationInstant", getValuationTime().toInstant().toString());
+    allParameters.put("configDbInstant", getConfigDbTime().toInstant().toString());
+    allParameters.put("staticDataInstant", getStaticDataTime().toInstant().toString());
+    
+    return allParameters;
   }
   
   // --------------------------------------------------------------------------

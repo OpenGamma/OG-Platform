@@ -83,6 +83,28 @@ public class BatchJobTest {
         job.getCreationTime() + " by " + 
         System.getProperty("user.name"), run.getRunReason());
   }
+  
+  @Test
+  public void configDbParameters() throws Exception {
+    BatchJob job = new BatchJob();
+    CommandLineParser parser = new PosixParser();
+    CommandLine line = parser.parse(BatchJob.getOptions(), "-springXml batch.xml".split(" "));
+    BatchJobParameters parameters = new BatchJobParameters();
+    parameters.setViewName("TestPortfolio1");
+    job.initialize(line, parameters);
+    assertEquals("TestPortfolio1", job.getParameters().getViewName());
+  }
+  
+  @Test
+  public void commandLineOverridesParameters() throws Exception {
+    BatchJob job = new BatchJob();
+    CommandLineParser parser = new PosixParser();
+    CommandLine line = parser.parse(BatchJob.getOptions(), "-view TestPortfolio1 -springXml batch.xml".split(" "));
+    BatchJobParameters parameters = new BatchJobParameters();
+    parameters.setViewName("TestPortfolio2");
+    job.initialize(line, parameters);
+    assertEquals("TestPortfolio1", job.getParameters().getViewName());
+  }
 
   @Test
   public void dateRangeCommandLineSnapshotAvailability() throws Exception {

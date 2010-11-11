@@ -27,3 +27,5 @@ alter table rsk_run drop column view_oid;
 alter table rsk_run drop column view_version;
 
 alter table rsk_run add constraint rsk_chk_uq_run unique (run_time_id);
+
+alter table rsk_run drop column valuation_time;
