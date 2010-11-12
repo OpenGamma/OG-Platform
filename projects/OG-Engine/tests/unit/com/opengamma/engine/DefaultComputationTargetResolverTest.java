@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.position.MockPositionSource;
@@ -20,7 +21,7 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -32,7 +33,7 @@ public class DefaultComputationTargetResolverTest {
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final DefaultSecurity SECURITY = new DefaultSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
 
   //-------------------------------------------------------------------------
   @Test

@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.core.security.impl.MockSecuritySource;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -47,10 +47,10 @@ public class RESTMethodTest {
     MockSecuritySource securitySource = new MockSecuritySource();
     Identifier secId1 = Identifier.of(IdentificationScheme.of("d1"), "v1");
     Identifier secId2 = Identifier.of(IdentificationScheme.of("d2"), "v2");
-    DefaultSecurity sec1 = new DefaultSecurity("t1");
+    MockSecurity sec1 = new MockSecurity("t1");
     sec1.setIdentifiers (IdentifierBundle.of(secId1));
     securitySource.addSecurity(sec1);
-    DefaultSecurity sec2 = new DefaultSecurity("t2");
+    MockSecurity sec2 = new MockSecurity("t2");
     sec2.setIdentifiers (IdentifierBundle.of(secId2));
     securitySource.addSecurity(sec2);
     getSecuritySourceService().setSecuritySource(securitySource);
