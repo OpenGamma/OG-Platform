@@ -20,8 +20,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.master.db.DbSecurityMaster;
 import com.opengamma.financial.security.master.db.SecurityMasterDetailProvider;
 import com.opengamma.financial.security.master.db.hibernate.bond.BondSecurityBeanOperation;

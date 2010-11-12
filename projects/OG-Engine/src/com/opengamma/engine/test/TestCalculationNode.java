@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -17,7 +18,6 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;

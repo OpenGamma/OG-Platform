@@ -3,10 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.core.security.impl;
 
 import java.util.Collection;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -36,31 +38,29 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    // TODO: this implementation is poor, but API limits us
-    Collection<Security> result; 
+  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
-      result = delegateSource.getSecurities(securityKey);
+      Collection<Security> result = delegateSource.getSecurities(bundle);
       if (result != null) {
         return result;
       }
     }
-    return getDefaultDelegate().getSecurities(securityKey);
+    return getDefaultDelegate().getSecurities(bundle);
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    // TODO: this implementation is poor, but API limits us
-    Security result;
-    for (SecuritySource delegateMaster : getDelegates().values()) {
-      result = delegateMaster.getSecurity(securityKey);
+  public Security getSecurity(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    // best implementation is to return first matching result
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      Security result = delegateSource.getSecurity(bundle);
       if (result != null) {
         return result;
       }
     }
-    return getDefaultDelegate().getSecurity(securityKey);
+    return getDefaultDelegate().getSecurity(bundle);
   }
 
 }

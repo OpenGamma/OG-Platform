@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.aggregation;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;

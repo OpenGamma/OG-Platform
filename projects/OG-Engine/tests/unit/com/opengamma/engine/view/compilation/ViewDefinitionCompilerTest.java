@@ -20,6 +20,7 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -37,7 +38,6 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;

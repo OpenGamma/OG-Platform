@@ -21,8 +21,8 @@ import org.fudgemsg.FudgeMsgFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

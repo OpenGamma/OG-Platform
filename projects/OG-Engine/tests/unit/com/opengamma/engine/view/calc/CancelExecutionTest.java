@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -47,7 +48,6 @@ import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.security.MockSecuritySource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockView;
 import com.opengamma.engine.value.ComputedValue;

@@ -11,6 +11,8 @@ import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -25,8 +27,6 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.engine.security.MockSecuritySource;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
