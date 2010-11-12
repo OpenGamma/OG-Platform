@@ -19,7 +19,7 @@ namespace com.opengamma.engine.security {
     // TODO: getName - used to call buildDefaultDisplayName if no name was given
 
     binding Java {
-      implements "Security, com.opengamma.id.MutableUniqueIdentifiable";
+      implements "com.opengamma.core.security.Security, com.opengamma.id.MutableUniqueIdentifiable";
       methods "equals,hashCode";
       body <<<JAVA
         /**
