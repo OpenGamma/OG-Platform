@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -27,7 +27,7 @@ public class ComputedValueTest {
 
   @Test
   public void test_constructor_Object_Portfolio() {
-    ValueRequirement vreq = new ValueRequirement("DATA", new DefaultSecurity(""));
+    ValueRequirement vreq = new ValueRequirement("DATA", new MockSecurity(""));
     ValueSpecification vspec = new ValueSpecification(vreq, "mockFunctionid");
     ComputedValue test = new ComputedValue(vspec, "HELLO");
     assertEquals("HELLO", test.getValue());

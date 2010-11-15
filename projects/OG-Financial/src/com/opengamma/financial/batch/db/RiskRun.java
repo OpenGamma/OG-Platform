@@ -22,7 +22,6 @@ public class RiskRun {
   private OpenGammaVersion _openGammaVersion;
   private ComputeHost _masterProcessHost;
   private ObservationDateTime _runTime;
-  private Timestamp _valuationTime;
   private LiveDataSnapshot _liveDataSnapshot;
   private Timestamp _createInstant;
   private Timestamp _startInstant;
@@ -62,14 +61,6 @@ public class RiskRun {
   
   public void setRunTime(ObservationDateTime runTime) {
     _runTime = runTime;
-  }
-  
-  public Timestamp getValuationTime() {
-    return _valuationTime;
-  }
-  
-  public void setValuationTime(Timestamp valuationTime) {
-    _valuationTime = valuationTime;
   }
   
   public LiveDataSnapshot getLiveDataSnapshot() {

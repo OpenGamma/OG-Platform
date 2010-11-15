@@ -18,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityHistoryRequest;
 import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -68,7 +68,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expected = NullPointerException.class)
   public void test_correct_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
-    DefaultSecurity security = new DefaultSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _worker.correct(doc);
@@ -84,7 +84,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expected = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    DefaultSecurity security = new DefaultSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument doc = new SecurityDocument(security);
     _worker.correct(doc);
   }
@@ -103,7 +103,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     SecurityDocument base = _queryWorker.get(uid);
-    DefaultSecurity security = new DefaultSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument corrected = _worker.correct(input);

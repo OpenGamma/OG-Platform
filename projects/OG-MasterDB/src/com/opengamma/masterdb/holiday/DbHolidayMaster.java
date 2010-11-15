@@ -107,10 +107,10 @@ public class DbHolidayMaster extends AbstractDbMaster implements HolidayMaster {
   @Override
   public HolidayDocument update(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
-    ArgumentChecker.notNull(document.getHolidayId(), "document.holidayId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    checkScheme(document.getHolidayId());
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdateWorker().update(document);
   }
@@ -128,8 +128,8 @@ public class DbHolidayMaster extends AbstractDbMaster implements HolidayMaster {
   @Override
   public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
-    checkScheme(request.getHolidayId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryWorker().history(request);
   }
@@ -139,8 +139,8 @@ public class DbHolidayMaster extends AbstractDbMaster implements HolidayMaster {
   public HolidayDocument correct(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
-    ArgumentChecker.notNull(document.getHolidayId(), "document.holidayId");
-    checkScheme(document.getHolidayId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getCorrectWorker().correct(document);
   }

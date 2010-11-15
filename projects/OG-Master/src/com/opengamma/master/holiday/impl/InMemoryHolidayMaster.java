@@ -152,7 +152,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueIdentifier(uid);
-    document.setHolidayId(uid);
+    document.setUniqueId(uid);
     final Instant now = Instant.nowSystemClock();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
@@ -166,11 +166,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   @Override
   public HolidayDocument update(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
-    ArgumentChecker.notNull(document.getHolidayId(), "document.holidayId");
     
-    final UniqueIdentifier uid = document.getHolidayId();
+    final UniqueIdentifier uid = document.getUniqueId();
     final Instant now = Instant.nowSystemClock();
     final HolidayDocument storedDocument = _holidays.get(uid);
     if (storedDocument == null) {
@@ -200,10 +200,10 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   @Override
   public HolidayHistoryResult history(final HolidayHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getHolidayId(), "request.holidayId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final HolidayHistoryResult result = new HolidayHistoryResult();
-    final HolidayDocument doc = get(request.getHolidayId());
+    final HolidayDocument doc = get(request.getObjectId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

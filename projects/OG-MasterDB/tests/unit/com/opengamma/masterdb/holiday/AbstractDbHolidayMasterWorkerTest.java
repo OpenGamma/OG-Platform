@@ -116,7 +116,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
   protected void assert101(final HolidayDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getHolidayId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -136,7 +136,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
   protected void assert102(final HolidayDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getHolidayId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -156,7 +156,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
   protected void assert201(final HolidayDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getHolidayId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -176,7 +176,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
   protected void assert202(final HolidayDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getHolidayId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());

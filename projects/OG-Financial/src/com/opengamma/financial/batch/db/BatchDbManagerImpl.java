@@ -341,7 +341,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setOpenGammaVersion(getOpenGammaVersion(job.getJob()));
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setRunTime(getObservationDateTime(job));
-    riskRun.setValuationTime(DbDateUtils.toSqlTimestamp(job.getValuationTime()));
     riskRun.setLiveDataSnapshot(snapshot);
     riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
@@ -359,12 +358,17 @@ public class BatchDbManagerImpl implements BatchDbManager {
     getHibernateTemplate().save(riskRun);
     getHibernateTemplate().saveOrUpdateAll(riskRun.getCalculationConfigurations());
     getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
+    
+    job.setOriginalCreationTime(job.getCreationTime().toInstant());
+    
     return riskRun;
   }
   
-  /*package*/ void restartRun(RiskRun riskRun) {
+  /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
     Instant now = Instant.nowSystemClock();
     
+    riskRun.setOpenGammaVersion(getOpenGammaVersion(batch.getJob()));
+    riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
     riskRun.setComplete(false);
@@ -375,6 +379,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
     getJdbcTemplate().update(RiskFailure.sqlDeleteRiskFailures(), parameters);
+    
+    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
@@ -592,7 +598,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
           if (run == null) {
             run = createRiskRun(batch);
           } else {
-            restartRun(run);
+            restartRun(batch, run);
           }
           break;
         
@@ -605,7 +611,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
           if (run == null) {
             throw new IllegalStateException("Cannot find run in database for " + batch);
           }
-          restartRun(run);
+          restartRun(batch, run);
           break;
         
         default:

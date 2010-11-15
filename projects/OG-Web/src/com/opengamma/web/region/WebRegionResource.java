@@ -51,7 +51,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   public String get() {
     RegionSearchRequest search = new RegionSearchRequest();
     search.setPagingRequest(PagingRequest.ALL);  // may need to add paging
-    search.setChildrenOfId(data().getRegion().getRegionId());
+    search.setChildrenOfId(data().getRegion().getUniqueId());
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
     
@@ -93,7 +93,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       fullName = name;
     }
     ManageableRegion region = new ManageableRegion();
-    region.getParentRegionIds().add(data().getRegion().getRegionId());
+    region.getParentRegionIds().add(data().getRegion().getUniqueId());
     region.setName(name);
     region.setFullName(fullName);
     region.setClassification(classification);
@@ -102,7 +102,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
-    URI uri = WebRegionResource.uri(data(), added.getRegionId());
+    URI uri = WebRegionResource.uri(data(), added.getUniqueId());
     return Response.seeOther(uri).build();
   }
 
@@ -135,7 +135,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       fullName = name;
     }
     ManageableRegion region = new ManageableRegion();
-    region.setUniqueIdentifier(data().getRegion().getRegionId());
+    region.setUniqueIdentifier(data().getRegion().getUniqueId());
     region.setParentRegionIds(data().getRegion().getRegion().getParentRegionIds());
     region.setName(name);
     region.setFullName(fullName);
@@ -153,7 +153,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   @DELETE
   public Response delete() {
     RegionDocument doc = data().getRegion();
-    data().getRegionMaster().remove(doc.getRegionId());
+    data().getRegionMaster().remove(doc.getUniqueId());
     URI uri = WebRegionsResource.uri(data());
     return Response.seeOther(uri).build();
   }

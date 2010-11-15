@@ -245,7 +245,7 @@ public class RegionFileReader {
         // store
         RegionDocument doc = getRegionMaster().add(new RegionDocument(region));
         if (rowSubRegions.size() > 0) {
-          subRegions.put(doc.getRegionId(), rowSubRegions);
+          subRegions.put(doc.getUniqueId(), rowSubRegions);
         }
         regions.put(name, region);
       }

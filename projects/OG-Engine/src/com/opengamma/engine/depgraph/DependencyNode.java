@@ -10,11 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;

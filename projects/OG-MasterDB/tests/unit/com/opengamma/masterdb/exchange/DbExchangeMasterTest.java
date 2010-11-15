@@ -73,7 +73,7 @@ public class DbExchangeMasterTest extends DBTest {
     ExchangeDocument addDoc = new ExchangeDocument(exchange);
     ExchangeDocument added = _exgMaster.add(addDoc);
     
-    ExchangeDocument loaded = _exgMaster.get(added.getExchangeId());
+    ExchangeDocument loaded = _exgMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 

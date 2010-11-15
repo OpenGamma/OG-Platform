@@ -39,7 +39,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   @GET
   public String get() {
     RegionHistoryRequest request = new RegionHistoryRequest();
-    request.setRegionId(data().getRegion().getRegionId());
+    request.setObjectId(data().getRegion().getUniqueId());
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -66,8 +66,8 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   public WebRegionVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     RegionDocument doc = data().getRegion();
-    UniqueIdentifier combined = doc.getRegionId().withVersion(idStr);
-    if (doc.getRegionId().equals(combined) == false) {
+    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    if (doc.getUniqueId().equals(combined) == false) {
       RegionDocument versioned = data().getRegionMaster().get(combined);
       data().setVersioned(versioned);
     } else {

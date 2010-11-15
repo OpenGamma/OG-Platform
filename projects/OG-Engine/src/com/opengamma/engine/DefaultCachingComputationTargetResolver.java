@@ -11,9 +11,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;

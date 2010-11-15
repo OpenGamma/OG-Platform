@@ -11,12 +11,13 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -46,10 +47,7 @@ public class ComputationTargetSpecificationTest {
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final DefaultSecurity SECURITY = new DefaultSecurity("");
-  static {
-    SECURITY.setUniqueIdentifier(UID);
-  }
+  private static final Security SECURITY = new MockSecurity(UID, "", "", IdentifierBundle.EMPTY);
 
   @Test
   public void test_constructor_Object_Portfolio() {

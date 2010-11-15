@@ -20,6 +20,7 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
+import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,8 +28,8 @@ import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
@@ -36,8 +37,7 @@ import com.opengamma.engine.position.MockPositionSource;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.MockSecuritySource;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -65,7 +65,7 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    DefaultSecurity defSec = new DefaultSecurity("");
+    MockSecurity defSec = new MockSecurity("");
     defSec.addIdentifier(secIdentifier);
 
     MockSecuritySource securitySource = new MockSecuritySource();
@@ -105,7 +105,7 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    DefaultSecurity defSec = new DefaultSecurity("My Sec");
+    MockSecurity defSec = new MockSecurity("My Sec");
     defSec.addIdentifier(secIdentifier);
 
     MockSecuritySource securitySource = new MockSecuritySource();
@@ -161,10 +161,10 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    DefaultSecurity sec1 = new DefaultSecurity("My Sec");
+    MockSecurity sec1 = new MockSecurity("My Sec");
     sec1.addIdentifier(secIdentifier1);
 
-    DefaultSecurity sec2 = new DefaultSecurity("Your Sec");
+    MockSecurity sec2 = new MockSecurity("Your Sec");
     sec2.addIdentifier(secIdentifier2);
 
     MockSecuritySource securitySource = new MockSecuritySource();
@@ -246,7 +246,7 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
     Identifier secIdentifier1 = Identifier.of("SEC", "1");
-    DefaultSecurity sec1 = new DefaultSecurity("My Sec");
+    MockSecurity sec1 = new MockSecurity("My Sec");
     sec1.addIdentifier(secIdentifier1);
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(sec1);

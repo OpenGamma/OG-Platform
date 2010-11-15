@@ -11,8 +11,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;

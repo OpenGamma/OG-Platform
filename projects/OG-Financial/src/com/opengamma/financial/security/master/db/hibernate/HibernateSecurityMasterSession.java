@@ -9,7 +9,6 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.security.master.db.hibernate.bond.CouponTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.IssuerTypeBean;
@@ -24,6 +23,7 @@ import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurit
 import com.opengamma.financial.security.master.db.hibernate.future.UnitBean;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -433,7 +433,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
 
   // Generic Securities
   @Override
-  public SecurityBean getSecurityBean(final DefaultSecurity base, SecurityBeanOperation<?, ?> beanOperation) {
+  public SecurityBean getSecurityBean(final ManageableSecurity base, SecurityBeanOperation<?, ?> beanOperation) {
     String beanType = beanOperation.getBeanClass().getSimpleName();
     Query query = getSession().getNamedQuery(beanType + ".one.bySecurityId");
     query.setLong("securityId", extractRowId(base.getUniqueIdentifier()));
@@ -442,7 +442,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
 
   // Specific securities through BeanOperation
   @Override
-  public <S extends DefaultSecurity, SBean extends SecurityBean> SBean createSecurityBean(
+  public <S extends ManageableSecurity, SBean extends SecurityBean> SBean createSecurityBean(
       final OperationContext context, final SecurityBeanOperation<S, SBean> beanOperation, final Date effectiveDateTime, final S security) {
     final SBean bean = beanOperation.createBean(context, this, security);
     bean.setSecurityId(extractRowId(security.getUniqueIdentifier()));

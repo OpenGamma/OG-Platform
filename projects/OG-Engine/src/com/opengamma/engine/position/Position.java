@@ -7,7 +7,7 @@ package com.opengamma.engine.position;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;

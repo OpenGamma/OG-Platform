@@ -9,7 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.master.db.hibernate.CurrencyBean;
 import com.opengamma.financial.security.master.db.hibernate.ExchangeBean;
 import com.opengamma.financial.security.master.db.hibernate.SecurityBean;

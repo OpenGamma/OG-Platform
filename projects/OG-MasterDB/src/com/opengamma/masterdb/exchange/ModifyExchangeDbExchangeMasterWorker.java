@@ -57,7 +57,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setExchangeId(null);
+        document.setUniqueId(null);
         insertExchange(document);
       }
     });
@@ -67,7 +67,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected ExchangeDocument update(final ExchangeDocument document) {
-    final UniqueIdentifier uid = document.getExchangeId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updateExchange {}", document);
     
@@ -85,7 +85,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setExchangeId(oldDoc.getExchangeId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertExchange(document);
       }
     });
@@ -113,7 +113,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected ExchangeDocument correct(final ExchangeDocument document) {
-    final UniqueIdentifier uid = document.getExchangeId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctExchange {}", document);
     
@@ -131,7 +131,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
         document.setVersionToInstant(oldDoc.getVersionToInstant());
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setExchangeId(oldDoc.getExchangeId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertExchange(document);
       }
     });
@@ -155,11 +155,11 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
   protected void insertExchange(final ExchangeDocument document) {
     ManageableExchange exchange = document.getExchange();
     final long exchangeId = nextId("exg_exchange_seq");
-    final long exchangeOid = (document.getExchangeId() != null ? extractOid(document.getExchangeId()) : exchangeId);
+    final long exchangeOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : exchangeId);
     // set the uid (needs to go in Fudge message)
     final UniqueIdentifier uid = createUniqueIdentifier(exchangeOid, exchangeId);
     exchange.setUniqueIdentifier(uid);
-    document.setExchangeId(uid);
+    document.setUniqueId(uid);
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
@@ -256,7 +256,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
    */
   protected void updateVersionToInstant(final ExchangeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("exchange_id", extractRowId(document.getExchangeId()))
+      .addValue("exchange_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -296,7 +296,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
    */
   protected void updateCorrectionToInstant(final ExchangeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("exchange_id", extractRowId(document.getExchangeId()))
+      .addValue("exchange_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

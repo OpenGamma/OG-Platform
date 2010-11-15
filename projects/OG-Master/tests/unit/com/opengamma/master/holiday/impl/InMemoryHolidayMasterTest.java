@@ -48,8 +48,8 @@ public class InMemoryHolidayMasterTest {
   }
 
   public void test_get_match() {
-    HolidayDocument result = master.get(addedDoc.getHolidayId());
-    assertEquals(Identifier.of("MemExg", "1"), result.getHolidayId());
+    HolidayDocument result = master.get(addedDoc.getUniqueId());
+    assertEquals(Identifier.of("MemExg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 

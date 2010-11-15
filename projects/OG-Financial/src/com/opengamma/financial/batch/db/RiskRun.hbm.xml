@@ -20,7 +20,6 @@
    	<many-to-one name="runTime" 
     	column="run_time_id" 
     	not-null="true"/>
-   	<property name="valuationTime" column="valuation_time" not-null="true"/>
    	<many-to-one name="liveDataSnapshot" 
     	column="live_data_snapshot_id" 
     	not-null="true"/>

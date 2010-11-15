@@ -74,7 +74,7 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
     _worker.remove(uid);
     HolidayDocument test = _queryWorker.get(uid);
     
-    assertEquals(uid, test.getHolidayId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());

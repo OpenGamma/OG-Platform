@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;

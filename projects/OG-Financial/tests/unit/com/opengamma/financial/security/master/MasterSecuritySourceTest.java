@@ -17,11 +17,11 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * Test MasterSecuritySource.
@@ -55,7 +55,7 @@ public class MasterSecuritySourceTest {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecurityHistoryRequest request = new SecurityHistoryRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
     request.setFullDetail(true);
-    DefaultSecurity security = new DefaultSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
     SecurityHistoryResult result = new SecurityHistoryResult();
     result.getDocuments().add(new SecurityDocument(security));
     
@@ -79,7 +79,7 @@ public class MasterSecuritySourceTest {
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
-    DefaultSecurity security = new DefaultSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
     
@@ -103,7 +103,7 @@ public class MasterSecuritySourceTest {
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
-    DefaultSecurity security = new DefaultSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
     

@@ -107,10 +107,10 @@ public class DbExchangeMaster extends AbstractDbMaster implements ExchangeMaster
   @Override
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
-    ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    checkScheme(document.getExchangeId());
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdateWorker().update(document);
   }
@@ -128,8 +128,8 @@ public class DbExchangeMaster extends AbstractDbMaster implements ExchangeMaster
   @Override
   public ExchangeHistoryResult history(final ExchangeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getExchangeId(), "request.exchangeId");
-    checkScheme(request.getExchangeId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryWorker().history(request);
   }
@@ -138,9 +138,9 @@ public class DbExchangeMaster extends AbstractDbMaster implements ExchangeMaster
   @Override
   public ExchangeDocument correct(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
-    ArgumentChecker.notNull(document.getExchangeId(), "document.exchangeId");
-    checkScheme(document.getExchangeId());
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getCorrectWorker().correct(document);
   }

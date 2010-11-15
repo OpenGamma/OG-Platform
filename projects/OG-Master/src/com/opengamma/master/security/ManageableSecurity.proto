@@ -4,12 +4,12 @@
  * Please see distribution for license.
  */
 
-namespace com.opengamma.engine.security {
+namespace com.opengamma.master.security {
 
   /**
    * A simple mutable implementation of {@code Security}.
    */
-  message DefaultSecurity {
+  message ManageableSecurity {
   
     optional com.opengamma.id.UniqueIdentifier uniqueIdentifier;
     required string name [default=""];
@@ -19,7 +19,7 @@ namespace com.opengamma.engine.security {
     // TODO: getName - used to call buildDefaultDisplayName if no name was given
 
     binding Java {
-      implements "Security, com.opengamma.id.MutableUniqueIdentifiable";
+      implements "com.opengamma.core.security.Security, com.opengamma.id.MutableUniqueIdentifiable";
       methods "equals,hashCode";
       body <<<JAVA
         /**

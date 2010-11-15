@@ -112,6 +112,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     dataField = StringUtils.trimToNull(dataField);
     start = StringUtils.trimToNull(start);
     end = StringUtils.trimToNull(end);
+    dataProvider = StringUtils.trimToNull(dataProvider);
     
     FlexiBean out = createRootData();
     LocalDate startDate = null;

@@ -93,7 +93,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   @DELETE
   public Response delete() {
     ExchangeDocument doc = data().getExchange();
-    data().getExchangeMaster().remove(doc.getExchangeId());
+    data().getExchangeMaster().remove(doc.getUniqueId());
     URI uri = WebExchangesResource.uri(data());
     return Response.seeOther(uri).build();
   }

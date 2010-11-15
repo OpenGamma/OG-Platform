@@ -81,7 +81,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   @Test(expected = NullPointerException.class)
   public void test_update_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
-    doc.setHolidayId(UniqueIdentifier.of("DbHol", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbHol", "101", "0"));
     _worker.update(doc);
   }
 
@@ -114,7 +114,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     HolidayDocument input = new HolidayDocument(holiday);
     
     HolidayDocument updated = _worker.update(input);
-    assertEquals(false, base.getHolidayId().equals(updated.getHolidayId()));
+    assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
@@ -122,14 +122,14 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(input.getHoliday(), updated.getHoliday());
     
     HolidayDocument old = _queryWorker.get(uid);
-    assertEquals(base.getHolidayId(), old.getHolidayId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getHoliday(), old.getHoliday());
     
-    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getHolidayId(), null, now);
+    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getUniqueId(), null, now);
     HolidayHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

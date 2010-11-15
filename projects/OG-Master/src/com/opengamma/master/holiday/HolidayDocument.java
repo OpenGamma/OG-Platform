@@ -10,19 +10,16 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * Each element is stored in a document.
  */
 @BeanDefinition
-public class HolidayDocument extends DirectBean implements Serializable {
+public class HolidayDocument extends AbstractDocument implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -41,33 +38,7 @@ public class HolidayDocument extends DirectBean implements Serializable {
    * The holiday unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _holidayId;
-  /**
-   * The start of an interval that the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionFromInstant;
-  /**
-   * The end of an interval that the version of the holiday is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionToInstant;
-  /**
-   * The start of an interval that the correction of the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionFromInstant;
-  /**
-   * The end of an interval that the correction of the version of the holiday is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionToInstant;
+  private UniqueIdentifier _uniqueId;
   /**
    * The name of the holiday.
    */
@@ -101,7 +72,7 @@ public class HolidayDocument extends DirectBean implements Serializable {
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
-    setHolidayId(holiday.getUniqueIdentifier());
+    setUniqueId(holiday.getUniqueIdentifier());
     setHoliday(new ManageableHoliday(holiday));
     createName();
   }
@@ -146,16 +117,8 @@ public class HolidayDocument extends DirectBean implements Serializable {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case 1349286803:  // holidayId
-        return getHolidayId();
-      case 2006263519:  // versionFromInstant
-        return getVersionFromInstant();
-      case 1577022702:  // versionToInstant
-        return getVersionToInstant();
-      case 1808757913:  // correctionFromInstant
-        return getCorrectionFromInstant();
-      case 973465896:  // correctionToInstant
-        return getCorrectionToInstant();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 3373707:  // name
         return getName();
       case 205149932:  // providerId
@@ -169,20 +132,8 @@ public class HolidayDocument extends DirectBean implements Serializable {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case 1349286803:  // holidayId
-        setHolidayId((UniqueIdentifier) newValue);
-        return;
-      case 2006263519:  // versionFromInstant
-        setVersionFromInstant((Instant) newValue);
-        return;
-      case 1577022702:  // versionToInstant
-        setVersionToInstant((Instant) newValue);
-        return;
-      case 1808757913:  // correctionFromInstant
-        setCorrectionFromInstant((Instant) newValue);
-        return;
-      case 973465896:  // correctionToInstant
-        setCorrectionToInstant((Instant) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -202,142 +153,24 @@ public class HolidayDocument extends DirectBean implements Serializable {
    * Gets the holiday unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getHolidayId() {
-    return _holidayId;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the holiday unique identifier.
-   * @param holidayId  the new value of the property
+   * @param uniqueId  the new value of the property
    */
-  public void setHolidayId(UniqueIdentifier holidayId) {
-    this._holidayId = holidayId;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code holidayId} property.
+   * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> holidayId() {
-    return metaBean().holidayId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionFromInstant() {
-    return _versionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @param versionFromInstant  the new value of the property
-   */
-  public void setVersionFromInstant(Instant versionFromInstant) {
-    this._versionFromInstant = versionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code versionFromInstant} property.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionFromInstant() {
-    return metaBean().versionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the version of the holiday is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionToInstant() {
-    return _versionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the version of the holiday is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @param versionToInstant  the new value of the property
-   */
-  public void setVersionToInstant(Instant versionToInstant) {
-    this._versionToInstant = versionToInstant;
-  }
-
-  /**
-   * Gets the the {@code versionToInstant} property.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionToInstant() {
-    return metaBean().versionToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the correction of the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionFromInstant() {
-    return _correctionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the correction of the version of the holiday is accurate for.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @param correctionFromInstant  the new value of the property
-   */
-  public void setCorrectionFromInstant(Instant correctionFromInstant) {
-    this._correctionFromInstant = correctionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionFromInstant} property.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionFromInstant() {
-    return metaBean().correctionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the correction of the version of the holiday is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionToInstant() {
-    return _correctionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the correction of the version of the holiday is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @param correctionToInstant  the new value of the property
-   */
-  public void setCorrectionToInstant(Instant correctionToInstant) {
-    this._correctionToInstant = correctionToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionToInstant} property.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code HolidayMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionToInstant() {
-    return metaBean().correctionToInstant().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -425,32 +258,16 @@ public class HolidayDocument extends DirectBean implements Serializable {
   /**
    * The meta-bean for {@code HolidayDocument}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code holidayId} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _holidayId = DirectMetaProperty.ofReadWrite(this, "holidayId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     */
-    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -470,12 +287,8 @@ public class HolidayDocument extends DirectBean implements Serializable {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("holidayId", _holidayId);
-      temp.put("versionFromInstant", _versionFromInstant);
-      temp.put("versionToInstant", _versionToInstant);
-      temp.put("correctionFromInstant", _correctionFromInstant);
-      temp.put("correctionToInstant", _correctionToInstant);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("uniqueId", _uniqueId);
       temp.put("name", _name);
       temp.put("providerId", _providerId);
       temp.put("holiday", _holiday);
@@ -499,43 +312,11 @@ public class HolidayDocument extends DirectBean implements Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code holidayId} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> holidayId() {
-      return _holidayId;
-    }
-
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionFromInstant() {
-      return _versionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionToInstant() {
-      return _versionToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionFromInstant() {
-      return _correctionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionToInstant() {
-      return _correctionToInstant;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

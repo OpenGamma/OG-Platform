@@ -53,7 +53,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setHolidayId(null);
+        document.setUniqueId(null);
         insertHoliday(document);
       }
     });
@@ -63,7 +63,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   //-------------------------------------------------------------------------
   @Override
   protected HolidayDocument update(final HolidayDocument document) {
-    final UniqueIdentifier uid = document.getHolidayId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updateHoliday {}", document);
     
@@ -81,7 +81,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setHolidayId(oldDoc.getHolidayId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertHoliday(document);
       }
     });
@@ -109,7 +109,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   //-------------------------------------------------------------------------
   @Override
   protected HolidayDocument correct(final HolidayDocument document) {
-    final UniqueIdentifier uid = document.getHolidayId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctHoliday {}", document);
     
@@ -127,7 +127,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
         document.setVersionToInstant(oldDoc.getVersionToInstant());
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setHolidayId(oldDoc.getHolidayId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertHoliday(document);
       }
     });
@@ -150,7 +150,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    */
   protected void insertHoliday(final HolidayDocument document) {
     final long holidayId = nextId("hol_holiday_seq");
-    final long holidayOid = (document.getHolidayId() != null ? extractOid(document.getHolidayId()) : holidayId);
+    final long holidayOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : holidayId);
     // the arguments for inserting into the holiday table
     ManageableHoliday holiday = document.getHoliday();
     final DbMapSqlParameterSource holidayArgs = new DbMapSqlParameterSource()
@@ -182,7 +182,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(holidayOid, holidayId);
     holiday.setUniqueIdentifier(uid);
-    document.setHolidayId(uid);
+    document.setUniqueId(uid);
   }
 
   /**
@@ -227,7 +227,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    */
   protected void updateVersionToInstant(final HolidayDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("holiday_id", extractRowId(document.getHolidayId()))
+      .addValue("holiday_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -267,7 +267,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    */
   protected void updateCorrectionToInstant(final HolidayDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("holiday_id", extractRowId(document.getHolidayId()))
+      .addValue("holiday_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

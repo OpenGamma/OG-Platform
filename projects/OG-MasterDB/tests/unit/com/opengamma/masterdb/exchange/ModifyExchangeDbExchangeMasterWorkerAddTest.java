@@ -80,7 +80,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getExchangeId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbExg", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -105,7 +105,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = _worker.add(doc);
     
-    ExchangeDocument test = _queryWorker.get(added.getExchangeId());
+    ExchangeDocument test = _queryWorker.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

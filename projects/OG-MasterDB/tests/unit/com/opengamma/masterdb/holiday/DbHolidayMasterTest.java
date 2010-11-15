@@ -71,7 +71,7 @@ public class DbHolidayMasterTest extends DBTest {
     HolidayDocument addDoc = new HolidayDocument(hol);
     HolidayDocument added = _holMaster.add(addDoc);
     
-    HolidayDocument loaded = _holMaster.get(added.getHolidayId());
+    HolidayDocument loaded = _holMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 
