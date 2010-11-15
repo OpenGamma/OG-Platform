@@ -9,56 +9,27 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A document used to pass into and out of the security master.
  */
 @BeanDefinition
-public class SecurityDocument extends DirectBean {
+public class SecurityDocument extends AbstractDocument {
 
   /**
    * The security unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _securityId;
-  /**
-   * The start of an interval that the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionFromInstant;
-  /**
-   * The end of an interval that the version of the security is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionToInstant;
-  /**
-   * The start of an interval that the correction of the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionFromInstant;
-  /**
-   * The end of an interval that the correction of the version of the security is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionToInstant;
+  private UniqueIdentifier _uniqueId;
   /**
    * The security.
    */
@@ -77,7 +48,7 @@ public class SecurityDocument extends DirectBean {
    */
   public SecurityDocument(final ManageableSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    setSecurityId(security.getUniqueIdentifier());
+    setUniqueId(security.getUniqueIdentifier());
     setSecurity(security);
   }
 
@@ -110,16 +81,8 @@ public class SecurityDocument extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case 1574023291:  // securityId
-        return getSecurityId();
-      case 2006263519:  // versionFromInstant
-        return getVersionFromInstant();
-      case 1577022702:  // versionToInstant
-        return getVersionToInstant();
-      case 1808757913:  // correctionFromInstant
-        return getCorrectionFromInstant();
-      case 973465896:  // correctionToInstant
-        return getCorrectionToInstant();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 949122880:  // security
         return getSecurity();
     }
@@ -129,20 +92,8 @@ public class SecurityDocument extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case 1574023291:  // securityId
-        setSecurityId((UniqueIdentifier) newValue);
-        return;
-      case 2006263519:  // versionFromInstant
-        setVersionFromInstant((Instant) newValue);
-        return;
-      case 1577022702:  // versionToInstant
-        setVersionToInstant((Instant) newValue);
-        return;
-      case 1808757913:  // correctionFromInstant
-        setCorrectionFromInstant((Instant) newValue);
-        return;
-      case 973465896:  // correctionToInstant
-        setCorrectionToInstant((Instant) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 949122880:  // security
         setSecurity((ManageableSecurity) newValue);
@@ -156,142 +107,24 @@ public class SecurityDocument extends DirectBean {
    * Gets the security unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getSecurityId() {
-    return _securityId;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the security unique identifier.
-   * @param securityId  the new value of the property
+   * @param uniqueId  the new value of the property
    */
-  public void setSecurityId(UniqueIdentifier securityId) {
-    this._securityId = securityId;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code securityId} property.
+   * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> securityId() {
-    return metaBean().securityId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionFromInstant() {
-    return _versionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @param versionFromInstant  the new value of the property
-   */
-  public void setVersionFromInstant(Instant versionFromInstant) {
-    this._versionFromInstant = versionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code versionFromInstant} property.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionFromInstant() {
-    return metaBean().versionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the version of the security is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionToInstant() {
-    return _versionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the version of the security is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @param versionToInstant  the new value of the property
-   */
-  public void setVersionToInstant(Instant versionToInstant) {
-    this._versionToInstant = versionToInstant;
-  }
-
-  /**
-   * Gets the the {@code versionToInstant} property.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionToInstant() {
-    return metaBean().versionToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the correction of the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionFromInstant() {
-    return _correctionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the correction of the version of the security is accurate for.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @param correctionFromInstant  the new value of the property
-   */
-  public void setCorrectionFromInstant(Instant correctionFromInstant) {
-    this._correctionFromInstant = correctionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionFromInstant} property.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionFromInstant() {
-    return metaBean().correctionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the correction of the version of the security is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionToInstant() {
-    return _correctionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the correction of the version of the security is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @param correctionToInstant  the new value of the property
-   */
-  public void setCorrectionToInstant(Instant correctionToInstant) {
-    this._correctionToInstant = correctionToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionToInstant} property.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code SecurityMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionToInstant() {
-    return metaBean().correctionToInstant().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -323,32 +156,16 @@ public class SecurityDocument extends DirectBean {
   /**
    * The meta-bean for {@code SecurityDocument}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityId} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _securityId = DirectMetaProperty.ofReadWrite(this, "securityId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     */
-    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code security} property.
      */
@@ -360,12 +177,8 @@ public class SecurityDocument extends DirectBean {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("securityId", _securityId);
-      temp.put("versionFromInstant", _versionFromInstant);
-      temp.put("versionToInstant", _versionToInstant);
-      temp.put("correctionFromInstant", _correctionFromInstant);
-      temp.put("correctionToInstant", _correctionToInstant);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("uniqueId", _uniqueId);
       temp.put("security", _security);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -387,43 +200,11 @@ public class SecurityDocument extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityId} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> securityId() {
-      return _securityId;
-    }
-
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionFromInstant() {
-      return _versionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionToInstant() {
-      return _versionToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionFromInstant() {
-      return _correctionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionToInstant() {
-      return _correctionToInstant;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

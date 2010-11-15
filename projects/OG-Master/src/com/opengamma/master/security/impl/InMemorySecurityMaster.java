@@ -134,7 +134,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     UniqueIdentifiables.setInto(security, uid);
     final SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
-    doc.setSecurityId(uid);
+    doc.setUniqueId(uid);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _securities.put(uid, doc);  // unique identifier should be unique
@@ -145,10 +145,10 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    ArgumentChecker.notNull(document.getSecurityId(), "document.securityId");
     
-    final UniqueIdentifier uid = document.getSecurityId();
+    final UniqueIdentifier uid = document.getUniqueId();
     final Instant now = Instant.nowSystemClock();
     final SecurityDocument storedDocument = _securities.get(uid);
     if (storedDocument == null) {
@@ -178,10 +178,10 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getSecurityId(), "request.securityId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final SecurityHistoryResult result = new SecurityHistoryResult();
-    final SecurityDocument doc = get(request.getSecurityId());
+    final SecurityDocument doc = get(request.getObjectId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

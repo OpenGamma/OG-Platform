@@ -153,7 +153,7 @@ public class MasterSecuritySource implements SecuritySource {
         }
       } else {
         for (SecurityDocument document : result.getDocuments()) {
-          if (uid.getVersion().equals(document.getSecurityId().getVersion())) {
+          if (uid.getVersion().equals(document.getUniqueId().getVersion())) {
             return document.getSecurity();
           }
         }
