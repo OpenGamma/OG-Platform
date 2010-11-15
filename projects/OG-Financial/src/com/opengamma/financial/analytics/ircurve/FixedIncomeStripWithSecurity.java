@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 
 /**

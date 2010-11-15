@@ -7,9 +7,9 @@ package com.opengamma.engine;
 
 import java.util.Collection;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 
 /**
  * 

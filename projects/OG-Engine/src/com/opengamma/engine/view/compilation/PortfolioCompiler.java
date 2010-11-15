@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.position.Portfolio;
@@ -23,7 +24,6 @@ import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;

@@ -7,7 +7,7 @@ package com.opengamma.web.security;
 
 import java.net.URI;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 

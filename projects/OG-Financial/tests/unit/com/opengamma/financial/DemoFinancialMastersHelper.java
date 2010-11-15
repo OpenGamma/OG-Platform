@@ -3,15 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.test;
+package com.opengamma.financial;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.memory.InMemoryConfigMaster;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.config.MasterConfigSource;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
@@ -20,9 +20,9 @@ import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
- * Helper for testing.
+ * Helper for testing loading elements from {@code demoFinancialMasters.xml}.
  */
-public class CurveConfigurationSetupHelper {
+public class DemoFinancialMastersHelper {
 
   private final ClassPathXmlApplicationContext _applicationContext;
   private final ConfigMaster _configMaster;
@@ -30,7 +30,7 @@ public class CurveConfigurationSetupHelper {
   private final RegionSource _regionSource;
   private final SecuritySource _secSource;
 
-  public CurveConfigurationSetupHelper() {
+  public DemoFinancialMastersHelper() {
     PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV);
     _applicationContext = new ClassPathXmlApplicationContext("demoFinancialMasters.xml");
     

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.core.security.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -16,6 +16,8 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -110,9 +112,9 @@ public class EHCachingSecuritySource implements SecuritySource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    Element e = _bundleCache.get(securityKey);
+  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    Element e = _bundleCache.get(bundle);
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
       Serializable value = e.getValue();
@@ -122,9 +124,9 @@ public class EHCachingSecuritySource implements SecuritySource {
         s_logger.warn("returned object {} from cache is not a Collection<Security>", value);
       }
     } else {
-      result = getUnderlying().getSecurities(securityKey);
+      result = getUnderlying().getSecurities(bundle);
       if (result != null) {
-        _bundleCache.put(new Element(securityKey, result));
+        _bundleCache.put(new Element(bundle, result));
         for (Security security : result) {
           _uidCache.put(new Element(security.getUniqueIdentifier(), security));
         }
@@ -134,9 +136,9 @@ public class EHCachingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public synchronized Security getSecurity(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    Collection<Security> matched = getSecurities(securityKey);
+  public synchronized Security getSecurity(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    Collection<Security> matched = getSecurities(bundle);
     if (matched.isEmpty()) {
       return null;
     }

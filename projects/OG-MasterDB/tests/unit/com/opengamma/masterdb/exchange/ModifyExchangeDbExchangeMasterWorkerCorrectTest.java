@@ -73,14 +73,14 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     exchange.setUniqueIdentifier(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    doc.setExchangeId(null);
+    doc.setUniqueId(null);
     _worker.correct(doc);
   }
 
   @Test(expected = NullPointerException.class)
   public void test_correct_noExchange() {
     ExchangeDocument doc = new ExchangeDocument();
-    doc.setExchangeId(UniqueIdentifier.of("DbExg", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbExg", "101", "0"));
     _worker.correct(doc);
   }
 
@@ -112,7 +112,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     ExchangeDocument input = new ExchangeDocument(exchange);
     
     ExchangeDocument corrected = _worker.correct(input);
-    assertEquals(false, base.getExchangeId().equals(corrected.getExchangeId()));
+    assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
@@ -120,14 +120,14 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(input.getExchange(), corrected.getExchange());
     
     ExchangeDocument old = _queryWorker.get(UniqueIdentifier.of("DbExg", "101", "0"));
-    assertEquals(base.getExchangeId(), old.getExchangeId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getExchange(), old.getExchange());
     
-    ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getExchangeId(), now, null);
+    ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), now, null);
     ExchangeHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

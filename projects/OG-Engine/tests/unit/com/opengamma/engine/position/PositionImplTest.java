@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
+import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -119,8 +119,8 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Security() {
-    DefaultSecurity sec = new DefaultSecurity ("A");
-    sec.setIdentifiers (IdentifierBundle.of (Identifier.of ("A", "B")));
+    MockSecurity sec = new MockSecurity("A");
+    sec.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.ONE, test.getQuantity());
@@ -191,7 +191,7 @@ public class PositionImplTest {
   @Test
   public void test_setSecurity() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
-    Security sec = new DefaultSecurity("");
+    Security sec = new MockSecurity("");
     test.setSecurity(sec);
     assertSame(sec, test.getSecurity());
   }

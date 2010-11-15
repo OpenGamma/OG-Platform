@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.core.security.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +27,6 @@ import com.opengamma.util.ArgumentChecker;
  * It is not thread-safe and must not be used in production.
  */
 public class MockSecuritySource implements SecuritySource {
-  // this is currently public for indirect use by another project via ViewTestUtils
 
   /**
    * The securities keyed by identifier.
@@ -49,11 +51,11 @@ public class MockSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
+  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
-      if (sec.getIdentifiers().containsAny(securityKey)) {
+      if (sec.getIdentifiers().containsAny(bundle)) {
         result.add(sec);
       }
     }
@@ -61,9 +63,9 @@ public class MockSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    for (Identifier secId : securityKey.getIdentifiers()) {
+  public Security getSecurity(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    for (Identifier secId : bundle.getIdentifiers()) {
       for (Security sec : _securities.values()) {
         if (sec.getIdentifiers().contains(secId)) {
           return sec;
@@ -78,9 +80,9 @@ public class MockSecuritySource implements SecuritySource {
    * Adds a security to the master.
    * @param security  the security to add, not null
    */
-  public void addSecurity(DefaultSecurity security) {
+  public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
-    security.setUniqueIdentifier(_uidSupplier.get());
+    UniqueIdentifiables.setInto(security, _uidSupplier.get());
     _securities.put(security.getUniqueIdentifier(), security);
   }
 

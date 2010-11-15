@@ -79,7 +79,7 @@
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
   </bean>
-  <bean id="sharedSecuritySource" class="com.opengamma.engine.security.EHCachingSecuritySource">
+  <bean id="sharedSecuritySource" class="com.opengamma.core.security.impl.EHCachingSecuritySource">
     <constructor-arg>
       <bean class="com.opengamma.financial.security.master.MasterSecuritySource">
         <constructor-arg ref="dbSecurityMaster" />

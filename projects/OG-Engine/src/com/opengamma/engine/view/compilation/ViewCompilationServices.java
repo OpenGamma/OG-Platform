@@ -7,12 +7,12 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.concurrent.ExecutorService;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PositionSource;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-05-22 -- I don't like this name but couldn't come up with a better

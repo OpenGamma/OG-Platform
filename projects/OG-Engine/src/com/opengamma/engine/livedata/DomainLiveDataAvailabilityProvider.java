@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;

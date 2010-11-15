@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.core.security.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,6 +20,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.opengamma.core.security.MockSecurity;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -34,8 +36,8 @@ public class EHCachingSecuritySourceTest {
   private EHCachingSecuritySource _cachingSecuritySource = null;
   private Identifier _secId1 = Identifier.of("d1", "v1");
   private Identifier _secId2 = Identifier.of("d1", "v2");
-  private DefaultSecurity _security1 = new DefaultSecurity("");
-  private DefaultSecurity _security2 = new DefaultSecurity("");
+  private MockSecurity _security1 = new MockSecurity("");
+  private MockSecurity _security2 = new MockSecurity("");
 
   @Before
   public void setUp() throws Exception {    
@@ -297,8 +299,8 @@ public class EHCachingSecuritySourceTest {
     }
   }
 
-  private void addSecuritiesToMock(DefaultSecurity ... securities) {
-    for (DefaultSecurity security : securities) {
+  private void addSecuritiesToMock(Security ... securities) {
+    for (Security security : securities) {
       _underlyingSecuritySource.addSecurity(security);
     }
   }

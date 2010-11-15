@@ -30,10 +30,10 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.DemoFinancialMastersHelper;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.test.CurveConfigurationSetupHelper;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtil;
@@ -46,11 +46,11 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
   /** Logger. */
   private final Logger s_logger = LoggerFactory.getLogger(this.getClass());
 
-  private CurveConfigurationSetupHelper _configHelper;
+  private DemoFinancialMastersHelper _configHelper;
 
   @Before
   public void setUp() throws Exception {
-     _configHelper = new CurveConfigurationSetupHelper();
+     _configHelper = new DemoFinancialMastersHelper();
   }
 
   @After

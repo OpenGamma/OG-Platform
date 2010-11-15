@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.core.security;
 
 import java.util.Collection;
 
@@ -12,7 +12,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A source of securities as accessed by the engine.
+ * A source of security information as accessed by the main application.
  * <p>
  * This interface provides a simple view of securities as needed by the engine.
  * This may be backed by a full-featured security master, or by a much simpler data structure.
@@ -43,11 +43,11 @@ public interface SecuritySource {
    * A more advanced implementation will choose using some form of priority order which
    * key or keys from the bundle to search for.
    * 
-   * @param secKey  the bundle keys to match, not null
+   * @param bundle  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Collection<Security> getSecurities(IdentifierBundle secKey);
+  Collection<Security> getSecurities(IdentifierBundle bundle);
 
   /**
    * Finds the single best-fit security that matches the specified bundle of keys.
@@ -59,10 +59,10 @@ public interface SecuritySource {
    * <p>
    * An implementation will need some mechanism to decide what the best-fit match is.
    * 
-   * @param secKey  the bundle keys to match, not null
+   * @param bundle  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Security getSecurity(IdentifierBundle secKey);
+  Security getSecurity(IdentifierBundle bundle);
 
 }

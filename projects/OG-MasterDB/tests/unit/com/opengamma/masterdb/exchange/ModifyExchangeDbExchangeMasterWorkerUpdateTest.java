@@ -82,7 +82,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   @Test(expected = NullPointerException.class)
   public void test_update_noExchange() {
     ExchangeDocument doc = new ExchangeDocument();
-    doc.setExchangeId(UniqueIdentifier.of("DbExg", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbExg", "101", "0"));
     _worker.update(doc);
   }
 
@@ -115,7 +115,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     ExchangeDocument input = new ExchangeDocument(exchange);
     
     ExchangeDocument updated = _worker.update(input);
-    assertEquals(false, base.getExchangeId().equals(updated.getExchangeId()));
+    assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
@@ -123,14 +123,14 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     assertEquals(input.getExchange(), updated.getExchange());
     
     ExchangeDocument old = _queryWorker.get(uid);
-    assertEquals(base.getExchangeId(), old.getExchangeId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getExchange(), old.getExchange());
     
-    ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getExchangeId(), null, now);
+    ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), null, now);
     ExchangeHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

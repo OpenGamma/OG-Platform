@@ -16,8 +16,8 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.security.RemoteSecuritySource;
-import com.opengamma.engine.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 

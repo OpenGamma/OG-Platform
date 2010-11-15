@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.engine.security.SecuritySource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.PublicAPI;
 
 /**

@@ -58,8 +58,8 @@ public class InMemoryExchangeMasterTest {
   }
 
   public void test_get_match() {
-    ExchangeDocument result = master.get(addedDoc.getExchangeId());
-    assertEquals(Identifier.of("MemExg", "1"), result.getExchangeId());
+    ExchangeDocument result = master.get(addedDoc.getUniqueId());
+    assertEquals(Identifier.of("MemExg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 

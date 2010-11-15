@@ -72,14 +72,14 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueIdentifier(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
-    doc.setHolidayId(null);
+    doc.setUniqueId(null);
     _worker.correct(doc);
   }
 
   @Test(expected = NullPointerException.class)
   public void test_correct_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
-    doc.setHolidayId(UniqueIdentifier.of("DbHol", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbHol", "101", "0"));
     _worker.correct(doc);
   }
 
@@ -111,7 +111,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     HolidayDocument input = new HolidayDocument(holiday);
     
     HolidayDocument corrected = _worker.correct(input);
-    assertEquals(false, base.getHolidayId().equals(corrected.getHolidayId()));
+    assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
@@ -119,14 +119,14 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     assertEquals(input.getHoliday(), corrected.getHoliday());
     
     HolidayDocument old = _queryWorker.get(UniqueIdentifier.of("DbHol", "101", "0"));
-    assertEquals(base.getHolidayId(), old.getHolidayId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getHoliday(), old.getHoliday());
     
-    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getHolidayId(), now, null);
+    HolidayHistoryRequest search = new HolidayHistoryRequest(base.getUniqueId(), now, null);
     HolidayHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

@@ -82,7 +82,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     String name = doc.getName();
     HolidayDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getHolidayId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbHol", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -112,7 +112,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     String name = doc.getName();
     HolidayDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getHolidayId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbHol", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -142,7 +142,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     String name = doc.getName();
     HolidayDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getHolidayId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbHol", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -172,7 +172,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     String name = doc.getName();
     HolidayDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getHolidayId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbHol", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -199,7 +199,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument(holiday);
     HolidayDocument added = _worker.add(doc);
     
-    HolidayDocument test = _queryWorker.get(added.getHolidayId());
+    HolidayDocument test = _queryWorker.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

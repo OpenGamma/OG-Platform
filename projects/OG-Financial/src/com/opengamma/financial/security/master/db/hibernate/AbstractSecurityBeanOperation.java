@@ -7,7 +7,7 @@ package com.opengamma.financial.security.master.db.hibernate;
 
 import java.util.Date;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.core.security.Security;
 
 /**
  * Partial implementation of BeanOperation for simple cases.

@@ -159,7 +159,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
   protected void assert101(final ExchangeDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getExchangeId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -175,7 +175,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
   protected void assert102(final ExchangeDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getExchangeId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -191,7 +191,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
   protected void assert201(final ExchangeDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getExchangeId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
@@ -207,7 +207,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
   protected void assert202(final ExchangeDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getExchangeId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
