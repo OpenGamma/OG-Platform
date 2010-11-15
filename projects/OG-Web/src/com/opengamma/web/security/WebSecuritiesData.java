@@ -19,10 +19,10 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityLoader;
-import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Data class for web-based securities.

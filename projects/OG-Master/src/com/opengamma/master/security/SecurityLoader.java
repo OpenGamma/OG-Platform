@@ -3,13 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master;
+package com.opengamma.master.security;
 
 import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * A general purpose security loader

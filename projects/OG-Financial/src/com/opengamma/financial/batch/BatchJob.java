@@ -75,11 +75,11 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.position.master.MasterPositionSource;
 import com.opengamma.financial.position.master.PositionMaster;
-import com.opengamma.financial.security.master.MasterSecuritySource;
-import com.opengamma.financial.security.master.SecurityMaster;
 import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtil;

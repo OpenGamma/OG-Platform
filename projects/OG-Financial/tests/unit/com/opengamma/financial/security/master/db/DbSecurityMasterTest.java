@@ -21,9 +21,9 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DBTest;
 
 /**
