@@ -19,7 +19,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -50,8 +50,8 @@ public class SecuritySearchResult extends DirectBean {
    * Gets the returned securities from within the documents.
    * @return the securities, not null
    */
-  public List<DefaultSecurity> getSecurities() {
-    List<DefaultSecurity> result = new ArrayList<DefaultSecurity>();
+  public List<ManageableSecurity> getSecurities() {
+    List<ManageableSecurity> result = new ArrayList<ManageableSecurity>();
     if (_documents != null) {
       for (SecurityDocument doc : _documents) {
         result.add(doc.getSecurity());
@@ -72,7 +72,7 @@ public class SecuritySearchResult extends DirectBean {
    * Gets the first security, or null if no documents.
    * @return the first security, null if none
    */
-  public DefaultSecurity getFirstSecurity() {
+  public ManageableSecurity getFirstSecurity() {
     return getDocuments().size() > 0 ? getDocuments().get(0).getSecurity() : null;
   }
 

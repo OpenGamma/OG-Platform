@@ -36,7 +36,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -557,9 +557,9 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     return permuteTestObjects(clazz, getBiggestConstructor(clazz));
   }
 
-  protected abstract <T extends DefaultSecurity> void testSecurity(final Class<T> securityClass, final T security);
+  protected abstract <T extends ManageableSecurity> void testSecurity(final Class<T> securityClass, final T security);
 
-  public <T extends DefaultSecurity> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
+  public <T extends ManageableSecurity> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
     String securityType = null;
     Class<?> c = securityClass;
     while (c != null) {
@@ -578,7 +578,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     }
   }
 
-  public <T extends DefaultSecurity> void testSecurities(final Class<T> securityClass) {
+  public <T extends ManageableSecurity> void testSecurities(final Class<T> securityClass) {
     testSecurities(securityClass, permuteTestObjects(securityClass));
   }
 

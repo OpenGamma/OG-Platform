@@ -21,7 +21,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.master.db.DbSecurityMaster;
 import com.opengamma.financial.security.master.db.SecurityMasterDetailProvider;
 import com.opengamma.financial.security.master.db.hibernate.bond.BondSecurityBeanOperation;
@@ -153,9 +153,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
 
   //-------------------------------------------------------------------------
   @Override
-  public DefaultSecurity loadSecurityDetail(final DefaultSecurity base) {
+  public ManageableSecurity loadSecurityDetail(final ManageableSecurity base) {
     s_logger.debug("loading detail for security {}", base.getUniqueIdentifier());
-    return (DefaultSecurity) getHibernateTemplate().execute(new HibernateCallback() {
+    return (ManageableSecurity) getHibernateTemplate().execute(new HibernateCallback() {
       @SuppressWarnings("unchecked")
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -168,7 +168,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         }
 //        final SecurityBeanOperation beanOperation = getBeanOperation(security);
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);
-        final DefaultSecurity result = (DefaultSecurity) beanOperation.createSecurity(getOperationContext(), security);
+        final ManageableSecurity result = (ManageableSecurity) beanOperation.createSecurity(getOperationContext(), security);
         if (Objects.equal(base.getSecurityType(), result.getSecurityType()) == false) {
           throw new IllegalStateException("Security type returned by Hibernate load does not match");
         }
@@ -181,9 +181,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   @Override
-  public void storeSecurityDetail(final DefaultSecurity security) {
+  public void storeSecurityDetail(final ManageableSecurity security) {
     s_logger.debug("storing detail for security {}", security.getUniqueIdentifier());
-    if (security.getClass() == DefaultSecurity.class) {
+    if (security.getClass() == ManageableSecurity.class) {
       return;  // no detail to store
     }
     getHibernateTemplate().execute(new HibernateCallback() {

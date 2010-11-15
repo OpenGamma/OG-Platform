@@ -19,7 +19,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -64,7 +64,7 @@ public class SecurityDocument extends DirectBean {
    * The security.
    */
   @PropertyDefinition
-  private DefaultSecurity _security;
+  private ManageableSecurity _security;
 
   /**
    * Creates an instance.
@@ -76,7 +76,7 @@ public class SecurityDocument extends DirectBean {
    * Creates an instance from a security.
    * @param security  the security, not null
    */
-  public SecurityDocument(final DefaultSecurity security) {
+  public SecurityDocument(final ManageableSecurity security) {
     ArgumentChecker.notNull(security, "security");
     setSecurityId(security.getUniqueIdentifier());
     setSecurity(security);
@@ -146,7 +146,7 @@ public class SecurityDocument extends DirectBean {
         setCorrectionToInstant((Instant) newValue);
         return;
       case 949122880:  // security
-        setSecurity((DefaultSecurity) newValue);
+        setSecurity((ManageableSecurity) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -300,7 +300,7 @@ public class SecurityDocument extends DirectBean {
    * Gets the security.
    * @return the value of the property
    */
-  public DefaultSecurity getSecurity() {
+  public ManageableSecurity getSecurity() {
     return _security;
   }
 
@@ -308,7 +308,7 @@ public class SecurityDocument extends DirectBean {
    * Sets the security.
    * @param security  the new value of the property
    */
-  public void setSecurity(DefaultSecurity security) {
+  public void setSecurity(ManageableSecurity security) {
     this._security = security;
   }
 
@@ -316,7 +316,7 @@ public class SecurityDocument extends DirectBean {
    * Gets the the {@code security} property.
    * @return the property, not null
    */
-  public final Property<DefaultSecurity> security() {
+  public final Property<ManageableSecurity> security() {
     return metaBean().security().createProperty(this);
   }
 
@@ -353,7 +353,7 @@ public class SecurityDocument extends DirectBean {
     /**
      * The meta-property for the {@code security} property.
      */
-    private final MetaProperty<DefaultSecurity> _security = DirectMetaProperty.ofReadWrite(this, "security", DefaultSecurity.class);
+    private final MetaProperty<ManageableSecurity> _security = DirectMetaProperty.ofReadWrite(this, "security", ManageableSecurity.class);
     /**
      * The meta-properties.
      */
@@ -431,7 +431,7 @@ public class SecurityDocument extends DirectBean {
      * The meta-property for the {@code security} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DefaultSecurity> security() {
+    public final MetaProperty<ManageableSecurity> security() {
       return _security;
     }
 

@@ -33,7 +33,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecurityLoader;
 import com.opengamma.financial.security.master.SecurityMaster;
@@ -116,11 +116,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, DefaultSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<IdentifierBundle, ManageableSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
     SecurityMaster securityMaster = data().getSecurityMaster();
     SecurityDocument added = null;
     for (IdentifierBundle identifierBundle : bundles) {
-      DefaultSecurity security = loadedSecurities.get(identifierBundle);
+      ManageableSecurity security = loadedSecurities.get(identifierBundle);
       if (security != null) {
         try {
           final SecurityDocument document = new SecurityDocument();

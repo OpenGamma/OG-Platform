@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.Identifier;
@@ -42,7 +42,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     _secMaster = secMaster;
   }
 
-  private UniqueIdentifier putSecurity(final DefaultSecurity security) {
+  private UniqueIdentifier putSecurity(final ManageableSecurity security) {
     s_logger.debug("putting security = {}", security);
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
@@ -53,7 +53,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     return uid;
   }
 
-  private UniqueIdentifier updateSecurity(final DefaultSecurity security) {
+  private UniqueIdentifier updateSecurity(final ManageableSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
     document.setSecurityId(security.getUniqueIdentifier());
@@ -113,7 +113,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   @Override
-  protected <T extends DefaultSecurity> void testSecurity(final Class<T> securityClass, final T security) {
+  protected <T extends ManageableSecurity> void testSecurity(final Class<T> securityClass, final T security) {
     normalizeSecurity (security);
     s_logger.debug("Testing {} instance {}", securityClass, security.hashCode());
     final UniqueIdentifier uid = putSecurity(security);

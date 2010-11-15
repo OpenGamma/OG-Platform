@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.financial.security.master.SecuritySearchRequest;
 import com.opengamma.financial.security.master.SecuritySearchResult;
@@ -38,8 +38,8 @@ public class InMemorySecurityMasterTest {
   private static final Identifier ID2 = Identifier.of("A", "C");
   private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
   private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
-  private static final DefaultSecurity SEC1 = new DefaultSecurity(UniqueIdentifier.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
-  private static final DefaultSecurity SEC2 = new DefaultSecurity(UniqueIdentifier.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
+  private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
   private InMemorySecurityMaster testEmpty;
   private InMemorySecurityMaster testPopulated;

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
@@ -130,7 +130,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity101", security.getName());
@@ -146,7 +146,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity102", security.getName());
@@ -162,7 +162,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity201", security.getName());
@@ -178,7 +178,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity202", security.getName());

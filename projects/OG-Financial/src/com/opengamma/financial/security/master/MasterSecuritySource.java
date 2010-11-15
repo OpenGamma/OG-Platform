@@ -14,7 +14,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -113,7 +113,7 @@ public class MasterSecuritySource implements SecuritySource {
 
   // -------------------------------------------------------------------------
   @Override
-  public DefaultSecurity getSecurity(final UniqueIdentifier uid) {
+  public ManageableSecurity getSecurity(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     if ((_versionAsOfInstant != null) || (_correctedToInstant != null)) {
       // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
