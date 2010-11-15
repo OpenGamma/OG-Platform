@@ -18,10 +18,10 @@ import javax.time.Instant;
 import org.junit.Test;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * Test MasterSecuritySource.

@@ -21,7 +21,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.master.db.DbSecurityMaster;
 import com.opengamma.financial.security.master.db.SecurityMasterDetailProvider;
 import com.opengamma.financial.security.master.db.hibernate.bond.BondSecurityBeanOperation;
@@ -31,6 +30,7 @@ import com.opengamma.financial.security.master.db.hibernate.fra.FRASecurityBeanO
 import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.option.OptionSecurityBeanOperation;
 import com.opengamma.financial.security.master.db.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.db.DbSource;
 
 /**

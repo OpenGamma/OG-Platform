@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security.master.db;
 
-import com.opengamma.engine.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * Provider allowing the detail of loading and storing a security to be separated

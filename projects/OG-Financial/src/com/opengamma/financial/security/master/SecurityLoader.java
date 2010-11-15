@@ -8,8 +8,8 @@ package com.opengamma.financial.security.master;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * A general purpose security loader

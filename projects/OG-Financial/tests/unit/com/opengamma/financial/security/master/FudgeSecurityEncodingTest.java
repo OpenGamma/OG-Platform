@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class FudgeSecurityEncodingTest extends SecurityTestCase {

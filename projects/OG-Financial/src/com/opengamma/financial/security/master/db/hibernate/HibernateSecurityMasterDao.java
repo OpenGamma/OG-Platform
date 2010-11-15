@@ -8,7 +8,6 @@ package com.opengamma.financial.security.master.db.hibernate;
 import java.util.Date;
 import java.util.List;
 
-import com.opengamma.engine.security.ManageableSecurity;
 import com.opengamma.financial.security.master.db.hibernate.bond.CouponTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.GuaranteeTypeBean;
 import com.opengamma.financial.security.master.db.hibernate.bond.IssuerTypeBean;
@@ -22,6 +21,7 @@ import com.opengamma.financial.security.master.db.hibernate.future.FutureBundleB
 import com.opengamma.financial.security.master.db.hibernate.future.FutureSecurityBean;
 import com.opengamma.financial.security.master.db.hibernate.future.UnitBean;
 import com.opengamma.id.Identifier;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * HibernateSecurityMaster session and utility methods.
