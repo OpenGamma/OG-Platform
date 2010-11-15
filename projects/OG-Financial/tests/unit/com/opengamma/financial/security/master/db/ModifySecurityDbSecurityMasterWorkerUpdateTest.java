@@ -79,7 +79,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expected = NullPointerException.class)
   public void test_update_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setSecurityId(UniqueIdentifier.of("DbSec", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
     _worker.update(doc);
   }
 
@@ -109,7 +109,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument updated = _worker.update(input);
-    assertEquals(false, base.getSecurityId().equals(updated.getSecurityId()));
+    assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
@@ -117,14 +117,14 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(input.getSecurity(), updated.getSecurity());
     
     SecurityDocument old = _queryWorker.get(uid);
-    assertEquals(base.getSecurityId(), old.getSecurityId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getSecurity(), old.getSecurity());
     
-    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getSecurityId(), null, now);
+    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getUniqueId(), null, now);
     SecurityHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

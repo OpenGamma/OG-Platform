@@ -271,7 +271,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   protected SecurityHistoryResult history(final SecurityHistoryRequest request) {
     s_logger.debug("searchSecurityHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("security_oid", extractOid(request.getSecurityId()))
+      .addValue("security_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
@@ -385,7 +385,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSecurityId(uid);
+      doc.setUniqueId(uid);
       _documents.add(doc);
     }
   }

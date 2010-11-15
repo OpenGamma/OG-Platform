@@ -62,8 +62,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     ManageableSecurity updatedSecurity = loadedSecurities.get(identifierBundle);
     SecurityDocument updateDoc = new SecurityDocument();
     
-    UniqueIdentifier securityId = doc.getSecurityId();
-    updateDoc.setSecurityId(securityId);
+    UniqueIdentifier securityId = doc.getUniqueId();
+    updateDoc.setUniqueId(securityId);
     updateDoc.setSecurity(updatedSecurity);
     data().getSecurityMaster().update(updateDoc);
     
@@ -75,7 +75,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @DELETE
   public Response delete() {
     SecurityDocument doc = data().getSecurity();
-    data().getSecurityMaster().remove(doc.getSecurityId());
+    data().getSecurityMaster().remove(doc.getUniqueId());
     URI uri = WebSecuritiesResource.uri(data());
     return Response.seeOther(uri).build();
   }

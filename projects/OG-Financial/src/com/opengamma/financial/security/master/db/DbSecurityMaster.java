@@ -173,9 +173,9 @@ public class DbSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    ArgumentChecker.notNull(document.getSecurityId(), "document.securityId");
-    checkScheme(document.getSecurityId());
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdateWorker().update(document);
   }
@@ -193,8 +193,8 @@ public class DbSecurityMaster implements SecurityMaster {
   @Override
   public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getSecurityId(), "request.securityId");
-    checkScheme(request.getSecurityId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryWorker().history(request);
   }
@@ -203,9 +203,9 @@ public class DbSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument correct(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    ArgumentChecker.notNull(document.getSecurityId(), "document.securityId");
-    checkScheme(document.getSecurityId());
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getCorrectWorker().correct(document);
   }

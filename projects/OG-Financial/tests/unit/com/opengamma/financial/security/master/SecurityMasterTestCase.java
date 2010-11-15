@@ -52,7 +52,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     document.setSecurity(security);
     document = _secMaster.add(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getSecurityId();
+    final UniqueIdentifier uid = document.getUniqueId();
     s_logger.debug("Security {} stored with identifier {}", security.getClass(), uid);
     return uid;
   }
@@ -60,10 +60,10 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   private UniqueIdentifier updateSecurity(final ManageableSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
-    document.setSecurityId(security.getUniqueIdentifier());
+    document.setUniqueId(security.getUniqueIdentifier());
     document = _secMaster.update(document);
     assertNotNull(document);
-    final UniqueIdentifier uid = document.getSecurityId();
+    final UniqueIdentifier uid = document.getUniqueId();
     s_logger.debug("Security {} updated; new identifier {}", security.getClass(), uid);
     return uid;
   }

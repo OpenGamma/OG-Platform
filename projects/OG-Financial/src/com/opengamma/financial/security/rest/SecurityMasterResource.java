@@ -103,7 +103,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope correct(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().correct(document);
-      final UniqueIdentifier uid = document.getSecurityId();
+      final UniqueIdentifier uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -115,7 +115,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope update(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().update(document);
-      final UniqueIdentifier uid = document.getSecurityId();
+      final UniqueIdentifier uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -139,7 +139,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().add(document);
-      return new FudgeMsgEnvelope(document.getSecurityId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(document.getUniqueId().toFudgeMsg(getFudgeContext()));
     }
 
     @Path("{uid}")

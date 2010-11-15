@@ -79,7 +79,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     doc.setSecurity(security);
     SecurityDocument test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getSecurityId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbSec", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -107,7 +107,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     doc.setSecurity(security);
     SecurityDocument added = _worker.add(doc);
     
-    SecurityDocument test = _queryWorker.get(added.getSecurityId());
+    SecurityDocument test = _queryWorker.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

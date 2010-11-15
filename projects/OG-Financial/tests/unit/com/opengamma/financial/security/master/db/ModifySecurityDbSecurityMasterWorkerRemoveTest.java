@@ -73,7 +73,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     _worker.remove(uid);
     SecurityDocument test = _queryWorker.get(uid);
     
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());

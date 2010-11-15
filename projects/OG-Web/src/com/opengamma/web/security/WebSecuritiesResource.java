@@ -136,7 +136,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }
     URI uri = null;
     if (bundles.size() == 1) {
-      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
+      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     } else {
       uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
 //      uri = uri(data());

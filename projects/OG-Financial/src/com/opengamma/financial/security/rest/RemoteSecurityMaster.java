@@ -80,7 +80,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
     if (uid == null) {
       return null;
     }
-    document.setSecurityId(uid);
+    document.setUniqueId(uid);
     UniqueIdentifiables.setInto(document.getSecurity(), uid);
     return document;
   }
@@ -88,7 +88,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument correct(SecurityDocument document) {
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(document);
-    final RestTarget target = _targetSecurity.resolve(document.getSecurityId().toString());
+    final RestTarget target = _targetSecurity.resolve(document.getUniqueId().toString());
     s_logger.debug("correct-put {} to {}", payload, target);
     final FudgeMsgEnvelope env = getRestClient().put(target, payload);
     if (env == null) {
@@ -150,7 +150,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument update(SecurityDocument document) {
     final FudgeFieldContainer payload = getFudgeSerializationContext().objectToFudgeMsg(document);
-    final RestTarget target = _targetSecurity.resolve(document.getSecurityId().toString());
+    final RestTarget target = _targetSecurity.resolve(document.getUniqueId().toString());
     s_logger.debug("update-post {} to {}", payload, target);
     final FudgeMsgEnvelope env = getRestClient().post(target, payload);
     if (env == null) {
@@ -158,7 +158,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
       return null;
     }
     s_logger.debug("update-recv {}", env.getMessage());
-    document.setSecurityId(getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage()));
+    document.setUniqueId(getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage()));
     return document;
   }
 

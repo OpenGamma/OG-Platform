@@ -52,7 +52,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setSecurityId(null);
+        document.setUniqueId(null);
         insertSecurity(document);
       }
     });
@@ -62,7 +62,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected SecurityDocument update(final SecurityDocument document) {
-    final UniqueIdentifier uid = document.getSecurityId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updateSecurity {}", document);
     
@@ -80,7 +80,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setSecurityId(oldDoc.getSecurityId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertSecurity(document);
       }
     });
@@ -108,7 +108,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected SecurityDocument correct(final SecurityDocument document) {
-    final UniqueIdentifier uid = document.getSecurityId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctSecurity {}", document);
     
@@ -126,7 +126,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
         document.setVersionToInstant(oldDoc.getVersionToInstant());
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setSecurityId(oldDoc.getSecurityId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertSecurity(document);
       }
     });
@@ -149,7 +149,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
    */
   protected void insertSecurity(final SecurityDocument document) {
     final long securityId = nextId("sec_security_seq");
-    final long securityOid = (document.getSecurityId() != null ? extractOid(document.getSecurityId()) : securityId);
+    final long securityOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : securityId);
     // the arguments for inserting into the security table
     final DbMapSqlParameterSource securityArgs = new DbMapSqlParameterSource()
       .addValue("security_id", securityId)
@@ -185,7 +185,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId);
     document.getSecurity().setUniqueIdentifier(uid);
-    document.setSecurityId(uid);
+    document.setUniqueId(uid);
     // store the detail
     SecurityMasterDetailProvider detailProvider = getMaster().getWorkers().getDetailProvider();
     if (detailProvider != null) {
@@ -252,7 +252,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
    */
   protected void updateVersionToInstant(final SecurityDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("security_id", extractRowId(document.getSecurityId()))
+      .addValue("security_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -292,7 +292,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
    */
   protected void updateCorrectionToInstant(final SecurityDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("security_id", extractRowId(document.getSecurityId()))
+      .addValue("security_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

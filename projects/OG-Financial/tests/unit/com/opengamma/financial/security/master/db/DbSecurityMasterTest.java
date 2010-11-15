@@ -75,7 +75,7 @@ public class DbSecurityMasterTest extends DBTest {
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     
-    SecurityDocument loaded = _secMaster.get(added.getSecurityId());
+    SecurityDocument loaded = _secMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 
