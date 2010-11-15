@@ -50,6 +50,7 @@ public class MasterSecuritySource implements SecuritySource {
 
   /**
    * Creates an instance with an underlying security master.
+   * 
    * @param securityMaster  the security master, not null
    */
   public MasterSecuritySource(final SecurityMaster securityMaster) {
@@ -59,6 +60,7 @@ public class MasterSecuritySource implements SecuritySource {
   /**
    * Creates an instance with an underlying security master viewing the version
    * that existed on the specified instant.
+   * 
    * @param securityMaster  the security master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    */
@@ -69,6 +71,7 @@ public class MasterSecuritySource implements SecuritySource {
   /**
    * Creates an instance with an underlying security master viewing the version
    * that existed on the specified instant as corrected to the correction instant.
+   * 
    * @param securityMaster  the security master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
