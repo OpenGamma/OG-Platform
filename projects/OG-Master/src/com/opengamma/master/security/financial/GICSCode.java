@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial;
+package com.opengamma.master.security.financial;
 
 import java.io.Serializable;
 
@@ -31,6 +31,9 @@ import java.io.Serializable;
  * GICSCode is immutable and thread-safe.
  */
 public final class GICSCode implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The integer version of the code.
