@@ -37,7 +37,7 @@ import com.opengamma.master.AbstractHistoryRequest;
  * correction may be applied. There are now two versions, the first of which has one correction.
  * This may continue, with multiple corrections allowed for each version.
  * <p>
- * Versions are represented by instants in the search.
+ * Versions and corrections are represented by instants in the search.
  */
 @BeanDefinition
 public class HolidayHistoryRequest extends AbstractHistoryRequest {
