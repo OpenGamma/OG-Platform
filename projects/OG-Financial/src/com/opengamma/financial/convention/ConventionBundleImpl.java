@@ -36,7 +36,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   private Frequency _swapFloatingLegFrequency;
   private Integer _swapFloatingLegSettlementDays;
   private Identifier _swapFloatingLegInitialRate;
-  private Double _pointValue;
+  private Double _yearFraction;
 
   //Equity models
   private String _capmRiskFreeRateName;
@@ -76,14 +76,14 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   // futures
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final Frequency frequency, final int settlementDays, final double pointValue) {
+      final Frequency frequency, final int settlementDays, final double yearFraction) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _frequency = frequency;
     _settlementDays = settlementDays;
-    _pointValue = pointValue;
+    _yearFraction = yearFraction;
   }
 
   // swaps
@@ -305,8 +305,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the pointValue
    */
   @Override
-  public Double getFuturePointValue() {
-    return _pointValue;
+  public Double getFutureYearFraction() {
+    return _yearFraction;
   }
 
   /**

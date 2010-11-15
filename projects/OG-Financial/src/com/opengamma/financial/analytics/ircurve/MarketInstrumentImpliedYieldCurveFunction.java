@@ -23,6 +23,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -91,6 +93,8 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
  * 
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
+  
   private final Currency _currency;
   private final String _fundingCurveDefinitionName;
   private final String _fundingCurveValueRequirementName;
@@ -139,7 +143,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
     _fundingCurveDefinition = curveDefinitionSource.getDefinition(_currency, _fundingCurveDefinitionName);
+    if (_fundingCurveDefinition == null) {
+      s_logger.warn("No curve definition for " + _fundingCurveDefinitionName + " on " + _currency);
+    }
     _forwardCurveDefinition = curveDefinitionSource.getDefinition(_currency, _forwardCurveDefinitionName);
+    if (_forwardCurveDefinition == null) {
+      s_logger.warn("No curve definition for " + _forwardCurveDefinitionName + " on " + _currency);
+    }
     _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _fundingCurveResult = new ValueSpecification(new ValueRequirement(_fundingCurveValueRequirementName, _currency), getUniqueIdentifier());
     _forwardCurveResult = new ValueSpecification(new ValueRequirement(_forwardCurveValueRequirementName, _currency), getUniqueIdentifier());
