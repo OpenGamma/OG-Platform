@@ -35,7 +35,6 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.FileUtils;
 
 /**
  * Loads a CSV formatted region file
