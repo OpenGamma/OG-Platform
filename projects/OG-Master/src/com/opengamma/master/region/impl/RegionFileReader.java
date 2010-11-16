@@ -45,13 +45,10 @@ import com.opengamma.util.FileUtils;
 public class RegionFileReader {
 
   /**
-   * Path to world data generally (covering exchanges, regions and holidays).
-   */
-  public static final String WORLD_DATA_DIR_PATH = FileUtils.getSharedDrivePrefix() + File.separator + "world-data";
-  /**
    * Path to the default regions file
    */
-  public static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "regions.csv";
+  //public static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "regions.csv";
+  private static final String REGIONS_RESOURCE = "/com/opengamma/region/regions.csv";
   /**
    * The name column header.
    */
@@ -95,7 +92,8 @@ public class RegionFileReader {
    */
   public static RegionFileReader createPopulated() {
     RegionFileReader fileReader = new RegionFileReader(new InMemoryRegionMaster());
-    fileReader.parse(new File(REGIONS_FILE_PATH));
+    InputStream regionsStream = fileReader.getClass().getResourceAsStream(REGIONS_RESOURCE);
+    fileReader.parse(regionsStream);
     return fileReader;
   }
 
@@ -106,7 +104,7 @@ public class RegionFileReader {
    * @return the master, not null
    */
   public static RegionMaster populate(RegionMaster regionMaster) {
-    populate(regionMaster, new File(REGIONS_FILE_PATH));
+    populate(regionMaster, regionMaster.getClass().getResourceAsStream(REGIONS_RESOURCE));
     return regionMaster;
   }
 
@@ -120,6 +118,19 @@ public class RegionFileReader {
   public static RegionMaster populate(RegionMaster regionMaster, File file) {
     RegionFileReader reader = new RegionFileReader(regionMaster);
     reader.parse(file);
+    return regionMaster;
+  }
+
+  /**
+   * Populates a region master.
+   *
+   * @param regionMaster  the region master to populate, not null
+   * @param regionStream  the CSV stream to read from, not null
+   * @return the master, not null
+   */
+  public static RegionMaster populate(RegionMaster regionMaster, InputStream regionStream) {
+    RegionFileReader reader = new RegionFileReader(regionMaster);
+    reader.parse(regionStream);
     return regionMaster;
   }
 
