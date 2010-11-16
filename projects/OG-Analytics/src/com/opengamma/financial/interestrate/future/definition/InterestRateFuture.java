@@ -58,7 +58,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
     ArgumentChecker.notNegative(price, "price");
     Validate.isTrue(price <= 100, "price must be less than 100");
     Validate.notNull(indexCurveName);
-    Validate.isTrue(settlement <= fixingDate, "settlement must be before or at fixing Date");
+    Validate.isTrue(settlement >= fixingDate, "settlement must be after or at fixing Date");
     Validate.isTrue(maturity > fixingDate, "maturity must be after fixing date");
     _settlement = settlement;
     _fixingDate = fixingDate;

@@ -38,12 +38,13 @@ public class InterestRateFutureSecurityToInterestRateFutureConverter {
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency()); // TODO: check we've got the right holiday calendar.
 
     final BusinessDayConvention businessDayConvention = conventions.getBusinessDayConvention();
-    final ZonedDateTime settlementDate = businessDayConvention.adjustDate(calendar, security.getExpiry().getExpiry());
-    final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, settlementDate.minusDays(conventions.getSettlementDays()));
-    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, fixingDate.plusMonths(3));
+    // Expiry is actually the last trade date rather than the expiry date of the future so we have to go forward in time.
+    final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, security.getExpiry().getExpiry());
+    final ZonedDateTime settlementDate = businessDayConvention.adjustDate(calendar, fixingDate.plusDays(conventions.getSettlementDays()));
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, settlementDate.plusMonths(3));
     final DayCount dayCount = conventions.getDayCount();
     final double yearFraction = dayCount.getDayCountFraction(fixingDate, maturityDate); // TODO: double check this
-    final double valueYearFraction = conventions.getFuturePointValue();
+    final double valueYearFraction = conventions.getFutureYearFraction();
     final double settlementDateFraction = dayCount.getDayCountFraction(now, settlementDate);
     final double fixingDateFraction = dayCount.getDayCountFraction(now, fixingDate);
     final double maturityDateFraction = dayCount.getDayCountFraction(now, maturityDate);

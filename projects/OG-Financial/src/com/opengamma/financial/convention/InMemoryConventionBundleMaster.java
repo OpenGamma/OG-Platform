@@ -41,6 +41,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   public InMemoryConventionBundleMaster() {
     addUSDFixedIncomeInstruments();
+    addGBPFixedIncomeInstruments();
     addUSDCAPMDefinition();
     addUSDTreasuryBondCouponDateConvention();
   }
@@ -56,8 +57,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final Frequency frequency, final int settlementDays, final double pointValue) {
-    final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, pointValue);
+      final Frequency frequency, final int settlementDays, final double yearFraction) {
+    final ConventionBundleImpl refRate = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, yearFraction);
     final UniqueIdentifier uid = _mapper.add(bundle, refRate);
     refRate.setUniqueIdentifier(uid);
     return uid;
@@ -305,6 +306,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
@@ -331,6 +333,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, gb, act365, modified, quarterly, 0, Identifier.of(
         SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb);
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_IRFUTURE")), "GBP_IRFUTURE", act365, following, null, 2, 0.25);
   }
 
   private void addAUDFixedIncomeInstruments() {
