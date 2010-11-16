@@ -115,7 +115,7 @@ public class RiskValue {
   }
   
   public static String sqlInsertRisk() {
-    return "INSERT INTO rsk_value " +
+    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_value " +
               "(id, calculation_configuration_id, value_name_id, function_unique_id, computation_target_id, run_id, value, " +
               "eval_instant, compute_node_id) " +
             "VALUES " +
@@ -124,11 +124,11 @@ public class RiskValue {
   }
   
   public static String sqlCount() {
-    return "SELECT COUNT(*) FROM rsk_value";
+    return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_value";
   }
   
   public static String sqlGet() {
-    return "SELECT * from rsk_value WHERE " +
+    return "SELECT * from " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_value WHERE " +
       "calculation_configuration_id = :calculation_configuration_id AND " +
       "value_name_id = :value_name_id AND " +
       "computation_target_id = :computation_target_id";

@@ -57,7 +57,17 @@ public abstract class AbstractDBDialect implements DBDialect {
       throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
     }
   }
-
+  
+  @Override
+  public String getTestCatalog() {
+    return "test_" + System.getProperty("user.name").replace('.', '_');    
+  }
+  
+  @Override
+  public String getTestSchema() {
+    return null; // use default    
+  }
+  
   @Override
   public void reset(String catalog) {
     // by default, do nothing
@@ -168,14 +178,22 @@ public abstract class AbstractDBDialect implements DBDialect {
   public abstract String getAllColumnsSQL(String catalog, String schema, String table);
   public abstract String getAllSequencesSQL(String catalog, String schema);
   public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
-  public abstract String getCreateSchemaSQL(String schema);
+  public abstract String getCreateSchemaSQL(String catalog, String schema);
   public abstract CatalogCreationStrategy getCatalogCreationStrategy();
   
+  public void setActiveSchema(Connection connection, String schema) throws SQLException {
+    // override in subclasses as necessary
+  }
+  
   protected Connection connect(String catalog) throws SQLException {
-    Connection conn = DriverManager.getConnection(_dbServerHost + "/" + catalog, 
+    Connection conn = DriverManager.getConnection(getCatalogToConnectTo(catalog), 
         _user, _password);
     conn.setAutoCommit(true);
     return conn;
+  }
+
+  protected String getCatalogToConnectTo(String catalog) {
+    return getDbHost() + "/" + catalog;
   }
   
   private List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
@@ -219,6 +237,7 @@ public abstract class AbstractDBDialect implements DBDialect {
       }
       
       conn = connect(catalog);
+      setActiveSchema(conn, schema);
       Statement statement = conn.createStatement();
       
       // Clear tables SQL
@@ -295,7 +314,7 @@ public abstract class AbstractDBDialect implements DBDialect {
         
         Collection<String> schemas = getAllSchemas(catalog, statement);
         if (!schemas.contains(schema)) {
-          String createSchemaSql = getCreateSchemaSQL(schema);
+          String createSchemaSql = getCreateSchemaSQL(catalog, schema);
           statement.executeUpdate(createSchemaSql);
         }
         
@@ -355,6 +374,7 @@ public abstract class AbstractDBDialect implements DBDialect {
       }
 
       conn = connect(catalog);
+      setActiveSchema(conn, schema);
       Statement statement = conn.createStatement();
       
       // Drop constraints SQL
@@ -429,7 +449,7 @@ public abstract class AbstractDBDialect implements DBDialect {
   }
 
   @Override
-  public void executeSql(String catalog, String sql) {
+  public void executeSql(String catalog, String schema, String sql) {
     
     ArrayList<String> sqlStatements = new ArrayList<String>();
     
@@ -465,13 +485,14 @@ public abstract class AbstractDBDialect implements DBDialect {
     Connection conn = null;
     try {
       conn = connect(catalog);
+      setActiveSchema(conn, schema);
       
       Statement statement = conn.createStatement();
       for (String sqlStatement : sqlStatements) {
         try {
           statement.execute(sqlStatement);
         } catch (SQLException e) {
-          throw new OpenGammaRuntimeException("Failed to execute statement (" + _dbServerHost + ") " + sqlStatement, e);
+          throw new OpenGammaRuntimeException("Failed to execute statement (" + getDbHost() + ") " + sqlStatement, e);
         }
       }
       statement.close();

@@ -13,7 +13,7 @@ import org.hibernate.dialect.Dialect;
  * Implementation of the database dialect for HSQL.
  */
 public final class HSQLDialect extends AbstractDBDialect {
-
+  
   /**
    * Singleton instance.
    */
@@ -42,7 +42,7 @@ public final class HSQLDialect extends AbstractDBDialect {
   public void shutdown(String catalog) {
     super.shutdown(catalog);
     
-    executeSql(catalog, "SHUTDOWN");
+    executeSql(catalog, null, "SHUTDOWN");
   }
 
   @Override
@@ -111,7 +111,7 @@ public final class HSQLDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getCreateSchemaSQL(String schema) {
+  public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
   }
 

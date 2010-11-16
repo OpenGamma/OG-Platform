@@ -37,9 +37,10 @@ abstract public class DBTest implements TableCreationCallback {
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
   
   private static final Map<String, DbHelper> s_dbHelpers = new HashMap<String, DbHelper>();
+
   static {
-    s_dbHelpers.put("hsqldb", new HSQLDbHelper());
-    s_dbHelpers.put("postgres", new PostgreSQLDbHelper());
+    addDbHelper("hsqldb", new HSQLDbHelper());
+    addDbHelper("postgres", new PostgreSQLDbHelper());
   }
   
   private final String _databaseType;
@@ -100,6 +101,11 @@ abstract public class DBTest implements TableCreationCallback {
 
   @Parameters
   public static Collection<Object[]> getParameters() {
+    int previousVersionCount = getPreviousVersionCount();
+    return getParameters (previousVersionCount);
+  }
+
+  protected static int getPreviousVersionCount() {
     String previousVersionCountString = System.getProperty("test.database.previousVersions");
     int previousVersionCount;
     if (previousVersionCountString == null) {
@@ -107,7 +113,7 @@ abstract public class DBTest implements TableCreationCallback {
     } else {
       previousVersionCount = Integer.parseInt (previousVersionCountString);
     }
-    return getParameters (previousVersionCount);
+    return previousVersionCount;
   }
   
   public DBTool getDbTool() {
@@ -140,7 +146,10 @@ abstract public class DBTest implements TableCreationCallback {
         dbHelper, null, transactionDefinition, getTransactionManager());
     return dbSource;
   }
-    
+  
+  public static void addDbHelper(String dbType, DbHelper helper) {
+    s_dbHelpers.put(dbType, helper);
+  }
 
   /**
    * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data

@@ -35,7 +35,7 @@ public abstract class HibernateTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    Configuration configuration = getDbTool().getHibernateConfiguration();
+    Configuration configuration = getDbTool().getTestHibernateConfiguration();
     for (Class<?> clazz : getHibernateMappingClasses()) {
       configuration.addClass(clazz);
     }
