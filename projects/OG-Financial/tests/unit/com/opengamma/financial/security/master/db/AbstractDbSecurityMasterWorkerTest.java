@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -125,12 +125,12 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   protected void assert101(final SecurityDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity101", security.getName());
@@ -141,12 +141,12 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   protected void assert102(final SecurityDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity102", security.getName());
@@ -157,12 +157,12 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   protected void assert201(final SecurityDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity201", security.getName());
@@ -173,12 +173,12 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
   protected void assert202(final SecurityDocument test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    DefaultSecurity security = test.getSecurity();
+    ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
     assertEquals(uid, security.getUniqueIdentifier());
     assertEquals("TestSecurity202", security.getName());

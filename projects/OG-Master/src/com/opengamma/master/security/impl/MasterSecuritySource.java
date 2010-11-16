@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master;
+package com.opengamma.master.security.impl;
 
 import java.util.Collection;
 
@@ -14,10 +14,15 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -45,6 +50,7 @@ public class MasterSecuritySource implements SecuritySource {
 
   /**
    * Creates an instance with an underlying security master.
+   * 
    * @param securityMaster  the security master, not null
    */
   public MasterSecuritySource(final SecurityMaster securityMaster) {
@@ -54,6 +60,7 @@ public class MasterSecuritySource implements SecuritySource {
   /**
    * Creates an instance with an underlying security master viewing the version
    * that existed on the specified instant.
+   * 
    * @param securityMaster  the security master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    */
@@ -64,6 +71,7 @@ public class MasterSecuritySource implements SecuritySource {
   /**
    * Creates an instance with an underlying security master viewing the version
    * that existed on the specified instant as corrected to the correction instant.
+   * 
    * @param securityMaster  the security master, not null
    * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
@@ -113,7 +121,7 @@ public class MasterSecuritySource implements SecuritySource {
 
   // -------------------------------------------------------------------------
   @Override
-  public DefaultSecurity getSecurity(final UniqueIdentifier uid) {
+  public ManageableSecurity getSecurity(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     if ((_versionAsOfInstant != null) || (_correctedToInstant != null)) {
       // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
@@ -145,7 +153,7 @@ public class MasterSecuritySource implements SecuritySource {
         }
       } else {
         for (SecurityDocument document : result.getDocuments()) {
-          if (uid.getVersion().equals(document.getSecurityId().getVersion())) {
+          if (uid.getVersion().equals(document.getUniqueId().getVersion())) {
             return document.getSecurity();
           }
         }

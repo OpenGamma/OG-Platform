@@ -9,7 +9,7 @@ namespace com.opengamma.financial.security {
   /**
    * An implementation of {@code Security} that implements the visitor pattern.
    */
-  abstract message FinancialSecurity extends com.opengamma.engine.security.DefaultSecurity {
+  abstract message FinancialSecurity extends com.opengamma.master.security.ManageableSecurity {
   
     // No additional fields
   

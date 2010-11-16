@@ -12,8 +12,6 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
-import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.memory.InMemorySecurityMaster;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
@@ -21,6 +19,8 @@ import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
 import com.opengamma.id.UniqueIdentifierTemplate;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.InMemorySecurityMaster;
 
 /**
  * Temporary RESTful resource representing a user's client session.

@@ -15,12 +15,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -161,9 +161,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getSecurityId());
+    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
@@ -339,9 +339,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "0"), doc2.getSecurityId());  // old version
+    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "201", "0"), doc2.getUniqueId());  // old version
   }
 
   @Test
@@ -354,9 +354,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecurityDocument doc0 = test.getDocuments().get(0);
     SecurityDocument doc1 = test.getDocuments().get(1);
     SecurityDocument doc2 = test.getDocuments().get(2);
-    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getSecurityId());
-    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getSecurityId());  // new version
+    assertEquals(UniqueIdentifier.of("DbSec", "101", "0"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "102", "0"), doc1.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbSec", "201", "1"), doc2.getUniqueId());  // new version
   }
 
   //-------------------------------------------------------------------------

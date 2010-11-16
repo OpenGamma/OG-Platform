@@ -16,9 +16,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.security.master.SecurityHistoryRequest;
-import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.util.db.PagingRequest;
 
 /**

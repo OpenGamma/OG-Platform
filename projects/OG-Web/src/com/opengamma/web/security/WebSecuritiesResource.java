@@ -33,16 +33,16 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityLoader;
-import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityLoader;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 
@@ -116,11 +116,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, DefaultSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<IdentifierBundle, ManageableSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
     SecurityMaster securityMaster = data().getSecurityMaster();
     SecurityDocument added = null;
     for (IdentifierBundle identifierBundle : bundles) {
-      DefaultSecurity security = loadedSecurities.get(identifierBundle);
+      ManageableSecurity security = loadedSecurities.get(identifierBundle);
       if (security != null) {
         try {
           final SecurityDocument document = new SecurityDocument();
@@ -136,7 +136,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }
     URI uri = null;
     if (bundles.size() == 1) {
-      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getSecurityId().toLatest().toString()).build();
+      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     } else {
       uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
 //      uri = uri(data());

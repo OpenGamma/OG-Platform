@@ -10,7 +10,6 @@ import java.util.Collections;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.security.master.MasterSecuritySource;
 import com.opengamma.financial.user.UserResourceDetails;
 import com.opengamma.financial.user.UserUniqueIdentifierUtils;
 import com.opengamma.financial.user.rest.ClientResource;
@@ -19,6 +18,7 @@ import com.opengamma.financial.user.rest.UsersResource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 
 /**
  * Security source which delegates to individual user and client security masters from an underlying

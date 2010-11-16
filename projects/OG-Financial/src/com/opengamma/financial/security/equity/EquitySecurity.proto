@@ -18,7 +18,7 @@ namespace com.opengamma.financial.security.equity {
     required string exchangeCode;
     required string companyName;
     required com.opengamma.core.common.Currency currency;
-    optional GICSCode gicsCode;
+    optional com.opengamma.master.security.financial.GICSCode gicsCode;
 
     binding Java {
       body <<<JAVA

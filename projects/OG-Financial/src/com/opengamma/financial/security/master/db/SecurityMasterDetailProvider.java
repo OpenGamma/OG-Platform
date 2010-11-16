@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security.master.db;
 
-import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.master.security.ManageableSecurity;
 
 /**
  * Provider allowing the detail of loading and storing a security to be separated
@@ -34,7 +34,7 @@ public interface SecurityMasterDetailProvider {
    * @param base  the base security, not null
    * @return the loaded security, not null
    */
-  DefaultSecurity loadSecurityDetail(DefaultSecurity base);
+  ManageableSecurity loadSecurityDetail(ManageableSecurity base);
 
   /**
    * Stores the specified security.
@@ -44,6 +44,6 @@ public interface SecurityMasterDetailProvider {
    * 
    * @param security  the security to store, not null
    */
-  void storeSecurityDetail(DefaultSecurity security);
+  void storeSecurityDetail(ManageableSecurity security);
 
 }

@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master;
+package com.opengamma.master.security;
 
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.id.IdentifierBundle;
 
 /**
@@ -24,5 +23,5 @@ public interface SecurityLoader {
    * @param identifiers a collection of identifiers to load, not-null
    * @return a map of security with the requested identifierbundle as key
    */
-  Map<IdentifierBundle, DefaultSecurity> loadSecurity(Collection<IdentifierBundle> identifiers);
+  Map<IdentifierBundle, ManageableSecurity> loadSecurity(Collection<IdentifierBundle> identifiers);
 }

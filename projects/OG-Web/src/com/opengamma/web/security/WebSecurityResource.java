@@ -21,10 +21,10 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
 
 /**
  * RESTful resource for a security.
@@ -58,12 +58,12 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     SecurityDocument doc = data().getSecurity();
     
     IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
-    Map<IdentifierBundle, DefaultSecurity> loadedSecurities = data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
-    DefaultSecurity updatedSecurity = loadedSecurities.get(identifierBundle);
+    Map<IdentifierBundle, ManageableSecurity> loadedSecurities = data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
+    ManageableSecurity updatedSecurity = loadedSecurities.get(identifierBundle);
     SecurityDocument updateDoc = new SecurityDocument();
     
-    UniqueIdentifier securityId = doc.getSecurityId();
-    updateDoc.setSecurityId(securityId);
+    UniqueIdentifier securityId = doc.getUniqueId();
+    updateDoc.setUniqueId(securityId);
     updateDoc.setSecurity(updatedSecurity);
     data().getSecurityMaster().update(updateDoc);
     
@@ -75,7 +75,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @DELETE
   public Response delete() {
     SecurityDocument doc = data().getSecurity();
-    data().getSecurityMaster().remove(doc.getSecurityId());
+    data().getSecurityMaster().remove(doc.getUniqueId());
     URI uri = WebSecuritiesResource.uri(data());
     return Response.seeOther(uri).build();
   }

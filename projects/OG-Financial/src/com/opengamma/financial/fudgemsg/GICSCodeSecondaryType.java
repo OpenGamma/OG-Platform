@@ -9,7 +9,7 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.SecondaryFieldType;
 
-import com.opengamma.financial.GICSCode;
+import com.opengamma.master.security.financial.GICSCode;
 
 /**
  * Converts GICSCode instances to/from a Fudge integer type.
