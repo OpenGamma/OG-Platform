@@ -108,7 +108,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     if (getFunctionCost() == null) {
       setFunctionCost(new FunctionCost());
     }
