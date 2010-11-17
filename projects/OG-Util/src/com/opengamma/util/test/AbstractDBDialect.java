@@ -372,8 +372,20 @@ public abstract class AbstractDBDialect implements DBDialect {
         System.out.println("Catalog " + catalog + " does not exist");
         return; // nothing to drop
       }
-
+      
       conn = connect(catalog);
+      
+      if (schema != null) {
+        Statement statement = conn.createStatement(); 
+        Collection<String> schemas = getAllSchemas(catalog, statement);
+        statement.close();
+        
+        if (!schemas.contains(schema)) {
+          System.out.println("Schema " + schema + " does not exist");
+          return; // nothing to drop
+        }
+      }
+
       setActiveSchema(conn, schema);
       Statement statement = conn.createStatement();
       
