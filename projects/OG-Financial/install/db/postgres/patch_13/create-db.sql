@@ -831,6 +831,7 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
+rsk_function_unique_id.unique_id as function_unique_id,
 rsk_value.value, 
 rsk_value.eval_instant
 from 
@@ -842,10 +843,12 @@ rsk_computation_target_type,
 rsk_run,
 rsk_compute_node,
 rsk_observation_datetime,
-rsk_observation_time
+rsk_observation_time,
+rsk_function_unique_id
 where
 rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_value.value_name_id = rsk_value_name.id and
+rsk_value.function_unique_id = rsk_function_unique_id.id and
 rsk_value.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
 rsk_value.run_id = rsk_run.id and
@@ -864,6 +867,7 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
+rsk_function_unique_id.unique_id as function_unique_id,
 rsk_failure.eval_instant
 from 
 rsk_failure, 
@@ -874,10 +878,12 @@ rsk_computation_target_type,
 rsk_run,
 rsk_compute_node,
 rsk_observation_datetime,
-rsk_observation_time
+rsk_observation_time,
+rsk_function_unique_id
 where
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
+rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
 rsk_failure.run_id = rsk_run.id and
