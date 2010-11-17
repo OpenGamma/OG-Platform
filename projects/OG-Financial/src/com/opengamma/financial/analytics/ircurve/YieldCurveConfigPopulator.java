@@ -34,12 +34,12 @@ public class YieldCurveConfigPopulator {
   }
   
   private static void dumpDefinition(YieldCurveDefinition curveDefinition) {
-    s_logger.warn("Curve Definition");
-    s_logger.warn("  Name:" + curveDefinition.getName());
-    s_logger.warn("  Currency:" + curveDefinition.getCurrency());
-    s_logger.warn("  Strips:");
+    s_logger.debug("Curve Definition");
+    s_logger.debug("  Name:" + curveDefinition.getName());
+    s_logger.debug("  Currency:" + curveDefinition.getCurrency());
+    s_logger.debug("  Strips:");
     for (FixedIncomeStrip strip : curveDefinition.getStrips()) {
-      s_logger.warn("    " + strip);
+      s_logger.debug("    " + strip);
     }
   }
 
