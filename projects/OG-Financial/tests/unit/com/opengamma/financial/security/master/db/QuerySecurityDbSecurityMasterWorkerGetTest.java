@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityDocument;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.

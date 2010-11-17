@@ -378,7 +378,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   private void threadFree(final JobExecution exec) {
-    do {
+    // ANDREW -- This logic is flawed, and I can't remember why it's here. The counter is a quick fix while I sort it properly.
+    for (int i = 0; i < 3000; i++) {
       final Pair<Thread, CalculationJob> previous = exec.getAndSetExecutor(null);
       if (previous != null) {
         assert previous.getFirst() == Thread.currentThread();
@@ -395,7 +396,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         s_logger.debug("Interrupt received");
         return;
       }
-    } while (true);
+    }
   }
 
   /**

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.master.memory;
+package com.opengamma.master.security.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,15 +16,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
-import com.opengamma.financial.security.master.memory.InMemorySecurityMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 
 /**
  * Test InMemorySecurityMaster.
@@ -70,7 +69,7 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
-    assertEquals("MemSec", added.getSecurityId().getScheme());
+    assertEquals("MemSec", added.getUniqueId().getScheme());
   }
 
   @Test
@@ -79,7 +78,7 @@ public class InMemorySecurityMasterTest {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
-    assertEquals("Hello", added.getSecurityId().getScheme());
+    assertEquals("Hello", added.getUniqueId().getScheme());
   }
 
   //-------------------------------------------------------------------------
@@ -132,8 +131,8 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_get_populatedMaster() {
-    assertSame(doc1, testPopulated.get(doc1.getSecurityId()));
-    assertSame(doc2, testPopulated.get(doc2.getSecurityId()));
+    assertSame(doc1, testPopulated.get(doc1.getUniqueId()));
+    assertSame(doc2, testPopulated.get(doc2.getUniqueId()));
   }
 
   //-------------------------------------------------------------------------
@@ -144,7 +143,7 @@ public class InMemorySecurityMasterTest {
     assertNotNull(added.getVersionFromInstant());
     assertNotNull(added.getCorrectionFromInstant());
     assertEquals(added.getVersionFromInstant(), added.getCorrectionFromInstant());
-    assertEquals("Test", added.getSecurityId().getScheme());
+    assertEquals("Test", added.getUniqueId().getScheme());
     assertSame(SEC1, added.getSecurity());
   }
 
@@ -153,16 +152,16 @@ public class InMemorySecurityMasterTest {
   public void test_update_emptyMaster() {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
-    doc.setSecurityId(OTHER_UID);
+    doc.setUniqueId(OTHER_UID);
     testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
-    doc.setSecurityId(doc1.getSecurityId());
+    doc.setUniqueId(doc1.getUniqueId());
     SecurityDocument updated = testPopulated.update(doc);
-    assertEquals(doc1.getSecurityId(), updated.getSecurityId());
+    assertEquals(doc1.getUniqueId(), updated.getUniqueId());
     assertNotNull(doc1.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
     assertEquals(false, doc1.getVersionFromInstant().equals(updated.getVersionFromInstant()));
@@ -176,7 +175,7 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_remove_populatedMaster() {
-    testPopulated.remove(doc1.getSecurityId());
+    testPopulated.remove(doc1.getUniqueId());
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());

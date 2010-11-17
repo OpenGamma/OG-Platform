@@ -25,13 +25,13 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityMaster;
-import com.opengamma.financial.security.master.SecurityHistoryRequest;
-import com.opengamma.financial.security.master.SecurityHistoryResult;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -103,7 +103,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope correct(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().correct(document);
-      final UniqueIdentifier uid = document.getSecurityId();
+      final UniqueIdentifier uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -115,7 +115,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope update(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().update(document);
-      final UniqueIdentifier uid = document.getSecurityId();
+      final UniqueIdentifier uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -139,7 +139,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().add(document);
-      return new FudgeMsgEnvelope(document.getSecurityId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(document.getUniqueId().toFudgeMsg(getFudgeContext()));
     }
 
     @Path("{uid}")

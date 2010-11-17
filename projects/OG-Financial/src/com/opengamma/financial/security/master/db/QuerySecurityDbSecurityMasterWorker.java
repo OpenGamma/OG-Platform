@@ -21,15 +21,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityHistoryRequest;
-import com.opengamma.financial.security.master.SecurityHistoryResult;
-import com.opengamma.financial.security.master.SecuritySearchRequest;
-import com.opengamma.financial.security.master.SecuritySearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
@@ -271,7 +271,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   protected SecurityHistoryResult history(final SecurityHistoryRequest request) {
     s_logger.debug("searchSecurityHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("security_oid", extractOid(request.getSecurityId()))
+      .addValue("security_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
@@ -385,7 +385,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSecurityId(uid);
+      doc.setUniqueId(uid);
       _documents.add(doc);
     }
   }

@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.financial.GICSCode;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -75,7 +75,7 @@ public class DbSecurityMasterTest extends DBTest {
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     
-    SecurityDocument loaded = _secMaster.get(added.getSecurityId());
+    SecurityDocument loaded = _secMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 

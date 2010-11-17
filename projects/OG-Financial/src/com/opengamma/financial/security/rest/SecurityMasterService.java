@@ -16,7 +16,7 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.security.master.SecurityMaster;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 

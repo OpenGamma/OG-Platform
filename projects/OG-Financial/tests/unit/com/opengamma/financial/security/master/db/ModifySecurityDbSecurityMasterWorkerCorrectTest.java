@@ -18,13 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityHistoryRequest;
-import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -77,7 +77,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expected = NullPointerException.class)
   public void test_correct_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setSecurityId(UniqueIdentifier.of("DbSec", "101", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
     _worker.correct(doc);
   }
 
@@ -107,7 +107,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument corrected = _worker.correct(input);
-    assertEquals(false, base.getSecurityId().equals(corrected.getSecurityId()));
+    assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
@@ -115,14 +115,14 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     assertEquals(input.getSecurity(), corrected.getSecurity());
     
     SecurityDocument old = _queryWorker.get(UniqueIdentifier.of("DbSec", "101", "0"));
-    assertEquals(base.getSecurityId(), old.getSecurityId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getSecurity(), old.getSecurity());
     
-    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getSecurityId(), now, null);
+    SecurityHistoryRequest search = new SecurityHistoryRequest(base.getUniqueId(), now, null);
     SecurityHistoryResult searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

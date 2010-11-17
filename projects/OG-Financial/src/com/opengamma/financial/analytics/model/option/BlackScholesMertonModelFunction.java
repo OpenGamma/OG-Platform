@@ -54,7 +54,7 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
 
   @Override
   protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
-    option.getExerciseType().accept(
+    return option.getExerciseType().accept(
       new ExerciseTypeVisitor<OptionDefinition>() {
         @Override
         public OptionDefinition visitAmericanExerciseType(AmericanExerciseType exerciseType) {
@@ -77,6 +77,5 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
         }
       }
     );
-    throw new OpenGammaRuntimeException("Unsupported option type");
   }
 }

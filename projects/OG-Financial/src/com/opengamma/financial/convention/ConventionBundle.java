@@ -62,7 +62,7 @@ public interface ConventionBundle {
    * Future point value, if applicable
    * @return The future point value
    */
-  Double getFuturePointValue();
+  Double getFutureYearFraction();
 
   /**
    * Gets the swapFixedLegDayCount field.

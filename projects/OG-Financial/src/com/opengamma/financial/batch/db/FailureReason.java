@@ -50,14 +50,18 @@ public class FailureReason {
   }
   
   public static String sqlInsertRiskFailureReason() {
-    return "INSERT INTO rsk_failure_reason " +
+    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason " +
               "(id, rsk_failure_id, compute_failure_id) " +
             "VALUES " +
               "(:id, :rsk_failure_id, :compute_failure_id)";
   }
   
+  public static String sqlDeleteRiskFailureReasons() {
+    return "DELETE FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason WHERE rsk_failure_id in (SELECT id FROM rsk_failure WHERE run_id = :run_id)";
+  }
+  
   public static String sqlCount() {
-    return "SELECT COUNT(*) FROM rsk_failure_reason";
+    return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_failure_reason";
   }
 
 }

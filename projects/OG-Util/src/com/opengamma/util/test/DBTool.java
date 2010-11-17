@@ -13,10 +13,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -49,6 +49,12 @@ public class DBTool extends Task {
   private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
   private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
   private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
+  
+  private static final Map<String, DBDialect> s_url2Dialect = new ConcurrentHashMap<String, DBDialect>();
+  
+  public static void addDialect(String jdbcUrlPrefix, DBDialect dialect) {
+    s_url2Dialect.put(jdbcUrlPrefix, dialect);
+  }
   
   /**
    */
@@ -119,13 +125,12 @@ public class DBTool extends Task {
       throw new OpenGammaRuntimeException("Server/user/password not initialised");
     }
     
-    Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>(); // add new supported DB types to this Map
-    url2Dialect.put("jdbc:postgresql", PostgresDialect.getInstance());
-    url2Dialect.put("jdbc:derby", DerbyDialect.getInstance());
-    url2Dialect.put("jdbc:hsqldb", HSQLDialect.getInstance());
+    addDialect("jdbc:postgresql", PostgresDialect.getInstance());
+    addDialect("jdbc:derby", DerbyDialect.getInstance());
+    addDialect("jdbc:hsqldb", HSQLDialect.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
-    for (Map.Entry<String, DBDialect> entry : url2Dialect.entrySet()) {
+    for (Map.Entry<String, DBDialect> entry : s_url2Dialect.entrySet()) {
       if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
         _dialect = entry.getValue();        
         break;
@@ -133,7 +138,7 @@ public class DBTool extends Task {
     }
     
     if (_dialect == null) {
-      throw new OpenGammaRuntimeException("Database " + _dbServerHost + " not supported. The database URL must contain one of: " + url2Dialect.entrySet());
+      throw new OpenGammaRuntimeException("Database " + _dbServerHost + " not supported. The database URL must contain one of: " + s_url2Dialect.entrySet());
     }
 
     _dialect.initialise(_dbServerHost, _user, _password);
@@ -323,16 +328,12 @@ public class DBTool extends Task {
     return _dialect.describeDatabase(getTestCatalog());
   }
   
-  public static String getTestCatalogStatic() {
-    return "test_" + System.getProperty("user.name").replace('.', '_');
-  }
-  
   public String getTestCatalog() {
-    return getTestCatalogStatic();    
+    return _dialect.getTestCatalog();    
   }
   
   public String getTestSchema() {
-    return null; // use default    
+    return _dialect.getTestSchema();
   }
   
   public String getTestDatabaseUrl() {
@@ -347,6 +348,10 @@ public class DBTool extends Task {
     return _dialect.getJDBCDriverClass();
   }
   
+  public DBDialect getDialect() {
+    return _dialect;
+  }
+
   public Configuration getHibernateConfiguration() {
     Configuration configuration = new Configuration();
     configuration.setProperty(Environment.DRIVER, getJDBCDriverClass().getName());
@@ -357,6 +362,14 @@ public class DBTool extends Task {
     configuration.setProperty(Environment.SHOW_SQL, "false");
     configuration.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
     configuration.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
+    return configuration;
+  }
+  
+  public Configuration getTestHibernateConfiguration() {
+    Configuration configuration = getHibernateConfiguration();
+    if (getTestSchema() != null) {
+      configuration.setProperty(Environment.DEFAULT_SCHEMA, getTestSchema());
+    }
     return configuration;
   }
   
@@ -374,17 +387,17 @@ public class DBTool extends Task {
   
   
   public void createTestTables(final TableCreationCallback callback) {
-    createTables(getTestCatalog(), callback);
+    createTables(getTestCatalog(), getTestSchema(), callback);
   }
   
-  private void executeCreateScript(String catalog, File file) {
+  private void executeCreateScript(String catalog, String schema, File file) {
     String sql;
     try {
       sql = FileUtils.readFileToString(file);
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Cannot read file " + file.getAbsolutePath(), e);      
     }
-    executeSql(catalog, sql);
+    executeSql(catalog, schema, sql);
     
     // -- DBTOOLDONOTCLEAR
     // create table rsk_computation_target_type (
@@ -419,7 +432,7 @@ public class DBTool extends Task {
     }
   }
   
-  private void createTables(String catalog, File[] scriptDirs, int index, TableCreationCallback callback) {
+  private void createTables(String catalog, String schema, File[] scriptDirs, int index, TableCreationCallback callback) {
     if (index < 0) {
       throw new IllegalArgumentException("Invalid creation or target version (" + getCreateVersion() + "/" + getTargetVersion() + ")");
     }
@@ -429,25 +442,25 @@ public class DBTool extends Task {
         final File createFile = new File(scriptDirs[index], DATABASE_CREATE_SCRIPT);
         if (createFile.exists()) {
           s_logger.info("Creating DB version " + version);
-          executeCreateScript(catalog, createFile);
+          executeCreateScript(catalog, schema, createFile);
           if (callback != null) {
             callback.tablesCreatedOrUpgraded(Integer.toString(version));
           }
           return;
         }
       }
-      createTables(catalog, scriptDirs, index - 1, callback);
+      createTables(catalog, schema, scriptDirs, index - 1, callback);
       final File upgradeFile = new File(scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
       if (upgradeFile.exists()) {
         s_logger.info("Upgrading to DB version " + version);
-        executeCreateScript(catalog, upgradeFile);
+        executeCreateScript(catalog, schema, upgradeFile);
         if (callback != null) {
           callback.tablesCreatedOrUpgraded(Integer.toString(version));
         }
         return;
       }
     } else {
-      createTables(catalog, scriptDirs, index - 1, callback);
+      createTables(catalog, schema, scriptDirs, index - 1, callback);
     }
   }
   
@@ -482,7 +495,7 @@ public class DBTool extends Task {
     return scriptDirs.toArray(new File[0]);
   }
   
-  public void createTables(String catalog, final TableCreationCallback callback) {
+  public void createTables(String catalog, String schema, final TableCreationCallback callback) {
     final File[] scriptDirs = getScriptDirs();
     if (getTargetVersion() == null) {
       setTargetVersion(scriptDirs[scriptDirs.length - 1].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
@@ -490,7 +503,7 @@ public class DBTool extends Task {
     if (getCreateVersion() == null) {
       setCreateVersion(getTargetVersion());
     }
-    createTables(catalog, scriptDirs, scriptDirs.length - 1, callback);
+    createTables(catalog, schema, scriptDirs, scriptDirs.length - 1, callback);
   }
   
   /**
@@ -513,8 +526,8 @@ public class DBTool extends Task {
     return versions.toArray(new String[versions.size()]);
   }
   
-  public void executeSql(String catalog, String sql) {
-    _dialect.executeSql(catalog, sql);
+  public void executeSql(String catalog, String schema, String sql) {
+    _dialect.executeSql(catalog, schema, sql);
   }
   
   @Override
@@ -550,7 +563,7 @@ public class DBTool extends Task {
     if (_createTables) {
       System.out.println("Creating tables...");
       initialize();
-      createTables(_catalog, null);
+      createTables(_catalog, null, null);
       shutdown(_catalog);
     }
     

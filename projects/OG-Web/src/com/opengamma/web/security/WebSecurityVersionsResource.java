@@ -15,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.security.master.SecurityDocument;
-import com.opengamma.financial.security.master.SecurityHistoryRequest;
-import com.opengamma.financial.security.master.SecurityHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
 
 /**
  * RESTful resource for all versions of a security.
@@ -39,7 +39,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   @GET
   public String get() {
     SecurityHistoryRequest request = new SecurityHistoryRequest();
-    request.setSecurityId(data().getSecurity().getSecurityId());
+    request.setObjectId(data().getSecurity().getUniqueId().toLatest());
     SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -66,8 +66,8 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   public WebSecurityVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     SecurityDocument doc = data().getSecurity();
-    UniqueIdentifier combined = doc.getSecurityId().withVersion(idStr);
-    if (doc.getSecurityId().equals(combined) == false) {
+    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    if (doc.getUniqueId().equals(combined) == false) {
       SecurityDocument versioned = data().getSecurityMaster().get(combined);
       data().setVersioned(versioned);
     } else {

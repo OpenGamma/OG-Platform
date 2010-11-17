@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.security.master.SecurityDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -73,7 +73,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     _worker.remove(uid);
     SecurityDocument test = _queryWorker.get(uid);
     
-    assertEquals(uid, test.getSecurityId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());

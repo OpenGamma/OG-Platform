@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Duration;
 import javax.time.Instant;
@@ -58,9 +60,14 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   private static final Logger s_logger = LoggerFactory.getLogger(IntradayComputationCacheImpl.class);
   
   /**
-   * Used to load/store time series
+   * Used to load/store time series. All access to it must be synchronized using _timeSeriesMasterLock.
    */
   private final DateTimeTimeSeriesMaster _timeSeriesMaster;
+  
+  /**
+   * Used to lock the time series storage
+   */
+  private final Lock _timeSeriesMasterLock = new ReentrantLock();
   
   /**
    * The user the cache runs as. Needed for View permission checks
@@ -227,7 +234,15 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     searchRequest.setDataField(fieldName);
     searchRequest.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult<Date> searchResult = _timeSeriesMaster.searchTimeSeries(searchRequest);
+    TimeSeriesSearchResult<Date> searchResult;
+
+    _timeSeriesMasterLock.lock();
+    try {
+      searchResult = _timeSeriesMaster.searchTimeSeries(searchRequest);
+    } finally {
+      _timeSeriesMasterLock.unlock();
+    }
+    
     if (searchResult.getDocuments().isEmpty()) {
       return null;
     } else if (searchResult.getDocuments().size() > 1) {
@@ -349,7 +364,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         for (ComputedValue value : values.values()) {
           
           if (!(value.getValue() instanceof Double)) {
-            s_logger.warn(value + " is not a double");
+            s_logger.debug(value + " is not a double");
             continue;
           }
           
@@ -359,12 +374,18 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
           String dataProvider = getDataProvider(lastResult.getViewName(), calcConf);
           String fieldName = getFieldName(valueSpecification);
 
-          UniqueIdentifier seriesUid = _timeSeriesMaster.resolveIdentifier(
-              identifiers,
-              null,
-              getDataSource(),
-              dataProvider,
-              fieldName);
+          UniqueIdentifier seriesUid;
+          _timeSeriesMasterLock.lock();
+          try {
+            seriesUid = _timeSeriesMaster.resolveIdentifier(
+                identifiers,
+                null,
+                getDataSource(),
+                dataProvider,
+                fieldName);
+          } finally {
+            _timeSeriesMasterLock.unlock();
+          }
           
           if (seriesUid == null) {
             
@@ -381,19 +402,31 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
             ts.putDataPoint(date, (Double) value.getValue());
             timeSeries.setTimeSeries(ts);
             
-            _timeSeriesMaster.addTimeSeries(timeSeries);
+            _timeSeriesMasterLock.lock();
+            try {
+              _timeSeriesMaster.addTimeSeries(timeSeries);
+            } finally {
+              _timeSeriesMasterLock.unlock();
+            }
             
           } else {
+            
+            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain(now).toEpochMillisLong());
             
             DataPointDocument<Date> dataPoint = new DataPointDocument<Date>();
             dataPoint.setTimeSeriesId(seriesUid);
             dataPoint.setDate(new Date(now.toEpochMillisLong()));
             dataPoint.setValue((Double) value.getValue());
             
-            _timeSeriesMaster.addDataPoint(dataPoint);
-            
-            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain(now).toEpochMillisLong());
-            _timeSeriesMaster.removeDataPoints(seriesUid, firstDateToRetain);
+            _timeSeriesMasterLock.lock();
+            try {
+              // here's the reason to use _timeSeriesMasterLock. If the lock was not used,
+              // you could get an inconsistent view of the time series between add and remove. 
+              _timeSeriesMaster.addDataPoint(dataPoint);
+              _timeSeriesMaster.removeDataPoints(seriesUid, firstDateToRetain);
+            } finally {
+              _timeSeriesMasterLock.unlock();
+            }
           }
           
         }

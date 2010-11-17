@@ -59,28 +59,6 @@ public class CoppClarkHolidayFileReader {
    */
   private static final List<LocalDate> EMPTY_DATE_LIST = Collections.emptyList();
   /**
-   * Path to Copp-Clark holiday files.
-   */
-  public static final String HOLIDAYS_DIR_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "holiday-calendars" + File.separator + "copp-clark";
-  /**
-   * Path to currency specific holiday calendars CSV file.
-   */
-  public static final String CURRENCY_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "Currencies_20100610.csv";
-  /**
-   * Path to financial center holiday calendars CSV file.
-   */
-  public static final String FINANCIAL_CENTRES_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "FinancialCentres_20100610.csv";
-  /**
-   * Path to exchange settlement holiday calendars CSV file.
-   */
-  public static final String EXCHANGE_SETTLEMENT_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeSettlement_20100610.csv";
-  /**
-   * Path to exchange trading holiday calendars CSV file.
-   */
-  public static final String EXCHANGE_TRADING_HOLIDAYS_FILE_PATH = HOLIDAYS_DIR_PATH + File.separator + "ExchangeTrading_20100610.csv";
-  
-//  private static final String EXCHANGE_HOLIDAYS_REPOST_FILE_PATH = RegionFileReader.WORLD_DATA_DIR_PATH + File.separator + "exchanges" + File.separator + "THR_20100630.csv.txt";
-  /**
    * The file version.
    */
   private static final String VERSION = "20100610";

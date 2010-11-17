@@ -204,10 +204,14 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
       s_logger.info("Waiting for write-behind thread to complete");
       try {
         valueWriter.get();
+        s_logger.info("Write-behind cache flushed");
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted during flush");
+        _pendingValues.clear();
+        valueWriter.cancel(true);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Error synchronising write-behind cache", e);
       }
-      s_logger.info("Write-behind cache flushed");
     } else {
       s_logger.debug("No pending writes");
     }
