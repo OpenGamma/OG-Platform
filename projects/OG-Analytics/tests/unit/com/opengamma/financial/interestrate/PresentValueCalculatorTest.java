@@ -88,7 +88,7 @@ public class PresentValueCalculatorTest {
 
   @Test
   public void testFutures() {
-    final double settlementDate = 1.453;
+    final double settlementDate = 1.473;
     final double fixingDate = 1.467;
     final double maturity = 1.75;
     final double indexYearFraction = 0.267;

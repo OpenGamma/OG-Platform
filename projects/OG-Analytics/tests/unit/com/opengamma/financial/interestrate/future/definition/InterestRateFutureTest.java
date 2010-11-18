@@ -53,8 +53,8 @@ public class InterestRateFutureTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSettlementAfterFixing() {
-    new InterestRateFuture(0.423, 0.421, 1.0, 0.25, 0.25, PRICE, CURVE_NAME);
+  public void testSettlementBeforeFixing() {
+    new InterestRateFuture(0.423, 0.424, 1.0, 0.25, 0.25, PRICE, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -70,7 +70,7 @@ public class InterestRateFutureTest {
   @Test
   public void test() {
     final double settlement = 1.45;
-    final double fixing = 1.46;
+    final double fixing = 1.44;
     final double maturity = 1.71;
     final double indexYearFrac = 0.2456;
     final double valueYearFrac = 0.25;
