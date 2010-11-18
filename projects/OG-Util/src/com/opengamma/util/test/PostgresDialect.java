@@ -12,7 +12,7 @@ import org.hibernate.dialect.PostgreSQLDialect;
  * Implementation of the database dialect for Postgres.
  */
 public final class PostgresDialect extends AbstractDBDialect {
-
+  
   /**
    * SQL to retrieve all the columns.
    */
@@ -114,7 +114,7 @@ public final class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getCreateSchemaSQL(String schema) {
+  public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
   }
 

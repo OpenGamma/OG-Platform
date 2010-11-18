@@ -206,6 +206,13 @@ public interface ValueRequirementNames {
   public static final String CONVEXITY = "Convexity";
   public static final String Z_SPREAD = "Z Spread";
   
+  //Bond Futures
+  public static final String CONVERTION_FACTOR = "Convertion Factor";
+  public static final String IMPLIED_REPO = "Implied Repo";
+  public static final String ACTUAL_REPO = "Actual Repo";
+  public static final String GROSS_BASIS = "Gross Basis";
+  public static final String NET_BASIS = "Net Basis";
+  
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 

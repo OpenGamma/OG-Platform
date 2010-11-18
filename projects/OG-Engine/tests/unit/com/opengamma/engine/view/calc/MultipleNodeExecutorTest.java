@@ -28,6 +28,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.util.Cancellable;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
@@ -63,7 +64,7 @@ public class MultipleNodeExecutorTest {
   }
 
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
-    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCost()) {
+    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCost(), new ExecutionPlanCache (EHCacheUtils.createCacheManager(), 0)) {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
@@ -95,7 +96,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMin5() {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testMin5");
     executor.printFragment(root);
     assertEquals(5, root.getNodes().size());
@@ -112,7 +113,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMax1() {
     final MultipleNodeExecutor executor = createExecutor(1, 1, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testMax1");
     executor.printFragment(root);
     assertEquals(3, root.getInputFragments().size());
@@ -151,7 +152,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMinMax2() {
     final MultipleNodeExecutor executor = createExecutor(2, 2, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testMinMax2");
     executor.printFragment(root);
     assertEquals(2, root.getInputFragments().size());
@@ -179,7 +180,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testMinMax4() {
     final MultipleNodeExecutor executor = createExecutor(3, 4, Integer.MAX_VALUE);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testMinMax4");
     executor.printFragment(root);
     assertEquals(1, root.getInputFragments().size());
@@ -199,7 +200,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread1() {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testThread1");
     executor.printFragment(root);
     assertEquals(3, root.getInputFragments().size());
@@ -228,7 +229,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread2() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testThread2");
     executor.printFragment(root);
     assertEquals(3, root.getInputFragments().size());
@@ -257,7 +258,7 @@ public class MultipleNodeExecutorTest {
   @Test
   public void testThread3() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
-    final RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     System.out.println("testThread3");
     executor.printFragment(root);
     assertEquals(3, root.getInputFragments().size());
@@ -325,21 +326,21 @@ public class MultipleNodeExecutorTest {
     System.out.println("testTailGraphColouring");
     System.out.println ("concurrency 1");
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
-    RootGraphFragment root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
     extractColours(root, colours);
     System.out.println (colours);
     assertEquals (7, colours.size ());
     System.out.println ("concurrency 2");
     executor = createExecutor(1,1,2);
-    root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear ();
     extractColours(root, colours);
     System.out.println (colours);
     assertEquals (4, colours.size ());
     System.out.println ("concurrency 3");
     executor = createExecutor(1,1,3);
-    root = executor.executeImpl(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear ();
     extractColours(root, colours);
     System.out.println (colours);

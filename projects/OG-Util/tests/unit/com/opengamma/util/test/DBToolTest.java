@@ -57,7 +57,7 @@ public class DBToolTest {
 
     // The table should no longer be there
     try {
-      _tool.executeSql(_tool.getTestCatalog(), "SELECT * FROM " + TEST_TABLE);
+      _tool.executeSql(_tool.getTestCatalog(), _tool.getTestSchema(), "SELECT * FROM " + TEST_TABLE);
       fail();
     } catch (OpenGammaRuntimeException e) {
       // Ok - no table should be there!
@@ -69,7 +69,7 @@ public class DBToolTest {
 
     _tool.createTestSchema();
     createTestTable();
-    _tool.executeSql(_tool.getTestCatalog(), "INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
+    _tool.executeSql(_tool.getTestCatalog(), _tool.getTestSchema(), "INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
 
     _tool.clearTestTables();
 
@@ -101,14 +101,14 @@ public class DBToolTest {
     try {
       String dropSql = table.sqlDropString(_tool.getHibernateDialect(), null, _tool
           .getTestSchema());
-      _tool.executeSql(_tool.getTestCatalog(), dropSql);
+      _tool.executeSql(_tool.getTestCatalog(), _tool.getTestSchema(), dropSql);
     } catch (OpenGammaRuntimeException e) {
       // It might not exist, that's OK
     }
     String createSql = "CREATE TABLE "
         + table.getQualifiedName(_tool.getHibernateDialect(), null, _tool
             .getTestSchema()) + " (test_column char(50))";
-    _tool.executeSql(_tool.getTestCatalog(), createSql);
+    _tool.executeSql(_tool.getTestCatalog(), _tool.getTestSchema(), createSql);
   }
 
 }

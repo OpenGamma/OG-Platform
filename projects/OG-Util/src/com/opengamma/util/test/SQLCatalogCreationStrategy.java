@@ -50,7 +50,7 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
   public boolean catalogExists(String catalog) {
     Connection conn = null;
     try {
-      conn = DriverManager.getConnection(_dbServerHost + "/" + _blankCatalog, _user, _password);
+      conn = DriverManager.getConnection(getCatalogToConnectTo(), _user, _password);
       conn.setAutoCommit(true);
   
       Statement statement = conn.createStatement();
@@ -81,6 +81,14 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
     } 
   }
 
+  private String getCatalogToConnectTo() {
+    if (_blankCatalog == null) {
+      return _dbServerHost;
+    } else {
+      return _dbServerHost + "/" + _blankCatalog;
+    }
+  }
+
   @Override
   public void create(String catalog) {
     if (catalogExists(catalog)) {
@@ -89,7 +97,7 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
     
     Connection conn = null;
     try {
-      conn = DriverManager.getConnection(_dbServerHost + "/" + _blankCatalog, 
+      conn = DriverManager.getConnection(getCatalogToConnectTo(), 
           _user, _password);
       conn.setAutoCommit(true);
   
