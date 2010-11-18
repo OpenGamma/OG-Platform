@@ -37,7 +37,6 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -113,31 +112,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       String html = getFreemarker().build("securities/securities-add.ftl", out);
       return Response.ok(html).build();
     }
-    List<IdentifierBundle> errors = new ArrayList<IdentifierBundle>();
     IdentificationScheme scheme = IdentificationScheme.of(idScheme);
     Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, ManageableSecurity> loadedSecurities = securityLoader.loadSecurity(bundles);
-    SecurityMaster securityMaster = data().getSecurityMaster();
-    SecurityDocument added = null;
-    for (IdentifierBundle identifierBundle : bundles) {
-      ManageableSecurity security = loadedSecurities.get(identifierBundle);
-      if (security != null) {
-        try {
-          final SecurityDocument document = new SecurityDocument();
-          document.setSecurity(security);
-          added = securityMaster.add(document);
-        } catch (Exception e) {
-          s_logger.warn("error writing security=" + security, e.getCause());
-          errors.add(identifierBundle);
-        }
-      } else {
-        errors.add(identifierBundle);
-      }
-    }
+    Map<IdentifierBundle, UniqueIdentifier> loadedSecurities = securityLoader.loadSecurity(bundles);
+    
     URI uri = null;
-    if (bundles.size() == 1) {
-      uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+    if (bundles.size() == 1 && loadedSecurities.size() == 1) {
+      IdentifierBundle identifierBundle = bundles.iterator().next();
+      uri = data().getUriInfo().getAbsolutePathBuilder().path(loadedSecurities.get(identifierBundle).toLatest().toString()).build();
     } else {
       uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
 //      uri = uri(data());

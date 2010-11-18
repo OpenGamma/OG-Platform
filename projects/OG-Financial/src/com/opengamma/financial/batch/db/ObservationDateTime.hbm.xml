@@ -4,7 +4,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.batch.db">
 
-  <class name="ObservationDateTime" table="rsk_observation_datetime">
+  <class name="ObservationDateTime" table="rsk_observation_datetime" dynamic-update="true">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>

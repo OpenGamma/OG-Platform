@@ -83,6 +83,7 @@ public class CancelExecutionTest {
 
   private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryOneJob() {
     final MultipleNodeExecutorFactory factory = new MultipleNodeExecutorFactory();
+    factory.afterPropertiesSet();
     return factory;
   }
 

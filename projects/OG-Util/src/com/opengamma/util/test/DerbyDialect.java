@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * Implementation of the database dialect for Derby.
  */
 public final class DerbyDialect extends AbstractDBDialect {
-
+  
   /**
    * Singleton instance.
    */
@@ -138,7 +138,7 @@ public final class DerbyDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getCreateSchemaSQL(String schema) {
+  public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
   }
 

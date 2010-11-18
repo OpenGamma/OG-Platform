@@ -20,6 +20,9 @@ import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
@@ -28,6 +31,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCost;
 import com.opengamma.util.Cancellable;
+import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -36,6 +40,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(MultipleNodeExecutor.class);
+
   private final SingleComputationCycle _cycle;
   private final int _minJobItems;
   private final int _maxJobItems;
@@ -43,9 +49,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   private final long _maxJobCost;
   private final int _maxConcurrency;
   private final FunctionCost _functionCost;
+  private final ExecutionPlanCache _cache;
 
   protected MultipleNodeExecutor(final SingleComputationCycle cycle, final int minimumJobItems, final int maximumJobItems, final long minimumJobCost, final long maximumJobCost,
-      final int maximumConcurrency, final FunctionCost functionCost) {
+      final int maximumConcurrency, final FunctionCost functionCost, final ExecutionPlanCache cache) {
     // Don't check for null as the factory does this, plus for testing we don't have a cycle and override the methods that use it
     _cycle = cycle;
     _minJobItems = minimumJobItems;
@@ -54,10 +61,15 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _maxJobCost = maximumJobCost;
     _maxConcurrency = maximumConcurrency;
     _functionCost = functionCost;
+    _cache = cache;
   }
 
   protected SingleComputationCycle getCycle() {
     return _cycle;
+  }
+
+  protected ExecutionPlanCache getCache() {
+    return _cache;
   }
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
@@ -80,7 +92,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     getCycle().markFailed(node);
   }
 
-  protected RootGraphFragment executeImpl(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+  protected RootGraphFragment createExecutionPlan(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
+    final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
     final GraphFragmentContext context = new GraphFragmentContext(this, graph);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
@@ -89,6 +102,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
       fragment.executeImpl();
+      timer.finished();
       return fragment;
     }
     final Set<GraphFragment> allFragments = new HashSet<GraphFragment>((graph.getSize() * 4) / 3);
@@ -137,14 +151,40 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {
-      fragment.execute();
+      fragment.executeImpl();
     }
+    timer.finished();
     return logicalRoot;
+  }
+
+  private void executeLeafNodes(final GraphFragment fragment, final Set<GraphFragment> visited) {
+    final Set<GraphFragment> inputs = fragment.getInputFragments();
+    if (inputs.isEmpty()) {
+      fragment.executeImpl();
+    } else {
+      for (GraphFragment input : inputs) {
+        if (visited.add(input)) {
+          executeLeafNodes(input, visited);
+        }
+      }
+    }
   }
 
   @Override
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-    return executeImpl(graph, statistics);
+    final RootGraphFragment execution = _cache.getCachedExecutionPlan(graph);
+    if (execution != null) {
+      final Set<GraphFragment> visited = new HashSet<GraphFragment>();
+      if (execution.reset(this, visited)) {
+        s_logger.info("Using cached execution plan for {}", graph);
+        visited.clear();
+        executeLeafNodes(execution, visited);
+        return execution;
+      } else {
+        s_logger.warn("Invalid cached execution plan for {}", graph);
+      }
+    }
+    return createExecutionPlan(graph, statistics);
   }
 
   public int getMinJobItems() {
