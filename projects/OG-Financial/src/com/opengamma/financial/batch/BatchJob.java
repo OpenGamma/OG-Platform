@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -595,11 +594,12 @@ public class BatchJob {
 
     options.addOption("dateRangeStart", true, "First valuation date (inclusive). If daterangestart and daterangeend are given, "
         + "observationDate and snapshotObservationDate are calculated from the range and must not be given explicitly." 
-        + " 1. If holidaySource/holidayCurrency are not given: The batch will be run "
-        + "for those dates within the range for which there is a snapshot in the database. "
-        + "If there is no snapshot, that date is simply ignored. " 
-        + "2. If holidaySource and holidayCurrency are given: The batch will be run for those dates which are not weekends or holidays.");
+        + " By default, the batch will be run for those dates within the range which are not weekends or holidays.");
     options.addOption("dateRangeEnd", true, "Last valuation date (inclusive).");
+    options.addOption("snapshotDateRange", false, "An option that can be used in conjunction with dateRangeStart and dateRangeEnd. "
+        + "If given, the batch will be run for those dates for which there is a market data snapshot in the batch database. "
+        + "If there is no snapshot, that date is simply ignored. This can be useful if you want to run the batch for " 
+        + "a specific set of historical dates.");
     
     options.addOption("timeZone", true, "Time zone in which times on the command line are given. Default - system time zone.");
     
@@ -611,14 +611,14 @@ public class BatchJob {
     return options;
   }
 
-  private Set<LocalDate> getDates(String dateRangeStart, String dateRangeEnd) {
+  private Collection<LocalDate> getDates(String dateRangeStart, String dateRangeEnd) {
     ArgumentChecker.notNull(dateRangeStart, "Date range start");
     ArgumentChecker.notNull(dateRangeStart, "Date range end");
 
     LocalDate startDate = BatchJobParameters.parseDate(dateRangeStart);
     LocalDate endDate = BatchJobParameters.parseDate(dateRangeEnd);
 
-    Set<LocalDate> dates = new HashSet<LocalDate>();
+    Collection<LocalDate> dates = new ArrayList<LocalDate>();
 
     int difference = DateUtil.getDaysBetween(startDate, true, endDate, true);
     for (int i = 0; i < difference; i++) {
@@ -694,14 +694,14 @@ public class BatchJob {
 
     if (dateRangeStart != null && dateRangeEnd != null) {
       // multiple runs, on many different dates
-      Set<LocalDate> runDates = getDates(dateRangeStart, dateRangeEnd);
+      Collection<LocalDate> runDates = getDates(dateRangeStart, dateRangeEnd);
 
       for (LocalDate runDate : runDates) {
         BatchJobRun run = createRun(line, runDate);
 
         String whyNotRunReason = null;
         
-        if (getHolidaySource() == null || getHolidayCurrency() == null) {
+        if (line.hasOption("snapshotDateRange")) {
           try {
             _batchDbManager.getSnapshotValues(run.getSnapshotId());
           } catch (IllegalArgumentException e) {
@@ -710,7 +710,7 @@ public class BatchJob {
         } else {
           if (runDate.getDayOfWeek() == DayOfWeek.SATURDAY || runDate.getDayOfWeek() == DayOfWeek.SUNDAY) { 
             whyNotRunReason = "this day is a weekend"; 
-          } else {
+          } else if (getHolidaySource() != null && getHolidayCurrency() != null) {
             boolean isHoliday = getHolidaySource().isHoliday(runDate, getHolidayCurrency());
             if (isHoliday) {
               whyNotRunReason = "this day is a holiday";
