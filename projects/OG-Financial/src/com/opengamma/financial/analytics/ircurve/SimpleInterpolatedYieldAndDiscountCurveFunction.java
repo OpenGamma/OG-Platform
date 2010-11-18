@@ -59,6 +59,13 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
+
+  /**
+   * Resultant value specification property for the curve result. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_CURVE_DEFINITION_NAME = "NAME";
+
   private Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
@@ -100,8 +107,8 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _definition = curveDefinitionSource.getDefinition(_curveCurrency, _curveName);
     _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
-    _result = new ValueSpecification(new ValueRequirement(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()),
-        getUniqueIdentifier());
+    _result = new ValueSpecification(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, new ComputationTargetSpecification(_definition.getCurrency()),
+        createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _curveName).get());
     _results = Collections.singleton(_result);
   }
 
