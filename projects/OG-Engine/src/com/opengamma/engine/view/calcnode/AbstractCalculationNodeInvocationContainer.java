@@ -378,25 +378,44 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   private void threadFree(final JobExecution exec) {
-    // ANDREW -- This logic is flawed, and I can't remember why it's here. The counter is a quick fix while I sort it properly.
-    for (int i = 0; i < 3000; i++) {
+    // The executor should only go null transiently while the cancel action happens and should then
+    // be restored. It sometimes ends up as null (probably because of a flaw in the logic), so we
+    // have a spin count here to give up after 1s regardless (which may cause further errors, but
+    // is better than deadlock).
+    int spin = 0;
+    do {
       final Pair<Thread, CalculationJob> previous = exec.getAndSetExecutor(null);
       if (previous != null) {
         assert previous.getFirst() == Thread.currentThread();
         return;
       }
+      // Executor reference is null while the job is being canceled. An interrupt may be done as part of
+      // this so we need to make sure we swallow it rather than leave ourselves in an interrupted state.
       if (Thread.interrupted()) {
         s_logger.debug("Interrupt status cleared");
         return;
       }
-      s_logger.debug("Waiting for interrupt");
+      switch (spin) {
+        case 0:
+          s_logger.debug("Waiting for interrupt");
+          break;
+        case 1 :
+          s_logger.info("Waiting for interrupt");
+          break;
+        case 2 :
+          s_logger.warn("Waiting for interrupt");
+          break;
+        default :
+          s_logger.error("Waiting for interrupt");
+          break;
+      }
       try {
         Thread.sleep(1);
       } catch (InterruptedException e) {
         s_logger.debug("Interrupt received");
         return;
       }
-    }
+    } while (++spin < 1000);
   }
 
   /**
@@ -494,6 +513,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
       executor.getSecond().cancel();
       s_logger.info("Interrupting thread {}", executor.getFirst().getName());
       executor.getFirst().interrupt();
+      // Need to wait for the execution thread to acknowledge the interrupt, or it may be canceled by us swapping the executor
+      // reference back in and the interrupt will affect a subsequent wait causing erroneous behavior
       while (executor.getFirst().isInterrupted()) {
         s_logger.debug("Waiting for thread {} to accept the interrupt", executor.getFirst().getName());
         Thread.yield();
