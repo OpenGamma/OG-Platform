@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Stack;
 
 import javax.time.Instant;
@@ -21,16 +22,19 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
+import com.opengamma.engine.position.CounterpartyImpl;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.engine.position.TradeImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.financial.position.master.ManageableTrade;
 import com.opengamma.financial.position.master.PositionHistoryRequest;
 import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.id.Identifier;
@@ -92,6 +96,12 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     }
     final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
     position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
+    List<ManageableTrade> trades = firstPosition.getTrades();
+    for (ManageableTrade manageableTrade : trades) {
+      CounterpartyImpl counterparty = new CounterpartyImpl(manageableTrade.getCounterpartyId());
+      TradeImpl trade = new TradeImpl(position, manageableTrade.getQuantity(), counterparty, manageableTrade.getTradeInstant());
+      position.addTrade(trade);
+    }
     return position;
   }
 

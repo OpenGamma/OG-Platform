@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.time.Instant;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.financial.position.master.ManageableTrade;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -111,10 +113,131 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
   }
+  
+  @Test
+  public void test_addPositionWithOneTrade_add() {
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    Instant tradeInstant = now.minusSeconds(500);
+    
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, tradeInstant, Identifier.of("CPS", "CPV")));
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
+    doc.setPosition(position);
+    PositionDocument test = _worker.addPosition(doc);
+    
+    UniqueIdentifier uid = test.getPositionId();
+    assertNotNull(uid);
+    assertEquals("DbPos", uid.getScheme());
+    assertTrue(uid.isVersioned());
+    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertEquals("0", uid.getVersion());
+    assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePosition testPosition = test.getPosition();
+    assertNotNull(testPosition);
+    assertEquals(uid, testPosition.getUniqueIdentifier());
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    IdentifierBundle secKey = testPosition.getSecurityKey();
+    assertNotNull(secKey);
+    assertEquals(1, secKey.size());
+    assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
+    
+    List<ManageableTrade> trades = testPosition.getTrades();
+    assertNotNull(trades);
+    assertTrue(trades.size() == 1);
+    ManageableTrade testTrade = trades.iterator().next();
+    assertNotNull(testTrade);
+    assertEquals(BigDecimal.TEN, testTrade.getQuantity());
+    assertEquals(tradeInstant, testTrade.getTradeInstant());
+    assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyId());
+  }
+  
+  @Test
+  public void test_addPositionWithTwoTrades_add() {
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
+    doc.setPosition(position);
+    PositionDocument test = _worker.addPosition(doc);
+    
+    UniqueIdentifier uid = test.getPositionId();
+    assertNotNull(uid);
+    assertEquals("DbPos", uid.getScheme());
+    assertTrue(uid.isVersioned());
+    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertEquals("0", uid.getVersion());
+    assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
+    assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePosition testPosition = test.getPosition();
+    assertNotNull(testPosition);
+    assertEquals(uid, testPosition.getUniqueIdentifier());
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    IdentifierBundle secKey = testPosition.getSecurityKey();
+    assertNotNull(secKey);
+    assertEquals(1, secKey.size());
+    assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
+    
+    List<ManageableTrade> trades = testPosition.getTrades();
+    assertNotNull(trades);
+    assertTrue(trades.size() == 2);
+    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV"))));
+    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV"))));
+  }
+  
+  
 
   @Test
   public void test_addPosition_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    PositionDocument doc = new PositionDocument();
+    doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
+    doc.setPosition(position);
+    PositionDocument added = _worker.addPosition(doc);
+    
+    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
+    assertEquals(added, test);
+  }
+  
+  @Test
+  public void test_addPositionWithOneTrade_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
+    doc.setPosition(position);
+    PositionDocument added = _worker.addPosition(doc);
+    
+    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
+    assertEquals(added, test);
+  }
+  
+  @Test
+  public void test_addPositionWithTwoTrades_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(20), Identifier.of("A", "B"));
+    
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
+    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
     doc.setPosition(position);

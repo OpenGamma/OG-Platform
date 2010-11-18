@@ -10,6 +10,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -18,7 +20,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.Trade;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -72,7 +76,31 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
   }
 
   @Test
-  public void test_getFullPosition_oneSecurityKey() {
+  public void test_getFullPosition_oneSecurityKey_oneTrade() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "120");
+    FullPositionGetRequest request = new FullPositionGetRequest(uid);
+    Position test = _worker.getFullPosition(request);
+    
+    assertEquals(UniqueIdentifier.of("DbPos", "120", "0"), test.getUniqueIdentifier());
+    assertEquals(BigDecimal.valueOf(120.987), test.getQuantity());
+    IdentifierBundle testSecKey = test.getSecurityKey();
+    assertNotNull(testSecKey);
+    assertEquals(1, testSecKey.size());
+    assertEquals(Identifier.of("TICKER", "T130"), testSecKey.getIdentifiers().iterator().next());
+    
+    Collection<Trade> trades = test.getTrades();
+    assertNotNull(trades);
+    assertEquals(1, trades.size());
+    Trade trade = trades.iterator().next();
+    assertNotNull(trade);
+    assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterparty().getIdentifier());
+    assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
+    assertEquals(testSecKey, trade.getSecurityKey());
+    assertNotNull(trade.getTradeInstant());
+  }
+  
+  @Test
+  public void test_getFullPosition_oneSecurityKey_twoTrades() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122");
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
     Position test = _worker.getFullPosition(request);
@@ -83,10 +111,31 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertNotNull(testSecKey);
     assertEquals(1, testSecKey.size());
     assertEquals(Identifier.of("TICKER", "ORCL"), testSecKey.getIdentifiers().iterator().next());
+    
+    Collection<Trade> trades = test.getTrades();
+    assertNotNull(trades);
+    assertEquals(2, trades.size());
+    
+    Set<BigDecimal> expectedQuantities = Sets.newHashSet(BigDecimal.valueOf(100.987), BigDecimal.valueOf(22.987));
+    Set<Identifier> expectedCounterPartyIds = Sets.newHashSet(Identifier.of("CPARTY", "JMP"), Identifier.of("CPARTY", "CISC"));
+    
+    Set<BigDecimal> actualQuantities = Sets.newHashSet();
+    Set<Identifier> actualCounterPartyIds = Sets.newHashSet();
+    
+    for (Trade trade : trades) {
+      assertNotNull(trade);
+      actualCounterPartyIds.add(trade.getCounterparty().getIdentifier());
+      actualQuantities.add(trade.getQuantity());
+      assertEquals(testSecKey, trade.getSecurityKey());
+      assertNotNull(trade.getTradeInstant());
+    }
+    
+    assertEquals(expectedQuantities, actualQuantities);
+    assertEquals(expectedCounterPartyIds, actualCounterPartyIds);
   }
 
   @Test
-  public void test_getPosition_twoSecurityKeys() {
+  public void test_getPosition_twoSecurityKeys_oneTrade() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "121");
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
     Position test = _worker.getFullPosition(request);
@@ -98,6 +147,52 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertEquals(2, testSecKey.size());
     assertEquals(true, testSecKey.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
     assertEquals(true, testSecKey.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
+    
+    Collection<Trade> trades = test.getTrades();
+    assertNotNull(trades);
+    assertEquals(1, trades.size());
+    Trade trade = trades.iterator().next();
+    assertNotNull(trade);
+    assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterparty().getIdentifier());
+    assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
+    assertEquals(testSecKey, trade.getSecurityKey());
+    assertNotNull(trade.getTradeInstant());
+  }
+  
+  @Test
+  public void test_getPosition_twoSecurityKeys_twoTrades() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "123");
+    FullPositionGetRequest request = new FullPositionGetRequest(uid);
+    Position test = _worker.getFullPosition(request);
+    
+    assertEquals(UniqueIdentifier.of("DbPos", "123", "0"), test.getUniqueIdentifier());
+    assertEquals(BigDecimal.valueOf(123.987), test.getQuantity());
+    IdentifierBundle testSecKey = test.getSecurityKey();
+    assertNotNull(testSecKey);
+    assertEquals(2, testSecKey.size());
+    assertEquals(true, testSecKey.getIdentifiers().contains(Identifier.of("TICKER", "ORCL134")));
+    assertEquals(true, testSecKey.getIdentifiers().contains(Identifier.of("NASDAQ", "ORCL135")));
+    
+    Collection<Trade> trades = test.getTrades();
+    assertNotNull(trades);
+    assertEquals(2, trades.size());
+    
+    Set<BigDecimal> expectedQuantities = Sets.newHashSet(BigDecimal.valueOf(100.987), BigDecimal.valueOf(123.987));
+    Set<Identifier> expectedCounterPartyIds = Sets.newHashSet(Identifier.of("CPARTY", "C104"), Identifier.of("CPARTY", "C105"));
+    
+    Set<BigDecimal> actualQuantities = Sets.newHashSet();
+    Set<Identifier> actualCounterPartyIds = Sets.newHashSet();
+    
+    for (Trade trade : trades) {
+      assertNotNull(trade);
+      actualCounterPartyIds.add(trade.getCounterparty().getIdentifier());
+      actualQuantities.add(trade.getQuantity());
+      assertEquals(testSecKey, trade.getSecurityKey());
+      assertNotNull(trade.getTradeInstant());
+    }
+    
+    assertEquals(expectedQuantities, actualQuantities);
+    assertEquals(expectedCounterPartyIds, actualCounterPartyIds);
   }
 
   @Test
