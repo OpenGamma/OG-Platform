@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.time.Instant;
 
@@ -60,10 +59,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "p.corr_from_instant AS corr_from_instant, " +
         "p.corr_to_instant AS corr_to_instant, " +
         "p.quantity AS quantity, " +
-        "s.id AS seckey_id, " +
         "s.id_scheme AS seckey_scheme, " +
         "s.id_value AS seckey_value, " +
-        "t.id AS trade_id, " +
         "t.quantity AS trade_quantity, " +
         "t.trade_instant AS trade_instant, " +
         "t.cparty_scheme AS cparty_scheme, " +
@@ -149,6 +146,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     if (request.getParentNodeId() != null) {
       args.addValue("parent_node_oid", extractOid(request.getParentNodeId()));
     }
+    s_logger.debug("args: {}", args);
     // TODO: security key
     final String[] sql = sqlSearchPositions(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
@@ -254,44 +252,31 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * Mapper from SQL rows to a PositionDocument.
    */
   protected final class PositionDocumentExtractor implements ResultSetExtractor<List<PositionDocument>> {
+    private long _lastPositionId = -1;
+    private ManageablePosition _position;
+    private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
     private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
-    private Map<Long, Map<Long, Identifier>> _seckeysMap =  Maps.newHashMap();  
-    private Map<Long, Map<Long, ManageableTrade>> _tradesMap = Maps.newHashMap();
-    private Map<Long, PositionDocument> _positionsMap = Maps.newHashMap();
 
     @Override
     public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
-      long lastPositionId = -1;
       while (rs.next()) {
         final long positionId = rs.getLong("POSITION_ID");
-        if (lastPositionId != positionId) {
-          lastPositionId = positionId;
-          if (_positionsMap.get(lastPositionId) == null) {
-            _positionsMap.put(lastPositionId, buildPosition(rs, positionId));
-          }
+        if (_lastPositionId != positionId) {
+          _lastPositionId = positionId;
+          buildPosition(rs, positionId);
         }
-        long seckeyId = rs.getLong("SECKEY_ID");
         final String idScheme = rs.getString("SECKEY_SCHEME");
         final String idValue = rs.getString("SECKEY_VALUE");
-        if (idScheme != null && idValue != null &&  seckeyId != 0) {
+        if (idScheme != null && idValue != null) {
           Identifier id = Identifier.of(idScheme, idValue);
-          Map<Long, Identifier> identifiers = _seckeysMap.get(lastPositionId);
-          if (identifiers == null) {
-            identifiers = Maps.newHashMap();
-            _seckeysMap.put(lastPositionId, identifiers);
-          }
-          if (identifiers.get(seckeyId) == null) {
-            identifiers.put(seckeyId, id);
-          }
+          _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
         }
         
-        long tradeId = rs.getLong("TRADE_ID");
         final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
-        if (tradeInstant != null && tradeId != 0) {
+        if (tradeInstant != null) {
           ManageableTrade trade = new ManageableTrade();
           final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
           trade.setQuantity(tradeQuantity);
-          
           trade.setTradeInstant(DbDateUtils.fromSqlTimestamp(tradeInstant));
           final String cpartyScheme = rs.getString("CPARTY_SCHEME");
           final String cpartyValue = rs.getString("CPARTY_VALUE");
@@ -299,40 +284,13 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
             Identifier id = Identifier.of(cpartyScheme, cpartyValue);
             trade.setCounterpartyId(id);
           }
-          Map<Long, ManageableTrade> manageableTrades = _tradesMap.get(lastPositionId);
-          if (manageableTrades == null) {
-            manageableTrades = Maps.newHashMap();
-            _tradesMap.put(lastPositionId, manageableTrades);
-          }
-          if (manageableTrades.get(tradeId) == null) {
-            manageableTrades.put(tradeId, trade);
-          }
+          _position.getTrades().add(trade);
         }
       }
-      List<PositionDocument> documents = new ArrayList<PositionDocument>();
-      for (Entry<Long, PositionDocument> entry : _positionsMap.entrySet()) {
-        Long positionId = entry.getKey();
-        PositionDocument positionDocument = entry.getValue();
-        Map<Long, Identifier> identifiers = _seckeysMap.get(positionId);
-        if (identifiers != null) {
-          for (Identifier id : identifiers.values()) {
-            ManageablePosition position = positionDocument.getPosition();
-            position.setSecurityKey(position.getSecurityKey().withIdentifier(id));
-          }
-        }
-        Map<Long, ManageableTrade> trades = _tradesMap.get(positionId);
-        if (trades != null) {
-          for (ManageableTrade trade : trades.values()) {
-            ManageablePosition position = positionDocument.getPosition();
-            position.addTrade(trade);
-          }
-        }
-        documents.add(positionDocument);
-      }
-      return documents;
+      return _documents;
     }
 
-    private PositionDocument buildPosition(final ResultSet rs, final long positionId) throws SQLException {
+    private void buildPosition(final ResultSet rs, final long positionId) throws SQLException {
       final long positionOid = rs.getLong("POSITION_OID");
       final long portfolioOid = rs.getLong("PORTFOLIO_OID");
       final long parentNodeOid = rs.getLong("PARENT_NODE_OID");
@@ -341,9 +299,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      ManageablePosition position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
-      position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
-      PositionDocument doc = new PositionDocument(position);
+      _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
+      _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
+      PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
@@ -351,7 +309,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       doc.setPortfolioId(createObjectIdentifier(portfolioOid, _deduplicate));
       doc.setParentNodeId(createObjectIdentifier(parentNodeOid, _deduplicate));
       doc.setPositionId(createUniqueIdentifier(positionOid, positionId, _deduplicate));
-      return doc;
+      _documents.add(doc);
     }
   }
 

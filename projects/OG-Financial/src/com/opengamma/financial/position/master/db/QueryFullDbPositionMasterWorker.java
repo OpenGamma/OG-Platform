@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.time.Instant;
@@ -29,6 +29,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.engine.position.Trade;
 import com.opengamma.engine.position.TradeImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
@@ -96,7 +97,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     }
     final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
     position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
-    List<ManageableTrade> trades = firstPosition.getTrades();
+    Set<ManageableTrade> trades = firstPosition.getTrades();
     for (ManageableTrade manageableTrade : trades) {
       CounterpartyImpl counterparty = new CounterpartyImpl(manageableTrade.getCounterpartyId());
       TradeImpl trade = new TradeImpl(position, manageableTrade.getQuantity(), counterparty, manageableTrade.getTradeInstant());
@@ -112,6 +113,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolio(id.toLatest());
+    s_logger.debug("args: {}", args);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
     return namedJdbc.query(sql, args, extractor);
@@ -145,6 +147,10 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
         "s.id_value AS seckey_value, " +
+        "t.quantity AS trade_quantity, " +
+        "t.trade_instant AS trade_instant, " +
+        "t.cparty_scheme AS cparty_scheme, " +
+        "t.cparty_value AS cparty_value, " +
         "m.fixed_ver AS fixed_ver, " +
         "m.fixed_corr AS fixed_corr " +
       "FROM pos_portfolio f " +
@@ -152,7 +158,8 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
           "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
           "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-        "LEFT JOIN pos_securitykey s ON (s.position_id = p.id), " +
+        "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
+        "LEFT JOIN pos_trade t ON (t.position_id = p.id), " +
         "(" + selectMax + ") m " +
       "WHERE f.oid = :portfolio_oid " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
@@ -170,6 +177,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
+    s_logger.debug("args: {}", args);
     Portfolio portfolio = namedJdbc.query(sql, args, extractor);
     return (portfolio != null ? portfolio.getRootNode() : null);
   }
@@ -202,6 +210,10 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
         "s.id_value AS seckey_value, " +
+        "t.quantity AS trade_quantity, " +
+        "t.trade_instant AS trade_instant, " +
+        "t.cparty_scheme AS cparty_scheme, " +
+        "t.cparty_value AS cparty_value, " +
         "m.fixed_ver AS fixed_ver, " +
         "m.fixed_corr AS fixed_corr " +
       "FROM " +
@@ -211,7 +223,8 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
             "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
             "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id), " +
+          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
+          "LEFT JOIN pos_trade t ON (t.position_id = p.id), " +
           "(" + selectMax + ") m " +
       "WHERE base.portfolio_id = f.id " +
         "AND n.portfolio_id = f.id " +
@@ -268,7 +281,21 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           Identifier id = Identifier.of(idScheme, idValue);
           position.setSecurityKey(position.getSecurityKey().withIdentifier(id));
         }
+        
+        final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
+        if (tradeInstant != null) {
+          final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
+          final String cpartyScheme = rs.getString("CPARTY_SCHEME");
+          final String cpartyValue = rs.getString("CPARTY_VALUE");
+          if (cpartyScheme != null && cpartyValue != null) {
+            Identifier id = Identifier.of(cpartyScheme, cpartyValue);
+            CounterpartyImpl counterparty = new CounterpartyImpl(id);
+            Trade trade = new TradeImpl(position, tradeQuantity, counterparty, DbDateUtils.fromSqlTimestamp(tradeInstant));
+            position.addTrade(trade);
+          }
+        }
       }
+      
       return portfolio;
     }
 

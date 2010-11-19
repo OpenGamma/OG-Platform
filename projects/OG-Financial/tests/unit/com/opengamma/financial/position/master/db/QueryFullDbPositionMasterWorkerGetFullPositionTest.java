@@ -8,10 +8,10 @@ package com.opengamma.financial.position.master.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -20,9 +20,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import com.opengamma.engine.position.CounterpartyImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.Trade;
+import com.opengamma.engine.position.TradeImpl;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -116,22 +117,9 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertNotNull(trades);
     assertEquals(2, trades.size());
     
-    Set<BigDecimal> expectedQuantities = Sets.newHashSet(BigDecimal.valueOf(100.987), BigDecimal.valueOf(22.987));
-    Set<Identifier> expectedCounterPartyIds = Sets.newHashSet(Identifier.of("CPARTY", "JMP"), Identifier.of("CPARTY", "CISC"));
+    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "JMP")), _version1Instant.minusSeconds(122))));
+    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(22.987), new CounterpartyImpl(Identifier.of("CPARTY", "CISC")), _version1Instant.minusSeconds(122))));
     
-    Set<BigDecimal> actualQuantities = Sets.newHashSet();
-    Set<Identifier> actualCounterPartyIds = Sets.newHashSet();
-    
-    for (Trade trade : trades) {
-      assertNotNull(trade);
-      actualCounterPartyIds.add(trade.getCounterparty().getIdentifier());
-      actualQuantities.add(trade.getQuantity());
-      assertEquals(testSecKey, trade.getSecurityKey());
-      assertNotNull(trade.getTradeInstant());
-    }
-    
-    assertEquals(expectedQuantities, actualQuantities);
-    assertEquals(expectedCounterPartyIds, actualCounterPartyIds);
   }
 
   @Test
@@ -156,7 +144,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterparty().getIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
     assertEquals(testSecKey, trade.getSecurityKey());
-    assertNotNull(trade.getTradeInstant());
+    assertEquals(_version1Instant.minusSeconds(121), trade.getTradeInstant());
   }
   
   @Test
@@ -175,24 +163,12 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     
     Collection<Trade> trades = test.getTrades();
     assertNotNull(trades);
-    assertEquals(2, trades.size());
+    assertEquals(3, trades.size());
     
-    Set<BigDecimal> expectedQuantities = Sets.newHashSet(BigDecimal.valueOf(100.987), BigDecimal.valueOf(123.987));
-    Set<Identifier> expectedCounterPartyIds = Sets.newHashSet(Identifier.of("CPARTY", "C104"), Identifier.of("CPARTY", "C105"));
+    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "C104")), _version1Instant.minusSeconds(123))));
+    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(200.987), new CounterpartyImpl(Identifier.of("CPARTY", "C105")), _version1Instant.minusSeconds(123))));
+    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(300.987), new CounterpartyImpl(Identifier.of("CPARTY", "C106")), _version1Instant.minusSeconds(123))));
     
-    Set<BigDecimal> actualQuantities = Sets.newHashSet();
-    Set<Identifier> actualCounterPartyIds = Sets.newHashSet();
-    
-    for (Trade trade : trades) {
-      assertNotNull(trade);
-      actualCounterPartyIds.add(trade.getCounterparty().getIdentifier());
-      actualQuantities.add(trade.getQuantity());
-      assertEquals(testSecKey, trade.getSecurityKey());
-      assertNotNull(trade.getTradeInstant());
-    }
-    
-    assertEquals(expectedQuantities, actualQuantities);
-    assertEquals(expectedCounterPartyIds, actualCounterPartyIds);
   }
 
   @Test

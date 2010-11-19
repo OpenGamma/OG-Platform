@@ -112,7 +112,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         221, 221, 201, 211, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         222, 221, 201, 211, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
-    _totalPositions = 3;
+    _totalPositions = 5;
 //    id bigint not null,
 //    position_id bigint not null,
 //    id_scheme varchar(255) not null,
@@ -135,17 +135,19 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         232, 222, "TICKER", "IBMC");
     
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        100, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(now.minusSeconds(50)), "CPARTY", "C100");
+        100, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        101, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(now.minusSeconds(100)), "CPARTY", "C101");
+        101, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(_version1Instant.minusSeconds(121)), "CPARTY", "C101");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        102, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(now.minusSeconds(100)), "CPARTY", "JMP");
+        102, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "JMP");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        103, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(now.minusSeconds(50)), "CPARTY", "CISC");
+        103, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "CISC");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        104, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(now.minusSeconds(50)), "CPARTY", "C104");
+        104, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C104");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        105, 123,  BigDecimal.valueOf(123.987), toSqlTimestamp(now.minusSeconds(50)), "CPARTY", "C105");
+        105, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        106, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
     
     
     

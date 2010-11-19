@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.time.Instant;
@@ -121,7 +121,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     Instant tradeInstant = now.minusSeconds(500);
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, tradeInstant, Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, tradeInstant, Identifier.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
@@ -149,7 +149,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
     
-    List<ManageableTrade> trades = testPosition.getTrades();
+    Set<ManageableTrade> trades = testPosition.getTrades();
     assertNotNull(trades);
     assertTrue(trades.size() == 1);
     ManageableTrade testTrade = trades.iterator().next();
@@ -164,8 +164,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
@@ -193,7 +193,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
     
-    List<ManageableTrade> trades = testPosition.getTrades();
+    Set<ManageableTrade> trades = testPosition.getTrades();
     assertNotNull(trades);
     assertTrue(trades.size() == 2);
     assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV"))));
@@ -219,7 +219,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     
     Instant now = Instant.now(_posMaster.getTimeSource());
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
@@ -235,8 +235,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(20), Identifier.of("A", "B"));
     
     Instant now = Instant.now(_posMaster.getTimeSource());
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
-    position.addTrade(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV")));
+    position.getTrades().add(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV")));
     
     PositionDocument doc = new PositionDocument();
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
