@@ -33,7 +33,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * Compiles portfolio requirements into the dependency graphs.
+ * Compiles Portfolio requirements into the dependency graphs.
  */
 /* package */final class PortfolioCompiler {
 
@@ -47,7 +47,7 @@ import com.opengamma.util.monitor.OperationTimer;
    * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
    * 
    * @param compilationContext  the context of the view definition compilation
-   * @return the fully-resolved portfolio structure if any portfolio targets were required, <code>null</code>
+   * @return the fully-resolved portfolio structure if any portfolio targets were required, {@code null}
    *         otherwise.
    */
   public static Portfolio execute(ViewCompilationContext compilationContext) {
@@ -86,11 +86,25 @@ import com.opengamma.util.monitor.OperationTimer;
   }
 
   // --------------------------------------------------------------------------
+  
+  /**
+   * Tests whether the view has at least one portfolio target.
+   * 
+   * @param viewDefinition the view definition
+   * @return {@code true} if there is at least one portfolio target, {@code false} otherwise
+   */
   private static boolean hasPortfolioOutput(ViewDefinition viewDefinition) {
     ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
     return resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE || resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
   }
 
+  /**
+   * Fully resolves the portfolio structure for a view. A fully resolved structure has resolved
+   * {@link Security} objects for each {@link Position} within the portfolio. Note however that
+   * any underlying or related data referenced by a security will not be resolved at this stage. 
+   * 
+   * @param compilationContext the compilation context containing the view being compiled
+   */
   private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
     UniqueIdentifier portfolioId = compilationContext.getViewDefinition().getPortfolioId();
     if (portfolioId == null) {
@@ -111,8 +125,16 @@ import com.opengamma.util.monitor.OperationTimer;
     return createFullyResolvedPortfolio(portfolio, securitiesByKey);
   }
 
+  /**
+   * Resolves all of the securities for all positions within the portfolio.
+   * 
+   * @param portfolio the portfolio to resolve
+   * @param viewCompilationContext the compilation context containing the view being compiled
+   */
   private static Map<IdentifierBundle, Security> resolveSecurities(Portfolio portfolio, ViewCompilationContext viewCompilationContext) {
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", portfolio.getName());
+    
+    // First retrieve all of the security keys referenced within the portfolio, then resolve them all as a single step
     Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
     Map<IdentifierBundle, Security> securitiesByKey;
     try {
@@ -131,6 +153,12 @@ import com.opengamma.util.monitor.OperationTimer;
     return securitiesByKey;
   }
 
+  /**
+   * Walks the portfolio structure collecting all of the security identifiers referenced by the position nodes.
+   * 
+   * @param node a portfolio node to process
+   * @return the set of security identifiers for any positions under the given portfolio node 
+   */
   private static Set<IdentifierBundle> getSecurityKeysForResolution(PortfolioNode node) {
     Set<IdentifierBundle> result = new TreeSet<IdentifierBundle>();
 
@@ -152,15 +180,28 @@ import com.opengamma.util.monitor.OperationTimer;
     return result;
   }
 
+  /**
+   * Constructs a new {@link Portfolio} instance containing resolved positions that reference {@link Security} instances.
+   * 
+   * @param portfolio the unresolved portfolio to copy
+   * @param securitiesByKey the resolved securities to use
+   */
   private static Portfolio createFullyResolvedPortfolio(Portfolio portfolio, Map<IdentifierBundle, Security> securitiesByKey) {
     return new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), createFullyResolvedPortfolioHierarchy(portfolio.getRootNode(), securitiesByKey));
   }
 
+  /**
+   * Constructs a copy a {@link PortfolioNode}, and the hierarchy underneath it, that contains fully resolved positions.
+   * 
+   * @param rootNode the unresolved portfolio hierarchy node to copy
+   * @param securitiesByKey the resolved securities to use
+   */
   private static PortfolioNodeImpl createFullyResolvedPortfolioHierarchy(PortfolioNode rootNode, Map<IdentifierBundle, Security> securitiesByKey) {
     if (rootNode == null) {
       return null;
     }
     PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getUniqueIdentifier(), rootNode.getName());
+    // Take copies of any positions directly under this node, adding the resolved security instances. 
     for (Position position : rootNode.getPositions()) {
       Security security = position.getSecurity();
       if (position.getSecurity() == null) {
@@ -174,6 +215,7 @@ import com.opengamma.util.monitor.OperationTimer;
       populatedPosition.setPortfolioNode(populatedNode.getUniqueIdentifier());
       populatedNode.addPosition(populatedPosition);
     }
+    // Add resolved copies of any nodes directly underneath this node
     for (PortfolioNode child : rootNode.getChildNodes()) {
       final PortfolioNodeImpl childNode = createFullyResolvedPortfolioHierarchy(child, securitiesByKey);
       childNode.setParentNode(populatedNode.getUniqueIdentifier());
