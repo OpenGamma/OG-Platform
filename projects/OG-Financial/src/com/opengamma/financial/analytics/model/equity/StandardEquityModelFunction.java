@@ -23,17 +23,25 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
- * 
- *
+ * The Standard Equity Model Function simply returns the market value for any cash Equity security.
  */
 public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-    final double price = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
-    return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
-        .getUniqueIdentifier()), getUniqueIdentifier()), price));
+    final double price = (Double) inputs.getValue(
+        new ValueRequirement(
+            MarketDataRequirementNames.MARKET_VALUE,
+            ComputationTargetType.SECURITY,
+            equity.getUniqueIdentifier()));
+    // TODO this needs to annotate the result value with the currency of the value. 
+    return Collections.<ComputedValue>singleton(
+        new ComputedValue(
+            new ValueSpecification(
+                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
+                getUniqueIdentifier()),
+                price));
   }
 
   @Override
@@ -53,7 +61,6 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
-      // TODO need to consider fx here?
       return requirements;
     }
     return null;
@@ -63,7 +70,9 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
-      return Collections.<ValueSpecification>singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
+      return Collections.<ValueSpecification>singleton(
+          new ValueSpecification(
+              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
           getUniqueIdentifier()));
     }
     return null;

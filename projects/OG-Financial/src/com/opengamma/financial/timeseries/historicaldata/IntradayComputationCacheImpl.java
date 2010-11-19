@@ -118,7 +118,13 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     /**
      * Run at e.g. 1 minute interval
      */
-    private ScheduledFuture<?> _saveTask; 
+    private ScheduledFuture<?> _saveTask;
+    
+    /**
+     * When data at this resolution was last
+     * saved to DB.
+     */
+    private Instant _lastSaveInstant;
     
     private ResolutionRecord(
         Duration duration,
@@ -133,12 +139,24 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       _numPoints = numPoints;
     }
     
+    public Duration getDuration() {
+      return _duration;
+    }
+
     public synchronized int getNumPoints() {
       return _numPoints;
     }
 
     public synchronized void setNumPoints(int numPoints) {
       _numPoints = numPoints;
+    }
+    
+    public synchronized Instant getLastSaveInstant() {
+      return _lastSaveInstant;
+    }
+
+    public synchronized void setLastSaveInstant(Instant lastSaveInstant) {
+      _lastSaveInstant = lastSaveInstant;
     }
 
     private synchronized Instant getFirstDateToRetain(Instant now) {
@@ -327,14 +345,20 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     @Override
     public void run() {
       try {
-        save(_resolution);
+        Instant now = Instant.nowSystemClock();
+        save(_resolution, now);
       } catch (RuntimeException e) {
         s_logger.error("Updating intraday time series for " + _resolution + " failed", e);
       }
     }
   }
   
-  private void save(ResolutionRecord resolution) {
+  /*package*/ void save(Duration duration, Instant now) {
+    ResolutionRecord record = _resolution2ResolutionRecord.get(duration);
+    save(record, now);    
+  }
+  
+  private void save(ResolutionRecord resolution, Instant now) {
     for (Iterator<Map.Entry<String, ViewComputationResultModel>> it = _viewName2LastResult.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, ViewComputationResultModel> entry = it.next();
       String viewName = entry.getKey();
@@ -347,13 +371,23 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         continue;
       }
       
-      save(resolution, lastResult);
+      save(resolution, lastResult, now);
     }
   } 
   
-  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult) {
+  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult, Instant now) {
     
-    Instant now = Instant.nowSystemClock();
+    Instant lastSaveInstant = resolution.getLastSaveInstant();
+    if (lastSaveInstant != null) {
+      if (Duration.between(lastSaveInstant, now).isLessThan(resolution.getDuration().dividedBy(2))) {
+        // It can happen that if this method runs really slowly (slower than the resolution), this 
+        // method is subsequently executed multiple times in quick sequence to "catch up". This is not what we want,
+        // so we just quit.
+        return;
+      }
+    }
+    
+    resolution.setLastSaveInstant(now);
 
     for (String calcConf : lastResult.getCalculationConfigurationNames()) {
       ViewCalculationResultModel result = lastResult.getCalculationResult(calcConf);
