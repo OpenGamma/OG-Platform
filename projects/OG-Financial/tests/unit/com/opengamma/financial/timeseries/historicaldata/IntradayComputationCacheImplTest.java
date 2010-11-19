@@ -95,7 +95,20 @@ public class IntradayComputationCacheImplTest extends DBTest {
   }
   
   @Test
+  public void startStop() {
+    Duration resolution = Duration.ofMillis(100);
+    _intradayComputationCache.addResolution(resolution, 2);
+
+    _intradayComputationCache.start();
+    assertTrue(_intradayComputationCache.isRunning());
+    _intradayComputationCache.stop();
+    assertFalse(_intradayComputationCache.isRunning());
+  }
+  
+  @Test
   public void getValue() throws Exception {
+    Instant now = Instant.nowSystemClock();
+    
     assertFalse(_intradayComputationCache.isRunning());    
     
     ComputationTargetSpecification computationTarget = new ComputationTargetSpecification(
@@ -124,50 +137,46 @@ public class IntradayComputationCacheImplTest extends DBTest {
     _intradayComputationCache.addResolution(resolution, 2); // add
     _intradayComputationCache.addResolution(resolution, 3); // update
     
-    _intradayComputationCache.start();
-    assertTrue(_intradayComputationCache.isRunning());
-    
-    Thread.sleep(200); // should not populate any points as no result available
+    _intradayComputationCache.save(resolution, now); // should not populate any points as no result available
     assertNull(_intradayComputationCache.getValue("MockView", "Default", spec, resolution));
     
     _intradayComputationCache.computationResultAvailable(result);
     
-    Thread.sleep(500); // should be sufficient to populate full result
+    _intradayComputationCache.save(resolution, now); 
+    _intradayComputationCache.save(resolution, now.plusMillis(99)); // approx 100 millis, but a little bit of clock wobbliness 
+    _intradayComputationCache.save(resolution, now.plusMillis(201));
+    _intradayComputationCache.save(resolution, now.plusMillis(300));
+    _intradayComputationCache.save(resolution, now.plusMillis(402));
+    _intradayComputationCache.save(resolution, now.plusMillis(498));
     
     DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     
     assertEquals(timeSeries.toString(), 3, timeSeries.size());
     for (Map.Entry<Date, Double> entry : timeSeries) {
-      assertTrue(entry.getKey().getTime() >= result.getResultTimestamp().toEpochMillisLong()
-          && entry.getKey().getTime() <= System.currentTimeMillis());
+      assertTrue(entry.getKey().getTime() >= now.toEpochMillisLong()
+          && entry.getKey().getTime() <= now.plusMillis(498).toEpochMillisLong());
       assertEquals(11.00, entry.getValue(), 0.0001);      
     }
     
-    _intradayComputationCache.stop();
-    assertFalse(_intradayComputationCache.isRunning());
-    
-    result.setResultTimestamp(Instant.nowSystemClock().plusMillis(1));
+    result.setResultTimestamp(now.plusMillis(499));
     timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     // since result timestamp is now > timestamp of last point in DB, we get a new "real-time" point at the end
     assertEquals(4, timeSeries.size()); 
     
-    _intradayComputationCache.start();
-    assertTrue(_intradayComputationCache.isRunning());
-    
     // A long duration (100 seconds):
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 2); 
     _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3);
-    Thread.sleep(500);
+    
+    _intradayComputationCache.save(Duration.ofMillis(100000), now); 
+    
     assertNotNull(_intradayComputationCache.getValue("MockView", "Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
     
     // Try to get some non-existent histories
     assertNull(_intradayComputationCache.getValue("MockView2", "Default", spec, resolution));
     assertNull(_intradayComputationCache.getValue("MockView", "Default2", spec, resolution));
     assertNull(_intradayComputationCache.getValue("MockView", "Default",  new ValueSpecification(new ValueRequirement("FV2", computationTarget), "1"), resolution));
-    
-    _intradayComputationCache.stop(); // important to stop populating the db, otherwise clearing the tables will fail
   }
 
 }

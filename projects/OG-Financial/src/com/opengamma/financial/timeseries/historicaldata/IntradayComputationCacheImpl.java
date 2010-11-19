@@ -345,14 +345,20 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     @Override
     public void run() {
       try {
-        save(_resolution);
+        Instant now = Instant.nowSystemClock();
+        save(_resolution, now);
       } catch (RuntimeException e) {
         s_logger.error("Updating intraday time series for " + _resolution + " failed", e);
       }
     }
   }
   
-  private void save(ResolutionRecord resolution) {
+  /*package*/ void save(Duration duration, Instant now) {
+    ResolutionRecord record = _resolution2ResolutionRecord.get(duration);
+    save(record, now);    
+  }
+  
+  private void save(ResolutionRecord resolution, Instant now) {
     for (Iterator<Map.Entry<String, ViewComputationResultModel>> it = _viewName2LastResult.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, ViewComputationResultModel> entry = it.next();
       String viewName = entry.getKey();
@@ -365,13 +371,11 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         continue;
       }
       
-      save(resolution, lastResult);
+      save(resolution, lastResult, now);
     }
   } 
   
-  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult) {
-    
-    Instant now = Instant.nowSystemClock();
+  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult, Instant now) {
     
     Instant lastSaveInstant = resolution.getLastSaveInstant();
     if (lastSaveInstant != null) {
