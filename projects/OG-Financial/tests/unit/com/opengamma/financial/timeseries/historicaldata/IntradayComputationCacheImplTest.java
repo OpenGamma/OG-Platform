@@ -112,7 +112,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     
     result.addValue("Default", new ComputedValue(spec, 11.00));
     
-    Duration resolution = Duration.ofMillis(50);
+    Duration resolution = Duration.ofMillis(100);
     
     try {
       _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
@@ -121,13 +121,13 @@ public class IntradayComputationCacheImplTest extends DBTest {
       // ok - resolution does not exist
     }
     
-    _intradayComputationCache.addResolution(resolution, 3); // add
-    _intradayComputationCache.addResolution(resolution, 5); // update
+    _intradayComputationCache.addResolution(resolution, 2); // add
+    _intradayComputationCache.addResolution(resolution, 3); // update
     
     _intradayComputationCache.start();
     assertTrue(_intradayComputationCache.isRunning());
     
-    Thread.sleep(Timeout.standardTimeoutMillis()); // should not populate any points as no result available
+    Thread.sleep(200); // should not populate any points as no result available
     assertNull(_intradayComputationCache.getValue("MockView", "Default", spec, resolution));
     
     _intradayComputationCache.computationResultAvailable(result);
@@ -137,7 +137,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     DateTimeDoubleTimeSeries timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     
-    assertEquals(timeSeries.toString(), 5, timeSeries.size());
+    assertEquals(timeSeries.toString(), 3, timeSeries.size());
     for (Map.Entry<Date, Double> entry : timeSeries) {
       assertTrue(entry.getKey().getTime() >= result.getResultTimestamp().toEpochMillisLong()
           && entry.getKey().getTime() <= System.currentTimeMillis());
@@ -151,14 +151,14 @@ public class IntradayComputationCacheImplTest extends DBTest {
     timeSeries = _intradayComputationCache.getValue("MockView", "Default", spec, resolution);
     assertNotNull(timeSeries);
     // since result timestamp is now > timestamp of last point in DB, we get a new "real-time" point at the end
-    assertEquals(6, timeSeries.size()); 
+    assertEquals(4, timeSeries.size()); 
     
     _intradayComputationCache.start();
     assertTrue(_intradayComputationCache.isRunning());
     
     // A long duration (100 seconds):
-    _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3); 
-    _intradayComputationCache.addResolution(Duration.ofMillis(100000), 5);
+    _intradayComputationCache.addResolution(Duration.ofMillis(100000), 2); 
+    _intradayComputationCache.addResolution(Duration.ofMillis(100000), 3);
     Thread.sleep(500);
     assertNotNull(_intradayComputationCache.getValue("MockView", "Default", spec, Duration.ofMillis(100000))); // first point should have been inserted immediately, not after 100 seconds
     
