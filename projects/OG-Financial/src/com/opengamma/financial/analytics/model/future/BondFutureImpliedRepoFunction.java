@@ -98,7 +98,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
        
         
         Bond fwdBond = new BondSecurityToBondConverter(holidaySource, conventionSource).getBond(bondSec, "dummy", firstDeliveryDate);
-        double fwdAI = fwdBond.getAccruedInterestFraction();
+        double fwdAI = fwdBond.getAccruedInterest();
         
         double irr = BondFutureCalculator.impliedRepoRate(bond, deliveryDate, cleanPrice/100.0, futurePrice/100.0, del.getConversionFactor(), fwdAI);
         

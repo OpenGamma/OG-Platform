@@ -44,6 +44,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addGBPFixedIncomeInstruments();
     addUSDCAPMDefinition();
     addUSDTreasuryBondCouponDateConvention();
+    addGBPTreasuryBondCouponDateConvention();
   }
 
   @Override
@@ -397,5 +398,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   private void addUSDTreasuryBondCouponDateConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_COUPON_DATE_CONVENTION")), "USD_TREASURY_COUPON_DATE_CONVENTION", true, true, 0, 1);
+  }
+  
+  private void addGBPTreasuryBondCouponDateConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_COUPON_DATE_CONVENTION")), "GBP_TREASURY_COUPON_DATE_CONVENTION", true, true, 0, 0);
   }
 }
