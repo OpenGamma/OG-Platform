@@ -12,6 +12,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SimpleYieldConvention implements YieldConvention {
   // TODO: should be an enum?
+  
+  /**
+   * 
+   */
+  public static final YieldConvention UK_STRIP_METHOD = new SimpleYieldConvention("UK STRIP METHOD");
   /**
    * ?? this is the convention used by UK GILT STOCKS
    */

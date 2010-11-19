@@ -44,6 +44,7 @@ public class BondSecurityToBondConverterTest {
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondConverter CONVERTER = new BondSecurityToBondConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2007, 10, 2);
+ private static final double COUPON = 4.0;
   private static final BondSecurity BOND = new GovernmentBondSecurity("US",
                                                                         "Government",
                                                                         "US",
@@ -52,7 +53,7 @@ public class BondSecurityToBondConverterTest {
                                                                         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"),
                                                                         new Expiry(DateUtil.getUTCDate(2008, 9, 30)),
                                                                         "",
-                                                                        4.,
+                                                                        COUPON,
                                                                         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME),
                                                                         DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
                                                                         new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)),
@@ -100,7 +101,7 @@ public class BondSecurityToBondConverterTest {
   @Test
   public void test() {
     final Bond bond = CONVERTER.getBond(BOND, NAME, DATE);
-    assertEquals(bond.getAccruedInterestFraction(), 3. / 183, EPS);
+    assertEquals(bond.getAccruedInterest(), COUPON / 100 / 2.0* 3. / 183, EPS);
     final GenericAnnuity<FixedPayment> annuity = bond.getAnnuity();
     assertEquals(annuity.getNumberOfPayments(), 3);
     final FixedPayment[] payments = annuity.getPayments();
