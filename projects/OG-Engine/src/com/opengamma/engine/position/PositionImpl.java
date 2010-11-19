@@ -7,10 +7,14 @@ package com.opengamma.engine.position;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -23,7 +27,6 @@ import com.opengamma.util.CompareUtils;
  * A simple mutable implementation of {@code Position}.
  */
 public class PositionImpl implements Position, MutableUniqueIdentifiable, Serializable {
-
   /**
    * The identifier of the whole position.
    */
@@ -44,6 +47,10 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * The security.
    */
   private Security _security;
+  /**
+   * The collections of Trades that make up the position
+   */
+  private Set<Trade> _trades = Sets.newHashSet();
 
   /**
    * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
@@ -235,6 +242,33 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public void setSecurity(Security security) {
     _security = security;
   }
+   
+  /**
+   * Add collections of trades to the position
+   * @param trades the trades that make up the position, not-null
+   */
+  public void addTrades(Collection<Trade> trades) {
+    ArgumentChecker.notNull(trades, "trades");
+    _trades.addAll(trades);
+  }
+  
+  /**
+   * Add a trade to the position
+   * @param trade the trade that make up the position, not-null
+   */
+  public void addTrade(Trade trade) {
+    ArgumentChecker.notNull(trade, "trade");
+    _trades.add(trade);
+  }
+  
+  /**
+   * Gets the trades the makes up this position if available
+   * @return the trades
+   */
+  @Override
+  public Set<Trade> getTrades() {
+    return Collections.unmodifiableSet(_trades);
+  }
 
   // -------------------------------------------------------------------------
   @Override
@@ -245,7 +279,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
       return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 && ObjectUtils.equals(_securityKey, other._securityKey) && ObjectUtils.equals(_security, other._security)
-          && ObjectUtils.equals(_parentNode, other._parentNode);
+          && ObjectUtils.equals(_trades, other._trades) && ObjectUtils.equals(_parentNode, other._parentNode);
     }
     return false;
   }
@@ -260,6 +294,10 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     if (getSecurity() != null) {
       hashCode += _security.hashCode();
     }
+    if (_trades != null) {
+      hashCode *= 31;
+      hashCode += _trades.hashCode();
+    }
     hashCode *= 31;
     if (_parentNode != null) {
       hashCode += _parentNode.hashCode();
@@ -272,5 +310,4 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     return new StrBuilder().append("Position[").append(getUniqueIdentifier()).append(", ").append(getQuantity()).append(' ').append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(
         ']').toString();
   }
-
 }

@@ -109,4 +109,5 @@ rsk_failure.run_id = rsk_run.id and
 rsk_failure.compute_node_id = rsk_compute_node.id and
 rsk_run.run_time_id = rsk_observation_datetime.id and
 rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
+rsk_failure_reason.rsk_failure_id = rsk_failure.id and
 rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;

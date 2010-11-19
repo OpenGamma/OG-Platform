@@ -19,6 +19,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.position.master.ManageableTrade;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiables;
@@ -209,12 +210,38 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         .addValue("id_value", id.getValue());
       secKeyList.add(treeArgs);
     }
+    //the arguments for inserting into the trade table
+    final List<DbMapSqlParameterSource> tradeList = new ArrayList<DbMapSqlParameterSource>();
+    for (ManageableTrade trade : document.getPosition().getTrades()) {
+      final long tradeId = nextId();
+      final Identifier counterpartyId = trade.getCounterpartyId();
+      final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
+        .addValue("trade_id", tradeId)
+        .addValue("position_id", positionId)
+        .addValue("quantity", trade.getQuantity())
+        .addTimestamp("trade_instant", trade.getTradeInstant())
+        .addValue("cparty_scheme", counterpartyId.getScheme().getName())
+        .addValue("cparty_value", counterpartyId.getValue());
+      tradeList.add(treeArgs);
+    }
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
     getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertTrades(), (DbMapSqlParameterSource[]) tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
     UniqueIdentifiables.setInto(document.getPosition(), uid);
     document.setPositionId(uid);
+  }
+
+  /**
+   * Gets the SQL for inserting a trade.
+   * @return the SQL, not null
+   */
+  protected String sqlInsertTrades() {
+    return "INSERT INTO pos_trade " +
+              "(id, position_id, quantity, trade_instant, cparty_scheme, cparty_value) " +
+            "VALUES " +
+              "(:trade_id, :position_id, :quantity, :trade_instant, :cparty_scheme, :cparty_value)";
   }
 
   /**
