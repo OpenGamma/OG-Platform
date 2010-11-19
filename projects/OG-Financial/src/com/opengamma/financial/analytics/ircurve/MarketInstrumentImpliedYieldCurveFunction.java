@@ -41,7 +41,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -93,6 +92,33 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
  * 
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
+
+  /**
+   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_FORWARD_CURVE_VALUE_NAME = "FORWARD_VALUE";
+  /**
+   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_FUNDING_CURVE_VALUE_NAME = "FUNDING_VALUE";
+  /**
+   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_FORWARD_CURVE_DEFINITION_NAME = "FORWARD_NAME";
+  /**
+   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_FUNDING_CURVE_DEFINITION_NAME = "FUNDING_NAME";
+  /**
+   * Resultant value specification property for the curve results. Note these should be moved into either the ValuePropertyNames class
+   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
+   */
+  public static final String PROPERTY_CURVE_DEFINITION_NAME = "NAME";
+
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
   
   private final Currency _currency;
@@ -151,10 +177,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       s_logger.warn("No curve definition for " + _forwardCurveDefinitionName + " on " + _currency);
     }
     _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-    _fundingCurveResult = new ValueSpecification(new ValueRequirement(_fundingCurveValueRequirementName, _currency), getUniqueIdentifier());
-    _forwardCurveResult = new ValueSpecification(new ValueRequirement(_forwardCurveValueRequirementName, _currency), getUniqueIdentifier());
-    _jacobianResult = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, _currency, ValueProperties.with("FUNDING", _fundingCurveValueRequirementName).with(
-        "FORWARD", _forwardCurveValueRequirementName).get()), getUniqueIdentifier());
+    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
+    _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)
+        .get());
+    _forwardCurveResult = new ValueSpecification(_forwardCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName)
+        .get());
+    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties().with(PROPERTY_FUNDING_CURVE_VALUE_NAME,
+        _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(
+        PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 

@@ -57,6 +57,7 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     public FunctionInvocationStatistics getStatistics(final String functionIdentifier) {
       FunctionInvocationStatistics stats = _data.get(functionIdentifier);
       if (stats == null) {
+        ConfigDocument<FunctionInvocationStatistics> statsDoc = null;
         if (getPersistence() != null) {
           s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionIdentifier);
           final ConfigSearchRequest request = new ConfigSearchRequest();
@@ -64,9 +65,14 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
           final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
           final List<ConfigDocument<FunctionInvocationStatistics>> docs = result.getDocuments();
           if (docs.size() > 0) {
-            stats = docs.get(0).getValue();
+            statsDoc = docs.get(0);
+            stats = statsDoc.getValue();
             if (docs.size() > 1) {
               s_logger.warn("Multiple documents found for {}/{}", getConfigurationName(), functionIdentifier);
+              for (int i = docs.size() - 1; i > 0; i--) {
+                s_logger.info("Deleting {}", docs.get(i).getConfigId());
+                getTypedPersistence().remove(docs.get(i).getConfigId());
+              }
             }
           } else {
             s_logger.debug("No previous statistics for {}/{}", getConfigurationName(), functionIdentifier);
@@ -84,10 +90,12 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
         } else {
           // We created function statistics, so poke it into storage
           if (getPersistence() != null) {
-            final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
-            doc.setValue(stats);
-            doc.setName(getDocumentName(functionIdentifier));
-            getConfigDocuments().add(doc);
+            if (statsDoc == null) {
+              statsDoc = new ConfigDocument<FunctionInvocationStatistics>();
+              statsDoc.setValue(stats);
+              statsDoc.setName(getDocumentName(functionIdentifier));
+            }
+            getConfigDocuments().add(statsDoc);
           }
         }
       }

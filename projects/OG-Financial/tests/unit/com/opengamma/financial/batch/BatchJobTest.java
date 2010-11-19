@@ -125,7 +125,7 @@ public class BatchJobTest {
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = parser.parse(BatchJob.getOptions(), 
-        "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100901 -dateRangeEnd 20100907 -observationTime LDN_CLOSE".split(" "));
+        "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100901 -dateRangeEnd 20100907 -snapshotDateRange -observationTime LDN_CLOSE".split(" "));
     job.initialize(line, null);
     
     assertEquals(3, job.getRuns().size()); // days 2, 3, 5, 6: no snapshot -> no run 
@@ -175,6 +175,36 @@ public class BatchJobTest {
     
     assertTrue(observationDates.contains(LocalDate.of(2010, 1, 14)));
     assertTrue(observationDates.contains(LocalDate.of(2010, 1, 15)));
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 19)));
+    
+    assertEquals(observationDates, snapshotObservationDates);
+  }
+  
+  @Test
+  public void dateRangeCommandLineNoHolidayMaster() throws Exception {
+    BatchJob job = new BatchJob();
+    job.setBatchDbManager(new DummyBatchDbManager());
+    
+    CommandLineParser parser = new PosixParser();
+    CommandLine line = parser.parse(BatchJob.getOptions(), 
+        "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100114 -dateRangeEnd 20100119 -observationTime LDN_CLOSE".split(" "));
+    job.initialize(line, null);
+    
+    assertEquals(4, job.getRuns().size()); // 14 = thursday, 15 = friday, 18 = Martin L King's Birthday, 19 = tuesday 
+    
+    HashSet<LocalDate> observationDates = new HashSet<LocalDate>();
+    HashSet<LocalDate> snapshotObservationDates = new HashSet<LocalDate>();
+    
+    for (BatchJobRun run : job.getRuns()) {
+      observationDates.add(run.getObservationDate());
+      snapshotObservationDates.add(run.getSnapshotObservationDate());
+      
+      assertEquals(job.getCreationTime().toLocalTime(), run.getValuationTime().toLocalTime());
+    }
+    
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 14)));
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 15)));
+    assertTrue(observationDates.contains(LocalDate.of(2010, 1, 18)));
     assertTrue(observationDates.contains(LocalDate.of(2010, 1, 19)));
     
     assertEquals(observationDates, snapshotObservationDates);

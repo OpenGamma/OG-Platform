@@ -7,7 +7,7 @@
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
 
-    create sequence hibernate_sequence start with 1 increment by 1;
+    create sequence hibernate_sequence start 1 increment 1;
 
 
 -- create-db-config.sql: Config Master
@@ -18,7 +18,7 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence cfg_config_seq as bigint
+create sequence cfg_config_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -29,7 +29,7 @@ create table cfg_config (
     ver_to_instant timestamp not null,
     name varchar(255) not null,
     config_type varchar(255) not null,
-    config blob not null,
+    config bytea not null,
     primary key (id),
     constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant)
 );
@@ -46,9 +46,9 @@ create index ix_cfg_config_config_type on cfg_config(config_type);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence sec_security_seq as bigint
+create sequence sec_security_seq
     start with 1000 increment by 1 no cycle;
-create sequence sec_idkey_seq as bigint
+create sequence sec_idkey_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -402,7 +402,8 @@ create table sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
--- create-db-position.sql: Position Master
+
+-- create-db-position.sql: Security Master
 
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
@@ -424,7 +425,6 @@ create table pos_portfolio (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     primary key (id),
-    constraint pos_fk_port2port foreign key (oid) references pos_portfolio (id),
     constraint pos_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -440,7 +440,6 @@ create table pos_node (
     tree_right bigint not null,
     name varchar(255),
     primary key (id),
-    constraint pos_fk_node2node foreign key (oid) references pos_node (id),
     constraint pos_fk_node2portfolio foreign key (portfolio_id) references pos_portfolio (id),
     constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
@@ -460,7 +459,6 @@ create table pos_position (
     corr_to_instant timestamp not null,
     quantity decimal(31,8) not null,
     primary key (id),
-    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
     constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -475,6 +473,18 @@ create table pos_securitykey (
     constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
 );
 -- pos_securitykey is fully dependent of pos_position
+
+create table pos_trade (
+    id bigint not null,
+    position_id bigint not null,
+    quantity decimal(31,8) not null,
+    trade_instant timestamp not null,
+    cparty_scheme varchar(255) not null,
+    cparty_value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
+);
+-- pos_trade is fully dependent of pos_position
 
 -------------------------------------
 -- Static data
@@ -626,9 +636,9 @@ create table rsk_live_data_snapshot_entry (
 -------------------------------------
 
 create table rsk_run (
-    id int not null,
-    opengamma_version_id int not null,
-    master_process_host_id int not null,    -- machine where 'master' batch process was started
+	id int not null,
+	opengamma_version_id int not null,
+	master_process_host_id int not null,    -- machine where 'master' batch process was started
     run_time_id int not null,
     live_data_snapshot_id int not null,
     create_instant timestamp not null,
@@ -648,7 +658,7 @@ create table rsk_run (
     constraint rsk_fk_run2live_data_snapshot
         foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
 
-    constraint rsk_chk_uq_run unique (run_time_id) 	
+    constraint rsk_chk_uq_run unique (run_time_id)
 );
 
 create table rsk_calculation_configuration (
@@ -733,8 +743,8 @@ create table rsk_value_name (
 create table rsk_value (
     id bigint not null,
     calculation_configuration_id int not null,
-    value_name_id int not null,                 
-    function_unique_id int not null,
+    value_name_id int not null,   
+    function_unique_id int not null,              
     computation_target_id int not null,        
     run_id int not null,             	       -- shortcut
     value double precision not null,
@@ -777,7 +787,7 @@ create table rsk_compute_failure (
 create table rsk_failure (			
     id bigint not null,
     calculation_configuration_id int not null,
-    value_name_id int not null,
+    value_name_id int not null,                 
     function_unique_id int not null,
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
@@ -833,7 +843,6 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
-rsk_function_unique_id.unique_id as function_unique_id,
 rsk_value.value, 
 rsk_value.eval_instant
 from 
@@ -845,12 +854,10 @@ rsk_computation_target_type,
 rsk_run,
 rsk_compute_node,
 rsk_observation_datetime,
-rsk_observation_time,
-rsk_function_unique_id
+rsk_observation_time
 where
 rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_value.value_name_id = rsk_value_name.id and
-rsk_value.function_unique_id = rsk_function_unique_id.id and
 rsk_value.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
 rsk_value.run_id = rsk_run.id and
@@ -860,6 +867,7 @@ rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
 
 create view vw_rsk_failure as
 select
+rsk_failure.id,
 rsk_computation_target_type.name as comp_target_type,
 rsk_computation_target.id_scheme as comp_target_id_scheme,
 rsk_computation_target.id_value as comp_target_id_value,
@@ -868,12 +876,7 @@ rsk_observation_datetime.date_part as run_date,
 rsk_observation_time.label as run_time,
 rsk_calculation_configuration.name as calc_conf_name,
 rsk_value_name.name,
-rsk_function_unique_id.unique_id as function_unique_id,
-rsk_failure.eval_instant,
-rsk_compute_failure.function_id as failed_function,
-rsk_compute_failure.exception_class,
-rsk_compute_failure.exception_msg,
-rsk_compute_failure.stack_trace 
+rsk_failure.eval_instant
 from 
 rsk_failure, 
 rsk_calculation_configuration,
@@ -883,92 +886,146 @@ rsk_computation_target_type,
 rsk_run,
 rsk_compute_node,
 rsk_observation_datetime,
-rsk_observation_time,
-rsk_function_unique_id,
-rsk_failure_reason,
-rsk_compute_failure
+rsk_observation_time
 where
 rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
 rsk_failure.value_name_id = rsk_value_name.id and
-rsk_failure.function_unique_id = rsk_function_unique_id.id and
 rsk_failure.computation_target_id = rsk_computation_target.id and
 rsk_computation_target.type_id = rsk_computation_target_type.id and
 rsk_failure.run_id = rsk_run.id and
 rsk_failure.compute_node_id = rsk_compute_node.id and
 rsk_run.run_time_id = rsk_observation_datetime.id and
-rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
-rsk_failure_reason.rsk_failure_id = rsk_failure.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+create view vw_rsk_failure_reason as
+select
+rsk_failure_reason.id,
+rsk_failure_reason.rsk_failure_id,
+rsk_compute_failure.function_id,
+rsk_compute_failure.exception_class,
+rsk_compute_failure.exception_msg,
+rsk_compute_failure.stack_trace 
+from 
+rsk_failure_reason,
+rsk_compute_failure
+where
 rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
+
+DROP TABLE IF EXISTS tss_identifier CASCADE;
+DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
+DROP TABLE IF EXISTS tss_data_point CASCADE;
+DROP TABLE IF EXISTS tss_data_point_delta CASCADE;
+DROP TABLE IF EXISTS tss_meta_data CASCADE;
+DROP TABLE IF EXISTS tss_identifier_bundle CASCADE;
+DROP TABLE IF EXISTS tss_data_source CASCADE;
+DROP TABLE IF EXISTS tss_data_provider CASCADE;
+DROP TABLE IF EXISTS tss_data_field CASCADE;
+DROP TABLE IF EXISTS tss_observation_time CASCADE;
+
+DROP SEQUENCE IF EXISTS tss_data_field_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_data_provider_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_data_source_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identification_scheme_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identifier_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_observation_time_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identifier_bundle_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_meta_data_id_seq CASCADE;
+
+
+CREATE SEQUENCE tss_data_field_id_seq START 1;
+CREATE SEQUENCE tss_data_provider_id_seq START 1;
+CREATE SEQUENCE tss_data_source_id_seq START 1;
+CREATE SEQUENCE tss_identification_scheme_id_seq START 1;
+CREATE SEQUENCE tss_identifier_id_seq START 1;
+CREATE SEQUENCE tss_observation_time_id_seq START 1;
+CREATE SEQUENCE tss_identifier_bundle_id_seq START 1;
+CREATE SEQUENCE tss_meta_data_id_seq START 1;
+
 CREATE TABLE tss_data_source (
-	id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_source_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_data_source_id_seq OWNED BY tss_data_source.id;
 CREATE UNIQUE INDEX idx_data_source_name on tss_data_source(name);
 
 CREATE TABLE tss_data_provider (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_provider_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_data_provider_id_seq OWNED BY tss_data_provider.id;
 CREATE UNIQUE INDEX idx_data_provider_name on tss_data_provider(name);
 
 CREATE TABLE tss_data_field (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_field_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_data_field_id_seq OWNED BY tss_data_field.id;
 CREATE UNIQUE INDEX idx_data_field_name on tss_data_field(name);
 
 CREATE TABLE tss_observation_time (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_observation_time_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_observation_time_id_seq OWNED BY tss_observation_time.id;
 CREATE UNIQUE INDEX idx_observation_time_name on tss_observation_time(name);
 
 CREATE TABLE tss_identification_scheme (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identification_scheme_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_identification_scheme_id_seq OWNED BY tss_identification_scheme.id;
 CREATE UNIQUE INDEX idx_identification_scheme_name on tss_identification_scheme(name);
 
 CREATE TABLE tss_identifier_bundle (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identifier_bundle_id_seq'),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
+ALTER SEQUENCE tss_identifier_bundle_id_seq OWNED BY tss_identifier_bundle.id;
 CREATE UNIQUE INDEX idx_identifier_bundle_name on tss_identifier_bundle(name);
 
 CREATE TABLE tss_meta_data (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_meta_data_id_seq'),
 	active INTEGER NOT NULL
-	  CONSTRAINT active_constraint CHECK ( active IN (0, 1)),
+	  CONSTRAINT active_constraint CHECK (active IN (0,1)),
 	bundle_id BIGINT NOT NULL
-	  constraint fk_tsk_bundle  REFERENCES tss_identifier_bundle(id),
+	  constraint fk_meta_bundle  REFERENCES tss_identifier_bundle(id),
 	data_source_id BIGINT NOT NULL
-	  constraint fk_tsk_data_source  REFERENCES tss_data_source(id),
+	  constraint fk_meta_data_source  REFERENCES tss_data_source(id),
 	data_provider_id BIGINT NOT NULL
-	  constraint fk_tsk_data_provider  REFERENCES tss_data_provider(id),
+	  constraint fk_meta_data_provider  REFERENCES tss_data_provider(id),
 	data_field_id BIGINT NOT NULL
-	  constraint fk_tsk_data_field  REFERENCES tss_data_field(id),
+	  constraint fk_meta_data_field  REFERENCES tss_data_field(id),
 	observation_time_id BIGINT NOT NULL
-	  constraint fk_tsk_observation_time  REFERENCES tss_observation_time(id)
+	  constraint fk_meta_observation_time  REFERENCES tss_observation_time(id)
 );
+ALTER SEQUENCE tss_meta_data_id_seq OWNED BY tss_meta_data.id;
 CREATE INDEX idx_meta_data ON tss_meta_data (active, data_source_id, data_provider_id, data_field_id, observation_time_id);
 
 CREATE TABLE tss_data_point (
 	meta_data_id BIGINT NOT NULL
 	  constraint fk_dp_meta_data  REFERENCES tss_meta_data (id),
 	ts_date date NOT NULL,
-	value DOUBLE NOT NULL,
+	value DOUBLE PRECISION NOT NULL,
 	PRIMARY KEY (meta_data_id, ts_date)
 );
 
@@ -977,17 +1034,16 @@ CREATE TABLE tss_data_point_delta (
 	  constraint fk_dp_delta_meta_data  REFERENCES tss_meta_data (id),
 	time_stamp TIMESTAMP NOT NULL,
 	ts_date date NOT NULL,
-	old_value DOUBLE NOT NULL,
+	old_value DOUBLE PRECISION NOT NULL,
 	operation char(1) NOT NULL
 	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q'))
 );
-
 
 CREATE TABLE tss_intraday_data_point (
 	meta_data_id BIGINT NOT NULL
 	  constraint fk_i_dp_meta_data  REFERENCES tss_meta_data (id),
 	ts_date TIMESTAMP NOT NULL,
-	value DOUBLE NOT NULL,
+	value DOUBLE PRECISION NOT NULL,
 	PRIMARY KEY (meta_data_id, ts_date)
 );
 
@@ -996,14 +1052,15 @@ CREATE TABLE tss_intraday_data_point_delta (
 	  constraint fk_i_dp_delta_meta_data  REFERENCES tss_meta_data (id),
 	time_stamp TIMESTAMP NOT NULL,
 	ts_date TIMESTAMP NOT NULL,
-	old_value DOUBLE NOT NULL,
+	old_value DOUBLE PRECISION NOT NULL,
 	operation char(1) NOT NULL
 	 CONSTRAINT operation_constraint_i CHECK ( operation IN ('I', 'U', 'D', 'Q'))
 );
 
 CREATE TABLE tss_identifier (
-	id BIGINT
-	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identifier_id_seq'),
 	bundle_id BIGINT NOT NULL
 	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
 	identification_scheme_id BIGINT NOT NULL
@@ -1012,7 +1069,8 @@ CREATE TABLE tss_identifier (
 	valid_from date,
 	valid_to date
 );
+
+ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
-
 

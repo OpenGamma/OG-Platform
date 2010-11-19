@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.financial.position.master.ManageableTrade;
 import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.financial.position.master.PositionHistoryRequest;
 import com.opengamma.financial.position.master.PositionHistoryResult;
@@ -59,12 +60,16 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "p.corr_to_instant AS corr_to_instant, " +
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value ";
+        "s.id_value AS seckey_value, " +
+        "t.quantity AS trade_quantity, " +
+        "t.trade_instant AS trade_instant, " +
+        "t.cparty_scheme AS cparty_scheme, " +
+        "t.cparty_value AS cparty_value ";
   /**
    * SQL from.
    */
   protected static final String FROM =
-      "FROM pos_position p LEFT JOIN pos_securitykey s ON (s.position_id = p.id) ";
+      "FROM pos_position p LEFT JOIN pos_securitykey s ON (s.position_id = p.id) LEFT JOIN pos_trade t ON (t.position_id = p.id) ";
 
   /**
    * Creates an instance.
@@ -141,6 +146,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     if (request.getParentNodeId() != null) {
       args.addValue("parent_node_oid", extractOid(request.getParentNodeId()));
     }
+    s_logger.debug("args: {}", args);
     // TODO: security key
     final String[] sql = sqlSearchPositions(request);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
@@ -264,6 +270,21 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         if (idScheme != null && idValue != null) {
           Identifier id = Identifier.of(idScheme, idValue);
           _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
+        }
+        
+        final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
+        if (tradeInstant != null) {
+          ManageableTrade trade = new ManageableTrade();
+          final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
+          trade.setQuantity(tradeQuantity);
+          trade.setTradeInstant(DbDateUtils.fromSqlTimestamp(tradeInstant));
+          final String cpartyScheme = rs.getString("CPARTY_SCHEME");
+          final String cpartyValue = rs.getString("CPARTY_VALUE");
+          if (cpartyScheme != null && cpartyValue != null) {
+            Identifier id = Identifier.of(cpartyScheme, cpartyValue);
+            trade.setCounterpartyId(id);
+          }
+          _position.getTrades().add(trade);
         }
       }
       return _documents;

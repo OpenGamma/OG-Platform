@@ -101,18 +101,24 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    corr_to_instant timestamp not null,
 //    quantity decimal(31,8) not null,
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        120, 120, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(120.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         121, 121, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         122, 122, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(122.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        123, 123, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(123.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         221, 221, 201, 211, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         222, 221, 201, 211, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
-    _totalPositions = 3;
+    _totalPositions = 5;
 //    id bigint not null,
 //    position_id bigint not null,
 //    id_scheme varchar(255) not null,
 //    id_value varchar(255) not null,
+    template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
+        130, 120, "TICKER", "T130");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         131, 121, "TICKER", "MSFT");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
@@ -120,9 +126,31 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         133, 122, "TICKER", "ORCL");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
+        134, 123, "TICKER", "ORCL134");
+    template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
+        135, 123, "NASDAQ", "ORCL135");
+    template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         231, 221, "TICKER", "IBMC");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         232, 222, "TICKER", "IBMC");
+    
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        100, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        101, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(_version1Instant.minusSeconds(121)), "CPARTY", "C101");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        102, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "JMP");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        103, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "CISC");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        104, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C104");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        105, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
+        106, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
+    
+    
+    
   }
 
   @After

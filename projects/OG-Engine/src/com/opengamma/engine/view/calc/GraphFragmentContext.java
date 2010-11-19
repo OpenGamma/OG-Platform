@@ -37,7 +37,7 @@ import com.opengamma.util.Cancellable;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
   private final FunctionCost.ForConfiguration _functionCost;
-  private final Map<Long, Cancellable> _cancels = new ConcurrentHashMap<Long, Cancellable>();
+  private final Map<CalculationJobSpecification, Cancellable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancellable>();
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
   private volatile boolean _cancelled;
@@ -64,15 +64,15 @@ import com.opengamma.util.Cancellable;
     }
     // sanity checks
     if (!_item2node.isEmpty()) {
-      s_logger.warn("{} elements in item2node map - can't reset for re-execution", _item2node.size());
+      s_logger.warn("{} elements in item2node map - can't reset for re-execution ({})", _item2node.size(), _item2node);
       return false;
     }
     if (!_job2fragment.isEmpty()) {
-      s_logger.warn("{} elements in job2fragment map - can't reset for re-execution", _job2fragment.size());
+      s_logger.warn("{} elements in job2fragment map - can't reset for re-execution ({})", _job2fragment.size(), _job2fragment);
       return false;
     }
     if (!_cancels.isEmpty()) {
-      s_logger.warn("{} elements in cancellation set - can't reset for re-execution", _cancels.size());
+      s_logger.warn("{} elements in cancellation set - can't reset for re-execution ({})", _cancels.size(), _cancels);
       return false;
     }
     _executionTime.set(0);
@@ -126,6 +126,7 @@ import com.opengamma.util.Cancellable;
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
+    _cancels.remove(result.getSpecification());
     final GraphFragment fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
       fragment.resultReceived(result);
@@ -141,12 +142,16 @@ import com.opengamma.util.Cancellable;
         }
       }
     }
-    _cancels.remove(result.getSpecification().getJobId());
   }
 
   public void dispatchJob(final CalculationJob job) {
     if (!_cancelled) {
-      _cancels.put(job.getSpecification().getJobId(), getExecutor().dispatchJob(job, this));
+      _cancels.put(job.getSpecification(), getExecutor().dispatchJob(job, this));
+      if (!_job2fragment.containsKey(job.getSpecification())) {
+        if (_cancels.remove(job.getSpecification()) != null) {
+          s_logger.debug("Removed cancellation handle on fast job execution of {}", job.getSpecification());
+        }
+      }
     }
   }
 
