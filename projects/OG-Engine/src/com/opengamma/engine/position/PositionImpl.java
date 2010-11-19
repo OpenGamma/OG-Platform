@@ -7,14 +7,14 @@ package com.opengamma.engine.position;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -50,7 +50,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   /**
    * The collections of Trades that make up the position
    */
-  private List<Trade> _trades = new ArrayList<Trade>();
+  private Set<Trade> _trades = Sets.newHashSet();
 
   /**
    * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
@@ -266,8 +266,8 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @return the trades
    */
   @Override
-  public List<Trade> getTrades() {
-    return Collections.unmodifiableList(_trades);
+  public Set<Trade> getTrades() {
+    return Collections.unmodifiableSet(_trades);
   }
 
   // -------------------------------------------------------------------------
@@ -279,7 +279,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     if (obj instanceof PositionImpl) {
       PositionImpl other = (PositionImpl) obj;
       return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 && ObjectUtils.equals(_securityKey, other._securityKey) && ObjectUtils.equals(_security, other._security)
-          && ObjectUtils.equals(_parentNode, other._parentNode);
+          && ObjectUtils.equals(_trades, other._trades) && ObjectUtils.equals(_parentNode, other._parentNode);
     }
     return false;
   }
@@ -293,6 +293,10 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     hashCode *= 31;
     if (getSecurity() != null) {
       hashCode += _security.hashCode();
+    }
+    if (_trades != null) {
+      hashCode *= 31;
+      hashCode += _trades.hashCode();
     }
     hashCode *= 31;
     if (_parentNode != null) {

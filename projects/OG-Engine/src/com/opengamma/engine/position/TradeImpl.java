@@ -10,11 +10,13 @@ import java.math.BigDecimal;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.CompareUtils;
 
 /**
  * A simple mutable implementation of {@link Trade Trade}
@@ -83,9 +85,30 @@ public class TradeImpl implements Trade, Serializable {
   }
   
   @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof TradeImpl) {
+      TradeImpl other = (TradeImpl) obj;
+      return (CompareUtils.compareWithNull(_quantity, other._quantity) == 0) && ObjectUtils.equals(_counterparty, other._counterparty)
+          && ObjectUtils.equals(_tradeInstant, other._tradeInstant);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hashCode = 65;
+    hashCode += _quantity.hashCode();
+    return hashCode ^ ObjectUtils.hashCode(_counterparty) ^ ObjectUtils.hashCode(_tradeInstant);
+  }
+
+  @Override
   public String toString() {
     return new StrBuilder().append("Trade[").append(getQuantity()).append(' ')
-      .append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(" PositionID: ").append(_position.getUniqueIdentifier()).append(']').toString();
+      .append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(" PositionID: ").append(_position.getUniqueIdentifier())
+      .append(" Counterparty: ").append(_counterparty).append(" Trade Instant: ").append(_tradeInstant).append(']').toString();
   }
 
 }
