@@ -49,9 +49,11 @@ public class BondFutureTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondConverter CONVERTER = new BondSecurityToBondConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
+  private static final BondForwardCalculator CALCULATOR = new BondForwardCalculator(HOLIDAY_SOURCE, CONVENTION_SOURCE);
   
-  
+  private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2001, 12, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2001, 12, 10);
+  
   private static final double FUTURE_PRICE = 104.1406;
   private static final ZonedDateTime FIRST_DELIVERY_DATE = DateUtil.getUTCDate(2002,3,01);
   private static final ZonedDateTime LAST_DELIVERY_DATE = DateUtil.getUTCDate(2002,3,28);
@@ -93,7 +95,7 @@ public class BondFutureTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME),
         DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
         new DateTimeWithZone(accrualDate),
-        new DateTimeWithZone(SETTLEMENT_DATE),
+        new DateTimeWithZone(accrualDate),
         new DateTimeWithZone(firstCouponDate),
         100,
         100000000,
@@ -109,12 +111,12 @@ public class BondFutureTest {
   @Test
   public void TestYield(){
     for(int i=0;i<N_BONDS;i++){
-    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", SETTLEMENT_DATE);
+    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
     double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, CLEAN_PRICE[i]/100.0);
     double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
     yield = 2 * (Math.exp(yield / 2) - 1.0);
     assertEquals(CONV_YIELD[i],100*yield,1e-2); //TODO should have accuracy to 3 dp
- //   System.out.println("BBG yield: "+CONV_YIELD[i]+", Cal yield: " +100*yield);
+    System.out.println("BBG yield: "+CONV_YIELD[i]+", Cal yield: " +100*yield);
     }
   }
   
@@ -130,20 +132,23 @@ public class BondFutureTest {
   @Test
   public void testNetBasis() {
     
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360"); //TODO this needs to be pulled from a convention    
-    double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
+    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("actual/360"); //TODO this needs to be pulled from a convention    
+    double deliveryDate = dayCount.getDayCountFraction(TRADE_DATE, LAST_DELIVERY_DATE);
     
     for(int i=0;i<N_BONDS;i++){
-    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", SETTLEMENT_DATE);
+    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
     final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE);
-     
-   
+    
+    
+    final double fwdDP = CALCULATOR.getForwardDirtyPrice(BOND[i], CLEAN_PRICE[i], TRADE_DATE, LAST_DELIVERY_DATE, ACTUAL_REPO/100);
+    final double netBasisFromDates =  fwdDP - (C_FACTOR[i]*FUTURE_PRICE + fwdBond.getAccruedInterest()*100);
+    
     double netBasis = BondFutureCalculator.netBasis(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i], 
         fwdBond.getAccruedInterest(), ACTUAL_REPO/100.0);
     
     assertEquals(NET_BASIS[i],100*netBasis,1e-1);//TODO should have accuracy to 3 dp
     
-  //  System.out.println("BBG net basis: "+NET_BASIS[i]+", Cal net basis: " +100*netBasis);
+    System.out.println("BBG net basis: "+NET_BASIS[i]+", Cal net basis: " +100*netBasis + " with dates: "+ netBasisFromDates);
     }
   }
   
@@ -151,11 +156,11 @@ public class BondFutureTest {
   @Test
   public void testImpliedRepo() {
     
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360"); //TODO this needs to be pulled from a convention        
-    double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
+    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("30U/360"); //TODO this needs to be pulled from a convention        
+    double deliveryDate = dayCount.getDayCountFraction(TRADE_DATE, LAST_DELIVERY_DATE);
     
     for(int i=0;i<N_BONDS;i++){
-    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", SETTLEMENT_DATE);
+    final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
     final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE);
     
     double irr = BondFutureCalculator.impliedRepoRate(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i], 

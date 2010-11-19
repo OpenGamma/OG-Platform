@@ -68,7 +68,8 @@ public class BondFutureCalculator {
     final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice);
 
     // double ccRate = Math.log(1 + repoRate);
-    return BondPriceCalculator.forwardDirtyPrice(bond, dirtyPrice, deliveryDate, repoRate) - invoicePrice;
+    double fdp = BondPriceCalculator.forwardDirtyPrice(bond, dirtyPrice, deliveryDate, repoRate);
+    return fdp - invoicePrice;
   }
 
   /**

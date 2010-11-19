@@ -40,6 +40,9 @@ public class BondPriceCalculator {
     Validate.isTrue(forwardTime < principle.getPaymentTime(), "future time beyond maturity of bond");
     final GenericAnnuity<FixedCouponPayment> coupons = bond.getCouponAnnuity();
 
+    BondYieldCalculator byc = new BondYieldCalculator();
+    // double yield = byc.calculate(bond, dirtyPrice);
+
     double valueOfExpiredCoupons = 0.0;
     for (final FixedCouponPayment payments : coupons.getPayments()) {
       final double ti = payments.getPaymentTime();
