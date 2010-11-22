@@ -52,7 +52,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_searchExchanges_documents() {
+  public void test_search_documents() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     ExchangeSearchResult test = _worker.search(request);
     

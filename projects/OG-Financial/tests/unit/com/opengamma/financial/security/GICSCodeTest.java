@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.master.security.financial.GICSCode;
+import com.opengamma.financial.security.equity.GICSCode;
 
 /**
  * Test GICSCode.

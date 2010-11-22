@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.security.financial;
+package com.opengamma.financial.security.equity;
 
 import java.io.Serializable;
 

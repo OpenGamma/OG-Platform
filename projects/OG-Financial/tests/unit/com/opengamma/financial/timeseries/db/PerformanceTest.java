@@ -18,15 +18,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.financial.timeseries.DataPointDocument;
+import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.db.LocalDateRowStoreTimeSeriesMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -47,6 +46,8 @@ public class PerformanceTest extends DBTest {
     super.setUp();
     
     ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/timeseries/db/tssQueries.xml");
+    
+    @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
     TimeSeriesMaster<LocalDate> ts = new LocalDateRowStoreTimeSeriesMaster(
@@ -68,7 +69,7 @@ public class PerformanceTest extends DBTest {
       
       Identifier id1 = Identifier.of("sa" + i, "ida" + i);
       IdentifierBundle identifiers = IdentifierBundle.of(id1);
-      LocalDateDoubleTimeSeries timeSeries = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(1);
+      LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(1);
       
       tsDocument.setDataField("CLOSE");
       tsDocument.setDataProvider("CMPL");
@@ -79,7 +80,7 @@ public class PerformanceTest extends DBTest {
       s_logger.debug("adding timeseries {}", tsDocument);
       _tsMaster.addTimeSeries(tsDocument);
       
-      timeSeries = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(NUM_POINTS);
+      timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(NUM_POINTS);
       
       for (int j = 1; j < NUM_POINTS; j++) {
         DataPointDocument<LocalDate> dataPointDocument = new DataPointDocument<LocalDate>();
