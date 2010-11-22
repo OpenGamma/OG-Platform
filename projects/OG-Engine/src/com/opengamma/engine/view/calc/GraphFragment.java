@@ -39,9 +39,10 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   private final LinkedList<DependencyNode> _nodes = new LinkedList<DependencyNode>();
   private final Map<ValueSpecification, Integer> _inputValues = new HashMap<ValueSpecification, Integer>();
   private final Map<ValueSpecification, Integer> _outputValues = new HashMap<ValueSpecification, Integer>();
-  private final Set<ValueSpecification> _localPrivateValues = new HashSet<ValueSpecification>();
-  private Set<GraphFragment> _inputFragments = new HashSet<GraphFragment>();
-  private Set<GraphFragment> _outputFragments = new HashSet<GraphFragment>();
+  private final Set<GraphFragment> _inputFragments = new HashSet<GraphFragment>();
+  private final Set<GraphFragment> _outputFragments = new HashSet<GraphFragment>();
+  private Set<ValueSpecification> _localPrivateValues = new HashSet<ValueSpecification>();
+  private CacheSelectHint _cacheSelectHint;
   private AtomicInteger _blockCount;
   private Collection<Long> _requiredJobs;
   private Collection<GraphFragment> _tail;
@@ -298,9 +299,6 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
     final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
-    final Map<ValueSpecification, Boolean> sharedValues = getContext().getSharedCacheValues();
-    final Set<ValueSpecification> localPrivateValues = getPrivateValues();
-    final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
@@ -308,58 +306,63 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       items.add(jobItem);
       item2Node.put(jobItem, node);
     }
-    // If fragment has dependencies which aren't in the execution fragment, its outputs for those are "shared" values
-    for (ValueSpecification outputValue : getOutputValues().keySet()) {
-      // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
-      if (sharedValues.containsKey(outputValue)) {
-        // A terminal output
-        localSharedValues.add(outputValue);
-        continue;
-      }
-      boolean isPrivate = true;
-      for (GraphFragment outputFragment : getOutputFragments()) {
-        if (!outputFragment.getInputValues().containsKey(outputValue)) {
-          // The fragment doesn't need this value
+    if (_cacheSelectHint == null) {
+      final Map<ValueSpecification, Boolean> sharedValues = getContext().getSharedCacheValues();
+      final Set<ValueSpecification> localPrivateValues = getPrivateValues();
+      final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
+      // If fragment has dependencies which aren't in the execution fragment, its outputs for those are "shared" values
+      for (ValueSpecification outputValue : getOutputValues().keySet()) {
+        // Output values are unique in the graph, so this code executes ONCE for each ValueSpecification
+        if (sharedValues.containsKey(outputValue)) {
+          // A terminal output
+          localSharedValues.add(outputValue);
           continue;
         }
-        if (outputFragment.getExecutionId() != getExecutionId()) {
-          // Node is not part of our execution
-          isPrivate = false;
-          break;
+        boolean isPrivate = true;
+        for (GraphFragment outputFragment : getOutputFragments()) {
+          if (!outputFragment.getInputValues().containsKey(outputValue)) {
+            // The fragment doesn't need this value
+            continue;
+          }
+          if (outputFragment.getExecutionId() != getExecutionId()) {
+            // Node is not part of our execution
+            isPrivate = false;
+            break;
+          }
         }
-      }
-      if (isPrivate) {
-        localPrivateValues.add(outputValue);
-        sharedValues.put(outputValue, Boolean.FALSE);
-      } else {
-        localSharedValues.add(outputValue);
-        sharedValues.put(outputValue, Boolean.TRUE);
-      }
-    }
-    // Any input graph fragments will have been processed (but maybe not executed), so inputs coming from
-    // them will be in the shared value map. Anything not in the map is an input that will be in the
-    // shared cache before the graph starts executing.
-    for (ValueSpecification inputValue : getInputValues().keySet()) {
-      if (!localSharedValues.contains(inputValue) && !localPrivateValues.contains(inputValue)) {
-        final Boolean shared = sharedValues.get(inputValue);
-        if (shared == Boolean.FALSE) {
-          localPrivateValues.add(inputValue);
+        if (isPrivate) {
+          localPrivateValues.add(outputValue);
+          sharedValues.put(outputValue, Boolean.FALSE);
         } else {
-          localSharedValues.add(inputValue);
+          localSharedValues.add(outputValue);
+          sharedValues.put(outputValue, Boolean.TRUE);
         }
       }
-    }
-    // System.err.println(localPrivateValues.size() + " private value(s), " + localSharedValues.size() + " shared value(s)");
-    final CacheSelectHint cacheHint;
-    if (localPrivateValues.size() < localSharedValues.size()) {
-      cacheHint = CacheSelectHint.privateValues(localPrivateValues);
-    } else {
-      cacheHint = CacheSelectHint.sharedValues(localSharedValues);
+      // Any input graph fragments will have been processed (but maybe not executed), so inputs coming from
+      // them will be in the shared value map. Anything not in the map is an input that will be in the
+      // shared cache before the graph starts executing.
+      for (ValueSpecification inputValue : getInputValues().keySet()) {
+        if (!localSharedValues.contains(inputValue) && !localPrivateValues.contains(inputValue)) {
+          final Boolean shared = sharedValues.get(inputValue);
+          if (shared == Boolean.FALSE) {
+            localPrivateValues.add(inputValue);
+          } else {
+            localSharedValues.add(inputValue);
+          }
+        }
+      }
+      // System.err.println(localPrivateValues.size() + " private value(s), " + localSharedValues.size() + " shared value(s)");
+      if (localPrivateValues.size() < localSharedValues.size()) {
+        _cacheSelectHint = CacheSelectHint.privateValues(localPrivateValues);
+      } else {
+        _cacheSelectHint = CacheSelectHint.sharedValues(localSharedValues);
+      }
+      // Won't need this set again, so help the GC out
+      _localPrivateValues = null;
     }
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, cacheHint);
+    final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, _cacheSelectHint);
     if (getTail() != null) {
-      getContext().collectMaxConcurrency(getTail().size());
       for (GraphFragment tail : getTail()) {
         tail._blockCount = null;
         final int size = tail.getInputFragments().size();
@@ -391,6 +394,21 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     executeImpl();
   }
 
+  public boolean reset(final Set<GraphFragment> processed) {
+    if (!getInputFragments().isEmpty()) {
+      initBlockCount();
+      for (GraphFragment input : getInputFragments()) {
+        if (processed.add(input)) {
+          if (!input.reset(processed)) {
+            return false;
+          }
+        }
+      }
+    }
+    _requiredJobs = null;
+    return true;
+  }
+
   @Override
   public String toString() {
     return _graphFragmentIdentifier + ": " + _nodes.size() + " dep. node(s), earliestStart=" + _startTime + ", executionCost=" + _invocationCost;
@@ -402,9 +420,6 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
-    // Help out the GC by dropping references to other fragments after completion of job
-    _inputFragments = null;
-    _outputFragments = null;
   }
 
 }

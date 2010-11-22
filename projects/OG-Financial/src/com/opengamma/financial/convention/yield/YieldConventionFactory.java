@@ -30,6 +30,8 @@ public final class YieldConventionFactory {
    * Creates the factory.
    */
   private YieldConventionFactory() {
+    store(SimpleYieldConvention.UK_BUMP_DMO_METHOD, "UK:BUMP/DMO METHOD");
+    store(SimpleYieldConvention.UK_STRIP_METHOD, "UK STRIP METHOD");
     store(SimpleYieldConvention.US_STREET);
     store(SimpleYieldConvention.US_IL_REAL);
     store(SimpleYieldConvention.US_IL_REAL);

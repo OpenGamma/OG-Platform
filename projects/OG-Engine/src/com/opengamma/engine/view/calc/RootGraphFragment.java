@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,12 +20,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 /* package */class RootGraphFragment extends GraphFragment implements Future<Object> {
 
   private final GraphExecutorStatisticsGatherer _statistics;
-  private final long _jobStarted = System.nanoTime();
+  private long _jobStarted;
   private boolean _done;
 
   public RootGraphFragment(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
     super(context);
     _statistics = statistics;
+    _jobStarted = System.nanoTime();
   }
 
   public RootGraphFragment(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics, final Collection<DependencyNode> nodes) {
@@ -35,10 +37,11 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
   @Override
   public synchronized void execute() {
     if (!isCancelled()) {
-      // System.err.println("Max tail concurrency = " + getContext().getMaxConcurrency());
       _done = true;
       notifyAll();
       _statistics.graphExecuted(getContext().getGraph().getCalcConfName(), getContext().getGraph().getSize(), getContext().getExecutionTime(), System.nanoTime() - _jobStarted);
+      getContext().freeSharedCacheValues();
+      getContext().getExecutor().getCache().cacheExecutionPlan(getContext().getGraph(), this);
     }
   }
 
@@ -50,6 +53,18 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
   public void resultReceived(final CalculationJobResult result) {
     super.resultReceived(result);
     execute();
+  }
+
+  public boolean reset(final MultipleNodeExecutor executor, final Set<GraphFragment> processed) {
+    if (!getContext().reset(executor)) {
+      return false;
+    }
+    if (!reset(processed)) {
+      return false;
+    }
+    _jobStarted = System.nanoTime();
+    _done = false;
+    return true;
   }
 
   // Future

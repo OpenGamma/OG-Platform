@@ -163,6 +163,22 @@ public class Tenor {
   public Period getPeriod() {
     return _period;
   }
+  
+  public static final Tenor ofDays(int days) {
+    return new Tenor(Period.ofDays(days));
+  }
+  
+  public static final Tenor ofWeeks(int weeks) {
+    return new Tenor(Period.ofDays(weeks * 7));
+  }
+  
+  public static final Tenor ofMonths(int months) {
+    return new Tenor(Period.ofMonths(months)); // TODO: what do we do here
+  }
+  
+  public static final Tenor ofYears(int years) {
+    return new Tenor(Period.ofYears(years)); // TODO: what do we do here
+  }
 
   public boolean equals(Object o) {
     if (o == null) {

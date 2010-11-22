@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Duration;
 import javax.time.Instant;
@@ -58,9 +60,14 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   private static final Logger s_logger = LoggerFactory.getLogger(IntradayComputationCacheImpl.class);
   
   /**
-   * Used to load/store time series
+   * Used to load/store time series. All access to it must be synchronized using _timeSeriesMasterLock.
    */
   private final DateTimeTimeSeriesMaster _timeSeriesMaster;
+  
+  /**
+   * Used to lock the time series storage
+   */
+  private final Lock _timeSeriesMasterLock = new ReentrantLock();
   
   /**
    * The user the cache runs as. Needed for View permission checks
@@ -111,7 +118,13 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     /**
      * Run at e.g. 1 minute interval
      */
-    private ScheduledFuture<?> _saveTask; 
+    private ScheduledFuture<?> _saveTask;
+    
+    /**
+     * When data at this resolution was last
+     * saved to DB.
+     */
+    private Instant _lastSaveInstant;
     
     private ResolutionRecord(
         Duration duration,
@@ -126,12 +139,24 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       _numPoints = numPoints;
     }
     
+    public Duration getDuration() {
+      return _duration;
+    }
+
     public synchronized int getNumPoints() {
       return _numPoints;
     }
 
     public synchronized void setNumPoints(int numPoints) {
       _numPoints = numPoints;
+    }
+    
+    public synchronized Instant getLastSaveInstant() {
+      return _lastSaveInstant;
+    }
+
+    public synchronized void setLastSaveInstant(Instant lastSaveInstant) {
+      _lastSaveInstant = lastSaveInstant;
     }
 
     private synchronized Instant getFirstDateToRetain(Instant now) {
@@ -227,7 +252,15 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     searchRequest.setDataField(fieldName);
     searchRequest.setLoadTimeSeries(true);
     
-    TimeSeriesSearchResult<Date> searchResult = _timeSeriesMaster.searchTimeSeries(searchRequest);
+    TimeSeriesSearchResult<Date> searchResult;
+
+    _timeSeriesMasterLock.lock();
+    try {
+      searchResult = _timeSeriesMaster.searchTimeSeries(searchRequest);
+    } finally {
+      _timeSeriesMasterLock.unlock();
+    }
+    
     if (searchResult.getDocuments().isEmpty()) {
       return null;
     } else if (searchResult.getDocuments().size() > 1) {
@@ -312,14 +345,20 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     @Override
     public void run() {
       try {
-        save(_resolution);
+        Instant now = Instant.nowSystemClock();
+        save(_resolution, now);
       } catch (RuntimeException e) {
         s_logger.error("Updating intraday time series for " + _resolution + " failed", e);
       }
     }
   }
   
-  private void save(ResolutionRecord resolution) {
+  /*package*/ void save(Duration duration, Instant now) {
+    ResolutionRecord record = _resolution2ResolutionRecord.get(duration);
+    save(record, now);    
+  }
+  
+  private void save(ResolutionRecord resolution, Instant now) {
     for (Iterator<Map.Entry<String, ViewComputationResultModel>> it = _viewName2LastResult.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, ViewComputationResultModel> entry = it.next();
       String viewName = entry.getKey();
@@ -332,13 +371,23 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         continue;
       }
       
-      save(resolution, lastResult);
+      save(resolution, lastResult, now);
     }
   } 
   
-  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult) {
+  private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult, Instant now) {
     
-    Instant now = Instant.nowSystemClock();
+    Instant lastSaveInstant = resolution.getLastSaveInstant();
+    if (lastSaveInstant != null) {
+      if (Duration.between(lastSaveInstant, now).isLessThan(resolution.getDuration().dividedBy(2))) {
+        // It can happen that if this method runs really slowly (slower than the resolution), this 
+        // method is subsequently executed multiple times in quick sequence to "catch up". This is not what we want,
+        // so we just quit.
+        return;
+      }
+    }
+    
+    resolution.setLastSaveInstant(now);
 
     for (String calcConf : lastResult.getCalculationConfigurationNames()) {
       ViewCalculationResultModel result = lastResult.getCalculationResult(calcConf);
@@ -349,7 +398,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         for (ComputedValue value : values.values()) {
           
           if (!(value.getValue() instanceof Double)) {
-            s_logger.warn(value + " is not a double");
+            s_logger.debug(value + " is not a double");
             continue;
           }
           
@@ -359,12 +408,18 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
           String dataProvider = getDataProvider(lastResult.getViewName(), calcConf);
           String fieldName = getFieldName(valueSpecification);
 
-          UniqueIdentifier seriesUid = _timeSeriesMaster.resolveIdentifier(
-              identifiers,
-              null,
-              getDataSource(),
-              dataProvider,
-              fieldName);
+          UniqueIdentifier seriesUid;
+          _timeSeriesMasterLock.lock();
+          try {
+            seriesUid = _timeSeriesMaster.resolveIdentifier(
+                identifiers,
+                null,
+                getDataSource(),
+                dataProvider,
+                fieldName);
+          } finally {
+            _timeSeriesMasterLock.unlock();
+          }
           
           if (seriesUid == null) {
             
@@ -381,19 +436,31 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
             ts.putDataPoint(date, (Double) value.getValue());
             timeSeries.setTimeSeries(ts);
             
-            _timeSeriesMaster.addTimeSeries(timeSeries);
+            _timeSeriesMasterLock.lock();
+            try {
+              _timeSeriesMaster.addTimeSeries(timeSeries);
+            } finally {
+              _timeSeriesMasterLock.unlock();
+            }
             
           } else {
+            
+            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain(now).toEpochMillisLong());
             
             DataPointDocument<Date> dataPoint = new DataPointDocument<Date>();
             dataPoint.setTimeSeriesId(seriesUid);
             dataPoint.setDate(new Date(now.toEpochMillisLong()));
             dataPoint.setValue((Double) value.getValue());
             
-            _timeSeriesMaster.addDataPoint(dataPoint);
-            
-            Date firstDateToRetain = new Date(resolution.getFirstDateToRetain(now).toEpochMillisLong());
-            _timeSeriesMaster.removeDataPoints(seriesUid, firstDateToRetain);
+            _timeSeriesMasterLock.lock();
+            try {
+              // here's the reason to use _timeSeriesMasterLock. If the lock was not used,
+              // you could get an inconsistent view of the time series between add and remove. 
+              _timeSeriesMaster.addDataPoint(dataPoint);
+              _timeSeriesMaster.removeDataPoints(seriesUid, firstDateToRetain);
+            } finally {
+              _timeSeriesMasterLock.unlock();
+            }
           }
           
         }

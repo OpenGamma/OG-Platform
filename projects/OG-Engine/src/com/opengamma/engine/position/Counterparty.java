@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.position;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -13,5 +14,10 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public interface Counterparty {
-
+  /**
+   * Returns the counter party identifier
+   * 
+   * @return the identifier not null
+   */
+  Identifier getIdentifier();
 }

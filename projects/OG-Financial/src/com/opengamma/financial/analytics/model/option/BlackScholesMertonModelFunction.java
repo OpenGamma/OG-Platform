@@ -19,7 +19,6 @@ import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
-import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
@@ -54,7 +53,7 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
 
   @Override
   protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
-    option.getExerciseType().accept(
+    return option.getExerciseType().accept(
       new ExerciseTypeVisitor<OptionDefinition>() {
         @Override
         public OptionDefinition visitAmericanExerciseType(AmericanExerciseType exerciseType) {
@@ -77,6 +76,5 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
         }
       }
     );
-    throw new OpenGammaRuntimeException("Unsupported option type");
   }
 }

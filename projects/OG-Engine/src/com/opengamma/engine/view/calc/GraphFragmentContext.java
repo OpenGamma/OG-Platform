@@ -6,11 +6,12 @@
 package com.opengamma.engine.view.calc;
 
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -28,15 +29,16 @@ import com.opengamma.util.Cancellable;
 
 /* package */class GraphFragmentContext implements JobResultReceiver {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
+
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
   private final AtomicLong _executionTime = new AtomicLong();
-  private final MultipleNodeExecutor _executor;
+  private MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
-  private final Map<ValueSpecification, Boolean> _sharedCacheValues;
-  private final AtomicInteger _maxConcurrency = new AtomicInteger();
   private final FunctionCost.ForConfiguration _functionCost;
-  private final Queue<Cancellable> _cancels = new ConcurrentLinkedQueue<Cancellable>();
+  private final Map<CalculationJobSpecification, Cancellable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancellable>();
+  private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
   private volatile boolean _cancelled;
 
@@ -50,6 +52,32 @@ import com.opengamma.util.Cancellable;
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
     _functionCost = executor.getFunctionCost().getStatistics(graph.getCalcConfName());
+  }
+
+  /**
+   * Resets state so that the plan can be executed again. This is not valid after a cancellation.
+   */
+  public boolean reset(final MultipleNodeExecutor executor) {
+    if (_cancelled) {
+      s_logger.warn("Was cancelled - can't reset for re-execution");
+      return false;
+    }
+    // sanity checks
+    if (!_item2node.isEmpty()) {
+      s_logger.warn("{} elements in item2node map - can't reset for re-execution ({})", _item2node.size(), _item2node);
+      return false;
+    }
+    if (!_job2fragment.isEmpty()) {
+      s_logger.warn("{} elements in job2fragment map - can't reset for re-execution ({})", _job2fragment.size(), _job2fragment);
+      return false;
+    }
+    if (!_cancels.isEmpty()) {
+      s_logger.warn("{} elements in cancellation set - can't reset for re-execution ({})", _cancels.size(), _cancels);
+      return false;
+    }
+    _executionTime.set(0);
+    _executor = executor;
+    return true;
   }
 
   public MultipleNodeExecutor getExecutor() {
@@ -80,6 +108,10 @@ import com.opengamma.util.Cancellable;
     return _sharedCacheValues;
   }
 
+  public void freeSharedCacheValues() {
+    _sharedCacheValues = null;
+  }
+
   public void allocateFragmentMap(final int size) {
     _job2fragment = new ConcurrentHashMap<CalculationJobSpecification, GraphFragment>((size * 4) / 3);
   }
@@ -88,32 +120,19 @@ import com.opengamma.util.Cancellable;
     _job2fragment.put(jobspec, fragment);
   }
 
-  public void collectMaxConcurrency(final int tailCount) {
-    int maxCon = _maxConcurrency.get();
-    while (tailCount > maxCon) {
-      if (_maxConcurrency.compareAndSet(maxCon, tailCount)) {
-        return;
-      }
-      maxCon = _maxConcurrency.get();
-    }
-  }
-
-  public int getMaxConcurrency() {
-    return _maxConcurrency.get();
-  }
-
   public FunctionInvocationStatistics getFunctionStatistics(final CompiledFunctionDefinition function) {
     return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueIdentifier());
   }
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
+    _cancels.remove(result.getSpecification());
     final GraphFragment fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
       fragment.resultReceived(result);
       // Mark nodes as good or bad
       for (CalculationJobResultItem item : result.getResultItems()) {
-        DependencyNode node = _item2node.get(item.getItem());
+        DependencyNode node = _item2node.remove(item.getItem());
         if (node == null) {
           continue;
         }
@@ -127,7 +146,12 @@ import com.opengamma.util.Cancellable;
 
   public void dispatchJob(final CalculationJob job) {
     if (!_cancelled) {
-      _cancels.add(getExecutor().dispatchJob(job, this));
+      _cancels.put(job.getSpecification(), getExecutor().dispatchJob(job, this));
+      if (!_job2fragment.containsKey(job.getSpecification())) {
+        if (_cancels.remove(job.getSpecification()) != null) {
+          s_logger.debug("Removed cancellation handle on fast job execution of {}", job.getSpecification());
+        }
+      }
     }
   }
 
@@ -135,12 +159,14 @@ import com.opengamma.util.Cancellable;
     return _cancelled;
   }
 
+  /**
+   * Attempts to cancel jobs. This is a best efforts as there is no synchronization with dispatchJob and so it is
+   * possible some jobs may be left to complete or fail.
+   */
   public void cancelAll(final boolean mayInterrupt) {
     _cancelled = true;
-    Cancellable cancel = _cancels.poll();
-    while (cancel != null) {
+    for (Cancellable cancel : _cancels.values()) {
       cancel.cancel(mayInterrupt);
-      cancel = _cancels.poll();
     }
   }
 

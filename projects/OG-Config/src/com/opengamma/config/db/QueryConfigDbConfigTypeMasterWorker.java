@@ -153,8 +153,8 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     String selectFromWhereInner = "SELECT id FROM cfg_config " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE c.id IN (" + inner + ") ORDER BY c.id";
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC ", request.getPagingRequest());
+    String search = SELECT + FROM + "WHERE c.id IN (" + inner + ") ORDER BY c.ver_from_instant DESC";
     String count = "SELECT COUNT(*) FROM cfg_config " + where;
     return new String[] {search, count};
   }

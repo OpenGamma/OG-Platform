@@ -62,8 +62,24 @@ public class BatchDbManagerImpl implements BatchDbManager {
   private static final Logger s_logger = LoggerFactory
     .getLogger(BatchDbManagerImpl.class);
   
+  private static String s_dbSchema = "";
+  
   private DbSource _dbSource;
   private HibernateTemplate _hibernateTemplate;
+  
+  // --------------------------------------------------------------------------
+  
+  public static synchronized String getDatabaseSchema() {
+    return s_dbSchema;
+  }
+  
+  public static synchronized void setDatabaseSchema(String schema) {
+    if (schema == null) {
+      s_dbSchema = "";      
+    } else {
+      s_dbSchema = schema  + ".";
+    }
+  }
   
   // --------------------------------------------------------------------------
   
@@ -378,6 +394,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     // clear risk failures
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
+    getJdbcTemplate().update(FailureReason.sqlDeleteRiskFailureReasons(), parameters);
     getJdbcTemplate().update(RiskFailure.sqlDeleteRiskFailures(), parameters);
     
     batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
@@ -533,8 +550,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
         throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
       }
       
-      snapshot.getSnapshotTime().setTime(DbDateUtils.toSqlTime(fix));
-      getHibernateTemplate().save(snapshot);
+      ObservationDateTime snapshotTime = snapshot.getSnapshotTime(); 
+      snapshotTime.setTime(DbDateUtils.toSqlTime(fix));
+      getHibernateTemplate().save(snapshotTime);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {

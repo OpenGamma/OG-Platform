@@ -44,7 +44,6 @@ public class ScheduleFactory {
     Validate.isTrue(periodsPerYear > 0);
     LocalDate[] result = null;
     if (periodsPerYear == 1) {
-      result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
       if (endOfMonth) {
         if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(endDate))) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -131,7 +130,6 @@ public class ScheduleFactory {
     Validate.isTrue(periodsPerYear > 0);
     ZonedDateTime[] result = null;
     if (periodsPerYear == 1) {
-      result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
       if (endOfMonth) {
         if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(endDate))) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);

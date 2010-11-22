@@ -7,7 +7,6 @@ package com.opengamma.web.security;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,6 +20,10 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.SwapLegVisitor;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
@@ -58,14 +61,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     SecurityDocument doc = data().getSecurity();
     
     IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
-    Map<IdentifierBundle, ManageableSecurity> loadedSecurities = data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
-    ManageableSecurity updatedSecurity = loadedSecurities.get(identifierBundle);
-    SecurityDocument updateDoc = new SecurityDocument();
-    
-    UniqueIdentifier securityId = doc.getUniqueId();
-    updateDoc.setUniqueId(securityId);
-    updateDoc.setSecurity(updatedSecurity);
-    data().getSecurityMaster().update(updateDoc);
+    data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
     
     URI uri = WebSecurityResource.uri(data());
     return Response.seeOther(uri).build();
@@ -90,9 +86,35 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     SecurityDocument doc = data().getSecurity();
     out.put("securityDoc", doc);
     out.put("security", doc.getSecurity());
+    addSecuritySpecificMetaData(doc.getSecurity(), out);
     return out;
   }
 
+  /**
+   * @param security
+   * @param out
+   */
+  private void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
+    if (security.getSecurityType().equals("SWAP")) {
+      SwapSecurity swapSecurity = (SwapSecurity) security;
+      out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
+      out.put("receiveLegType", swapSecurity.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
+    }
+  }
+
+  private class SwapLegClassifierVisitor implements SwapLegVisitor<String> {
+
+    @Override
+    public String visitFixedInterestRateLeg(FixedInterestRateLeg swapLeg) {
+      return "FixedInterestRateLeg";
+    }
+
+    @Override
+    public String visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
+      return "FloatingInterestRateLeg";
+    }
+  }
+  
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebSecurityVersionsResource findVersions() {
