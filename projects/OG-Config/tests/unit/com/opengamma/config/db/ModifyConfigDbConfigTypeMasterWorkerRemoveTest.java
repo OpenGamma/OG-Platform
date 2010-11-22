@@ -71,7 +71,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerRemoveTest extends AbstractDbCo
     ConfigDocument<Identifier> test = _queryWorker.get(uid);
     
     assertEquals(uid, test.getConfigId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
+    assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(Identifier.of("A", "B"), test.getValue());
     assertEquals("TestConfig101", test.getName());
