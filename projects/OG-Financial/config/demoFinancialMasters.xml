@@ -89,7 +89,7 @@
   </bean>
 
   <!-- PositionMaster --> 
-  <bean id="dbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <bean id="dbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>

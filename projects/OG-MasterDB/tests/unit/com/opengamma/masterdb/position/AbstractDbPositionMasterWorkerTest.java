@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.db;
+package com.opengamma.masterdb.position;
 
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import com.opengamma.financial.master.db.DbMasterTestUtils;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -148,9 +148,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         105, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
         106, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
-    
-    
-    
   }
 
   @After

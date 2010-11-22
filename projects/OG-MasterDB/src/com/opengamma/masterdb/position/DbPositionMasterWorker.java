@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.db;
+package com.opengamma.masterdb.position;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;

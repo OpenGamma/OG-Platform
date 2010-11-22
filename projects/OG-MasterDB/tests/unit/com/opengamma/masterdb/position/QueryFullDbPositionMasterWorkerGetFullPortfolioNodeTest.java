@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.db;
+package com.opengamma.masterdb.position;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +31,9 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
+import com.opengamma.masterdb.position.DbPositionMasterWorker;
+import com.opengamma.masterdb.position.QueryFullDbPositionMasterWorker;
+import com.opengamma.masterdb.position.QueryPositionDbPositionMasterWorker;
 
 /**
  * Tests QueryFullDbPositionMasterWorker.

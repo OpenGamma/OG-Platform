@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.db;
+package com.opengamma.masterdb.position;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -18,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -27,19 +25,22 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.masterdb.position.DbPositionMasterWorker;
+import com.opengamma.masterdb.position.ModifyPositionDbPositionMasterWorker;
+import com.opengamma.masterdb.position.QueryPositionDbPositionMasterWorker;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
-public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends AbstractDbPositionMasterWorkerTest {
+public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerUpdatePositionTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerCorrectPositionTest.class);
 
   private ModifyPositionDbPositionMasterWorker _worker;
   private DbPositionMasterWorker _queryWorker;
 
-  public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
+  public ModifyPositionDbPositionMasterWorkerCorrectPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -63,43 +64,42 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   //-------------------------------------------------------------------------
   @Test(expected = NullPointerException.class)
-  public void test_updatePosition_nullDocument() {
-    _worker.updatePosition(null);
+  public void test_correctPosition_nullDocument() {
+    _worker.correctPosition(null);
   }
 
   @Test(expected = NullPointerException.class)
-  public void test_updatePosition_noPositionId() {
+  public void test_correctPosition_noPositionId() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    _worker.updatePosition(doc);
+    _worker.correctPosition(doc);
   }
 
   @Test(expected = NullPointerException.class)
-  public void test_updatePosition_noPosition() {
+  public void test_correctPosition_noPosition() {
     PositionDocument doc = new PositionDocument();
     doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "0"));
-    _worker.updatePosition(doc);
+    _worker.correctPosition(doc);
   }
 
   @Test(expected = DataNotFoundException.class)
-  public void test_updatePosition_notFound() {
+  public void test_correctPosition_notFound() {
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
-    _worker.updatePosition(doc);
+    _worker.correctPosition(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_updatePosition_notLatestVersion() {
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "221", "0"));
-    PositionDocument doc = new PositionDocument(pos);
-    _worker.updatePosition(doc);
-  }
+//  @Test(expected = IllegalArgumentException.class)
+//  public void test_correctPosition_notLatestCorrection() {
+//    PortfolioTreePosition pos = new PortfolioTreePosition(UniqueIdentifier.of("DbPos", "221", "221"), BigDecimal.TEN, Identifier.of("A", "B"));
+//    PositionDocument doc = new PositionDocument(pos);
+//    _worker.correctPosition(doc);
+//  }
 
   @Test
-  public void test_updatePosition_getUpdateGet() {
+  public void test_correctPosition_getUpdateGet() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
@@ -107,52 +107,29 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     
-    PositionDocument updated = _worker.updatePosition(input);
-    assertEquals(false, base.getPositionId().equals(updated.getPositionId()));
-    assertEquals(base.getPortfolioId(), updated.getPortfolioId());
-    assertEquals(base.getParentNodeId(), updated.getParentNodeId());
-    assertEquals(now, updated.getVersionFromInstant());
-    assertEquals(null, updated.getVersionToInstant());
-    assertEquals(now, updated.getCorrectionFromInstant());
-    assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getPosition(), updated.getPosition());
+    PositionDocument corrected = _worker.correctPosition(input);
+    assertEquals(false, base.getPositionId().equals(corrected.getPositionId()));
+    assertEquals(base.getPortfolioId(), corrected.getPortfolioId());
+    assertEquals(base.getParentNodeId(), corrected.getParentNodeId());
+    assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
+    assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
+    assertEquals(now, corrected.getCorrectionFromInstant());
+    assertEquals(null, corrected.getCorrectionToInstant());
+    assertEquals(input.getPosition(), corrected.getPosition());
     
     PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
     assertEquals(base.getPositionId(), old.getPositionId());
     assertEquals(base.getPortfolioId(), old.getPortfolioId());
     assertEquals(base.getParentNodeId(), old.getParentNodeId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
-    assertEquals(now, old.getVersionToInstant());  // old version ended
+    assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
-    assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
+    assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getPosition(), old.getPosition());
     
-    PositionHistoryRequest search = new PositionHistoryRequest(base.getPositionId(), null, now);
+    PositionHistoryRequest search = new PositionHistoryRequest(base.getPositionId(), now, null);
     PositionHistoryResult searchResult = _queryWorker.historyPosition(search);
     assertEquals(2, searchResult.getDocuments().size());
-  }
-
-  @Test
-  public void test_updatePosition_rollback() {
-    ModifyPositionDbPositionMasterWorker w = new ModifyPositionDbPositionMasterWorker() {
-      protected String sqlInsertSecurityKey() {
-        return "INSERT";  // bad sql
-      };
-    };
-    w.init(_posMaster);
-    final PositionDocument base = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
-    PositionDocument input = new PositionDocument(pos);
-    try {
-      w.updatePosition(input);
-      fail();
-    } catch (BadSqlGrammarException ex) {
-      // expected
-    }
-    final PositionDocument test = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
-    
-    assertEquals(base, test);
   }
 
   //-------------------------------------------------------------------------

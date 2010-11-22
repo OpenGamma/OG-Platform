@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.db;
+package com.opengamma.masterdb.position;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,6 +21,7 @@ import com.opengamma.master.position.ManageablePortfolioNode;
 import com.opengamma.master.position.PortfolioTreeDocument;
 import com.opengamma.master.position.PortfolioTreeSearchRequest;
 import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.masterdb.position.QueryPortfolioTreeDbPositionMasterWorker;
 import com.opengamma.util.db.PagingRequest;
 
 /**
