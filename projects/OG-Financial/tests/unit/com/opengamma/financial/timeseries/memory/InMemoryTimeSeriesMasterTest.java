@@ -17,32 +17,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.timeseries.DataPointDocument;
+import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
-import com.opengamma.financial.timeseries.db.TimeSeriesMasterTest;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -51,7 +42,6 @@ import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
@@ -716,11 +706,11 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
   
   public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
-    return TimeSeriesMasterTest.makeRandomTimeSeriesStatic(previousWeekDay, numDays);
+    return RandomTimeSeriesGenerator.makeRandomTimeSeries(previousWeekDay, numDays);
   }
   
   public DoubleTimeSeries<T> makeRandomTimeSeries(LocalDate start, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = TimeSeriesMasterTest.makeRandomTimeSeriesStatic(start, numDays);
+    MapLocalDateDoubleTimeSeries tsMap = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, numDays);
     return getTimeSeries(tsMap);
   }
   

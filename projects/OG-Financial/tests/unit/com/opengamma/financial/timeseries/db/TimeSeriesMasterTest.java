@@ -42,6 +42,7 @@ import com.opengamma.financial.timeseries.DataPointDocument;
 import com.opengamma.financial.timeseries.DataProviderBean;
 import com.opengamma.financial.timeseries.DataSourceBean;
 import com.opengamma.financial.timeseries.ObservationTimeBean;
+import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
 import com.opengamma.financial.timeseries.SchemeBean;
 import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.financial.timeseries.TimeSeriesMaster;
@@ -1019,27 +1020,9 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
   
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(int numDays) {
-    LocalDate previousWeekDay = DateUtil.previousWeekDay();
-    return makeRandomTimeSeriesStatic(previousWeekDay, numDays);
-  }
-  
   public DoubleTimeSeries<T> makeRandomTimeSeries(LocalDate start, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = makeRandomTimeSeriesStatic(start, numDays);
+    MapLocalDateDoubleTimeSeries tsMap = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, numDays);
     return getTimeSeries(tsMap);
-  }
-  
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(LocalDate start, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
-    LocalDate current = start;
-    tsMap.putDataPoint(current, Math.random());
-    while (tsMap.size() < numDays) {
-      if (isWeekday(current)) {
-        tsMap.putDataPoint(current, Math.random());
-      }
-      current = current.plusDays(1);
-    }
-    return tsMap;
   }
   
   private static boolean isWeekday(LocalDate day) {
