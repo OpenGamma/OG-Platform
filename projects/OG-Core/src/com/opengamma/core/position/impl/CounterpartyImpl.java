@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -17,22 +18,37 @@ import com.opengamma.util.ArgumentChecker;
  * A simple mutable implementation of {@code Counterparty}.
  */
 public class CounterpartyImpl implements Counterparty, Serializable {
-  
-  private Identifier _identifier;
-  
+
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /**
-   * @param identifier the identifier not -null
+   * The counterparty identifier.
+   */
+  private Identifier _identifier;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param identifier  the identifier, not null
    */
   public CounterpartyImpl(Identifier identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the identifier of the counterparty.
+   * 
+   * @return the identifier, not null
+   */
   @Override
   public Identifier getIdentifier() {
     return _identifier;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

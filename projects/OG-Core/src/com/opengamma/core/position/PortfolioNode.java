@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position;
 
 import java.util.List;
 
@@ -23,37 +23,43 @@ public interface PortfolioNode extends UniqueIdentifiable {
 
   /**
    * Gets the unique identifier of the node.
+   * 
    * @return the identifier, not null
    */
   UniqueIdentifier getUniqueIdentifier();
 
   /**
    * Gets the name of the node intended for display purposes.
+   * 
    * @return the name, not null
    */
   String getName();
 
   /**
    * Gets the total size of the children, including nodes and positions.
+   * 
    * @return the size of the nodes and position
    */
   int size();
 
   /**
    * Gets the nodes which are immediate children of this node.
+   * 
    * @return the child nodes, unmodifiable, not null
    */
   List<PortfolioNode> getChildNodes();
 
   /**
    * Gets the positions immediate children of this node.
+   * 
    * @return the positions, unmodifiable, not null
    */
   List<Position> getPositions();
 
   /**
    * Returns the identifier of the parent node, or {@code null} if this is a root node.
-   * @return the identifier
+   * 
+   * @return the identifier, null if root node
    */
   UniqueIdentifier getParentNode();
 

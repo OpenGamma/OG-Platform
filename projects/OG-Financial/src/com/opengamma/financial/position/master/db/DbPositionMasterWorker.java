@@ -15,9 +15,9 @@ import javax.time.TimeSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;

@@ -3,12 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
 
 /**

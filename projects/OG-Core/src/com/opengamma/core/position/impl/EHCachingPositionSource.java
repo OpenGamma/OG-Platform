@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -72,7 +75,7 @@ public class EHCachingPositionSource implements PositionSource {
     _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of positions.
    * @return the underlying source of positions, not null
@@ -89,7 +92,7 @@ public class EHCachingPositionSource implements PositionSource {
     return _cacheManager;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier identifier) {
     if (identifier.isLatest()) {

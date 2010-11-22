@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;

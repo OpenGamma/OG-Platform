@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -18,6 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  * A simple mutable implementation of {@code Portfolio}.
  */
 public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Serializable {
+
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The identifier.
@@ -132,7 +136,12 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     ArgumentChecker.notNull(rootNode, "root node");
     _rootNode = rootNode;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a long string describing the object.
+   * @return the long format string, not null
+   */
   public String toLongString() {
     return new StrBuilder()
       .append("Portfolio[")
@@ -144,7 +153,6 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
       .toString();
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return new StrBuilder()

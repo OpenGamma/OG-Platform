@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,6 +13,9 @@ import javax.time.Instant;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -22,6 +25,10 @@ import com.opengamma.util.CompareUtils;
  * A simple mutable implementation of {@link Trade Trade}
  */
 public class TradeImpl implements Trade, Serializable {
+
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The position a trade is part of.
    */

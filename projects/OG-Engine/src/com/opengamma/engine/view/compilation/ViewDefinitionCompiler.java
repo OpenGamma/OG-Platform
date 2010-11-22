@@ -15,12 +15,12 @@ import javax.time.InstantProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
-import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;

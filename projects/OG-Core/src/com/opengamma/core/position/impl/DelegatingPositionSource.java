@@ -3,8 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
@@ -19,6 +22,7 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
 
   /**
    * Creates a new instance with a default source of securities.
+   * 
    * @param defaultSource  the default source to fall back to, not null
    */
   public DelegatingPositionSource(PositionSource defaultSource) {

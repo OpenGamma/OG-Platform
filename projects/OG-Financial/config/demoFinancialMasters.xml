@@ -93,7 +93,7 @@
     <constructor-arg ref="finDbSource" />
     <property name="identifierScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
-  <bean id="sharedPositionSource" class="com.opengamma.engine.position.EHCachingPositionSource">
+  <bean id="sharedPositionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
     <constructor-arg>
       <bean class="com.opengamma.financial.position.master.MasterPositionSource">
         <constructor-arg ref="dbPositionMaster" />

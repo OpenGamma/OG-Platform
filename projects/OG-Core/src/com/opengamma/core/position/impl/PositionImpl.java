@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,6 +15,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -27,6 +29,10 @@ import com.opengamma.util.CompareUtils;
  * A simple mutable implementation of {@code Position}.
  */
 public class PositionImpl implements Position, MutableUniqueIdentifiable, Serializable {
+
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The identifier of the whole position.
    */
@@ -158,7 +164,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _security = security;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the position.
    * @return the identifier, not null
@@ -186,7 +192,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _parentNode = parentNode;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the amount of the position held in terms of the security.
    * @return the amount of the position, not null
@@ -270,7 +276,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     return Collections.unmodifiableSet(_trades);
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

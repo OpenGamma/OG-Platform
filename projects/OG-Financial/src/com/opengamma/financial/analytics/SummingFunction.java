@@ -10,14 +10,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionAccumulator;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;

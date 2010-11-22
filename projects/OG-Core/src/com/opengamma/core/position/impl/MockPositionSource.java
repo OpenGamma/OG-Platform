@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -46,7 +49,7 @@ public class MockPositionSource implements PositionSource {
     _uidSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the list of all portfolio identifiers.
    * @return the portfolio identifiers, unmodifiable, not null
@@ -82,7 +85,7 @@ public class MockPositionSource implements PositionSource {
     return identifier == null ? null : _positions.get(identifier);
   }
 
-  // -------------------------------------------------------------------------`
+  //-------------------------------------------------------------------------
   /**
    * Adds a portfolio to the master.
    * @param portfolio  the portfolio to add, not null

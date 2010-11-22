@@ -18,10 +18,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

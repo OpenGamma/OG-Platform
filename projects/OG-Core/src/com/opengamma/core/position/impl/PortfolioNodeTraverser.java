@@ -3,8 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-01-02 -- One reason this class exists is so that you can parallel-apply

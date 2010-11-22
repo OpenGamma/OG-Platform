@@ -3,7 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
+
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 
 /**
  * A simple no-op implementation of {@code PortfolioNodeTraversalCallback}.

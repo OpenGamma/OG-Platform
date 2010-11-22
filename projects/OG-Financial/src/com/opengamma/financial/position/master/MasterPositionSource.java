@@ -8,10 +8,10 @@ package com.opengamma.financial.position.master;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionSource;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 

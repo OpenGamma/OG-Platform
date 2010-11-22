@@ -3,21 +3,25 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.util.PublicAPI;
 
 /**
- * An entity against which a trade was executed.
+ * The entity against which a trade was executed.
+ * <p>
+ * Trades have a counterparty to link the other side of the deal.
  * This entity might be an exchange where the final counterparty is unknown.
  */
 @PublicAPI
 public interface Counterparty {
+
   /**
-   * Returns the counter party identifier
+   * Gets the identifier of the counterparty.
    * 
-   * @return the identifier not null
+   * @return the identifier, not null
    */
   Identifier getIdentifier();
+
 }

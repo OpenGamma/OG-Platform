@@ -6,9 +6,9 @@
 package com.opengamma.financial.position.master;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

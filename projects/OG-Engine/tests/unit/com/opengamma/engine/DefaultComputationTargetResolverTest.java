@@ -11,16 +11,16 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.MockSecuritySource;
-import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

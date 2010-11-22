@@ -19,10 +19,10 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;

@@ -3,13 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -22,7 +24,7 @@ public class PortfolioImplTest {
     PortfolioImpl test = new PortfolioImpl("Name");
     assertEquals(null, test.getUniqueIdentifier());
     assertEquals("Name", test.getName());
-    assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
+    assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
     assertEquals("Portfolio[]", test.toString());
   }
@@ -38,7 +40,7 @@ public class PortfolioImplTest {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
     assertEquals(id("Scheme", "Id"), test.getUniqueIdentifier());
     assertEquals("Name", test.getName());
-    assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
+    assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
     assertEquals("Portfolio[Scheme::Id]", test.toString());
   }

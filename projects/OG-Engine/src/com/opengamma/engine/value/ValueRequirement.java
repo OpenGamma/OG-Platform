@@ -11,11 +11,11 @@ import java.util.Set;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.position.Position;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;

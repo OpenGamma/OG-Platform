@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.position;
+package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -23,6 +25,9 @@ import com.opengamma.util.ArgumentChecker;
  * A simple mutable implementation of {@code PortfolioNode}.
  */
 public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiable, Serializable {
+
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The identifier of the node.
@@ -54,7 +59,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
 
   /**
    * Creates a portfolio node with a given name.
-   * @param name the name of the portfolio node.
+   * @param name  the name of the portfolio node.
    */
   public PortfolioNodeImpl(String name) {
     _name = name;
@@ -74,7 +79,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /**
    * Creates a portfolio as a copy of another, possibly immutable, {@link PortfolioNode} implementation.
    * 
-   * @param copyFrom the instance to copy fields from, not null
+   * @param copyFrom  the instance to copy fields from, not null
    */
   public PortfolioNodeImpl(final PortfolioNode copyFrom) {
     ArgumentChecker.notNull(copyFrom, "copyFrom");
@@ -84,7 +89,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _positions.addAll(copyFrom.getPositions());
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the node.
    * @return the identifier, not null
@@ -112,7 +117,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _parentNode = parentNode;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the name of the node intended for display purposes.
    * @return the name, not null
@@ -131,7 +136,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _name = name;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the total size of the children, including nodes and positions.
    * @return the size of the nodes and position
@@ -141,7 +146,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     return _childNodes.size() + _positions.size();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the nodes which are immediate children of this node.
    * @return the child nodes, unmodifiable, not null
@@ -184,7 +189,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _childNodes.remove(childNode);
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the positions which are immediate children of this node.
    * @return the positions, unmodifiable, not null
@@ -227,7 +232,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     _positions.remove(position);
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
@@ -310,7 +315,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
         .toString();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return new StrBuilder().append("PortfolioNode[").append(getUniqueIdentifier()).append(", ").append(_childNodes.size()).append(" child-nodes, ").append(_positions.size()).append(" positions]")
