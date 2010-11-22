@@ -24,6 +24,14 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public interface TimeSeriesMaster<T> {
   /**
+   * Value for unknown data provider in the database
+   */
+  String UNKNOWN_PROVIDER = "UNKNOWN";
+  /**
+   * Value for Unknown observation time in the database
+   */
+  String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
+  /**
    * Create or get a data source with description  
    * @param dataSource the datsource name, not-null
    * @param description the description
