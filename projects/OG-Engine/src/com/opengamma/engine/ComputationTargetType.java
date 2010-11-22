@@ -6,10 +6,10 @@
 package com.opengamma.engine;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
 import com.opengamma.util.PublicAPI;
 
 /**

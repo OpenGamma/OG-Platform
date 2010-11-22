@@ -22,12 +22,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.CounterpartyImpl;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.Trade;
-import com.opengamma.engine.position.TradeImpl;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.CounterpartyImpl;
+import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

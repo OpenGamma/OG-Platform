@@ -116,10 +116,10 @@ public class BondTest {
   @Test
   public void testGetters() {
     assertEquals(BOND.getPrinciplePayment().getFundingCurveName(), BOND_CURVE);
-    assertEquals(0.0, BOND.getAccruedInterestFraction(), 0.0);
+    assertEquals(0.0, BOND.getAccruedInterest(), 0.0);
     assertEquals(BOND.getPrinciplePayment().getPaymentTime(), TIMES[TIMES.length - 1], 0.0);
     Bond other = new Bond(TIMES, COUPONS, YEAR_FRACTIONS, 0.1, BOND_CURVE);
-    assertEquals(0.1, other.getAccruedInterestFraction(), 0.1);
+    assertEquals(0.1, other.getAccruedInterest(), 0.0);
   }
 
   @Test

@@ -81,21 +81,16 @@ public abstract class AbstractCalculationNodeInvocationContainer {
 
     /**
      * This is only called from a single thread - doing the addJob operation - once it has been called once,
-     * another thread may need to manipulate the block count (e.g. if a job is finishing).
+     * another thread will manipulate the block count (e.g. if a job is finishing) and possibly spawn the job.
+     * Note that we initialize the count to two so that the job does not get spawned prematurely until the
+     * addJob thread has processed the required job list and performs a decrement to clear the additional value.
      */
     public void incrementBlockCount() {
       if (_blockCount == null) {
-        _blockCount = new AtomicInteger(1);
+        _blockCount = new AtomicInteger(2);
       } else {
         _blockCount.incrementAndGet();
       }
-    }
-
-    /**
-     * This is only called from the same thread that calls incrementBlockCount as part of the addJob operation.
-     */
-    public int getBlockCount() {
-      return (_blockCount == null) ? 0 : _blockCount.get();
     }
 
     /**
@@ -331,6 +326,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
       // Shouldn't be passing a node in with a job that might not be runnable
       assert node == null;
       boolean failed = false;
+      boolean blocked = false;
       for (Long requiredId : requiredJobIds) {
         JobExecution required = getExecution(requiredId);
         s_logger.debug("Job {} requires {}", jobExecution.getJobId(), requiredId);
@@ -348,6 +344,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
                 break;
               case RUNNING:
                 // We're blocked
+                blocked = true;
+                // Will increment or initialize to 2
                 jobEntry.incrementBlockCount();
                 required.blockJob(jobEntry);
                 s_logger.debug("Required job {} blocking {}", requiredId, jobExecution.getJobId());
@@ -369,9 +367,12 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         failExecution(jobExecution);
         return;
       }
-      if (jobEntry.getBlockCount() > 0) {
-        s_logger.debug("Blocked execution of {}", jobExecution.getJobId());
-        return;
+      if (blocked) {
+        // Decrement the additional count from the initialization
+        if (!jobEntry.releaseBlockCount()) {
+          s_logger.debug("Blocked execution of {}", jobExecution.getJobId());
+          return;
+        }
       }
     }
     spawnOrQueueJob(jobEntry, node);
@@ -379,9 +380,9 @@ public abstract class AbstractCalculationNodeInvocationContainer {
 
   private void threadFree(final JobExecution exec) {
     // The executor should only go null transiently while the cancel action happens and should then
-    // be restored. It sometimes ends up as null (probably because of a flaw in the logic), so we
-    // have a spin count here to give up after 1s regardless (which may cause further errors, but
-    // is better than deadlock).
+    // be restored. If, for probably erroneous reasons, the job has been launched twice we can see
+    // a continuous null here from the second running thread so have a spin count here to give up
+    // after 1s regardless (which may cause further errors, but is better than deadlock).
     int spin = 0;
     do {
       final Pair<Thread, CalculationJob> previous = exec.getAndSetExecutor(null);
@@ -399,18 +400,18 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         case 0:
           s_logger.debug("Waiting for interrupt");
           break;
-        case 1 :
+        case 1:
           s_logger.info("Waiting for interrupt");
           break;
-        case 2 :
+        case 2:
           s_logger.warn("Waiting for interrupt");
           break;
-        default :
+        default:
           s_logger.error("Waiting for interrupt");
           break;
       }
       try {
-        Thread.sleep(1);
+        Thread.sleep(10);
       } catch (InterruptedException e) {
         s_logger.debug("Interrupt received");
         return;

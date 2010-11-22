@@ -12,3 +12,4 @@ bootstrap/
 tests/output/
 docs/
 lib/
+.idea/

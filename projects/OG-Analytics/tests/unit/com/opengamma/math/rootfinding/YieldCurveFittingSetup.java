@@ -215,8 +215,8 @@ public abstract class YieldCurveFittingSetup {
 
   protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments, final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
-    return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
-        old.getUnknownCurveNodeSensitivityCalculators());
+    return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
+        .getUnknownCurveNodeSensitivityCalculators());
   }
 
   protected static InterestRateDerivativeWithRate makeIRD(final String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
@@ -315,15 +315,15 @@ public abstract class YieldCurveFittingSetup {
 
   protected static Bond makeBond(final double maturity, final String curveName, final double coupon) {
 
-    final int n = (int) (2.0 * maturity);
+    final int n = (int) Math.ceil(maturity * 2.0);
     final double[] paymentTimes = new double[n];
     paymentTimes[n - 1] = maturity;
     for (int i = n - 2; i >= 0; i--) {
       paymentTimes[i] = paymentTimes[i + 1] - 0.5;
     }
-    final double accuralFraction = 1.0 - 2.0 * paymentTimes[0];
+    final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
 
-    return new Bond(paymentTimes, coupon, 0.5, accuralFraction, curveName);
+    return new Bond(paymentTimes, coupon, 0.5, accuredInterest, curveName);
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

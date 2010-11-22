@@ -70,8 +70,9 @@ public class BondSecurityToBondConverter {
     final LocalDate[] schedule = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
-    final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory
-    final DayCount daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); //TODO remove this when the definitions for USD treasuries are correct
+    final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory 
+  //TODO remove this when the definitions for USD treasuries are correct
+    final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention(); 
     final int settlementDays = convention.getSettlementDays();
     final double coupon = security.getCouponRate();
     final boolean isEOMConvention = convention.isEOMConvention();
@@ -95,7 +96,7 @@ public class BondSecurityToBondConverter {
     for (int i = 0; i < payments.length; i++) {
       payments[i] = paymentTimes.get(i);
     }
-    return new Bond(payments, coupon / 100., timeBetweenPeriods, periodsPerYear * accrualTime, curveName);
+    return new Bond(payments, coupon / 100., timeBetweenPeriods, accruedInterest / 100.0, curveName);
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {

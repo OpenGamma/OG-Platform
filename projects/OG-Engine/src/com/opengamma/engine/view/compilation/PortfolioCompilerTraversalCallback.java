@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
+import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
-import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeTraverser;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;

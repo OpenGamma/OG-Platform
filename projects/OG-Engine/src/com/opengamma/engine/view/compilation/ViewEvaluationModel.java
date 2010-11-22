@@ -15,11 +15,11 @@ import java.util.TreeSet;
 
 import javax.time.Instant;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;

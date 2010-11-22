@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-//TODO Because of the way that accrued interest is calculated (i.e. Julian days, so that whole numbers of days are used), we need extra fields that can contain the accrued interest
+// TODO Because of the way that accrued interest is calculated (i.e. Julian days, so that whole numbers of days are used), we need extra fields that can contain the accrued interest
 // up to the time today (fractions of a day) as well as the "official" accrued interest.
 public class Bond implements InterestRateDerivativeWithRate {
   private final GenericAnnuity<FixedCouponPayment> _coupons;
   private final FixedPayment _principle;
-  private final double _accruedInterestFraction;
+  private final double _accruedInterest;
 
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
@@ -39,10 +39,10 @@ public class Bond implements InterestRateDerivativeWithRate {
     }
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
-    _accruedInterestFraction = 0.0;
+    _accruedInterest = 0.0;
   }
 
-  public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accrualFraction, final String yieldCurveName) {
+  public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     ArgumentChecker.notEmpty(paymentTimes, "payment times");
     Validate.notNull(yieldCurveName, "yield curve name");
@@ -53,10 +53,10 @@ public class Bond implements InterestRateDerivativeWithRate {
     }
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
-    _accruedInterestFraction = accrualFraction;
+    _accruedInterest = accruedInterest;
   }
 
-  public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final double accrualFraction, final String yieldCurveName) {
+  public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.notNull(coupons, "coupons");
     Validate.notNull(yearFractions, "year fractions");
@@ -77,7 +77,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     }
     _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
-    _accruedInterestFraction = accrualFraction;
+    _accruedInterest = accruedInterest;
   }
 
   /**
@@ -140,7 +140,7 @@ public class Bond implements InterestRateDerivativeWithRate {
       yearFrac[i] = temp.getYearFraction();
     }
 
-    return new Bond(times, coupons, yearFrac, getAccruedInterestFraction(), payments[0].getFundingCurveName());
+    return new Bond(times, coupons, yearFrac, getAccruedInterest(), payments[0].getFundingCurveName());
   }
 
   @Override
@@ -148,7 +148,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     final int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_accruedInterestFraction);
+    temp = Double.doubleToLongBits(_accruedInterest);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _coupons.hashCode();
     result = prime * result + _principle.hashCode();
@@ -167,7 +167,7 @@ public class Bond implements InterestRateDerivativeWithRate {
       return false;
     }
     final Bond other = (Bond) obj;
-    if (Double.doubleToLongBits(_accruedInterestFraction) != Double.doubleToLongBits(other._accruedInterestFraction)) {
+    if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
     }
     if (!ObjectUtils.equals(this._coupons, other._coupons)) {
@@ -180,11 +180,10 @@ public class Bond implements InterestRateDerivativeWithRate {
   }
 
   /**
-   * Gets the accruedInterestFraction field.
-   * @return the accruedInterestFraction
+   * @return the accruedInterest
    */
-  public double getAccruedInterestFraction() {
-    return _accruedInterestFraction;
+  public double getAccruedInterest() {
+    return _accruedInterest;
   }
 
   @Override

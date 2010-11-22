@@ -62,6 +62,7 @@ public class AccruedInterestCalculator {
       if (schedule[i].isBefore(settlementDate) && schedule[i + 1].isAfter(settlementDate)) {
         foundDates = true;
         index = i;
+        break;
       }
     }
     if (!foundDates) {

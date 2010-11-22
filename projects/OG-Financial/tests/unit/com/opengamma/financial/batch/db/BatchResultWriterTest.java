@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.EmptyFunctionParameters;
-import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.test.CalculationNodeUtils;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.TestCalculationNode;
