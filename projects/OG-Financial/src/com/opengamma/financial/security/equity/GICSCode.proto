@@ -7,7 +7,7 @@
 /**
  * Introduce the GICSCode element as a Fudge-Proto identifier.
  */
-namespace com.opengamma.master.security.financial {
+namespace com.opengamma.financial.security.equity {
 
   extern typedef GICSCode = string;
 
