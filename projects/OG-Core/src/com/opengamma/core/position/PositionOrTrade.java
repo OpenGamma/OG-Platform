@@ -11,7 +11,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * A trade and a position are related concepts and this interface provides common access.
+ * A position and a trade are related concepts and this interface provides common access.
  * <p>
  * A {@link Trade} stores details of an individual trade and refers to a quantity of a security.
  * A {@link Position} stores the combined set of trades forming a single position of a security.
@@ -20,7 +20,7 @@ import com.opengamma.id.IdentifierBundle;
  * The reference to a security is held primarily by an identifier bundle.
  * However, this can become resolved, setting the security field with the full data.
  */
-public interface TradeOrPosition {
+public interface PositionOrTrade {
 
   /**
    * Gets the amount of the position held in terms of the security.

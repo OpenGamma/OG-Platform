@@ -21,7 +21,7 @@ import com.opengamma.util.PublicSPI;
  * The collection of trades is optional and if present may be incomplete.
  */
 @PublicSPI
-public interface Position extends TradeOrPosition, UniqueIdentifiable {
+public interface Position extends PositionOrTrade, UniqueIdentifiable {
 
   /**
    * Gets the unique identifier of the node within the portfolio this position is immediately under.

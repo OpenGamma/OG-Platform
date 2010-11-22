@@ -17,7 +17,7 @@ import com.opengamma.util.PublicSPI;
  * counterparty at an instant in time.
  */
 @PublicSPI
-public interface Trade extends TradeOrPosition {
+public interface Trade extends PositionOrTrade {
 
   /**
    * Gets the counterparty associated with the trade.
