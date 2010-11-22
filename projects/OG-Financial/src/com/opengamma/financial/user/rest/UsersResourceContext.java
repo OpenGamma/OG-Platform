@@ -7,7 +7,7 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.position.master.PositionMaster;
+import com.opengamma.master.position.PositionMaster;
 
 /**
  * Context/configuration for the objects to pass around.

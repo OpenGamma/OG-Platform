@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master;
+package com.opengamma.master.position;
 
 import java.math.BigDecimal;
 import java.util.Collections;

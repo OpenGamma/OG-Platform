@@ -19,11 +19,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeHistoryRequest;
+import com.opengamma.master.position.PortfolioTreeHistoryResult;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;

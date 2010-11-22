@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master;
+package com.opengamma.master.position;
 
 import java.util.ArrayList;
 import java.util.Collections;

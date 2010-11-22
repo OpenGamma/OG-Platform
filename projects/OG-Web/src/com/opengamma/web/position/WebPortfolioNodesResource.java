@@ -11,9 +11,9 @@ import java.util.Stack;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import com.opengamma.financial.position.master.ManageablePortfolioNode;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePortfolioNode;
+import com.opengamma.master.position.PortfolioTreeDocument;
 import com.sleepycat.je.DatabaseNotFoundException;
 
 /**

@@ -21,17 +21,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.ManageablePortfolioNode;
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
-import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchRequest;
-import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePortfolio;
+import com.opengamma.master.position.ManageablePortfolioNode;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeHistoryRequest;
+import com.opengamma.master.position.PortfolioTreeHistoryResult;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.

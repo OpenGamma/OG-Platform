@@ -19,11 +19,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.ManageableTrade;
-import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master;
+package com.opengamma.master.position.impl;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -13,6 +13,10 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.FullPortfolioGetRequest;
+import com.opengamma.master.position.FullPortfolioNodeGetRequest;
+import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**

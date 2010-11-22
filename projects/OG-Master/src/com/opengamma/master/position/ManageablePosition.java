@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master;
+package com.opengamma.master.position;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -57,10 +57,10 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private IdentifierBundle _securityKey;
   /**
-   * The trades
+   * The trades that form the position, not null.
    */
   @PropertyDefinition
-  private Set<ManageableTrade> _trades = Sets.newHashSet();
+  private final Set<ManageableTrade> _trades = Sets.newHashSet();
 
   /**
    * Creates an instance.
@@ -250,7 +250,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trades
+   * Gets the trades that form the position, not null.
    * @return the value of the property
    */
   public Set<ManageableTrade> getTrades() {
@@ -258,11 +258,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   /**
-   * Sets the trades
+   * Sets the trades that form the position, not null.
    * @param trades  the new value of the property
    */
   public void setTrades(Set<ManageableTrade> trades) {
-    this._trades = trades;
+    this._trades.clear();
+    this._trades.addAll(trades);
   }
 
   /**

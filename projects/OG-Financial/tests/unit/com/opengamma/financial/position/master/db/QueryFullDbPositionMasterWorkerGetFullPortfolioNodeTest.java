@@ -27,10 +27,10 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 
 /**
  * Tests QueryFullDbPositionMasterWorker.

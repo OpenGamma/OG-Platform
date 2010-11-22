@@ -18,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.

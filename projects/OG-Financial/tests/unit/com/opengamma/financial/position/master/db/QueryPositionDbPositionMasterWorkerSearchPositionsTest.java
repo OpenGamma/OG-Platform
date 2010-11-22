@@ -19,14 +19,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.ManageableTrade;
-import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionSearchRequest;
-import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.db.PagingRequest;
 
 /**

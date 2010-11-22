@@ -95,7 +95,7 @@
   </bean>
   <bean id="sharedPositionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.position.master.MasterPositionSource">
+      <bean class="com.opengamma.master.position.impl.MasterPositionSource">
         <constructor-arg ref="dbPositionMaster" />
       </bean>
     </constructor-arg>
