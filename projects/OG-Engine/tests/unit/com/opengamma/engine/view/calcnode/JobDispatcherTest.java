@@ -362,7 +362,7 @@ public class JobDispatcherTest {
   public void testJobTimeoutSuccess() {
     s_logger.info("testJobTimeoutSuccess");
     final JobDispatcher jobDispatcher = new JobDispatcher();
-    jobDispatcher.setMaxJobExecutionTime(2 * TIMEOUT);
+    jobDispatcher.setMaxJobExecutionTime(3 * TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
     jobDispatcher.dispatchJob(createTestJob(), result);
