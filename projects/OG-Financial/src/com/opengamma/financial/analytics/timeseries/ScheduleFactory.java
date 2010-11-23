@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 
 /**
- * 
+ * Factory to create schedules.
  */
 public class ScheduleFactory {
 
