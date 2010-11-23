@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial;
 
-import com.opengamma.core.position.impl.PositionSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.config.ConfigSource;
