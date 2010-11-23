@@ -27,10 +27,11 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 public class RESTMethodTest {
   
-  private final SecuritySourceService _securitySourceService = new SecuritySourceService();
+  private final SecuritySourceService _securitySourceService = new SecuritySourceService(OpenGammaFudgeContext.getInstance ());
   private UniqueIdentifier _uid1;
   //private UniqueIdentifier _uid2;
 
@@ -39,7 +40,7 @@ public class RESTMethodTest {
   }
 
   protected SecuritySourceResource getSecuritySourceResource () {
-    return getSecuritySourceService().findSecuritySource(DEFAULT_SECURITYSOURCE_NAME);
+    return getSecuritySourceService().findResource(DEFAULT_SECURITYSOURCE_NAME);
   }
 
   @Before
@@ -53,14 +54,14 @@ public class RESTMethodTest {
     MockSecurity sec2 = new MockSecurity("t2");
     sec2.setIdentifiers (IdentifierBundle.of(secId2));
     securitySource.addSecurity(sec2);
-    getSecuritySourceService().setSecuritySource(securitySource);
+    getSecuritySourceService().setUnderlying(securitySource);
     _uid1 = sec1.getUniqueIdentifier();
     // _uid2 = sec2.getUniqueIdentifier();
   }
 
   @Test
   public void testFindSecuritySource() {
-    assertNull(getSecuritySourceService().findSecuritySource("woot"));
+    assertNull(getSecuritySourceService().findResource("woot"));
     assertNotNull(getSecuritySourceResource());
   }
 

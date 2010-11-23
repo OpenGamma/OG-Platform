@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.core.common.Currency;
 
@@ -35,7 +36,8 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, Instant version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+    version = Instant.of(version);
     for (InterpolatedYieldCurveDefinitionSource source : _sources) {
       YieldCurveDefinition definition = source.getDefinition(currency, name, version);
       if (definition != null) {

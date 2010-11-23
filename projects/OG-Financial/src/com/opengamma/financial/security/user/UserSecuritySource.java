@@ -54,7 +54,12 @@ public class UserSecuritySource implements SecuritySource {
   @Override
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
     // TODO: improve
-    return Collections.singleton(getSecurity(secKey));
+    final Security security = getSecurity(secKey);
+    if (security != null) {
+      return Collections.singleton(security);
+    } else {
+      return Collections.emptySet();
+    }
   }
 
   @Override

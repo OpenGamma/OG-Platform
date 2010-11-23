@@ -9,9 +9,9 @@ import java.util.Collection;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,7 +43,7 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
       Collection<Security> result = delegateSource.getSecurities(bundle);
-      if (result != null) {
+      if (!result.isEmpty()) {
         return result;
       }
     }

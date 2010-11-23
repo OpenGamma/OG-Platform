@@ -17,9 +17,16 @@ public class YieldCurveDefinitionDocument extends AbstractDocument {
 
   private YieldCurveDefinition _yieldCurveDefinition;
 
-  protected YieldCurveDefinitionDocument(final UniqueIdentifier uniqueIdentifier, final YieldCurveDefinition yieldCurveDefinition) {
+  public YieldCurveDefinitionDocument(final UniqueIdentifier uniqueIdentifier, final YieldCurveDefinition yieldCurveDefinition) {
     setUniqueId(uniqueIdentifier);
     setYieldCurveDefinition(yieldCurveDefinition);
+  }
+
+  public YieldCurveDefinitionDocument() {
+  }
+
+  public YieldCurveDefinitionDocument(final YieldCurveDefinition yieldCurveDefinition) {
+    _yieldCurveDefinition = yieldCurveDefinition;
   }
 
   public void setYieldCurveDefinition(final YieldCurveDefinition yieldcurveDefinition) {

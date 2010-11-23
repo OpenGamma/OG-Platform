@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
@@ -66,7 +66,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
    * @return the definition, null if not found
    */
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, Instant version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
     throw new UnsupportedOperationException();
   }
 
@@ -156,7 +156,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       throw new IllegalArgumentException("Invalid unique identifier");
     }
     final Pair<Currency, String> key = Pair.of(currency, name);
-    if (_definitions.containsKey(key)) {
+    if (!_definitions.containsKey(key)) {
       throw new DataNotFoundException("UID '" + uid + "' not found");
     }
     _definitions.put(key, document.getYieldCurveDefinition());
