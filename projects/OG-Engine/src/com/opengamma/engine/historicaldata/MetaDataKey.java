@@ -12,9 +12,10 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * Represent Timeseries Meta data
+ * Key to represent time-series meta-data.
  */
 /* package */ class MetaDataKey {
+
   private final IdentifierBundle _dsids;
   private final String _dataSource;
   private final String _dataProvider;
@@ -22,7 +23,7 @@ import com.opengamma.id.IdentifierBundle;
   private final LocalDate _currentDate;
   private final String _configName;
 
-  public MetaDataKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
+  /* package */ MetaDataKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
     _dsids = dsids;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
@@ -52,4 +53,5 @@ import com.opengamma.id.IdentifierBundle;
     }
     return false;
   }
+
 }

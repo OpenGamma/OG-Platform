@@ -28,52 +28,95 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * A cache decorating a {@code HistoricalDataSource}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
+  /**
+   * An empty time series.
+   */
   private static final LocalDateDoubleTimeSeries EMPTY_TIMESERIES = new ArrayLocalDateDoubleTimeSeries();
+  /**
+   * The cache name.
+   */
   private static final String CACHE_NAME = "HistoricalDataCache";
+
+  /**
+   * The underlying source.
+   */
   private final HistoricalDataSource _underlying;
-  private final CacheManager _manager;
+  /**
+   * The cache.
+   */
   private final Cache _cache;
 
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager cacheManager, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent, long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying source, not null
+   * @param cacheManager  the cache manager, not null
+   * @param maxElementsInMemory  cache configuration
+   * @param memoryStoreEvictionPolicy  cache configuration
+   * @param overflowToDisk  cache configuration
+   * @param diskStorePath  cache configuration
+   * @param eternal  cache configuration
+   * @param timeToLiveSeconds  cache configuration
+   * @param timeToIdleSeconds  cache configuration
+   * @param diskPersistent  cache configuration
+   * @param diskExpiryThreadIntervalSeconds  cache configuration
+   * @param registeredEventListeners  cache configuration
+   */
+  public EHCachingHistoricalDataProvider(
+      final HistoricalDataSource underlying, final CacheManager cacheManager, final int maxElementsInMemory,
+      final MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, final boolean overflowToDisk, final String diskStorePath,
+      final boolean eternal, final long timeToLiveSeconds, final long timeToIdleSeconds, final boolean diskPersistent,
+      final long diskExpiryThreadIntervalSeconds, final RegisteredEventListeners registeredEventListeners) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
-    _manager = cacheManager;
-    EHCacheUtils.addCache(_manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-        diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _cache = EHCacheUtils.getCacheFromManager(_manager, CACHE_NAME);
-  }
-
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager manager) {
-    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
-    ArgumentChecker.notNull(manager, "Cache Manager");
-    _underlying = underlying;
-    EHCacheUtils.addCache(manager, CACHE_NAME);
-    _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
-    _manager = manager;
+    EHCacheUtils.addCache(cacheManager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
+        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
   }
 
   /**
-   * @return the underlying
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying source, not null
+   * @param cacheManager  the cache manager, not null
+   */
+  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(cacheManager, "Cache Manager");
+    _underlying = underlying;
+    EHCacheUtils.addCache(cacheManager, CACHE_NAME);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying source.
+   * 
+   * @return the underlying source, not null
    */
   public HistoricalDataSource getUnderlying() {
     return _underlying;
   }
 
   /**
-   * @return the CacheManager
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
    */
   public CacheManager getCacheManager() {
-    return _manager;
+    return _cache.getCacheManager();
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     MetaDataKey key = new MetaDataKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
@@ -109,14 +152,14 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String field,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = getHistoricalData(identifiers, currentDate, dataSource, dataProvider, field);
     return getSubseries(start, inclusiveStart, end, exclusiveEnd, tsPair);
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String field, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
@@ -133,8 +176,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       return Pair.of(null, EMPTY_TIMESERIES);
     }
   }
-  
- 
+
   @Override
   public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
     Element element = _cache.get(uid);
@@ -195,7 +237,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
       return tsPair;
     }
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
     return getHistoricalData(identifiers, null, configDocName);

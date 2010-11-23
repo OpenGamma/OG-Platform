@@ -10,12 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.base.Supplier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -23,22 +22,27 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory HDP for testing.
- * @author jim
  */
 public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
-  private Map<MetaDataKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<MetaDataKey, UniqueIdentifier>();
-  private Map<UniqueIdentifier, LocalDateDoubleTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, LocalDateDoubleTimeSeries>();
-  
+
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
    */
   public static final String DEFAULT_UID_SCHEME = "MemoryTS";
 
   /**
+   * The store of unique identifiers.
+   */
+  private Map<MetaDataKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<MetaDataKey, UniqueIdentifier>();
+  /**
+   * The store of unique time-series.
+   */
+  private Map<UniqueIdentifier, LocalDateDoubleTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, LocalDateDoubleTimeSeries>();
+  /**
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
-  
+
   /**
    * Creates an empty TimeSeriesSource using the default scheme for any {@link UniqueIdentifier}s created.
    */
@@ -52,10 +56,10 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
    * @param uidSupplier  the supplier of unique identifiers, not null
    */
   public InMemoryHistoricalDataProvider(final Supplier<UniqueIdentifier> uidSupplier) {
-    Validate.notNull(uidSupplier, "uidSupplier");
+    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
     _uidSupplier = uidSupplier;
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(
       IdentifierBundle identifiers, String dataSource, String dataProvider,
@@ -85,12 +89,12 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
     }
     _timeSeriesStore.put(uid, dts);
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
@@ -145,7 +149,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
