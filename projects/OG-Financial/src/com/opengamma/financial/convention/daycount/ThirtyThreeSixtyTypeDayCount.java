@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.daycount;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
+ * Base class for '30/360' style day counts.
  */
 public abstract class ThirtyThreeSixtyTypeDayCount extends StatelessDayCount {
 
@@ -20,4 +20,5 @@ public abstract class ThirtyThreeSixtyTypeDayCount extends StatelessDayCount {
   protected double getYears(final double d1, final double d2, final double m1, final double m2, final double y1, final double y2) {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360;
   }
+
 }

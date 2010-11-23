@@ -15,9 +15,10 @@ import org.junit.Test;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * Test AccruedInterestCalculator.
  */
 public class AccruedInterestCalculatorTest {
+
   private static final DayCount DC1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final ZonedDateTime DATE1 = DateUtil.getUTCDate(2006, 1, 4);
   private static final ZonedDateTime[] SCHEDULE1 = new ZonedDateTime[] {DateUtil.getUTCDate(2005, 8, 15), DateUtil.getUTCDate(2006, 2, 15), DateUtil.getUTCDate(2006, 8, 15),

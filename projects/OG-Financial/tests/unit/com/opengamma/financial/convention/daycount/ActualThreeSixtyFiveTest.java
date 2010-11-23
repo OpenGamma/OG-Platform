@@ -10,9 +10,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * 
+ * Test ActualThreeSixtyFive.
  */
 public class ActualThreeSixtyFiveTest extends DayCountTestCase {
+
   private static final ActualThreeSixtyFive DC = new ActualThreeSixtyFive();
 
   @Override
@@ -25,4 +26,5 @@ public class ActualThreeSixtyFiveTest extends DayCountTestCase {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
     assertEquals(DC.getConventionName(), "Actual/365");
   }
+
 }

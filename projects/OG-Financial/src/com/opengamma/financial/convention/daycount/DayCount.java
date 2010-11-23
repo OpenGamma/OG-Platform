@@ -24,10 +24,23 @@ public interface DayCount {
    */
   double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate);
 
-  double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear);
+  /**
+   * Calculates the accrued interest for the coupon according to the convention.
+   * 
+   * @param previousCouponDate  the previous coupon date, not null
+   * @param date  the evaluated coupon date, not null
+   * @param nextCouponDate  the next coupon date, not null
+   * @param coupon  the coupon value
+   * @param paymentsPerYear  the number of payments per year, one, two, three, four, six or twelve
+   * @return the accrued interest
+   */
+  double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear);
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
   String getConventionName();

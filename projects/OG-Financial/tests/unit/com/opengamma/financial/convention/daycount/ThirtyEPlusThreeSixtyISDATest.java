@@ -10,9 +10,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * 
+ * Test ThirtyEPlusThreeSixtyISDA.
  */
 public class ThirtyEPlusThreeSixtyISDATest extends DayCountTestCase {
+
   private static final ThirtyEPlusThreeSixtyISDA DC = new ThirtyEPlusThreeSixtyISDA();
 
   @Override
@@ -25,4 +26,5 @@ public class ThirtyEPlusThreeSixtyISDATest extends DayCountTestCase {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
     assertEquals(DC.getConventionName(), "30E+/360 ISDA");
   }
+
 }

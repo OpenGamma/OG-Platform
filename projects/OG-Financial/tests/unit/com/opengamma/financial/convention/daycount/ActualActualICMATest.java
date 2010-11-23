@@ -12,13 +12,14 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 
-import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
+import com.opengamma.financial.analytics.securityconverters.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * Test ActualActualICMA.
  */
 public class ActualActualICMATest {
+
   protected static final ZonedDateTime D1 = DateUtil.getUTCDate(2010, 1, 1);
   protected static final ZonedDateTime D2 = DateUtil.getUTCDate(2010, 4, 1);
   protected static final ZonedDateTime D3 = DateUtil.getUTCDate(2010, 7, 1);
