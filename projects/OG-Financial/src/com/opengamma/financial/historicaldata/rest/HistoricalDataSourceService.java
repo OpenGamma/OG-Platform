@@ -16,7 +16,7 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**

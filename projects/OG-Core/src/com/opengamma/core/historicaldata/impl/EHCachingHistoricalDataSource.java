@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.historicaldata;
+package com.opengamma.core.historicaldata.impl;
 
 import java.io.Serializable;
 
@@ -18,6 +18,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;

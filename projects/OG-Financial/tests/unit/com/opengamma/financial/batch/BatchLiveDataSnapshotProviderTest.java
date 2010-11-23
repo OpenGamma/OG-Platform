@@ -13,7 +13,7 @@ import javax.time.calendar.TimeZone;
 
 import org.junit.Test;
 
-import com.opengamma.engine.historicaldata.MockHistoricalDataSource;
+import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;

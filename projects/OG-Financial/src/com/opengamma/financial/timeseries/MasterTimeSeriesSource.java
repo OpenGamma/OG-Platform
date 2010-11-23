@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames;
 import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataResolver;
 import com.opengamma.id.IdentifierBundle;

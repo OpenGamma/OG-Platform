@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.historicaldata;
+package com.opengamma.core.historicaldata.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.base.Supplier;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;

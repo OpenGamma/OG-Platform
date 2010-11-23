@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

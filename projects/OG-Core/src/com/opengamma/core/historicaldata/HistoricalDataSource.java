@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.historicaldata;
+package com.opengamma.core.historicaldata;
 
 import javax.time.calendar.LocalDate;
 

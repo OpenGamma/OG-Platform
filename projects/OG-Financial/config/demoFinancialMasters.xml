@@ -109,7 +109,7 @@
     <constructor-arg ref="tssNamedSQLMap"/>
     <constructor-arg value="false"/>
   </bean>
-  <bean id="sharedHistoricalDataProvider" class="com.opengamma.engine.historicaldata.EHCachingHistoricalDataSource">
+  <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
     <constructor-arg>
       <bean class="com.opengamma.financial.timeseries.MasterTimeSeriesSource">
         <constructor-arg ref="timeseriesMaster"/>
