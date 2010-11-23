@@ -9,45 +9,30 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.master.AbstractSearchRequest;
 
 /**
  * Request for searching for portfolio trees.
+ * <p>
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results and to search
+ * as at a specific version and correction instant.
+ * See {@link PortfolioTreeHistoryRequest} for more details on how history works.
  */
 @BeanDefinition
-public class PortfolioTreeSearchRequest extends DirectBean {
+public class PortfolioTreeSearchRequest extends AbstractSearchRequest {
 
-  /**
-   * The request for paging.
-   * By default all matching items will be returned.
-   */
-  @PropertyDefinition
-  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The portfolio name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
   private String _name;
-  /**
-   * The instant to search for a version at, null treated as the latest version.
-   */
-  @PropertyDefinition
-  private Instant _versionAsOfInstant;
-  /**
-   * The instant to search for corrections for, null treated as the latest correction.
-   */
-  @PropertyDefinition
-  private Instant _correctedToInstant;
   /**
    * The depth of nodes to return.
    * A value of zero returns the root node, one returns the root node with immediate children, and so on.
@@ -81,14 +66,8 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
       case 3373707:  // name
         return getName();
-      case 598802432:  // versionAsOfInstant
-        return getVersionAsOfInstant();
-      case -28367267:  // correctedToInstant
-        return getCorrectedToInstant();
       case 95472323:  // depth
         return getDepth();
     }
@@ -98,51 +77,14 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
       case 3373707:  // name
         setName((String) newValue);
-        return;
-      case 598802432:  // versionAsOfInstant
-        setVersionAsOfInstant((Instant) newValue);
-        return;
-      case -28367267:  // correctedToInstant
-        setCorrectedToInstant((Instant) newValue);
         return;
       case 95472323:  // depth
         setDepth((Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the request for paging.
-   * By default all matching items will be returned.
-   * @return the value of the property
-   */
-  public PagingRequest getPagingRequest() {
-    return _pagingRequest;
-  }
-
-  /**
-   * Sets the request for paging.
-   * By default all matching items will be returned.
-   * @param pagingRequest  the new value of the property
-   */
-  public void setPagingRequest(PagingRequest pagingRequest) {
-    this._pagingRequest = pagingRequest;
-  }
-
-  /**
-   * Gets the the {@code pagingRequest} property.
-   * By default all matching items will be returned.
-   * @return the property, not null
-   */
-  public final Property<PagingRequest> pagingRequest() {
-    return metaBean().pagingRequest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -168,56 +110,6 @@ public class PortfolioTreeSearchRequest extends DirectBean {
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to search for a version at, null treated as the latest version.
-   * @return the value of the property
-   */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
-  }
-
-  /**
-   * Sets the instant to search for a version at, null treated as the latest version.
-   * @param versionAsOfInstant  the new value of the property
-   */
-  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
-    this._versionAsOfInstant = versionAsOfInstant;
-  }
-
-  /**
-   * Gets the the {@code versionAsOfInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionAsOfInstant() {
-    return metaBean().versionAsOfInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to search for corrections for, null treated as the latest correction.
-   * @return the value of the property
-   */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
-  }
-
-  /**
-   * Sets the instant to search for corrections for, null treated as the latest correction.
-   * @param correctedToInstant  the new value of the property
-   */
-  public void setCorrectedToInstant(Instant correctedToInstant) {
-    this._correctedToInstant = correctedToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctedToInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctedToInstant() {
-    return metaBean().correctedToInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -258,28 +150,16 @@ public class PortfolioTreeSearchRequest extends DirectBean {
   /**
    * The meta-bean for {@code PortfolioTreeSearchRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code pagingRequest} property.
-     */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
-    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
-    /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     */
-    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
     /**
      * The meta-property for the {@code depth} property.
      */
@@ -291,11 +171,8 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
-      temp.put("versionAsOfInstant", _versionAsOfInstant);
-      temp.put("correctedToInstant", _correctedToInstant);
       temp.put("depth", _depth);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -317,35 +194,11 @@ public class PortfolioTreeSearchRequest extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code pagingRequest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PagingRequest> pagingRequest() {
-      return _pagingRequest;
-    }
-
-    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<String> name() {
       return _name;
-    }
-
-    /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionAsOfInstant() {
-      return _versionAsOfInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctedToInstant() {
-      return _correctedToInstant;
     }
 
     /**

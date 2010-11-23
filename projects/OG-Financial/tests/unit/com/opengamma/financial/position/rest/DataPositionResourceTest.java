@@ -60,10 +60,10 @@ public class DataPositionResourceTest {
   public void testUpdatePosition() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     final PositionDocument request = new PositionDocument(position);
-    request.setPositionId(UID);
+    request.setUniqueId(UID);
     
     final PositionDocument result = new PositionDocument(position);
-    result.setPositionId(UID);
+    result.setUniqueId(UID);
     when(_underlying.updatePosition(same(request))).thenReturn(result);
     
     Response test = _resource.put(request);

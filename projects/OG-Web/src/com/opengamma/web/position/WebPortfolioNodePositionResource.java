@@ -86,7 +86,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   @DELETE
   public Response delete() {
     PositionDocument doc = data().getPosition();
-    data().getPositionMaster().removePosition(doc.getPositionId());
+    data().getPositionMaster().removePosition(doc.getUniqueId());
     URI uri = WebPortfolioNodeResource.uri(data());
     return Response.seeOther(uri).build();
   }

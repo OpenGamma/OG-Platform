@@ -77,7 +77,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     _worker.removePosition(uid);
     PositionDocument test = _queryWorker.getPosition(uid);
     
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getParentNodeId());
     assertEquals(_version1Instant, test.getVersionFromInstant());

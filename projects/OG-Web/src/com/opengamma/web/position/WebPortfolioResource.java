@@ -75,7 +75,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @DELETE
   public Response delete() {
     PortfolioTreeDocument doc = data().getPortfolio();
-    data().getPositionMaster().removePortfolioTree(doc.getPortfolioId());
+    data().getPositionMaster().removePortfolioTree(doc.getUniqueId());
     URI uri = WebPortfoliosResource.uri(data());
     return Response.seeOther(uri).build();
   }

@@ -39,7 +39,7 @@ public class WebPortfolioNodePositionVersionsResource extends AbstractWebPortfol
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getPositionId());
+    PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getUniqueId());
     PositionHistoryResult result = data().getPositionMaster().historyPosition(request);
     
     FlexiBean out = createRootData();
@@ -70,8 +70,8 @@ public class WebPortfolioNodePositionVersionsResource extends AbstractWebPortfol
   public WebPortfolioNodePositionVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     PositionDocument position = data().getPosition();
-    UniqueIdentifier combined = position.getPositionId().withVersion(idStr);
-    if (position.getPositionId().equals(combined) == false) {
+    UniqueIdentifier combined = position.getUniqueId().withVersion(idStr);
+    if (position.getUniqueId().equals(combined) == false) {
       PositionDocument versioned = data().getPositionMaster().getPosition(combined);
       data().setVersioned(versioned);
     } else {

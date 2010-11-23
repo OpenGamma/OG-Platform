@@ -54,7 +54,7 @@ public class DataPortfolioTreesResourceTest {
     final PortfolioTreeDocument request = new PortfolioTreeDocument(portfolio);
     
     final PortfolioTreeDocument result = new PortfolioTreeDocument(portfolio);
-    result.setPortfolioId(UniqueIdentifier.of("Test", "PortA"));
+    result.setUniqueId(UniqueIdentifier.of("Test", "PortA"));
     when(_underlying.addPortfolioTree(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);

@@ -93,9 +93,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioTreeResource.uri(_baseUri, document.getPortfolioId());
+    URI uri = DataPortfolioTreeResource.uri(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
@@ -112,10 +112,10 @@ public class RemotePositionMaster implements PositionMaster {
   @Override
   public PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataPortfolioTreeResource.uriVersions(_baseUri, request.getPortfolioId(), msgBase64);
+    URI uri = DataPortfolioTreeResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
     return accessRemote(uri).get(PortfolioTreeHistoryResult.class);
   }
 
@@ -124,9 +124,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioTreeResource.uriVersion(_baseUri, document.getPortfolioId());
+    URI uri = DataPortfolioTreeResource.uriVersion(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
@@ -170,9 +170,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionDocument updatePosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uri(_baseUri, document.getPositionId());
+    URI uri = DataPositionResource.uri(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PositionDocument.class, document);
   }
 
@@ -189,10 +189,10 @@ public class RemotePositionMaster implements PositionMaster {
   @Override
   public PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataPositionResource.uriVersions(_baseUri, request.getPositionId(), msgBase64);
+    URI uri = DataPositionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
     return accessRemote(uri).get(PositionHistoryResult.class);
   }
 
@@ -201,9 +201,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionDocument correctPosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uriVersion(_baseUri, document.getPositionId());
+    URI uri = DataPositionResource.uriVersion(_baseUri, document.getUniqueId());
     return accessRemote(uri).get(PositionDocument.class);
   }
 

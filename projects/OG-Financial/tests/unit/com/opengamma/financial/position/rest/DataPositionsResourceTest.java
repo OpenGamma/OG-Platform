@@ -53,7 +53,7 @@ public class DataPositionsResourceTest {
     final PositionDocument request = new PositionDocument(position);
     
     final PositionDocument result = new PositionDocument(position);
-    result.setPositionId(UniqueIdentifier.of("Test", "PosA"));
+    result.setUniqueId(UniqueIdentifier.of("Test", "PosA"));
     when(_underlying.addPosition(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);

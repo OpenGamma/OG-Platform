@@ -55,7 +55,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setPortfolioId(null);
+        document.setUniqueId(null);
         insertPortfolioTree(document);
       }
     });
@@ -65,7 +65,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
   //-------------------------------------------------------------------------
   @Override
   protected PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
-    final UniqueIdentifier uid = document.getPortfolioId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updatePortfolioTree {}", document);
     
@@ -83,7 +83,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         document.setVersionToInstant(null);
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertPortfolioTree(document);
         // update to remove all positions
         updateRemoveOrphanedPositions(uid, now);
@@ -115,7 +115,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
   //-------------------------------------------------------------------------
   @Override
   protected PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
-    final UniqueIdentifier uid = document.getPortfolioId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctPortfolioTree {}", document);
     
@@ -133,7 +133,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
         document.setVersionToInstant(oldDoc.getVersionToInstant());
         document.setCorrectionFromInstant(now);
         document.setCorrectionToInstant(null);
-        document.setPortfolioId(oldDoc.getPortfolioId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertPortfolioTree(document);
       }
     });
@@ -147,7 +147,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void insertPortfolioTree(final PortfolioTreeDocument document) {
     final Long portfolioId = nextId();
-    final Long portfolioOid = (document.getPortfolioId() != null ? extractOid(document.getPortfolioId()) : portfolioId);
+    final Long portfolioOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : portfolioId);
     // the arguments for inserting into the portfolio table
     final DbMapSqlParameterSource portfolioArgs = new DbMapSqlParameterSource()
       .addValue("portfolio_id", portfolioId)
@@ -159,13 +159,13 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
       .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()));
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
-    insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
+    insertBuildArgs(document.getPortfolio().getRootNode(), document.getUniqueId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
     getJdbcTemplate().batchUpdate(sqlInsertNode(), nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, portfolioId, null);
     UniqueIdentifiables.setInto(document.getPortfolio(), uid);
-    document.setPortfolioId(uid);
+    document.setUniqueId(uid);
   }
 
   /**
@@ -247,7 +247,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void updateVersionToInstant(final PortfolioTreeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", extractRowId(document.getPortfolioId()))
+      .addValue("portfolio_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -287,7 +287,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
    */
   protected void updateCorrectionToInstant(final PortfolioTreeDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", extractRowId(document.getPortfolioId()))
+      .addValue("portfolio_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

@@ -79,7 +79,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   @Test(expected = NullPointerException.class)
   public void test_correctPosition_noPosition() {
     PositionDocument doc = new PositionDocument();
-    doc.setPositionId(UniqueIdentifier.of("DbPos", "121", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbPos", "121", "0"));
     _worker.correctPosition(doc);
   }
 
@@ -108,7 +108,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument corrected = _worker.correctPosition(input);
-    assertEquals(false, base.getPositionId().equals(corrected.getPositionId()));
+    assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getPortfolioId(), corrected.getPortfolioId());
     assertEquals(base.getParentNodeId(), corrected.getParentNodeId());
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
@@ -118,7 +118,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(input.getPosition(), corrected.getPosition());
     
     PositionDocument old = _queryWorker.getPosition(UniqueIdentifier.of("DbPos", "121", "0"));
-    assertEquals(base.getPositionId(), old.getPositionId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getPortfolioId(), old.getPortfolioId());
     assertEquals(base.getParentNodeId(), old.getParentNodeId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
@@ -127,7 +127,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getPosition(), old.getPosition());
     
-    PositionHistoryRequest search = new PositionHistoryRequest(base.getPositionId(), now, null);
+    PositionHistoryRequest search = new PositionHistoryRequest(base.getUniqueId(), now, null);
     PositionHistoryResult searchResult = _queryWorker.historyPosition(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
