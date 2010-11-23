@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.position.user;
 
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.DelegatingPositionSource;
-import com.opengamma.core.position.impl.PositionSource;
 
 /**
  * Delegates between a user position source and a default.

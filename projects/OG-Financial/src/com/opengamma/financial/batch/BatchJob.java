@@ -45,7 +45,7 @@ import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.DbConfigMaster;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.PositionSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
