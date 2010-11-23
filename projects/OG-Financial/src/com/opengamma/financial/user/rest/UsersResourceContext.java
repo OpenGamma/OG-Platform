@@ -7,6 +7,7 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.position.master.PositionMaster;
 
 /**
@@ -16,6 +17,7 @@ public class UsersResourceContext {
 
   private FudgeContext _fudgeContext;
   private PositionMaster _userPositionMaster;
+  private InterpolatedYieldCurveDefinitionMaster _userInterpolatedYieldCurveDefinitionMaster;
 
   // [FIN-124] The user SecuritySource is done wrongly throughout
 
@@ -28,6 +30,14 @@ public class UsersResourceContext {
   
   public PositionMaster getPositionMaster() {
     return _userPositionMaster;
+  }
+
+  public void setUserInterpolatedYieldCurveDefinitionMaster(final InterpolatedYieldCurveDefinitionMaster userInterpolatedYieldCurveDefinitionMaster) {
+    _userInterpolatedYieldCurveDefinitionMaster = userInterpolatedYieldCurveDefinitionMaster;
+  }
+
+  public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
+    return _userInterpolatedYieldCurveDefinitionMaster;
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
