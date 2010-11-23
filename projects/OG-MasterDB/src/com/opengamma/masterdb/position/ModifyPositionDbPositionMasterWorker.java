@@ -225,8 +225,8 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       tradeList.add(treeArgs);
     }
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertTrades(), (DbMapSqlParameterSource[]) tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
     UniqueIdentifiables.setInto(document.getPosition(), uid);

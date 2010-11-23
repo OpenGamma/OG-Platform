@@ -161,7 +161,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorker extends DbPositionMasterW
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>();
     insertBuildArgs(document.getPortfolio().getRootNode(), document.getPortfolioId() != null, portfolioId, portfolioOid, null, new AtomicInteger(1), 0, nodeList);
     getJdbcTemplate().update(sqlInsertPortfolio(), portfolioArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertNode(), (DbMapSqlParameterSource[]) nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertNode(), nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, portfolioId, null);
     UniqueIdentifiables.setInto(document.getPortfolio(), uid);
