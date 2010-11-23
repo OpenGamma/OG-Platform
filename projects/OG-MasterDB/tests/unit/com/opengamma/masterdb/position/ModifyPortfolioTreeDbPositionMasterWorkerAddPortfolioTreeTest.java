@@ -95,7 +95,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
     doc.setPortfolio(portfolio);
     PortfolioTreeDocument test = _worker.addPortfolioTree(doc);
     
-    UniqueIdentifier uid = test.getPortfolioId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -127,7 +127,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerAddPortfolioTreeTest exten
     doc.setPortfolio(portfolio);
     PortfolioTreeDocument added = _worker.addPortfolioTree(doc);
     
-    PortfolioTreeDocument test = _queryWorker.getPortfolioTree(added.getPortfolioId());
+    PortfolioTreeDocument test = _queryWorker.getPortfolioTree(added.getUniqueId());
     assertEquals(added, test);
   }
 

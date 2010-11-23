@@ -95,7 +95,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-    UniqueIdentifier uid = test.getPositionId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -131,7 +131,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-    UniqueIdentifier uid = test.getPositionId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -175,7 +175,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-    UniqueIdentifier uid = test.getPositionId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -213,7 +213,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument added = _worker.addPosition(doc);
     
-    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
+    PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
     assertEquals(added, test);
   }
   
@@ -229,7 +229,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument added = _worker.addPosition(doc);
     
-    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
+    PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
     assertEquals(added, test);
   }
   
@@ -246,7 +246,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument added = _worker.addPosition(doc);
     
-    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
+    PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
     assertEquals(added, test);
   }
 

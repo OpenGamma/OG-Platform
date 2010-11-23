@@ -15,9 +15,10 @@ import org.junit.Test;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * Test ActualThreeSixtyFiveLong.
  */
 public class ActualThreeSixtyFiveLongTest {
+
   protected static final ZonedDateTime D1 = DateUtil.getUTCDate(2010, 1, 1);
   protected static final ZonedDateTime D2 = DateUtil.getUTCDate(2010, 4, 1);
   protected static final ZonedDateTime D3 = DateUtil.getUTCDate(2010, 7, 1);
@@ -64,4 +65,5 @@ public class ActualThreeSixtyFiveLongTest {
   public void test() {
     assertEquals(DC.getConventionName(), "Actual/365L");
   }
+
 }

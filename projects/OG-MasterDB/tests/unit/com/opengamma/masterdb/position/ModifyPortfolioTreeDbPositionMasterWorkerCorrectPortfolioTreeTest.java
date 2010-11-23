@@ -77,7 +77,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
   @Test(expected = NullPointerException.class)
   public void test_correctPortfolioTree_noPortfolioTree() {
     PortfolioTreeDocument doc = new PortfolioTreeDocument();
-    doc.setPortfolioId(UniqueIdentifier.of("DbPos", "201", "0"));
+    doc.setUniqueId(UniqueIdentifier.of("DbPos", "201", "0"));
     _worker.correctPortfolioTree(doc);
   }
 
@@ -110,8 +110,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     PortfolioTreeDocument input = new PortfolioTreeDocument(port);
     
     PortfolioTreeDocument corrected = _worker.correctPortfolioTree(input);
-    assertEquals(UniqueIdentifier.of("DbPos", "201"), corrected.getPortfolioId().toLatest());
-    assertEquals(false, base.getPortfolioId().getVersion().equals(corrected.getPortfolioId().getVersion()));
+    assertEquals(UniqueIdentifier.of("DbPos", "201"), corrected.getUniqueId().toLatest());
+    assertEquals(false, base.getUniqueId().getVersion().equals(corrected.getUniqueId().getVersion()));
     assertEquals(_version1Instant, corrected.getVersionFromInstant());
     assertEquals(_version2Instant, corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
@@ -119,7 +119,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     assertEquals(input.getPortfolio(), corrected.getPortfolio());
     
     PortfolioTreeDocument old = _queryWorker.getPortfolioTree(oldPortfolioId);
-    assertEquals(base.getPortfolioId(), old.getPortfolioId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(_version1Instant, old.getVersionFromInstant());
     assertEquals(_version2Instant, old.getVersionToInstant());  // old version ended
     assertEquals(_version1Instant, old.getCorrectionFromInstant());
@@ -127,8 +127,8 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     assertEquals("TestPortfolio201", old.getPortfolio().getName());
     assertEquals("TestNode211", old.getPortfolio().getRootNode().getName());
     
-    PortfolioTreeDocument newer = _queryWorker.getPortfolioTree(corrected.getPortfolioId());
-    assertEquals(corrected.getPortfolioId(), newer.getPortfolioId());
+    PortfolioTreeDocument newer = _queryWorker.getPortfolioTree(corrected.getUniqueId());
+    assertEquals(corrected.getUniqueId(), newer.getUniqueId());
     assertEquals(_version1Instant, newer.getVersionFromInstant());
     assertEquals(_version2Instant, newer.getVersionToInstant());
     assertEquals(now, newer.getCorrectionFromInstant());
@@ -140,11 +140,11 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerCorrectPortfolioTreeTest e
     assertEquals(false, old.getPortfolio().getRootNode().getUniqueIdentifier().getVersion().equals(
         newer.getPortfolio().getRootNode().getUniqueIdentifier().getVersion()));
     
-    PortfolioTreeHistoryRequest search = new PortfolioTreeHistoryRequest(base.getPortfolioId(), _version1Instant.plusSeconds(5), null);
+    PortfolioTreeHistoryRequest search = new PortfolioTreeHistoryRequest(base.getUniqueId(), _version1Instant.plusSeconds(5), null);
     PortfolioTreeHistoryResult searchResult = _queryWorker.historyPortfolioTree(search);
     assertEquals(2, searchResult.getDocuments().size());
-    assertEquals(corrected.getPortfolioId(), searchResult.getDocuments().get(0).getPortfolioId());
-    assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getPortfolioId());
+    assertEquals(corrected.getUniqueId(), searchResult.getDocuments().get(0).getUniqueId());
+    assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getUniqueId());
   }
 
   //-------------------------------------------------------------------------

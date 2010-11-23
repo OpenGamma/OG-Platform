@@ -75,7 +75,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
     _worker.removePortfolioTree(uid);
     PortfolioTreeDocument test = _queryWorker.getPortfolioTree(uid);
     
-    assertEquals(uid, test.getPortfolioId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());

@@ -59,7 +59,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         document.setCorrectionToInstant(null);
         document.setParentNodeId(document.getParentNodeId().toLatest());
         document.setPortfolioId(checkNodeGetPortfolioOid(document));
-        document.setPositionId(null);
+        document.setUniqueId(null);
         insertPosition(document);
       }
     });
@@ -69,7 +69,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected PositionDocument updatePosition(final PositionDocument document) {
-    final UniqueIdentifier uid = document.getPositionId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updatePosition {}", document);
     
@@ -89,7 +89,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         document.setCorrectionToInstant(null);
         document.setParentNodeId(oldDoc.getParentNodeId());
         document.setPortfolioId(oldDoc.getPortfolioId());
-        document.setPositionId(oldDoc.getPositionId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertPosition(document);
       }
     });
@@ -117,7 +117,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
   //-------------------------------------------------------------------------
   @Override
   protected PositionDocument correctPosition(final PositionDocument document) {
-    final UniqueIdentifier uid = document.getPositionId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("correctPosition {}", document);
     
@@ -137,7 +137,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         document.setCorrectionToInstant(null);
         document.setParentNodeId(oldDoc.getParentNodeId());
         document.setPortfolioId(oldDoc.getPortfolioId());
-        document.setPositionId(oldDoc.getPositionId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertPosition(document);
       }
     });
@@ -187,7 +187,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void insertPosition(final PositionDocument document) {
     final long positionId = nextId();
-    final long positionOid = (document.getPositionId() != null ? extractOid(document.getPositionId()) : positionId);
+    final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
     // the arguments for inserting into the position table
     final DbMapSqlParameterSource positionArgs = new DbMapSqlParameterSource()
       .addValue("position_id", positionId)
@@ -225,12 +225,12 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       tradeList.add(treeArgs);
     }
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertTrades(), (DbMapSqlParameterSource[]) tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
     UniqueIdentifiables.setInto(document.getPosition(), uid);
-    document.setPositionId(uid);
+    document.setUniqueId(uid);
   }
 
   /**
@@ -286,7 +286,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void updateVersionToInstant(final PositionDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_id", extractRowId(document.getPositionId()))
+      .addValue("position_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);
@@ -326,7 +326,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected void updateCorrectionToInstant(final PositionDocument document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_id", extractRowId(document.getPositionId()))
+      .addValue("position_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);

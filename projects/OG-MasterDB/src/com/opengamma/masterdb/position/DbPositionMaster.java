@@ -186,8 +186,8 @@ public class DbPositionMaster implements PositionMaster {
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
-    checkScheme(document.getPortfolioId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdatePortfolioTreeWorker().updatePortfolioTree(document);
   }
@@ -205,8 +205,8 @@ public class DbPositionMaster implements PositionMaster {
   @Override
   public PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPortfolioId(), "document.portfolioId");
-    checkScheme(request.getPortfolioId());
+    ArgumentChecker.notNull(request.getObjectId(), "document.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryPortfolioTreesWorker().historyPortfolioTree(request);
   }
@@ -216,8 +216,8 @@ public class DbPositionMaster implements PositionMaster {
   public PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
-    checkScheme(document.getPortfolioId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getCorrectPortfolioTreeWorker().correctPortfolioTree(document);
   }
@@ -254,8 +254,8 @@ public class DbPositionMaster implements PositionMaster {
   public PositionDocument updatePosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
-    checkScheme(document.getPositionId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdatePositionWorker().updatePosition(document);
   }
@@ -273,8 +273,8 @@ public class DbPositionMaster implements PositionMaster {
   @Override
   public PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
-    checkScheme(request.getPositionId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryPositionsWorker().historyPosition(request);
   }
@@ -284,8 +284,8 @@ public class DbPositionMaster implements PositionMaster {
   public PositionDocument correctPosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
-    checkScheme(document.getPositionId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getCorrectPositionWorker().correctPosition(document);
   }

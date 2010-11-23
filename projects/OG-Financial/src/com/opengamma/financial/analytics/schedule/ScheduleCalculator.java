@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.schedule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -23,16 +24,33 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
- * 
- *
+ * Utility to calculate schedules.
  */
-public class ScheduleCalculator {
+public final class ScheduleCalculator {
+
+  /**
+   * A singleton empty array.
+   */
   private static final ZonedDateTime[] EMPTY_ARRAY = new ZonedDateTime[0];
 
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency frequency) {
+  /**
+   * Restricted constructor.
+   */
+  private ScheduleCalculator() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the unadjusted date schedule.
+   * 
+   * @param effectiveDate  the effective date, not null
+   * @param maturityDate  the maturity date, not null
+   * @param frequency  how many times a year dates occur, not null
+   * @return the schedule, not null
+   */
+  public static ZonedDateTime[] getUnadjustedDateSchedule(
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(maturityDate);
     Validate.notNull(frequency);
@@ -42,7 +60,17 @@ public class ScheduleCalculator {
     return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
   }
 
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Frequency frequency) {
+  /**
+   * Calculates the unadjusted date schedule.
+   * 
+   * @param effectiveDate  the effective date, not null
+   * @param accrualDate  the accrual date, not null
+   * @param maturityDate  the maturity date, not null
+   * @param frequency  how many times a year dates occur, not null
+   * @return the schedule, not null
+   */
+  public static ZonedDateTime[] getUnadjustedDateSchedule(
+      final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(accrualDate);
     Validate.notNull(maturityDate);
@@ -53,6 +81,7 @@ public class ScheduleCalculator {
     if (accrualDate.isAfter(maturityDate)) {
       throw new IllegalArgumentException("Accrual date was after maturity");
     }
+    
     // TODO what if there's no valid date between accrual date and maturity date?
     PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
@@ -73,21 +102,25 @@ public class ScheduleCalculator {
     return dates.toArray(EMPTY_ARRAY);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Counts back from maturityDate, filling to equally spaced dates frequency times a year until the last date <b>after</b> effective date 
-   * @param effectiveDate The date that terminates to back counting (i.e. the first date is after this date)
-   * @param maturityDate The date to count back from 
-   * @param frequency How many times a year dates occur 
-   * @return The first date after effectiveDate (i.e. effectiveDate is <b>not</b> included to the maturityDate (included) 
+   * Counts back from maturityDate, filling to equally spaced dates frequency
+   * times a year until the last date <b>after</b> effective date.
+   * 
+   * @param effectiveDate  the date that terminates to back counting (i.e. the first date is after this date), not null
+   * @param maturityDate  the date to count back from, not null
+   * @param frequency  how many times a year dates occur, not null
+   * @return the first date after effectiveDate (i.e. effectiveDate is <b>not</b> included to the maturityDate (included) 
    */
-  public static ZonedDateTime[] getBackwardsUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency frequency) {
+  public static ZonedDateTime[] getBackwardsUnadjustedDateSchedule(
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(maturityDate);
     Validate.notNull(frequency);
     if (effectiveDate.isAfter(maturityDate)) {
       throw new IllegalArgumentException("Effective date was after maturity");
     }
-
+    
     PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
       periodFrequency = (PeriodFrequency) frequency;
@@ -99,19 +132,19 @@ public class ScheduleCalculator {
     final Period period = periodFrequency.getPeriod();
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = maturityDate;
-
+    
     //TODO review the tolerance given 
     while (date.isAfter(effectiveDate) && DateUtil.getExactDaysBetween(effectiveDate, date) > 4.0) {
       dates.add(date);
       date = date.minus(period);
     }
-
+    
     Collections.sort(dates);
     return dates.toArray(EMPTY_ARRAY);
   }
 
-  //TODO change me urgently
   private static boolean isWithinSwapLifetime(final ZonedDateTime date, final ZonedDateTime maturity) {
+    // TODO change me urgently
     if (date.isBefore(maturity)) {
       return true;
     }
@@ -121,15 +154,18 @@ public class ScheduleCalculator {
     return false;
   }
 
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(
+      final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
     return getAdjustedDateSchedule(dates, convention, calendar, 0);
   }
 
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(
+      final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
     Validate.notNull(calendar);
+    
     final int n = dates.length;
     final ZonedDateTime[] result = new ZonedDateTime[n];
     for (int i = 0; i < n; i++) {
@@ -149,6 +185,7 @@ public class ScheduleCalculator {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(calendar);
+    
     final int n = dates.length;
     final ZonedDateTime[] result = new ZonedDateTime[n];
     for (int i = 0; i < n; i++) {
@@ -172,6 +209,7 @@ public class ScheduleCalculator {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(calendar);
+    
     final int n = dates.length;
     final LocalDate[] result = new LocalDate[n];
     for (int i = 0; i < n; i++) {
@@ -191,14 +229,15 @@ public class ScheduleCalculator {
     return result;
   }
 
-  public static ZonedDateTime[] getAdjustedResetDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates,
-                                                             final BusinessDayConvention convention, final Calendar calendar,
-                                                             final int settlementDays) {
+  public static ZonedDateTime[] getAdjustedResetDateSchedule(
+      final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention,
+      final Calendar calendar, final int settlementDays) {
     Validate.notNull(effectiveDate);
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
     Validate.notNull(calendar);
+    
     final int n = dates.length;
     final ZonedDateTime[] result = new ZonedDateTime[n];
     result[0] = effectiveDate;
@@ -208,13 +247,15 @@ public class ScheduleCalculator {
     return result;
   }
 
-  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates,
+  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(
+      final ZonedDateTime effectiveDate, final ZonedDateTime[] dates,
       final BusinessDayConvention convention, final Calendar calendar, final Frequency frequency) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(frequency);
+    
     PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
       periodFrequency = (PeriodFrequency) frequency;
@@ -224,32 +265,33 @@ public class ScheduleCalculator {
       throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
     }
     final Period period = periodFrequency.getPeriod();
-
+    
     final int n = dates.length;
     final ZonedDateTime[] results = new ZonedDateTime[n];
     results[0] = effectiveDate.plus(period);
     for (int i = 1; i < n; i++) {
       results[i] = convention.adjustDate(calendar, dates[i - 1].plus(period)); //TODO need to further shift these dates by a convention 
     }
-
+    
     return results;
 
   }
 
   /**
-   * converts a set of dates into time periods in years for a specified date and using a specified day count convention 
-   * @param dates A set of dates
-   * @param dayCount The day count convention 
-   * @param fromDate The date from which to measure the time period to the dates 
-   * @return A double array of time periods (in years) - if a date is <b>before</b> the fromDate as negative value is returned 
+   * Converts a set of dates into time periods in years for a specified date and using a specified day count convention.
+   * 
+   * @param dates  a set of dates, not null
+   * @param dayCount  the day count convention, not null
+   * @param fromDate  the date from which to measure the time period to the dates, not null
+   * @return a double array of time periods (in years) - if a date is <b>before</b> the fromDate as negative value is returned, not null
    */
   public static double[] getTimes(final ZonedDateTime[] dates, final DayCount dayCount, final ZonedDateTime fromDate) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(dayCount);
     Validate.notNull(fromDate);
+    
     final int n = dates.length;
-
     final double[] result = new double[n];
     double yearFrac;
     for (int i = 0; i < (n); i++) {
@@ -261,7 +303,7 @@ public class ScheduleCalculator {
       }
       result[i] = yearFrac;
     }
-
+    
     return result;
   }
 
@@ -285,13 +327,12 @@ public class ScheduleCalculator {
     Validate.notNull(dayCount);
     Validate.notNull(fromDate);
     final int n = dates.length;
-
+    
     final double[] result = new double[n];
     result[0] = dayCount.getDayCountFraction(fromDate, dates[0]);
     for (int i = 1; i < n; i++) {
       result[i] = dayCount.getDayCountFraction(dates[i - 1], dates[i]);
     }
-
     return result;
   }
 }

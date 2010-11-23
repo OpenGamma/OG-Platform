@@ -192,7 +192,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("position_oid", extractOid(request.getPositionId()))
+      .addValue("position_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
@@ -308,7 +308,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setPortfolioId(createObjectIdentifier(portfolioOid, _deduplicate));
       doc.setParentNodeId(createObjectIdentifier(parentNodeOid, _deduplicate));
-      doc.setPositionId(createUniqueIdentifier(positionOid, positionId, _deduplicate));
+      doc.setUniqueId(createUniqueIdentifier(positionOid, positionId, _deduplicate));
       _documents.add(doc);
     }
   }

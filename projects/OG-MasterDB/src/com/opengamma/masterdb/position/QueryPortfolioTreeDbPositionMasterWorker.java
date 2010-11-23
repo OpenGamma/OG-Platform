@@ -219,7 +219,7 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
   protected PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     s_logger.debug("searchPortfolioTreeHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_oid", extractOid(request.getPortfolioId()))
+      .addValue("portfolio_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())

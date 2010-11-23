@@ -14,14 +14,9 @@ import javax.time.InstantProvider;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.master.AbstractHistoryRequest;
 
 /**
  * Request for the history of a position.
@@ -46,50 +41,7 @@ import com.opengamma.util.db.PagingRequest;
  * Versions are represented by instants in the search.
  */
 @BeanDefinition
-public class PositionHistoryRequest extends DirectBean {
-
-  /**
-   * The request for paging.
-   * By default all matching items will be returned.
-   */
-  @PropertyDefinition
-  private PagingRequest _pagingRequest = PagingRequest.ALL;
-  /**
-   * The position object identifier to match.
-   */
-  @PropertyDefinition
-  private UniqueIdentifier _positionId;
-  /**
-   * The instant to retrieve versions on or after (inclusive).
-   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version.
-   */
-  @PropertyDefinition
-  private Instant _versionsFromInstant;
-  /**
-   * The instant to retrieve versions before (exclusive).
-   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest version.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   */
-  @PropertyDefinition
-  private Instant _versionsToInstant;
-  /**
-   * The instant to retrieve corrections on or after (inclusive).
-   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version prior to corrections.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   */
-  @PropertyDefinition
-  private Instant _correctionsFromInstant;
-  /**
-   * The instant to retrieve corrections before (exclusive).
-   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest correction.
-   * This should be equal to or later than the {@code correctionsFromInstant}.
-   */
-  @PropertyDefinition
-  private Instant _correctionsToInstant;
+public class PositionHistoryRequest extends AbstractHistoryRequest {
 
   /**
    * Creates an instance.
@@ -114,7 +66,7 @@ public class PositionHistoryRequest extends DirectBean {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
   public PositionHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    setPositionId(oid);
+    setObjectId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -145,18 +97,6 @@ public class PositionHistoryRequest extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
-      case 1381039140:  // positionId
-        return getPositionId();
-      case 825630012:  // versionsFromInstant
-        return getVersionsFromInstant();
-      case 288644747:  // versionsToInstant
-        return getVersionsToInstant();
-      case -1002076478:  // correctionsFromInstant
-        return getCorrectionsFromInstant();
-      case -1241747055:  // correctionsToInstant
-        return getCorrectionsToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -164,248 +104,20 @@ public class PositionHistoryRequest extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
-      case 1381039140:  // positionId
-        setPositionId((UniqueIdentifier) newValue);
-        return;
-      case 825630012:  // versionsFromInstant
-        setVersionsFromInstant((Instant) newValue);
-        return;
-      case 288644747:  // versionsToInstant
-        setVersionsToInstant((Instant) newValue);
-        return;
-      case -1002076478:  // correctionsFromInstant
-        setCorrectionsFromInstant((Instant) newValue);
-        return;
-      case -1241747055:  // correctionsToInstant
-        setCorrectionsToInstant((Instant) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the request for paging.
-   * By default all matching items will be returned.
-   * @return the value of the property
-   */
-  public PagingRequest getPagingRequest() {
-    return _pagingRequest;
-  }
-
-  /**
-   * Sets the request for paging.
-   * By default all matching items will be returned.
-   * @param pagingRequest  the new value of the property
-   */
-  public void setPagingRequest(PagingRequest pagingRequest) {
-    this._pagingRequest = pagingRequest;
-  }
-
-  /**
-   * Gets the the {@code pagingRequest} property.
-   * By default all matching items will be returned.
-   * @return the property, not null
-   */
-  public final Property<PagingRequest> pagingRequest() {
-    return metaBean().pagingRequest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the position object identifier to match.
-   * @return the value of the property
-   */
-  public UniqueIdentifier getPositionId() {
-    return _positionId;
-  }
-
-  /**
-   * Sets the position object identifier to match.
-   * @param positionId  the new value of the property
-   */
-  public void setPositionId(UniqueIdentifier positionId) {
-    this._positionId = positionId;
-  }
-
-  /**
-   * Gets the the {@code positionId} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueIdentifier> positionId() {
-    return metaBean().positionId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to retrieve versions on or after (inclusive).
-   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version.
-   * @return the value of the property
-   */
-  public Instant getVersionsFromInstant() {
-    return _versionsFromInstant;
-  }
-
-  /**
-   * Sets the instant to retrieve versions on or after (inclusive).
-   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version.
-   * @param versionsFromInstant  the new value of the property
-   */
-  public void setVersionsFromInstant(Instant versionsFromInstant) {
-    this._versionsFromInstant = versionsFromInstant;
-  }
-
-  /**
-   * Gets the the {@code versionsFromInstant} property.
-   * If this instant equals the {@code versionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionsFromInstant() {
-    return metaBean().versionsFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to retrieve versions before (exclusive).
-   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest version.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @return the value of the property
-   */
-  public Instant getVersionsToInstant() {
-    return _versionsToInstant;
-  }
-
-  /**
-   * Sets the instant to retrieve versions before (exclusive).
-   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest version.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @param versionsToInstant  the new value of the property
-   */
-  public void setVersionsToInstant(Instant versionsToInstant) {
-    this._versionsToInstant = versionsToInstant;
-  }
-
-  /**
-   * Gets the the {@code versionsToInstant} property.
-   * If this instant equals the {@code versionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest version.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionsToInstant() {
-    return metaBean().versionsToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to retrieve corrections on or after (inclusive).
-   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version prior to corrections.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionsFromInstant() {
-    return _correctionsFromInstant;
-  }
-
-  /**
-   * Sets the instant to retrieve corrections on or after (inclusive).
-   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version prior to corrections.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @param correctionsFromInstant  the new value of the property
-   */
-  public void setCorrectionsFromInstant(Instant correctionsFromInstant) {
-    this._correctionsFromInstant = correctionsFromInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionsFromInstant} property.
-   * If this instant equals the {@code correctionsToInstant} the search is at a single instant.
-   * A null value will retrieve values starting from the earliest version prior to corrections.
-   * This should be equal to or later than the {@code versionsFromInstant}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionsFromInstant() {
-    return metaBean().correctionsFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to retrieve corrections before (exclusive).
-   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest correction.
-   * This should be equal to or later than the {@code correctionsFromInstant}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionsToInstant() {
-    return _correctionsToInstant;
-  }
-
-  /**
-   * Sets the instant to retrieve corrections before (exclusive).
-   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest correction.
-   * This should be equal to or later than the {@code correctionsFromInstant}.
-   * @param correctionsToInstant  the new value of the property
-   */
-  public void setCorrectionsToInstant(Instant correctionsToInstant) {
-    this._correctionsToInstant = correctionsToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionsToInstant} property.
-   * If this instant equals the {@code correctionsFromInstant} the search is at a single instant.
-   * A null value will retrieve values up to the latest correction.
-   * This should be equal to or later than the {@code correctionsFromInstant}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionsToInstant() {
-    return metaBean().correctionsToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code PositionHistoryRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractHistoryRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
-    /**
-     * The meta-property for the {@code positionId} property.
-     */
-    private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(this, "positionId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code versionsFromInstant} property.
-     */
-    private final MetaProperty<Instant> _versionsFromInstant = DirectMetaProperty.ofReadWrite(this, "versionsFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code versionsToInstant} property.
-     */
-    private final MetaProperty<Instant> _versionsToInstant = DirectMetaProperty.ofReadWrite(this, "versionsToInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionsFromInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionsFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionsFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionsToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionsToInstant = DirectMetaProperty.ofReadWrite(this, "correctionsToInstant", Instant.class);
     /**
      * The meta-properties.
      */
@@ -413,13 +125,7 @@ public class PositionHistoryRequest extends DirectBean {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
-      temp.put("positionId", _positionId);
-      temp.put("versionsFromInstant", _versionsFromInstant);
-      temp.put("versionsToInstant", _versionsToInstant);
-      temp.put("correctionsFromInstant", _correctionsFromInstant);
-      temp.put("correctionsToInstant", _correctionsToInstant);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -439,54 +145,6 @@ public class PositionHistoryRequest extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PagingRequest> pagingRequest() {
-      return _pagingRequest;
-    }
-
-    /**
-     * The meta-property for the {@code positionId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueIdentifier> positionId() {
-      return _positionId;
-    }
-
-    /**
-     * The meta-property for the {@code versionsFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionsFromInstant() {
-      return _versionsFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code versionsToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionsToInstant() {
-      return _versionsToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionsFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionsFromInstant() {
-      return _correctionsFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionsToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionsToInstant() {
-      return _correctionsToInstant;
-    }
-
   }
 
   ///CLOVER:ON

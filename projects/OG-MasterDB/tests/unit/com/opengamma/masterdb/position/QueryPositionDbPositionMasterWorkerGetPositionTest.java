@@ -73,7 +73,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getParentNodeId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -96,7 +96,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getParentNodeId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -120,7 +120,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), test.getParentNodeId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -143,7 +143,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     PositionDocument test = _worker.getPosition(uid);
     
     assertNotNull(test);
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), test.getParentNodeId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
@@ -174,7 +174,7 @@ public class QueryPositionDbPositionMasterWorkerGetPositionTest extends Abstract
     
     assertNotNull(test);
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "221", "1");
-    assertEquals(uid, test.getPositionId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), test.getParentNodeId());
     assertEquals(_version2Instant, test.getVersionFromInstant());

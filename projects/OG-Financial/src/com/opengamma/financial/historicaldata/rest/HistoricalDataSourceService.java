@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.util.rest.AbstractResourceService;
 
 /**

@@ -11,8 +11,8 @@ import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTargetType;

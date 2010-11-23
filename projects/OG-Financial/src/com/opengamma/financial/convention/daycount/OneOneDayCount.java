@@ -20,13 +20,15 @@ public class OneOneDayCount extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
-    return "1/1";
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear) {
+    return coupon / paymentsPerYear;
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
-    return coupon / paymentsPerYear;
+  public String getConventionName() {
+    return "1/1";
   }
 
 }

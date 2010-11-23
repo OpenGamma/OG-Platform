@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.historicaldata;
+package com.opengamma.core.historicaldata;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -20,6 +20,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource;
+import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -31,10 +34,11 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test.
+ * Test HistoricalDataSource.
  */
-public class HistoricalDataProviderTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataProviderTest.class);
+public class HistoricalDataSourceTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataSourceTest.class);
   private static final String ALPHAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private Set<String> _usedIds = new HashSet<String>();
 
@@ -89,7 +93,7 @@ public class HistoricalDataProviderTest {
   }
 
   private Pair<HistoricalDataSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
-    InMemoryHistoricalDataProvider inMemoryHistoricalDataProvider = new InMemoryHistoricalDataProvider();
+    MockHistoricalDataSource inMemoryHistoricalDataProvider = new MockHistoricalDataSource();
     Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i = 0; i < 100; i++) {
       IdentifierBundle ids = makeDomainSpecificIdentifiers();
@@ -142,7 +146,7 @@ public class HistoricalDataProviderTest {
   public void testEHCachingHistoricalDataProvider() {
     Pair<HistoricalDataSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalDataSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
-    EHCachingHistoricalDataProvider cachedProvider = new EHCachingHistoricalDataProvider(inMemoryHistoricalDataProvider, EHCacheUtils.createCacheManager());
+    EHCachingHistoricalDataSource cachedProvider = new EHCachingHistoricalDataSource(inMemoryHistoricalDataProvider, EHCacheUtils.createCacheManager());
     Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
     IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
     String[] dataSources = new String[] {"BLOOMBERG", "REUTERS", "JPM"};
