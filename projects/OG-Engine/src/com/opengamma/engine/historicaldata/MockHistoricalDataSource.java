@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * In memory HDP for testing.
  */
-public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
+public class MockHistoricalDataSource implements HistoricalDataSource {
 
   /**
    * The default scheme used for each {@link UniqueIdentifier}.
@@ -46,7 +46,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
   /**
    * Creates an empty TimeSeriesSource using the default scheme for any {@link UniqueIdentifier}s created.
    */
-  public InMemoryHistoricalDataProvider() {
+  public MockHistoricalDataSource() {
     this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
   }
 
@@ -55,7 +55,7 @@ public class InMemoryHistoricalDataProvider implements HistoricalDataSource {
    * 
    * @param uidSupplier  the supplier of unique identifiers, not null
    */
-  public InMemoryHistoricalDataProvider(final Supplier<UniqueIdentifier> uidSupplier) {
+  public MockHistoricalDataSource(final Supplier<UniqueIdentifier> uidSupplier) {
     ArgumentChecker.notNull(uidSupplier, "uidSupplier");
     _uidSupplier = uidSupplier;
   }

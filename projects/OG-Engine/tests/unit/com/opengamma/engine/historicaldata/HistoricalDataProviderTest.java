@@ -89,7 +89,7 @@ public class HistoricalDataProviderTest {
   }
 
   private Pair<HistoricalDataSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
-    InMemoryHistoricalDataProvider inMemoryHistoricalDataProvider = new InMemoryHistoricalDataProvider();
+    MockHistoricalDataSource inMemoryHistoricalDataProvider = new MockHistoricalDataSource();
     Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i = 0; i < 100; i++) {
       IdentifierBundle ids = makeDomainSpecificIdentifiers();
@@ -142,7 +142,7 @@ public class HistoricalDataProviderTest {
   public void testEHCachingHistoricalDataProvider() {
     Pair<HistoricalDataSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalDataSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
-    EHCachingHistoricalDataProvider cachedProvider = new EHCachingHistoricalDataProvider(inMemoryHistoricalDataProvider, EHCacheUtils.createCacheManager());
+    EHCachingHistoricalDataSource cachedProvider = new EHCachingHistoricalDataSource(inMemoryHistoricalDataProvider, EHCacheUtils.createCacheManager());
     Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
     IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
     String[] dataSources = new String[] {"BLOOMBERG", "REUTERS", "JPM"};

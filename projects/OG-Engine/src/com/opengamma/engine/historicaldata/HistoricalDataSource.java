@@ -14,9 +14,11 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A source of time-series as accessed by the engine.
+ * A source of daily historical time-series as accessed by the engine.
  * <p>
- * This interface provides a simple view of TimeSeries as needed by the engine.
+ * The interface provides access to historical time-series data on a daily basis.
+ * There may be other uses of time-series within the application, but this interface is
+ * specifically focused on the requirement for daily data.
  */
 @PublicSPI
 public interface HistoricalDataSource {

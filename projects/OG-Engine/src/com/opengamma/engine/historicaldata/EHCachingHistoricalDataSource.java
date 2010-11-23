@@ -32,10 +32,10 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
+public class EHCachingHistoricalDataSource implements HistoricalDataSource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataSource.class);
   /**
    * An empty time series.
    */
@@ -70,7 +70,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
    * @param diskExpiryThreadIntervalSeconds  cache configuration
    * @param registeredEventListeners  cache configuration
    */
-  public EHCachingHistoricalDataProvider(
+  public EHCachingHistoricalDataSource(
       final HistoricalDataSource underlying, final CacheManager cacheManager, final int maxElementsInMemory,
       final MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, final boolean overflowToDisk, final String diskStorePath,
       final boolean eternal, final long timeToLiveSeconds, final long timeToIdleSeconds, final boolean diskPersistent,
@@ -89,7 +89,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataSource {
    * @param underlying  the underlying source, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingHistoricalDataProvider(HistoricalDataSource underlying, CacheManager cacheManager) {
+  public EHCachingHistoricalDataSource(HistoricalDataSource underlying, CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     ArgumentChecker.notNull(cacheManager, "Cache Manager");
     _underlying = underlying;
