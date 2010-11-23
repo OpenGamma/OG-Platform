@@ -30,12 +30,12 @@
     <property name="dialect" value="com.opengamma.util.db.HSQLDbHelper"/>
   </bean>
 
-  <!--bean id="hsqldbDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <bean id="hsqldbDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
-  <bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+  <!--bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbSec" />
   </bean-->
@@ -64,12 +64,12 @@
     <property name="dialect" value="com.opengamma.util.db.PostgreSQLDbHelper"/>
   </bean>
 
-  <!--bean id="postgresDbPositionMaster" class="com.opengamma.financial.position.master.db.DbPositionMaster">
+  <bean id="postgresDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
-  <bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+  <!--bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbSec" />
   </bean-->

@@ -21,12 +21,12 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePortfolio;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeSearchRequest;
+import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 

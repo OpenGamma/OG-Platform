@@ -7,11 +7,11 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.GUIDGenerator;

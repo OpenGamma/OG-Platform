@@ -20,13 +20,13 @@ import javax.ws.rs.core.UriInfo;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.DataPositionResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
