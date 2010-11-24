@@ -55,7 +55,7 @@ public class DbPositionMasterWorkers {
 
   /**
    * Initializes the instance.
-   * @param master  the position master, non-null
+   * @param master  the position master, not null
    */
   protected void init(final DbPositionMaster master) {
     _searchPortfolioTreesWorker.init(master);

@@ -15,8 +15,8 @@ import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_M
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_BY_OID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TIME_SERIES_BY_ID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_TIME_SERIES_KEY_BY_ID;
+import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TIME_SERIES_BY_ID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TS_DATE_RANGE_BY_OID;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_FIELD;
 import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_PROVIDER;
@@ -84,24 +84,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
-import com.opengamma.financial.timeseries.DataFieldBean;
-import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.DataProviderBean;
-import com.opengamma.financial.timeseries.DataSourceBean;
-import com.opengamma.financial.timeseries.ObservationTimeBean;
-import com.opengamma.financial.timeseries.SchemeBean;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricResult;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.DataFieldBean;
+import com.opengamma.master.timeseries.DataPointDocument;
+import com.opengamma.master.timeseries.DataProviderBean;
+import com.opengamma.master.timeseries.DataSourceBean;
+import com.opengamma.master.timeseries.NamedDescriptionBean;
+import com.opengamma.master.timeseries.ObservationTimeBean;
+import com.opengamma.master.timeseries.SchemeBean;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesSearchHistoricRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
@@ -121,7 +121,9 @@ import com.opengamma.util.tuple.Pair;
  */
 @Transactional(readOnly = true)
 public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
-  
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
   /**
    * List of keys expected in the Map containing SQL queries injected to RowStoreTimeSeriesMaster
    */
@@ -166,32 +168,40 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       GET_ACTIVE_META_DATA,
       GET_ACTIVE_META_DATA_BY_IDENTIFIERS,
       UPDATE_TIME_SERIES));
-    
   /**
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "Tss";
 
-  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
-  
+  /**
+   * The identifier scheme to use.
+   */
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
-  
   /**
    * The database source.
    */
   private final DbSource _dbSource;
-  
+  /**
+   * The map of SQL
+   */
   private Map<String, String> _namedSQLMap;
+  /**
+   * Whether trigger is supported.
+   */
   private final boolean _isTriggerSupported;
 
-  public RowStoreTimeSeriesMaster(DbSource dbSource, 
-      Map<String, String> namedSQLMap,
-      boolean isTriggerSupported) {
-
+  /**
+   * Creates an instance.
+   * 
+   * @param dbSource  the database information, not null
+   * @param namedSQLMap  the named SQL map, not null
+   * @param isTriggerSupported  whether trigger is supported
+   */
+  public RowStoreTimeSeriesMaster(
+      DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     ArgumentChecker.notNull(dbSource, "dbSource");
     
     _dbSource = dbSource;
-    
     checkNamedSQLMap(namedSQLMap);
     
     // see tssQueries.xml
@@ -203,48 +213,60 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       namedSQLMapCorrected.put(key, sql);      
     }
     _namedSQLMap = Collections.unmodifiableMap(namedSQLMapCorrected);
-    
     _isTriggerSupported = isTriggerSupported;
   }
-  
-  // --------------------------------------------------------------------------
-  
-  
+
+  //-------------------------------------------------------------------------
   protected abstract String getDataPointTableName();
-  
+
   protected abstract String getDataPointDeltaTableName();
-  
+
   /**
    * @return See {@link java.sql.Types}.
    */
   protected abstract int getSqlDateType();
-  
+
   protected abstract Object getSqlDate(T date);
-  
+
   protected abstract T getDate(ResultSet rs, String column) throws SQLException;
-  
+
   protected abstract T getDate(String date);
-  
+
   protected abstract String printDate(T date);
-  
+
   protected abstract DoubleTimeSeries<T> getTimeSeries(List<T> dates, List<Double> values);
-  
+
   protected abstract MutableDoubleTimeSeries<T> getMutableTimeSeries(DoubleTimeSeries<T> timeSeries);
-  
-  // --------------------------------------------------------------------------
-  
-  public boolean isTriggerSupported() {
-    return _isTriggerSupported;
-  }
-  
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _dbSource.getJdbcTemplate();
-  }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the database source.
+   * 
+   * @return the database source, non null
+   */
   public DbSource getDbSource() {
     return _dbSource;
   }
-  
+
+  /**
+   * Gets the simple JDBC template.
+   * 
+   * @return the JDBC template, not null
+   */
+  public SimpleJdbcTemplate getJdbcTemplate() {
+    return _dbSource.getJdbcTemplate();
+  }
+
+  /**
+   * Gets whether trigger is supported.
+   * 
+   * @return whether trigger is supported
+   */
+  public boolean isTriggerSupported() {
+    return _isTriggerSupported;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     IdentifierBundleHandler identifierBundleHandler = new IdentifierBundleHandler();
@@ -883,7 +905,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public List<DataFieldBean> getDataFields() {
     List<DataFieldBean> result = new ArrayList<DataFieldBean>();
-    for (EnumWithDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_FIELDS))) {
+    for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_FIELDS))) {
       DataFieldBean dataField = new DataFieldBean(bean.getName(), bean.getDescription());
       dataField.setId(bean.getId());
       result.add(dataField);
@@ -894,7 +916,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public List<DataProviderBean> getDataProviders() {
     List<DataProviderBean> result = new ArrayList<DataProviderBean>();
-    for (EnumWithDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_PROVIDER))) {
+    for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_PROVIDER))) {
       DataProviderBean dataProviderBean = new DataProviderBean(bean.getName(), bean.getDescription());
       dataProviderBean.setId(bean.getId());
       result.add(dataProviderBean);
@@ -905,7 +927,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public List<DataSourceBean> getDataSources() {
     List<DataSourceBean> result = new ArrayList<DataSourceBean>();
-    for (EnumWithDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_SOURCES))) {
+    for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_DATA_SOURCES))) {
       DataSourceBean dataSourceBean = new DataSourceBean(bean.getName(), bean.getDescription());
       dataSourceBean.setId(bean.getId());
       result.add(dataSourceBean);
@@ -916,7 +938,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public List<ObservationTimeBean> getObservationTimes() {
     List<ObservationTimeBean> result = new ArrayList<ObservationTimeBean>();
-    for (EnumWithDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_OBSERVATION_TIMES))) {
+    for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_OBSERVATION_TIMES))) {
       ObservationTimeBean obBean = new ObservationTimeBean(bean.getName(), bean.getDescription());
       obBean.setId(bean.getId());
       result.add(obBean);
@@ -929,7 +951,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public List<SchemeBean> getSchemes() {
     List<SchemeBean> result = new ArrayList<SchemeBean>();
-    for (EnumWithDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_SCHEME))) {
+    for (NamedDescriptionBean bean : loadEnumWithDescription(_namedSQLMap.get(LOAD_ALL_SCHEME))) {
       SchemeBean schemeBean = new SchemeBean(bean.getName(), bean.getDescription());
       schemeBean.setId(bean.getId());
       result.add(schemeBean);
@@ -1152,7 +1174,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public TimeSeriesSearchHistoricResult<T> searchHistoric(TimeSeriesSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
-    ArgumentChecker.notNull(request.getTimeStamp(), "Timestamp");
+    ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
     UniqueIdentifier uid = request.getTimeSeriesId();
     TimeSeriesSearchHistoricResult<T>  searchResult = new TimeSeriesSearchHistoricResult<T>();
     if (uid == null) {
@@ -1167,7 +1189,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         return searchResult;
       }
     }
-    Instant timeStamp = request.getTimeStamp();
+    Instant timeStamp = request.getTimestamp();
     long tsId = validateAndGetTimeSeriesId(uid);
     DoubleTimeSeries<T> seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
     TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
@@ -1365,7 +1387,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         Date validFrom = identifierWithDates.getValidFrom() != null ? DbDateUtils.toSqlDate(identifierWithDates.getValidFrom()) : null;
         Date validTo = identifierWithDates.getValidTo() != null ? DbDateUtils.toSqlDate(identifierWithDates.getValidTo()) : null;
         String scheme = identifier.getScheme().getName();
-        EnumWithDescriptionBean schemeBean = getOrCreateScheme(scheme, null);
+        NamedDescriptionBean schemeBean = getOrCreateScheme(scheme, null);
         Map<String, Object> valueMap = new HashMap<String, Object>();
         valueMap.put("bundleId", bundleId);
         valueMap.put("schemeId", schemeBean.getId());
@@ -1391,15 +1413,15 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
     return result;
   }
   
-  private List<EnumWithDescriptionBean> loadEnumWithDescription(String sql) {
-    List<EnumWithDescriptionBean> result = new ArrayList<EnumWithDescriptionBean>();
+  private List<NamedDescriptionBean> loadEnumWithDescription(String sql) {
+    List<NamedDescriptionBean> result = new ArrayList<NamedDescriptionBean>();
     SqlParameterSource parameterSource = null;
     List<Map<String, Object>> sqlResult = getJdbcTemplate().queryForList(sql, parameterSource);
     for (Map<String, Object> element : sqlResult) {
       Long id = (Long) element.get("id");
       String name = (String) element.get("name");
       String desc = (String) element.get("description");
-      EnumWithDescriptionBean bean = new EnumWithDescriptionBean();
+      NamedDescriptionBean bean = new NamedDescriptionBean();
       bean.setId(id);
       bean.setName(name);
       bean.setDescription(desc);

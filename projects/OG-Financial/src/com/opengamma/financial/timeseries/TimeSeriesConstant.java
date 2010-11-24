@@ -6,12 +6,16 @@
 package com.opengamma.financial.timeseries;
 
 /**
- * TimeSeries Constants
+ * Constants used for time-series meta-data.
  */
 public final class TimeSeriesConstant {
 
+  /**
+   * Restricted constructor.
+   */
   private TimeSeriesConstant() {
   }
+
   //named sql map key names
   /**
    * key name  for deactivateMetaData SQL
@@ -228,4 +232,5 @@ public final class TimeSeriesConstant {
    * Millisec in day
    */
   public static final long MILLIS_PER_DAY = 86400000L;
+
 }

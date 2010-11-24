@@ -3,18 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
-
-import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
+package com.opengamma.master.timeseries;
 
 /**
- * 
+ * Database bean for storing a data provider.
  */
-public class DataProviderBean extends EnumWithDescriptionBean {
+public class DataProviderBean extends NamedDescriptionBean {
+
   protected DataProviderBean() {
   }
 
   public DataProviderBean(String name, String description) {
     super(name, description);
   }
+
 }

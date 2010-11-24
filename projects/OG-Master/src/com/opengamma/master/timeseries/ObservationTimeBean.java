@@ -3,18 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
-
-import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
+package com.opengamma.master.timeseries;
 
 /**
- * 
+ * Database bean for storing an observation time.
  */
-public class ObservationTimeBean extends EnumWithDescriptionBean {
+public class ObservationTimeBean extends NamedDescriptionBean {
+
   protected ObservationTimeBean() {
   }
 
   public ObservationTimeBean(String exchangeName, String description) {
     super(exchangeName, description);
   }
+
 }

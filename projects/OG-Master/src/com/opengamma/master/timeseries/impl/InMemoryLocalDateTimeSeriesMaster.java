@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.memory;
+package com.opengamma.master.timeseries.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,24 +23,24 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.timeseries.DataFieldBean;
-import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.DataProviderBean;
-import com.opengamma.financial.timeseries.DataSourceBean;
-import com.opengamma.financial.timeseries.ObservationTimeBean;
-import com.opengamma.financial.timeseries.SchemeBean;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchHistoricResult;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.master.timeseries.DataFieldBean;
+import com.opengamma.master.timeseries.DataPointDocument;
+import com.opengamma.master.timeseries.DataProviderBean;
+import com.opengamma.master.timeseries.DataSourceBean;
+import com.opengamma.master.timeseries.ObservationTimeBean;
+import com.opengamma.master.timeseries.SchemeBean;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesSearchHistoricRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.time.DateUtil;
@@ -49,11 +49,12 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * An in-memory implementation of a time-series master.
  */
 public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<LocalDate> {
+
   /**
-   * A cache of LocalDate Timeseries by identifier.
+   * A cache of LocalDate time-series by identifier.
    */
   private final ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>>();
   /**
@@ -64,8 +65,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
+
   /**
-   * Creates an empty timeseries master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty time-series master using the default scheme for any {@link UniqueIdentifier}s created.
    */
   public InMemoryLocalDateTimeSeriesMaster() {
     this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
@@ -81,6 +83,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     _uidSupplier = uidSupplier;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public DataSourceBean getOrCreateDataSource(String dataSource, String description) {
     throw new UnsupportedOperationException();
@@ -512,13 +515,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return resolveIdentifier(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField) {
+    return resolveIdentifier(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    ArgumentChecker.notNull(securityBundle, "securityBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -528,7 +531,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       TimeSeriesDocument<LocalDate> tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
         for (IdentifierWithDates idWithDates : tsDoc.getIdentifiers()) {
-          if (identifiers.contains(idWithDates.asIdentifier())) {
+          if (securityBundle.contains(idWithDates.asIdentifier())) {
             LocalDate validFrom = idWithDates.getValidFrom();
             LocalDate validTo = idWithDates.getValidTo();
             if (currentDate != null) {

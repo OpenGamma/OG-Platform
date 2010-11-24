@@ -14,18 +14,18 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.financial.timeseries.db.DateTimeRowStoreTimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * 
+ * Test DateTimeTimeSeriesMaster.
  */
 public class DateTimeTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
-  
+
   public DateTimeTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

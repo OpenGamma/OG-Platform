@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.financial.timeseries.LocalDateTimeSeriesMaster;
+import com.opengamma.master.timeseries.LocalDateTimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.time.DateUtil;
@@ -23,17 +23,23 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * 
+ * A time-series master implementation stores daily points using a {@code LocalDate}.
  */
 public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<LocalDate> implements LocalDateTimeSeriesMaster {
-  
-  public LocalDateRowStoreTimeSeriesMaster(DbSource dbSource, 
-      Map<String, String> namedSQLMap,
-      boolean isTriggerSupported) {
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dbSource  the database information, not null
+   * @param namedSQLMap  the named SQL map, not null
+   * @param isTriggerSupported  whether trigger is supported
+   */
+  public LocalDateRowStoreTimeSeriesMaster(
+      DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     super(dbSource, namedSQLMap, isTriggerSupported);
   }
-  
-  @Override
+
+  //-------------------------------------------------------------------------
   protected String getDataPointTableName() {
     return "tss_data_point";
   }
@@ -47,12 +53,12 @@ public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<
   protected int getSqlDateType() {
     return Types.DATE;
   }
-  
+
   @Override
   protected Object getSqlDate(LocalDate date) {
     return DbDateUtils.toSqlDate(date);
   }
-    
+
   @Override
   protected LocalDate getDate(ResultSet rs, String column) throws SQLException {
     java.sql.Date date = rs.getDate(column);

@@ -17,30 +17,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.master.timeseries.DataPointDocument;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
+ * A performance test of time-series.
  */
 @Ignore
 public class PerformanceTest extends DBTest {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
-  
+
+  /**
+   * The master.
+   */
   private TimeSeriesMaster<LocalDate> _tsMaster;
-  
+
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
+
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -56,7 +60,8 @@ public class PerformanceTest extends DBTest {
         false);
     _tsMaster = ts;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void createUpdateReadLotsOfTimeSeries() {
     long start = System.nanoTime();

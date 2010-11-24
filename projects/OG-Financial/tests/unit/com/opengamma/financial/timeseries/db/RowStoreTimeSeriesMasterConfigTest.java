@@ -18,11 +18,10 @@ import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.MockDbHelper;
 
 /**
- * Test to check RowStoreJdbcDao is properly configured
- * 
+ * Test to check RowStoreTimeSeriesMasterConfig is properly configured.
  */
 public class RowStoreTimeSeriesMasterConfigTest {
-  
+
   DbSource _dbSource = new DbSource("Foo", 
       new BasicDataSource(), 
       new MockDbHelper(), 

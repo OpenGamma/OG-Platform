@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TimeSeriesMetaDataRowMapper maps returned SQL row to TimeSeriesMetaData object 
+ * Maps returned SQL rows to meta-data objects.
  */
 /*package*/ class TimeSeriesMetaDataRowMapper<T> implements RowMapper<MetaData<T>> {
 
@@ -37,6 +37,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates an instance.
+   * 
    * @param rowStoreMaster  the master, not null
    */
   public TimeSeriesMetaDataRowMapper(RowStoreTimeSeriesMaster<T> rowStoreMaster) {
@@ -47,7 +48,8 @@ import com.opengamma.util.ArgumentChecker;
   //-------------------------------------------------------------------------
   /**
    * Sets the loadDates field.
-   * @param loadDates  the loadDates
+   * 
+   * @param loadDates  whether to load the dates
    */
   public void setLoadDates(boolean loadDates) {
     _loadDates = loadDates;
