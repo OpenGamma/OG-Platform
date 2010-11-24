@@ -22,24 +22,38 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple timeSeries resolver, returns the best match from the timeseries metadata in datastore
- * @param <T> the type of the timeseries i.e LocalDate/LocalDateTime
+ * Simple time-series resolver, returns the best match from the time-series meta-data in the data store.
+ * 
+ * @param <T> the type of the time-series, such as LocalDate/LocalDateTime
  */
 public class DefaultTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesResolver.class);
-  private final TimeSeriesMaster<T> _tsMaster;
-  private final ConfigSource _configSource;
+
   /**
-   * @param tsMaster the timeseries master, not-null
-   * @param configSource the configSource, not-null
+   * The time-series master.
    */
-  public DefaultTimeSeriesResolver(TimeSeriesMaster<T> tsMaster, ConfigSource configSource) {
-    ArgumentChecker.notNull(tsMaster, "timeseries master");
+  private final TimeSeriesMaster<T> _tsMaster;
+  /**
+   * The source of configuration.
+   */
+  private final ConfigSource _configSource;
+
+  /**
+   * Creates an instance from a master and config source.
+   * 
+   * @param timeSeriesMaster  the time-series master, not null
+   * @param configSource  the config source, not null
+   */
+  public DefaultTimeSeriesResolver(TimeSeriesMaster<T> timeSeriesMaster, ConfigSource configSource) {
+    ArgumentChecker.notNull(timeSeriesMaster, "timeseries master");
     ArgumentChecker.notNull(configSource, "configSource");
     _configSource = configSource;
-    _tsMaster = tsMaster;
+    _tsMaster = timeSeriesMaster;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers, String configName) {
     ArgumentChecker.notNull(identifiers, "identifiers");
@@ -74,7 +88,7 @@ public class DefaultTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver 
       return null;
     }
   }
-  
+
   private TimeSeriesMetaData bestMatch(List<TimeSeriesMetaData> metaDataList, TimeSeriesMetaDataRateProvider ruleSet) {
     TreeMap<Integer, TimeSeriesMetaData> scores = new TreeMap<Integer, TimeSeriesMetaData>();
     for (TimeSeriesMetaData tsMetaData : metaDataList) {

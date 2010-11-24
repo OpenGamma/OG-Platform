@@ -63,10 +63,12 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Test.
+ * Abstract test for time-series masters.
  */
 @Ignore("Abstract class")
 abstract public class TimeSeriesMasterTest<T> extends DBTest {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
   
   private static final int TS_DATASET_SIZE = 1;
@@ -994,7 +996,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     searchHistoricRequest.setDataField(CLOSE_DATA_FIELD);
     searchHistoricRequest.setIdentifiers(identifiers);
     searchHistoricRequest.setObservationTime(LCLOSE_OBSERVATION_TIME);
-    searchHistoricRequest.setTimeStamp(timeStamp.toInstant());
+    searchHistoricRequest.setTimestamp(timeStamp.toInstant());
     TimeSeriesSearchHistoricResult<T> searchHistoric = _tsMaster.searchHistoric(searchHistoricRequest);
     assertNotNull(searchHistoric);
     List<TimeSeriesDocument<T>> documents = searchHistoric.getDocuments();

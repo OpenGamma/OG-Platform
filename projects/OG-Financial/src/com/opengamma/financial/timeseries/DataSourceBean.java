@@ -8,13 +8,15 @@ package com.opengamma.financial.timeseries;
 import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
 
 /**
- * Representation of a dataSource in the datastore
+ * Hibernate bean for storing a data source.
  */
 public class DataSourceBean extends EnumWithDescriptionBean {
+
   protected DataSourceBean() {
   }
 
   public DataSourceBean(String name, String description) {
     super(name, description);
   }
+
 }

@@ -121,7 +121,9 @@ import com.opengamma.util.tuple.Pair;
  */
 @Transactional(readOnly = true)
 public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
-  
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
   /**
    * List of keys expected in the Map containing SQL queries injected to RowStoreTimeSeriesMaster
    */
@@ -166,32 +168,40 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       GET_ACTIVE_META_DATA,
       GET_ACTIVE_META_DATA_BY_IDENTIFIERS,
       UPDATE_TIME_SERIES));
-    
   /**
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "Tss";
 
-  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
-  
+  /**
+   * The identifier scheme to use.
+   */
   private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
-  
   /**
    * The database source.
    */
   private final DbSource _dbSource;
-  
+  /**
+   * The map of SQL
+   */
   private Map<String, String> _namedSQLMap;
+  /**
+   * Whether trigger is supported.
+   */
   private final boolean _isTriggerSupported;
 
-  public RowStoreTimeSeriesMaster(DbSource dbSource, 
-      Map<String, String> namedSQLMap,
-      boolean isTriggerSupported) {
-
+  /**
+   * Creates an instance.
+   * 
+   * @param dbSource  the database information, not null
+   * @param namedSQLMap  the named SQL map, not null
+   * @param isTriggerSupported  whether trigger is supported
+   */
+  public RowStoreTimeSeriesMaster(
+      DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     ArgumentChecker.notNull(dbSource, "dbSource");
     
     _dbSource = dbSource;
-    
     checkNamedSQLMap(namedSQLMap);
     
     // see tssQueries.xml
@@ -203,48 +213,60 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
       namedSQLMapCorrected.put(key, sql);      
     }
     _namedSQLMap = Collections.unmodifiableMap(namedSQLMapCorrected);
-    
     _isTriggerSupported = isTriggerSupported;
   }
-  
-  // --------------------------------------------------------------------------
-  
-  
+
+  //-------------------------------------------------------------------------
   protected abstract String getDataPointTableName();
-  
+
   protected abstract String getDataPointDeltaTableName();
-  
+
   /**
    * @return See {@link java.sql.Types}.
    */
   protected abstract int getSqlDateType();
-  
+
   protected abstract Object getSqlDate(T date);
-  
+
   protected abstract T getDate(ResultSet rs, String column) throws SQLException;
-  
+
   protected abstract T getDate(String date);
-  
+
   protected abstract String printDate(T date);
-  
+
   protected abstract DoubleTimeSeries<T> getTimeSeries(List<T> dates, List<Double> values);
-  
+
   protected abstract MutableDoubleTimeSeries<T> getMutableTimeSeries(DoubleTimeSeries<T> timeSeries);
-  
-  // --------------------------------------------------------------------------
-  
-  public boolean isTriggerSupported() {
-    return _isTriggerSupported;
-  }
-  
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _dbSource.getJdbcTemplate();
-  }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the database source.
+   * 
+   * @return the database source, non null
+   */
   public DbSource getDbSource() {
     return _dbSource;
   }
-  
+
+  /**
+   * Gets the simple JDBC template.
+   * 
+   * @return the JDBC template, not null
+   */
+  public SimpleJdbcTemplate getJdbcTemplate() {
+    return _dbSource.getJdbcTemplate();
+  }
+
+  /**
+   * Gets whether trigger is supported.
+   * 
+   * @return whether trigger is supported
+   */
+  public boolean isTriggerSupported() {
+    return _isTriggerSupported;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public List<IdentifierBundleWithDates> getAllIdentifiers() {
     IdentifierBundleHandler identifierBundleHandler = new IdentifierBundleHandler();
@@ -1152,7 +1174,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
   @Override
   public TimeSeriesSearchHistoricResult<T> searchHistoric(TimeSeriesSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
-    ArgumentChecker.notNull(request.getTimeStamp(), "Timestamp");
+    ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
     UniqueIdentifier uid = request.getTimeSeriesId();
     TimeSeriesSearchHistoricResult<T>  searchResult = new TimeSeriesSearchHistoricResult<T>();
     if (uid == null) {
@@ -1167,7 +1189,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
         return searchResult;
       }
     }
-    Instant timeStamp = request.getTimeStamp();
+    Instant timeStamp = request.getTimestamp();
     long tsId = validateAndGetTimeSeriesId(uid);
     DoubleTimeSeries<T> seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
     TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();

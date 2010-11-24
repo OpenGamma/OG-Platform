@@ -12,24 +12,37 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Utility class to generate random timeseries for testing/demo purposes
+ * Generator of random time-series for testing/demo purposes.
  */
 public final class RandomTimeSeriesGenerator {
-  
+
   /**
-   * No object creation allowed
+   * Restricted constructor.
    */
   private RandomTimeSeriesGenerator() {
   }
-  
+
+  /**
+   * Generates a random time-series for the specified number of days.
+   * 
+   * @param numDays  the number of days
+   * @return the time-series, not null
+   */
   public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
 
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, int numDays) {
+  /**
+   * Generates a random time-series for the specified number of days from a start date.
+   * 
+   * @param startDate  the start date, not null
+   * @param numDays  the number of days
+   * @return the time-series, not null
+   */
+  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate startDate, int numDays) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
-    LocalDate current = start;
+    LocalDate current = startDate;
     tsMap.putDataPoint(current, Math.random());
     while (tsMap.size() < numDays) {
       if (isWeekday(current)) {
@@ -39,7 +52,13 @@ public final class RandomTimeSeriesGenerator {
     }
     return tsMap;
   }
-  
+
+  /**
+   * Determine if the date is a weekday (not Saturday or Sunday).
+   * 
+   * @param day  the day-of-week, not null
+   * @return true if Monday to Friday
+   */
   private static boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }

@@ -45,7 +45,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Test.
+ * Abstract in memory test.
  */
 @Ignore("Abstract class")
 abstract public class InMemoryTimeSeriesMasterTest<T> {

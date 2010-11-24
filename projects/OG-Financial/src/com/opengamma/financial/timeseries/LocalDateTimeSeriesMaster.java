@@ -8,7 +8,9 @@ package com.opengamma.financial.timeseries;
 import javax.time.calendar.LocalDate;
 
 /**
- * 
+ * A time-series master that uses {@code LocalDate}.
+ * <p>
+ * This master provides information at daily resolution.
  */
 public interface LocalDateTimeSeriesMaster extends TimeSeriesMaster<LocalDate> {
 

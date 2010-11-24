@@ -22,10 +22,10 @@ import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * 
+ * Test DateTimeTimeSeriesMaster.
  */
 public class DateTimeTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
-  
+
   public DateTimeTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

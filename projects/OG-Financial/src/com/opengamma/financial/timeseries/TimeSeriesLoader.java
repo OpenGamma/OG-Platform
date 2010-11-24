@@ -17,16 +17,18 @@ import com.opengamma.id.UniqueIdentifier;
  * Provides bulk loading of historical data
  */
 public interface TimeSeriesLoader {
+
   /**
-   * Loads timeseries from datasource like BLOOMBERG/REUTERS and populate TimeSeriesMaster
+   * Loads a time-series from a data source like BLOOMBERG/REUTERS in order to populate the master.
    * 
-   * @param identifiers the identifiers, not-null
-   * @param dataProvider the dataProvider
-   * @param dataField the datafield, not-null
-   * @param startDate the start date of timeseries
-   * @param endDate the end date of timeseries
-   * @return the map of Identifier to UniqueIdentifier of loaded timeseries
+   * @param identifiers  the identifiers, not null
+   * @param dataProvider  the data provider, null should default to a sensible value
+   * @param dataField  the data field, not null
+   * @param startDate  the start date of time-series, null should default to a sensible value
+   * @param endDate  the end date of time-series, null should default to a sensible value
+   * @return the map of Identifier to UniqueIdentifier of loaded time-series, not null
    */
-  Map<Identifier, UniqueIdentifier> loadTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate);
+  Map<Identifier, UniqueIdentifier> loadTimeSeries(
+      Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate);
 
 }

@@ -25,15 +25,14 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * 
+ * Test InMemoryLocalDateTimeSeriesMaster.
  */
 public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMasterTest<LocalDate> {
-  
+
   @Override
   protected TimeSeriesMaster<LocalDate> createTimeSeriesMaster() {
     return new InMemoryLocalDateTimeSeriesMaster();
   }
-  
 
   @Override
   protected DoubleTimeSeries<LocalDate> getTimeSeries(MapLocalDateDoubleTimeSeries tsMap) {

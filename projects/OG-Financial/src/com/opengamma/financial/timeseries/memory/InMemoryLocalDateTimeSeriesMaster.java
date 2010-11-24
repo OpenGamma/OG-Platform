@@ -49,11 +49,12 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * An in-memory implementation of a time-series master.
  */
 public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<LocalDate> {
+
   /**
-   * A cache of LocalDate Timeseries by identifier.
+   * A cache of LocalDate time-series by identifier.
    */
   private final ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>> _timeseriesDb = new ConcurrentHashMap<UniqueIdentifier, TimeSeriesDocument<LocalDate>>();
   /**
@@ -64,8 +65,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
+
   /**
-   * Creates an empty timeseries master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty time-series master using the default scheme for any {@link UniqueIdentifier}s created.
    */
   public InMemoryLocalDateTimeSeriesMaster() {
     this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
@@ -81,6 +83,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     _uidSupplier = uidSupplier;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public DataSourceBean getOrCreateDataSource(String dataSource, String description) {
     throw new UnsupportedOperationException();

@@ -39,9 +39,10 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Test DefaultTimeSeriesResolver 
+ * Test DefaultTimeSeriesResolver.
  */
 public class DefaultTimeSeriesResolverTest {
+
   private static final int TS_DATASET_SIZE = 1;
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
@@ -55,9 +56,6 @@ public class DefaultTimeSeriesResolverTest {
   private DefaultTimeSeriesResolver<LocalDate> _metaDataResolver;
   private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
-  /**
-   * @throws java.lang.Exception
-   */
   @Before
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
@@ -96,7 +94,8 @@ public class DefaultTimeSeriesResolverTest {
     _metaDataResolver = null;
     _tsMaster = null;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void test() throws Exception {
     addAndTestTimeSeries();

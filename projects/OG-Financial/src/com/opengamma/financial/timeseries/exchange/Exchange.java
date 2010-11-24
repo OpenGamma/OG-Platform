@@ -8,11 +8,10 @@ package com.opengamma.financial.timeseries.exchange;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 /**
- * 
- *
- * @author yomi
+ * A simple definition of an exchange.
  */
 public class Exchange {
+
   private String _mic;
   private String _description;
   private String _countryCode;
@@ -20,7 +19,7 @@ public class Exchange {
   private String _city;
   private String _acr;
   private String _status;
-  
+
   /**
    * @param mic the mic to set
    */

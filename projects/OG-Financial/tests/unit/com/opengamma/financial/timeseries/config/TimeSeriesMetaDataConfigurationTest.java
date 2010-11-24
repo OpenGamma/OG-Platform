@@ -24,15 +24,14 @@ import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataRating;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
- * Test TimeSeriesMetaDataConfiguration to/from fudge message
+ * Test TimeSeriesMetaDataConfiguration to/from fudge message.
  */
 public class TimeSeriesMetaDataConfigurationTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   @Test
   public void fudgeEncoding() {
-    
     List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>();
     rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "BLOOMBERG", 2));
     rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "REUTERS", 1));
@@ -45,11 +44,11 @@ public class TimeSeriesMetaDataConfigurationTest {
     FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     assertNotNull(outputMsg);
     assertEquals(3, outputMsg.getNumFields());
-        
+    
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
     TimeSeriesMetaDataConfiguration outputConfig = deserializationContext.fudgeMsgToObject(TimeSeriesMetaDataConfiguration.class, outputMsg);
     
     assertEquals(inputConfig, outputConfig);
-    
   }
+
 }

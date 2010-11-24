@@ -9,27 +9,27 @@ import com.opengamma.financial.timeseries.TimeSeriesMetaData;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * Resolves a given security with the appropriate timeseries metadata
+ * Resolves a security to the appropriate time-series meta-data.
  * <p>
- * Meta data includes DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME.
- * It will be used to lookup timeseries in OG-TimeSeries Storage and 
- * load timeseries from data sources like BLOOMBERG.
+ * Meta data includes data source, data provider, data field and observation time.
+ * The meta-data can be used to lookup the time-series itself.
  */
 public interface TimeSeriesMetaDataResolver {
-  
+
   /**
    * Default data field value
    */
   String DEFAULT_DATA_FIELD = "PX_LAST";
 
   /**
-   * Returns the default metadata for a security.
+   * Returns the default meta-data for a security.
    * <p>
-   * Looks up security in security master and returns default metadata based on security type.
+   * Looks up security in security master and returns default meta-data based on security type.
    * 
-   * @param identifiers the identifier bundle, not-null
-   * @param configName the name of the configuration rules to use for resolving metadata, not-null
-   * @return the default metadata, null if security cannot be found in security master
+   * @param securityBundle  the bundle of identifiers for the security, not null
+   * @param configName  the name of the configuration rules to use for resolving meta-data, not null
+   * @return the default meta-data, null if the security cannot be found in security master
    */
-  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers, String configName);
+  TimeSeriesMetaData getDefaultMetaData(IdentifierBundle securityBundle, String configName);
+
 }

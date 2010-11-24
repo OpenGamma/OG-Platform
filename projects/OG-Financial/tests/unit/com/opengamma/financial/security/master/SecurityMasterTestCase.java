@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import com.opengamma.master.security.SecuritySearchResult;
  * Generic TestCase for a SecurityMaster implementation. Either inherit from it, or
  * delegate through the SecurityMasterTestCaseMethods interface.
  */
+@Ignore("Abstract class")
 public class SecurityMasterTestCase extends SecurityTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityMasterTestCase.class);

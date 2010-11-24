@@ -8,7 +8,9 @@ package com.opengamma.financial.timeseries;
 import java.util.Date;
 
 /**
- * 
+ * A time-series master that uses {@code java.util.Date}.
+ * <p>
+ * This master provides information at resolutions up to millisecond.
  */
 public interface DateTimeTimeSeriesMaster extends TimeSeriesMaster<Date> {
 

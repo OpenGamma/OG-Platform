@@ -28,19 +28,23 @@ import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
+ * A performance test of time-series.
  */
 @Ignore
 public class PerformanceTest extends DBTest {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PerformanceTest.class);
-  
+
+  /**
+   * The master.
+   */
   private TimeSeriesMaster<LocalDate> _tsMaster;
-  
+
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
+
   @Before
   public void setUp() throws Exception {
     super.setUp();
@@ -56,7 +60,8 @@ public class PerformanceTest extends DBTest {
         false);
     _tsMaster = ts;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void createUpdateReadLotsOfTimeSeries() {
     long start = System.nanoTime();

@@ -111,7 +111,7 @@
   </bean>
   <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.timeseries.MasterTimeSeriesSource">
+      <bean class="com.opengamma.financial.timeseries.MasterHistoricalDataSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
           <bean class="com.opengamma.financial.timeseries.config.DefaultTimeSeriesResolver">

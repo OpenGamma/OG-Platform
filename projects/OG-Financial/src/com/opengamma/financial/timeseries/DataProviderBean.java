@@ -8,13 +8,15 @@ package com.opengamma.financial.timeseries;
 import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
 
 /**
- * 
+ * Hibernate bean for storing a data provider.
  */
 public class DataProviderBean extends EnumWithDescriptionBean {
+
   protected DataProviderBean() {
   }
 
   public DataProviderBean(String name, String description) {
     super(name, description);
   }
+
 }

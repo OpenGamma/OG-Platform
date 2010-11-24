@@ -24,39 +24,43 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
-
 /**
  * A {@code TimeSeriesSource} implemented using an underlying {@code TimeSeriesMaster}.
  * <p>
- * The {@link HistoricalDataSource} interface provides timeseries to the engine via a narrow API.
+ * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
  * This class provides the source on top of a standard {@link TimeSeriesMaster}.
  */
-public class MasterTimeSeriesSource implements HistoricalDataSource {
-  private static final Logger s_logger = LoggerFactory.getLogger(MasterTimeSeriesSource.class);
+public class MasterHistoricalDataSource implements HistoricalDataSource {
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalDataSource.class);
   /**
-   * The timeseries master.
+   * The time-series master.
    */
   private final TimeSeriesMaster<LocalDate> _timeSeriesMaster;
   /**
-   * The timeseries request resolver
+   * The time-series resolver.
    */
   private final TimeSeriesMetaDataResolver _timeSeriesResolver;
+
   /**
-   * @param timeSeriesMaster the timeseries master, not-null
-   * @param tsResolver the _timeSeries resolver, not-null
+   * Creates an instance wrapping an underlying time-series master.
+   * 
+   * @param timeSeriesMaster the time-series master, not null
+   * @param timeSeriesResolver the time-series resolver, not null
    */
-  public MasterTimeSeriesSource(TimeSeriesMaster<LocalDate> timeSeriesMaster, TimeSeriesMetaDataResolver tsResolver) {
+  public MasterHistoricalDataSource(TimeSeriesMaster<LocalDate> timeSeriesMaster, TimeSeriesMetaDataResolver timeSeriesResolver) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(tsResolver, "timeSeriesResolver");
+    ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
     _timeSeriesMaster = timeSeriesMaster;
-    _timeSeriesResolver = tsResolver;
+    _timeSeriesResolver = timeSeriesResolver;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the underlying time series master.
+   * Gets the underlying time-series master.
    * 
-   * @return the time series master, not null
+   * @return the time-series master, not null
    */
   public TimeSeriesMaster<LocalDate> getTimeSeriesMaster() {
     return _timeSeriesMaster;
@@ -157,7 +161,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
     }
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, field, start, end);
   }
-  
+
   @Override
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String configDocName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
@@ -226,7 +230,7 @@ public class MasterTimeSeriesSource implements HistoricalDataSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "MasterTimeSeriesSource[" + getTimeSeriesMaster() + "]";
+    return "MasterHistoricalDataSource[" + getTimeSeriesMaster() + "]";
   }
 
 }
