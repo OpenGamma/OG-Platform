@@ -26,17 +26,17 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Test LocalDateTimeSeriesMaster.
+ * Test LocalDateDbTimeSeriesMaster.
  */
-public class LocalDateTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDate> {
+public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDate> {
 
-  public LocalDateTimeSeriesMasterTest(String databaseType, String databaseVersion) {
+  public LocalDateDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
   
   @Override
   protected TimeSeriesMaster<LocalDate> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
-    return new LocalDateRowStoreTimeSeriesMaster(
+    return new LocalDateDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
         false);

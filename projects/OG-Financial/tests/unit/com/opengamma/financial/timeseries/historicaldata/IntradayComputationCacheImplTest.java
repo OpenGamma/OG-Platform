@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
-import com.opengamma.financial.timeseries.db.DateTimeRowStoreTimeSeriesMaster;
+import com.opengamma.financial.timeseries.db.DateTimeDbTimeSeriesMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.DBTest;
@@ -57,7 +57,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    DateTimeRowStoreTimeSeriesMaster timeSeriesMaster = new DateTimeRowStoreTimeSeriesMaster(
+    DateTimeDbTimeSeriesMaster timeSeriesMaster = new DateTimeDbTimeSeriesMaster(
         getDbSource(),
         namedSQLMap,
         true);

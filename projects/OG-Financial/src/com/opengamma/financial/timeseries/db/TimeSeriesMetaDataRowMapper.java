@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.timeseries.db;
 
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.BUNDLE_ID_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DATA_FIELD_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DATA_PROVIDER_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DATA_SOURCE_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.EARLIEST_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LATEST_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.OBSERVATION_TIME_COLUMN;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.TS_ID_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.BUNDLE_ID_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_FIELD_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_PROVIDER_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_SOURCE_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.EARLIEST_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LATEST_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.OBSERVATION_TIME_COLUMN;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.TS_ID_COLUMN;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * The master.
    */
-  private final RowStoreTimeSeriesMaster<T> _rowStoreMaster;
+  private final DbTimeSeriesMaster<T> _rowStoreMaster;
   /**
    * Whether to load the dates.
    */
@@ -40,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
    * 
    * @param rowStoreMaster  the master, not null
    */
-  public TimeSeriesMetaDataRowMapper(RowStoreTimeSeriesMaster<T> rowStoreMaster) {
+  public TimeSeriesMetaDataRowMapper(DbTimeSeriesMaster<T> rowStoreMaster) {
     ArgumentChecker.notNull(rowStoreMaster, "rowStoreMaster");
     _rowStoreMaster = rowStoreMaster;    
   }
