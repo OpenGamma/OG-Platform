@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.position.impl;
 
+import java.util.Map;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -28,6 +30,10 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
    */
   public DelegatingPositionSource(PositionSource defaultSource) {
     super(defaultSource);
+  }
+
+  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> delegates) {
+    super(defaultSource, delegates);
   }
 
   //-------------------------------------------------------------------------
