@@ -515,13 +515,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
-    return resolveIdentifier(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField) {
+    return resolveIdentifier(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
-  public UniqueIdentifier resolveIdentifier(IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
+  public UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+    ArgumentChecker.notNull(securityBundle, "securityBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -531,7 +531,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       TimeSeriesDocument<LocalDate> tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
         for (IdentifierWithDates idWithDates : tsDoc.getIdentifiers()) {
-          if (identifiers.contains(idWithDates.asIdentifier())) {
+          if (securityBundle.contains(idWithDates.asIdentifier())) {
             LocalDate validFrom = idWithDates.getValidFrom();
             LocalDate validTo = idWithDates.getValidTo();
             if (currentDate != null) {

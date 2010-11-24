@@ -23,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Simple time-series resolver, returns the best match from the time-series meta-data in the data store.
+ * <p>
+ * This resolver relies on configuration in the config database.
  * 
  * @param <T> the type of the time-series, such as LocalDate/LocalDateTime
  */
@@ -55,11 +57,11 @@ public class DefaultTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver 
 
   //-------------------------------------------------------------------------
   @Override
-  public TimeSeriesMetaData getDefaultMetaData(IdentifierBundle identifiers, String configName) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
+  public TimeSeriesMetaData getDefaultMetaData(IdentifierBundle securityBundle, String configName) {
+    ArgumentChecker.notNull(securityBundle, "securityBundle");
     ArgumentChecker.notNull(configName, "configName");
     TimeSeriesSearchRequest<T> searchRequest = new TimeSeriesSearchRequest<T>();
-    searchRequest.getIdentifiers().addAll(identifiers.getIdentifiers());
+    searchRequest.getIdentifiers().addAll(securityBundle.getIdentifiers());
     searchRequest.setLoadTimeSeries(false);
     
     TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(searchRequest);
