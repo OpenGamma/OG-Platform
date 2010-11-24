@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.timeseries;
 
-import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
-
 /**
- * Hibernate bean for storing an observation time.
+ * Database bean for storing an observation time.
  */
-public class ObservationTimeBean extends EnumWithDescriptionBean {
+public class ObservationTimeBean extends NamedDescriptionBean {
 
   protected ObservationTimeBean() {
   }

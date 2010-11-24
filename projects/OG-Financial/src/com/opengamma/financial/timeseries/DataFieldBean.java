@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.timeseries;
 
-import com.opengamma.financial.security.master.db.hibernate.EnumWithDescriptionBean;
-
 /**
- * Hibernate bean for storing a data field.
+ * Database bean for storing a data field.
  */
-public class DataFieldBean extends EnumWithDescriptionBean {
+public class DataFieldBean extends NamedDescriptionBean {
 
   protected DataFieldBean() {
   }
