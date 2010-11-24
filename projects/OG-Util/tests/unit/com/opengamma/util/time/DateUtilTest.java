@@ -6,8 +6,6 @@
 package com.opengamma.util.time;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.time.InstantProvider;
@@ -122,30 +120,6 @@ public class DateUtilTest {
   @Test
   public void testDateInTimeZone() {
     // TODO don't know how to create time zones
-  }
-
-  @Test
-  public void testIsLeapYear() {
-    try {
-      DateUtil.isLeapYear((ZonedDateTime) null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      DateUtil.isLeapYear((LocalDate) null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    ZonedDateTime nonLeapYear = DateUtil.getUTCDate(2001, 1, 1);
-    assertFalse(DateUtil.isLeapYear(nonLeapYear));
-    nonLeapYear = DateUtil.getUTCDate(1900, 1, 1);
-    assertFalse(DateUtil.isLeapYear(nonLeapYear));
-    ZonedDateTime leapYear = DateUtil.getUTCDate(2004, 1, 1);
-    assertTrue(DateUtil.isLeapYear(leapYear));
-    leapYear = DateUtil.getUTCDate(2000, 1, 1);
-    assertTrue(DateUtil.isLeapYear(leapYear));
   }
 
   @Test

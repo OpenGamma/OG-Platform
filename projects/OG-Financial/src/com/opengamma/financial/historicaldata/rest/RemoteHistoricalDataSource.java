@@ -22,7 +22,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
-import com.opengamma.engine.historicaldata.HistoricalDataSource;
+import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;

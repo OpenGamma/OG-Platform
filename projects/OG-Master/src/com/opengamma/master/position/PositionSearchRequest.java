@@ -10,32 +10,27 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.master.AbstractSearchRequest;
 
 /**
  * Request for searching for positions.
+ * <p>
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results and to search
+ * as at a specific version and correction instant.
+ * See {@link PositionHistoryRequest} for more details on how history works.
  */
 @BeanDefinition
-public class PositionSearchRequest extends DirectBean {
+public class PositionSearchRequest extends AbstractSearchRequest {
 
-  /**
-   * The request for paging.
-   * By default all matching items will be returned.
-   */
-  @PropertyDefinition
-  private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
    * The portfolio object identifier, null to search all portfolios.
    */
@@ -61,16 +56,6 @@ public class PositionSearchRequest extends DirectBean {
    */
   @PropertyDefinition
   private IdentifierBundle _securityKey;
-  /**
-   * The instant to search for a version at, null treated as the latest version.
-   */
-  @PropertyDefinition
-  private Instant _versionAsOfInstant;
-  /**
-   * The instant to search for corrections for, null treated as the latest correction.
-   */
-  @PropertyDefinition
-  private Instant _correctedToInstant;
 
   /**
    * Creates an instance.
@@ -96,8 +81,6 @@ public class PositionSearchRequest extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
       case -5186429:  // portfolioId
         return getPortfolioId();
       case 915246087:  // parentNodeId
@@ -108,10 +91,6 @@ public class PositionSearchRequest extends DirectBean {
         return getMaxQuantity();
       case 1550083839:  // securityKey
         return getSecurityKey();
-      case 598802432:  // versionAsOfInstant
-        return getVersionAsOfInstant();
-      case -28367267:  // correctedToInstant
-        return getCorrectedToInstant();
     }
     return super.propertyGet(propertyName);
   }
@@ -119,9 +98,6 @@ public class PositionSearchRequest extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
       case -5186429:  // portfolioId
         setPortfolioId((UniqueIdentifier) newValue);
         return;
@@ -137,42 +113,8 @@ public class PositionSearchRequest extends DirectBean {
       case 1550083839:  // securityKey
         setSecurityKey((IdentifierBundle) newValue);
         return;
-      case 598802432:  // versionAsOfInstant
-        setVersionAsOfInstant((Instant) newValue);
-        return;
-      case -28367267:  // correctedToInstant
-        setCorrectedToInstant((Instant) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the request for paging.
-   * By default all matching items will be returned.
-   * @return the value of the property
-   */
-  public PagingRequest getPagingRequest() {
-    return _pagingRequest;
-  }
-
-  /**
-   * Sets the request for paging.
-   * By default all matching items will be returned.
-   * @param pagingRequest  the new value of the property
-   */
-  public void setPagingRequest(PagingRequest pagingRequest) {
-    this._pagingRequest = pagingRequest;
-  }
-
-  /**
-   * Gets the the {@code pagingRequest} property.
-   * By default all matching items will be returned.
-   * @return the property, not null
-   */
-  public final Property<PagingRequest> pagingRequest() {
-    return metaBean().pagingRequest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -302,68 +244,14 @@ public class PositionSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the instant to search for a version at, null treated as the latest version.
-   * @return the value of the property
-   */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
-  }
-
-  /**
-   * Sets the instant to search for a version at, null treated as the latest version.
-   * @param versionAsOfInstant  the new value of the property
-   */
-  public void setVersionAsOfInstant(Instant versionAsOfInstant) {
-    this._versionAsOfInstant = versionAsOfInstant;
-  }
-
-  /**
-   * Gets the the {@code versionAsOfInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionAsOfInstant() {
-    return metaBean().versionAsOfInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the instant to search for corrections for, null treated as the latest correction.
-   * @return the value of the property
-   */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
-  }
-
-  /**
-   * Sets the instant to search for corrections for, null treated as the latest correction.
-   * @param correctedToInstant  the new value of the property
-   */
-  public void setCorrectedToInstant(Instant correctedToInstant) {
-    this._correctedToInstant = correctedToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctedToInstant} property.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctedToInstant() {
-    return metaBean().correctedToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code PositionSearchRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     */
-    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
      * The meta-property for the {@code portfolioId} property.
      */
@@ -385,29 +273,18 @@ public class PositionSearchRequest extends DirectBean {
      */
     private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
     /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     */
-    private final MetaProperty<Instant> _versionAsOfInstant = DirectMetaProperty.ofReadWrite(this, "versionAsOfInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctedToInstant = DirectMetaProperty.ofReadWrite(this, "correctedToInstant", Instant.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("pagingRequest", _pagingRequest);
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("portfolioId", _portfolioId);
       temp.put("parentNodeId", _parentNodeId);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
-      temp.put("versionAsOfInstant", _versionAsOfInstant);
-      temp.put("correctedToInstant", _correctedToInstant);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -427,14 +304,6 @@ public class PositionSearchRequest extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code pagingRequest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PagingRequest> pagingRequest() {
-      return _pagingRequest;
-    }
-
     /**
      * The meta-property for the {@code portfolioId} property.
      * @return the meta-property, not null
@@ -473,22 +342,6 @@ public class PositionSearchRequest extends DirectBean {
      */
     public final MetaProperty<IdentifierBundle> securityKey() {
       return _securityKey;
-    }
-
-    /**
-     * The meta-property for the {@code versionAsOfInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionAsOfInstant() {
-      return _versionAsOfInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctedToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctedToInstant() {
-      return _correctedToInstant;
     }
 
   }

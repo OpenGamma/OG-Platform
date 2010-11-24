@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -35,8 +36,8 @@ public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<Static
 
   @Override
   public StaticCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    FudgeFieldContainer instrumentIdentifier = message.getMessage("instrument");
-    Identifier identifier = context.fudgeMsgToObject(Identifier.class, instrumentIdentifier);
+    FudgeField instrumentIdentifier = message.getByName("instrument");
+    Identifier identifier = context.fieldValueToObject(Identifier.class, instrumentIdentifier);
     return new StaticCurveInstrumentProvider(identifier);
   }
 

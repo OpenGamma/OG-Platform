@@ -9,25 +9,27 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A document used to pass into and out of the position master.
  */
 @BeanDefinition
-public class PositionDocument extends DirectBean {
+public class PositionDocument extends AbstractDocument {
 
+  /**
+   * The position unique identifier.
+   */
+  @PropertyDefinition
+  private UniqueIdentifier _uniqueId;
   /**
    * The portfolio object identifier.
    */
@@ -38,37 +40,6 @@ public class PositionDocument extends DirectBean {
    */
   @PropertyDefinition
   private UniqueIdentifier _parentNodeId;
-  /**
-   * The position unique identifier.
-   */
-  @PropertyDefinition
-  private UniqueIdentifier _positionId;
-  /**
-   * The start of an interval that the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionFromInstant;
-  /**
-   * The end of an interval that the version of the position is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code PositionMaster}.
-   */
-  @PropertyDefinition
-  private Instant _versionToInstant;
-  /**
-   * The start of an interval that the correction of the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionFromInstant;
-  /**
-   * The end of an interval that the correction of the version of the position is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code PositionMaster}.
-   */
-  @PropertyDefinition
-  private Instant _correctionToInstant;
   /**
    * The position.
    */
@@ -87,7 +58,7 @@ public class PositionDocument extends DirectBean {
    */
   public PositionDocument(final ManageablePosition position) {
     ArgumentChecker.notNull(position, "position");
-    setPositionId(position.getUniqueIdentifier());
+    setUniqueId(position.getUniqueIdentifier());
     setPosition(position);
   }
 
@@ -99,7 +70,7 @@ public class PositionDocument extends DirectBean {
   public PositionDocument(final ManageablePosition position, final UniqueIdentifier parentNodeId) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(parentNodeId, "parentNodeId");
-    setPositionId(position.getUniqueIdentifier());
+    setUniqueId(position.getUniqueIdentifier());
     setPosition(position);
     setParentNodeId(parentNodeId);
   }
@@ -122,20 +93,12 @@ public class PositionDocument extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case -5186429:  // portfolioId
         return getPortfolioId();
       case 915246087:  // parentNodeId
         return getParentNodeId();
-      case 1381039140:  // positionId
-        return getPositionId();
-      case 2006263519:  // versionFromInstant
-        return getVersionFromInstant();
-      case 1577022702:  // versionToInstant
-        return getVersionToInstant();
-      case 1808757913:  // correctionFromInstant
-        return getCorrectionFromInstant();
-      case 973465896:  // correctionToInstant
-        return getCorrectionToInstant();
       case 747804969:  // position
         return getPosition();
     }
@@ -145,32 +108,45 @@ public class PositionDocument extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
+        return;
       case -5186429:  // portfolioId
         setPortfolioId((UniqueIdentifier) newValue);
         return;
       case 915246087:  // parentNodeId
         setParentNodeId((UniqueIdentifier) newValue);
         return;
-      case 1381039140:  // positionId
-        setPositionId((UniqueIdentifier) newValue);
-        return;
-      case 2006263519:  // versionFromInstant
-        setVersionFromInstant((Instant) newValue);
-        return;
-      case 1577022702:  // versionToInstant
-        setVersionToInstant((Instant) newValue);
-        return;
-      case 1808757913:  // correctionFromInstant
-        setCorrectionFromInstant((Instant) newValue);
-        return;
-      case 973465896:  // correctionToInstant
-        setCorrectionToInstant((Instant) newValue);
-        return;
       case 747804969:  // position
         setPosition((ManageablePosition) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the position unique identifier.
+   * @return the value of the property
+   */
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
+  }
+
+  /**
+   * Sets the position unique identifier.
+   * @param uniqueId  the new value of the property
+   */
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
+  }
+
+  /**
+   * Gets the the {@code uniqueId} property.
+   * @return the property, not null
+   */
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -225,149 +201,6 @@ public class PositionDocument extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position unique identifier.
-   * @return the value of the property
-   */
-  public UniqueIdentifier getPositionId() {
-    return _positionId;
-  }
-
-  /**
-   * Sets the position unique identifier.
-   * @param positionId  the new value of the property
-   */
-  public void setPositionId(UniqueIdentifier positionId) {
-    this._positionId = positionId;
-  }
-
-  /**
-   * Gets the the {@code positionId} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueIdentifier> positionId() {
-    return metaBean().positionId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionFromInstant() {
-    return _versionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @param versionFromInstant  the new value of the property
-   */
-  public void setVersionFromInstant(Instant versionFromInstant) {
-    this._versionFromInstant = versionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code versionFromInstant} property.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionFromInstant() {
-    return metaBean().versionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the version of the position is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the value of the property
-   */
-  public Instant getVersionToInstant() {
-    return _versionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the version of the position is accurate for.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @param versionToInstant  the new value of the property
-   */
-  public void setVersionToInstant(Instant versionToInstant) {
-    this._versionToInstant = versionToInstant;
-  }
-
-  /**
-   * Gets the the {@code versionToInstant} property.
-   * Null indicates this is the latest version.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> versionToInstant() {
-    return metaBean().versionToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the start of an interval that the correction of the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionFromInstant() {
-    return _correctionFromInstant;
-  }
-
-  /**
-   * Sets the start of an interval that the correction of the version of the position is accurate for.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @param correctionFromInstant  the new value of the property
-   */
-  public void setCorrectionFromInstant(Instant correctionFromInstant) {
-    this._correctionFromInstant = correctionFromInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionFromInstant} property.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionFromInstant() {
-    return metaBean().correctionFromInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the end of an interval that the correction of the version of the position is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the value of the property
-   */
-  public Instant getCorrectionToInstant() {
-    return _correctionToInstant;
-  }
-
-  /**
-   * Sets the end of an interval that the correction of the version of the position is accurate for.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @param correctionToInstant  the new value of the property
-   */
-  public void setCorrectionToInstant(Instant correctionToInstant) {
-    this._correctionToInstant = correctionToInstant;
-  }
-
-  /**
-   * Gets the the {@code correctionToInstant} property.
-   * Null indicates this is the latest correction.
-   * This field is populated and managed by the {@code PositionMaster}.
-   * @return the property, not null
-   */
-  public final Property<Instant> correctionToInstant() {
-    return metaBean().correctionToInstant().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the position.
    * @return the value of the property
    */
@@ -395,12 +228,16 @@ public class PositionDocument extends DirectBean {
   /**
    * The meta-bean for {@code PositionDocument}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends AbstractDocument.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code portfolioId} property.
      */
@@ -409,26 +246,6 @@ public class PositionDocument extends DirectBean {
      * The meta-property for the {@code parentNodeId} property.
      */
     private final MetaProperty<UniqueIdentifier> _parentNodeId = DirectMetaProperty.ofReadWrite(this, "parentNodeId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code positionId} property.
-     */
-    private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(this, "positionId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     */
-    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     */
-    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
     /**
      * The meta-property for the {@code position} property.
      */
@@ -440,14 +257,10 @@ public class PositionDocument extends DirectBean {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
+      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("uniqueId", _uniqueId);
       temp.put("portfolioId", _portfolioId);
       temp.put("parentNodeId", _parentNodeId);
-      temp.put("positionId", _positionId);
-      temp.put("versionFromInstant", _versionFromInstant);
-      temp.put("versionToInstant", _versionToInstant);
-      temp.put("correctionFromInstant", _correctionFromInstant);
-      temp.put("correctionToInstant", _correctionToInstant);
       temp.put("position", _position);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -469,6 +282,14 @@ public class PositionDocument extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
+    }
+
+    /**
      * The meta-property for the {@code portfolioId} property.
      * @return the meta-property, not null
      */
@@ -482,46 +303,6 @@ public class PositionDocument extends DirectBean {
      */
     public final MetaProperty<UniqueIdentifier> parentNodeId() {
       return _parentNodeId;
-    }
-
-    /**
-     * The meta-property for the {@code positionId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueIdentifier> positionId() {
-      return _positionId;
-    }
-
-    /**
-     * The meta-property for the {@code versionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionFromInstant() {
-      return _versionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code versionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> versionToInstant() {
-      return _versionToInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionFromInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionFromInstant() {
-      return _correctionFromInstant;
-    }
-
-    /**
-     * The meta-property for the {@code correctionToInstant} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Instant> correctionToInstant() {
-      return _correctionToInstant;
     }
 
     /**

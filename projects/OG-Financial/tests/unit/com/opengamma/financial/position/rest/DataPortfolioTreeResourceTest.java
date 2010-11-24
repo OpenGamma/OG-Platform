@@ -57,10 +57,10 @@ public class DataPortfolioTreeResourceTest {
   public void testUpdatePortfolio() {
     final ManageablePortfolio portfolio = new ManageablePortfolio("Portfolio");
     final PortfolioTreeDocument request = new PortfolioTreeDocument(portfolio);
-    request.setPortfolioId(UID);
+    request.setUniqueId(UID);
     
     final PortfolioTreeDocument result = new PortfolioTreeDocument(portfolio);
-    result.setPortfolioId(UID);
+    result.setUniqueId(UID);
     when(_underlying.updatePortfolioTree(same(request))).thenReturn(result);
     
     Response test = _resource.put(request);

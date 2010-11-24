@@ -82,7 +82,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioTreeDocument doc = new PortfolioTreeDocument(portfolio);
     PortfolioTreeDocument added = data().getPositionMaster().addPortfolioTree(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getPortfolioId().toLatest().toString()).build();
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 

@@ -13,7 +13,7 @@ import javax.time.calendar.TimeZone;
 
 import org.junit.Test;
 
-import com.opengamma.engine.historicaldata.InMemoryHistoricalDataProvider;
+import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -42,7 +42,7 @@ public class BatchLiveDataSnapshotProviderTest {
         date);
     job.getParameters().setSnapshotObservationTime("LDN_CLOSE");
     
-    InMemoryHistoricalDataProvider historicalDataProvider = new InMemoryHistoricalDataProvider();
+    MockHistoricalDataSource historicalDataProvider = new MockHistoricalDataSource();
     
     Identifier identifier = Identifier.of("mytimeseries", "500");
     IdentifierBundle bundle = IdentifierBundle.of(identifier);

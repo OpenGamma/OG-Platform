@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.engine.config.ConfigSource;
@@ -47,8 +48,9 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final Instant version) {
-    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode(), version);
+  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final InstantProvider version) {
+    final Instant versionInstant = (version != null) ? version.toInstant() : null;
+    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode(), versionInstant);
   }
 
 }

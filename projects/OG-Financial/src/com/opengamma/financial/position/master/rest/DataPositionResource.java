@@ -91,8 +91,8 @@ public class DataPositionResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PositionDocument request) {
-    if (getUrlPositionId().equalsIgnoringVersion(request.getPositionId()) == false) {
-      throw new IllegalArgumentException("Document positionId does not match URI");
+    if (getUrlPositionId().equalsIgnoringVersion(request.getUniqueId()) == false) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
     PositionDocument result = getPositionMaster().updatePosition(request);
     return Response.ok(result).build();
@@ -110,8 +110,8 @@ public class DataPositionResource extends AbstractDataResource {
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
-    if (getUrlPositionId().equalsIgnoringVersion(request.getPositionId()) == false) {
-      throw new IllegalArgumentException("Document positionId does not match URI");
+    if (getUrlPositionId().equalsIgnoringVersion(request.getObjectId()) == false) {
+      throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PositionHistoryResult result = getPositionMaster().historyPosition(request);
     return Response.ok(result).build();

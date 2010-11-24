@@ -71,7 +71,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     PositionDocument doc0 = test.getDocuments().get(0);  // new version
     PositionDocument doc1 = test.getDocuments().get(1);  // old version
     
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), doc0.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), doc0.getParentNodeId());
     assertNotNull(doc0.getVersionFromInstant());
@@ -91,7 +91,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertTrue(trades.isEmpty());
     
     
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "201"), doc1.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "211"), doc1.getParentNodeId());
     assertNotNull(doc1.getVersionFromInstant());
@@ -122,7 +122,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);  // new version
     
-    assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), doc0.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), doc0.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), doc0.getParentNodeId());
     assertNotNull(doc0.getVersionFromInstant());
@@ -160,7 +160,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc = test.getDocuments().get(0);  // new version
     
-    assertEquals(UniqueIdentifier.of("DbPos", "123", "0"), doc.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "123", "0"), doc.getUniqueId());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), doc.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "112"), doc.getParentNodeId());
     assertEquals(_version1Instant, doc.getVersionFromInstant());
@@ -199,8 +199,8 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
     PositionDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
@@ -217,7 +217,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
   }
 
   @Test
@@ -236,7 +236,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertNotNull(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc0.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
@@ -252,8 +252,8 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
     PositionDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getUniqueId());
   }
 
   @Test
@@ -268,8 +268,8 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
     PositionDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getUniqueId());
   }
 
   @Test
@@ -283,7 +283,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
@@ -310,7 +310,7 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     
     assertEquals(1, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc0.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc0.getUniqueId());
   }
 
   @Test
@@ -325,8 +325,8 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(2, test.getDocuments().size());
     PositionDocument doc0 = test.getDocuments().get(0);
     PositionDocument doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getPositionId());
-    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "1"), doc0.getUniqueId());
+    assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getUniqueId());
   }
 
   //-------------------------------------------------------------------------

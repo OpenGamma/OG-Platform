@@ -5,19 +5,13 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import javax.time.calendar.CalendricalMatchers;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.util.time.DateUtil;
-
 /**
- * 
+ * The '30U/360' day count.
  */
 public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
-
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
-      final boolean isEOMConvention) {
-    return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
-  }
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
@@ -46,12 +40,24 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
     return getYears(d1, d2, m1, m2, y1, y2);
   }
 
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
+      final boolean isEOMConvention) {
+    return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
+  }
+
   @Override
   public String getConventionName() {
     return "30U/360";
   }
 
-  private boolean isLastDayOfFebruary(final ZonedDateTime date) {
-    return DateUtil.isLeapYear(date) ? date.getDayOfMonth() == 29 : date.getDayOfMonth() == 28;
+  /**
+   * Checks if the date, which must be in February, is the last day.
+   * 
+   * @param date  the date to check, not null
+   * @return whether it is the last day
+   */
+  private static boolean isLastDayOfFebruary(final ZonedDateTime date) {
+    return date.matches(CalendricalMatchers.lastDayOfMonth());
   }
+
 }

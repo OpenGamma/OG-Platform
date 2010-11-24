@@ -34,15 +34,15 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.ViewTargetResultModel;
-import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.DateTimeTimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.timeseries.DataPointDocument;
+import com.opengamma.master.timeseries.DateTimeTimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
@@ -56,76 +56,67 @@ import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
  * You need to create one cache per view processor.
  */
 public class IntradayComputationCacheImpl implements IntradayComputationCache, ComputationResultListener, Lifecycle {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(IntradayComputationCacheImpl.class);
-  
+
   /**
    * Used to load/store time series. All access to it must be synchronized using _timeSeriesMasterLock.
    */
   private final DateTimeTimeSeriesMaster _timeSeriesMaster;
-  
   /**
    * Used to lock the time series storage
    */
   private final Lock _timeSeriesMasterLock = new ReentrantLock();
-  
   /**
    * The user the cache runs as. Needed for View permission checks
    */
   private final UserPrincipal _user;
-  
   /**
    * Used to kick off DB update operations (e.g., for 1-minute bars once a minute)
    */
   private ScheduledExecutorService _executorService;
-  
   /**
    * What resolutions are in use, e.g., "Store historical values at 1, 5, and 15 minute resolutions."
    */
   private final ConcurrentHashMap<Duration, ResolutionRecord> _resolution2ResolutionRecord = new ConcurrentHashMap<Duration, ResolutionRecord>();
-  
   /**
    * Are we running?
    */
   private boolean _running; // = false
-  
   /**
    * The view processor is used to query whether a given view is running.
    */
   private final ViewProcessor _viewProcessor;
-  
   /**
    * This is the part that's fixed to a single view processor.
    */
   private ConcurrentHashMap<String, ViewComputationResultModel> _viewName2LastResult = new ConcurrentHashMap<String, ViewComputationResultModel>();
-  
+
+  //-------------------------------------------------------------------------
   /**
    * One resolution (e.g., 1 minute) at which history is being stored. There
    * can be multiple resolutions active simultaneously.
    */
   private final class ResolutionRecord {
-    
     /**
      * E.g., 1 minute
      */
     private final Duration _duration;
-    
     /**
      * E.g., 24*60 (-> store last 24 hours)
      */
     private int _numPoints;
-    
     /**
      * Run at e.g. 1 minute interval
      */
     private ScheduledFuture<?> _saveTask;
-    
     /**
      * When data at this resolution was last
      * saved to DB.
      */
     private Instant _lastSaveInstant;
-    
+
     private ResolutionRecord(
         Duration duration,
         int numPoints) {
@@ -182,11 +173,9 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
         _saveTask = null;
       }
     }
-    
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public IntradayComputationCacheImpl(
       ViewProcessor viewProcessor,
       DateTimeTimeSeriesMaster timeSeriesMaster, 
@@ -198,9 +187,8 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     _timeSeriesMaster = timeSeriesMaster;    
     _user = user;
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public synchronized void addResolution(Duration resolution, int numPoints) {
     ResolutionRecord record = new ResolutionRecord(resolution, numPoints);
@@ -222,7 +210,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       record.stop();
     }
   }
-  
+
   @Override
   public Map<Duration, Integer> getResolutions() {
     Map<Duration, Integer> resolutions = new HashMap<Duration, Integer>();
@@ -232,8 +220,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     return resolutions;
   }
 
-  // --------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @Override
   public DateTimeDoubleTimeSeries getValue(String viewName, String calcConf, ValueSpecification specification, Duration resolution) {
     ResolutionRecord record = _resolution2ResolutionRecord.get(resolution);
@@ -300,40 +287,37 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
   public UserPrincipal getUser() {
     return _user;
   }
-  
-  // --------------------------------------------------------------------------
 
+  //-------------------------------------------------------------------------
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     _viewName2LastResult.put(resultModel.getViewName(), resultModel);
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   private String getDataSource() {
     return "IntradayCache";
   }
-  
+
   private String getObservationTime() {
     return "Intraday";
   }
-  
+
   private String getDataProvider(String viewName, String calcConf) {
     return viewName + "/" + calcConf;
   }
-  
+
   private String getFieldName(ValueSpecification spec) {
     // ugly and error-prone if new fields are added to ValueSpecification
     // TODO 2010-10-22 Andrew -- should we iterate over the properties of the value spec ?
     return spec.getFunctionUniqueId() + "/" + spec.getValueName();
   }
-  
+
   private IdentifierBundle getIdentifierBundle(ValueSpecification specification) {
     return IdentifierBundle.of(specification.getTargetSpecification().getIdentifier());
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   private class SaveTask implements Runnable {
     private ResolutionRecord _resolution;
     
@@ -352,12 +336,12 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       }
     }
   }
-  
+
   /*package*/ void save(Duration duration, Instant now) {
     ResolutionRecord record = _resolution2ResolutionRecord.get(duration);
     save(record, now);    
   }
-  
+
   private void save(ResolutionRecord resolution, Instant now) {
     for (Iterator<Map.Entry<String, ViewComputationResultModel>> it = _viewName2LastResult.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, ViewComputationResultModel> entry = it.next();
@@ -374,7 +358,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       save(resolution, lastResult, now);
     }
   } 
-  
+
   private void save(ResolutionRecord resolution, ViewComputationResultModel lastResult, Instant now) {
     
     Instant lastSaveInstant = resolution.getLastSaveInstant();
@@ -462,15 +446,12 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
               _timeSeriesMasterLock.unlock();
             }
           }
-          
         }
-        
       }
     }
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public synchronized boolean isRunning() {
     return _running;
@@ -503,5 +484,5 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     }
     _executorService = null;
   }
-  
+
 }

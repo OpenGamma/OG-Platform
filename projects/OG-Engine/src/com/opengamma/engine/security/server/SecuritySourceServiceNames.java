@@ -5,12 +5,14 @@
  */
 package com.opengamma.engine.security.server;
 
+import com.opengamma.util.rest.AbstractResourceService;
+
 /**
  * A class of names used in the RESTful security source.
  */
 public final class SecuritySourceServiceNames {
 
-  /*package*/ static final String DEFAULT_SECURITYSOURCE_NAME = "0";
+  /*package*/ static final String DEFAULT_SECURITYSOURCE_NAME = AbstractResourceService.DEFAULT_RESOURCE_NAME;
 
   /**
    * Fudge key for a security.
