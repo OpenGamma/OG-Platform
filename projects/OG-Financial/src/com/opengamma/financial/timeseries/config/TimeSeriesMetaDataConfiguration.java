@@ -11,7 +11,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**

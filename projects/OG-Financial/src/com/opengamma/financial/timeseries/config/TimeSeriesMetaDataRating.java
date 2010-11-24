@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**

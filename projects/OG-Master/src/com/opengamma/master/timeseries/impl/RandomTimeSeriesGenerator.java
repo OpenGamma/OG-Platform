@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.master.timeseries.impl;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;

@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries;
 
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
 import com.opengamma.id.IdentifierBundle;
 
 /**

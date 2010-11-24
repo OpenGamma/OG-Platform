@@ -7,7 +7,7 @@ package com.opengamma.web.timeseries;
 
 import java.net.URI;
 
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
 
 /**
  * URIs for web-based time series.

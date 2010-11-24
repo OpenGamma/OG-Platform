@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.timeseries.config;
 
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
 
 /**
  * Scores a meta-data instance.

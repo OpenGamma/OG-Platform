@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.memory;
+package com.opengamma.master.timeseries.impl;
 
 
 import static org.junit.Assert.assertEquals;
@@ -28,18 +28,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.timeseries.DataPointDocument;
-import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.IdentifierWithDates;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.DataPointDocument;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
+import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;

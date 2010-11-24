@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.master.timeseries.impl;
 
 import java.util.List;
 
@@ -14,10 +14,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames;
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataResolver;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

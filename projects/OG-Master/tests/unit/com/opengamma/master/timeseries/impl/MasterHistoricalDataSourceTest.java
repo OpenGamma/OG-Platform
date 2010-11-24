@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.master.timeseries.impl;
 
 
 import static org.junit.Assert.assertEquals;
@@ -18,10 +18,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataResolver;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
+import com.opengamma.master.timeseries.impl.MasterHistoricalDataSource;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

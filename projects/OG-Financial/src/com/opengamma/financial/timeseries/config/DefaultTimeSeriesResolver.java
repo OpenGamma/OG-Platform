@@ -13,12 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.config.ConfigSource;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
-import com.opengamma.financial.timeseries.TimeSeriesSearchRequest;
-import com.opengamma.financial.timeseries.TimeSeriesSearchResult;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.master.timeseries;
 
 import java.util.List;
 

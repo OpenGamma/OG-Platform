@@ -20,8 +20,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
 
 /**
  * RESTful resource for a time series.

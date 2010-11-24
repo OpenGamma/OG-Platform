@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.financial.timeseries.LocalDateTimeSeriesMaster;
+import com.opengamma.master.timeseries.LocalDateTimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.time.DateUtil;

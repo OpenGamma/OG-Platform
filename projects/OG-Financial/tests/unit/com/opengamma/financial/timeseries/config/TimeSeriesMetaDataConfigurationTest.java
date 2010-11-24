@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.timeseries.config;
 
-import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -19,8 +19,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration;
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataRating;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**

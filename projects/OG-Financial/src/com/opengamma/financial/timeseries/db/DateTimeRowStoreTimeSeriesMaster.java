@@ -17,7 +17,7 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.financial.timeseries.DateTimeTimeSeriesMaster;
+import com.opengamma.master.timeseries.DateTimeTimeSeriesMaster;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;

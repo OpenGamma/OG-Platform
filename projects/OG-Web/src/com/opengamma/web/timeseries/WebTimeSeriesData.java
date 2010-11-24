@@ -19,10 +19,10 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesLoader;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesLoader;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 
 /**
  * Data class for web-based time series.
