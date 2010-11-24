@@ -3,17 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.financial.timeseries.db;
 
 /**
  * Constants used for time-series meta-data.
  */
-public final class TimeSeriesConstant {
+public final class DbTimeSeriesMasterConstants {
 
   /**
    * Restricted constructor.
    */
-  private TimeSeriesConstant() {
+  private DbTimeSeriesMasterConstants() {
   }
 
   //named sql map key names
@@ -228,9 +228,5 @@ public final class TimeSeriesConstant {
    * value for invalid row id
    */
   public static final long INVALID_KEY = Long.MIN_VALUE;
-  /**
-   * Millisec in day
-   */
-  public static final long MILLIS_PER_DAY = 86400000L;
 
 }

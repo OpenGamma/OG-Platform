@@ -525,7 +525,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   public void getUnknownUID() throws Exception {
     addAndTestTimeSeries();
     try {
-      _tsMaster.getTimeSeries(UniqueIdentifier.of(RowStoreTimeSeriesMaster.IDENTIFIER_SCHEME_DEFAULT, String.valueOf(Long.MIN_VALUE)));
+      _tsMaster.getTimeSeries(UniqueIdentifier.of(DbTimeSeriesMaster.IDENTIFIER_SCHEME_DEFAULT, String.valueOf(Long.MIN_VALUE)));
       fail();
     } catch(DataNotFoundException ex) {
       //do nothing

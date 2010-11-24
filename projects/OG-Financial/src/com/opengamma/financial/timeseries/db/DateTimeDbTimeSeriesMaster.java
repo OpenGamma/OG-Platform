@@ -27,7 +27,7 @@ import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
 /**
  * A time-series master implementation stores intraday points using a {@code java.util.Date}.
  */
-public class DateTimeRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<Date> implements DateTimeTimeSeriesMaster {
+public class DateTimeDbTimeSeriesMaster extends DbTimeSeriesMaster<Date> implements DateTimeTimeSeriesMaster {
 
   /**
    * Creates an instance.
@@ -36,7 +36,7 @@ public class DateTimeRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<D
    * @param namedSQLMap  the named SQL map, not null
    * @param isTriggerSupported  whether trigger is supported
    */
-  public DateTimeRowStoreTimeSeriesMaster(
+  public DateTimeDbTimeSeriesMaster(
       DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     super(dbSource, namedSQLMap, isTriggerSupported);
   }

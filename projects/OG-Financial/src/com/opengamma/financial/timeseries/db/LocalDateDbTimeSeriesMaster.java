@@ -25,7 +25,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * A time-series master implementation stores daily points using a {@code LocalDate}.
  */
-public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<LocalDate> implements LocalDateTimeSeriesMaster {
+public class LocalDateDbTimeSeriesMaster extends DbTimeSeriesMaster<LocalDate> implements LocalDateTimeSeriesMaster {
 
   /**
    * Creates an instance.
@@ -34,7 +34,7 @@ public class LocalDateRowStoreTimeSeriesMaster extends RowStoreTimeSeriesMaster<
    * @param namedSQLMap  the named SQL map, not null
    * @param isTriggerSupported  whether trigger is supported
    */
-  public LocalDateRowStoreTimeSeriesMaster(
+  public LocalDateDbTimeSeriesMaster(
       DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     super(dbSource, namedSQLMap, isTriggerSupported);
   }

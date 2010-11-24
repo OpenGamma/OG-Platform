@@ -13,14 +13,14 @@ import org.junit.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.opengamma.financial.timeseries.db.LocalDateRowStoreTimeSeriesMaster;
+import com.opengamma.financial.timeseries.db.LocalDateDbTimeSeriesMaster;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.MockDbHelper;
 
 /**
- * Test to check RowStoreTimeSeriesMasterConfig is properly configured.
+ * Test to check DbTimeSeriesMaster is properly configured.
  */
-public class RowStoreTimeSeriesMasterConfigTest {
+public class DbTimeSeriesMasterConfigTest {
 
   DbSource _dbSource = new DbSource("Foo", 
       new BasicDataSource(), 
@@ -32,24 +32,24 @@ public class RowStoreTimeSeriesMasterConfigTest {
   @Test(expected = IllegalArgumentException.class)
   public void missingDataSourceTransactionManager() throws Exception {
     Map<String, String> namedSQLMap = new HashMap<String, String>();
-    new LocalDateRowStoreTimeSeriesMaster(null, namedSQLMap, false);
+    new LocalDateDbTimeSeriesMaster(null, namedSQLMap, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void missingDataSource() throws Exception {
     //transaction manager with no data source
-    new LocalDateRowStoreTimeSeriesMaster(_dbSource, null, false);
+    new LocalDateDbTimeSeriesMaster(_dbSource, null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void missingNamedSQLMap() throws Exception {
-    new LocalDateRowStoreTimeSeriesMaster(_dbSource, null, false);
+    new LocalDateDbTimeSeriesMaster(_dbSource, null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void invalidNamedSQLMap() throws Exception {
     Map<String, String> namedSQLMap = new HashMap<String, String>();
-    new LocalDateRowStoreTimeSeriesMaster(_dbSource, namedSQLMap, false);
+    new LocalDateDbTimeSeriesMaster(_dbSource, namedSQLMap, false);
   }
 
 }

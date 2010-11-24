@@ -14,7 +14,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.financial.timeseries.db.DateTimeRowStoreTimeSeriesMaster;
+import com.opengamma.financial.timeseries.db.DateTimeDbTimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -22,17 +22,17 @@ import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
- * Test DateTimeTimeSeriesMaster.
+ * Test DateTimeDbTimeSeriesMaster.
  */
-public class DateTimeTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
+public class DateTimeDbTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
 
-  public DateTimeTimeSeriesMasterTest(String databaseType, String databaseVersion) {
+  public DateTimeDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
   @Override
   protected TimeSeriesMaster<Date> getTimeSeriesMaster(Map<String, String> namedSQLMap) {
-    return new DateTimeRowStoreTimeSeriesMaster(
+    return new DateTimeDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
         false);

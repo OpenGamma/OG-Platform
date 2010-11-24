@@ -54,7 +54,7 @@ public class PerformanceTest extends DBTest {
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
-    TimeSeriesMaster<LocalDate> ts = new LocalDateRowStoreTimeSeriesMaster(
+    TimeSeriesMaster<LocalDate> ts = new LocalDateDbTimeSeriesMaster(
         getDbSource(), 
         namedSQLMap,
         false);

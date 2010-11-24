@@ -5,48 +5,48 @@
  */
 package com.opengamma.financial.timeseries.db;
 
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DEACTIVATE_META_DATA;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DELETE_DATA_POINT;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DELETE_DATA_POINTS_BY_DATE;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.DELETE_TIME_SERIES_BY_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.FIND_DATA_POINT_BY_DATE_AND_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_BY_IDENTIFIERS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_BY_OID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_ACTIVE_TIME_SERIES_KEY_BY_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TIME_SERIES_BY_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.GET_TS_DATE_RANGE_BY_OID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_FIELD;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_PROVIDER;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_DATA_SOURCE;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_IDENTIFIER;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_OBSERVATION_TIME;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_QUOTED_OBJECT;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_SCHEME;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_TIME_SERIES;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_TIME_SERIES_DELTA_D;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_TIME_SERIES_DELTA_I;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_TIME_SERIES_DELTA_U;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INSERT_TIME_SERIES_KEY;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.INVALID_KEY;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_DATA_FIELDS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_DATA_PROVIDER;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_DATA_SOURCES;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_IDENTIFIERS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_OBSERVATION_TIMES;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_ALL_SCHEME;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_TIME_SERIES_DELTA;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.LOAD_TIME_SERIES_WITH_DATES;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_BUNDLE_FROM_IDENTIFIERS;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_DATA_FIELD_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_DATA_PROVIDER_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_DATA_SOURCE_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_OBSERVATION_TIME_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_QUOTED_OBJECT_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.SELECT_SCHEME_ID;
-import static com.opengamma.financial.timeseries.TimeSeriesConstant.UPDATE_TIME_SERIES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DEACTIVATE_META_DATA;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DELETE_DATA_POINT;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DELETE_DATA_POINTS_BY_DATE;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DELETE_TIME_SERIES_BY_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.FIND_DATA_POINT_BY_DATE_AND_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_META_DATA;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_META_DATA_BY_IDENTIFIERS;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_META_DATA_BY_OID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_META_DATA_WITH_DATES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_ACTIVE_TIME_SERIES_KEY_BY_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_TIME_SERIES_BY_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.GET_TS_DATE_RANGE_BY_OID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_DATA_FIELD;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_DATA_PROVIDER;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_DATA_SOURCE;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_IDENTIFIER;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_OBSERVATION_TIME;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_QUOTED_OBJECT;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_SCHEME;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_TIME_SERIES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_TIME_SERIES_DELTA_D;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_TIME_SERIES_DELTA_I;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_TIME_SERIES_DELTA_U;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INSERT_TIME_SERIES_KEY;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.INVALID_KEY;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_DATA_FIELDS;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_DATA_PROVIDER;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_DATA_SOURCES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_IDENTIFIERS;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_OBSERVATION_TIMES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_ALL_SCHEME;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_TIME_SERIES_DELTA;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LOAD_TIME_SERIES_WITH_DATES;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_BUNDLE_FROM_IDENTIFIERS;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_DATA_FIELD_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_DATA_PROVIDER_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_DATA_SOURCE_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_OBSERVATION_TIME_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_QUOTED_OBJECT_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.SELECT_SCHEME_ID;
+import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.UPDATE_TIME_SERIES;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -120,10 +120,10 @@ import com.opengamma.util.tuple.Pair;
  * @param <T> LocalDate/java.util.Date
  */
 @Transactional(readOnly = true)
-public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
+public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbTimeSeriesMaster.class);
   /**
    * List of keys expected in the Map containing SQL queries injected to RowStoreTimeSeriesMaster
    */
@@ -197,7 +197,7 @@ public abstract class RowStoreTimeSeriesMaster<T> implements TimeSeriesMaster<T>
    * @param namedSQLMap  the named SQL map, not null
    * @param isTriggerSupported  whether trigger is supported
    */
-  public RowStoreTimeSeriesMaster(
+  public DbTimeSeriesMaster(
       DbSource dbSource, Map<String, String> namedSQLMap, boolean isTriggerSupported) {
     ArgumentChecker.notNull(dbSource, "dbSource");
     
