@@ -10,9 +10,11 @@ import java.net.URI;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
 import com.opengamma.financial.position.master.FullPositionGetRequest;
+import com.opengamma.financial.position.master.FullTradeGetRequest;
 import com.opengamma.financial.position.master.PortfolioTreeDocument;
 import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
 import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
@@ -233,6 +235,17 @@ public class RemotePositionMaster implements PositionMaster {
     
     throw new UnsupportedOperationException();
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public Trade getFullTrade(FullTradeGetRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getTradeId(), "request.tradeId");
+    
+    throw new UnsupportedOperationException();
+  }
+  
+  
 
   //-------------------------------------------------------------------------
   /**

@@ -12,6 +12,7 @@ import net.sf.ehcache.Element;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -35,7 +36,10 @@ public class EHCachingPositionSource implements PositionSource {
    * Cache key for positions.
    */
   private static final String POSITION_CACHE = "position";
-
+  /**
+   * Cache key for trades.
+   */
+  private static final String TRADE_CACHE = "trade";
   /**
    * The underlying position source.
    */
@@ -56,6 +60,10 @@ public class EHCachingPositionSource implements PositionSource {
    * The position cache.
    */
   private final Cache _position;
+  /**
+   * The trade cache.
+   */
+  private final Cache _trade;
 
   /**
    * Creates the cache around an underlying position source.
@@ -73,6 +81,7 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolio = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIO_CACHE);
     _portfolioNode = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
     _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
+    _trade = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
   }
 
   //-------------------------------------------------------------------------
@@ -143,5 +152,24 @@ public class EHCachingPositionSource implements PositionSource {
       return p;
     }
   }
+
+  @Override
+  public Trade getTrade(UniqueIdentifier identifier) {
+    if (identifier.isLatest()) {
+      return getUnderlying().getTrade(identifier);
+    }
+    Element e = _trade.get(identifier);
+    if (e != null) {
+      return (Trade) e.getValue();
+    } else {
+      Trade t = getUnderlying().getTrade(identifier);
+      if (t != null) {
+        _trade.put(new Element(identifier, t));
+      }
+      return t;
+    }
+  }
+  
+  
 
 }

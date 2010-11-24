@@ -86,7 +86,11 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(Identifier.of("TICKER", "IBMC"), secKey0.getIdentifiers().iterator().next());
     Set<ManageableTrade> trades = position0.getTrades();
     assertNotNull(trades);
-    assertTrue(trades.isEmpty());
+    assertEquals(1, trades.size());
+    ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(222.987), _version2Instant.minusSeconds(100), Identifier.of("CPARTY", "C222"));
+    trade.setPositionId(position0.getUniqueIdentifier());
+    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "407", "1"));
+    assertTrue(trades.contains(trade));
     
     
     assertEquals(UniqueIdentifier.of("DbPos", "221", "0"), doc1.getPositionId());
@@ -106,7 +110,11 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(Identifier.of("TICKER", "IBMC"), secKey1.getIdentifiers().iterator().next());
     trades = position1.getTrades();
     assertNotNull(trades);
-    assertTrue(trades.isEmpty());
+    assertEquals(1, trades.size());
+    trade = new ManageableTrade(BigDecimal.valueOf(221.987), _version1Instant.minusSeconds(100), Identifier.of("CPARTY", "C221"));
+    trade.setPositionId(position1.getUniqueIdentifier());
+    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "407", "0"));
+    assertTrue(trades.contains(trade));
   }
 
   @Test
@@ -174,12 +182,24 @@ public class QueryPositionDbPositionMasterWorkerSearchPositionHistoricTest exten
     assertEquals(2, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("NASDAQ", "ORCL135")));
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("TICKER", "ORCL134")));
-    Set<ManageableTrade> tradeList = position.getTrades();
-    assertNotNull(tradeList);
-    assertEquals(3, tradeList.size());
-    assertTrue(tradeList.contains(new ManageableTrade(BigDecimal.valueOf(100.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C104"))));
-    assertTrue(tradeList.contains(new ManageableTrade(BigDecimal.valueOf(200.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C105"))));
-    assertTrue(tradeList.contains(new ManageableTrade(BigDecimal.valueOf(300.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C106"))));
+    Set<ManageableTrade> trades = position.getTrades();
+    assertNotNull(trades);
+    assertEquals(3, trades.size());
+    
+    ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(100.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C104"));
+    trade.setPositionId(position.getUniqueIdentifier());
+    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "404", "0"));
+    assertTrue(trades.contains(trade));
+    
+    trade = new ManageableTrade(BigDecimal.valueOf(200.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C105"));
+    trade.setPositionId(position.getUniqueIdentifier());
+    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "405", "0"));
+    assertTrue(trades.contains(trade));
+    
+    trade = new ManageableTrade(BigDecimal.valueOf(300.987), _version1Instant.minusSeconds(123), Identifier.of("CPARTY", "C106"));
+    trade.setPositionId(position.getUniqueIdentifier());
+    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "406", "0"));
+    assertTrue(trades.contains(trade));
     
   }
 

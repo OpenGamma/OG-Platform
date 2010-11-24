@@ -1,6 +1,7 @@
 
 create table pos_trade (
     id bigint not null,
+    oid bigint not null,
     position_id bigint not null,
     quantity decimal(31,8) not null,
     trade_instant timestamp not null,

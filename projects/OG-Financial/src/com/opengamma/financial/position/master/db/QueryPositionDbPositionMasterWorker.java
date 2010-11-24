@@ -61,6 +61,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "p.quantity AS quantity, " +
         "s.id_scheme AS seckey_scheme, " +
         "s.id_value AS seckey_value, " +
+        "t.id AS trade_id, " +
+        "t.oid AS trade_oid, " +
         "t.quantity AS trade_quantity, " +
         "t.trade_instant AS trade_instant, " +
         "t.cparty_scheme AS cparty_scheme, " +
@@ -272,9 +274,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
           _position.setSecurityKey(_position.getSecurityKey().withIdentifier(id));
         }
         
-        final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
-        if (tradeInstant != null) {
+        long tradeId = rs.getLong("TRADE_ID");
+        if (tradeId != 0) {
           ManageableTrade trade = new ManageableTrade();
+          final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
           final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
           trade.setQuantity(tradeQuantity);
           trade.setTradeInstant(DbDateUtils.fromSqlTimestamp(tradeInstant));
@@ -284,6 +287,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
             Identifier id = Identifier.of(cpartyScheme, cpartyValue);
             trade.setCounterpartyId(id);
           }
+          long tradeOid = rs.getLong("TRADE_OID");
+          trade.setUniqueIdentifier(createUniqueIdentifier(tradeOid, tradeId, _deduplicate));
+          trade.setPositionId(_position.getUniqueIdentifier());
           _position.getTrades().add(trade);
         }
       }

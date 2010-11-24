@@ -365,7 +365,7 @@ public class DbPositionMasterWorkers {
   public void setGetFullPositionWorker(DbPositionMasterWorker getFullPositionWorker) {
     _getFullPositionWorker = getFullPositionWorker;
   }
-
+  
   //-------------------------------------------------------------------------
   /**
    * Returns a string summary of this position master.

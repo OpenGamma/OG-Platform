@@ -95,7 +95,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerRemovePortfolioTreeTest ex
     search.setVersionAsOfInstant(later);
     search.setCorrectedToInstant(later);
     PositionSearchResult oldPositions = _posMaster.searchPositions(search);
-    assertEquals(4, oldPositions.getDocuments().size());
+    assertEquals(5, oldPositions.getDocuments().size());
     
     _worker.removePortfolioTree(uid);
     

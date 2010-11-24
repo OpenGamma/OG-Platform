@@ -11,6 +11,7 @@ import javax.time.InstantProvider;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -126,6 +127,13 @@ public class MasterPositionSource implements PositionSource {
     ArgumentChecker.notNull(uid, "uid");
     final FullPositionGetRequest request = new FullPositionGetRequest(uid, _versionAsOfInstant, _correctedToInstant);
     return getPositionMaster().getFullPosition(request);
+  }
+  
+  @Override
+  public Trade getTrade(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    final FullTradeGetRequest request = new FullTradeGetRequest(uid);
+    return getPositionMaster().getFullTrade(request);
   }
 
   //-------------------------------------------------------------------------

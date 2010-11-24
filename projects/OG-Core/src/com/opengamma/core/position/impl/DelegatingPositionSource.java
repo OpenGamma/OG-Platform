@@ -8,6 +8,7 @@ package com.opengamma.core.position.impl;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
@@ -47,5 +48,13 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getPosition(uid);
   }
+
+  @Override
+  public Trade getTrade(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    return chooseDelegate(uid).getTrade(uid);
+  }
+  
+  
 
 }

@@ -164,7 +164,7 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     search.setVersionAsOfInstant(later);
     search.setCorrectedToInstant(later);
     PositionSearchResult oldPositions = _posMaster.searchPositions(search);
-    assertEquals(4, oldPositions.getDocuments().size());
+    assertEquals(5, oldPositions.getDocuments().size());
     
     PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
     ManageablePortfolioNode rootNode = doc.getPortfolio().getRootNode();
@@ -192,14 +192,14 @@ public class ModifyPortfolioTreeDbPositionMasterWorkerUpdatePortfolioTreeTest ex
     search.setVersionAsOfInstant(now);
     search.setCorrectedToInstant(now);
     PositionSearchResult oldPositions = _posMaster.searchPositions(search);
-    assertEquals(5, oldPositions.getDocuments().size());
+    assertEquals(6, oldPositions.getDocuments().size());
     
     PortfolioTreeDocument doc = _queryWorker.getPortfolioTree(uid);
     assertTrue(doc.getPortfolio().getRootNode().removeNode(UniqueIdentifier.of("DbPos", "113")));
     _worker.updatePortfolioTree(doc);
     
     PositionSearchResult newPositions = _posMaster.searchPositions(search);
-    assertEquals(4, newPositions.getDocuments().size());
+    assertEquals(5, newPositions.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------
