@@ -79,7 +79,7 @@ public class DbPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   /**
    * Gets the database source.
-   * @return the database source, non-null
+   * @return the database source, not null
    */
   public DbSource getDbSource() {
     return _dbSource;

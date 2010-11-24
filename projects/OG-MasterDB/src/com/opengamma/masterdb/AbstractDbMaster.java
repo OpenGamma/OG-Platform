@@ -53,7 +53,7 @@ public abstract class AbstractDbMaster {
   //-------------------------------------------------------------------------
   /**
    * Gets the database source.
-   * @return the database source, non-null
+   * @return the database source, not null
    */
   public DbSource getDbSource() {
     return _dbSource;

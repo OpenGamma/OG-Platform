@@ -35,7 +35,7 @@ public class DbExchangeMasterWorkers {
 
   /**
    * Initializes the instance.
-   * @param master  the exchange master, non-null
+   * @param master  the exchange master, not null
    */
   protected void init(final DbExchangeMaster master) {
     _searchWorker.init(master);
