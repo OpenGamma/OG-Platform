@@ -9,7 +9,6 @@
 	<configs>
 		<config>config/demoFinancialMasters.xml</config>
 		<config>config/test-master-context.xml</config>
-		<config>src/com/opengamma/financial/timeseries/db/tssQueries.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

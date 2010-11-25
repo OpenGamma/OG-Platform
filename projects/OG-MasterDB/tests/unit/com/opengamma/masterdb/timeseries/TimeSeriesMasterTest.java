@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -56,6 +56,7 @@ import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.masterdb.timeseries.DbTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -117,7 +118,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/financial/timeseries/db/tssQueries.xml");
+    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/masterdb/timeseries/tssQueries.xml");
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
     _tsMaster = getTimeSeriesMaster(namedSQLMap);

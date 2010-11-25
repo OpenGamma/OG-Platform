@@ -22,7 +22,7 @@ import javax.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -32,9 +32,9 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModelImpl;
-import com.opengamma.financial.timeseries.db.DateTimeDbTimeSeriesMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.masterdb.timeseries.DateTimeDbTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
@@ -53,7 +53,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/financial/timeseries/db/tssQueries.xml");
+    ApplicationContext context = new ClassPathXmlApplicationContext("com/opengamma/masterdb/timeseries/tssQueries.xml");
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
     
