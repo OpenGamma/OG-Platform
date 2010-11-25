@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
 import java.util.Date;
 import java.util.List;
@@ -14,8 +14,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.financial.timeseries.db.DateTimeDbTimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.masterdb.timeseries.DateTimeDbTimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;

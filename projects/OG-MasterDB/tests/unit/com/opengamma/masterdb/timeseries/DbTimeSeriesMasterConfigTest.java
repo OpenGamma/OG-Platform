@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.opengamma.financial.timeseries.db.LocalDateDbTimeSeriesMaster;
+import com.opengamma.masterdb.timeseries.LocalDateDbTimeSeriesMaster;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.MockDbHelper;
 
