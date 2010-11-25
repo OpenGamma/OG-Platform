@@ -15,22 +15,49 @@ import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction;
 import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Receives statistics from a {@link FunctionInvocationStatisticsSender}.
+ * <p>
+ * This is run centrally and receives statistics from each node.
+ * The statistics are aggregated into the {@code FunctionCost} instance.
  */
 public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceiver {
 
+  /**
+   * The underlying function cost implementation.
+   */
   private final FunctionCost _underlying;
 
+  /**
+   * Creates an instance wrapping an underlying function cost instance.
+   * 
+   * @param underlying  the underlying function cost, not null
+   */
   public FunctionInvocationStatisticsReceiver(final FunctionCost underlying) {
+    ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying function cost.
+   * 
+   * @return the function cost, not null
+   */
   public FunctionCost getUnderlying() {
     return _underlying;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Handle a message.
+   * 
+   * @param underlying  the underlying function cost, not null
+   * @param invocations  the invocations to handle, not null
+   * @return the scaling factor, null if no remote invocation cost
+   */
   public static Scaling messageReceived(final FunctionCost underlying, final Invocations invocations) {
     double remoteInvocationCost = 0;
     double localInvocationCost = 0;

@@ -26,74 +26,107 @@ import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Gather function invocation statistics and supplies the data to anything
- * that needs it. 
+ * Central point for function statistics.
+ * <p>
+ * This acts as a local gatherer, central point for remote nodes and supplier of data.
  */
 public class FunctionCost implements FunctionInvocationStatisticsGatherer {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionCost.class);
+  /**
+   * Name used in the config database.
+   */
   private static final String MEAN_INVOCATION_DOCUMENT_NAME = "MEAN";
 
   /**
-   * 
+   * All statistics for a single configuration.
    */
   public final class ForConfiguration {
 
-    private final ConcurrentMap<String, FunctionInvocationStatistics> _data = new ConcurrentHashMap<String, FunctionInvocationStatistics>();
+    /**
+     * The configuration name.
+     */
     private final String _configurationName;
+    /**
+     * The map of per function statistics.
+     */
+    private final ConcurrentMap<String, FunctionInvocationStatistics> _data = new ConcurrentHashMap<String, FunctionInvocationStatistics>();
 
+    /**
+     * Creates an instance for a configuration name.
+     * 
+     * @param configurationName  the configuration name, not null
+     */
     private ForConfiguration(final String configurationName) {
       _configurationName = configurationName;
     }
 
-    private String getDocumentName(final String functionIdentifier) {
-      return getConfigurationName().replaceAll("[\\\\:]", "\\\\$0") + "::" + functionIdentifier;
-    }
-
+    /**
+     * Gets the configuration name.
+     * 
+     * @return the configuration name, not null
+     */
     public String getConfigurationName() {
       return _configurationName;
     }
 
-    public FunctionInvocationStatistics getStatistics(final String functionIdentifier) {
-      FunctionInvocationStatistics stats = _data.get(functionIdentifier);
+    /**
+     * Converts a function id to a document name.
+     * 
+     * @param functionId  the function id, not null
+     * @return the document name, not null
+     */
+    private String getDocumentName(final String functionId) {
+      return getConfigurationName().replaceAll("[\\\\:]", "\\\\$0") + "::" + functionId;
+    }
+
+    /**
+     * Gets the statistics for a function.
+     * 
+     * @param functionId  the function id, not null
+     * @return the statistics, not null
+     */
+    public FunctionInvocationStatistics getStatistics(final String functionId) {
+      FunctionInvocationStatistics stats = _data.get(functionId);
       if (stats == null) {
         ConfigDocument<FunctionInvocationStatistics> statsDoc = null;
         if (getPersistence() != null) {
-          s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionIdentifier);
+          s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionId);
           final ConfigSearchRequest request = new ConfigSearchRequest();
-          request.setName(getDocumentName(functionIdentifier));
+          request.setName(getDocumentName(functionId));
           final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
           final List<ConfigDocument<FunctionInvocationStatistics>> docs = result.getDocuments();
           if (docs.size() > 0) {
             statsDoc = docs.get(0);
             stats = statsDoc.getValue();
             if (docs.size() > 1) {
-              s_logger.warn("Multiple documents found for {}/{}", getConfigurationName(), functionIdentifier);
+              s_logger.warn("Multiple documents found for {}/{}", getConfigurationName(), functionId);
               for (int i = docs.size() - 1; i > 0; i--) {
                 s_logger.info("Deleting {}", docs.get(i).getConfigId());
                 getTypedPersistence().remove(docs.get(i).getConfigId());
               }
             }
           } else {
-            s_logger.debug("No previous statistics for {}/{}", getConfigurationName(), functionIdentifier);
+            s_logger.debug("No previous statistics for {}/{}", getConfigurationName(), functionId);
           }
         }
         if (stats == null) {
-          stats = new FunctionInvocationStatistics(functionIdentifier);
+          stats = new FunctionInvocationStatistics(functionId);
           if (getMeanStatistics() != null) {
             stats.setCosts(getMeanStatistics().getInvocationCost(), getMeanStatistics().getDataInputCost(), getMeanStatistics().getDataOutputCost());
           }
         }
-        FunctionInvocationStatistics newStats = _data.putIfAbsent(functionIdentifier, stats);
+        FunctionInvocationStatistics newStats = _data.putIfAbsent(functionId, stats);
         if (newStats != null) {
           stats = newStats;
         } else {
-          // We created function statistics, so poke it into storage
+          // we created function statistics, so poke it into storage
           if (getPersistence() != null) {
             if (statsDoc == null) {
               statsDoc = new ConfigDocument<FunctionInvocationStatistics>();
               statsDoc.setValue(stats);
-              statsDoc.setName(getDocumentName(functionIdentifier));
+              statsDoc.setName(getDocumentName(functionId));
             }
             getConfigDocuments().add(statsDoc);
           }
@@ -101,29 +134,53 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
       }
       return stats;
     }
-
   }
 
+  /**
+   * The statistics per configuration.
+   */
   private final ConcurrentMap<String, ForConfiguration> _data = new ConcurrentHashMap<String, ForConfiguration>();
-  private final Queue<ConfigDocument<FunctionInvocationStatistics>> _configDocuments = new ConcurrentLinkedQueue<ConfigDocument<FunctionInvocationStatistics>>();
-  private FunctionInvocationStatistics _meanStatistics;
+  /**
+   * The persistent storage.
+   */
   private ConfigMaster _configMaster;
+  /**
+   * The configuration documents.
+   */
+  private final Queue<ConfigDocument<FunctionInvocationStatistics>> _configDocuments = new ConcurrentLinkedQueue<ConfigDocument<FunctionInvocationStatistics>>();
+  /**
+   * The mean statistics as persisted.
+   */
+  private FunctionInvocationStatistics _meanStatistics;
+  /**
+   * The mean statistics document.
+   */
   private ConfigDocument<FunctionInvocationStatistics> _meanStatisticsDocument;
 
+  /**
+   * Gets statistics for a configuration.
+   * 
+   * @param calculationConfiguration  the configuration id, not null
+   * @return the statistics, not null
+   */
   public ForConfiguration getStatistics(final String calculationConfiguration) {
     ForConfiguration data = _data.get(calculationConfiguration);
     if (data == null) {
-      data = new ForConfiguration(calculationConfiguration);
-      ForConfiguration newData = _data.putIfAbsent(calculationConfiguration, data);
-      if (newData != null) {
-        data = newData;
-      }
+      _data.putIfAbsent(calculationConfiguration, new ForConfiguration(calculationConfiguration));
+      data = _data.get(calculationConfiguration);
     }
     return data;
   }
 
-  public FunctionInvocationStatistics getStatistics(final String calculationConfiguration, final String functionIdentifier) {
-    return getStatistics(calculationConfiguration).getStatistics(functionIdentifier);
+  /**
+   * Gets statistics for a function.
+   * 
+   * @param calculationConfiguration  the configuration id, not null
+   * @param functionId  the function id, not null
+   * @return the statistics, not null
+   */
+  public FunctionInvocationStatistics getStatistics(final String calculationConfiguration, final String functionId) {
+    return getStatistics(calculationConfiguration).getStatistics(functionId);
   }
 
   @Override
@@ -131,6 +188,21 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     getStatistics(configurationName, functionIdentifier).recordInvocation(count, invocationTime, dataInput, dataOutput);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the persistent store.
+   * 
+   * @return the persistent store.
+   */
+  public ConfigMaster getPersistence() {
+    return _configMaster;
+  }
+
+  /**
+   * Sets the persist store.
+   * 
+   * @param configMaster  the persist store, not null
+   */
   public void setPersistence(final ConfigMaster configMaster) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
@@ -154,26 +226,26 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
     _meanStatistics = _meanStatisticsDocument.getValue();
   }
 
-  public ConfigMaster getPersistence() {
-    return _configMaster;
-  }
-
-  public ConfigTypeMaster<FunctionInvocationStatistics> getTypedPersistence() {
+  private ConfigTypeMaster<FunctionInvocationStatistics> getTypedPersistence() {
     return _configMaster.typed(FunctionInvocationStatistics.class);
   }
 
-  protected Queue<ConfigDocument<FunctionInvocationStatistics>> getConfigDocuments() {
+  private Queue<ConfigDocument<FunctionInvocationStatistics>> getConfigDocuments() {
     return _configDocuments;
   }
 
-  protected FunctionInvocationStatistics getMeanStatistics() {
+  private FunctionInvocationStatistics getMeanStatistics() {
     return _meanStatistics;
   }
 
+  /**
+   * Creates a runnable to write the statistics.
+   * 
+   * @return the runnable, not null
+   */
   public Runnable createPersistenceWriter() {
     ArgumentChecker.notNull(getTypedPersistence(), "persistence");
     return new Runnable() {
-
       @Override
       public void run() {
         s_logger.info("Persisting function execution statistics");

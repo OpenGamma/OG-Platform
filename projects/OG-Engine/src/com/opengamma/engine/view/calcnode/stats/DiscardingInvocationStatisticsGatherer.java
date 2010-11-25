@@ -6,13 +6,15 @@
 package com.opengamma.engine.view.calcnode.stats;
 
 /**
- * Discards the statistics.
+ * Gatherer implementation that discards all received statistics.
  */
 public class DiscardingInvocationStatisticsGatherer implements FunctionInvocationStatisticsGatherer {
 
   @Override
-  public void functionInvoked(final String configurationName, final String functionIdentifier, final int count, final double invocationTime, final double dataInput, final double dataOutput) {
-    // No action
+  public void functionInvoked(
+      String configurationName, String functionIdentifier, int invocationCount,
+      double executionNanos, double dataInputBytes, double dataOutputBytes) {
+    // no action
   }
 
 }
