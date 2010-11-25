@@ -6,6 +6,7 @@
 package com.opengamma.core.security.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -28,6 +29,10 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
    */
   public DelegatingSecuritySource(SecuritySource defaultSource) {
     super(defaultSource);
+  }
+
+  public DelegatingSecuritySource(SecuritySource defaultSource, Map<String, SecuritySource> delegates) {
+    super(defaultSource, delegates);
   }
 
   //-------------------------------------------------------------------------

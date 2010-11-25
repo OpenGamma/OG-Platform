@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -18,15 +19,21 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class AggregatingViewDefinitionRepository implements ViewDefinitionRepository {
 
   private final Set<ViewDefinitionRepository> _repositories = new CopyOnWriteArraySet<ViewDefinitionRepository>();
-  
+
+  public AggregatingViewDefinitionRepository(Collection<ViewDefinitionRepository> repositories) {
+    for (ViewDefinitionRepository repository : repositories) {
+      addRepository(repository);
+    }
+  }
+
   public void addRepository(ViewDefinitionRepository repository) {
     _repositories.add(repository);
   }
-  
+
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     for (ViewDefinitionRepository repository : _repositories) {
-      ViewDefinition definition = repository.getDefinition(definitionName); 
+      ViewDefinition definition = repository.getDefinition(definitionName);
       if (definition != null) {
         return definition;
       }
