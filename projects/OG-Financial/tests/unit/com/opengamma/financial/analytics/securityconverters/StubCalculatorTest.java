@@ -14,13 +14,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * Test StubCalculator.
  */
 public class StubCalculatorTest {
+
   private static final ZonedDateTime[] NO_STUB1 = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 1, 1), DateUtil.getUTCDate(2008, 4, 1), DateUtil.getUTCDate(2008, 7, 1),
       DateUtil.getUTCDate(2008, 10, 1), DateUtil.getUTCDate(2009, 1, 1), DateUtil.getUTCDate(2009, 4, 1), DateUtil.getUTCDate(2009, 7, 1), DateUtil.getUTCDate(2009, 10, 1),
       DateUtil.getUTCDate(2010, 1, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2011, 1, 1),

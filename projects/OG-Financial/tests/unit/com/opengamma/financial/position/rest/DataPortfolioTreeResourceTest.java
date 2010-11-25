@@ -18,12 +18,12 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreeResource;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePortfolio;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -57,10 +57,10 @@ public class DataPortfolioTreeResourceTest {
   public void testUpdatePortfolio() {
     final ManageablePortfolio portfolio = new ManageablePortfolio("Portfolio");
     final PortfolioTreeDocument request = new PortfolioTreeDocument(portfolio);
-    request.setPortfolioId(UID);
+    request.setUniqueId(UID);
     
     final PortfolioTreeDocument result = new PortfolioTreeDocument(portfolio);
-    result.setPortfolioId(UID);
+    result.setUniqueId(UID);
     when(_underlying.updatePortfolioTree(same(request))).thenReturn(result);
     
     Response test = _resource.put(request);

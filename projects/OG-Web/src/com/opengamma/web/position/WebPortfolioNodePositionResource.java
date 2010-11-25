@@ -21,12 +21,12 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PositionDocument;
 
 /**
  * RESTful resource for a position in a node.
@@ -86,7 +86,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
   @DELETE
   public Response delete() {
     PositionDocument doc = data().getPosition();
-    data().getPositionMaster().removePosition(doc.getPositionId());
+    data().getPositionMaster().removePosition(doc.getUniqueId());
     URI uri = WebPortfolioNodeResource.uri(data());
     return Response.seeOther(uri).build();
   }

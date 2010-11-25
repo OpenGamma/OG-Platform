@@ -24,11 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.DemoFinancialMastersHelper;
 import com.opengamma.financial.OpenGammaCompilationContext;
@@ -69,7 +69,8 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource()));
+    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource()));
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     context.setSecuritySource(_configHelper.getSecuritySource());
@@ -115,7 +116,8 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource()));
+    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource()));
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     
     function.init(context);
@@ -155,7 +157,8 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource()));
+    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource()));
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     
@@ -179,7 +182,8 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     function.setUniqueIdentifier("testId");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
-    OpenGammaCompilationContext.setConfigSource(context, _configHelper.getConfigSource());
+    OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, new ConfigDBInterpolatedYieldCurveDefinitionSource(_configHelper.getConfigSource()));
+    OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, new ConfigDBInterpolatedYieldCurveSpecificationBuilder(_configHelper.getConfigSource()));
     OpenGammaCompilationContext.setRegionSource(context, _configHelper.getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     

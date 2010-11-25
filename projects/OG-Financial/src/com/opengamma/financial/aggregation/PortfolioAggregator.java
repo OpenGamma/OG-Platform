@@ -16,11 +16,11 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

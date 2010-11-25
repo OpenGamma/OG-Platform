@@ -20,9 +20,12 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -33,10 +36,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.MockSecurity;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -294,9 +293,9 @@ public class ViewDefinitionCompilerTest {
 
   private void assertTargets(ViewEvaluationModel vem, UniqueIdentifier... targets) {
     Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
-    Set<ComputationTargetSpecification> actualTargets = vem.getAllComputationTargets();
+    Set<ComputationTarget> actualTargets = vem.getAllComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
-    for (ComputationTargetSpecification actualTarget : actualTargets) {
+    for (ComputationTarget actualTarget : actualTargets) {
       assertTrue(expectedTargets.contains(actualTarget.getUniqueIdentifier()));
     }
   }

@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigHistoryRequest;
 import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.id.Identifier;
@@ -60,38 +59,8 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);  // new version
-    ConfigDocument<Identifier> doc1 = test.getDocuments().get(1);  // old version
-    
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
-    assertNotNull(doc0.getVersionFromInstant());
-    assertEquals(null, doc0.getVersionToInstant());
-    assertEquals(Identifier.of("A", "B"), doc0.getValue());
-    assertEquals("TestConfig202", doc0.getName());
-    
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc1.getConfigId());
-    assertNotNull(doc1.getVersionFromInstant());
-    assertEquals(doc0.getVersionFromInstant(), doc1.getVersionToInstant());
-    assertEquals(Identifier.of("A", "B"), doc0.getValue());
-    assertEquals("TestConfig201", doc1.getName());
-  }
-
-  @Test
-  public void test_history_documentCountWhenMultipleSecurities() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "102");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
-    ConfigHistoryResult<Identifier> test = _worker.history(request);
-    
-    assertEquals(1, test.getPaging().getTotalItems());
-    
-    assertEquals(1, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);  // new version
-    
-    assertEquals(UniqueIdentifier.of("DbCfg", "102", "0"), doc0.getConfigId());
-    assertNotNull(doc0.getVersionFromInstant());
-    assertEquals(null, doc0.getVersionToInstant());
-    assertEquals(Identifier.of("A", "B"), doc0.getValue());
-    assertEquals("TestConfig102", doc0.getName());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -106,10 +75,8 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    ConfigDocument<Identifier> doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc1.getConfigId());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -125,8 +92,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
+    assert202(test.getDocuments().get(0));
   }
 
   @Test
@@ -144,8 +110,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     
     assertNotNull(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc0.getConfigId());
+    assert201(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------
@@ -153,32 +118,26 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   public void test_history_versionsFrom_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
-    request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
+    request.setVersionsFromInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    ConfigDocument<Identifier> doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc1.getConfigId());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
-    request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
+    request.setVersionsFromInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
-    
-    assertEquals(2, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    ConfigDocument<Identifier> doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc1.getConfigId());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   @Test
@@ -189,10 +148,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    
-    assertEquals(1, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
+    assert202(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------
@@ -200,7 +156,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   public void test_history_versionsTo_preFirst() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
-    request.setVersionsToInstant(_version1Instant.minusSeconds(5));
+    request.setVersionsToInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
@@ -212,14 +168,11 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   public void test_history_versionsTo_firstToSecond() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
-    request.setVersionsToInstant(_version1Instant.plusSeconds(5));
+    request.setVersionsToInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _worker.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    
-    assertEquals(1, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc0.getConfigId());
+    assert201(test.getDocuments().get(0));
   }
 
   @Test
@@ -232,10 +185,8 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    ConfigDocument<Identifier> doc0 = test.getDocuments().get(0);
-    ConfigDocument<Identifier> doc1 = test.getDocuments().get(1);
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "1"), doc0.getConfigId());
-    assertEquals(UniqueIdentifier.of("DbCfg", "201", "0"), doc1.getConfigId());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------

@@ -16,11 +16,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 

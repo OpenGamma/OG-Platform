@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.engine.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 

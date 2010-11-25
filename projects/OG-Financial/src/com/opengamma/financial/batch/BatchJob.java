@@ -45,6 +45,7 @@ import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.db.DbConfigMaster;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -54,7 +55,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -72,11 +72,11 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
-import com.opengamma.financial.position.master.MasterPositionSource;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -194,13 +194,7 @@ public class BatchJob {
   private BatchJobParameters _parameters = new BatchJobParameters();
 
   /**
-   * If true, a new run is always created - no existing results are used. 
-   * If false, the system first checks if there is already a run 
-   * in the database for the same view (including same version), with the same 
-   * observation date and time. If there is, that run is reused. This 
-   * means that the system checks what risk figures
-   * are already in the database and will try to calculate any
-   * missing risk.   
+   * @see RunCreationMode
    */
   private RunCreationMode _runCreationMode = RunCreationMode.AUTO; 
   

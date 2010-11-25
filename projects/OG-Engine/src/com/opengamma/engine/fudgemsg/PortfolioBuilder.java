@@ -13,10 +13,10 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

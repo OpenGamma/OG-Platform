@@ -19,11 +19,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryRequest;
-import com.opengamma.financial.position.master.PortfolioTreeHistoryResult;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeHistoryRequest;
+import com.opengamma.master.position.PortfolioTreeHistoryResult;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -91,7 +91,7 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PortfolioTreeDocument request) {
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getPortfolioId()) == false) {
+    if (getUrlPortfolioId().equalsIgnoringVersion(request.getUniqueId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioTreeDocument result = getPositionMaster().updatePortfolioTree(request);
@@ -110,7 +110,7 @@ public class DataPortfolioTreeResource extends AbstractDataResource {
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioTreeHistoryRequest request = decodeBean(PortfolioTreeHistoryRequest.class, providers, msgBase64);
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getPortfolioId()) == false) {
+    if (getUrlPortfolioId().equalsIgnoringVersion(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioTreeHistoryResult result = getPositionMaster().historyPortfolioTree(request);

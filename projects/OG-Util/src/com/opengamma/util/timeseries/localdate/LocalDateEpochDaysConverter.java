@@ -12,16 +12,14 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 
 import javax.time.calendar.LocalDate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -33,20 +31,22 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.tuple.Pair;
 
 /**
- * @author jim
- * 
+ * A converter for {@code LocalDate}.
  */
-public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate> {
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(LocalDateEpochDaysConverter.class);
-  public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
+public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>, Serializable {
 
-  final javax.time.calendar.TimeZone _timeZone;
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The time zone.
+   */
+  private final javax.time.calendar.TimeZone _timeZone;
 
   public LocalDateEpochDaysConverter(final javax.time.calendar.TimeZone timeZone) {
     _timeZone = timeZone;
   }
-  
+
   public LocalDateEpochDaysConverter(TimeZone timeZone) {
     _timeZone = javax.time.calendar.TimeZone.of(timeZone.getID());
   }
@@ -54,7 +54,8 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   public LocalDateEpochDaysConverter() {
     _timeZone = javax.time.calendar.TimeZone.UTC; // TODO: clean this up
   }
-  
+
+  //-------------------------------------------------------------------------
   public TimeZone getTimeZone() {
     return TimeZone.getTimeZone(_timeZone.getID());
   }
@@ -147,7 +148,8 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
       values[i] = entry.getValue();
       i++;
     }
-    return templateTS.newInstanceFast(dates, values);  }
+    return templateTS.newInstanceFast(dates, values);
+  }
   
   @Override
   public int convertToInt(final LocalDate dateTime) {

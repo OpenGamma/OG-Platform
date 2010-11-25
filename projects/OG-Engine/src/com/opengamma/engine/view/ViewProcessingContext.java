@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.Arrays;
 
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -16,7 +17,6 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.position.PositionSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;

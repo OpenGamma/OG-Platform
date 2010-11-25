@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.view.rest;
@@ -21,7 +21,6 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * RESTful resource for all views in a {@link ViewDefinitionRepository}
@@ -43,30 +42,33 @@ public class ViewDefinitionsResource {
   @Context
   private UriInfo _uriInfo;
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Creates the resource 
    * @param repository  the underlying repository, not null
+   * @param fudgeContext the Fudge context, not null
    */
-  public ViewDefinitionsResource(ManageableViewDefinitionRepository repository) {
+  public ViewDefinitionsResource(ManageableViewDefinitionRepository repository, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(repository, "repository");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _repository = repository;
-    
-    _fudgeContext = OpenGammaFudgeContext.getInstance();
+
+    _fudgeContext = fudgeContext;
   }
-  
+
   /**
    * Creates the resource.
    * @param uriInfo  the URI information, not null
    * @param repository  the underlying repository, not null
+   * @param fudgeContext the Fudge context, not null
    */
-  public ViewDefinitionsResource(UriInfo uriInfo, ManageableViewDefinitionRepository repository) {
-    this(repository);
+  public ViewDefinitionsResource(UriInfo uriInfo, ManageableViewDefinitionRepository repository, FudgeContext fudgeContext) {
+    this(repository, fudgeContext);
     ArgumentChecker.notNull(uriInfo, "uriInfo");
     _uriInfo = uriInfo;
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the security master.
    * @return the security master, not null
@@ -83,7 +85,7 @@ public class ViewDefinitionsResource {
     return _uriInfo;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @POST
   public void postFudge(FudgeMsgEnvelope env) {
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(_fudgeContext);
@@ -91,14 +93,14 @@ public class ViewDefinitionsResource {
     request.checkValid();
     getViewDefinitionRepository().addViewDefinition(request);
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   @Path("{definitionName}")
   public ViewDefinitionResource getView(@PathParam("definitionName") String definitionName) {
     return new ViewDefinitionResource(this, definitionName);
   }
-  
-  //-------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
   /**
    * Builds a URI for view definitions.
    * @param uriInfo  the URI information, not null
@@ -107,5 +109,5 @@ public class ViewDefinitionsResource {
   public static URI uri(UriInfo uriInfo) {
     return uriInfo.getBaseUriBuilder().path(ViewDefinitionsResource.class).build();
   }
-  
+
 }

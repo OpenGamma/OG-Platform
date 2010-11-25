@@ -8,9 +8,9 @@ package com.opengamma.engine.function;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionSource;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;

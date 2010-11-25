@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- * 
+ * The 'Flat' day count.
  */
 public class FlatDayCount extends StatelessDayCount {
 
@@ -20,7 +20,9 @@ public class FlatDayCount extends StatelessDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear) {
     return 0;
   }
 

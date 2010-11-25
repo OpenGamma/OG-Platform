@@ -20,10 +20,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.opengamma.core.common.Currency;
 import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.financial.GICSCode;
 import com.opengamma.util.test.DBTest;
 
 /**

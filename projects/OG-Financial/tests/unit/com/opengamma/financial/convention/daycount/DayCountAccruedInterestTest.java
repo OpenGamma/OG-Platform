@@ -11,13 +11,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.analytics.securityconverters.StubCalculator.StubType;
+import com.opengamma.financial.analytics.securityconverters.StubType;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Test DayCount.
+ * Test DayCount accrued interest.
  */
 public class DayCountAccruedInterestTest {
+
   private static final ActualActualISDA ACT_ACT_ISDA = new ActualActualISDA();
   private static final ActualActualAFB ACT_ACT_AFB = new ActualActualAFB();
   private static final ActualActualICMA ACT_ACT_ICMA = new ActualActualICMA();

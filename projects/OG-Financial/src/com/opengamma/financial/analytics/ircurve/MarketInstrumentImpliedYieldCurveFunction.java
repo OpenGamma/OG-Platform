@@ -35,7 +35,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -128,7 +127,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private final String _forwardCurveValueRequirementName;
   private YieldCurveDefinition _fundingCurveDefinition;
   private YieldCurveDefinition _forwardCurveDefinition;
-  private ConfigDBInterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
+  private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
   private ValueSpecification _fundingCurveResult;
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
@@ -166,8 +165,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBInterpolatedYieldCurveDefinitionSource curveDefinitionSource = new ConfigDBInterpolatedYieldCurveDefinitionSource(configSource);
+    final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
     _fundingCurveDefinition = curveDefinitionSource.getDefinition(_currency, _fundingCurveDefinitionName);
     if (_fundingCurveDefinition == null) {
       s_logger.warn("No curve definition for " + _fundingCurveDefinitionName + " on " + _currency);
@@ -176,7 +174,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     if (_forwardCurveDefinition == null) {
       s_logger.warn("No curve definition for " + _forwardCurveDefinitionName + " on " + _currency);
     }
-    _curveSpecificationBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
+    _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
     _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)
         .get());

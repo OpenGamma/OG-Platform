@@ -10,9 +10,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * 
+ * Test ActualActualISDA.
  */
 public class ActualActualISDATest extends DayCountTestCase {
+
   private static final ActualActualISDA DC = new ActualActualISDA();
 
   @Override
@@ -25,4 +26,5 @@ public class ActualActualISDATest extends DayCountTestCase {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
     assertEquals(DC.getConventionName(), "Actual/Actual ISDA");
   }
+
 }

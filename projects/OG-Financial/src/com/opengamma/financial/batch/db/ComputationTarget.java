@@ -22,6 +22,8 @@ public class ComputationTarget {
   private int _computationTargetType = -1;
   private String _idScheme;
   private String _idValue;
+  private String _idVersion;
+  private String _name;
   
   public int getId() {
     return _id;
@@ -62,37 +64,34 @@ public class ComputationTarget {
   public void setIdValue(String idValue) {
     _idValue = idValue;
   }
+  
+  public String getIdVersion() {
+    return _idVersion;
+  }
 
-  /**
-   * The spec is called normalized because no version information is stored for the unique ID.
-   * 
-   * @return The normalized spec
-   */
-  public ComputationTargetSpecification toNormalizedSpec() {
-    // Is this 'normalized' business really necessary - should we store the version info in batch DB?
+  public void setIdVersion(String idVersion) {
+    _idVersion = idVersion;
+  }
+  
+  public String getName() {
+    return _name;
+  }
+
+  public void setName(String name) {
+    _name = name;
+  }
+
+  public ComputationTargetSpecification toComputationTargetSpec() {
     for (ComputationTargetType type : ComputationTargetType.values()) {
       if (type.ordinal() == _computationTargetType) {
         return new ComputationTargetSpecification(
             type,
-            UniqueIdentifier.of(_idScheme, _idValue)
+            UniqueIdentifier.of(_idScheme, _idValue, _idVersion)
         );
       }
     }
     
     throw new IllegalStateException("Cannot find type with ordinal " + _computationTargetType); 
-  }
-  
-  /**
-   * The spec is called normalized because no version information is stored for the unique ID.
-   * 
-   * @param spec Unnormalized spec (with version information)
-   * @return The normalized spec (no version information)
-   */
-  public static ComputationTargetSpecification toNormalizedSpec(ComputationTargetSpecification spec) {
-    // Is this 'normalized' business really necessary - should we store the version info in batch DB?
-    return new ComputationTargetSpecification(
-        spec.getType(),
-        UniqueIdentifier.of(spec.getIdentifier().getScheme().getName(), spec.getIdentifier().getValue()));   
   }
   
   @Override

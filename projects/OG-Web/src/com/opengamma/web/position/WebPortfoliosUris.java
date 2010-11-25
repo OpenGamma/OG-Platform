@@ -7,9 +7,9 @@ package com.opengamma.web.position;
 
 import java.net.URI;
 
-import com.opengamma.financial.position.master.ManageablePortfolio;
-import com.opengamma.financial.position.master.ManageablePortfolioNode;
-import com.opengamma.financial.position.master.ManageablePosition;
+import com.opengamma.master.position.ManageablePortfolio;
+import com.opengamma.master.position.ManageablePortfolioNode;
+import com.opengamma.master.position.ManageablePosition;
 
 /**
  * URIs for web-based portfolios.

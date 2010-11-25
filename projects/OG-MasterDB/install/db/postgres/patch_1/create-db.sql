@@ -99,3 +99,251 @@ create table exg_exchange2idkey (
 create index ix_exg_exchange_oid on exg_exchange(oid);
 
 
+-- create-db-position.sql: Security Master
+
+-- design has two documents
+--  portfolio and tree of nodes (nested set model)
+--  position and associated security key
+-- bitemporal versioning exists at the document level
+-- each time a document is changed, a new row is written
+-- with only the end instant being changed on the old row
+
+create sequence pos_master_seq
+    start with 1000 increment by 1 no cycle;
+-- "as bigint" required by Derby, not accepted by Postgresql
+
+create table pos_portfolio (
+    id bigint not null,
+    oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    name varchar(255) not null,
+    primary key (id),
+    constraint pos_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
+);
+
+create table pos_node (
+    id bigint not null,
+    oid bigint not null,
+    portfolio_id bigint not null,
+    portfolio_oid bigint not null,
+    parent_node_id bigint,
+    depth int,
+    tree_left bigint not null,
+    tree_right bigint not null,
+    name varchar(255),
+    primary key (id),
+    constraint pos_fk_node2portfolio foreign key (portfolio_id) references pos_portfolio (id),
+    constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
+);
+-- pos_node is fully dependent of pos_portfolio
+-- portfolio_oid is an optimization (can be derived via portfolio_id)
+-- parent_node_id is an optimization (tree_left/tree_right hold all the tree structure)
+-- depth is an optimization (tree_left/tree_right hold all the tree structure)
+
+create table pos_position (
+    id bigint not null,
+    oid bigint not null,
+    portfolio_oid bigint not null,
+    parent_node_oid bigint not null,
+    ver_from_instant timestamp not null,
+    ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
+    quantity decimal(31,8) not null,
+    primary key (id),
+    constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
+);
+-- portfolio_oid is an optimization
+
+create table pos_securitykey (
+    id bigint not null,
+    position_id bigint not null,
+    id_scheme varchar(255) not null,
+    id_value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_securitykey2position foreign key (position_id) references pos_position (id)
+);
+-- pos_securitykey is fully dependent of pos_position
+
+create table pos_trade (
+    id bigint not null,
+    oid bigint not null,
+    position_id bigint not null,
+    quantity decimal(31,8) not null,
+    trade_instant timestamp not null,
+    cparty_scheme varchar(255) not null,
+    cparty_value varchar(255) not null,
+    primary key (id),
+    constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
+);
+-- pos_trade is fully dependent of pos_position
+
+
+DROP TABLE IF EXISTS tss_identifier CASCADE;
+DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
+DROP TABLE IF EXISTS tss_data_point CASCADE;
+DROP TABLE IF EXISTS tss_data_point_delta CASCADE;
+DROP TABLE IF EXISTS tss_meta_data CASCADE;
+DROP TABLE IF EXISTS tss_identifier_bundle CASCADE;
+DROP TABLE IF EXISTS tss_data_source CASCADE;
+DROP TABLE IF EXISTS tss_data_provider CASCADE;
+DROP TABLE IF EXISTS tss_data_field CASCADE;
+DROP TABLE IF EXISTS tss_observation_time CASCADE;
+
+DROP SEQUENCE IF EXISTS tss_data_field_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_data_provider_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_data_source_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identification_scheme_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identifier_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_observation_time_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_identifier_bundle_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS tss_meta_data_id_seq CASCADE;
+
+
+CREATE SEQUENCE tss_data_field_id_seq START 1;
+CREATE SEQUENCE tss_data_provider_id_seq START 1;
+CREATE SEQUENCE tss_data_source_id_seq START 1;
+CREATE SEQUENCE tss_identification_scheme_id_seq START 1;
+CREATE SEQUENCE tss_identifier_id_seq START 1;
+CREATE SEQUENCE tss_observation_time_id_seq START 1;
+CREATE SEQUENCE tss_identifier_bundle_id_seq START 1;
+CREATE SEQUENCE tss_meta_data_id_seq START 1;
+
+CREATE TABLE tss_data_source (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_source_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_data_source_id_seq OWNED BY tss_data_source.id;
+CREATE UNIQUE INDEX idx_data_source_name on tss_data_source(name);
+
+CREATE TABLE tss_data_provider (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_provider_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_data_provider_id_seq OWNED BY tss_data_provider.id;
+CREATE UNIQUE INDEX idx_data_provider_name on tss_data_provider(name);
+
+CREATE TABLE tss_data_field (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_data_field_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_data_field_id_seq OWNED BY tss_data_field.id;
+CREATE UNIQUE INDEX idx_data_field_name on tss_data_field(name);
+
+CREATE TABLE tss_observation_time (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_observation_time_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_observation_time_id_seq OWNED BY tss_observation_time.id;
+CREATE UNIQUE INDEX idx_observation_time_name on tss_observation_time(name);
+
+CREATE TABLE tss_identification_scheme (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identification_scheme_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_identification_scheme_id_seq OWNED BY tss_identification_scheme.id;
+CREATE UNIQUE INDEX idx_identification_scheme_name on tss_identification_scheme(name);
+
+CREATE TABLE tss_identifier_bundle (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identifier_bundle_id_seq'),
+	name VARCHAR(255) NOT NULL,
+	description VARCHAR(255)
+);
+ALTER SEQUENCE tss_identifier_bundle_id_seq OWNED BY tss_identifier_bundle.id;
+CREATE UNIQUE INDEX idx_identifier_bundle_name on tss_identifier_bundle(name);
+
+CREATE TABLE tss_meta_data (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_meta_data_id_seq'),
+	active INTEGER NOT NULL
+	  CONSTRAINT active_constraint CHECK (active IN (0,1)),
+	bundle_id BIGINT NOT NULL
+	  constraint fk_meta_bundle  REFERENCES tss_identifier_bundle(id),
+	data_source_id BIGINT NOT NULL
+	  constraint fk_meta_data_source  REFERENCES tss_data_source(id),
+	data_provider_id BIGINT NOT NULL
+	  constraint fk_meta_data_provider  REFERENCES tss_data_provider(id),
+	data_field_id BIGINT NOT NULL
+	  constraint fk_meta_data_field  REFERENCES tss_data_field(id),
+	observation_time_id BIGINT NOT NULL
+	  constraint fk_meta_observation_time  REFERENCES tss_observation_time(id)
+);
+ALTER SEQUENCE tss_meta_data_id_seq OWNED BY tss_meta_data.id;
+CREATE INDEX idx_meta_data ON tss_meta_data (active, data_source_id, data_provider_id, data_field_id, observation_time_id);
+
+CREATE TABLE tss_data_point (
+	meta_data_id BIGINT NOT NULL
+	  constraint fk_dp_meta_data  REFERENCES tss_meta_data (id),
+	ts_date date NOT NULL,
+	value DOUBLE PRECISION NOT NULL,
+	PRIMARY KEY (meta_data_id, ts_date)
+);
+
+CREATE TABLE tss_data_point_delta (
+	meta_data_id BIGINT NOT NULL
+	  constraint fk_dp_delta_meta_data  REFERENCES tss_meta_data (id),
+	time_stamp TIMESTAMP NOT NULL,
+	ts_date date NOT NULL,
+	old_value DOUBLE PRECISION NOT NULL,
+	operation char(1) NOT NULL
+	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q'))
+);
+
+CREATE TABLE tss_intraday_data_point (
+	meta_data_id BIGINT NOT NULL
+	  constraint fk_i_dp_meta_data  REFERENCES tss_meta_data (id),
+	ts_date TIMESTAMP NOT NULL,
+	value DOUBLE PRECISION NOT NULL,
+	PRIMARY KEY (meta_data_id, ts_date)
+);
+
+CREATE TABLE tss_intraday_data_point_delta (
+	meta_data_id BIGINT NOT NULL
+	  constraint fk_i_dp_delta_meta_data  REFERENCES tss_meta_data (id),
+	time_stamp TIMESTAMP NOT NULL,
+	ts_date TIMESTAMP NOT NULL,
+	old_value DOUBLE PRECISION NOT NULL,
+	operation char(1) NOT NULL
+	 CONSTRAINT operation_constraint_i CHECK ( operation IN ('I', 'U', 'D', 'Q'))
+);
+
+CREATE TABLE tss_identifier (
+	id BIGINT NOT NULL
+	  PRIMARY KEY
+	  DEFAULT nextval('tss_identifier_id_seq'),
+	bundle_id BIGINT NOT NULL
+	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
+	identification_scheme_id BIGINT NOT NULL
+	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
+	identifier_value VARCHAR(255) NOT NULL,
+	valid_from date,
+	valid_to date
+);
+
+ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
+CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
+CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
+

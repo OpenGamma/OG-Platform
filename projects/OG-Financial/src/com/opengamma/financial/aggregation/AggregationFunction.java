@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.engine.position.Position;
+import com.opengamma.core.position.Position;
 
 /**
  * Function to classify which bucket to put the position into.  It's generic in case we want to use it for something else.

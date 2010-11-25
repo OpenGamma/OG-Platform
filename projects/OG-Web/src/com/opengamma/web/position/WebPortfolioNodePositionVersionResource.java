@@ -14,9 +14,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PositionDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PositionDocument;
 
 /**
  * RESTful resource for a version of a position.

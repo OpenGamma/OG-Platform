@@ -28,6 +28,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -107,7 +109,6 @@ import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.financial.GICSCode;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.tuple.Pair;
@@ -115,6 +116,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Creates random securities.
  */
+@Ignore("Abstract class")
 @SuppressWarnings("unchecked")
 abstract public class SecurityTestCase implements SecurityTestCaseMethods {
 

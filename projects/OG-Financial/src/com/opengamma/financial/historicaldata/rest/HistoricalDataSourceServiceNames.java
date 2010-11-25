@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.historicaldata.rest;
 
+import com.opengamma.util.rest.AbstractResourceService;
+
 /**
  * 
  */
@@ -21,7 +23,7 @@ public final class HistoricalDataSourceServiceNames {
   /**
    *
    */
-  public static final String DEFAULT_HISTORICALDATASOURCE_NAME = "0";
+  public static final String DEFAULT_HISTORICALDATASOURCE_NAME = AbstractResourceService.DEFAULT_RESOURCE_NAME;
 
   /**
   *

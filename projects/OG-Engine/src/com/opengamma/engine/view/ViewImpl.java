@@ -26,11 +26,11 @@ import org.springframework.context.Lifecycle;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.SingleComputationCycle;

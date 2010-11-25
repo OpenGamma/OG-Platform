@@ -16,6 +16,8 @@ import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -28,8 +30,6 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.position.MockPositionSource;
-import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;

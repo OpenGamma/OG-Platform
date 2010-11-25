@@ -18,9 +18,9 @@ import java.util.Collection;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 

@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.junit.Test;
 
-import com.opengamma.master.security.financial.GICSCode;
+import com.opengamma.financial.security.equity.GICSCode;
 
 public class GICSCodeTest extends FinancialTestBase {
 

@@ -66,52 +66,28 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
   public void test_getConfig_versioned_oneConfigKey() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     ConfigDocument<Identifier> test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals("TestConfig101", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assert101(test);
   }
 
   @Test
   public void test_getConfig_versioned_twoConfigKeys() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "102", "0");
     ConfigDocument<Identifier> test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals("TestConfig102", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assert102(test);
   }
 
   @Test
   public void test_getConfig_versioned_notLatest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
     ConfigDocument<Identifier> test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
-    assertEquals(_version1Instant, test.getVersionFromInstant());
-    assertEquals(_version2Instant, test.getVersionToInstant());
-    assertEquals("TestConfig201", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assert201(test);
   }
 
   @Test
   public void test_getConfig_versioned_latest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
     ConfigDocument<Identifier> test = _worker.get(uid);
-    
-    assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
-    assertEquals(_version2Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals("TestConfig202", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assert202(test);
   }
 
   //-------------------------------------------------------------------------
