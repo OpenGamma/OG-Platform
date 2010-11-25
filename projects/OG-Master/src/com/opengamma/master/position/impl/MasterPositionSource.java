@@ -11,16 +11,13 @@ import javax.time.InstantProvider;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/position/master/MasterPositionSource.java
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PositionSource;
-=======
 import com.opengamma.core.position.PositionSource;
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-Master/src/com/opengamma/master/position/impl/MasterPositionSource.java
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 

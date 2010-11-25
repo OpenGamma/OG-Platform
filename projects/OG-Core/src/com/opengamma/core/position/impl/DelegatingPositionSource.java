@@ -10,11 +10,8 @@ import java.util.Map;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-<<<<<<< HEAD
 import com.opengamma.core.position.Trade;
-=======
 import com.opengamma.core.position.PositionSource;
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;

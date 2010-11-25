@@ -35,23 +35,13 @@ import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/position/master/db/QueryFullDbPositionMasterWorker.java
-import com.opengamma.financial.position.master.FullPortfolioGetRequest;
-import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
-import com.opengamma.financial.position.master.FullPositionGetRequest;
-import com.opengamma.financial.position.master.FullTradeGetRequest;
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.ManageableTrade;
-import com.opengamma.financial.position.master.PositionHistoryRequest;
-import com.opengamma.financial.position.master.PositionHistoryResult;
-=======
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/src/com/opengamma/masterdb/position/QueryFullDbPositionMasterWorker.java
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionHistoryRequest;

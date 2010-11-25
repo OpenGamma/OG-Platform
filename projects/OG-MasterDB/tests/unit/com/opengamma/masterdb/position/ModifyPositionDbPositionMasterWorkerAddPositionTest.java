@@ -21,13 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-<<<<<<< HEAD:projects/OG-Financial/tests/unit/com/opengamma/financial/position/master/db/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
 import com.google.common.collect.Sets;
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.ManageableTrade;
-import com.opengamma.financial.position.master.PositionDocument;
-=======
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/position/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -182,21 +176,12 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-<<<<<<< HEAD:projects/OG-Financial/tests/unit/com/opengamma/financial/position/master/db/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
-    UniqueIdentifier positionUid = test.getPositionId();
+    UniqueIdentifier positionUid = test.getUniqueId();
     assertNotNull(positionUid);
     assertEquals("DbPos", positionUid.getScheme());
     assertTrue(positionUid.isVersioned());
     assertTrue(Long.parseLong(positionUid.getValue()) > 1000);
     assertEquals("0", positionUid.getVersion());
-=======
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbPos", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
-    assertEquals("0", uid.getVersion());
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/position/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
     assertEquals(now, test.getVersionFromInstant());
@@ -258,12 +243,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     //UIDs are added to trades after writing to database
     position.setTrades(Sets.newHashSet(position.getTrades()));
     
-<<<<<<< HEAD:projects/OG-Financial/tests/unit/com/opengamma/financial/position/master/db/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
-    PositionDocument test = _queryWorker.getPosition(added.getPositionId());
-        
-=======
     PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/position/ModifyPositionDbPositionMasterWorkerAddPositionTest.java
+        
     assertEquals(added, test);
   }
   

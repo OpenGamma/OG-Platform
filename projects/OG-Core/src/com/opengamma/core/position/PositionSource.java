@@ -5,13 +5,7 @@
  */
 package com.opengamma.core.position;
 
-<<<<<<< HEAD:projects/OG-Core/src/com/opengamma/core/position/impl/PositionSource.java
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
-=======
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-Core/src/com/opengamma/core/position/PositionSource.java
+
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 

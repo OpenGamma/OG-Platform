@@ -211,10 +211,10 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       secKeyList.add(treeArgs);
     }
     
-    // set the position uid
+    // set the uid
     final UniqueIdentifier positionUid = createUniqueIdentifier(positionOid, positionId, null);
     UniqueIdentifiables.setInto(document.getPosition(), positionUid);
-    document.setPositionId(positionUid);
+    document.setUniqueId(positionUid);
     
     //the arguments for inserting into the trade table
     final List<DbMapSqlParameterSource> tradeList = new ArrayList<DbMapSqlParameterSource>();
@@ -237,18 +237,9 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       trade.setPositionId(positionUid);
     }
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
-<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/position/master/db/ModifyPositionDbPositionMasterWorker.java
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), (DbMapSqlParameterSource[]) secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertTrades(), (DbMapSqlParameterSource[]) tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
-        
-=======
     getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
-    // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
-    UniqueIdentifiables.setInto(document.getPosition(), uid);
-    document.setUniqueId(uid);
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/src/com/opengamma/masterdb/position/ModifyPositionDbPositionMasterWorker.java
+   
   }
 
   /**

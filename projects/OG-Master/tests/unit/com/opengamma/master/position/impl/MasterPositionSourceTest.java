@@ -34,6 +34,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 

@@ -138,7 +138,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         232, 222, "TICKER", "IBMC");
     
-<<<<<<< HEAD:projects/OG-Financial/tests/unit/com/opengamma/financial/position/master/db/AbstractDbPositionMasterWorkerTest.java
     
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
         400, 400, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
@@ -159,24 +158,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
         408, 407, 222,  BigDecimal.valueOf(222.987), toSqlTimestamp(_version2Instant.minusSeconds(100)), "CPARTY", "C222");
     
-    
-    
-=======
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        100, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        101, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(_version1Instant.minusSeconds(121)), "CPARTY", "C101");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        102, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "JMP");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        103, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "CISC");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        104, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C104");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        105, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        106, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
->>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d:projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/position/AbstractDbPositionMasterWorkerTest.java
   }
 
   @After
