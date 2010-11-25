@@ -103,7 +103,7 @@
   </bean>
 
   <!-- TimeSeries database -->
-  <import resource="classpath:com/opengamma/financial/timeseries/db/tssQueries.xml" />
+  <import resource="classpath:com/opengamma/masterdb/timeseries/tssQueries.xml" />
   <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
     <constructor-arg ref="tssDbSource"/>
     <constructor-arg ref="tssNamedSQLMap"/>

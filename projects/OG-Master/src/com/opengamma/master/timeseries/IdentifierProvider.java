@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries;
+package com.opengamma.master.timeseries;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +13,8 @@ import com.opengamma.id.IdentifierBundleWithDates;
 
 /**
  * Provider for loading all available identifiers with date ranges if available.
+ * <p>
+ * This is used to find the different security identifiers over time.
  */
 public interface IdentifierProvider {
 

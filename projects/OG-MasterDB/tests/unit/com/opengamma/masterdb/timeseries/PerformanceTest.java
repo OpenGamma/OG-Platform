@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
 import java.util.Map;
 
@@ -24,6 +24,7 @@ import com.opengamma.master.timeseries.DataPointDocument;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.masterdb.timeseries.LocalDateDbTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
