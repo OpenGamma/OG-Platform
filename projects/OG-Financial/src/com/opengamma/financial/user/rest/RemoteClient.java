@@ -7,6 +7,8 @@ package com.opengamma.financial.user.rest;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.position.master.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -26,6 +28,7 @@ public class RemoteClient {
   private final RestTarget _baseTarget;
   private final RestTarget _securityMasterTarget;
   private final RestTarget _viewDefinitionRepositoryTarget;
+  private final RestTarget _interpolatedYieldCurveDefinitionMasterTarget;
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
     _clientId = clientId;
@@ -33,6 +36,7 @@ public class RemoteClient {
     _baseTarget = baseTarget;
     _securityMasterTarget = baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
     _viewDefinitionRepositoryTarget = baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH);
+    _interpolatedYieldCurveDefinitionMasterTarget = baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH);
   }
   
   public String getClientId() {
@@ -49,6 +53,10 @@ public class RemoteClient {
   
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return new RemoteManagableViewDefinitionRepository(_fudgeContext, _viewDefinitionRepositoryTarget);
+  }
+
+  public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
+    return new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _interpolatedYieldCurveDefinitionMasterTarget);
   }
 
   /**
