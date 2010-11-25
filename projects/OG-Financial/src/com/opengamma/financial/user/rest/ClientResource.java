@@ -10,6 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
@@ -27,6 +29,8 @@ import com.opengamma.master.position.PositionMaster;
  */
 public class ClientResource {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(ClientResource.class);
+
   /**
    * The path used to retrieve user portfolios
    */
@@ -105,6 +109,7 @@ public class ClientResource {
   public synchronized DataPortfolioTreesResource getPortfolios() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
+      s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       _positionMaster = new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster());
     }
     return new DataPortfolioTreesResource(_positionMaster);
@@ -114,6 +119,7 @@ public class ClientResource {
   public synchronized DataPositionsResource getPositions() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
+      s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       _positionMaster = new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster());
     }
     return new DataPositionsResource(_positionMaster);
@@ -123,6 +129,7 @@ public class ClientResource {
   public synchronized SecurityMasterResource getSecurities() {
     _lastAccessed = System.currentTimeMillis();
     if (_securitiesResource == null) {
+      s_logger.debug("Creating UserSecurityMaster for {}/{}", getUserName(), getClientName());
       _securitiesResource = new SecurityMasterResource(new UserSecurityMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getSecurityMaster()),
           getFudgeContext());
     }
@@ -133,6 +140,7 @@ public class ClientResource {
   public synchronized ViewDefinitionsResource getViewDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_viewDefinitionsResource == null) {
+      s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
       _viewDefinitionsResource = new ViewDefinitionsResource(new UserManageableViewDefinitionRepository(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext
           .getViewDefinitionRepository()),
           getFudgeContext());
@@ -144,6 +152,7 @@ public class ClientResource {
   public synchronized InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_interpolatedYieldCurveDefinitionsResource == null) {
+      s_logger.debug("Creating UserYieldCurveDefinitionMaster for {}/{}", getUserName(), getClientName());
       _interpolatedYieldCurveDefinitionsResource = new InterpolatedYieldCurveDefinitionMasterResource(new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
           _usersResourceContext.getDataTracker(), _usersResourceContext.getInterpolatedYieldCurveDefinitionMaster()), getFudgeContext());
     }
@@ -153,6 +162,7 @@ public class ClientResource {
   @POST
   @Path(HEARTBEAT_PATH)
   public void heartbeat() {
+    s_logger.debug("Heartbeat received from {}/{}", getUserName(), getClientName());
     _lastAccessed = System.currentTimeMillis();
   }
 
