@@ -210,27 +210,36 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         .addValue("id_value", id.getValue());
       secKeyList.add(treeArgs);
     }
+    
+    // set the uid
+    final UniqueIdentifier positionUid = createUniqueIdentifier(positionOid, positionId, null);
+    UniqueIdentifiables.setInto(document.getPosition(), positionUid);
+    document.setUniqueId(positionUid);
+    
     //the arguments for inserting into the trade table
     final List<DbMapSqlParameterSource> tradeList = new ArrayList<DbMapSqlParameterSource>();
     for (ManageableTrade trade : document.getPosition().getTrades()) {
       final long tradeId = nextId();
+      final long tradeOid = (trade.getUniqueIdentifier() != null ? extractOid(trade.getUniqueIdentifier()) : tradeId);
       final Identifier counterpartyId = trade.getCounterpartyId();
       final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
         .addValue("trade_id", tradeId)
+        .addValue("trade_oid", tradeOid)
         .addValue("position_id", positionId)
         .addValue("quantity", trade.getQuantity())
         .addTimestamp("trade_instant", trade.getTradeInstant())
         .addValue("cparty_scheme", counterpartyId.getScheme().getName())
         .addValue("cparty_value", counterpartyId.getValue());
       tradeList.add(treeArgs);
+      //set the trade uid
+      final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
+      UniqueIdentifiables.setInto(trade, tradeUid);
+      trade.setPositionId(positionUid);
     }
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
     getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
-    // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
-    UniqueIdentifiables.setInto(document.getPosition(), uid);
-    document.setUniqueId(uid);
+   
   }
 
   /**
@@ -239,9 +248,9 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected String sqlInsertTrades() {
     return "INSERT INTO pos_trade " +
-              "(id, position_id, quantity, trade_instant, cparty_scheme, cparty_value) " +
+              "(id, oid, position_id, quantity, trade_instant, cparty_scheme, cparty_value) " +
             "VALUES " +
-              "(:trade_id, :position_id, :quantity, :trade_instant, :cparty_scheme, :cparty_value)";
+              "(:trade_id, :trade_oid, :position_id, :quantity, :trade_instant, :cparty_scheme, :cparty_value)";
   }
 
   /**

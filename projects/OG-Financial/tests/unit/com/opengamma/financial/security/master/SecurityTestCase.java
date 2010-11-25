@@ -28,6 +28,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Creates random securities.
  */
+@Ignore("Abstract class")
 @SuppressWarnings("unchecked")
 abstract public class SecurityTestCase implements SecurityTestCaseMethods {
 

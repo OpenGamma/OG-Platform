@@ -103,7 +103,7 @@
   </bean>
 
   <!-- TimeSeries database -->
-  <import resource="classpath:com/opengamma/financial/timeseries/db/tssQueries.xml" />
+  <import resource="classpath:com/opengamma/masterdb/timeseries/tssQueries.xml" />
   <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
     <constructor-arg ref="tssDbSource"/>
     <constructor-arg ref="tssNamedSQLMap"/>
@@ -111,7 +111,7 @@
   </bean>
   <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.timeseries.MasterTimeSeriesSource">
+      <bean class="com.opengamma.master.timeseries.impl.MasterHistoricalDataSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
           <bean class="com.opengamma.financial.timeseries.config.DefaultTimeSeriesResolver">

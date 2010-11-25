@@ -6,9 +6,9 @@
 package com.opengamma.financial.timeseries.config;
 
 
-import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
-import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
-import static com.opengamma.financial.timeseries.config.TimeSeriesMetaDataFieldNames.STAR_VALUE;
+import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.STAR_VALUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -26,22 +26,24 @@ import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.memory.InMemoryConfigMaster;
 import com.opengamma.engine.config.MasterConfigSource;
-import com.opengamma.financial.timeseries.RandomTimeSeriesGenerator;
-import com.opengamma.financial.timeseries.TimeSeriesDocument;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
-import com.opengamma.financial.timeseries.memory.InMemoryLocalDateTimeSeriesMaster;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMaster;
+import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Test DefaultTimeSeriesResolver 
+ * Test DefaultTimeSeriesResolver.
  */
 public class DefaultTimeSeriesResolverTest {
+
   private static final int TS_DATASET_SIZE = 1;
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String DEFAULT_DATA_SOURCE = "BLOOMBERG";
@@ -55,9 +57,6 @@ public class DefaultTimeSeriesResolverTest {
   private DefaultTimeSeriesResolver<LocalDate> _metaDataResolver;
   private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
-  /**
-   * @throws java.lang.Exception
-   */
   @Before
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
@@ -96,7 +95,8 @@ public class DefaultTimeSeriesResolverTest {
     _metaDataResolver = null;
     _tsMaster = null;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void test() throws Exception {
     addAndTestTimeSeries();

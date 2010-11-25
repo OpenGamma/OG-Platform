@@ -35,7 +35,7 @@ public class DbHolidayMasterWorkers {
 
   /**
    * Initializes the instance.
-   * @param master  the holiday master, non-null
+   * @param master  the holiday master, not null
    */
   protected void init(final DbHolidayMaster master) {
     _searchWorker.init(master);

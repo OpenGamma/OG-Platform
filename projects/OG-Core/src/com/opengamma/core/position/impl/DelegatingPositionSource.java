@@ -5,9 +5,12 @@
  */
 package com.opengamma.core.position.impl;
 
+import java.util.Map;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSchemeDelegator;
@@ -30,6 +33,10 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     super(defaultSource);
   }
 
+  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> delegates) {
+    super(defaultSource, delegates);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
@@ -48,5 +55,13 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getPosition(uid);
   }
+
+  @Override
+  public Trade getTrade(UniqueIdentifier uid) {
+    ArgumentChecker.notNull(uid, "uid");
+    return chooseDelegate(uid).getTrade(uid);
+  }
+  
+  
 
 }

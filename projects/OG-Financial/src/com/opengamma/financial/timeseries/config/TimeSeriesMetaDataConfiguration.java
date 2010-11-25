@@ -11,23 +11,32 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.TimeSeriesMetaData;
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TimeSeriesMetaDataConfiguration represents the set of rules to use when loading timeseries from a TimeSeriesMaster
+ * The set of rules to use when loading time-series from a master.
  */
 public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRateProvider {
 
-  private Set<TimeSeriesMetaDataRating> _rules = new HashSet<TimeSeriesMetaDataRating>();
-  private transient Map<String, Map<String, Integer>> _rulesByFieldType = new HashMap<String, Map<String, Integer>>();
+  /**
+   * The set of rules.
+   */
+  private final Set<TimeSeriesMetaDataRating> _rules = new HashSet<TimeSeriesMetaDataRating>();
+  /**
+   * The rules grouped by field type.
+   */
+  private final Map<String, Map<String, Integer>> _rulesByFieldType = new HashMap<String, Map<String, Integer>>();
   /**
    * The cached hash code.
    */
-  private transient volatile int _hashCode;
-  
+  private final int _hashCode;
+
   /**
-   * @param rules the list of rules, not null and empty
+   * Creates an instance.
+   * 
+   * @param rules  the rules, not null and not empty
    */
   public TimeSeriesMetaDataConfiguration(Collection<TimeSeriesMetaDataRating> rules) {
     ArgumentChecker.notEmpty(rules, "rules");
@@ -35,7 +44,7 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
     buildRuleDb();
     _hashCode = calcHashCode();
   }
-  
+
   private void buildRuleDb() {
     for (TimeSeriesMetaDataRating rule : _rules) {
       String fieldName = rule.getFieldName();
@@ -48,15 +57,17 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
     }
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the rules field.
-   * @return the rules
+   * 
+   * @return the rules, not null
    */
   public Collection<TimeSeriesMetaDataRating> getRules() {
     return Collections.unmodifiableCollection(_rules);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int rate(TimeSeriesMetaData metaData) {
     String dataSource = metaData.getDataSource();
@@ -80,20 +91,7 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
     return dsRating * dpRating;
   }
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE, false);
-  }
-  
-  private int calcHashCode() {
-    return 31 + _rules.hashCode();
-  }
-
-  @Override
-  public int hashCode() {
-    return _hashCode;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -105,7 +103,19 @@ public class TimeSeriesMetaDataConfiguration implements TimeSeriesMetaDataRatePr
     }
     return false;
   }
-  
-  
+
+  @Override
+  public int hashCode() {
+    return _hashCode;
+  }
+
+  private int calcHashCode() {
+    return 31 + _rules.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE, false);
+  }
 
 }

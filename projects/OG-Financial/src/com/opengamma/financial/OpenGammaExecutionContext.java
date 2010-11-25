@@ -46,6 +46,10 @@ public final class OpenGammaExecutionContext {
    */
   public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
 
+  // REVIEW 2010-10-22 Andrew -- A number of things are needed at both execution and compile time. Should the
+  // function execution context reference it's compilation context rather than duplicate the information?
+  // e.g. implement getConfigSource as OpenGammaCompilationContext.getConfigSource (executionContext.getCompilationContext ());
+
   /**
    * Restricted constructor.
    */
