@@ -20,13 +20,13 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.DataPositionResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -60,10 +60,10 @@ public class DataPositionResourceTest {
   public void testUpdatePosition() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     final PositionDocument request = new PositionDocument(position);
-    request.setPositionId(UID);
+    request.setUniqueId(UID);
     
     final PositionDocument result = new PositionDocument(position);
-    result.setPositionId(UID);
+    result.setUniqueId(UID);
     when(_underlying.updatePosition(same(request))).thenReturn(result);
     
     Response test = _resource.put(request);

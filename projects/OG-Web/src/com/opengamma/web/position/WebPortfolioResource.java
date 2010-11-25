@@ -20,10 +20,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PositionSearchRequest;
-import com.opengamma.financial.position.master.PositionSearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 
 /**
  * RESTful resource for a portfolio.
@@ -75,7 +75,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @DELETE
   public Response delete() {
     PortfolioTreeDocument doc = data().getPortfolio();
-    data().getPositionMaster().removePortfolioTree(doc.getPortfolioId());
+    data().getPositionMaster().removePortfolioTree(doc.getUniqueId());
     URI uri = WebPortfoliosResource.uri(data());
     return Response.seeOther(uri).build();
   }

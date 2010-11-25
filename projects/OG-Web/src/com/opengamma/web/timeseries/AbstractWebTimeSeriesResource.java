@@ -10,8 +10,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.timeseries.TimeSeriesLoader;
-import com.opengamma.financial.timeseries.TimeSeriesMaster;
+import com.opengamma.master.timeseries.TimeSeriesLoader;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;

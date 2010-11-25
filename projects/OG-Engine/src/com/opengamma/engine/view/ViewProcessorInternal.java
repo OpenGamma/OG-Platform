@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.core.position.impl.PositionSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;

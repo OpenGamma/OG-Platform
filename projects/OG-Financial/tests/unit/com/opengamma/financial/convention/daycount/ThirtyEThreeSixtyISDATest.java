@@ -15,9 +15,10 @@ import org.junit.Test;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * Test ThirtyEThreeSixtyISDA.
  */
 public class ThirtyEThreeSixtyISDATest {
+
   private static final ThirtyEThreeSixtyISDA DC = new ThirtyEThreeSixtyISDA();
   protected static final ZonedDateTime D1 = DateUtil.getUTCDate(2010, 1, 1);
   protected static final ZonedDateTime D2 = DateUtil.getUTCDate(2010, 4, 1);
@@ -55,4 +56,5 @@ public class ThirtyEThreeSixtyISDATest {
     assertEquals(DC.getAccruedInterest(D1, D1, D3, COUPON, PAYMENTS, true), 0, 0);
     assertEquals(DC.getConventionName(), "30E/360 ISDA");
   }
+
 }

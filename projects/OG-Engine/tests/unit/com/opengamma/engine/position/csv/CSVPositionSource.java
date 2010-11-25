@@ -30,11 +30,14 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+<<<<<<< HEAD
 import com.opengamma.core.position.Trade;
+=======
+import com.opengamma.core.position.PositionSource;
+>>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.PositionSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

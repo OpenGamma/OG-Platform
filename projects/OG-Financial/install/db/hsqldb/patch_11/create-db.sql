@@ -402,6 +402,7 @@ create table sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
+<<<<<<< HEAD
 -- create-db-position.sql: Position Master
 
 -- design has two documents
@@ -489,6 +490,8 @@ create table pos_trade (
 );
 -- pos_trade is fully dependent of pos_position
 
+=======
+>>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d
 -------------------------------------
 -- Static data
 -------------------------------------

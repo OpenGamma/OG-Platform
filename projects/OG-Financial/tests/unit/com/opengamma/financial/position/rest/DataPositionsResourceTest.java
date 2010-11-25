@@ -20,13 +20,13 @@ import javax.ws.rs.core.UriInfo;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.ManageablePosition;
-import com.opengamma.financial.position.master.PositionDocument;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.rest.DataPositionResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -53,7 +53,7 @@ public class DataPositionsResourceTest {
     final PositionDocument request = new PositionDocument(position);
     
     final PositionDocument result = new PositionDocument(position);
-    result.setPositionId(UniqueIdentifier.of("Test", "PosA"));
+    result.setUniqueId(UniqueIdentifier.of("Test", "PosA"));
     when(_underlying.addPosition(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);

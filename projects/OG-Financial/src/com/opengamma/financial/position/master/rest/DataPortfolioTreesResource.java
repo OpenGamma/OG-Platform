@@ -19,11 +19,11 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.financial.position.master.PortfolioTreeDocument;
-import com.opengamma.financial.position.master.PortfolioTreeSearchRequest;
-import com.opengamma.financial.position.master.PortfolioTreeSearchResult;
-import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeSearchRequest;
+import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -71,7 +71,7 @@ public class DataPortfolioTreesResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioTreeDocument request) {
     PortfolioTreeDocument result = getPositionMaster().addPortfolioTree(request);
-    return Response.created(DataPortfolioTreeResource.uri(uriInfo.getBaseUri(), result.getPortfolioId())).entity(result).build();
+    return Response.created(DataPortfolioTreeResource.uri(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 
   //-------------------------------------------------------------------------

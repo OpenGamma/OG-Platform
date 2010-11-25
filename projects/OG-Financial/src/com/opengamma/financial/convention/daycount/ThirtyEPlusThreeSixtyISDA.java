@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.daycount;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
+ * The '30E+/360 ISDA' day count.
  */
 public class ThirtyEPlusThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
 

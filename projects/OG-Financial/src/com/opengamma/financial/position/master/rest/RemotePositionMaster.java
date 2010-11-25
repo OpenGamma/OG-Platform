@@ -10,6 +10,7 @@ import java.net.URI;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+<<<<<<< HEAD
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.position.master.FullPortfolioGetRequest;
 import com.opengamma.financial.position.master.FullPortfolioNodeGetRequest;
@@ -26,7 +27,23 @@ import com.opengamma.financial.position.master.PositionHistoryResult;
 import com.opengamma.financial.position.master.PositionMaster;
 import com.opengamma.financial.position.master.PositionSearchRequest;
 import com.opengamma.financial.position.master.PositionSearchResult;
+=======
+>>>>>>> 3d89945a8edfe752de5093c51ec1c03c3a324c3d
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.FullPortfolioGetRequest;
+import com.opengamma.master.position.FullPortfolioNodeGetRequest;
+import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.PortfolioTreeDocument;
+import com.opengamma.master.position.PortfolioTreeHistoryRequest;
+import com.opengamma.master.position.PortfolioTreeHistoryResult;
+import com.opengamma.master.position.PortfolioTreeSearchRequest;
+import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -95,9 +112,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument updatePortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioTreeResource.uri(_baseUri, document.getPortfolioId());
+    URI uri = DataPortfolioTreeResource.uri(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
@@ -114,10 +131,10 @@ public class RemotePositionMaster implements PositionMaster {
   @Override
   public PortfolioTreeHistoryResult historyPortfolioTree(final PortfolioTreeHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPortfolioId(), "request.portfolioId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataPortfolioTreeResource.uriVersions(_baseUri, request.getPortfolioId(), msgBase64);
+    URI uri = DataPortfolioTreeResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
     return accessRemote(uri).get(PortfolioTreeHistoryResult.class);
   }
 
@@ -126,9 +143,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PortfolioTreeDocument correctPortfolioTree(final PortfolioTreeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolioId(), "document.portfolioId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioTreeResource.uriVersion(_baseUri, document.getPortfolioId());
+    URI uri = DataPortfolioTreeResource.uriVersion(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PortfolioTreeDocument.class, document);
   }
 
@@ -172,9 +189,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionDocument updatePosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uri(_baseUri, document.getPositionId());
+    URI uri = DataPositionResource.uri(_baseUri, document.getUniqueId());
     return accessRemote(uri).put(PositionDocument.class, document);
   }
 
@@ -191,10 +208,10 @@ public class RemotePositionMaster implements PositionMaster {
   @Override
   public PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getPositionId(), "request.positionId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     String msgBase64 = _client.encodeBean(request);
-    URI uri = DataPositionResource.uriVersions(_baseUri, request.getPositionId(), msgBase64);
+    URI uri = DataPositionResource.uriVersions(_baseUri, request.getObjectId(), msgBase64);
     return accessRemote(uri).get(PositionHistoryResult.class);
   }
 
@@ -203,9 +220,9 @@ public class RemotePositionMaster implements PositionMaster {
   public PositionDocument correctPosition(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    ArgumentChecker.notNull(document.getPositionId(), "document.positionId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uriVersion(_baseUri, document.getPositionId());
+    URI uri = DataPositionResource.uriVersion(_baseUri, document.getUniqueId());
     return accessRemote(uri).get(PositionDocument.class);
   }
 

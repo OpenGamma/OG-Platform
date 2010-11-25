@@ -9,26 +9,27 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.util.time.DateUtil;
-
 /**
- * 
+ * The '30E/360 ISDA' day count.
  */
 public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     throw new NotImplementedException("Need to know whether the second date is the maturity");
-  }
-
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
-      final boolean isMaturity) {
-    return coupon * getDayCountFraction(previousCouponDate, date, isMaturity);
   }
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear) {
     throw new NotImplementedException("Need to know whether the second date is the maturity");
+  }
+
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear, final boolean isMaturity) {
+    return coupon * getDayCountFraction(previousCouponDate, date, isMaturity);
   }
 
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final boolean isMaturity) {
@@ -39,11 +40,11 @@ public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
     final double m2 = secondDate.getMonthOfYear().getValue();
     final double y1 = firstDate.getYear();
     final double y2 = secondDate.getYear();
-    if (d1 == firstDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(firstDate))) {
+    if (d1 == firstDate.getMonthOfYear().getLastDayOfMonth(firstDate.toLocalDate().isLeapYear())) {
       d1 = 30;
     }
     if (!isMaturity) {
-      if (d2 == secondDate.getMonthOfYear().getLastDayOfMonth(DateUtil.isLeapYear(secondDate))) {
+      if (d2 == secondDate.getMonthOfYear().getLastDayOfMonth(secondDate.toLocalDate().isLeapYear())) {
         d2 = 30;
       }
     }

@@ -18,26 +18,27 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 
-
 /**
- * 
- *
- * @author yomi
+ * Standard provider of exchange data based on a CSV file.
  */
 public class DefaultExchangeDataProvider implements ExchangeDataProvider {
+
   private static final String EXCHANGE_ISO_FILE = "ISO10383MIC.csv";
   private Map<String, Exchange> _exchangeMap = new HashMap<String, Exchange>();
-    
+
+  /**
+   * Creates an instance.
+   */
   public DefaultExchangeDataProvider() {
-    loadExchanageData();
+    loadExchangeData();
   }
 
   /**
-   * @param filename
-   * @throws IOException 
-   * @throws  
+   * Loads the exchange data
+   * 
+   * @param filename  the filename, not null
    */
-  private void loadExchanageData() {
+  private void loadExchangeData() {
     InputStream is = getClass().getResourceAsStream(EXCHANGE_ISO_FILE);
     if (is == null) {
       throw new OpenGammaRuntimeException("Unable to locate " + EXCHANGE_ISO_FILE);

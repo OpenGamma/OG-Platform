@@ -13,4 +13,5 @@ import javax.time.calendar.LocalDate;
 public interface InterpolatedYieldCurveSpecificationBuilder {
   
   InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition);
+
 }

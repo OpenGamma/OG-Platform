@@ -7,7 +7,7 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.core.position.impl.PositionSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;

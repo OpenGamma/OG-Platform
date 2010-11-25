@@ -10,17 +10,11 @@ import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
-import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * The 'Actual/Actual AFB' day count.
  */
 public class ActualActualAFB extends ActualTypeDayCount {
-
-  @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
-    return coupon * getDayCountFraction(previousCouponDate, date);
-  }
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
@@ -30,15 +24,22 @@ public class ActualActualAFB extends ActualTypeDayCount {
     final long daysBetween = end.toModifiedJulianDays() - start.toModifiedJulianDays();
     final LocalDate oneYear = start.plusYears(1);
     if (end.isBefore(oneYear) || oneYear.equals(end)) {
-      final double daysInYear = DateUtil.isLeapYear(end) && end.getMonthOfYear().getValue() > 2 ? 366 : 365;
+      final double daysInYear = end.isLeapYear() && end.getMonthOfYear().getValue() > 2 ? 366 : 365;
       return daysBetween / daysInYear;
     }
     final ZonedDateTime[] schedule = ScheduleFactory.getSchedule(firstDate, secondDate, 1, true, true, false);
     ZonedDateTime d = schedule[0];
-    if (DateUtil.isLeapYear(d) && d.getMonthOfYear() == MonthOfYear.FEBRUARY && d.getDayOfMonth() == 28) {
+    if (d.toLocalDate().isLeapYear() && d.getMonthOfYear() == MonthOfYear.FEBRUARY && d.getDayOfMonth() == 28) {
       d = d.plusDays(1);
     }
     return schedule.length + getDayCountFraction(firstDate, d);
+  }
+
+  @Override
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear) {
+    return coupon * getDayCountFraction(previousCouponDate, date);
   }
 
   @Override

@@ -10,28 +10,33 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.util.time.DateUtil;
-
 /**
- * 
+ * The 'Actual/365L' day count.
  */
 public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+    throw new NotImplementedException("Need information on payment frequency to get day count");
+  }
+
+  @Override
+  public double getAccruedInterest(
+      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
+      final double coupon, final int paymentsPerYear) {
     testDates(previousCouponDate, date, nextCouponDate);
     final LocalDate previous = previousCouponDate.toLocalDate();
     final LocalDate next = nextCouponDate.toLocalDate();
     double daysPerYear;
     if (paymentsPerYear == 1) {
-      if (DateUtil.isLeapYear(next)) {
+      if (next.isLeapYear()) {
         final LocalDate feb29 = LocalDate.of(next.getYear(), 2, 29);
         if (!next.isBefore(feb29) && previous.isBefore(feb29)) {
           daysPerYear = 366;
         } else {
           daysPerYear = 365;
         }
-      } else if (DateUtil.isLeapYear(previous)) {
+      } else if (previous.isLeapYear()) {
         final LocalDate feb29 = LocalDate.of(previous.getYear(), 2, 29);
         if (!next.isBefore(feb29) && previous.isBefore(feb29)) {
           daysPerYear = 366;
@@ -42,16 +47,11 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
         daysPerYear = 365;
       }
     } else {
-      daysPerYear = DateUtil.isLeapYear(next) ? 366 : 365;
+      daysPerYear = next.isLeapYear() ? 366 : 365;
     }
     final long firstJulianDate = previous.toModifiedJulianDays();
     final long secondJulianDate = date.toLocalDate().toModifiedJulianDays();
     return coupon * (secondJulianDate - firstJulianDate) / daysPerYear;
-  }
-
-  @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    throw new NotImplementedException("Need information on payment frequency to get day count");
   }
 
   @Override

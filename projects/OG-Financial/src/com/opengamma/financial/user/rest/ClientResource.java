@@ -10,17 +10,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
-import com.opengamma.financial.user.UserResourceDetails;
-import com.opengamma.financial.user.UserUniqueIdentifierUtils;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
-import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
-import com.opengamma.id.UniqueIdentifierTemplate;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.InMemorySecurityMaster;
 
 /**
  * Temporary RESTful resource representing a user's client session.
@@ -44,28 +38,17 @@ public class ClientResource {
    * The path used to retrieve user view definitions
    */
   public static final String VIEW_DEFINITIONS_PATH = "viewDefinitions";
+  /**
+   * The path used to retrieve yield curve definitions
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH = "interpolatedYieldCurveDefinitions";
   
   private final ClientsResource _clientsResource;
-  private final SecurityMaster _securityMaster;
-  private final ManageableViewDefinitionRepository _viewDefinitionRepository;
   private final UsersResourceContext _usersResourceContext;
   
   public ClientResource(ClientsResource clientsResource, String clientName, UsersResourceContext context) {
     _clientsResource = clientsResource;
-    String username = clientsResource.getUserResource().getUserName();
-    _securityMaster = new InMemorySecurityMaster(getTemplate(username, clientName, SECURITIES_PATH).createSupplier());
     _usersResourceContext = context;
-    // [FIN-124] The user SecuritySource is done wrongly throughout
-    _viewDefinitionRepository = new InMemoryViewDefinitionRepository();
-  }
-
-  private UniqueIdentifierTemplate getTemplate(final String username, final String clientName, final String resourceType) {
-    UserResourceDetails resourceDetails = new UserResourceDetails(username, clientName, resourceType);
-    return UserUniqueIdentifierUtils.getTemplate(resourceDetails);
-  }
-  
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
   }
 
   public FudgeContext getFudgeContext() {
@@ -96,12 +79,17 @@ public class ClientResource {
   
   @Path(SECURITIES_PATH)
   public SecurityMasterResource getSecurities() {
-    return new SecurityMasterResource(getSecurityMaster(), getFudgeContext());
+    return new SecurityMasterResource(_usersResourceContext.getSecurityMaster(), getFudgeContext());
   }
   
   @Path(VIEW_DEFINITIONS_PATH)
   public ViewDefinitionsResource getViewDefinitions() {
-    return new ViewDefinitionsResource(_viewDefinitionRepository);
+    return new ViewDefinitionsResource(_usersResourceContext.getViewDefinitionRepository(), getFudgeContext());
   }
   
+  @Path(INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH)
+  public InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
+    return new InterpolatedYieldCurveDefinitionMasterResource(_usersResourceContext.getInterpolatedYieldCurveDefinitionMaster(), getFudgeContext());
+  }
+
 }
