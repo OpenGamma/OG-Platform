@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.time;
 
+import java.io.Serializable;
+
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.TimeZone;
@@ -20,7 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An indication of when something expires.
  */
-public class Expiry implements InstantProvider {
+public class Expiry implements InstantProvider, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The expiry date-time.
@@ -51,7 +56,7 @@ public class Expiry implements InstantProvider {
     _accuracy = accuracy;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the expiry date-time.
    * @return the date-time
@@ -74,7 +79,7 @@ public class Expiry implements InstantProvider {
     return _expiry.toInstant();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -140,12 +145,13 @@ public class Expiry implements InstantProvider {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
    * used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory the Fudge message factory
-   * @param message the message to populate
+   * @param factory  the Fudge message factory
+   * @param message  the message to populate
    */
   public void toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ExpiryBuilder.toFudgeMsg(this, message);
@@ -156,7 +162,7 @@ public class Expiry implements InstantProvider {
    * used directly as a message type instead of through the serialization framework.
    * 
    * @param message the message to decode
-   * @return the Expiry object
+   * @return the expiry object
    */
   public static Expiry fromFudgeMsg(final FudgeFieldContainer message) {
     return ExpiryBuilder.fromFudgeMsg(message);
