@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
@@ -60,7 +61,7 @@ public class DependencyGraph {
   private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications = new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
 
   private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredLiveData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
-  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
+  private final Set<ComputationTarget> _allComputationTargets = new HashSet<ComputationTarget>();
 
   /**
    * Creates a new, initially empty, dependency graph for the named configuration.
@@ -145,7 +146,7 @@ public class DependencyGraph {
    * 
    * @return the set of all computation targets
    */
-  public Set<ComputationTargetSpecification> getAllComputationTargets() {
+  public Set<ComputationTarget> getAllComputationTargets() {
     return Collections.unmodifiableSet(_allComputationTargets);
   }
 
@@ -295,7 +296,7 @@ public class DependencyGraph {
     if (liveData != null) {
       _allRequiredLiveData.add(liveData);
     }
-    _allComputationTargets.add(node.getComputationTarget().toSpecification());
+    _allComputationTargets.add(node.getComputationTarget());
 
     for (ValueSpecification output : node.getOutputValues()) {
       final DependencyNode previous = _specification2DependencyNode.put(output, node);

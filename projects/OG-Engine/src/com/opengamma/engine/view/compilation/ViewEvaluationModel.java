@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import javax.time.Instant;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -106,10 +107,10 @@ public class ViewEvaluationModel {
     return _securityTypes;
   }
 
-  public Set<ComputationTargetSpecification> getAllComputationTargets() {
-    Set<ComputationTargetSpecification> targets = new HashSet<ComputationTargetSpecification>();
+  public Set<ComputationTarget> getAllComputationTargets() {
+    Set<ComputationTarget> targets = new HashSet<ComputationTarget>();
     for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
-      Set<ComputationTargetSpecification> requiredLiveData = dependencyGraph.getAllComputationTargets();
+      Set<ComputationTarget> requiredLiveData = dependencyGraph.getAllComputationTargets();
       targets.addAll(requiredLiveData);
     }
     return targets;
