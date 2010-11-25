@@ -8,6 +8,9 @@ package com.opengamma.financial.user.rest;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.user.ClientTracker;
+import com.opengamma.financial.user.DummyTracker;
+import com.opengamma.financial.user.UserDataTracker;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -18,14 +21,35 @@ import com.opengamma.master.security.SecurityMaster;
 public class UsersResourceContext {
 
   private FudgeContext _fudgeContext;
+  private UserDataTracker _dataTracker;
+  private ClientTracker _clientTracker;
   private PositionMaster _userPositionMaster;
   private SecurityMaster _userSecurityMaster;
   private ManageableViewDefinitionRepository _userViewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _userInterpolatedYieldCurveDefinitionMaster;
 
   public UsersResourceContext() {
+    final DummyTracker tracker = new DummyTracker();
+    setDataTracker(tracker);
+    setClientTracker(tracker);
   }
   
+  public void setDataTracker(UserDataTracker dataTracker) {
+    _dataTracker = dataTracker;
+  }
+
+  public UserDataTracker getDataTracker() {
+    return _dataTracker;
+  }
+
+  public void setClientTracker(ClientTracker clientTracker) {
+    _clientTracker = clientTracker;
+  }
+
+  public ClientTracker getClientTracker() {
+    return _clientTracker;
+  }
+
   public void setUserPositionMaster(PositionMaster positionMaster) {
     _userPositionMaster = positionMaster;
   }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.user.rest;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,8 +17,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Temporary RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
- * magically exist.
+ * RESTful resource which isn't backed by any user objects, just to host /users. Any user requested will
+ * be created.
  */
 @Path("/data/users")
 public class UsersResource {
@@ -44,20 +46,56 @@ public class UsersResource {
 
   @Path("{username}")
   public UserResource getUser(@PathParam("username") String username) {
-    UserResource freshUser = new UserResource(this, username, _context);
-    UserResource actualUser = _userMap.putIfAbsent(username, freshUser);
-    if (actualUser == null) {
-      actualUser = freshUser;
+    UserResource user = _userMap.get(username);
+    if (user == null) {
+      _context.getClientTracker().userCreated(username);
+      UserResource freshUser = new UserResource(this, username, _context);
+      user = _userMap.putIfAbsent(username, freshUser);
+      if (user == null) {
+        user = freshUser;
+      }
     }
-    return actualUser;
+    return user;
   }
-  
+
   /**
-   * Temporary method to get all users. This should be on an underlying UserMaster, when it exists.
+   * Discards any users and clients that haven't been accessed since the given timestamp.
    * 
-   * @return  a collection of all users, unmodifiable, not null
+   * @param timestamp any client resources with a last accessed time before this will be removed
    */
-  public Collection<UserResource> getAllUsers() {
-    return Collections.unmodifiableCollection(_userMap.values());
+  public void deleteClients(final long timestamp) {
+    final Iterator<Map.Entry<String, UserResource>> userIterator = _userMap.entrySet().iterator();
+    while (userIterator.hasNext()) {
+      final Map.Entry<String, UserResource> userEntry = userIterator.next();
+      userEntry.getValue().deleteClients(timestamp);
+      if (userEntry.getValue().getLastAccessed() == 0) {
+        userIterator.remove();
+        _context.getClientTracker().userDiscarded(userEntry.getKey());
+      }
+    }
   }
+
+  public Runnable createDeleteTask() {
+    return new Runnable() {
+
+      private long _timeout = 1800000; // 30m default
+
+      @Override
+      public void run() {
+        deleteClients(System.currentTimeMillis() - _timeout);
+      }
+
+      @SuppressWarnings("unused")
+      public void setTimeout(final long timeout) {
+        _timeout = timeout * 1000;
+      }
+
+      @SuppressWarnings("unused")
+      public void setScheduler(final ScheduledExecutorService scheduler) {
+        scheduler.scheduleWithFixedDelay(this, _timeout, _timeout, TimeUnit.MILLISECONDS);
+      }
+
+    };
+  }
+
 }
