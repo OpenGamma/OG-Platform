@@ -8,10 +8,12 @@ package com.opengamma.financial.user;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.PortfolioTreeDocument;
 import com.opengamma.master.position.PortfolioTreeHistoryRequest;
 import com.opengamma.master.position.PortfolioTreeHistoryResult;
@@ -135,6 +137,11 @@ public class UserPositionMaster implements PositionMaster {
   @Override
   public PositionDocument updatePosition(PositionDocument document) {
     return _underlying.updatePosition(document);
+  }
+
+  @Override
+  public Trade getFullTrade(FullTradeGetRequest request) {
+    return _underlying.getFullTrade(request);
   }
 
 }
