@@ -487,13 +487,15 @@ create table rsk_computation_target (
 	type_id int not null,
 	id_scheme varchar(255) not null,
 	id_value varchar(255) not null,
+	id_version varchar(255) null,
+	name varchar(255) null,
 	
 	primary key (id),
 	
 	constraint rsk_fk_cmpt_target2tgt_type 
 	    foreign key (type_id) references rsk_computation_target_type (id),
 	    
-	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value)
+	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value, id_version)
 );
 
 create table rsk_function_unique_id (
