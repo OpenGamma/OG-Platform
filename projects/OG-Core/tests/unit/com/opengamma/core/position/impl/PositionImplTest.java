@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import com.opengamma.core.security.MockSecurity;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

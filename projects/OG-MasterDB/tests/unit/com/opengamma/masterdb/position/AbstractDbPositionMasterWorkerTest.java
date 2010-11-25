@@ -101,6 +101,8 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 //    corr_to_instant timestamp not null,
 //    quantity decimal(31,8) not null,
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        100, 100, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(100.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         120, 120, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(120.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         121, 121, 101, 112, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
@@ -112,11 +114,13 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
         221, 221, 201, 211, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         222, 221, 201, 211, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
-    _totalPositions = 5;
+    _totalPositions = 6;
 //    id bigint not null,
 //    position_id bigint not null,
 //    id_scheme varchar(255) not null,
 //    id_value varchar(255) not null,
+    template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
+        120, 100, "TICKER", "S100");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         130, 120, "TICKER", "T130");
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
@@ -134,20 +138,26 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_securitykey VALUES (?,?,?,?)",
         232, 222, "TICKER", "IBMC");
     
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        100, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        101, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(_version1Instant.minusSeconds(121)), "CPARTY", "C101");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        102, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "JMP");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        103, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "CISC");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        104, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C104");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        105, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?)", 
-        106, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
+    
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        400, 400, 120,  BigDecimal.valueOf(120.987), toSqlTimestamp(_version1Instant.minusSeconds(120)), "CPARTY", "C100");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        401, 401, 121,  BigDecimal.valueOf(121.987), toSqlTimestamp(_version1Instant.minusSeconds(121)), "CPARTY", "C101");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        402, 402, 122,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "JMP");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        403, 403, 122,  BigDecimal.valueOf(22.987), toSqlTimestamp(_version1Instant.minusSeconds(122)), "CPARTY", "CISC");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        404, 404, 123,  BigDecimal.valueOf(100.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C104");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        405, 405, 123,  BigDecimal.valueOf(200.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C105");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        406, 406, 123,  BigDecimal.valueOf(300.987), toSqlTimestamp(_version1Instant.minusSeconds(123)), "CPARTY", "C106");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        407, 407, 221,  BigDecimal.valueOf(221.987), toSqlTimestamp(_version1Instant.minusSeconds(100)), "CPARTY", "C221");
+    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?,?,?)", 
+        408, 407, 222,  BigDecimal.valueOf(222.987), toSqlTimestamp(_version2Instant.minusSeconds(100)), "CPARTY", "C222");
+    
   }
 
   @After

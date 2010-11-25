@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

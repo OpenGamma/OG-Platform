@@ -8,6 +8,7 @@
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
 		<config>config/test-master-context.xml</config>
+		<config>src/com/opengamma/masterdb/timeseries/tssQueries.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

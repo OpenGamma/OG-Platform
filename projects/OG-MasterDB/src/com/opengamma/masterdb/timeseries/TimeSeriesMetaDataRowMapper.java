@@ -3,16 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.db;
+package com.opengamma.masterdb.timeseries;
 
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.BUNDLE_ID_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_FIELD_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_PROVIDER_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.DATA_SOURCE_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.EARLIEST_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.LATEST_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.OBSERVATION_TIME_COLUMN;
-import static com.opengamma.financial.timeseries.db.DbTimeSeriesMasterConstants.TS_ID_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.BUNDLE_ID_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.DATA_FIELD_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.DATA_PROVIDER_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.DATA_SOURCE_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.EARLIEST_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.LATEST_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.OBSERVATION_TIME_COLUMN;
+import static com.opengamma.masterdb.timeseries.DbTimeSeriesMasterConstants.TS_ID_COLUMN;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

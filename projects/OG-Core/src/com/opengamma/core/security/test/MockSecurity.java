@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.security;
+package com.opengamma.core.security.test;
 
 import java.io.Serializable;
 
 import com.google.common.base.Objects;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
