@@ -221,7 +221,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       if (id == -1) {
         throw new IllegalArgumentException(target + " is not initialized");
       }
-      _computationTarget2Id.put(target.toNormalizedSpec(), id);      
+      _computationTarget2Id.put(target.toComputationTargetSpec(), id);      
     }
     
     _riskRunId = riskRun.getId();
@@ -308,7 +308,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   public int getComputationTargetId(ComputationTargetSpecification spec) {
     ArgumentChecker.notNull(spec, "Computation target");
     
-    Integer specId = _computationTarget2Id.get(ComputationTarget.toNormalizedSpec(spec));
+    Integer specId = _computationTarget2Id.get(spec);
     if (specId == null) {
       throw new IllegalArgumentException(spec + " is not in the database");
     }

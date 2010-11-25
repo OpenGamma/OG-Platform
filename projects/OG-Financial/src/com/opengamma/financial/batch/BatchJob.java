@@ -194,13 +194,7 @@ public class BatchJob {
   private BatchJobParameters _parameters = new BatchJobParameters();
 
   /**
-   * If true, a new run is always created - no existing results are used. 
-   * If false, the system first checks if there is already a run 
-   * in the database for the same view (including same version), with the same 
-   * observation date and time. If there is, that run is reused. This 
-   * means that the system checks what risk figures
-   * are already in the database and will try to calculate any
-   * missing risk.   
+   * @see RunCreationMode
    */
   private RunCreationMode _runCreationMode = RunCreationMode.AUTO; 
   
