@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -175,12 +176,12 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _worker.addPosition(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbPos", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueIdentifier positionUid = test.getUniqueId();
+    assertNotNull(positionUid);
+    assertEquals("DbPos", positionUid.getScheme());
+    assertTrue(positionUid.isVersioned());
+    assertTrue(Long.parseLong(positionUid.getValue()) > 1000);
+    assertEquals("0", positionUid.getVersion());
     assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
     assertEquals(UniqueIdentifier.of("DbPos", "111"), test.getParentNodeId());
     assertEquals(now, test.getVersionFromInstant());
@@ -189,7 +190,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueIdentifier());
+    assertEquals(positionUid, testPosition.getUniqueIdentifier());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityKey();
     assertNotNull(secKey);
@@ -199,8 +200,19 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     Set<ManageableTrade> trades = testPosition.getTrades();
     assertNotNull(trades);
     assertTrue(trades.size() == 2);
-    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV"))));
-    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV"))));
+//    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(600), Identifier.of("CPS", "CPV"))));
+//    assertTrue(trades.contains(new ManageableTrade(BigDecimal.TEN, now.minusSeconds(500), Identifier.of("CPS", "CPV"))));
+    for (ManageableTrade manageableTrade : trades) {
+      assertNotNull(manageableTrade);
+      UniqueIdentifier tradeUid = manageableTrade.getUniqueIdentifier();
+      assertNotNull(tradeUid);
+      assertEquals("DbPos", positionUid.getScheme());
+      assertTrue(positionUid.isVersioned());
+      assertTrue(Long.parseLong(positionUid.getValue()) > 1000);
+      assertEquals("0", positionUid.getVersion());
+      
+      assertEquals(positionUid, manageableTrade.getPositionId());
+    }
   }
   
   
@@ -228,8 +240,11 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
     doc.setPosition(position);
     PositionDocument added = _worker.addPosition(doc);
+    //UIDs are added to trades after writing to database
+    position.setTrades(Sets.newHashSet(position.getTrades()));
     
     PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
+        
     assertEquals(added, test);
   }
   
@@ -245,6 +260,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setParentNodeId(UniqueIdentifier.of("DbPos", "111"));
     doc.setPosition(position);
     PositionDocument added = _worker.addPosition(doc);
+    //UIDs are added to trades after writing to database
+    position.setTrades(Sets.newHashSet(position.getTrades()));
     
     PositionDocument test = _queryWorker.getPosition(added.getUniqueId());
     assertEquals(added, test);

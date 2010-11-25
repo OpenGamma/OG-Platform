@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
@@ -38,6 +39,10 @@ public class MockPositionSource implements PositionSource {
    * A cache of positions by identifier.
    */
   private final Map<UniqueIdentifier, Position> _positions = new ConcurrentHashMap<UniqueIdentifier, Position>();
+  /**
+   * A cache of trades by identifier.
+   */
+  private final Map<UniqueIdentifier, Trade> _trades = new ConcurrentHashMap<UniqueIdentifier, Trade>();
   /**
    * The next index for the identifier.
    */
@@ -85,6 +90,16 @@ public class MockPositionSource implements PositionSource {
   public Position getPosition(UniqueIdentifier identifier) {
     return identifier == null ? null : _positions.get(identifier);
   }
+  
+  /**
+   * Finds a specific trade from any portfolio by identifier.
+   * @param uid  the identifier, null returns null
+   * @return the trade, null if not found
+   */
+  @Override
+  public Trade getTrade(UniqueIdentifier uid) {
+    return uid == null ? null : _trades.get(uid);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -118,6 +133,16 @@ public class MockPositionSource implements PositionSource {
         PositionImpl positionImpl = (PositionImpl) position;
         positionImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
         positionImpl.setPortfolioNode(node.getUniqueIdentifier());
+        
+        //add trades
+        Set<Trade> trades = positionImpl.getTrades();
+        for (Trade trade : trades) {
+          if (trade instanceof TradeImpl) {
+            TradeImpl tradeImpl = (TradeImpl) trade;
+            tradeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+          }
+          _trades.put(trade.getUniqueIdentifier(), trade);
+        }
       }
       _positions.put(position.getUniqueIdentifier(), position);
     }
@@ -147,6 +172,9 @@ public class MockPositionSource implements PositionSource {
   private void removeFromCache(PortfolioNode node) {
     _nodes.remove(node.getUniqueIdentifier());
     for (Position position : node.getPositions()) {
+      for (Trade trade : position.getTrades()) {
+        _trades.remove(trade.getUniqueIdentifier());
+      }
       _positions.remove(position.getUniqueIdentifier());
     }
     for (PortfolioNode child : node.getChildNodes()) {

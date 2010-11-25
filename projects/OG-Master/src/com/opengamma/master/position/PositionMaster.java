@@ -9,6 +9,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -259,5 +260,17 @@ public interface PositionMaster {
    * @throws IllegalArgumentException if the request is invalid
    */
   Position getFullPosition(FullPositionGetRequest request);
+
+  /**
+   * Gets a single trade with full detail
+   * <p>
+   * This allows direct access to the trade.
+   * It is intended for fast access to the whole structure.
+   * 
+   * @param request the request, not null
+   * @return the trade, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  Trade getFullTrade(FullTradeGetRequest request);
 
 }

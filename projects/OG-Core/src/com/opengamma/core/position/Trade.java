@@ -7,6 +7,7 @@ package com.opengamma.core.position;
 
 import javax.time.Instant;
 
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,7 +19,14 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface Trade extends PositionOrTrade {
-
+  
+  /**
+   * Gets the unique identifier of the position within the portfolio this trade belongs.
+   * 
+   * @return the unique identifier
+   */
+  UniqueIdentifier getPosition();
+  
   /**
    * Gets the counterparty associated with the trade.
    * 
