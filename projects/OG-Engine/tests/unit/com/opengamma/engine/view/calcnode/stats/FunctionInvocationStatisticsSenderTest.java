@@ -52,7 +52,7 @@ public class FunctionInvocationStatisticsSenderTest {
       }
       
     });
-    sender.setUpdatePeriod(Duration.ofMillis(500));
+    sender.setUpdatePeriod(Duration.ofSeconds(1));
     long t = System.nanoTime ();
     for (int i = 0; i < 100; i++) {
       sender.functionInvoked("A", "1", 1, 2.0, 3.0, 4.0);
