@@ -17,7 +17,7 @@ public final class FunctionCostsPerConfiguration {
   /**
    * The parent function costs.
    */
-  private final FunctionCost _functionCosts;
+  private final FunctionCosts _functionCosts;
   /**
    * The configuration name.
    */
@@ -33,7 +33,7 @@ public final class FunctionCostsPerConfiguration {
    * @param functionCosts  the function costs
    * @param configurationName  the configuration name, not null
    */
-  FunctionCostsPerConfiguration(final FunctionCost functionCosts, final String configurationName) {
+  FunctionCostsPerConfiguration(final FunctionCosts functionCosts, final String configurationName) {
     _functionCosts = functionCosts;
     _configurationName = configurationName;
   }

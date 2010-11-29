@@ -15,10 +15,10 @@ import org.junit.Test;
 /**
  * Tests the function statistics gatherer.
  */
-public class FunctionCostTest {
+public class FunctionCostsTest {
 
   private InMemoryFunctionCostsMaster _master = new InMemoryFunctionCostsMaster();
-  private FunctionCost _costs = new FunctionCost(_master);
+  private FunctionCosts _costs = new FunctionCosts(_master);
 
   @Test
   public void testBasicBehaviour() {
@@ -74,7 +74,7 @@ public class FunctionCostTest {
     writer.run();
     assertEquals(2, _master.size());
     // Create a new repository and check the values were preserved
-    FunctionCost costs = new FunctionCost(_master);
+    FunctionCosts costs = new FunctionCosts(_master);
     stats = costs.getStatistics("Default", "Foo");
     assertEquals(5.0, stats.getInvocationCost(), 0.05);
     assertEquals(6.0, stats.getDataInputCost(), 0.05);
@@ -101,7 +101,7 @@ public class FunctionCostTest {
     assertEquals(1.7, stats.getDataInputCost(), 0.05);
     assertEquals(2.0, stats.getDataOutputCost(), 0.05);
     // Create a new repository and check the average was preserved
-    FunctionCost costs = new FunctionCost(_master);
+    FunctionCosts costs = new FunctionCosts(_master);
     stats = costs.getStatistics("Default", "Man");
     assertEquals(1.3, stats.getInvocationCost(), 0.05);
     assertEquals(1.7, stats.getDataInputCost(), 0.05);

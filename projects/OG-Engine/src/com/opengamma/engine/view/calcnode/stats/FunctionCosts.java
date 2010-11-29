@@ -25,10 +25,10 @@ import com.opengamma.util.tuple.Pair;
  * <p>
  * This acts as a local gatherer, central point for remote nodes and supplier of data.
  */
-public final class FunctionCost implements FunctionInvocationStatisticsGatherer {
+public final class FunctionCosts implements FunctionInvocationStatisticsGatherer {
 
   /** Logger. */
-  static final Logger s_logger = LoggerFactory.getLogger(FunctionCost.class);
+  static final Logger s_logger = LoggerFactory.getLogger(FunctionCosts.class);
   /**
    * Name used for the mean.
    */
@@ -54,7 +54,7 @@ public final class FunctionCost implements FunctionInvocationStatisticsGatherer 
   /**
    * Constructor using an in-memory master.
    */
-  public FunctionCost() {
+  public FunctionCosts() {
     this(new InMemoryFunctionCostsMaster());
   }
 
@@ -63,7 +63,7 @@ public final class FunctionCost implements FunctionInvocationStatisticsGatherer 
    * 
    * @param costsMaster  the costs master, not null
    */
-  public FunctionCost(final FunctionCostsMaster costsMaster) {
+  public FunctionCosts(final FunctionCostsMaster costsMaster) {
     ArgumentChecker.notNull(costsMaster, "costsMaster");
     _costsMaster = costsMaster;
     _meanStatistics = loadMeanStatistics();

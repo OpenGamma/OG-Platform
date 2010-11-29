@@ -22,7 +22,7 @@ import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.Result;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -42,7 +42,7 @@ public class RemoteNodeJobInvokerTest {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(1);
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCost ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts ());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final TestJobResultReceiver resultReceiver = new TestJobResultReceiver();
     final FudgeConnection remoteNode = conduit.getEnd2();
@@ -70,7 +70,7 @@ public class RemoteNodeJobInvokerTest {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(3);
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCost ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts ());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final FudgeConnection remoteNode = conduit.getEnd2();
     final Random rnd = new Random();

@@ -28,14 +28,14 @@ public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceive
   /**
    * The underlying function cost implementation.
    */
-  private final FunctionCost _underlying;
+  private final FunctionCosts _underlying;
 
   /**
    * Creates an instance wrapping an underlying function cost instance.
    * 
    * @param underlying  the underlying function cost, not null
    */
-  public FunctionInvocationStatisticsReceiver(final FunctionCost underlying) {
+  public FunctionInvocationStatisticsReceiver(final FunctionCosts underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
@@ -46,7 +46,7 @@ public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceive
    * 
    * @return the function cost, not null
    */
-  public FunctionCost getUnderlying() {
+  public FunctionCosts getUnderlying() {
     return _underlying;
   }
 
@@ -58,7 +58,7 @@ public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceive
    * @param invocations  the invocations to handle, not null
    * @return the scaling factor, null if no remote invocation cost
    */
-  public static Scaling messageReceived(final FunctionCost underlying, final Invocations invocations) {
+  public static Scaling messageReceived(final FunctionCosts underlying, final Invocations invocations) {
     double remoteInvocationCost = 0;
     double localInvocationCost = 0;
     for (PerConfiguration configuration : invocations.getConfiguration()) {

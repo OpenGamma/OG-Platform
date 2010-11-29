@@ -51,7 +51,7 @@ import com.opengamma.util.Cancellable;
     for (ValueSpecification specification : graph.getTerminalOutputValues()) {
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
-    _functionCost = executor.getFunctionCost().getStatistics(graph.getCalcConfName());
+    _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalcConfName());
   }
 
   /**

@@ -29,7 +29,7 @@ public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);
   
-  private FunctionCost _cost = new FunctionCost ();
+  private FunctionCosts _cost = new FunctionCosts ();
   
   @Test
   public void testBasicBehaviour () {
