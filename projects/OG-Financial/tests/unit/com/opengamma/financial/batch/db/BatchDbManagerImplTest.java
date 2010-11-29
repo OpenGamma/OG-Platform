@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.config.ConfigDocument;
+import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.ViewDefinition;
@@ -180,9 +181,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(0, snapshot.getSnapshotEntries().size());
     
     Set<ComputationTargetSpecification> specs = Sets.newHashSet();
-    specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12345")));
-    specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12346")));
-    specs.add(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12347")));
+    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)));
+    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12346", "1")));
+    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12347", "2")));
     
     Set<LiveDataValue> values = new HashSet<LiveDataValue>();
     for (ComputationTargetSpecification spec : specs) {
@@ -197,7 +198,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       LiveDataSnapshotEntry entry = snapshot.getEntry(spec, "field_name");
       assertNotNull(entry);
       assertEquals(snapshot, entry.getSnapshot());
-      assertEquals(spec, entry.getComputationTarget().toNormalizedSpec());
+      assertEquals(spec, entry.getComputationTarget().toComputationTargetSpec());
       assertEquals("field_name", entry.getField().getName());
       assertEquals(123.45, entry.getValue(), 0.000001);
     }
@@ -207,9 +208,10 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
     assertEquals(3, snapshot.getSnapshotEntries().size());
     
-    // should update 1, add 1
+    // should update 2, add 1
     values = new HashSet<LiveDataValue>();
-    values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12347")), "field_name", 123.46));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)), "field_name", 123.46));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12347", "2")), "field_name", 123.47));
     values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12348")), "field_name", 123.45));
     
     _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
@@ -326,7 +328,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   }
   
   @Test
-  public void getComputationTarget() {
+  public void getComputationTargetBySpec() {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
     
     ComputationTarget portfolio = _dbManager.getComputationTarget(
@@ -335,6 +337,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(ComputationTargetType.PORTFOLIO_NODE.ordinal(), portfolio.getComputationTargetType());
     assertEquals(uid.getScheme(), portfolio.getIdScheme());
     assertEquals(uid.getValue(), portfolio.getIdValue());
+    assertEquals(uid.getVersion(), portfolio.getIdVersion());
     
     ComputationTarget position = _dbManager.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.POSITION, uid));
@@ -347,6 +350,44 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ComputationTarget primitive = _dbManager.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
+  }
+  
+  @Test
+  public void getComputationTarget() {
+    UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar", "1");
+    
+    MockSecurity mockSecurity = new MockSecurity("option");
+    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setName("myOption");
+    
+    ComputationTarget security = _dbManager.getComputationTarget(
+        new com.opengamma.engine.ComputationTarget(mockSecurity));
+    assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
+    assertEquals("myOption", security.getName());
+    
+    ComputationTarget primitive = _dbManager.getComputationTarget(
+        new com.opengamma.engine.ComputationTarget(uid));
+    assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
+    assertNull(primitive.getName());
+  }
+  
+  @Test
+  public void updateComputationTarget() {
+    UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
+    
+    MockSecurity mockSecurity = new MockSecurity("option");
+    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setName("myOption");
+    
+    ComputationTarget security = _dbManager.getComputationTarget(
+        new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
+    assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
+    assertNull(security.getName());
+    
+    security = _dbManager.getComputationTarget(
+        new com.opengamma.engine.ComputationTarget(mockSecurity));
+    assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
+    assertEquals("myOption", security.getName()); 
   }
   
   @Test
@@ -372,5 +413,5 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
   }
-    
+  
 }

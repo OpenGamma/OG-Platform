@@ -45,8 +45,21 @@ public class BondSecurityToBondConverter {
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
   }
+  
+  public Bond getBond(final BondSecurity security, final String curveName, final ZonedDateTime now){
+    return getBond(security, curveName, now, true);
+  }
+  
 
-  public Bond getBond(final BondSecurity security, final String curveName, final ZonedDateTime now) {
+  /**
+   * 
+   * @param security A BondSecuirty 
+   * @param curveName Name of yield curve for bond pricing 
+   * @param now The cashflow calculation date (i.e time zero) for cash flow calculations (see rollToSettlement)
+   * @param rollToSettlement if true the cashflow calculation date is rolled forward to the settlement date 
+   * @return a Bond
+   */
+  public Bond getBond(final BondSecurity security, final String curveName, final ZonedDateTime now, final boolean rollToSettlement) {
     Validate.notNull(security, "security");
     Validate.notNull(curveName, "curve name");
     Validate.notNull(now, "now");
@@ -76,7 +89,8 @@ public class BondSecurityToBondConverter {
     final int settlementDays = convention.getSettlementDays();
     final double coupon = security.getCouponRate();
     final boolean isEOMConvention = convention.isEOMConvention();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, getSettlementDate(today, calendar, settlementDays), schedule, coupon,
+    final LocalDate cashflowCalculationDate = (rollToSettlement ?  getSettlementDate(today, calendar, settlementDays) : today);
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, cashflowCalculationDate, schedule, coupon,
         periodsPerYear, isEOMConvention, convention.getExDividendDays());
     final List<Double> paymentTimes = new ArrayList<Double>();
     final double accrualTime = accruedInterest / coupon;

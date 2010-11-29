@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * A position and a trade are related concepts and this interface provides common access.
@@ -20,7 +21,7 @@ import com.opengamma.id.IdentifierBundle;
  * The reference to a security is held primarily by an identifier bundle.
  * However, this can become resolved, setting the security field with the full data.
  */
-public interface PositionOrTrade {
+public interface PositionOrTrade extends UniqueIdentifiable {
 
   /**
    * Gets the amount of the position held in terms of the security.

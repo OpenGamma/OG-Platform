@@ -17,17 +17,24 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 
@@ -109,6 +116,34 @@ public class MasterPositionSourceTest {
     assertEquals(UID, testResult.getUniqueIdentifier());
     assertEquals(BigDecimal.TEN, testResult.getQuantity());
     assertEquals(Identifier.of("B", "C"), testResult.getSecurityKey().getIdentifiers().iterator().next());
+  }
+  
+  @Test
+  public void test_getTrade() throws Exception {
+    PositionMaster mock = mock(PositionMaster.class);
+    FullTradeGetRequest request = new FullTradeGetRequest(UID);
+
+    Instant now = Instant.nowSystemClock();
+    final UniqueIdentifier positionId = UniqueIdentifier.of("P", "A");
+    final MockSecurity security = new MockSecurity("A");
+    security.setIdentifiers(IdentifierBundle.of(Identifier.of("S", "A")));
+    final Counterparty counterparty = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
+    
+    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.minusSeconds(100));
+    trade.setUniqueIdentifier(UID);
+    
+    when(mock.getFullTrade(request)).thenReturn(trade);
+    
+    MasterPositionSource test = new MasterPositionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    Trade testResult = test.getTrade(UID);
+    verify(mock, times(1)).getFullTrade(request);
+    
+    assertEquals(UID, testResult.getUniqueIdentifier());
+    assertEquals(BigDecimal.TEN, testResult.getQuantity());
+    assertEquals(Identifier.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
+    assertEquals(counterparty, testResult.getCounterparty());
+    assertEquals(positionId, testResult.getPosition());
+    assertEquals(now.minusSeconds(100), testResult.getTradeInstant());
   }
 
 }

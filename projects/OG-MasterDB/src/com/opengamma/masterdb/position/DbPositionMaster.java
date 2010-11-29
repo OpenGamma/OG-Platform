@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
 import com.opengamma.master.position.PortfolioTreeDocument;
 import com.opengamma.master.position.PortfolioTreeHistoryRequest;
@@ -318,6 +320,16 @@ public class DbPositionMaster implements PositionMaster {
     checkScheme(request.getPositionId());
     
     return getWorkers().getGetFullPositionWorker().getFullPosition(request);
+  }
+  
+  @Override
+  public Trade getFullTrade(FullTradeGetRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getTradeId(), "request.tradeId");
+    
+    checkScheme(request.getTradeId());
+    
+    return getWorkers().getGetFullPositionWorker().getFullTrade(request);
   }
 
   //-------------------------------------------------------------------------

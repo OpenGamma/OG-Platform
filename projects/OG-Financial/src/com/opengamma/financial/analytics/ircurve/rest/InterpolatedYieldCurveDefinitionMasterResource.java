@@ -48,6 +48,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   }
 
   @POST
+  @Path("add")
   public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
     final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
@@ -61,8 +62,23 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     return new FudgeMsgEnvelope(resp);
   }
 
+  @POST
+  @Path("addOrUpdate")
+  public FudgeMsgEnvelope addOrUpdate(final FudgeMsgEnvelope payload) {
+    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
+    final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
+    YieldCurveDefinitionDocument document = new YieldCurveDefinitionDocument(curveDefinition);
+    document = getUnderlying().addOrUpdate(document);
+    if (document == null) {
+      return null;
+    }
+    final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+    resp.add("uniqueIdentifier", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    return new FudgeMsgEnvelope(resp);
+  }
+
   @GET
-  @Path("{uid}")
+  @Path("curves/{uid}")
   public FudgeMsgEnvelope get(@PathParam("uid") final String uidString) {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
     try {
@@ -78,7 +94,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   }
 
   @DELETE
-  @Path("{uid}")
+  @Path("curves/{uid}")
   public FudgeMsgEnvelope remove(@PathParam("uid") final String uidString) {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
     try {
@@ -90,7 +106,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   }
 
   @PUT
-  @Path("{uid}")
+  @Path("curves/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());

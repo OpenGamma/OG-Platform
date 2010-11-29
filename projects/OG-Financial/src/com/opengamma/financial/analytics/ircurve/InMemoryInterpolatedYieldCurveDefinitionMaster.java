@@ -86,6 +86,17 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   @Override
+  public YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
+    final Currency currency = document.getYieldCurveDefinition().getCurrency();
+    final String name = document.getYieldCurveDefinition().getName();
+    _definitions.put(Pair.of(currency, name), document.getYieldCurveDefinition());
+    document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name));
+    return document;
+  }
+
+  @Override
   public YieldCurveDefinitionDocument correct(YieldCurveDefinitionDocument document) {
     throw new UnsupportedOperationException();
   }

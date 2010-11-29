@@ -4,7 +4,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.batch.db">
 
-  <class name="ComputationTarget" table="rsk_computation_target">
+  <class name="ComputationTarget" table="rsk_computation_target" dynamic-update="true">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>
@@ -14,12 +14,22 @@
     <property name="computationTargetType" column="type_id" not-null="true"/>
     <property name="idScheme" column="id_scheme" not-null="true"/>
     <property name="idValue" column="id_value" not-null="true"/>
+    <property name="idVersion" column="id_version"/>
+    <property name="name"/>
   </class>
   
-  <query name="ComputationTarget.one.byTypeAndId">
+  <query name="ComputationTarget.one.byUniqueIdNonNullVersion">
   	from ComputationTarget as a where 
   	a.computationTargetType = :computationTargetType and
   	a.idScheme = :idScheme and
-  	a.idValue = :idValue</query>  
+  	a.idValue = :idValue and
+  	a.idVersion = :idVersion</query>  
+  	
+  	<query name="ComputationTarget.one.byUniqueIdNullVersion">
+  	from ComputationTarget as a where 
+  	a.computationTargetType = :computationTargetType and
+  	a.idScheme = :idScheme and
+  	a.idValue = :idValue and
+  	a.idVersion is null</query>
   
 </hibernate-mapping>

@@ -52,6 +52,7 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/securities")
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(WebSecuritiesResource.class);
   /**
    * Creates the resource.
