@@ -23,6 +23,9 @@ public final class SimpleFrequencyFactory {
    * Map of convention name to convention.
    */
   private final Map<String, SimpleFrequency> _conventionMap = new HashMap<String, SimpleFrequency>();
+  /**
+   * Map of periods per year to convention.
+   */
   private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<Integer, SimpleFrequency>();
 
   /**
@@ -53,16 +56,20 @@ public final class SimpleFrequencyFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */
   public SimpleFrequency getFrequency(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
-  
+
   /**
-   * Gets a convention by the number of periods per year (often returned from Bloomberg like this).
-   * @param periods number of periods per year - 0 means once at end
+   * Gets a convention by the number of periods per year.
+   * <p>
+   * Some underlying data systems use this representation for frequency.
+   * 
+   * @param periods  the number of periods per year, zero means once at end
    * @return the convention, null if not found
    */
   public SimpleFrequency getFrequency(final int periods) {
