@@ -29,7 +29,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
@@ -48,11 +48,11 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   private final long _minJobCost;
   private final long _maxJobCost;
   private final int _maxConcurrency;
-  private final FunctionCost _functionCost;
+  private final FunctionCosts _functionCosts;
   private final ExecutionPlanCache _cache;
 
   protected MultipleNodeExecutor(final SingleComputationCycle cycle, final int minimumJobItems, final int maximumJobItems, final long minimumJobCost, final long maximumJobCost,
-      final int maximumConcurrency, final FunctionCost functionCost, final ExecutionPlanCache cache) {
+      final int maximumConcurrency, final FunctionCosts functionCosts, final ExecutionPlanCache cache) {
     // Don't check for null as the factory does this, plus for testing we don't have a cycle and override the methods that use it
     _cycle = cycle;
     _minJobItems = minimumJobItems;
@@ -60,7 +60,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _minJobCost = minimumJobCost;
     _maxJobCost = maximumJobCost;
     _maxConcurrency = maximumConcurrency;
-    _functionCost = functionCost;
+    _functionCosts = functionCosts;
     _cache = cache;
   }
 
@@ -207,8 +207,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     return _maxConcurrency;
   }
 
-  public FunctionCost getFunctionCost() {
-    return _functionCost;
+  public FunctionCosts getFunctionCosts() {
+    return _functionCosts;
   }
 
   private Collection<GraphFragment> graphToFragments(final GraphFragmentContext context, final DependencyGraph graph, final Set<GraphFragment> allFragments) {

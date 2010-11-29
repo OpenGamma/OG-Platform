@@ -22,7 +22,7 @@ import com.opengamma.engine.view.calcnode.msg.Init;
 import com.opengamma.engine.view.calcnode.msg.Ready;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessageVisitor;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 
@@ -37,13 +37,13 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final JobInvokerRegister _jobInvokerRegister;
   private final IdentifierMap _identifierMap;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
-  private final FunctionCost _functionCost;
+  private final FunctionCosts _functionCosts;
   private Set<Capability> _capabilitiesToAdd;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCost functionCost) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCosts functionCosts) {
     _jobInvokerRegister = jobInvokerRegister;
     _identifierMap = identifierMap;
-    _functionCost = functionCost;
+    _functionCosts = functionCosts;
   }
 
   /**
@@ -72,8 +72,8 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     return _identifierMap;
   }
 
-  protected FunctionCost getFunctionCost() {
-    return _functionCost;
+  protected FunctionCosts getFunctionCosts() {
+    return _functionCosts;
   }
 
   @Override
@@ -90,7 +90,7 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
       @Override
       protected void visitReadyMessage(final Ready message) {
         s_logger.info("Remote node connected - {}", connection);
-        final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), message, connection, getIdentifierMap(), getFunctionCost());
+        final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), message, connection, getIdentifierMap(), getFunctionCosts());
         if (_capabilitiesToAdd != null) {
           invoker.addCapabilities(_capabilitiesToAdd);
         }

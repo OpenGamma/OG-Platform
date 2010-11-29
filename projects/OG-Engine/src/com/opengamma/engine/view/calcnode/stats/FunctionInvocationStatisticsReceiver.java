@@ -15,27 +15,54 @@ import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction;
 import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Receives statistics from a {@link FunctionInvocationStatisticsSender}.
+ * <p>
+ * This is run centrally and receives statistics from each node.
+ * The statistics are aggregated into the {@code FunctionCost} instance.
  */
 public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceiver {
 
-  private final FunctionCost _underlying;
+  /**
+   * The underlying function cost implementation.
+   */
+  private final FunctionCosts _underlying;
 
-  public FunctionInvocationStatisticsReceiver(final FunctionCost underlying) {
+  /**
+   * Creates an instance wrapping an underlying function cost instance.
+   * 
+   * @param underlying  the underlying function cost, not null
+   */
+  public FunctionInvocationStatisticsReceiver(final FunctionCosts underlying) {
+    ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
-  public FunctionCost getUnderlying() {
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying function cost.
+   * 
+   * @return the function cost, not null
+   */
+  public FunctionCosts getUnderlying() {
     return _underlying;
   }
 
-  public static Scaling messageReceived(final FunctionCost underlying, final Invocations invocations) {
+  //-------------------------------------------------------------------------
+  /**
+   * Handle a message.
+   * 
+   * @param underlying  the underlying function cost, not null
+   * @param invocations  the invocations to handle, not null
+   * @return the scaling factor, null if no remote invocation cost
+   */
+  public static Scaling messageReceived(final FunctionCosts underlying, final Invocations invocations) {
     double remoteInvocationCost = 0;
     double localInvocationCost = 0;
     for (PerConfiguration configuration : invocations.getConfiguration()) {
-      final FunctionCost.ForConfiguration configurationStats = underlying.getStatistics(configuration.getConfiguration());
+      final FunctionCostsPerConfiguration configurationStats = underlying.getStatistics(configuration.getConfiguration());
       for (PerFunction function : configuration.getFunction()) {
         final FunctionInvocationStatistics statistics = configurationStats.getStatistics(function.getIdentifier());
         localInvocationCost += statistics.getInvocationCost();

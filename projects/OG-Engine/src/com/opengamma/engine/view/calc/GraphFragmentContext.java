@@ -23,7 +23,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCostsPerConfiguration;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 import com.opengamma.util.Cancellable;
 
@@ -36,7 +36,7 @@ import com.opengamma.util.Cancellable;
   private MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
-  private final FunctionCost.ForConfiguration _functionCost;
+  private final FunctionCostsPerConfiguration _functionCost;
   private final Map<CalculationJobSpecification, Cancellable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancellable>();
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
@@ -51,7 +51,7 @@ import com.opengamma.util.Cancellable;
     for (ValueSpecification specification : graph.getTerminalOutputValues()) {
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
-    _functionCost = executor.getFunctionCost().getStatistics(graph.getCalcConfName());
+    _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalcConfName());
   }
 
   /**
