@@ -42,7 +42,7 @@ public class BondFutureCalculator {
         break;
       }
       sum1 += payments.getAmount();
-      sum2 += payments.getAmount() * ti;
+      sum2 += payments.getAmount() * (deliveryDate - ti);// TODO this should be done on a daycount basis
     }
 
     final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice);
