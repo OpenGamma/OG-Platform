@@ -103,6 +103,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   
   @Override
   public void reinitAsync() {
+    // A hack to add support for reinitialisation - really it needs more design and thought
     new Thread(new Runnable() {
 
       @Override
