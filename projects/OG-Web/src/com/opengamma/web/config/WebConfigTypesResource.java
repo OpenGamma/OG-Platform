@@ -24,10 +24,10 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 

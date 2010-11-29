@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.config.ConfigDocument;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,6 +34,7 @@ import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
