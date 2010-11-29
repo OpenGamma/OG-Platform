@@ -105,8 +105,14 @@ public class ClientResource {
     return _lastAccessed;
   }
 
+  /*
+   * Note that the methods below aren't synchronized. It does not matter if multiple objects get created if multiple threads
+   * make the initial call concurrently. It does not matter which object remains in use or if different threads use different
+   * objects. The references are only held to minimise the object creation overhead - the objects have no state.
+   */
+
   @Path(PORTFOLIOS_PATH)
-  public synchronized DataPortfolioTreesResource getPortfolios() {
+  public DataPortfolioTreesResource getPortfolios() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
@@ -116,7 +122,7 @@ public class ClientResource {
   }
   
   @Path(POSITIONS_PATH)
-  public synchronized DataPositionsResource getPositions() {
+  public DataPositionsResource getPositions() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
@@ -126,7 +132,7 @@ public class ClientResource {
   }
   
   @Path(SECURITIES_PATH)
-  public synchronized SecurityMasterResource getSecurities() {
+  public SecurityMasterResource getSecurities() {
     _lastAccessed = System.currentTimeMillis();
     if (_securitiesResource == null) {
       s_logger.debug("Creating UserSecurityMaster for {}/{}", getUserName(), getClientName());
@@ -137,7 +143,7 @@ public class ClientResource {
   }
   
   @Path(VIEW_DEFINITIONS_PATH)
-  public synchronized ViewDefinitionsResource getViewDefinitions() {
+  public ViewDefinitionsResource getViewDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_viewDefinitionsResource == null) {
       s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
@@ -149,7 +155,7 @@ public class ClientResource {
   }
   
   @Path(INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH)
-  public synchronized InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
+  public InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_interpolatedYieldCurveDefinitionsResource == null) {
       s_logger.debug("Creating UserYieldCurveDefinitionMaster for {}/{}", getUserName(), getClientName());

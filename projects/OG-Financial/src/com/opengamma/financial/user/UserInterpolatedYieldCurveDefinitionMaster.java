@@ -53,4 +53,13 @@ public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedY
     return _underlying.update(document);
   }
 
+  @Override
+  public YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document) {
+    document = _underlying.addOrUpdate(document);
+    if (document.getUniqueId() != null) {
+      _tracker.created(document.getUniqueId());
+    }
+    return document;
+  }
+
 }

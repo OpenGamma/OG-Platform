@@ -27,6 +27,10 @@ public class RemoteClient {
   private final String _clientId;
   private final FudgeContext _fudgeContext;
   private final RestTarget _baseTarget;
+  private PositionMaster _positionMaster;
+  private SecurityMaster _securityMaster;
+  private ManageableViewDefinitionRepository _viewDefinitionRepository;
+  private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
     _clientId = clientId;
@@ -39,19 +43,31 @@ public class RemoteClient {
   }
 
   public PositionMaster getPositionMaster() {
-    return new RemotePositionMaster(_baseTarget.getURI());
+    if (_positionMaster == null) {
+      _positionMaster = new RemotePositionMaster(_baseTarget.getURI());
+    }
+    return _positionMaster;
   }
 
   public SecurityMaster getSecurityMaster() {
-    return new RemoteSecurityMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.SECURITIES_PATH));
+    if (_securityMaster == null) {
+      _securityMaster = new RemoteSecurityMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.SECURITIES_PATH));
+    }
+    return _securityMaster;
   }
 
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
-    return new RemoteManagableViewDefinitionRepository(_fudgeContext, _baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH));
+    if (_viewDefinitionRepository == null) {
+      _viewDefinitionRepository = new RemoteManagableViewDefinitionRepository(_fudgeContext, _baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH));
+    }
+    return _viewDefinitionRepository;
   }
 
   public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
-    return new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH));
+    if (_interpolatedYieldCurveDefinitionMaster == null) {
+      _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH));
+    }
+    return _interpolatedYieldCurveDefinitionMaster;
   }
 
   /**
