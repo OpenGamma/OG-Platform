@@ -6,6 +6,8 @@
 package com.opengamma.engine.depgraph;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
 
 /**
  * Thrown when a desired dependency graph cannot be constructed from

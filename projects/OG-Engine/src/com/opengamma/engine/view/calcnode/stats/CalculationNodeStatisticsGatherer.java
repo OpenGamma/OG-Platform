@@ -6,6 +6,8 @@
 
 package com.opengamma.engine.view.calcnode.stats;
 
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+
 /**
  * Receives information about job execution from the {@link JobDispatcher}.
  */

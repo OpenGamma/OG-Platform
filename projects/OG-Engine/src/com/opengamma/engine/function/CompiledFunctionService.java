@@ -36,7 +36,9 @@ public class CompiledFunctionService {
   private ExecutorService _executorService;
   private boolean _initialized;
 
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(
+      final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");

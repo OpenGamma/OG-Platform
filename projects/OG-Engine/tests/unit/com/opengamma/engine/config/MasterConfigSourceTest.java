@@ -16,12 +16,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.ConfigHistoryRequest;
 import com.opengamma.config.ConfigHistoryResult;
+import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 

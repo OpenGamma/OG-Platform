@@ -10,10 +10,10 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.view.calcnode.msg.Invocations;
-import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
-import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration.PerFunction;
+import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
+import com.opengamma.engine.view.calcnode.msg.Scaling;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 

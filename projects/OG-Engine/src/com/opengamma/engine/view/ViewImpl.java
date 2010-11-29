@@ -48,7 +48,6 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
 
 // REVIEW jonathan 2010-09-13 -- rather than throwing an exception if the view hasn't been initialised when attempting
 // an operation that needs it to be, should we just initialise it / tear it down automatically based on clients being

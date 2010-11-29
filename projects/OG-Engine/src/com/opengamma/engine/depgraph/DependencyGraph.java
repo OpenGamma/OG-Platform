@@ -58,7 +58,8 @@ public class DependencyGraph {
   /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ValueSpecification, DependencyNode> _specification2DependencyNode = new HashMap<ValueSpecification, DependencyNode>();
 
-  private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications = new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
+  private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications =
+    new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
 
   private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredLiveData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
   private final Set<ComputationTarget> _allComputationTargets = new HashSet<ComputationTarget>();

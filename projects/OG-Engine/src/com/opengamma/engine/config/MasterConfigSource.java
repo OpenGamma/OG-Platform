@@ -12,7 +12,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.config.ConfigDocument;
 import com.opengamma.config.ConfigHistoryRequest;
 import com.opengamma.config.ConfigHistoryResult;

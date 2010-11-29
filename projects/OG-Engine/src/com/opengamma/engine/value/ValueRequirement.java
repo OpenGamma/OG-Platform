@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.text.StrBuilder;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
