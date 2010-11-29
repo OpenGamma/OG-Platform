@@ -20,8 +20,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.config.ConfigDocument;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
 
 /**
  * RESTful resource for a configuration document.

@@ -26,7 +26,7 @@ import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererPro
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -64,7 +64,7 @@ public class MultipleNodeExecutorTest {
   }
 
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
-    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCost(), new ExecutionPlanCache (EHCacheUtils.createCacheManager(), 0)) {
+    return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCosts(), new ExecutionPlanCache (EHCacheUtils.createCacheManager(), 0)) {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {

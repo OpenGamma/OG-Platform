@@ -7,7 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -24,7 +24,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   private long _minimumJobCost = 1;
   private long _maximumJobCost = Long.MAX_VALUE;
   private int _maximumConcurrency = Integer.MAX_VALUE;
-  private FunctionCost _functionCost;
+  private FunctionCosts _functionCosts;
 
   public void setMinimumJobItems(final int minimumJobItems) {
     _minimumJobItems = minimumJobItems;
@@ -76,14 +76,14 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
     return _maximumConcurrency;
   }
 
-  public void setFunctionCost(final FunctionCost functionCost) {
-    ArgumentChecker.notNull(functionCost, "functionCost");
-    _functionCost = functionCost;
+  public void setFunctionCosts(final FunctionCosts functionCosts) {
+    ArgumentChecker.notNull(functionCosts, "functionCosts");
+    _functionCosts = functionCosts;
     invalidateExecutionPlanCache();
   }
 
-  public FunctionCost getFunctionCost() {
-    return _functionCost;
+  public FunctionCosts getFunctionCosts() {
+    return _functionCosts;
   }
 
   public void setCacheSize(final int size) {
@@ -93,7 +93,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   @Override
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "cycle");
-    return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCost(), _executionPlanCache);
+    return new MultipleNodeExecutor(cycle, getMinimumJobItems(), getMaximumJobItems(), getMinimumJobCost(), getMaximumJobCost(), getMaximumConcurrency(), getFunctionCosts(), _executionPlanCache);
   }
 
   @Override
@@ -109,8 +109,8 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
 
   @Override
   public void afterPropertiesSet() {
-    if (getFunctionCost() == null) {
-      setFunctionCost(new FunctionCost());
+    if (getFunctionCosts() == null) {
+      setFunctionCosts(new FunctionCosts());
     }
     if (_executionPlanCache == null) {
       setCacheSize(DEFAULT_EXECUTION_PLAN_CACHE);

@@ -6,6 +6,8 @@
 
 package com.opengamma.engine.view.calcnode.stats;
 
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+
 /**
  * Receives information about job execution from the {@link JobDispatcher}.
  */
@@ -14,19 +16,19 @@ public interface CalculationNodeStatisticsGatherer {
   /**
    * Reports a job successfully completed.
    * 
-   * @param nodeId Node the job completed on
-   * @param jobItems Number of items in the job
-   * @param executionTime Time reported by the node, in nanoseconds
-   * @param duration Time from first scheduling to completion, in nanoseconds
+   * @param nodeId  the node the job completed on
+   * @param jobItems  the number of items in the job
+   * @param executionNanos  the time reported by the node, in nanoseconds
+   * @param durationNanos  the time from first scheduling to completion, in nanoseconds
    */
-  void jobCompleted(String nodeId, int jobItems, long executionTime, long duration);
+  void jobCompleted(String nodeId, int jobItems, long executionNanos, long durationNanos);
 
   /**
    * Reports a job failure.
    * 
-   * @param nodeId Node the job failed on
-   * @param duration Time from scheduling to failure, in nanoseconds
+   * @param nodeId  the node the job failed on
+   * @param durationNanos  the time from scheduling to failure, in nanoseconds
    */
-  void jobFailed(String nodeId, long duration);
+  void jobFailed(String nodeId, long durationNanos);
 
 }

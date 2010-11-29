@@ -7,6 +7,7 @@
 package com.opengamma.engine.view.calc.stats;
 
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.calc.DependencyGraphExecutor;
 
 /**
  * Provides {@link GraphExecutorStatisticsGatherer} implementations for a given view. This is to allow

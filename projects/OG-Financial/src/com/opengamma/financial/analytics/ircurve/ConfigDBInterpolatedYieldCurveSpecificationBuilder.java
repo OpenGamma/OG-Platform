@@ -8,18 +8,15 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * 
@@ -42,13 +39,10 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     if (_specBuilderCache.containsKey(conventionName)) {
       return _specBuilderCache.get(conventionName);
     } else {
-      ConfigSearchRequest search = new ConfigSearchRequest();
-      search.setPagingRequest(PagingRequest.ONE);
-      search.setName(conventionName);
-      List<CurveSpecificationBuilderConfiguration> builderSpecDoc = _configSource.search(CurveSpecificationBuilderConfiguration.class, search);
-      if (builderSpecDoc.size() > 0) {
-        _specBuilderCache.put(conventionName, builderSpecDoc.get(0));
-        return builderSpecDoc.get(0);
+      CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
+      if (builderSpecDoc != null) {
+        _specBuilderCache.put(conventionName, builderSpecDoc);
+        return builderSpecDoc;
       } else {
         return null;
       }

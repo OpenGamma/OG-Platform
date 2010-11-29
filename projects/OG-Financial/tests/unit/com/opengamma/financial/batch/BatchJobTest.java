@@ -17,17 +17,17 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
 import org.junit.Test;
 
-import com.opengamma.config.ConfigDocument;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.config.MockConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.impl.MockConfigSource;
 import com.opengamma.master.holiday.impl.CoppClarkHolidayFileReader;
 import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 

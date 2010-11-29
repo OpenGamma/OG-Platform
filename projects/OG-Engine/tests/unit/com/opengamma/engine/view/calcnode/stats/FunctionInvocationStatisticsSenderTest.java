@@ -11,6 +11,8 @@ import static org.junit.Assert.fail;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.time.Duration;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -27,7 +29,7 @@ public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);
   
-  private FunctionCost _cost = new FunctionCost ();
+  private FunctionCosts _cost = new FunctionCosts ();
   
   @Test
   public void testBasicBehaviour () {
@@ -50,7 +52,7 @@ public class FunctionInvocationStatisticsSenderTest {
       }
       
     });
-    sender.setUpdatePeriod(1);
+    sender.setUpdatePeriod(Duration.ofSeconds(1));
     long t = System.nanoTime ();
     for (int i = 0; i < 100; i++) {
       sender.functionInvoked("A", "1", 1, 2.0, 3.0, 4.0);

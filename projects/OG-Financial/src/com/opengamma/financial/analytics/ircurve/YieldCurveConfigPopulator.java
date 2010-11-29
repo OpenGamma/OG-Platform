@@ -10,10 +10,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.core.common.Currency;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigTypeMaster;
 
 /**
  * Populates the yield curve configuration.

@@ -6,6 +6,9 @@
 
 package com.opengamma.engine.view.calc.stats;
 
+import com.opengamma.engine.view.calc.DependencyGraphExecutor;
+import com.opengamma.engine.view.calcnode.JobDispatcher;
+
 /**
  * Receives information about graph execution from a {@link DependencyGraphExecutor}.
  */

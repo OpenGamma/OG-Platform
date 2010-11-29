@@ -10,7 +10,6 @@
     </publications>
     <dependencies>
     	<dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
-    	<dependency name="og-config" rev="latest.integration" conf="opengamma->*"/>
     	<dependency name="og-core" rev="latest.integration" conf="opengamma->*"/>
     	
         <dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
