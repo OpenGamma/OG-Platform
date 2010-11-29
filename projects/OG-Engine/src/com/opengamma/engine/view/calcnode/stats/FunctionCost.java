@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,156 +17,102 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Central point for function statistics.
  * <p>
  * This acts as a local gatherer, central point for remote nodes and supplier of data.
  */
-public class FunctionCost implements FunctionInvocationStatisticsGatherer {
+public final class FunctionCost implements FunctionInvocationStatisticsGatherer {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(FunctionCost.class);
+  static final Logger s_logger = LoggerFactory.getLogger(FunctionCost.class);
   /**
-   * Name used in the config database.
+   * Name used for the mean.
    */
-  private static final String MEAN_INVOCATION_DOCUMENT_NAME = "MEAN";
-
-  /**
-   * All statistics for a single configuration.
-   */
-  public final class ForConfiguration {
-
-    /**
-     * The configuration name.
-     */
-    private final String _configurationName;
-    /**
-     * The map of per function statistics.
-     */
-    private final ConcurrentMap<String, FunctionInvocationStatistics> _data = new ConcurrentHashMap<String, FunctionInvocationStatistics>();
-
-    /**
-     * Creates an instance for a configuration name.
-     * 
-     * @param configurationName  the configuration name, not null
-     */
-    private ForConfiguration(final String configurationName) {
-      _configurationName = configurationName;
-    }
-
-    /**
-     * Gets the configuration name.
-     * 
-     * @return the configuration name, not null
-     */
-    public String getConfigurationName() {
-      return _configurationName;
-    }
-
-    /**
-     * Converts a function id to a document name.
-     * 
-     * @param functionId  the function id, not null
-     * @return the document name, not null
-     */
-    private String getDocumentName(final String functionId) {
-      return getConfigurationName().replaceAll("[\\\\:]", "\\\\$0") + "::" + functionId;
-    }
-
-    /**
-     * Gets the statistics for a function.
-     * 
-     * @param functionId  the function id, not null
-     * @return the statistics, not null
-     */
-    public FunctionInvocationStatistics getStatistics(final String functionId) {
-      FunctionInvocationStatistics stats = _data.get(functionId);
-      if (stats == null) {
-        ConfigDocument<FunctionInvocationStatistics> statsDoc = null;
-        if (getPersistence() != null) {
-          s_logger.debug("Loading statistics for {}/{}", getConfigurationName(), functionId);
-          final ConfigSearchRequest request = new ConfigSearchRequest();
-          request.setName(getDocumentName(functionId));
-          final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
-          final List<ConfigDocument<FunctionInvocationStatistics>> docs = result.getDocuments();
-          if (docs.size() > 0) {
-            statsDoc = docs.get(0);
-            stats = statsDoc.getValue();
-            if (docs.size() > 1) {
-              s_logger.warn("Multiple documents found for {}/{}", getConfigurationName(), functionId);
-              for (int i = docs.size() - 1; i > 0; i--) {
-                s_logger.info("Deleting {}", docs.get(i).getConfigId());
-                getTypedPersistence().remove(docs.get(i).getConfigId());
-              }
-            }
-          } else {
-            s_logger.debug("No previous statistics for {}/{}", getConfigurationName(), functionId);
-          }
-        }
-        if (stats == null) {
-          stats = new FunctionInvocationStatistics(functionId);
-          if (getMeanStatistics() != null) {
-            stats.setCosts(getMeanStatistics().getInvocationCost(), getMeanStatistics().getDataInputCost(), getMeanStatistics().getDataOutputCost());
-          }
-        }
-        FunctionInvocationStatistics newStats = _data.putIfAbsent(functionId, stats);
-        if (newStats != null) {
-          stats = newStats;
-        } else {
-          // we created function statistics, so poke it into storage
-          if (getPersistence() != null) {
-            if (statsDoc == null) {
-              statsDoc = new ConfigDocument<FunctionInvocationStatistics>();
-              statsDoc.setValue(stats);
-              statsDoc.setName(getDocumentName(functionId));
-            }
-            getConfigDocuments().add(statsDoc);
-          }
-        }
-      }
-      return stats;
-    }
-  }
+  private static final String MEAN_STATISTICS = "MEAN";
 
   /**
    * The statistics per configuration.
    */
-  private final ConcurrentMap<String, ForConfiguration> _data = new ConcurrentHashMap<String, ForConfiguration>();
+  private final ConcurrentMap<String, FunctionCostsPerConfiguration> _data = new ConcurrentHashMap<String, FunctionCostsPerConfiguration>();
+  /**
+   * The items that persistence is dealing with.
+   */
+  private final Queue<Pair<String, FunctionInvocationStatistics>> _persistedItems = new ConcurrentLinkedQueue<Pair<String, FunctionInvocationStatistics>>();
   /**
    * The persistent storage.
    */
-  private ConfigMaster _configMaster;
-  /**
-   * The configuration documents.
-   */
-  private final Queue<ConfigDocument<FunctionInvocationStatistics>> _configDocuments = new ConcurrentLinkedQueue<ConfigDocument<FunctionInvocationStatistics>>();
+  private final FunctionCostsMaster _costsMaster;
   /**
    * The mean statistics as persisted.
    */
-  private FunctionInvocationStatistics _meanStatistics;
-  /**
-   * The mean statistics document.
-   */
-  private ConfigDocument<FunctionInvocationStatistics> _meanStatisticsDocument;
+  private final FunctionInvocationStatistics _meanStatistics;
 
+  /**
+   * Constructor using an in-memory master.
+   */
+  public FunctionCost() {
+    this(new InMemoryFunctionCostsMaster());
+  }
+
+  /**
+   * Constructor.
+   * 
+   * @param costsMaster  the costs master, not null
+   */
+  public FunctionCost(final FunctionCostsMaster costsMaster) {
+    ArgumentChecker.notNull(costsMaster, "costsMaster");
+    _costsMaster = costsMaster;
+    _meanStatistics = loadMeanStatistics();
+  }
+
+  /**
+   * Loads the mean statistics.
+   */
+  private FunctionInvocationStatistics loadMeanStatistics() {
+    s_logger.debug("Loading initial mean statistics");
+    FunctionCostsDocument doc = _costsMaster.load(MEAN_STATISTICS, MEAN_STATISTICS, null);
+    if (doc == null) {
+      s_logger.debug("No initial mean statistics");
+      doc = new FunctionCostsDocument(MEAN_STATISTICS, MEAN_STATISTICS);
+      new FunctionInvocationStatistics(MEAN_STATISTICS).populateDocument(doc);
+    }
+    return new FunctionInvocationStatistics(doc);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gathers statistics from the central node and records them.
+   * 
+   * @param configurationName  the configuration name, not null
+   * @param functionId  the function id, not null
+   * @param invocationCount  the number of invocations the data is for
+   * @param executionNanos  the execution time, in nanoseconds, of the invocation(s)
+   * @param dataInputBytes  the mean data input, bytes per input node, or {@code NaN} to mean statistics aren't available
+   * @param dataOutputBytes  the mean data output, bytes per output node, or {@code NaN} to mean statistics aren't available
+   */
+  @Override
+  public void functionInvoked(
+      final String configurationName, final String functionId, final int invocationCount,
+      final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
+    getStatistics(configurationName, functionId).recordInvocation(invocationCount, executionNanos, dataInputBytes, dataOutputBytes);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets statistics for a configuration.
    * 
-   * @param calculationConfiguration  the configuration id, not null
+   * @param configurationName  the configuration name, not null
    * @return the statistics, not null
    */
-  public ForConfiguration getStatistics(final String calculationConfiguration) {
-    ForConfiguration data = _data.get(calculationConfiguration);
+  public FunctionCostsPerConfiguration getStatistics(final String configurationName) {
+    FunctionCostsPerConfiguration data = _data.get(configurationName);
     if (data == null) {
-      _data.putIfAbsent(calculationConfiguration, new ForConfiguration(calculationConfiguration));
-      data = _data.get(calculationConfiguration);
+      _data.putIfAbsent(configurationName, new FunctionCostsPerConfiguration(this, configurationName));
+      data = _data.get(configurationName);
     }
     return data;
   }
@@ -175,129 +120,106 @@ public class FunctionCost implements FunctionInvocationStatisticsGatherer {
   /**
    * Gets statistics for a function.
    * 
-   * @param calculationConfiguration  the configuration id, not null
+   * @param configurationName  the configuration name, not null
    * @param functionId  the function id, not null
    * @return the statistics, not null
    */
-  public FunctionInvocationStatistics getStatistics(final String calculationConfiguration, final String functionId) {
-    return getStatistics(calculationConfiguration).getStatistics(functionId);
+  public FunctionInvocationStatistics getStatistics(final String configurationName, final String functionId) {
+    return getStatistics(configurationName).getStatistics(functionId);
   }
 
-  @Override
-  public void functionInvoked(final String configurationName, final String functionIdentifier, final int count, final double invocationTime, final double dataInput, final double dataOutput) {
-    getStatistics(configurationName, functionIdentifier).recordInvocation(count, invocationTime, dataInput, dataOutput);
+  /**
+   * Loads the statistics.
+   * 
+   * @param configurationName  the configuration name, not null
+   * @param functionId  the function id, not null
+   * @return the statistics, not null
+   */
+  /* package */ FunctionInvocationStatistics loadStatistics(final FunctionCostsPerConfiguration configurationCosts, final String functionId) {
+    String configurationName = configurationCosts.getConfigurationName();
+    
+    s_logger.debug("Loading statistics for {}/{}", configurationName, functionId);
+    FunctionCostsDocument doc = _costsMaster.load(configurationName, functionId, null);
+    if (doc != null) {
+      s_logger.debug("Found previous statistics for {}/{}", configurationName, functionId);
+      FunctionInvocationStatistics stats = new FunctionInvocationStatistics(doc);
+      configurationCosts.getCosts().putIfAbsent(functionId, stats);
+      return configurationCosts.getCosts().get(functionId);
+      
+    } else {
+      s_logger.debug("No previous statistics for {}/{}", configurationName, functionId);
+      FunctionInvocationStatistics stats = new FunctionInvocationStatistics(functionId);
+      stats.setCosts(_meanStatistics.getInvocationCost(), _meanStatistics.getDataInputCost(), _meanStatistics.getDataOutputCost());
+      FunctionInvocationStatistics newStats = configurationCosts.getCosts().putIfAbsent(functionId, stats);
+      if (newStats != null) {
+        return newStats;  // another thread created the statistics
+      }
+      _persistedItems.add(Pair.of(configurationName, stats));
+      return stats;
+    }
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the persistent store.
-   * 
-   * @return the persistent store.
-   */
-  public ConfigMaster getPersistence() {
-    return _configMaster;
-  }
-
-  /**
-   * Sets the persist store.
-   * 
-   * @param configMaster  the persist store, not null
-   */
-  public void setPersistence(final ConfigMaster configMaster) {
-    ArgumentChecker.notNull(configMaster, "configMaster");
-    _configMaster = configMaster;
-    s_logger.debug("Searching for initial mean statistics");
-    final ConfigSearchRequest request = new ConfigSearchRequest();
-    request.setName(MEAN_INVOCATION_DOCUMENT_NAME);
-    final ConfigSearchResult<FunctionInvocationStatistics> result = getTypedPersistence().search(request);
-    final List<ConfigDocument<FunctionInvocationStatistics>> resultDocs = result.getDocuments();
-    if (resultDocs.size() > 0) {
-      _meanStatisticsDocument = resultDocs.get(0);
-      if (resultDocs.size() > 1) {
-        s_logger.warn("Multiple documents found for {}", MEAN_INVOCATION_DOCUMENT_NAME);
-      }
-    } else {
-      s_logger.debug("No initial statistics");
-      final ConfigDocument<FunctionInvocationStatistics> doc = new ConfigDocument<FunctionInvocationStatistics>();
-      doc.setName(MEAN_INVOCATION_DOCUMENT_NAME);
-      doc.setValue(new FunctionInvocationStatistics(MEAN_INVOCATION_DOCUMENT_NAME));
-      _meanStatisticsDocument = doc;
-    }
-    _meanStatistics = _meanStatisticsDocument.getValue();
-  }
-
-  private ConfigTypeMaster<FunctionInvocationStatistics> getTypedPersistence() {
-    return _configMaster.typed(FunctionInvocationStatistics.class);
-  }
-
-  private Queue<ConfigDocument<FunctionInvocationStatistics>> getConfigDocuments() {
-    return _configDocuments;
-  }
-
-  private FunctionInvocationStatistics getMeanStatistics() {
-    return _meanStatistics;
-  }
-
   /**
    * Creates a runnable to write the statistics.
    * 
    * @return the runnable, not null
    */
   public Runnable createPersistenceWriter() {
-    ArgumentChecker.notNull(getTypedPersistence(), "persistence");
+    // the statistics are added to a concurrent collection, which is processed here
+    
     return new Runnable() {
       @Override
       public void run() {
         s_logger.info("Persisting function execution statistics");
-        long lastUpdate = _meanStatistics.getLastUpdateNanos();
+        final FunctionInvocationStatistics meanStatistics = _meanStatistics;
+        final long lastUpdate = meanStatistics.getLastUpdateNanos();
+        
+        // store updates and calculate mean
         int count = 1;
-        double invocationCost = getMeanStatistics().getInvocationCost();
-        double dataInputCost = getMeanStatistics().getDataInputCost();
-        double dataOutputCost = getMeanStatistics().getDataOutputCost();
-        for (int i = getConfigDocuments().size(); i > 0; i--) {
-          final ConfigDocument<FunctionInvocationStatistics> configDocument = getConfigDocuments().poll();
-          if (configDocument.getConfigId() != null) {
-            if (configDocument.getValue().getLastUpdateNanos() > lastUpdate) {
-              s_logger.debug("Updating document {} with {}", configDocument.getConfigId(), configDocument.getName());
-              getConfigDocuments().add(getTypedPersistence().update(configDocument));
-              invocationCost += configDocument.getValue().getInvocationCost();
-              dataInputCost += configDocument.getValue().getDataInputCost();
-              dataOutputCost += configDocument.getValue().getDataOutputCost();
-              count++;
-            } else {
-              getConfigDocuments().add(configDocument);
-            }
-          } else {
-            s_logger.debug("Adding {} to store", configDocument.getName());
-            getConfigDocuments().add(getTypedPersistence().add(configDocument));
-            invocationCost += configDocument.getValue().getInvocationCost();
-            dataInputCost += configDocument.getValue().getDataInputCost();
-            dataOutputCost += configDocument.getValue().getDataOutputCost();
+        double invocationCost = meanStatistics.getInvocationCost();
+        double dataInputCost = meanStatistics.getDataInputCost();
+        double dataOutputCost = meanStatistics.getDataOutputCost();
+        for (Pair<String, FunctionInvocationStatistics> pair : _persistedItems) {
+          final FunctionInvocationStatistics stats = pair.getSecond();
+          if (stats.getLastUpdateNanos() > lastUpdate) {
+            // store
+            s_logger.debug("Storing {}/{}", pair.getFirst(), stats.getFunctionId());
+            FunctionCostsDocument doc = new FunctionCostsDocument(pair.getFirst(), stats.getFunctionId());
+            stats.populateDocument(doc);
+            _costsMaster.store(doc);
+            
+            // calculate mean
+            invocationCost += stats.getInvocationCost();
+            dataInputCost += stats.getDataInputCost();
+            dataOutputCost += stats.getDataOutputCost();
             count++;
           }
         }
-        _meanStatistics.setCosts(invocationCost / (double) count, dataInputCost / (double) count, dataOutputCost / (double) count);
+        meanStatistics.setCosts(invocationCost / (double) count, dataInputCost / (double) count, dataOutputCost / (double) count);
         if (count > 1) {
-          if (_meanStatisticsDocument.getConfigId() != null) {
-            s_logger.debug("Updating mean statistics {}", _meanStatistics);
-            _meanStatisticsDocument = getTypedPersistence().update(_meanStatisticsDocument);
-          } else {
-            s_logger.debug("Adding mean statistics {}", _meanStatistics);
-            _meanStatisticsDocument = getTypedPersistence().add(_meanStatisticsDocument);
-          }
+          s_logger.debug("Storing new mean statistics {}", meanStatistics);
+          FunctionCostsDocument doc = new FunctionCostsDocument(MEAN_STATISTICS, MEAN_STATISTICS);
+          meanStatistics.populateDocument(doc);
+          _costsMaster.store(doc);
         }
       }
     };
   }
 
-  // TODO [ENG-229] Would we want to be able to gather mean execution statistics without the persistence component?
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "FunctionCosts";
+  }
 
+  //-------------------------------------------------------------------------
   // For debug purposes only
   public FudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory) {
     final MutableFudgeFieldContainer message = factory.newMessage();
-    for (Map.Entry<String, ForConfiguration> configuration : _data.entrySet()) {
+    for (Map.Entry<String, FunctionCostsPerConfiguration> configuration : _data.entrySet()) {
       final MutableFudgeFieldContainer configurationMessage = factory.newMessage();
-      for (Map.Entry<String, FunctionInvocationStatistics> function : configuration.getValue()._data.entrySet()) {
+      for (Map.Entry<String, FunctionInvocationStatistics> function : configuration.getValue().getCosts().entrySet()) {
         final MutableFudgeFieldContainer functionMessage = factory.newMessage();
         functionMessage.add("invocationCost", function.getValue().getInvocationCost());
         functionMessage.add("dataInput", function.getValue().getDataInputCost());

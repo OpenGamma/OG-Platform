@@ -62,7 +62,7 @@ public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceive
     double remoteInvocationCost = 0;
     double localInvocationCost = 0;
     for (PerConfiguration configuration : invocations.getConfiguration()) {
-      final FunctionCost.ForConfiguration configurationStats = underlying.getStatistics(configuration.getConfiguration());
+      final FunctionCostsPerConfiguration configurationStats = underlying.getStatistics(configuration.getConfiguration());
       for (PerFunction function : configuration.getFunction()) {
         final FunctionInvocationStatistics statistics = configurationStats.getStatistics(function.getIdentifier());
         localInvocationCost += statistics.getInvocationCost();

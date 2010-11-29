@@ -64,6 +64,17 @@ public class FunctionInvocationStatistics {
     _functionId = functionId;
   }
 
+  /**
+   * Creates an instance from a document.
+   * 
+   * @param doc  the document, not null
+   */
+  public FunctionInvocationStatistics(final FunctionCostsDocument doc) {
+    ArgumentChecker.notNull(doc, "doc");
+    _functionId = doc.getFunctionId();
+    setCosts(doc.getInvocationCost(), doc.getDataInputCost(), doc.getDataOutputCost());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Updates the statistics record with details of the costs.
@@ -74,7 +85,7 @@ public class FunctionInvocationStatistics {
    * @param dataInputCost  the data input cost
    * @param dataOutputCost  the data output cost
    */
-  public synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
+  /* package */ synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
     _invocationCost = invocationCost;
     _dataInputCost = dataInputCost;
     _dataOutputCost = dataOutputCost;
@@ -91,7 +102,7 @@ public class FunctionInvocationStatistics {
    * @param dataInputBytes  the mean data input, bytes per input node, or {@code NaN} if unavailable
    * @param dataOutputBytes  the mean data output, bytes per output node, or {@code NaN} if unavailable
    */
-  public synchronized void recordInvocation(
+  /* package */ synchronized void recordInvocation(
       final int invocationCount, final double invocationNanos, final double dataInputBytes, final double dataOutputBytes) {
     _invocations += invocationCount;
     _invocationTime += invocationNanos;
@@ -156,24 +167,14 @@ public class FunctionInvocationStatistics {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a snapshot of the current values.
-   * <p>
-   * If consistency between the get methods is required, this method must be used.
+   * Populates the document with a snapshot of the values from this class.
    * 
-   * @return a snapshot, not null
+   * @param document  the document to populate, not null
    */
-  public synchronized FunctionInvocationStatistics snapshot() {
-    final FunctionInvocationStatistics snapshot = new FunctionInvocationStatistics(getFunctionId());
-    snapshot._invocationCost = _invocationCost;
-    snapshot._dataInputCost = _dataInputCost;
-    snapshot._dataOutputCost = _dataOutputCost;
-    snapshot._lastUpdated = _lastUpdated;
-    snapshot._cost = _cost;
-    snapshot._invocations = _invocations;
-    snapshot._invocationTime = _invocationTime;
-    snapshot._dataInput = _dataInput;
-    snapshot._dataOutput = _dataOutput;
-    return snapshot;
+  public synchronized void populateDocument(final FunctionCostsDocument document) {
+    document.setInvocationCost(_invocationCost);
+    document.setDataInputCost(_dataInputCost);
+    document.setDataOutputCost(_dataOutputCost);
   }
 
   //-------------------------------------------------------------------------
