@@ -105,6 +105,12 @@ public class CompiledFunctionService {
       s_logger.debug("Function definitions already initialized");
     }
   }
+  
+  public synchronized void reinit() {
+    // A terrible, terrible hack
+    initializeImpl();
+    ((CachingFunctionRepositoryCompiler) getFunctionRepositoryCompiler()).invalidateCache();
+  }
 
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
