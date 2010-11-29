@@ -100,6 +100,21 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
     return view;
   }
+  
+  @Override
+  public void reinitAsync() {
+    new Thread(new Runnable() {
+
+      @Override
+      public void run() {
+        getFunctionCompilationService().reinit();
+        for (ViewInternal view : _viewsByName.values()) {
+          view.reinit();
+        }
+      }
+      
+    }).start();
+  }
 
   /**
    * @return the viewDefinitionRepository
