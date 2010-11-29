@@ -88,7 +88,14 @@ public class MasterConfigSource implements ConfigSource {
   }
 
   //-------------------------------------------------------------------------
-  @Override
+  /**
+   * Search for configuration elements using a request object.
+   * 
+   * @param <T>  the type of configuration element
+   * @param clazz  the configuration element type, not null
+   * @param request The request object with value for search fields, not null
+   * @return all configuration elements matching the request, not null
+   */
   public <T> List<T> search(final Class<T> clazz, final ConfigSearchRequest request) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(request, "request");

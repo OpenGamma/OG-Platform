@@ -5,11 +5,8 @@
  */
 package com.opengamma.engine.config;
 
-import java.util.List;
-
 import javax.time.Instant;
 
-import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
 
@@ -21,16 +18,6 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public interface ConfigSource {
-
-  /**
-   * Search for configuration elements using a request object.
-   * 
-   * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param request The request object with value for search fields, not null
-   * @return all configuration elements matching the request, not null
-   */
-  <T> List<T> search(Class<T> clazz, ConfigSearchRequest request);
 
   /**
    * Gets a configuration element using the unique identifier.

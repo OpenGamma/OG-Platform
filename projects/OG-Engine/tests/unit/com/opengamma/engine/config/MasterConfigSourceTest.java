@@ -77,7 +77,7 @@ public class MasterConfigSourceTest {
     }
   }
 
-  private ConfigSource _configSource;
+  private MasterConfigSource _configSource;
 
   @Before
   public void setUp() throws Exception {

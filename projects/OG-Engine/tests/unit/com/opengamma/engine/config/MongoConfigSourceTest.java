@@ -45,7 +45,7 @@ public class MongoConfigSourceTest {
   private Random _random = new Random();
   private MongoDBConnectionSettings _mongoSettings;
   
-  private ConfigSource _configSource;
+  private MongoDBMasterConfigSource _configSource;
   private Map<String, ConfigDocument<ViewDefinition>> _viewDefinitions;
 
   /**
