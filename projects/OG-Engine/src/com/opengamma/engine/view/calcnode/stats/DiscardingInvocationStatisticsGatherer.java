@@ -12,7 +12,7 @@ public class DiscardingInvocationStatisticsGatherer implements FunctionInvocatio
 
   @Override
   public void functionInvoked(
-      String configurationName, String functionIdentifier, int invocationCount,
+      String configurationName, String functionId, int invocationCount,
       double executionNanos, double dataInputBytes, double dataOutputBytes) {
     // no action
   }

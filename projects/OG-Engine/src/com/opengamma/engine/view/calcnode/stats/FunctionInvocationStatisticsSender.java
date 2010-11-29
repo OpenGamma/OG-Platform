@@ -168,14 +168,14 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   //-------------------------------------------------------------------------
   @Override
   public void functionInvoked(
-      final String configurationName, final String functionIdentifier, final int invocationCount,
+      final String configurationName, final String functionId, final int invocationCount,
       final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
     
     final ConcurrentMap<String, PerFunction> statsMap = getConfigurationData(configurationName);
-    PerFunction stats = statsMap.get(functionIdentifier);
+    PerFunction stats = statsMap.get(functionId);
     if (stats == null) {
-      stats = new PerFunction(functionIdentifier, invocationCount, executionNanos, dataInputBytes, dataOutputBytes);
-      PerFunction newStats = statsMap.putIfAbsent(functionIdentifier, stats);
+      stats = new PerFunction(functionId, invocationCount, executionNanos, dataInputBytes, dataOutputBytes);
+      PerFunction newStats = statsMap.putIfAbsent(functionId, stats);
       if (newStats == null) {
         return;  // data stored in constructor of PerFunction above
       }
