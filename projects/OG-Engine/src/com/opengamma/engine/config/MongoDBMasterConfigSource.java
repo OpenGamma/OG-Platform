@@ -23,6 +23,7 @@ import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
 import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.config.mongo.MongoDBConfigTypeMaster;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 

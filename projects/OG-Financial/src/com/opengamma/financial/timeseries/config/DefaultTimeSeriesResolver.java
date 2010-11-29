@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;

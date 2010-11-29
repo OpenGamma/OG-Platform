@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.config;
+package com.opengamma.core.config;
 
 import javax.time.Instant;
 
@@ -11,9 +11,9 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A source of configuration elements as accessed by the engine.
+ * A source of configuration elements as accessed by the main application.
  * <p>
- * This interface provides a simple view of configuration elements as needed by the engine.
+ * This interface provides a simple view of configuration as used by most parts of the application.
  * This may be backed by a full-featured config master, or by a much simpler data structure.
  */
 @PublicAPI

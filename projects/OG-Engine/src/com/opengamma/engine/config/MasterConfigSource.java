@@ -18,6 +18,7 @@ import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.config.ConfigMaster;
 import com.opengamma.config.ConfigSearchRequest;
 import com.opengamma.config.ConfigSearchResult;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.PagingRequest;
