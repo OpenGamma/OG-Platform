@@ -7,8 +7,6 @@ package com.opengamma.util.time;
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
  * A tenor.
  */
@@ -196,6 +194,10 @@ public class Tenor {
   }
   
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    StringBuilder sb = new StringBuilder();
+    sb.append("Tenor[");
+    sb.append(getPeriod().toString());
+    sb.append("]");
+    return sb.toString(); 
   }
 }
