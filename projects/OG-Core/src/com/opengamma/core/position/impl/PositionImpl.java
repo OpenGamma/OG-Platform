@@ -249,23 +249,23 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _security = security;
   }
    
-  /**
-   * Add collections of trades to the position
-   * @param trades the trades that make up the position, not-null
-   */
-  public void addTrades(Collection<Trade> trades) {
-    ArgumentChecker.notNull(trades, "trades");
-    _trades.addAll(trades);
-  }
-  
-  /**
-   * Add a trade to the position
-   * @param trade the trade that make up the position, not-null
-   */
-  public void addTrade(Trade trade) {
-    ArgumentChecker.notNull(trade, "trade");
-    _trades.add(trade);
-  }
+//  /**
+//   * Add collections of trades to the position
+//   * @param trades the trades that make up the position, not-null
+//   */
+//  public void addTrades(Collection<Trade> trades) {
+//    ArgumentChecker.notNull(trades, "trades");
+//    _trades.addAll(trades);
+//  }
+//  
+//  /**
+//   * Add a trade to the position
+//   * @param trade the trade that make up the position, not-null
+//   */
+//  public void addTrade(Trade trade) {
+//    ArgumentChecker.notNull(trade, "trade");
+//    _trades.add(trade);
+//  }
   
   /**
    * Gets the trades the makes up this position if available
@@ -273,7 +273,16 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    */
   @Override
   public Set<Trade> getTrades() {
-    return Collections.unmodifiableSet(_trades);
+    return _trades;
+  }
+  
+ 
+  /**
+   * Sets the _trades field.
+   * @param trades  the trades
+   */
+  public void setTrades(Set<Trade> trades) {
+    _trades = trades;
   }
 
   //-------------------------------------------------------------------------

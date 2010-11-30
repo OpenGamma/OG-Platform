@@ -24,6 +24,7 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
 
   private static final String AGGREGATE_POSITION_OUTPUT_MODE_FIELD = "aggregatePositionOutputMode";
   private static final String POSITION_OUTPUT_MODE_FIELD = "positionOutputMode";
+  private static final String TRADE_OUTPUT_MODE_FIELD = "tradeOutputMode";
   private static final String SECURITY_OUTPUT_MODE_FIELD = "securityOutputMode";
   private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
 
@@ -33,6 +34,7 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
     MutableFudgeFieldContainer msg = context.newMessage();
     msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD, object.getAggregatePositionOutputMode().name());
     msg.add(POSITION_OUTPUT_MODE_FIELD, object.getPositionOutputMode().name());
+    msg.add(TRADE_OUTPUT_MODE_FIELD, object.getTradeOutputMode().name());
     msg.add(SECURITY_OUTPUT_MODE_FIELD, object.getSecurityOutputMode().name());
     msg.add(PRIMITIVE_OUTPUT_MODE_FIELD, object.getPrimitiveOutputMode().name());
     return msg;
@@ -43,6 +45,7 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
     ResultModelDefinition result = new ResultModelDefinition();
     result.setAggregatePositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
     result.setPositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(POSITION_OUTPUT_MODE_FIELD)));
+    result.setTradeOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(TRADE_OUTPUT_MODE_FIELD)));
     result.setSecurityOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(SECURITY_OUTPUT_MODE_FIELD)));
     result.setPrimitiveOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(PRIMITIVE_OUTPUT_MODE_FIELD)));
     return result;

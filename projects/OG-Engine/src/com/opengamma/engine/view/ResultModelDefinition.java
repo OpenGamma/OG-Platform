@@ -10,9 +10,6 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -36,6 +33,7 @@ public class ResultModelDefinition implements Serializable {
   private ResultOutputMode _positionOutputMode;
   private ResultOutputMode _securityOutputMode;
   private ResultOutputMode _primitiveOutputMode;
+  private ResultOutputMode _tradeOutputMode;
 
   /**
    * Constructs an instance using the default output mode for each computation target type.
@@ -50,7 +48,7 @@ public class ResultModelDefinition implements Serializable {
    * @param defaultMode  the default result output mode
    */
   public ResultModelDefinition(ResultOutputMode defaultMode) {
-    this(defaultMode, defaultMode, defaultMode, defaultMode);
+    this(defaultMode, defaultMode, defaultMode, defaultMode, defaultMode);
   }
   
   /**
@@ -59,12 +57,15 @@ public class ResultModelDefinition implements Serializable {
    * @param primitiveOutputMode  the result output mode for primitive targets
    * @param securityOutputMode  the result output mode for security targets
    * @param positionOutputMode  the result output mode for position targets
+   * @param tradeOutputMode  the result output mode for trade targets
    * @param aggregatePositionOutputMode  the result output mode for aggregate position targets
    */
-  public ResultModelDefinition(ResultOutputMode primitiveOutputMode, ResultOutputMode securityOutputMode, ResultOutputMode positionOutputMode, ResultOutputMode aggregatePositionOutputMode) {
+  public ResultModelDefinition(ResultOutputMode primitiveOutputMode, ResultOutputMode securityOutputMode, ResultOutputMode positionOutputMode, 
+      ResultOutputMode tradeOutputMode, ResultOutputMode aggregatePositionOutputMode) {
     _primitiveOutputMode = primitiveOutputMode;
     _securityOutputMode = securityOutputMode;
     _positionOutputMode = positionOutputMode;
+    _tradeOutputMode = tradeOutputMode;
     _aggregatePositionOutputMode = aggregatePositionOutputMode;
   }
   
@@ -96,6 +97,30 @@ public class ResultModelDefinition implements Serializable {
    */
   public ResultOutputMode getPositionOutputMode() {
     return _positionOutputMode;
+  }
+  
+  /**
+   * Sets the output mode that applies to individual trade outputs. If only aggregate position calculations are
+   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
+   * trades through this method could speed up the computation cycle significantly. This is beneficial for
+   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
+   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
+   * although disabling the individual trade outputs will still hide them from the user even though they will be
+   * calculated.
+   * 
+   * @param tradeOutputMode  the output mode to apply to trade values
+   */
+  public void setTradeOutputMode(ResultOutputMode tradeOutputMode) {
+    _tradeOutputMode = tradeOutputMode;
+  }
+
+  /**
+   * Gets the output mode that applies to individual trade values. 
+   * 
+   * @return  the output mode that applies to trade values
+   */
+  public ResultOutputMode getTradeOutputMode() {
+    return _tradeOutputMode;
   }
 
   /**
@@ -166,6 +191,8 @@ public class ResultModelDefinition implements Serializable {
         return getSecurityOutputMode();
       case POSITION:
         return getPositionOutputMode();
+      case TRADE:
+        return getTradeOutputMode();
       case PORTFOLIO_NODE:
         return getAggregatePositionOutputMode();
       default:
