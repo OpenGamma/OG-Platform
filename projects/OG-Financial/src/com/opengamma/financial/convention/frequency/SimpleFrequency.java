@@ -67,7 +67,7 @@ public final class SimpleFrequency implements Frequency {
    * @throws IllegalArgumentException if the name is null
    * @throws IllegalArgumentException if the frequency is zero or negative
    */
-  private SimpleFrequency(final String name, final double periodsPerYear) {
+  /* package */ SimpleFrequency(final String name, final double periodsPerYear) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
     _name = name;

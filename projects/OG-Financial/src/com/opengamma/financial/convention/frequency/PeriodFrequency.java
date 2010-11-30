@@ -90,7 +90,7 @@ public final class PeriodFrequency implements Frequency {
    * @param name  the name of the convention, not null
    * @param period  length of the period, not null
    */
-  private PeriodFrequency(final String name, final Period period) {
+  /* package */ PeriodFrequency(final String name, final Period period) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(period, "period");
     _name = name;
