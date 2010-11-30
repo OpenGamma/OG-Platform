@@ -31,6 +31,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
@@ -63,7 +64,10 @@ public class CSVPositionSource implements PositionSource {
    * The positions by identifier.
    */
   private final Map<UniqueIdentifier, Position> _positions = new TreeMap<UniqueIdentifier, Position>();
-
+  /**
+   * The trades by identifier.
+   */
+  private final Map<UniqueIdentifier, Trade> _trades = new TreeMap<UniqueIdentifier, Trade>();
   /**
    * Creates an empty CSV position source.
    */
@@ -157,6 +161,11 @@ public class CSVPositionSource implements PositionSource {
   public Position getPosition(UniqueIdentifier identifier) {
     return _positions.get(identifier);
   }
+  
+  @Override
+  public Trade getTrade(UniqueIdentifier identifier) {
+    return _trades.get(identifier);
+  }
 
   //-------------------------------------------------------------------------
   private Portfolio loadPortfolio(UniqueIdentifier portfolioId, File file) {
@@ -219,5 +228,4 @@ public class CSVPositionSource implements PositionSource {
     
     return new PositionImpl(positionId, quantity, securityKey);
   }
-
 }

@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.function;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +16,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;

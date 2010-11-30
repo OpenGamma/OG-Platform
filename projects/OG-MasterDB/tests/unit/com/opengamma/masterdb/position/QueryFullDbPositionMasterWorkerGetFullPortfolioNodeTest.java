@@ -96,7 +96,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     PortfolioNode testChild112 = test.getChildNodes().get(0);
     assertEquals(UniqueIdentifier.of("DbPos", "112"), testChild112.getUniqueIdentifier().toLatest());
     assertEquals("TestNode112", testChild112.getName());
-    assertEquals(4, testChild112.getPositions().size());
+    assertEquals(5, testChild112.getPositions().size());
     assertEquals(1, testChild112.getChildNodes().size());
     
     PortfolioNode testChild113 = testChild112.getChildNodes().get(0);
@@ -112,7 +112,19 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
    * @param node112
    */
   private void assertPortfolio112Positions(PortfolioNode node112) {
-    Position testPos120 = node112.getPositions().get(0);
+    
+    Position testPos100 = node112.getPositions().get(0);
+    assertEquals(UniqueIdentifier.of("DbPos", "100", "0"), testPos100.getUniqueIdentifier());
+    assertEquals(BigDecimal.valueOf(100.987), testPos100.getQuantity());
+    IdentifierBundle testSecKey100 = testPos100.getSecurityKey();
+    assertNotNull(testSecKey100);
+    assertEquals(1, testSecKey100.size());
+    assertEquals(true, testSecKey100.getIdentifiers().contains(Identifier.of("TICKER", "S100")));
+    Collection<Trade> trades100 = testPos100.getTrades();
+    assertNotNull(trades100);
+    assertTrue(trades100.isEmpty());
+    
+    Position testPos120 = node112.getPositions().get(1);
     assertEquals(UniqueIdentifier.of("DbPos", "120", "0"), testPos120.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(120.987), testPos120.getQuantity());
     IdentifierBundle testSecKey120 = testPos120.getSecurityKey();
@@ -122,9 +134,11 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     Collection<Trade> trades120 = testPos120.getTrades();
     assertNotNull(trades120);
     assertEquals(1, trades120.size());
-    assertEquals(new TradeImpl(testPos120, BigDecimal.valueOf(120.987), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), _version1Instant.minusSeconds(120)), trades120.iterator().next());
+    TradeImpl expectedTrade = new TradeImpl(testPos120, BigDecimal.valueOf(120.987), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), _version1Instant.minusSeconds(120));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "400", "0"));
+    assertEquals(expectedTrade, trades120.iterator().next());
     
-    Position testPos121 = node112.getPositions().get(1);
+    Position testPos121 = node112.getPositions().get(2);
     assertEquals(UniqueIdentifier.of("DbPos", "121", "0"), testPos121.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), testPos121.getQuantity());
     IdentifierBundle testSecKey121 = testPos121.getSecurityKey();
@@ -135,9 +149,11 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     Collection<Trade> trades121 = testPos121.getTrades();
     assertNotNull(trades121);
     assertEquals(1, trades121.size());
-    assertEquals(new TradeImpl(testPos121, BigDecimal.valueOf(121.987), new CounterpartyImpl(Identifier.of("CPARTY", "C101")), _version1Instant.minusSeconds(121)), trades121.iterator().next());
+    expectedTrade = new TradeImpl(testPos121, BigDecimal.valueOf(121.987), new CounterpartyImpl(Identifier.of("CPARTY", "C101")), _version1Instant.minusSeconds(121));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "401", "0"));
+    assertEquals(expectedTrade, trades121.iterator().next());
     
-    Position testPos122 = node112.getPositions().get(2);
+    Position testPos122 = node112.getPositions().get(3);
     assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), testPos122.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(122.987), testPos122.getQuantity());
     IdentifierBundle testSecKey122 = testPos122.getSecurityKey();
@@ -147,10 +163,16 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     Collection<Trade> trades122 = testPos122.getTrades();
     assertNotNull(trades122);
     assertEquals(2, trades122.size());
-    assertTrue(trades122.contains(new TradeImpl(testPos121, BigDecimal.valueOf(22.987), new CounterpartyImpl(Identifier.of("CPARTY", "CISC")), _version1Instant.minusSeconds(122))));
-    assertTrue(trades122.contains(new TradeImpl(testPos121, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "JMP")), _version1Instant.minusSeconds(122))));
     
-    Position testPos123 = node112.getPositions().get(3);
+    expectedTrade = new TradeImpl(testPos121, BigDecimal.valueOf(22.987), new CounterpartyImpl(Identifier.of("CPARTY", "CISC")), _version1Instant.minusSeconds(122));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "403", "0"));
+    assertTrue(trades122.contains(expectedTrade));
+    
+    expectedTrade = new TradeImpl(testPos121, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "JMP")), _version1Instant.minusSeconds(122));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "402", "0"));
+    assertTrue(trades122.contains(expectedTrade));
+    
+    Position testPos123 = node112.getPositions().get(4);
     assertEquals(UniqueIdentifier.of("DbPos", "123", "0"), testPos123.getUniqueIdentifier());
     assertEquals(BigDecimal.valueOf(123.987), testPos123.getQuantity());
     IdentifierBundle testSecKey123 = testPos123.getSecurityKey();
@@ -161,9 +183,18 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     Collection<Trade> trades123 = testPos123.getTrades();
     assertNotNull(trades123);
     assertEquals(3, trades123.size());
-    assertTrue(trades123.contains(new TradeImpl(testPos123, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "C104")), _version1Instant.minusSeconds(123))));
-    assertTrue(trades123.contains(new TradeImpl(testPos123, BigDecimal.valueOf(200.987), new CounterpartyImpl(Identifier.of("CPARTY", "C105")), _version1Instant.minusSeconds(123))));
-    assertTrue(trades123.contains(new TradeImpl(testPos123, BigDecimal.valueOf(300.987), new CounterpartyImpl(Identifier.of("CPARTY", "C106")), _version1Instant.minusSeconds(123))));
+    
+    expectedTrade = new TradeImpl(testPos123, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "C104")), _version1Instant.minusSeconds(123));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "404", "0"));
+    assertTrue(trades123.contains(expectedTrade));
+    
+    expectedTrade = new TradeImpl(testPos123, BigDecimal.valueOf(200.987), new CounterpartyImpl(Identifier.of("CPARTY", "C105")), _version1Instant.minusSeconds(123));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "405", "0"));
+    assertTrue(trades123.contains(expectedTrade));
+    
+    expectedTrade = new TradeImpl(testPos123, BigDecimal.valueOf(300.987), new CounterpartyImpl(Identifier.of("CPARTY", "C106")), _version1Instant.minusSeconds(123));
+    expectedTrade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "406", "0"));
+    assertTrue(trades123.contains(expectedTrade));
   }
 
   @Test
@@ -174,7 +205,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioNodeTest extends Abs
     
     assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getUniqueIdentifier().toLatest());
     assertEquals("TestNode112", test.getName());
-    assertEquals(4, test.getPositions().size());
+    assertEquals(5, test.getPositions().size());
     assertEquals(1, test.getChildNodes().size());
     
     PortfolioNode testChild113 = test.getChildNodes().get(0);

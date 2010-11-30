@@ -15,8 +15,10 @@ import java.util.List;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.http.client.utils.URIUtils;
+import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.transport.EndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -54,6 +56,14 @@ public class RestTarget {
     }
     _uri = uri;
     _taxonomyId = taxonomyId;
+  }
+
+  public RestTarget(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
+    this(UriEndPointDescriptionProvider.getAccessibleURI(fudgeContext, endPointProvider));
+  }
+
+  public RestTarget(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider, final int taxonomyId) {
+    this(UriEndPointDescriptionProvider.getAccessibleURI(fudgeContext, endPointProvider), taxonomyId);
   }
 
   //-------------------------------------------------------------------------

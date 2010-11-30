@@ -36,7 +36,9 @@ public class CompiledFunctionService {
   private ExecutorService _executorService;
   private boolean _initialized;
 
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(
+      final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
@@ -104,6 +106,12 @@ public class CompiledFunctionService {
     } else {
       s_logger.debug("Function definitions already initialized");
     }
+  }
+  
+  public synchronized void reinit() {
+    // A terrible, terrible hack
+    initializeImpl();
+    ((CachingFunctionRepositoryCompiler) getFunctionRepositoryCompiler()).invalidateCache();
   }
 
   public FunctionRepository getFunctionRepository() {

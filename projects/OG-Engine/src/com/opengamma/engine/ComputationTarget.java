@@ -122,6 +122,37 @@ public class ComputationTarget implements Serializable {
     }
     return (Security) getValue();
   }
+  
+  //-------------------------------------------------------------------------
+  
+  /**
+   * Gets the name of the computation target.
+   * <p>
+   * This can the portfolio name, the security name,
+   * the name of the security underlying a position,
+   * or - for primitives - {@code null}.
+   * 
+   * @return the name of the computation target, {@code null}
+   * if a primitive 
+   */
+  public String getName() {
+    switch (getType()) {
+      case PORTFOLIO_NODE:
+        return getPortfolioNode().getName();
+        
+      case SECURITY:
+        return getSecurity().getName();
+        
+      case POSITION:
+        return getPosition().getSecurity().getName();
+        
+      case PRIMITIVE:
+        return null;
+        
+      default:
+        throw new RuntimeException("Unexpected type" + getType());
+    }
+  }
 
   //-------------------------------------------------------------------------
   /**

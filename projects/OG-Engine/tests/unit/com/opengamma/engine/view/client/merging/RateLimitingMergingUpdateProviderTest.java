@@ -16,9 +16,6 @@ import java.util.Timer;
 import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.client.merging.MergedUpdateListener;
-import com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProvider;
-import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 
 /**
  * Tests RateLimitingMergingUpdateProvider

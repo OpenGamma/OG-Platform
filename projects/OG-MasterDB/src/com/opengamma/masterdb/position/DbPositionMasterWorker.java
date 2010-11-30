@@ -18,10 +18,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
 import com.opengamma.master.position.FullPortfolioNodeGetRequest;
 import com.opengamma.master.position.FullPositionGetRequest;
+import com.opengamma.master.position.FullTradeGetRequest;
 import com.opengamma.master.position.PortfolioTreeDocument;
 import com.opengamma.master.position.PortfolioTreeHistoryRequest;
 import com.opengamma.master.position.PortfolioTreeHistoryResult;
@@ -81,7 +83,7 @@ public class DbPositionMasterWorker {
 
   /**
    * Gets the database template.
-   * @return the database template, non-null if correctly initialized
+   * @return the database template, not null if correctly initialized
    */
   protected SimpleJdbcTemplate getJdbcTemplate() {
     return _master.getDbSource().getJdbcTemplate();
@@ -89,7 +91,7 @@ public class DbPositionMasterWorker {
 
   /**
    * Gets the transaction template.
-   * @return the transaction template, non-null if correctly initialized
+   * @return the transaction template, not null if correctly initialized
    */
   protected TransactionTemplate getTransactionTemplate() {
     return _master.getDbSource().getTransactionTemplate();
@@ -97,7 +99,7 @@ public class DbPositionMasterWorker {
 
   /**
    * Gets the database helper.
-   * @return the helper, non-null if correctly initialized
+   * @return the helper, not null if correctly initialized
    */
   protected DbHelper getDbHelper() {
     return _master.getDbSource().getDialect();
@@ -282,6 +284,10 @@ public class DbPositionMasterWorker {
   }
 
   protected Position getFullPosition(FullPositionGetRequest request) {
+    throw new UnsupportedOperationException();
+  }
+  
+  protected Trade getFullTrade(FullTradeGetRequest request) {
     throw new UnsupportedOperationException();
   }
 

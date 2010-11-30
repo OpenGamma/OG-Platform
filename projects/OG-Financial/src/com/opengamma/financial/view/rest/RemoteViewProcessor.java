@@ -60,6 +60,12 @@ public class RemoteViewProcessor implements ViewProcessor {
     return _client.access(uri).get(Set.class);
   }
   
+  @Override
+  public void reinitAsync() {
+    URI uri = getUri(_baseUri, DataViewProcessorResource.PATH_REINIT_ASYNC);
+    _client.access(uri).post();
+  }
+  
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) { 
     return UriBuilder.fromUri(baseUri).path(path).build();

@@ -1,13 +1,15 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.convention.ConventionBundleSource;
 
 /**
@@ -18,6 +20,8 @@ public final class OpenGammaCompilationContext {
   private static final String CONFIG_SOURCE_NAME = "configSource";
   private static final String REGION_SOURCE_NAME = "regionSource";
   private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+  private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
+  private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
 
   /**
    * Restricted constructor.
@@ -25,7 +29,7 @@ public final class OpenGammaCompilationContext {
   private OpenGammaCompilationContext() {
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets a {@code ConfigSource} from the context.
    * @param compilationContext  the context to examine, not null
@@ -44,7 +48,7 @@ public final class OpenGammaCompilationContext {
     compilationContext.put(CONFIG_SOURCE_NAME, configSource);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets a {@code RegionSource} from the context.
    * @param compilationContext  the context to examine, not null
@@ -63,7 +67,7 @@ public final class OpenGammaCompilationContext {
     compilationContext.put(REGION_SOURCE_NAME, regionSource);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets a {@code ConventionBundleSource} from the context.
    * @param compilationContext  the context to examine, not null
@@ -80,6 +84,22 @@ public final class OpenGammaCompilationContext {
    */
   public static void setConventionBundleSource(FunctionCompilationContext compilationContext, ConventionBundleSource conventionBundleSource) {
     compilationContext.put(CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
+  }
+
+  public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext) {
+    return (InterpolatedYieldCurveDefinitionSource) compilationContext.get(INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
+  }
+
+  public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveDefinitionSource source) {
+    compilationContext.put(INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);
+  }
+
+  public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext) {
+    return (InterpolatedYieldCurveSpecificationBuilder) compilationContext.get(INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME);
+  }
+
+  public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
+    compilationContext.put(INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
   }
 
 }

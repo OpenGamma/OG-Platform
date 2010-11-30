@@ -48,7 +48,6 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
 
 // REVIEW jonathan 2010-09-13 -- rather than throwing an exception if the view hasn't been initialised when attempting
 // an operation that needs it to be, should we just initialise it / tear it down automatically based on clients being
@@ -124,7 +123,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     init(Instant.nowSystemClock());
   }
 
-  public void init(final InstantProvider initialisationInstant) {
+  @Override
+  public void init(final InstantProvider initializationInstant) {
     _viewLock.lock();
     try {
       if (getCalculationState() != ViewCalculationState.NOT_INITIALIZED) {
@@ -139,8 +139,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       setCalculationState(ViewCalculationState.STOPPED);
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initialisationInstant));
+      
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -150,6 +150,47 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       _processingContext = null;
       setViewEvaluationModel(null);
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
+    } finally {
+      _viewLock.unlock();
+    }
+  }
+  
+  @Override
+  public void reinit() {
+    reinit(Instant.nowSystemClock());
+  }
+  
+  @Override
+  public void reinit(final InstantProvider initializationInstant) {
+    _viewLock.lock();
+    try {
+      ViewCalculationState calculationState = getCalculationState();
+      if (calculationState == ViewCalculationState.NOT_INITIALIZED) {
+        s_logger.debug("Skipping reinitialization of view '{}' since it has not been initialized", getName());
+        return;
+      }
+      
+      OperationTimer timer = new OperationTimer(s_logger, "Reinitializing view {}", getDefinition().getName());
+      
+      if (calculationState == ViewCalculationState.RUNNING) {
+        terminateCalculationJob();
+        // Connected clients (and they do exist because we're running) will not receive any further results until a new
+        // calculation job is started. This may cause a delay, but the clients will remain connected.
+      }
+      
+      // Recompile the view definition, replacing old live data subscriptions with new ones (perhaps the functions are
+      // now configured different so that different live data is required).
+      removeLiveDataSubscriptions();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
+      addLiveDataSubscriptions();
+      
+      if (calculationState == ViewCalculationState.RUNNING) {
+        // Start the calcluation job again so that results continue without interruption.
+        startCalculationJob();
+      }
+      
+      timer.finished();
+      
     } finally {
       _viewLock.unlock();
     }
@@ -679,14 +720,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         case TERMINATED:
           throw new IllegalStateException("A terminated view cannot be used.");
       }
-
-      ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
-      Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
-
-      setRecalcJob(recalcJob);
-      setRecalcThread(recalcThread);
-      setCalculationState(ViewCalculationState.RUNNING);
-      recalcThread.start();
+      startCalculationJob();
     } finally {
       _viewLock.unlock();
     }
@@ -706,20 +740,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       if (getCalculationState() != ViewCalculationState.RUNNING) {
         throw new IllegalStateException("Cannot stop a view that is not running. Currently in state: " + getCalculationState());
       }
-
-      getRecalcJob().terminate();
-      if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
-        // In this case it might be waiting on a recalculation pass. Interrupt it.
-        getRecalcThread().interrupt();
-      }
-
-      // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
-      // thread, but it will not update the view with its result because it has been terminated. As far as the view is
-      // concerned, live computation has now stopped, and it may be started again immediately in a new thread. There is
-      // no need to slow things down by waiting for the thread to die.
-      setRecalcJob(null);
-      setRecalcThread(null);
-
+      terminateCalculationJob();
       setCalculationState(ViewCalculationState.STOPPED);
     } finally {
       _viewLock.unlock();
@@ -748,6 +769,35 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private UniqueIdentifier generateClientIdentifier() {
     return UniqueIdentifier.of(_uidScheme, CLIENT_UID_PREFIX + "-" + _uidCount.getAndIncrement());
+  }
+  
+  private void startCalculationJob() {
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
+
+    setRecalcJob(recalcJob);
+    setRecalcThread(recalcThread);
+    setCalculationState(ViewCalculationState.RUNNING);
+    recalcThread.start();
+  }
+
+  private void terminateCalculationJob() {
+    if (getRecalcJob() == null) {
+      return;
+    }
+    
+    getRecalcJob().terminate();
+    if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
+      // In this case it might be waiting on a recalculation pass. Interrupt it.
+      getRecalcThread().interrupt();
+    }
+
+    // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
+    // thread, but it will not update the view with its result because it has been terminated. As far as the view is
+    // concerned, live computation has now stopped, and it may be started again immediately in a new thread. There is
+    // no need to slow things down by waiting for the thread to die.
+    setRecalcJob(null);
+    setRecalcThread(null);
   }
 
 }

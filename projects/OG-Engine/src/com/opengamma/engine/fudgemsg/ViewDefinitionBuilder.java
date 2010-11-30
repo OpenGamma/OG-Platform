@@ -99,7 +99,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)), context.fieldValueToObject(UniqueIdentifier.class, message
         .getByName(IDENTIFIER_FIELD)), context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)), context.fieldValueToObject(ResultModelDefinition.class, message
-        .getByName(RESULT_MODEL_DEFINITION_FIELD)));
+          .getByName(RESULT_MODEL_DEFINITION_FIELD)));
     if (message.hasField(MIN_DELTA_CALC_PERIOD_FIELD)) {
       viewDefinition.setMinDeltaCalculationPeriod(message.getLong(MIN_DELTA_CALC_PERIOD_FIELD));
     }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import javax.time.InstantProvider;
+
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
@@ -14,6 +16,40 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
  */
 public interface ViewInternal extends View {
     
+  /**
+   * Synchronously initializes the view for the given instant. Until a view is initialized, it can be used only to
+   * access underlying metadata, such as the view definition. If the view has already been initialized, this method
+   * does nothing and returns immediately. 
+   * <p>
+   * Initialization involves compiling the view definition into dependency graphs, which could be a lengthy process.
+   * After initialization, the view is ready to be executed.
+   * <p>
+   * If initialization fails, an exception is thrown but the view remains in a consistent state from which
+   * initialization may be re-attempted.
+   * 
+   * @param initializationInstant  the instant for which the view definition should be compiled, not null
+   */
+  void init(InstantProvider initializationInstant);
+  
+  /**
+   * Synchronously reinitializes the view as of now if it has already been initialized. Otherwise does nothing.
+   * <p>
+   * Reinitialization happens transparently to any connected clients, allowing changes to the view definition to be
+   * incorporated into future computation cycles without clients being aware that changes have occurred.
+   */
+  void reinit();
+  
+  /**
+   * Synchronously reinitializes the view for the given instant if it has already been initialized. Otherwise does
+   * nothing.
+   * <p>
+   * Reinitialization happens transparently to any connected clients, allowing changes to the view definition to be
+   * incorporated into future computation cycles without clients being aware that changes have occurred.
+   *  
+   * @param initializationInstant  the instant for which the view definition should be complied, not null
+   */
+  void reinit(InstantProvider initializationInstant);
+  
   /**
    * Gets the view processing context
    * 

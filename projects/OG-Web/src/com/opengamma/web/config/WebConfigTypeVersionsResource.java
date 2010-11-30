@@ -15,10 +15,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigHistoryRequest;
-import com.opengamma.config.ConfigHistoryResult;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
 
 /**
  * RESTful resource for all versions of an config.

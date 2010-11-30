@@ -66,11 +66,11 @@
   </bean>
 
   <!-- ConfigSource -->
-  <bean id="sharedConfigMaster" class="com.opengamma.config.db.DbConfigMaster">
+  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="cfgDbSource" />
     <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
-  <bean id="sharedConfigSource" class="com.opengamma.engine.config.MasterConfigSource">
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
 
@@ -103,15 +103,15 @@
   </bean>
 
   <!-- TimeSeries database -->
-  <import resource="classpath:com/opengamma/financial/timeseries/db/tssQueries.xml" />
+  <import resource="classpath:com/opengamma/masterdb/timeseries/tssQueries.xml" />
   <bean id="timeseriesMaster" class="${opengamma.tss.dao}">
     <constructor-arg ref="tssDbSource"/>
     <constructor-arg ref="tssNamedSQLMap"/>
     <constructor-arg value="false"/>
   </bean>
-  <bean id="sharedHistoricalDataProvider" class="com.opengamma.engine.historicaldata.EHCachingHistoricalDataProvider">
+  <bean id="sharedHistoricalDataProvider" class="com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.timeseries.MasterTimeSeriesSource">
+      <bean class="com.opengamma.master.timeseries.impl.MasterHistoricalDataSource">
         <constructor-arg ref="timeseriesMaster"/>
         <constructor-arg>
           <bean class="com.opengamma.financial.timeseries.config.DefaultTimeSeriesResolver">

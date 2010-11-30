@@ -13,6 +13,10 @@ import javax.time.calendar.Period;
 public class Tenor {
 
   /**
+   * An overnight tenor.
+   */
+  public static final Tenor OVERNIGHT = new Tenor(Period.ofDays(1));
+  /**
    * A tenor of one day.
    */
   public static final Tenor DAY = new Tenor(Period.ofDays(1));
@@ -27,7 +31,7 @@ public class Tenor {
   /**
    * A tenor of two days.
    */
-  public static final Tenor THREE_DAYS = new Tenor(Period.ofDays(2));
+  public static final Tenor THREE_DAYS = new Tenor(Period.ofDays(3));
   /**
    * A tenor of 1 week.
    */

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +22,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModelImpl;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 import com.opengamma.id.UniqueIdentifier;
 
 /**

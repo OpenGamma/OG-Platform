@@ -7,7 +7,6 @@ package com.opengamma.core.position;
 
 import java.util.Collection;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
@@ -21,7 +20,7 @@ import com.opengamma.util.PublicSPI;
  * The collection of trades is optional and if present may be incomplete.
  */
 @PublicSPI
-public interface Position extends PositionOrTrade, UniqueIdentifiable {
+public interface Position extends PositionOrTrade {
 
   /**
    * Gets the unique identifier of the node within the portfolio this position is immediately under.
@@ -31,11 +30,11 @@ public interface Position extends PositionOrTrade, UniqueIdentifiable {
   UniqueIdentifier getPortfolioNode();
 
   /**
-   * Gets the trades forming the position.
+   * Gets the trades immediate children of this position.
    * <p>
    * The collection of trades is optional and if present may be incomplete.
    * 
-   * @return the trades, not null
+   * @return the trades, unmodifiable, not null
    */
   Collection<Trade> getTrades();
 

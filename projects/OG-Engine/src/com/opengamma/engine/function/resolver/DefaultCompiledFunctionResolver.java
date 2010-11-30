@@ -167,7 +167,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
         // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
         // that will detect the equality case and trigger an exception.
-        Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
+        Arrays.<Pair<ParameterizedFunction, ValueSpecification>>sort(found, s_ruleComparator);
         for (int i = 0; i < rulesFound; i++) {
           applicableRules.add(found[i]);
         }

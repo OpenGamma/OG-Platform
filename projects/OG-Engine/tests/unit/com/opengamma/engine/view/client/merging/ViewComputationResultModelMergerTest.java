@@ -5,13 +5,12 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.mockito.Mockito.mock;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
 
 /**
  * Tests ViewComputationResultModelMerger
