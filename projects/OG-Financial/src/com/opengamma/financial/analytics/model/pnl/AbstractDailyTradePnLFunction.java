@@ -117,8 +117,8 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
       }
       
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
-      s_logger.debug("{}  quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
-          new Object[]{trade.getUniqueIdentifier(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
+      s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
+          new Object[]{trade.getUniqueIdentifier(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL));
       return Sets.newHashSet(result);
     }

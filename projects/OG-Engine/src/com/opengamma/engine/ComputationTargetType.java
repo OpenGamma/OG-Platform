@@ -28,17 +28,17 @@ public enum ComputationTargetType {
    */
   POSITION,
   /**
-   * A trade.
-   */
-  TRADE,
-  /**
    * A security.
    */
   SECURITY,
   /**
    * A simple type, effectively "anything else".
    */
-  PRIMITIVE;
+  PRIMITIVE,
+  /**
+   * A trade.
+   */
+  TRADE;
 
   /**
    * Checks if the type is compatible with the target.
