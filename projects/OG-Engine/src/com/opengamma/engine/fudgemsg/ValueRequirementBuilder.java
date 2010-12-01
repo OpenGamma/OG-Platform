@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.List;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;

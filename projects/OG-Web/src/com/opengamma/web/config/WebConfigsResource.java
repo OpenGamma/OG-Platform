@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMaster;
 
 /**
  * RESTful resource for all configuration documents.

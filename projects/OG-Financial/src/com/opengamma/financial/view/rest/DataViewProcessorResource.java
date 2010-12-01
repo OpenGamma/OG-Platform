@@ -8,6 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
@@ -28,6 +29,7 @@ public class DataViewProcessorResource {
 
   //CSOFF: just constants
   public static final String PATH_VIEW_NAMES = "viewNames";
+  public static final String PATH_REINIT_ASYNC = "reinitAsync";
   //CSON: just constants
   
   private final ViewProcessor _viewProcessor;
@@ -61,6 +63,13 @@ public class DataViewProcessorResource {
       return null;
     }
     return new DataViewResource(view, _jmsMessageSenderService, _jmsTopicPrefix);
+  }
+  
+  @POST
+  @Path(PATH_REINIT_ASYNC)
+  public Response reinitAsync() {
+    _viewProcessor.reinitAsync();
+    return Response.ok().build();
   }
   
   //-------------------------------------------------------------------------

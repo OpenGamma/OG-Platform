@@ -11,10 +11,9 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Temporary RESTful resource representing a user, at the moment purely to provide access to the resource representing
+ * RESTful resource representing a user, at the moment purely to provide access to the resource representing
  * a user's clients.
  */
-@Path("/data/users/{username}")
 public class UserResource {
 
   private final UsersResource _usersResource;
@@ -49,4 +48,12 @@ public class UserResource {
     return _clients;
   }
   
+  public void deleteClients(final long timestamp) {
+    getClients().deleteClients(timestamp);
+  }
+
+  public long getLastAccessed() {
+    return getClients().getLastAccessed();
+  }
+
 }

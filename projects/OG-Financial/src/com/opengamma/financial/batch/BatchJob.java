@@ -39,17 +39,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigSearchRequest;
-import com.opengamma.config.ConfigSearchResult;
-import com.opengamma.config.db.DbConfigMaster;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
@@ -75,10 +70,15 @@ import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
+import com.opengamma.masterdb.config.DbConfigMaster;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtil;
@@ -194,13 +194,7 @@ public class BatchJob {
   private BatchJobParameters _parameters = new BatchJobParameters();
 
   /**
-   * If true, a new run is always created - no existing results are used. 
-   * If false, the system first checks if there is already a run 
-   * in the database for the same view (including same version), with the same 
-   * observation date and time. If there is, that run is reused. This 
-   * means that the system checks what risk figures
-   * are already in the database and will try to calculate any
-   * missing risk.   
+   * @see RunCreationMode
    */
   private RunCreationMode _runCreationMode = RunCreationMode.AUTO; 
   

@@ -18,6 +18,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -275,24 +276,55 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return field;
   }
   
-  /*package*/ ComputationTarget getComputationTarget(final ComputationTargetSpecification spec) {
+  private ComputationTarget getComputationTargetImpl(final ComputationTargetSpecification spec) {
     ComputationTarget computationTarget = getHibernateTemplate().execute(new HibernateCallback<ComputationTarget>() {
       @Override
       public ComputationTarget doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("ComputationTarget.one.byTypeAndId");
+        Query query;
+        if (spec.getUniqueIdentifier().getVersion() == null) {
+          query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNullVersion");
+        } else {
+          query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNonNullVersion");
+          query.setString("idVersion", spec.getUniqueIdentifier().getVersion());
+        }
         query.setInteger("computationTargetType", ComputationTarget.getType(spec.getType()));
-        query.setString("idScheme", spec.getIdentifier().getScheme().getName());
-        query.setString("idValue", spec.getIdentifier().getValue());
+        query.setString("idScheme", spec.getUniqueIdentifier().getScheme());
+        query.setString("idValue", spec.getUniqueIdentifier().getValue());
         return (ComputationTarget) query.uniqueResult();
       }
     });
+    return computationTarget;
+  }
+  
+  /*package*/ ComputationTarget getComputationTarget(final ComputationTargetSpecification spec) {
+    ComputationTarget computationTarget = getComputationTargetImpl(spec);
     if (computationTarget == null) {
       computationTarget = new ComputationTarget();
       computationTarget.setComputationTargetType(spec.getType());
-      computationTarget.setIdScheme(spec.getIdentifier().getScheme().getName());      
-      computationTarget.setIdValue(spec.getIdentifier().getValue());
+      computationTarget.setIdScheme(spec.getUniqueIdentifier().getScheme());      
+      computationTarget.setIdValue(spec.getUniqueIdentifier().getValue());
+      computationTarget.setIdVersion(spec.getUniqueIdentifier().getVersion());
       getHibernateTemplate().save(computationTarget);
+    }
+    return computationTarget;
+  }
+  
+  /*package*/ ComputationTarget getComputationTarget(final com.opengamma.engine.ComputationTarget ct) {
+    ComputationTarget computationTarget = getComputationTargetImpl(ct.toSpecification());
+    if (computationTarget == null) {
+      computationTarget = new ComputationTarget();
+      computationTarget.setComputationTargetType(ct.getType());
+      computationTarget.setIdScheme(ct.getUniqueIdentifier().getScheme());      
+      computationTarget.setIdValue(ct.getUniqueIdentifier().getValue());
+      computationTarget.setIdVersion(ct.getUniqueIdentifier().getVersion());
+      computationTarget.setName(ct.getName());
+      getHibernateTemplate().save(computationTarget);
+    } else {
+      if (!ObjectUtils.equals(computationTarget.getName(), ct.getName())) {
+        computationTarget.setName(ct.getName());
+        getHibernateTemplate().update(computationTarget);
+      }
     }
     return computationTarget;
   }
@@ -439,11 +471,11 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
     Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
     
-    Set<ComputationTargetSpecification> computationTargets = job.getView().getViewEvaluationModel().getAllComputationTargets();
-    for (ComputationTargetSpecification ct : computationTargets) {
+    Set<com.opengamma.engine.ComputationTarget> computationTargets = job.getView().getViewEvaluationModel().getAllComputationTargets();
+    for (com.opengamma.engine.ComputationTarget ct : computationTargets) {
       ComputationTarget computationTarget = getComputationTarget(ct);
       returnValue.add(computationTarget);
-    }
+    }    
     
     return returnValue;
   }

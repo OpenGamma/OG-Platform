@@ -165,13 +165,13 @@
             <cloverDb span="30 mins"  initstring="projects/OG-Core/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Engine/tests/output/clover.db/clover-db-" />
             <cloverDb span="30 mins"  initstring="projects/OG-Master/tests/output/clover.db/clover-db-" />
+            <cloverDb span="30 mins"  initstring="projects/OG-MasterDB/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Financial/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-LiveData/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
-			<cloverDb span="30 mins"  initstring="projects/OG-Config/tests/output/clover.db/clover-db-" />
             <cloverDb span="30 mins"  initstring="projects/OG-Web/tests/output/clover.db/clover-db-" />
 		</clover-merge>
 		<clover-html-report

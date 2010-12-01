@@ -35,4 +35,8 @@ public class MockViewProcessor implements ViewProcessor {
     return Collections.unmodifiableSet(_viewsByName.keySet());
   }
 
+  @Override
+  public void reinitAsync() {
+  }
+
 }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;

@@ -16,7 +16,6 @@ import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.FudgeFieldChecker;
 

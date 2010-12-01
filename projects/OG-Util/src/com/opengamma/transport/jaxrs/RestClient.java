@@ -43,7 +43,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * HttpClient wrapper with some additional helper functions for Fudge based JAX-RS calls.
  */
 public class RestClient {
-
+  
   private static final String FUDGE_MIME_TYPE = "application/vnd.fudgemsg";
   private static final Header s_accept = new BasicHeader("Accept", FUDGE_MIME_TYPE);
   private static final Header s_contentType = new BasicHeader("Content-Type", FUDGE_MIME_TYPE);
@@ -68,7 +68,6 @@ public class RestClient {
     DefaultHttpClient dummyClient = new DefaultHttpClient();
     HttpParams params = dummyClient.getParams();
     params.setParameter(ClientPNames.CONNECTION_MANAGER_FACTORY_CLASS_NAME, TSCMFactory.class.getName());
-
     return new RestClient(fudgeContext, new DefaultHttpClient(params));
   }
   

@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.financial.convention.ConventionBundleSource;

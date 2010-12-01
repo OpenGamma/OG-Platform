@@ -21,10 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.ConfigTypeMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigTypeMaster;
 
 /**
  * Data class for web-based configuration management.

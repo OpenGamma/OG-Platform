@@ -7,8 +7,12 @@ package com.opengamma.financial.convention.frequency;
 
 /**
  * Convention for frequency.
+ * <p>
+ * Some financial products have a specific event every so often.
+ * This convention defines the frequency of those events relative to a year.
  */
 public interface Frequency {
+
   /**
    * Annual convention name
    */

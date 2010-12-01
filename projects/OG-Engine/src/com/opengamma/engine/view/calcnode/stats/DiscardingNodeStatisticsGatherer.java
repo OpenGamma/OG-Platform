@@ -7,18 +7,18 @@
 package com.opengamma.engine.view.calcnode.stats;
 
 /**
- * Discards the statistics
+ * Gatherer implementation that discards all received statistics.
  */
 public final class DiscardingNodeStatisticsGatherer implements CalculationNodeStatisticsGatherer {
-  
+
   @Override
-  public void jobCompleted(String nodeId, int jobItems, long executionTime, long duration) {
-    // No action
+  public void jobCompleted(String nodeId, int jobItems, long executionNanos, long durationNanos) {
+    // no action
   }
 
   @Override
-  public void jobFailed(String nodeId, long duration) {
-    // No action
+  public void jobFailed(String nodeId, long durationNanos) {
+    // no action
   }
 
 }

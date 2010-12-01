@@ -7,12 +7,12 @@ package com.opengamma.financial;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.opengamma.config.ConfigMaster;
-import com.opengamma.config.memory.InMemoryConfigMaster;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;

@@ -33,7 +33,7 @@ import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage;
 import com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessageVisitor;
 import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.engine.view.calcnode.msg.Scaling;
-import com.opengamma.engine.view.calcnode.stats.FunctionCost;
+import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsReceiver;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
@@ -55,7 +55,7 @@ import com.opengamma.transport.FudgeMessageSender;
   private final AtomicInteger _launched = new AtomicInteger();
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
   private final IdentifierMap _identifierMap;
-  private final FunctionCost _functionCost;
+  private final FunctionCosts _functionCosts;
   private volatile String _invokerId;
   private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
 
@@ -96,7 +96,7 @@ import com.opengamma.transport.FudgeMessageSender;
     @Override
     protected void visitInvocationsMessage(final Invocations message) {
       s_logger.info("Received invocation statistics");
-      final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCost(), message);
+      final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCosts(), message);
       if (scaling != null) {
         s_logger.debug("Sending scaling message ", scaling);
         final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
@@ -148,13 +148,14 @@ import com.opengamma.transport.FudgeMessageSender;
 
   };
 
-  public RemoteNodeJobInvoker(final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection, final IdentifierMap identifierMap,
-      final FunctionCost functionCost) {
+  public RemoteNodeJobInvoker(
+      final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection,
+      final IdentifierMap identifierMap, final FunctionCosts functionCosts) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     _identifierMap = identifierMap;
     _invokerId = fudgeConnection.toString();
-    _functionCost = functionCost;
+    _functionCosts = functionCosts;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     initialMessage.accept(_messageVisitor);
@@ -190,8 +191,8 @@ import com.opengamma.transport.FudgeMessageSender;
     return _identifierMap;
   }
 
-  private FunctionCost getFunctionCost() {
-    return _functionCost;
+  private FunctionCosts getFunctionCosts() {
+    return _functionCosts;
   }
 
   protected void sendMessage(final RemoteCalcNodeMessage message) {

@@ -22,14 +22,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.config.ConfigDocument;
-import com.opengamma.config.ConfigTypeMaster;
-import com.opengamma.config.memory.InMemoryConfigMaster;
-import com.opengamma.engine.config.MasterConfigSource;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesMetaData;

@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ViewCalculationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModelImpl;

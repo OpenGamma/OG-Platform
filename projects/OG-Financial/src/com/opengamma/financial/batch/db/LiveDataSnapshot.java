@@ -61,15 +61,15 @@ public class LiveDataSnapshot {
       _ct2FieldName2Entry = new HashMap<ComputationTargetSpecification, Map<String, LiveDataSnapshotEntry>>();
     }
 
-    Map<String, LiveDataSnapshotEntry> fieldName2Entry = _ct2FieldName2Entry.get(entry.getComputationTarget().toNormalizedSpec());
+    Map<String, LiveDataSnapshotEntry> fieldName2Entry = _ct2FieldName2Entry.get(entry.getComputationTarget().toComputationTargetSpec());
     if (fieldName2Entry == null) {
       fieldName2Entry = new HashMap<String, LiveDataSnapshotEntry>();
-      _ct2FieldName2Entry.put(entry.getComputationTarget().toNormalizedSpec(), fieldName2Entry);
+      _ct2FieldName2Entry.put(entry.getComputationTarget().toComputationTargetSpec(), fieldName2Entry);
     }
 
     if (fieldName2Entry.get(entry.getField().getName()) != null) {
       throw new IllegalArgumentException("Already has entry for " + 
-          entry.getComputationTarget().toNormalizedSpec() + "/" + entry.getField().getName());
+          entry.getComputationTarget().toComputationTargetSpec() + "/" + entry.getField().getName());
     }
     fieldName2Entry.put(entry.getField().getName(), entry);
   }

@@ -8,75 +8,103 @@ package com.opengamma.financial.convention.frequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A simple frequency implementation.
+ * Simple implementation of the frequency convention.
  */
-public class SimpleFrequency implements Frequency {
+public final class SimpleFrequency implements Frequency {
+
   /**
-   * Annual frequency.
+   * A frequency with a period of one year.
    */
   public static final SimpleFrequency ANNUAL = new SimpleFrequency(ANNUAL_NAME, 1);
   /**
-   * Semi-annual frequency.
+   * A frequency with a period of six months.
    */
   public static final SimpleFrequency SEMI_ANNUAL = new SimpleFrequency(SEMI_ANNUAL_NAME, 2);
   /**
-   * Quarterly frequency.
+   * A frequency with a period of three months.
    */
   public static final SimpleFrequency QUARTERLY = new SimpleFrequency(QUARTERLY_NAME, 4);
   /**
-   * Bi-Monthly frequency.
+   * A frequency with a period of two months.
    */
   public static final SimpleFrequency BIMONTHLY = new SimpleFrequency(BIMONTHLY_NAME, 6);
   /**
-   * Monthly frequency.
+   * A frequency with a period of one month.
    */
   public static final SimpleFrequency MONTHLY = new SimpleFrequency(MONTHLY_NAME, 12);
   /**
-   * Bi-weekly frequency.
+   * A frequency with a period of two weeks.
    */
   public static final SimpleFrequency BIWEEKLY = new SimpleFrequency(BIWEEKLY_NAME, 26);
   /**
-   * weekly frequency.
+   * A frequency with a period of one week.
    */
   public static final SimpleFrequency WEEKLY = new SimpleFrequency(WEEKLY_NAME, 52);
   /**
-   * daily frequency.
+   * A frequency with a period of one day.
    */
   public static final SimpleFrequency DAILY = new SimpleFrequency(DAILY_NAME, 365);
-
   /**
-   * continuous frequency.
+   * A continuous frequency.
    */
   //TODO where converting to/from say continuously compounded interest rates, can't use Double.MAX_VALUE, but need different formula 
   public static final SimpleFrequency CONTINUOUS = new SimpleFrequency(CONTINUOUS_NAME, Double.MAX_VALUE);
 
   /**
-   * The convention name.
+   * The name of the convention.
    */
   private final String _name;
-  private final double _periodsPerYear;
+  /**
+   * The number of periods per year.
+   */
+  private final Double _periodsPerYear;
 
   /**
    * Creates an instance.
+   * 
    * @param name  the convention name, not null
-   * @param periodsPerYear the number of periods per year
+   * @param periodsPerYear  the number of periods per year, greater than zero
    * @throws IllegalArgumentException if the name is null
    * @throws IllegalArgumentException if the frequency is zero or negative
    */
-  protected SimpleFrequency(final String name, final double periodsPerYear) {
+  /* package */ SimpleFrequency(final String name, final double periodsPerYear) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
     _name = name;
     _periodsPerYear = periodsPerYear;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;
   }
 
+  /**
+   * Gets the number of periods per year.
+   * 
+   * @return the periods per year
+   */
   public double getPeriodsPerYear() {
     return _periodsPerYear;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof SimpleFrequency) {
+      SimpleFrequency other = (SimpleFrequency) obj;
+      return _name.equals(other._name) && _periodsPerYear.equals(other._periodsPerYear);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return _name.hashCode() ^ _periodsPerYear.hashCode();
   }
 
   @Override
@@ -84,8 +112,14 @@ public class SimpleFrequency implements Frequency {
     return "Frequency[" + "name = " + _name + " pa = " + _periodsPerYear + "]";
   }
 
+  //-------------------------------------------------------------------------
   // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 
   // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely 
+  /**
+   * Converts this to a period frequency.
+   * 
+   * @return the period frequency, not null
+   */
   public PeriodFrequency toPeriodFrequency() {
     if (_name == ANNUAL_NAME) {
       return PeriodFrequency.ANNUAL;
@@ -116,4 +150,5 @@ public class SimpleFrequency implements Frequency {
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }
+
 }

@@ -9,7 +9,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**

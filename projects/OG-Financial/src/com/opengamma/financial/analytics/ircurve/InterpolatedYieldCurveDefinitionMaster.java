@@ -12,4 +12,12 @@ import com.opengamma.master.AbstractMaster;
  */
 public interface InterpolatedYieldCurveDefinitionMaster extends AbstractMaster<YieldCurveDefinitionDocument> {
 
+  /**
+   * If the yield curve exists in the master, it will be updated. Otherwise it will be added.
+   * 
+   * @param document the document to add or update, not {@code null}
+   * @return the updated document details
+   */
+  YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document);
+
 }

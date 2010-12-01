@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.InstantProvider;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
@@ -200,6 +202,18 @@ public class MockView implements ViewInternal {
   @Override
   public ViewPermissionProvider getPermissionProvider() {
     return null;
+  }
+
+  @Override
+  public void init(InstantProvider initializationInstant) {
+  }
+
+  @Override
+  public void reinit() {
+  }
+
+  @Override
+  public void reinit(InstantProvider initializationInstant) {
   }
 
 }

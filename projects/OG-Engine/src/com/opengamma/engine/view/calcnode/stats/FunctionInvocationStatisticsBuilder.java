@@ -26,7 +26,7 @@ public class FunctionInvocationStatisticsBuilder implements FudgeBuilder<Functio
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final FunctionInvocationStatistics statistics) {
     final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(FUNCTION_IDENTIFIER_FIELD_NAME, statistics.getFunctionIdentifier());
+    message.add(FUNCTION_IDENTIFIER_FIELD_NAME, statistics.getFunctionId());
     message.add(INVOCATION_COST_FIELD_NAME, statistics.getInvocationCost());
     message.add(DATA_INPUT_COST_FIELD_NAME, statistics.getDataInputCost());
     message.add(DATA_OUTPUT_COST_FIELD_NAME, statistics.getDataOutputCost());

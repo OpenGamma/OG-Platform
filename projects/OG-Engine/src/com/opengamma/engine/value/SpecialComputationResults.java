@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.position.Position;
+
 /**
  * A set of values that can be returned by {@link ComputedValue#getValue()}
  * for certain common states of operation.

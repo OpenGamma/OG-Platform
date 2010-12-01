@@ -184,5 +184,9 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     cacheCompilation(key, compiled);
     return compiled;
   }
+  
+  public synchronized void invalidateCache() {
+    getCompilationCache().clear();
+  }
 
 }

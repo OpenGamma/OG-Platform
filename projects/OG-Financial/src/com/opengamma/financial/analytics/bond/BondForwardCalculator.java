@@ -85,19 +85,18 @@ public class BondForwardCalculator {
     final int settlementDays = convention.getSettlementDays();
     final double coupon = security.getCouponRate();
     final boolean isEOMConvention = convention.isEOMConvention();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, (getSettlementDate(now, calendar, settlementDays)).toLocalDate(), schedule, coupon,
-        periodsPerYear, isEOMConvention, convention.getExDividendDays());
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, today, schedule, coupon, periodsPerYear, isEOMConvention, convention.getExDividendDays());
     
   
     double dirtyPrice = cleanPrice + accruedInterest;
     final DayCount repoDaycount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    ZonedDateTime settlement = getSettlementDate(now, calendar, settlementDays); //The day the bond is purchased and the repo starts incurring interest 
+ 
     
-    double repoPeriod = repoDaycount.getDayCountFraction(settlement, deliveryDate);
+    double repoPeriod = repoDaycount.getDayCountFraction(now, deliveryDate);
     double valueOfExpiredCoupons = 0.0;
     
     for (LocalDate couponDate : settlementDateSchedule) {
-      if (couponDate.isAfter(settlement.toLocalDate())) {
+      if (couponDate.isAfter(today)) {
         if (couponDate.isAfter(deliveryDateLD)) {
           break;
         }
