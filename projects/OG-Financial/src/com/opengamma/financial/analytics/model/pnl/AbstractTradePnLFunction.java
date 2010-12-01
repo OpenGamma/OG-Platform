@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.equity.DailyTradeEquityPnLFunction;
+import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MoneyCalculationUtil;
@@ -41,9 +41,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DailyTradeEquityPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(TradeEquityPnLFunction.class);
   
   private final String _markDataSource;
   private final String _markDataProvider;
@@ -56,7 +56,7 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
    * @param markDataField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public AbstractDailyTradePnLFunction(String markDataSource, String markDataProvider, String markDataField, String costOfCarryField) {
+  public AbstractTradePnLFunction(String markDataSource, String markDataProvider, String markDataField, String costOfCarryField) {
     super();
     ArgumentChecker.notNull(markDataSource, "data source");
     ArgumentChecker.notNull(markDataField, "mark data field");
@@ -82,7 +82,7 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
       
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, trade), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueIdentifier());
       
       if (markToMarketSeries == null) {
         s_logger.warn("Could not get identifier / mark to market series pair for security {}", security.getIdentifiers());
@@ -150,7 +150,7 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, target.getTrade()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueIdentifier()));
     }
     return null;
   }

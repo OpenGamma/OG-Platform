@@ -14,13 +14,13 @@ import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.analytics.model.pnl.AbstractDailyPortfolioPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.AbstractPortfolioPnLFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 
 /**
  * 
  */
-public class DailyPortfolioEquityPnLFunction extends AbstractDailyPortfolioPnLFunction {
+public class PortfolioEquityPnLFunction extends AbstractPortfolioPnLFunction {
   
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {

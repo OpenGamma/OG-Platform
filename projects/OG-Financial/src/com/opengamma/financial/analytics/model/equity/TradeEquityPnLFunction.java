@@ -9,13 +9,13 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.pnl.AbstractDailyTradePnLFunction;
+import com.opengamma.financial.analytics.model.pnl.AbstractTradePnLFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 
 /**
  * 
  */
-public class DailyTradeEquityPnLFunction extends AbstractDailyTradePnLFunction {
+public class TradeEquityPnLFunction extends AbstractTradePnLFunction {
   
   /**
    * @param markDataSource the mark to market data source name, not-null
@@ -23,7 +23,7 @@ public class DailyTradeEquityPnLFunction extends AbstractDailyTradePnLFunction {
    * @param markDataField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public DailyTradeEquityPnLFunction(String markDataSource, String markDataProvider, String markDataField, String costOfCarryField) {
+  public TradeEquityPnLFunction(String markDataSource, String markDataProvider, String markDataField, String costOfCarryField) {
     super(markDataSource, markDataProvider, markDataField, costOfCarryField);
   }
 
