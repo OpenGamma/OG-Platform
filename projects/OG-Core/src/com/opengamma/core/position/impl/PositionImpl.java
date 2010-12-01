@@ -7,8 +7,6 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -248,25 +246,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   public void setSecurity(Security security) {
     _security = security;
   }
-   
-//  /**
-//   * Add collections of trades to the position
-//   * @param trades the trades that make up the position, not-null
-//   */
-//  public void addTrades(Collection<Trade> trades) {
-//    ArgumentChecker.notNull(trades, "trades");
-//    _trades.addAll(trades);
-//  }
-//  
-//  /**
-//   * Add a trade to the position
-//   * @param trade the trade that make up the position, not-null
-//   */
-//  public void addTrade(Trade trade) {
-//    ArgumentChecker.notNull(trade, "trade");
-//    _trades.add(trade);
-//  }
-  
+     
   /**
    * Gets the trades the makes up this position if available
    * @return the trades

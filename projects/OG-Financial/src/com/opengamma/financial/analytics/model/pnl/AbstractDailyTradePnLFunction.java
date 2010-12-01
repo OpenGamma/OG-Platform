@@ -81,11 +81,17 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
       final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
+      
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, trade), getUniqueIdentifier());
+      
       if (markToMarketSeries == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security);
+        s_logger.warn("Could not get identifier / mark to market series pair for security {}", security.getIdentifiers());
+        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
       }
-      if (markToMarketSeries.getSecond() == null) {
-        throw new NullPointerException("Could not get mark to market series for security " + security);
+      LocalDateDoubleTimeSeries ts = markToMarketSeries.getSecond();
+      if (ts == null) {
+        s_logger.warn("Could not get mark to market series for security {}", security.getIdentifiers());
+        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
       }
       
       double costOfCarry = 0.0;
@@ -98,14 +104,19 @@ public abstract class AbstractDailyTradePnLFunction extends AbstractFunction.Non
         }
       }
       
-      Double markToMarket = markToMarketSeries.getSecond().getValue(tradeDate);
-      if (markToMarket == null) {
-        throw new NullPointerException("Could not get mark to market price for security " + security + " for " + tradeDate);
+      Double markToMarket = tradeValue;
+      if (!ts.isEmpty()) {
+        markToMarket = ts.getValue(tradeDate);
+        if (markToMarket == null) {
+          s_logger.warn("Could not get mark to market price for security {} for {}", security.getIdentifiers(), tradeDate);
+          return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
+        }
+      } else {
+        s_logger.warn("Could not get mark to market price for security {} for {}", security.getIdentifiers(), tradeDate);
+        return Sets.newHashSet(new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(new BigDecimal("0.00"))));
       }
       
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
-      
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, trade), getUniqueIdentifier());
       s_logger.debug("{}  quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
           new Object[]{trade.getUniqueIdentifier(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL));
