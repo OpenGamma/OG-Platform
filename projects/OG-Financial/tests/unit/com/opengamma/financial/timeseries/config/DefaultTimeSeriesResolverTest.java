@@ -22,8 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.config.ConfigDocument;
@@ -113,7 +112,8 @@ public class DefaultTimeSeriesResolverTest {
   protected List<TimeSeriesDocument<LocalDate>> addAndTestTimeSeries() {
     List<TimeSeriesDocument<LocalDate>> result = new ArrayList<TimeSeriesDocument<LocalDate>>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "ticker" + i), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "buid" + i));
+      IdentifierBundle identifiers = IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
+      
       LocalDate start = DateUtil.previousWeekDay().minusDays(7);
       for (String dataSource : DATA_SOURCES) {
         for (String dataProvider : DATA_PROVIDERS) {

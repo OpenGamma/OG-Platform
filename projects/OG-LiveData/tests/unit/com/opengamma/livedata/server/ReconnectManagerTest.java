@@ -22,7 +22,7 @@ public class ReconnectManagerTest {
   @Test
   public void reconnection() throws Exception {
     
-    MockLiveDataServer server = new MockLiveDataServer(IdentificationScheme.BLOOMBERG_BUID);
+    MockLiveDataServer server = new MockLiveDataServer(IdentificationScheme.of("BLOOMBERG_BUID"));
     ReconnectManager manager = new ReconnectManager(server, 20);
     
     try {
