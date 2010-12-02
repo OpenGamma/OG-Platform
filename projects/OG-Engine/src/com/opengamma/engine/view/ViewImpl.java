@@ -68,6 +68,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private final ViewDefinition _definition;
   private final Timer _clientResultTimer;
+  private final ViewProcessingContext _processingContext;
 
   private final String _uidScheme;
   private final AtomicLong _uidCount = new AtomicLong();
@@ -86,7 +87,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private final Set<ViewClient> _liveComputationClients = new HashSet<ViewClient>();
 
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
-  private ViewProcessingContext _processingContext;
   private ViewEvaluationModel _viewEvaluationModel;
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
@@ -147,7 +147,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     } catch (Throwable t) {
       // Reset the state
       setCalculationState(ViewCalculationState.NOT_INITIALIZED);
-      _processingContext = null;
       setViewEvaluationModel(null);
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
     } finally {
