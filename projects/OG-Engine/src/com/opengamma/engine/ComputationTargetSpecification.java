@@ -48,6 +48,7 @@ public final class ComputationTargetSpecification implements Serializable {
     switch (_type) {
       case PORTFOLIO_NODE:
       case POSITION:
+      case TRADE:
       case SECURITY: {
         _uid = ((UniqueIdentifiable) target).getUniqueIdentifier();
         break;

@@ -13,6 +13,7 @@ import net.sf.ehcache.Element;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -66,6 +67,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
     switch (specification.getType()) {
       case POSITION :
+      case TRADE :
       case PORTFOLIO_NODE :
       case SECURITY :
         final Element e = _computationTarget.get(specification);
@@ -87,6 +89,11 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   @Override
   public void cachePositions(Collection<Position> positions) {
     addToCache(positions, ComputationTargetType.POSITION);
+  }
+  
+  @Override
+  public void cacheTrades(Collection<Trade> trades) {
+    addToCache(trades, ComputationTargetType.TRADE);
   }
   
   @Override
@@ -112,5 +119,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
       addToCache(new ComputationTargetSpecification(targetType, target.getUniqueIdentifier()), new ComputationTarget(targetType, target));
     }
   }
+
+  
 
 }

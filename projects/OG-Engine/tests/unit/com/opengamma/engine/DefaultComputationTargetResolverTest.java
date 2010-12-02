@@ -9,21 +9,27 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+
 
 /**
  * Test DefaultComputationTargetResolver.
@@ -82,6 +88,25 @@ public class DefaultComputationTargetResolverTest {
     ComputationTarget expected = new ComputationTarget(POSITION);
     assertEquals(expected, test.resolve(spec));
   }
+  
+  @Test
+  public void test_resolve_trade() {
+    Instant now = Instant.nowSystemClock();
+    MockSecuritySource secSource = new MockSecuritySource();
+    MockPositionSource posSource = new MockPositionSource();
+    PortfolioImpl portfolio = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
+    PositionImpl position = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+    TradeImpl trade = new TradeImpl(position, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now);
+    trade.setUniqueIdentifier(UniqueIdentifier.of("TradeScheme", "1"));
+    position.getTrades().add(trade);
+    portfolio.getRootNode().addPosition(position);
+    posSource.addPortfolio(portfolio);
+    DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
+    ComputationTargetSpecification spec = new ComputationTargetSpecification(trade);
+    ComputationTarget expected = new ComputationTarget(trade);
+    assertEquals(expected, test.resolve(spec));
+  }
+  
 
   @Test
   public void test_resolve_security() {

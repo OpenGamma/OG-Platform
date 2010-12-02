@@ -12,15 +12,18 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
@@ -74,14 +77,14 @@ import com.opengamma.util.monitor.OperationTimer;
       if (portfolio == null) {
         portfolio = getPortfolio(compilationContext);
       }
-
+      
       DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
 
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
       new PortfolioNodeTraverser(traversalCallback).traverse(portfolio.getRootNode());
     }
-
+    
     return portfolio;
   }
 
@@ -171,6 +174,18 @@ import com.opengamma.util.monitor.OperationTimer;
       } else {
         throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueIdentifier());
       }
+      
+      //get trades security identifiers as well
+      for (Trade trade : position.getTrades()) {
+        if (trade.getSecurity() != null) {
+          // Nothing to do here; they pre-resolved the security.
+          s_logger.debug("Security pre-resolved by PositionSource for {}", trade.getUniqueIdentifier());
+        } else if (trade.getSecurityKey() != null) {
+          result.add(trade.getSecurityKey());
+        } else {
+          throw new IllegalArgumentException("Security or security key must be provided: " + trade.getUniqueIdentifier());
+        }
+      }
     }
 
     for (PortfolioNode subNode : node.getChildNodes()) {
@@ -213,6 +228,15 @@ import com.opengamma.util.monitor.OperationTimer;
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.setSecurity(security);
       populatedPosition.setPortfolioNode(populatedNode.getUniqueIdentifier());
+      //set the children trade security as well
+      Set<Trade> newTrades = Sets.newHashSet();
+      for (Trade trade : position.getTrades()) {
+        TradeImpl populatedTrade = new TradeImpl(trade);
+        populatedTrade.setPosition(populatedPosition.getUniqueIdentifier());
+        populatedTrade.setSecurity(security);
+        newTrades.add(populatedTrade);
+      }
+      populatedPosition.setTrades(newTrades);
       populatedNode.addPosition(populatedPosition);
     }
     // Add resolved copies of any nodes directly underneath this node

@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -123,12 +124,14 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     }
     final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
     position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
-    Set<ManageableTrade> trades = firstPosition.getTrades();
-    for (ManageableTrade manageableTrade : trades) {
+    Set<Trade> trades = Sets.newHashSet();
+    for (ManageableTrade manageableTrade : firstPosition.getTrades()) {
       CounterpartyImpl counterparty = new CounterpartyImpl(manageableTrade.getCounterpartyId());
       TradeImpl trade = new TradeImpl(position, manageableTrade.getQuantity(), counterparty, manageableTrade.getTradeInstant());
-      position.addTrade(trade);
+      trade.setUniqueIdentifier(manageableTrade.getUniqueIdentifier());
+      trades.add(trade);
     }
+    position.setTrades(trades);
     return position;
   }
   
@@ -362,7 +365,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           final long tradeId = rs.getLong("TRADE_ID");
           final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
           trade.setUniqueIdentifier(tradeUid);
-          position.addTrade(trade);
+          position.getTrades().add(trade);
         }
       }
       
