@@ -11,15 +11,21 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -32,6 +38,7 @@ public class ComputationTargetTypeTest {
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl();
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity("");
+  private static final Trade TRADE = new TradeImpl(POSITION, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), Instant.nowSystemClock());
 
   @Test
   public void determine() {
@@ -39,6 +46,8 @@ public class ComputationTargetTypeTest {
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.determineFromTarget(PORTFOLIO));
     
     assertEquals(ComputationTargetType.POSITION, ComputationTargetType.determineFromTarget(POSITION));
+    
+    assertEquals(ComputationTargetType.TRADE, ComputationTargetType.determineFromTarget(TRADE));
     
     assertEquals(ComputationTargetType.SECURITY, ComputationTargetType.determineFromTarget(SECURITY));
     
@@ -53,6 +62,8 @@ public class ComputationTargetTypeTest {
     
     assertTrue(ComputationTargetType.POSITION.isCompatible(POSITION));
     
+    assertTrue(ComputationTargetType.TRADE.isCompatible(TRADE));
+    
     assertTrue(ComputationTargetType.SECURITY.isCompatible(SECURITY));
     
     assertTrue(ComputationTargetType.PRIMITIVE.isCompatible(null));
@@ -66,6 +77,10 @@ public class ComputationTargetTypeTest {
     assertFalse(ComputationTargetType.POSITION.isCompatible(PORTFOLIO));
     assertFalse(ComputationTargetType.POSITION.isCompatible(NODE));
     assertFalse(ComputationTargetType.POSITION.isCompatible(SECURITY));
+    
+    assertFalse(ComputationTargetType.TRADE.isCompatible(PORTFOLIO));
+    assertFalse(ComputationTargetType.TRADE.isCompatible(NODE));
+    assertFalse(ComputationTargetType.TRADE.isCompatible(SECURITY));
     
     assertFalse(ComputationTargetType.SECURITY.isCompatible(PORTFOLIO));
     assertFalse(ComputationTargetType.SECURITY.isCompatible(NODE));

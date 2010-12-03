@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.util.PublicAPI;
 
@@ -33,7 +34,11 @@ public enum ComputationTargetType {
   /**
    * A simple type, effectively "anything else".
    */
-  PRIMITIVE;
+  PRIMITIVE,
+  /**
+   * A trade.
+   */
+  TRADE;
 
   /**
    * Checks if the type is compatible with the target.
@@ -46,6 +51,8 @@ public enum ComputationTargetType {
         return (target instanceof PortfolioNode || target instanceof Portfolio);
       case POSITION:
         return (target instanceof Position);
+      case TRADE:
+        return (target instanceof Trade);
       case SECURITY:
         return (target instanceof Security);
       case PRIMITIVE:
@@ -73,6 +80,9 @@ public enum ComputationTargetType {
     }
     if (target instanceof Position) {
       return POSITION;
+    }
+    if (target instanceof Trade) {
+      return TRADE;
     }
     if (target instanceof Security) {
       return SECURITY;

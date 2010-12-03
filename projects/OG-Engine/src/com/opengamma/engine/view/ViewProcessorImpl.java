@@ -109,9 +109,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
       @Override
       public void run() {
         getFunctionCompilationService().reinit();
-        for (ViewInternal view : _viewsByName.values()) {
-          view.reinit();
-        }
+        //for (ViewInternal view : _viewsByName.values()) {
+        //  view.reinit();
+        //}
       }
       
     }).start();

@@ -12,6 +12,8 @@ import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -109,6 +111,29 @@ public class ComputationTarget implements Serializable {
       throw new IllegalStateException("Requested a Position for a target of type " + getType());
     }
     return (Position) getValue();
+  }
+  
+  /**
+   * Safely converts the target to a {@code Trade}.
+   * @return the trade, not null
+   * @throws IllegalStateException if the type is not TRADE
+   */
+  public Trade getTrade() {
+    if (getType() != ComputationTargetType.TRADE) {
+      throw new IllegalStateException("Requested a Trade for a target of type " + getType());
+    }
+    return (Trade) getValue();
+  }
+  /**
+   * Safely converts the target to a {@code Position} or {@code Trade}.
+   * @return the position or trade, not null
+   * @throws IllegalStateException if the type is not a POSITION or TRADE
+   */
+  public PositionOrTrade getPositionOrTrade() {
+    if (getType() != ComputationTargetType.POSITION || getType() != ComputationTargetType.TRADE) {
+      throw new IllegalStateException("Requested a Position or Trade for a target of type " + getType());
+    }
+    return (PositionOrTrade) getValue();
   }
 
   /**

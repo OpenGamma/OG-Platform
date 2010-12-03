@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 
 /**
@@ -37,4 +38,10 @@ public interface CachingComputationTargetResolver extends ComputationTargetResol
    */
   void cachePortfolioNodeHierarchy(PortfolioNode root);
   
+  /**
+   * Ensure a collection of trades are cached as computation targets
+   * 
+   * @param trades the trades to cache
+   */
+  void cacheTrades(Collection<Trade> trades);
 }
