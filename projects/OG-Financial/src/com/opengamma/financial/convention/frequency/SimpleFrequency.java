@@ -5,12 +5,17 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import java.io.Serializable;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Simple implementation of the frequency convention.
  */
-public final class SimpleFrequency implements Frequency {
+public final class SimpleFrequency implements Frequency, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * A frequency with a period of one year.
