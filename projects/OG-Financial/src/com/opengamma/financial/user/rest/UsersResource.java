@@ -75,7 +75,7 @@ public class UsersResource {
     }
   }
 
-  public Runnable createDeleteTask() {
+  public DeleteClientsRunnable createDeleteTask() {
     return new DeleteClientsRunnable();
   }
 
