@@ -83,7 +83,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     
     _hibernateTemplate = new HibernateTemplate(getSessionFactory());
     _hibernateTemplate.setAllowCreate(false);

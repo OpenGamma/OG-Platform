@@ -28,7 +28,7 @@ public class DbDateUtilsTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_toSqlTimestamp() {
-    Instant instant = Instant.nowSystemClock();
+    Instant instant = Instant.now();
     Timestamp ts = DbDateUtils.toSqlTimestamp(instant);
     assertEquals(instant.toEpochMillisLong(), ts.getTime());
     assertEquals(instant.getNanoOfSecond(), ts.getNanos());

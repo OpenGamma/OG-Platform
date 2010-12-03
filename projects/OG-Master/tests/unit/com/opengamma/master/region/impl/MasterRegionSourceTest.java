@@ -58,7 +58,7 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     
     RegionDocument doc = new RegionDocument(uk());
@@ -72,7 +72,7 @@ public class MasterRegionSourceTest {
 
   @Test
   public void test_getRegion_notFound() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     
     when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
@@ -86,7 +86,7 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_Identifier_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -106,7 +106,7 @@ public class MasterRegionSourceTest {
 
   @Test
   public void test_getRegion_Identifier_noFound() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -126,7 +126,7 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_IdentifierBundle_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);

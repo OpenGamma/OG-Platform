@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class ViewEvaluationModelTest {
 
-  private final Instant _time0 = Instant.nowSystemClock();
+  private final Instant _time0 = Instant.now();
   private final Instant _time1 = _time0.plusMillis(1);
   private final Instant _time2 = _time0.plusMillis(2);
   private final Instant _time3 = _time0.plusMillis(3);

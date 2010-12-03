@@ -329,7 +329,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
     @Override
     public void run() {
       try {
-        Instant now = Instant.nowSystemClock();
+        Instant now = Instant.now();
         save(_resolution, now);
       } catch (RuntimeException e) {
         s_logger.error("Updating intraday time series for " + _resolution + " failed", e);

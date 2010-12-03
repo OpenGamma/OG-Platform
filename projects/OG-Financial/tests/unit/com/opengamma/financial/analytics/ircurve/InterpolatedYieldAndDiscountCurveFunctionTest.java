@@ -163,7 +163,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.now());
     
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")), null);
     assertNull(requirements);
@@ -188,7 +188,7 @@ public class InterpolatedYieldAndDiscountCurveFunctionTest {
     OpenGammaCompilationContext.setConventionBundleSource(context, new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
     
     function.init(context);
-    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.nowSystemClock());
+    CompiledFunctionDefinition compiledFunction = function.compile(context, Instant.now());
     
     requirements = compiledFunction.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")), null);
     assertNull(requirements);

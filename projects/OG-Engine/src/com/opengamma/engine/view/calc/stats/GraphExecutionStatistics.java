@@ -145,7 +145,7 @@ public class GraphExecutionStatistics {
     _executedNodes.addAndGet(nodeCount);
     _executionTime.addAndGet(executionTime);
     _actualTime.addAndGet(duration);
-    _lastExecutedTime = Instant.nowSystemClock();
+    _lastExecutedTime = Instant.now();
   }
 
   public void recordProcessing(final int totalJobs, final double meanJobSize, double meanJobCycleCost, double meanJobIOCost) {
@@ -160,7 +160,7 @@ public class GraphExecutionStatistics {
     _processedJobSize.addAndGet((long) meanJobSize);
     _processedJobCycleCost.addAndGet((long) meanJobCycleCost);
     _processedJobDataCost.addAndGet((long) meanJobIOCost);
-    _lastProcessedTime = Instant.nowSystemClock();
+    _lastProcessedTime = Instant.now();
   }
 
   public void reset() {

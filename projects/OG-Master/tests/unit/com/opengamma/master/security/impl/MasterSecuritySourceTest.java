@@ -58,7 +58,7 @@ public class MasterSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSecurityByUID() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecurityHistoryRequest request = new SecurityHistoryRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
     request.setFullDetail(true);
@@ -78,7 +78,7 @@ public class MasterSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSecuritiesByIdentifierBundle() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addIdentifierBundle(ID1);
@@ -102,7 +102,7 @@ public class MasterSecuritySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSecurityByIdentifier() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addIdentifierBundle(ID1);
