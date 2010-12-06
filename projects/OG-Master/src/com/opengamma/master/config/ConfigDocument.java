@@ -23,7 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A configuration document type
+ * A document used to pass into and out of the config master.
  *
  * @param <T> the type of configuration document
  */
@@ -33,10 +33,10 @@ public class ConfigDocument<T> extends DirectBean {
 
   /**
    * The configuration document unique identifier.
-   * This field is managed by the {@code ConfigMaster} but must be set for updates.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueIdentifier _configId;
+  private UniqueIdentifier _uniqueId;
   /**
    * The start of an interval that the version of the configuration is accurate for.
    * This field is populated and managed by the {@code ConfigMaster}.
@@ -108,8 +108,8 @@ public class ConfigDocument<T> extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -580140035:  // configId
-        return getConfigId();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 2006263519:  // versionFromInstant
         return getVersionFromInstant();
       case 1577022702:  // versionToInstant
@@ -126,8 +126,8 @@ public class ConfigDocument<T> extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -580140035:  // configId
-        setConfigId((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 2006263519:  // versionFromInstant
         setVersionFromInstant((Instant) newValue);
@@ -148,29 +148,29 @@ public class ConfigDocument<T> extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration document unique identifier.
-   * This field is managed by the {@code ConfigMaster} but must be set for updates.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
-  public UniqueIdentifier getConfigId() {
-    return _configId;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the configuration document unique identifier.
-   * This field is managed by the {@code ConfigMaster} but must be set for updates.
-   * @param configId  the new value of the property
+   * This field is managed by the master but must be set for updates.
+   * @param uniqueId  the new value of the property
    */
-  public void setConfigId(UniqueIdentifier configId) {
-    this._configId = configId;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code configId} property.
-   * This field is managed by the {@code ConfigMaster} but must be set for updates.
+   * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> configId() {
-    return metaBean().configId().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -294,9 +294,9 @@ public class ConfigDocument<T> extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code configId} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _configId = DirectMetaProperty.ofReadWrite(this, "configId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionFromInstant} property.
      */
@@ -322,7 +322,7 @@ public class ConfigDocument<T> extends DirectBean {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("configId", _configId);
+      temp.put("uniqueId", _uniqueId);
       temp.put("versionFromInstant", _versionFromInstant);
       temp.put("versionToInstant", _versionToInstant);
       temp.put("name", _name);
@@ -348,11 +348,11 @@ public class ConfigDocument<T> extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code configId} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> configId() {
-      return _configId;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

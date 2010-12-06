@@ -40,7 +40,7 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
   @GET
   public String get() {
     ConfigHistoryRequest request = new ConfigHistoryRequest();
-    request.setConfigId(data().getConfig().getConfigId());
+    request.setConfigId(data().getConfig().getUniqueId());
     ConfigHistoryResult<T> result = data().getConfigTypeMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -67,8 +67,8 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
   public WebConfigTypeVersionResource<T> findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     ConfigDocument<T> doc = data().getConfig();
-    UniqueIdentifier combined = doc.getConfigId().withVersion(idStr);
-    if (doc.getConfigId().equals(combined) == false) {
+    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    if (doc.getUniqueId().equals(combined) == false) {
       ConfigDocument<T> versioned = data().getConfigTypeMaster().get(combined);
       data().setVersioned(versioned);
     } else {

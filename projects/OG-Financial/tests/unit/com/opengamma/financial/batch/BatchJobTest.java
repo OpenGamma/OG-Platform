@@ -215,7 +215,7 @@ public class BatchJobTest {
     ViewInternal testView = ViewTestUtils.getMockView();
     
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
-    cfgDocument.setConfigId(UniqueIdentifier.of("BatchJobTest", "1"));
+    cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     cfgDocument.setValue(testView.getDefinition());
     MockConfigSource cfgSource = new MockConfigSource();

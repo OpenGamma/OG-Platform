@@ -237,7 +237,7 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
       T value = FUDGE_CONTEXT.readObject(getMaster().getReifiedType(), new ByteArrayInputStream(bytes));
       
       ConfigDocument<T> doc = new ConfigDocument<T>();
-      doc.setConfigId(createUniqueIdentifier(configOid, configId));
+      doc.setUniqueId(createUniqueIdentifier(configOid, configId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setName(name);

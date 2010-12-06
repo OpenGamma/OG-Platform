@@ -69,7 +69,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().setViewName("test_view");
     _batchJob.setView(ViewTestUtils.getMockView());
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
-    doc.setConfigId(UniqueIdentifier.of("Test", "1", "1"));
+    doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);

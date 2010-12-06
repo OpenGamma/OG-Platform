@@ -87,13 +87,13 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(5)));
     ConfigDocument<T> doc3 = makeTestConfigDoc(3);
-    doc3.setConfigId(doc2.getConfigId());
+    doc3.setUniqueId(doc2.getUniqueId());
     doc3.setName("changeOfName");
     doc3 = _configMaster.update(doc3);
     
@@ -236,7 +236,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     assertNotNull(doc1);
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(2)));
-    ConfigDocument<T> found = _configMaster.get(doc1.getConfigId());
+    ConfigDocument<T> found = _configMaster.get(doc1.getUniqueId());
     assertNotNull(found);
     assertConfigDoc(doc1, found);
     assertEquals(Instant.EPOCH.plusSeconds(1), found.getVersionFromInstant());
@@ -244,13 +244,13 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     assertNotNull(doc2);
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(4)));
-    found = _configMaster.get(doc1.getConfigId().toLatest());
+    found = _configMaster.get(doc1.getUniqueId().toLatest());
     assertNotNull(found);
     assertConfigDoc(doc2, found);
     assertEquals(Instant.EPOCH.plusSeconds(3), found.getVersionFromInstant());
@@ -286,18 +286,18 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     doc = _configMaster.add(doc);
     assertNotNull(doc);
-    assertNotNull(doc.getConfigId());
+    assertNotNull(doc.getUniqueId());
     assertEquals(name, doc.getName());
     assertEquals(Instant.EPOCH, doc.getVersionFromInstant());
     assertNull(doc.getVersionToInstant());
     
     // get fixed version
-    ConfigDocument<T> fixed = _configMaster.get(doc.getConfigId());
+    ConfigDocument<T> fixed = _configMaster.get(doc.getUniqueId());
     assertNotNull(fixed);
     assertConfigDoc(doc, fixed);
     
     // get latest
-    ConfigDocument<T> latest = _configMaster.get(doc.getConfigId().toLatest());
+    ConfigDocument<T> latest = _configMaster.get(doc.getUniqueId().toLatest());
     assertNotNull(latest);
     assertConfigDoc(doc, latest);
   }
@@ -311,7 +311,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
   @Test(expected = IllegalArgumentException.class)
   public void update_nullUID() throws Exception {
     ConfigDocument<T> doc = makeTestConfigDoc(2);
-    doc.setConfigId(null);
+    doc.setUniqueId(null);
     _configMaster.update(doc);
   }
 
@@ -334,12 +334,12 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     ConfigDocument<T> doc1 = _configMaster.add(makeTestConfigDoc(1));
     
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     
     ConfigDocument<T> doc3 = makeTestConfigDoc(3);
-    doc3.setConfigId(doc1.getConfigId());  // wrong version
+    doc3.setUniqueId(doc1.getUniqueId());  // wrong version
     doc3.setName(doc1.getName());
     _configMaster.update(doc3);
   }
@@ -355,23 +355,23 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     
     assertNotNull(doc2);
-    assertEquals(doc1.getConfigId().toLatest(), doc2.getConfigId().toLatest());
+    assertEquals(doc1.getUniqueId().toLatest(), doc2.getUniqueId().toLatest());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc2.getVersionFromInstant());
     assertEquals(null, doc2.getVersionToInstant());
     
     // version 1 end-dated
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(4)));
-    doc1 = _configMaster.get(doc1.getConfigId());
+    doc1 = _configMaster.get(doc1.getUniqueId());
     assertEquals(Instant.EPOCH.plusSeconds(1), doc1.getVersionFromInstant());
     assertEquals(Instant.EPOCH.plusSeconds(3), doc1.getVersionToInstant());
     
     // get latest
-    ConfigDocument<T> latest = _configMaster.get(doc1.getConfigId().toLatest());
+    ConfigDocument<T> latest = _configMaster.get(doc1.getUniqueId().toLatest());
     assertEquals(Instant.EPOCH.plusSeconds(3), latest.getVersionFromInstant());
   }
 
@@ -386,11 +386,11 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     ConfigDocument<T> doc1 = _configMaster.add(makeTestConfigDoc(1));
     
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     
-    _configMaster.remove(doc1.getConfigId());
+    _configMaster.remove(doc1.getUniqueId());
   }
 
   @Test
@@ -401,16 +401,16 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     doc = _configMaster.add(doc);
     assertEquals(null, doc.getVersionToInstant());
     
-    _configMaster.remove(doc.getConfigId());
+    _configMaster.remove(doc.getUniqueId());
     
     try {
-      _configMaster.get(doc.getConfigId().toLatest());
+      _configMaster.get(doc.getUniqueId().toLatest());
       fail();
     } catch (DataNotFoundException ex) {
       // expected
     }
     
-    ConfigDocument<T> removed = _configMaster.get(doc.getConfigId());
+    ConfigDocument<T> removed = _configMaster.get(doc.getUniqueId());
     assertEquals(Instant.EPOCH, removed.getVersionToInstant());
     assertConfigDoc(doc, removed);
   }
@@ -436,13 +436,13 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(3)));
     ConfigDocument<T> doc2 = makeTestConfigDoc(2);
-    doc2.setConfigId(doc1.getConfigId());
+    doc2.setUniqueId(doc1.getUniqueId());
     doc2.setName(doc1.getName());
     doc2 = _configMaster.update(doc2);
     
     _configMaster.setTimeSource(TimeSource.fixed(Instant.EPOCH.plusSeconds(5)));
     ConfigDocument<T> doc3 = makeTestConfigDoc(3);
-    doc3.setConfigId(doc2.getConfigId());
+    doc3.setUniqueId(doc2.getUniqueId());
     doc3.setName(doc2.getName());
     doc3 = _configMaster.update(doc3);
     
@@ -450,7 +450,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     // from infinity to infinity
     ConfigHistoryRequest historicRequest = new ConfigHistoryRequest();
-    historicRequest.setConfigId(doc1.getConfigId());
+    historicRequest.setConfigId(doc1.getUniqueId());
     ConfigHistoryResult<T> searchHistoric = _configMaster.history(historicRequest);
     List<ConfigDocument<T>> allDocs = searchHistoric.getDocuments();
     assertNotNull(allDocs);
@@ -461,7 +461,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     // whole range
     historicRequest = new ConfigHistoryRequest();
-    historicRequest.setConfigId(doc1.getConfigId());
+    historicRequest.setConfigId(doc1.getUniqueId());
     historicRequest.setVersionsFromInstant(Instant.EPOCH);
     historicRequest.setVersionsToInstant(Instant.EPOCH.plusSeconds(6));
     searchHistoric = _configMaster.history(historicRequest);
@@ -553,7 +553,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
   }
 
   private void assertConfigDoc(ConfigDocument<T> expected, ConfigDocument<T> actual) {
-    assertEquals(expected.getConfigId(), actual.getConfigId());
+    assertEquals(expected.getUniqueId(), actual.getUniqueId());
     assertEquals(expected.getName(), actual.getName());
     assertConfigDocumentValue(expected.getValue(), actual.getValue());
   }

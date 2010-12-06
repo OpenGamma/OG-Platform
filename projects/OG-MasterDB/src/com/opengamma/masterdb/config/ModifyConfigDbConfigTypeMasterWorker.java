@@ -52,7 +52,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         final Instant now = Instant.now(getTimeSource());
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
-        document.setConfigId(null);
+        document.setUniqueId(null);
         insertConfig(document);
       }
     });
@@ -62,7 +62,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
   //-------------------------------------------------------------------------
   @Override
   protected ConfigDocument<T> update(final ConfigDocument<T> document) {
-    final UniqueIdentifier uid = document.getConfigId();
+    final UniqueIdentifier uid = document.getUniqueId();
     ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
     s_logger.debug("updateConfig {}", document);
     
@@ -78,7 +78,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         // insert new row
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
-        document.setConfigId(oldDoc.getConfigId().toLatest());
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertConfig(document);
       }
     });
@@ -121,7 +121,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(document.getValue());
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     final long configId = nextId("cfg_config_seq");
-    final long configOid = (document.getConfigId() != null ? extractOid(document.getConfigId()) : configId);
+    final long configOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : configId);
     // the arguments for inserting into the config table
     final MapSqlParameterSource configArgs = new DbMapSqlParameterSource()
       .addValue("config_id", configId)
@@ -134,7 +134,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(configOid, configId);
-    document.setConfigId(uid);
+    document.setUniqueId(uid);
   }
 
   /**
@@ -168,7 +168,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
    */
   protected void updateVersionToInstant(final ConfigDocument<T> document) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("config_id", extractRowId(document.getConfigId()))
+      .addValue("config_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
     int rowsUpdated = getJdbcTemplate().update(sqlUpdateVersionToInstant(), args);

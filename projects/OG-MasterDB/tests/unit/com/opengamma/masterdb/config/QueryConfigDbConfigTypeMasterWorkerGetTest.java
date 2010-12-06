@@ -106,7 +106,7 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
     
     assertNotNull(test);
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
-    assertEquals(uid, test.getConfigId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals("TestConfig202", test.getName());

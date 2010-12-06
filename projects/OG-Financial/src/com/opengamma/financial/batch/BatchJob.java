@@ -319,11 +319,11 @@ public class BatchJob {
   }
 
   public String getViewOid() {
-    return _viewDefinitionConfig.getConfigId().getValue();
+    return _viewDefinitionConfig.getUniqueId().getValue();
   }
 
   public String getViewVersion() {
-    return _viewDefinitionConfig.getConfigId().getVersion();
+    return _viewDefinitionConfig.getUniqueId().getVersion();
   }
   
   public BatchJobParameters getParameters() {

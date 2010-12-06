@@ -65,7 +65,7 @@ public class InMemoryConfigTypeMasterTest {
     doc.setName("ONE");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
-    assertEquals("MemCfg", added.getConfigId().getScheme());
+    assertEquals("MemCfg", added.getUniqueId().getScheme());
   }
 
   @Test
@@ -75,7 +75,7 @@ public class InMemoryConfigTypeMasterTest {
     doc.setName("ONE");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
-    assertEquals("Hello", added.getConfigId().getScheme());
+    assertEquals("Hello", added.getUniqueId().getScheme());
   }
 
   //-------------------------------------------------------------------------
@@ -116,8 +116,8 @@ public class InMemoryConfigTypeMasterTest {
 
   @Test
   public void test_get_populatedMaster() {
-    assertSame(doc1, testPopulated.get(doc1.getConfigId()));
-    assertSame(doc2, testPopulated.get(doc2.getConfigId()));
+    assertSame(doc1, testPopulated.get(doc1.getUniqueId()));
+    assertSame(doc2, testPopulated.get(doc2.getUniqueId()));
   }
 
   //-------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public class InMemoryConfigTypeMasterTest {
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
-    assertEquals("Test", added.getConfigId().getScheme());
+    assertEquals("Test", added.getUniqueId().getScheme());
     assertSame(VAL1, added.getValue());
   }
 
@@ -135,16 +135,16 @@ public class InMemoryConfigTypeMasterTest {
   public void test_update_emptyMaster() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setValue(VAL1);
-    doc.setConfigId(OTHER_UID);
+    doc.setUniqueId(OTHER_UID);
     testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setValue(VAL1);
-    doc.setConfigId(doc1.getConfigId());
+    doc.setUniqueId(doc1.getUniqueId());
     ConfigDocument<Identifier> updated = testPopulated.update(doc);
-    assertEquals(doc1.getConfigId(), updated.getConfigId());
+    assertEquals(doc1.getUniqueId(), updated.getUniqueId());
     assertNotNull(doc1.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
     assertEquals(false, doc1.getVersionFromInstant().equals(updated.getVersionFromInstant()));
@@ -158,7 +158,7 @@ public class InMemoryConfigTypeMasterTest {
 
   @Test
   public void test_remove_populatedMaster() {
-    testPopulated.remove(doc1.getConfigId());
+    testPopulated.remove(doc1.getUniqueId());
     ConfigSearchRequest request = new ConfigSearchRequest();
     ConfigSearchResult<Identifier> result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());

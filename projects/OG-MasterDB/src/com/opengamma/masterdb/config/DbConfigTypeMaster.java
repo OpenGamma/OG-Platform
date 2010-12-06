@@ -195,8 +195,8 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
-    ArgumentChecker.notNull(document.getConfigId(), "document.configId");
-    checkScheme(document.getConfigId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdateWorker().update(document);
   }

@@ -34,7 +34,7 @@ public class MasterConfigSourceTest {
   private static final ConfigDocument<Identifier> DOC;
   static {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
-    doc.setConfigId(UniqueIdentifier.of("U", "1"));
+    doc.setUniqueId(UniqueIdentifier.of("U", "1"));
     doc.setName("Test");
     doc.setValue(Identifier.of("A", "B"));
     DOC = doc;

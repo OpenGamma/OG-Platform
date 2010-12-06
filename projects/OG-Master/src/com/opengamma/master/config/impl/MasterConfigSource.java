@@ -145,7 +145,7 @@ public class MasterConfigSource implements ConfigSource {
       if (result.getDocuments().isEmpty()) {
         return null;
       }
-      if (uid.isVersioned() && uid.getVersion().equals(result.getFirstDocument().getConfigId().getVersion()) == false) {
+      if (uid.isVersioned() && uid.getVersion().equals(result.getFirstDocument().getUniqueId().getVersion()) == false) {
         return null;  // config found, but not matching the version we asked for
       }
       return result.getFirstDocument();

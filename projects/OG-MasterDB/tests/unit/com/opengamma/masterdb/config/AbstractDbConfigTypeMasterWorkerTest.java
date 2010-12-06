@@ -109,7 +109,7 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
   protected void assert101(final ConfigDocument<Identifier> test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals("TestConfig101", test.getName());
@@ -119,7 +119,7 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
   protected void assert102(final ConfigDocument<Identifier> test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1bInstant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals("TestConfig102", test.getName());
@@ -129,7 +129,7 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
   protected void assert201(final ConfigDocument<Identifier> test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version1cInstant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals("TestConfig201", test.getName());
@@ -139,7 +139,7 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
   protected void assert202(final ConfigDocument<Identifier> test) {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getConfigId());
+    assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(Identifier.of("A", "B"), test.getValue());
