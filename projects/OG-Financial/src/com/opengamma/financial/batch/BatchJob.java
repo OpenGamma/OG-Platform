@@ -281,7 +281,7 @@ public class BatchJob {
 
   public BatchJob() {
     _user = UserPrincipal.getLocalUser();
-    _creationTime = ZonedDateTime.nowSystemClock();
+    _creationTime = ZonedDateTime.now();
   }
 
   // --------------------------------------------------------------------------

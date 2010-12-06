@@ -68,7 +68,7 @@ public class BatchJobParameters {
     } catch (CalendricalParseException e) {
       // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone.
       LocalDateTime localDateTime = s_dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
-      return OffsetDateTime.of(localDateTime, ZonedDateTime.nowSystemClock().toOffsetDateTime().getOffset());
+      return OffsetDateTime.of(localDateTime, ZonedDateTime.now().toOffsetDateTime().getOffset());
     }
   }
   

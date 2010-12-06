@@ -192,7 +192,7 @@ public class IdentifierBundleTest {
   @Test
   public void withoutScheme_IdentificationScheme_noMatch() {
     IdentifierBundle base = IdentifierBundle.of(Identifier.of("A", "B"));
-    IdentifierBundle test = base.withoutScheme(IdentificationScheme.BLOOMBERG_BUID);
+    IdentifierBundle test = base.withoutScheme(IdentificationScheme.of("BLOOMBERG_BUID"));
     assertEquals(1, base.size());
     assertEquals(1, test.size());
     assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));

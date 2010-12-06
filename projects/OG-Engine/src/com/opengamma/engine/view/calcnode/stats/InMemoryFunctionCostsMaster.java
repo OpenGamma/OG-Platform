@@ -42,7 +42,7 @@ public class InMemoryFunctionCostsMaster implements FunctionCostsMaster {
   @Override
   public FunctionCostsDocument store(final FunctionCostsDocument costs) {
     Pair<String, String> pair = new ObjectsPair<String, String>(costs.getConfigurationName(), costs.getFunctionId());
-    costs.setVersion(Instant.nowSystemClock());
+    costs.setVersion(Instant.now());
     _data.put(pair, costs.clone());
     return costs;
   }

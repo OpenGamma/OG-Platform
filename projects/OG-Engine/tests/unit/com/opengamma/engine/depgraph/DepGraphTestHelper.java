@@ -156,7 +156,7 @@ public class DepGraphTestHelper {
       } else {
         resolver = new DefaultFunctionResolver(compilationService);
       }
-      _builder.setFunctionResolver(resolver.compile(Instant.nowSystemClock()));
+      _builder.setFunctionResolver(resolver.compile(Instant.now()));
       MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
       targetResolver.addTarget(_target);
       _builder.setTargetResolver(targetResolver);

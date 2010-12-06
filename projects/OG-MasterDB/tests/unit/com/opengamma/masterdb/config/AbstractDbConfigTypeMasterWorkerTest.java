@@ -72,7 +72,7 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
 //    name varchar(255) not null,
 //    config_type varchar(255) not null,
 //    config blob not null,
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     _cfgMaster.setTimeSource(TimeSource.fixed(now));
     _version1aInstant = now.minusSeconds(102);
     _version1bInstant = now.minusSeconds(101);

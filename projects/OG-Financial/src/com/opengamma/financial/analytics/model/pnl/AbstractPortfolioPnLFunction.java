@@ -26,16 +26,16 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.equity.DailyPortfolioEquityPnLFunction;
+import com.opengamma.financial.analytics.model.equity.PortfolioEquityPnLFunction;
 import com.opengamma.util.money.MoneyCalculationUtil;
 
 /**
  * 
  */
-public abstract class AbstractDailyPortfolioPnLFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonCompiledInvoker {
   
   @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(DailyPortfolioEquityPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEquityPnLFunction.class);
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
@@ -43,11 +43,11 @@ public abstract class AbstractDailyPortfolioPnLFunction extends AbstractFunction
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Position position : allPositions) {
-      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.DAILY_PNL,
+      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, node), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueIdentifier());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -59,7 +59,7 @@ public abstract class AbstractDailyPortfolioPnLFunction extends AbstractFunction
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Position position : allPositions) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.DAILY_PNL, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       }
       return requirements;
     }
@@ -69,7 +69,7 @@ public abstract class AbstractDailyPortfolioPnLFunction extends AbstractFunction
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, target.getPortfolioNode()),
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPortfolioNode()),
         getUniqueIdentifier()));
     }
     return null;

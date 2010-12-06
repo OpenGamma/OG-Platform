@@ -27,18 +27,18 @@ import com.opengamma.util.money.MoneyCalculationUtil;
 /**
  * 
  */
-public abstract class AbstractDailyPositionPnLFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Position position = target.getPosition();
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Trade trade : position.getTrades()) {
-      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.DAILY_PNL,
+      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, position), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueIdentifier());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -54,7 +54,7 @@ public abstract class AbstractDailyPositionPnLFunction extends AbstractFunction.
       final Position position = target.getPosition();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Trade trade : position.getTrades()) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.DAILY_PNL, ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
       }
       return requirements;
     }
@@ -64,7 +64,7 @@ public abstract class AbstractDailyPositionPnLFunction extends AbstractFunction.
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DAILY_PNL, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueIdentifier()));
     }
     return null;
   }
