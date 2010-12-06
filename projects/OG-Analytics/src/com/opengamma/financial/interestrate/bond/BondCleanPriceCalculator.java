@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
  * 
  */
 public class BondCleanPriceCalculator extends BondCalculator {
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   @Override
   public Double calculate(final Bond bond, final YieldCurveBundle curves) {

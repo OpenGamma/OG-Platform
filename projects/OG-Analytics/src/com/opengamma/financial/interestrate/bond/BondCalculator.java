@@ -15,5 +15,5 @@ public abstract class BondCalculator {
 
   public abstract Double calculate(final Bond bond, final YieldCurveBundle curves);
 
-  public abstract Double calculate(final Bond bond, final double price);
+  public abstract Double calculate(final Bond bond, final double price); //TODO not sure that this method is needed
 }

@@ -43,7 +43,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
   private final String _curveName;
   private final String _requirementName;
 

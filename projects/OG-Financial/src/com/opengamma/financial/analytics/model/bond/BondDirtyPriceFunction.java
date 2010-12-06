@@ -24,7 +24,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondDirtyPriceFunction extends BondFunction {
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   public BondDirtyPriceFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");

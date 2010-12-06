@@ -30,7 +30,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class BondYieldFunction extends BondFunction {
   private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   public BondYieldFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
