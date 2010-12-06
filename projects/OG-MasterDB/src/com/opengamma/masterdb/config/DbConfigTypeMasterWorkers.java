@@ -26,6 +26,8 @@ public class DbConfigTypeMasterWorkers<T> {
   private DbConfigTypeMasterWorker<T> _removeWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
   /** Worker. */
   private DbConfigTypeMasterWorker<T> _historyWorker = new QueryConfigDbConfigTypeMasterWorker<T>();
+  /** Worker. */
+  private DbConfigTypeMasterWorker<T> _correctWorker = new ModifyConfigDbConfigTypeMasterWorker<T>();
 
   /**
    * Creates an instance.
@@ -146,6 +148,23 @@ public class DbConfigTypeMasterWorkers<T> {
    */
   public void setHistoryWorker(DbConfigTypeMasterWorker<T> historyWorker) {
     _historyWorker = historyWorker;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the correctWorker field.
+   * @return the correctWorker
+   */
+  public DbConfigTypeMasterWorker<T> getCorrectWorker() {
+    return _correctWorker;
+  }
+
+  /**
+   * Sets the correctWorker field.
+   * @param correctWorker  the correctWorker
+   */
+  public void setCorrectWorker(DbConfigTypeMasterWorker<T> correctWorker) {
+    _correctWorker = correctWorker;
   }
 
   //-------------------------------------------------------------------------

@@ -164,4 +164,10 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     return result;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    return update(document);
+  }
+
 }

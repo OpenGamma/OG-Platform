@@ -24,7 +24,6 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.config.impl.MasterConfigSource;
 
 /**
  * Test MasterConfigSource.
@@ -74,6 +73,10 @@ public class MasterConfigSourceTest {
         public ConfigHistoryResult<Identifier> history(ConfigHistoryRequest request) {
           throw new UnsupportedOperationException();
         }
+        @Override
+        public ConfigDocument<Identifier> correct(ConfigDocument<Identifier> document) {
+          throw new UnsupportedOperationException();
+        }
       };
     }
   }
@@ -91,6 +94,21 @@ public class MasterConfigSourceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test(expected = IllegalArgumentException.class)
+  public void test_constructor_1arg_nullMaster() throws Exception {
+    new MasterConfigSource(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_constructor_2arg_nullMaster() throws Exception {
+    new MasterConfigSource(null, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_constructor3arg_nullMaster() throws Exception {
+    new MasterConfigSource(null, null, null);
+  }
+
   @Test
   public void search() throws Exception {
     ConfigSearchRequest request = new ConfigSearchRequest();

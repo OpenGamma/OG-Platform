@@ -418,6 +418,12 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    return update(document);  // TODO if we use Mongo again
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Extracts the row id.
    * @param id  the identifier to extract from, not null

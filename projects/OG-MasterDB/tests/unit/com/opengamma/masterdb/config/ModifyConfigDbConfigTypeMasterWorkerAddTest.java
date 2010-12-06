@@ -88,6 +88,8 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
     assertEquals(Identifier.of("A", "B"), test.getValue());
     assertEquals("TestConfig", test.getName());
   }

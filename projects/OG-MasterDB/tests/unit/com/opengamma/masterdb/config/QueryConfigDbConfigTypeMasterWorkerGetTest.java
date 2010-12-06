@@ -6,7 +6,6 @@
 package com.opengamma.masterdb.config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
@@ -20,8 +19,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.masterdb.config.DbConfigTypeMasterWorker;
-import com.opengamma.masterdb.config.QueryConfigDbConfigTypeMasterWorker;
 
 /**
  * Tests QueryConfigDbConfigMasterWorker.
@@ -103,14 +100,7 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
   public void test_getConfig_unversioned() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigDocument<Identifier> test = _worker.get(oid);
-    
-    assertNotNull(test);
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
-    assertEquals(uid, test.getUniqueId());
-    assertEquals(_version2Instant, test.getVersionFromInstant());
-    assertEquals(null, test.getVersionToInstant());
-    assertEquals("TestConfig202", test.getName());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assert202(test);
   }
 
   //-------------------------------------------------------------------------

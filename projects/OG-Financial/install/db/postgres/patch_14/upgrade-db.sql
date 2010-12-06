@@ -5,6 +5,9 @@ DROP TABLE IF EXISTS pos_position;
 DROP TABLE IF EXISTS pos_node;
 DROP TABLE IF EXISTS pos_portfolio;
 
+DROP SEQUENCE IF EXISTS cfg_config_seq;
+DROP TABLE IF EXISTS cfg_config;
+
 -- DROP TABLE IF EXISTS tss_identifier CASCADE;
 -- DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
 -- DROP TABLE IF EXISTS tss_data_point CASCADE;

@@ -6,7 +6,6 @@
 package com.opengamma.masterdb.config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.TimeZone;
 
@@ -17,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -25,22 +23,19 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
-import com.opengamma.masterdb.config.DbConfigTypeMasterWorker;
-import com.opengamma.masterdb.config.ModifyConfigDbConfigTypeMasterWorker;
-import com.opengamma.masterdb.config.QueryConfigDbConfigTypeMasterWorker;
 
 /**
- * Tests ModifyConfigDbConfigMasterWorker.
+ * Tests ModifyConfigDbConfigTypeMasterWorker.
  */
-public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class ModifyConfigDbConfigTypeMasterWorkerCorrectTest extends AbstractDbConfigTypeMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerUpdateTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerCorrectTest.class);
 
   private ModifyConfigDbConfigTypeMasterWorker<Identifier> _worker;
   private DbConfigTypeMasterWorker<Identifier> _queryWorker;
 
-  public ModifyConfigDbConfigTypeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigTypeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -64,40 +59,37 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
 
   //-------------------------------------------------------------------------
   @Test(expected = NullPointerException.class)
-  public void test_updateConfig_nullDocument() {
-    _worker.update(null);
+  public void test_correctConfig_nullDocument() {
+    _worker.correct(null);
   }
 
   @Test(expected = NullPointerException.class)
-  public void test_update_noConfigId() {
+  public void test_correct_noConfigId() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
-    _worker.update(doc);
+    _worker.correct(doc);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void test_correct_noConfig() {
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    doc.setUniqueId(UniqueIdentifier.of("DbCfg", "101", "0"));
+    _worker.correct(doc);
   }
 
   @Test(expected = DataNotFoundException.class)
-  public void test_update_notFound() {
+  public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setUniqueId(uid);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
-    _worker.update(doc);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void test_update_notLatestVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
-    doc.setUniqueId(uid);
-    doc.setName("Name");
-    doc.setValue(Identifier.of("A", "B"));
-    _worker.update(doc);
+    _worker.correct(doc);
   }
 
   @Test
-  public void test_update_getUpdateGet() {
+  public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
@@ -107,51 +99,25 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> updated = _worker.update(input);
-    assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
-    assertEquals(now, updated.getVersionFromInstant());
-    assertEquals(null, updated.getVersionToInstant());
-    assertEquals(now, updated.getCorrectionFromInstant());
-    assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getValue(), updated.getValue());
+    ConfigDocument<Identifier> corrected = _worker.correct(input);
+    assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
+    assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
+    assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
+    assertEquals(now, corrected.getCorrectionFromInstant());
+    assertEquals(null, corrected.getCorrectionToInstant());
+    assertEquals(input.getValue(), corrected.getValue());
     
     ConfigDocument<Identifier> old = _queryWorker.get(uid);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
-    assertEquals(now, old.getVersionToInstant());  // old version ended
+    assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
-    assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
+    assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getValue(), old.getValue());
     
-    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getUniqueId(), null, now);
+    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getUniqueId(), now, null);
     ConfigHistoryResult<Identifier> searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
-  }
-
-  @Test
-  public void test_update_rollback() {
-    ModifyConfigDbConfigTypeMasterWorker<Identifier> w = new ModifyConfigDbConfigTypeMasterWorker<Identifier>() {
-      @Override
-      protected String sqlInsertConfig() {
-        return "INSERT";  // bad sql
-      };
-    };
-    w.init(_cfgMaster);
-    final ConfigDocument<Identifier> base = _queryWorker.get(UniqueIdentifier.of("DbCfg", "101", "0"));
-    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
-    input.setUniqueId(uid);
-    input.setName("Name");
-    input.setValue(Identifier.of("A", "B"));
-    try {
-      w.update(input);
-      fail();
-    } catch (BadSqlGrammarException ex) {
-      // expected
-    }
-    final ConfigDocument<Identifier> test = _queryWorker.get(UniqueIdentifier.of("DbCfg", "101", "0"));
-    
-    assertEquals(base, test);
   }
 
   //-------------------------------------------------------------------------

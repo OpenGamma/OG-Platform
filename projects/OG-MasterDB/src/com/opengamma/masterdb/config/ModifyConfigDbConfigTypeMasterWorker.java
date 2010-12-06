@@ -52,6 +52,8 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         final Instant now = Instant.now(getTimeSource());
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
         document.setUniqueId(null);
         insertConfig(document);
       }
@@ -78,6 +80,8 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         // insert new row
         document.setVersionFromInstant(now);
         document.setVersionToInstant(null);
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
         document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insertConfig(document);
       }
@@ -101,6 +105,34 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
         updateVersionToInstant(oldDoc);
       }
     });
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    final UniqueIdentifier uid = document.getUniqueId();
+    ArgumentChecker.isTrue(uid.isVersioned(), "UniqueIdentifier must be versioned");
+    s_logger.debug("correctConfig {}", document);
+    
+    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        // load old row
+        final ConfigDocument<T> oldDoc = getConfigCheckLatestCorrection(uid);
+        // update old row
+        final Instant now = Instant.now(getTimeSource());
+        oldDoc.setCorrectionToInstant(now);
+        updateCorrectionToInstant(oldDoc);
+        // insert new row
+        document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+        document.setVersionToInstant(oldDoc.getVersionToInstant());
+        document.setCorrectionFromInstant(now);
+        document.setCorrectionToInstant(null);
+        document.setUniqueId(oldDoc.getUniqueId().toLatest());
+        insertConfig(document);
+      }
+    });
+    return document;
   }
 
   //-------------------------------------------------------------------------
@@ -128,6 +160,8 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
       .addValue("config_oid", configOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
       .addValue("config_type", getMaster().getReifiedType().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
@@ -143,9 +177,9 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
    */
   protected String sqlInsertConfig() {
     return "INSERT INTO cfg_config " +
-              "(id, oid, ver_from_instant, ver_to_instant, name, config_type, config) " +
+              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, config_type, config) " +
             "VALUES " +
-              "(:config_id, :config_oid, :ver_from_instant, :ver_to_instant, :name, :config_type, :config)";
+              "(:config_id, :config_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :config_type, :config)";
   }
 
   //-------------------------------------------------------------------------
@@ -186,6 +220,46 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
               "SET ver_to_instant = :ver_to_instant " +
             "WHERE id = :config_id " +
               "AND ver_to_instant = :max_instant ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the config document ensuring that it is the latest version.
+   * @param uid  the unique identifier to load, not null
+   * @return the loaded document, not null
+   */
+  protected ConfigDocument<T> getConfigCheckLatestCorrection(final UniqueIdentifier uid) {
+    final ConfigDocument<T> oldDoc = getMaster().get(uid);  // checks uid exists
+    if (oldDoc.getCorrectionToInstant() != null) {
+      throw new IllegalArgumentException("UniqueIdentifier is not latest correction: " + uid);
+    }
+    return oldDoc;
+  }
+
+  /**
+   * Updates the document row to mark the correction as ended.
+   * @param document  the document to update, not null
+   */
+  protected void updateCorrectionToInstant(final ConfigDocument<T> document) {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("config_id", extractRowId(document.getUniqueId()))
+      .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
+      .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
+    int rowsUpdated = getJdbcTemplate().update(sqlUpdateCorrectionToInstant(), args);
+    if (rowsUpdated != 1) {
+      throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);
+    }
+  }
+
+  /**
+   * Gets the SQL for updating the end correction of a config.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateCorrectionToInstant() {
+    return "UPDATE cfg_config " +
+              "SET corr_to_instant = :corr_to_instant " +
+            "WHERE id = :config_id " +
+              "AND corr_to_instant = :max_instant ";
   }
 
 }

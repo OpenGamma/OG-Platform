@@ -221,6 +221,18 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getName(), "document.name");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
+    
+    return getWorkers().getCorrectWorker().correct(document);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns a string summary of this config master.
    * @return the string summary, not null
