@@ -24,6 +24,9 @@ import com.opengamma.util.db.Paging;
 
 /**
  * Result from searching for configuration documents.
+ * <p>
+ * The returned documents will match the search criteria.
+ * See {@link ConfigSearchRequest} for more details.
  * 
  * @param <T>  the document type
  */
