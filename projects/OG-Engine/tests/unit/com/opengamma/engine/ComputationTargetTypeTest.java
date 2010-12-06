@@ -38,7 +38,7 @@ public class ComputationTargetTypeTest {
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl();
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity("");
-  private static final Trade TRADE = new TradeImpl(POSITION, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), Instant.nowSystemClock());
+  private static final Trade TRADE = new TradeImpl(POSITION, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), Instant.now());
 
   @Test
   public void determine() {

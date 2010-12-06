@@ -13,6 +13,7 @@ import javax.time.calendar.Period;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Tenor;
@@ -59,7 +60,7 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     
   private static final DateAdjuster s_nextExpiryAdjuster = new NextExpiryAdjuster();
     
-  private static final IdentificationScheme SCHEME = IdentificationScheme.BLOOMBERG_TICKER; 
+  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER; 
   
   private Identifier createQuarterlyIRFutureStrips(LocalDate curveDate, Tenor tenor, int numQuartlyFuturesFromTenor, String prefix, String postfix) {
     LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
@@ -71,7 +72,7 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);
     futureCode.append(s_monthCode.get(futureExpiryDate.getMonthOfYear()));
-    LocalDate today = LocalDate.nowSystemClock();
+    LocalDate today = LocalDate.now();
     if (futureExpiryDate.isBefore(today.minus(Period.ofMonths(3)))) {
       int yearsNum = futureExpiryDate.getYear() % 100;
       if (yearsNum < 10) {

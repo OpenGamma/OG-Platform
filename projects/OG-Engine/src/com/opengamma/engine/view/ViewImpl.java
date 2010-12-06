@@ -120,7 +120,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   // -------------------------------------------------------------------------
   @Override
   public void init() {
-    init(Instant.nowSystemClock());
+    init(Instant.now());
   }
 
   @Override
@@ -156,7 +156,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   
   @Override
   public void reinit() {
-    reinit(Instant.nowSystemClock());
+    reinit(Instant.now());
   }
   
   @Override

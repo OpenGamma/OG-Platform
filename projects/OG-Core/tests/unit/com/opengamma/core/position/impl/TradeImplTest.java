@@ -25,7 +25,7 @@ public class TradeImplTest {
   private static final Counterparty COUNTERPARTY = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
   private static final UniqueIdentifier POSITION_UID = UniqueIdentifier.of("P", "A");
   private static final Position POSITION = new PositionImpl(POSITION_UID, BigDecimal.ONE, Identifier.of("A", "B"));
-  private static final Instant TRADE_INSTANT = Instant.nowSystemClock();
+  private static final Instant TRADE_INSTANT = Instant.now();
 
   @Test
   public void test_construction_Position_BigDecimal_Counterparty_Instant() {

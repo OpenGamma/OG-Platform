@@ -154,7 +154,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     final ManageableRegion region = document.getRegion();
     region.setUniqueIdentifier(uid);
     document.setUniqueId(uid);
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
@@ -171,7 +171,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
     final UniqueIdentifier uid = document.getUniqueId();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final RegionDocument storedDocument = _regions.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Region not found: " + uid);

@@ -139,14 +139,14 @@ public class MultipleNodeExecutorTuner implements Runnable {
           statistics.decay(getStatisticsDecayRate());
         }
       }
-      getGraphExecutionStatistics().dropStatisticsBefore(Instant.nowSystemClock().minusSeconds(getStatisticsKeepAlive()));
+      getGraphExecutionStatistics().dropStatisticsBefore(Instant.now().minusSeconds(getStatisticsKeepAlive()));
     }
     if (getJobDispatchStatistics() != null) {
       s_logger.debug("Processing job dispatch statistics");
       for (CalculationNodeStatistics statistics : getJobDispatchStatistics().getNodeStatistics()) {
         statistics.decay(getStatisticsDecayRate());
       }
-      getJobDispatchStatistics().dropStatisticsBefore(Instant.nowSystemClock().minusSeconds(getStatisticsKeepAlive()));
+      getJobDispatchStatistics().dropStatisticsBefore(Instant.now().minusSeconds(getStatisticsKeepAlive()));
     }
   }
 

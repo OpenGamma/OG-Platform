@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial;
 
-import static com.opengamma.id.IdentificationScheme.BLOOMBERG_TICKER;
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -37,7 +37,7 @@ public class InMemoryReferenceRateRepositoryTest {
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     Assert.assertEquals("USD LIBOR O/N", referenceRate.getName());
-    Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US00O/N Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N")), referenceRate
+    Assert.assertEquals(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US00O/N Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N")), referenceRate
         .getIdentifiers());
     Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "1"), referenceRate.getUniqueIdentifier());
     Assert.assertEquals(actact, referenceRate.getDayCount());
@@ -46,7 +46,7 @@ public class InMemoryReferenceRateRepositoryTest {
 
     final ConventionBundle referenceRate2 = source.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"));
     Assert.assertEquals("USD LIBOR 3m", referenceRate2.getName());
-    Assert.assertEquals(IdentifierBundle.of(Identifier.of(BLOOMBERG_TICKER, "US0003M Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m")), referenceRate2
+    Assert.assertEquals(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0003M Index"), Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m")), referenceRate2
         .getIdentifiers());
     Assert.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "7"), referenceRate2.getUniqueIdentifier());
     Assert.assertEquals(actact, referenceRate2.getDayCount());

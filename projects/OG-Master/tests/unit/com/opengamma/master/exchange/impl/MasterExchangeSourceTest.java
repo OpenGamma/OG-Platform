@@ -56,7 +56,7 @@ public class MasterExchangeSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getExchange_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
     ExchangeDocument doc = new ExchangeDocument(example());
@@ -70,7 +70,7 @@ public class MasterExchangeSourceTest {
 
   @Test
   public void test_getExchange_notFound() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
     when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
@@ -84,7 +84,7 @@ public class MasterExchangeSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSingleExchange_Identifier_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -105,7 +105,7 @@ public class MasterExchangeSourceTest {
 
   @Test
   public void test_getSingleExchange_Identifier_noFound() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -126,7 +126,7 @@ public class MasterExchangeSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSingleExchange_IdentifierBundle_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);

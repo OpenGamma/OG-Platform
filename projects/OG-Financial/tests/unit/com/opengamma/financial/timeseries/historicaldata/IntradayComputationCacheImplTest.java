@@ -106,7 +106,7 @@ public class IntradayComputationCacheImplTest extends DBTest {
   
   @Test
   public void getValue() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     
     assertFalse(_intradayComputationCache.isRunning());    
     
@@ -119,8 +119,8 @@ public class IntradayComputationCacheImplTest extends DBTest {
     result.setViewName("MockView");
     result.setCalculationConfigurationNames(Collections.singleton("Default"));
     
-    result.setResultTimestamp(Instant.nowSystemClock());
-    result.setValuationTime(Instant.nowSystemClock());
+    result.setResultTimestamp(Instant.now());
+    result.setValuationTime(Instant.now());
     
     result.addValue("Default", new ComputedValue(spec, 11.00));
     
