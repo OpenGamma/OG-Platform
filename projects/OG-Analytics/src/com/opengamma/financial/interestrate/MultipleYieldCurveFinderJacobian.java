@@ -67,7 +67,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
 
     final double[][] res = new double[_data.getNumInstruments()][totalNodes];
     for (int i = 0; i < _data.getNumInstruments(); i++) { // loop over all instruments
-      final Map<String, List<DoublesPair>> senseMap = _calculator.getValue(_data.getDerivative(i), curves);
+      final Map<String, List<DoublesPair>> senseMap = _calculator.visit(_data.getDerivative(i), curves);
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {

@@ -31,7 +31,8 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.BondZSpreadCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -42,7 +43,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
-
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
   private final String _curveName;
   private final String _requirementName;
 
@@ -84,7 +85,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
       throw new NullPointerException("Could not get " + priceRequirement);
     }
     final double cleanPrice = (Double) priceObject;
-    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
+    final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
 
     final Double zSpread = new BondZSpreadCalculator().calculate(bond, bundle, dirtyPrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueIdentifier());

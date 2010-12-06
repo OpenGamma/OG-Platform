@@ -39,7 +39,7 @@ public class BondYieldCalculatorTest {
     BUNDLE.setCurve(CURVE_NAME, CURVE);
 
     BOND = new Bond(paymentTimes, 0.0, CURVE_NAME);
-    final double rate = PRC.getValue(BOND, BUNDLE);
+    final double rate = PRC.visit(BOND, BUNDLE);
     BOND = new Bond(paymentTimes, rate, CURVE_NAME);
   }
 

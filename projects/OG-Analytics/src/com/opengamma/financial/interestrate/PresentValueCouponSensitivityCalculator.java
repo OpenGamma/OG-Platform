@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
@@ -14,20 +13,17 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
-import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * 
  */
-public final class PresentValueCouponSensitivityCalculator implements InterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PresentValueCouponSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
 
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator s_instance = new PresentValueCouponSensitivityCalculator();
@@ -40,7 +36,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double getValue(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+  public Double visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(ird);
     return ird.accept(this, curves);
@@ -48,7 +44,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
 
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final double pvann = PVC.getValue(bond.getUnitCouponAnnuity(), curves);
+    final double pvann = PVC.visit(bond.getUnitCouponAnnuity(), curves);
     return pvann;
   }
 
@@ -76,13 +72,7 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    return -PVC.getValue(swap.getFixedLeg().withRate(1.0), curves);
-  }
-
-  @Override
-  public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle data) {
-    throw new NotImplementedException();
-
+    return -PVC.visit(swap.getFixedLeg().withRate(1.0), curves);
   }
 
   @Override
@@ -93,13 +83,13 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   /**
    * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
    * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
-   *@param swap 
+   * @param swap 
    * @param curves 
-   *@return  The spread on the receive leg of a basis swap 
+   * @return  The spread on the receive leg of a basis swap 
    */
   @Override
   public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
-    return PVC.getValue(((ForwardLiborAnnuity) swap.getReceiveLeg()).withUnitCoupons(), curves);
+    return PVC.visit(((ForwardLiborAnnuity) swap.getReceiveLeg()).withUnitCoupons(), curves);
   }
 
   @Override
@@ -108,40 +98,12 @@ public final class PresentValueCouponSensitivityCalculator implements InterestRa
   }
 
   @Override
-  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
     double sum = 0;
     for (final Payment p : annuity.getPayments()) {
-      sum += getValue(p, data);
+      sum += visit(p, data);
     }
     return sum;
   }
-
-  @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
-    throw new NotImplementedException();
-  }
-
-  // @Override
-  // public Double visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
-  // return visitFixedAnnuity(annuity, curves);
-  // }
-  //
-  // @Override
-  // public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
-  // final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
-  // return res;
-  // }
-  //
-  // @Override
-  // public Double visitVariableAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
-  // final double res = PVC.getValue(annuity.withUnitCoupons(), curves);
-  // return res;
-  // }
-  //  
 
 }

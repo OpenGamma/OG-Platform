@@ -34,17 +34,16 @@ public class FixedFloatSwap extends FixedCouponSwap<ForwardLiborPayment> {
    * @param liborCurveName Name of curve from which forward rates are calculated
    * @see #FixedFloatSwap(FixedCouponAnnuity,ForwardLiborAnnuity)
    */
-  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, double couponRate, String fundingCurveName, String liborCurveName) {
+  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName) {
     this(new FixedCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new ForwardLiborAnnuity(floatingPaymentTimes, fundingCurveName, liborCurveName));
   }
 
   public ForwardLiborAnnuity getFloatingLeg() {
     return (ForwardLiborAnnuity) getReceiveLeg();
-    // return new ForwardLiborAnnuity(getReceiveLeg().getPayments());
   }
 
   @Override
-  public FixedFloatSwap withRate(double rate) {
+  public FixedFloatSwap withRate(final double rate) {
     return new FixedFloatSwap(getFixedLeg().withRate(rate), getReceiveLeg());
   }
 

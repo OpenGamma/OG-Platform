@@ -129,7 +129,7 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
       final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
       bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
     }
-    final Double parRate = CALCULATOR.getValue(swap, bundle);
+    final Double parRate = CALCULATOR.visit(swap, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, position), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, parRate));
   }

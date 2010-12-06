@@ -20,10 +20,9 @@ public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
   }
 
   private static GenericAnnuity<FixedPayment> setUpFixedLeg(final GenericAnnuity<ForwardLiborPayment> annuity) {
-
-    String curveName = annuity.getNthPayment(0).getFundingCurveName();
-    double notional = annuity.getNthPayment(0).getNotional();
-    FixedPayment[] fixedPayments = new FixedPayment[2];
+    final String curveName = annuity.getNthPayment(0).getFundingCurveName();
+    final double notional = annuity.getNthPayment(0).getNotional();
+    final FixedPayment[] fixedPayments = new FixedPayment[2];
     fixedPayments[0] = new FixedPayment(0, notional, curveName);
     fixedPayments[1] = new FixedPayment(annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
 
@@ -31,7 +30,7 @@ public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFloatingRateNote(this, data);
   }
 

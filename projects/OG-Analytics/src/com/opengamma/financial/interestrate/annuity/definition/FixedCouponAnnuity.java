@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A wrapper class for a GenericAnnuity containing FixedCouponPayment
@@ -38,14 +37,13 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
 
   private static FixedCouponPayment[] setup(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yearFractions);
-    ArgumentChecker.notEmpty(yearFractions, "year fraction");
+    Validate.isTrue(yearFractions.length > 0, "year fraction array is empty");
     Validate.notNull(yieldCurveName);
-    int n = paymentTimes.length;
+    final int n = paymentTimes.length;
     Validate.isTrue(yearFractions.length == n);
-
-    FixedCouponPayment[] temp = new FixedCouponPayment[n];
+    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = new FixedCouponPayment(paymentTimes[i], notional, yearFractions[i], couponRate, yieldCurveName);
     }
@@ -54,9 +52,9 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
 
   private static double[] setupBasisYearFraction(final double[] paymentTimes) {
     Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    int n = paymentTimes.length;
-    double[] res = new double[n];
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    final int n = paymentTimes.length;
+    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
       res[i] = (i == 0 ? paymentTimes[0] : paymentTimes[i] - paymentTimes[i - 1]);
     }
@@ -64,10 +62,10 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
   }
 
   @Override
-  public FixedCouponAnnuity withRate(double rate) {
-    FixedCouponPayment[] payments = getPayments();
-    int n = payments.length;
-    FixedCouponPayment[] temp = new FixedCouponPayment[n];
+  public FixedCouponAnnuity withRate(final double rate) {
+    final FixedCouponPayment[] payments = getPayments();
+    final int n = payments.length;
+    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = payments[i].withRate(rate);
     }

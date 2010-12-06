@@ -24,93 +24,73 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 /**
  * 
  */
-public class LastDateCalculator implements InterestRateDerivativeVisitor<Object, Double> {
-
-  public Double getValue(InterestRateDerivative ird) {
-    return getValue(ird, null);
-  }
+public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
 
   @Override
-  public Double getValue(InterestRateDerivative ird, Object data) {
+  public Double visit(final InterestRateDerivative ird, final Object data) {
     Validate.notNull(ird, "ird");
-    return ird.accept(this, null);
+    return ird.accept(this);
   }
 
   @Override
-  public Double visitTenorSwap(TenorSwap swap, Object data) {
-    return visitSwap(swap, data);
+  public Double visitTenorSwap(final TenorSwap swap) {
+    return visitSwap(swap);
   }
 
   @Override
-  public Double visitBond(Bond bond, Object data) {
+  public Double visitBond(final Bond bond) {
     return bond.getPrinciplePayment().getPaymentTime();
   }
 
   @Override
-  public Double visitCash(Cash cash, Object data) {
+  public Double visitCash(final Cash cash) {
     return cash.getMaturity();
   }
 
   @Override
-  public Double visitFixedCouponSwap(FixedCouponSwap<?> swap, Object data) {
-    return visitSwap(swap, data);
+  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap) {
+    return visitSwap(swap);
   }
 
   @Override
-  public Double visitFloatingRateNote(FloatingRateNote frn, Object data) {
-    return visitSwap(frn, data);
+  public Double visitFloatingRateNote(final FloatingRateNote frn) {
+    return visitSwap(frn);
   }
 
   @Override
-  public Double visitForwardRateAgreement(ForwardRateAgreement fra, Object data) {
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra) {
     return fra.getMaturity();
   }
 
   @Override
-  public Double visitInterestRateFuture(InterestRateFuture future, Object data) {
+  public Double visitInterestRateFuture(final InterestRateFuture future) {
     return future.getMaturity();
   }
 
   @Override
-  public Double visitFixedPayment(FixedPayment payment, Object data) {
+  public Double visitFixedPayment(final FixedPayment payment) {
     return payment.getPaymentTime();
   }
 
   @Override
-  public Double visitForwardLiborPayment(ForwardLiborPayment payment, Object data) {
+  public Double visitForwardLiborPayment(final ForwardLiborPayment payment) {
     return Math.max(payment.getLiborMaturityTime(), payment.getPaymentTime());
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, Object data) {
-    return getValue(annuity.getNthPayment(annuity.getNumberOfPayments() - 1), data);
+  public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity) {
+    return visit(annuity.getNthPayment(annuity.getNumberOfPayments() - 1));
   }
 
   @Override
-  public Double visitSwap(Swap<?, ?> swap, Object data) {
-    double a = getValue(swap.getPayLeg(), data);
-    double b = getValue(swap.getReceiveLeg(), data);
+  public Double visitSwap(final Swap<?, ?> swap) {
+    final double a = visit(swap.getPayLeg());
+    final double b = visit(swap.getReceiveLeg());
     return Math.max(a, b);
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, Object data) {
+  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
     return payment.getPaymentTime();
   }
-
-  // @Override
-  // public Double visitConstantCouponAnnuity(FixedCouponAnnuity annuity, Object data) {
-  // return annuity.getPaymentTimes()[annuity.getNumberOfPayments() - 1];
-  // }
-  //
-  // @Override
-  // public Double visitFixedAnnuity(FixedAnnuity annuity, Object data) {
-  // return annuity.getPaymentTimes()[annuity.getNumberOfPayments() - 1];
-  // }
-  //
-  // @Override
-  // public Double visitVariableAnnuity(ForwardLiborAnnuity annuity, Object data) {
-  // int nPay = annuity.getNumberOfPayments();
-  // return Math.max(annuity.getPaymentTimes()[nPay - 1], annuity.getIndexMaturityTimes()[nPay - 1]);
-  // }
 }

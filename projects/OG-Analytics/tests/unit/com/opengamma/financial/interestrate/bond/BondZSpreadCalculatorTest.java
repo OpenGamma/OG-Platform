@@ -41,7 +41,7 @@ public class BondZSpreadCalculatorTest {
     BUNDLE.setCurve("6% curve", new YieldCurve(ConstantDoublesCurve.from(0.06)));
 
     BOND = new Bond(paymentTimes, 0.0, "6% curve");
-    final double rate = PRC.getValue(BOND, BUNDLE);
+    final double rate = PRC.visit(BOND, BUNDLE);
     BOND = new Bond(paymentTimes, rate, CURVE_NAME);
   }
 

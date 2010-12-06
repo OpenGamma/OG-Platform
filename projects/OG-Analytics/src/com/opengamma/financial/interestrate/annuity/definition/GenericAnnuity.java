@@ -22,14 +22,11 @@ import com.opengamma.financial.interestrate.payments.Payment;
  * @param <P> The payment type 
  */
 public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
-
   private final P[] _payments;
 
   public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
-
     _payments = payments;
-
   }
 
   @SuppressWarnings("unchecked")
@@ -89,6 +86,11 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitGenericAnnuity(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitGenericAnnuity(this);
   }
 
 }

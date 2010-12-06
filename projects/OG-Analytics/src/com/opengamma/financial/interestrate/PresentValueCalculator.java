@@ -25,8 +25,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 /**
  * 
  */
-public final class PresentValueCalculator implements InterestRateDerivativeVisitor<YieldCurveBundle, Double> {
-
+public final class PresentValueCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator s_instance = new PresentValueCalculator();
 
   public static PresentValueCalculator getInstance() {
@@ -37,7 +36,7 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
   }
 
   @Override
-  public Double getValue(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
+  public Double visit(final InterestRateDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
@@ -73,8 +72,8 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    final double pvPay = getValue(swap.getPayLeg(), curves);
-    final double pvReceive = getValue(swap.getReceiveLeg(), curves);
+    final double pvPay = visit(swap.getPayLeg(), curves);
+    final double pvReceive = visit(swap.getReceiveLeg(), curves);
     return pvReceive - pvPay;
   }
 
@@ -95,34 +94,34 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
 
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
-    return getValue(bond.getAnnuity(), curves);
+    return visit(bond.getAnnuity(), curves);
   }
 
   @Override
-  public Double visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, YieldCurveBundle data) {
+  public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
     double pv = 0;
-    for (Payment p : annuity.getPayments()) {
-      pv += getValue(p, data);
+    for (final Payment p : annuity.getPayments()) {
+      pv += visit(p, data);
     }
     return pv;
   }
 
   @Override
-  public Double visitFixedPayment(FixedPayment payment, YieldCurveBundle data) {
-    YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
+  public Double visitFixedPayment(final FixedPayment payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     return payment.getAmount() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
   @Override
-  public Double visitForwardLiborPayment(ForwardLiborPayment payment, YieldCurveBundle data) {
+  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve liborCurve = data.getCurve(payment.getLiborCurveName());
-    double forward = (liborCurve.getDiscountFactor(payment.getLiborFixingTime()) / liborCurve.getDiscountFactor(payment.getLiborMaturityTime()) - 1) / payment.getForwardYearFraction();
+    final double forward = (liborCurve.getDiscountFactor(payment.getLiborFixingTime()) / liborCurve.getDiscountFactor(payment.getLiborMaturityTime()) - 1) / payment.getForwardYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
   @Override
-  public Double visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, YieldCurveBundle data) {
+  public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();
@@ -130,41 +129,5 @@ public final class PresentValueCalculator implements InterestRateDerivativeVisit
     final double avRate = (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
     return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (avRate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
-
-  // @Override
-  // public Double visitFixedAnnuity(final FixedAnnuity annuity, final YieldCurveBundle curves) {
-  // Validate.notNull(annuity);
-  // Validate.notNull(curves);
-  // final YieldAndDiscountCurve curve = curves.getCurve(annuity.getFundingCurveName());
-  // final double[] t = annuity.getPaymentTimes();
-  // final double[] c = annuity.getPaymentAmounts();
-  // final int n = annuity.getNumberOfPayments();
-  // double res = 0;
-  // for (int i = 0; i < n; i++) {
-  // res += c[i] * curve.getDiscountFactor(t[i]);
-  // }
-  // return res;
-  // }
-  //
-  // @Override
-  // public Double visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
-  // return visitFixedAnnuity(annuity, curves);
-  // }
-  //
-  // @Override
-  // public Double visitVariableAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
-  //
-  // final YieldAndDiscountCurve fundCurve = curves.getCurve(annuity.getFundingCurveName());
-  // final double[] libors = AnnuityCalculations.getLiborRates(annuity, curves);
-  // final double[] t = annuity.getPaymentTimes();
-  // final double[] spreads = annuity.getSpreads();
-  // final double[] alpha = annuity.getYearFractions();
-  // final int n = annuity.getNumberOfPayments();
-  // double res = 0;
-  // for (int i = 0; i < n; i++) {
-  // res += (libors[i] + spreads[i]) * alpha[i] * fundCurve.getDiscountFactor(t[i]);
-  // }
-  // return res * annuity.getNotional();
-  // }
 
 }

@@ -18,7 +18,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -29,6 +30,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class BondYieldFunction extends BondFunction {
   private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getCalculator(BondCalculatorFactory.DIRTY_PRICE);
 
   public BondYieldFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
@@ -48,7 +50,7 @@ public class BondYieldFunction extends BondFunction {
       throw new IllegalArgumentException("Can only handle SimpleFrequency and PeriodFrequency");
     }
     final double cleanPrice = (Double) value;
-    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
+    final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     double yield = CALCULATOR.calculate(bond, dirtyPrice);
     yield = paymentsPerYear * (Math.exp(yield / paymentsPerYear) - 1.0); //TODO this really shouldn't be done in here
     //TODO not correct for USD in last coupon period - need money market yield then

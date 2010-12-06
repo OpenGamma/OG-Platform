@@ -64,7 +64,7 @@ public final class ZSpreadCalculator {
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
-      double temp = s_pvc.getValue(payment, curves);
+      double temp = s_pvc.visit(payment, curves);
       sum += temp * Math.exp(-zSpread * payment.getPaymentTime());
     }
     return sum;
@@ -80,7 +80,7 @@ public final class ZSpreadCalculator {
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
-      double temp = s_pvc.getValue(payment, curves);
+      double temp = s_pvc.visit(payment, curves);
       double time = payment.getPaymentTime();
       sum -= time * temp * Math.exp(-zSpread * time);
     }
@@ -91,7 +91,7 @@ public final class ZSpreadCalculator {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
-    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
+    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().visit(annuity, curves);
     if (zSpread == 0.0) {
       return temp;
     }
@@ -115,7 +115,7 @@ public final class ZSpreadCalculator {
     double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
     Validate.isTrue(dPricedZ != 0.0, "Price Sensitivity To ZSpread is zero");
 
-    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().getValue(annuity, curves);
+    Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().visit(annuity, curves);
 
     Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (String name : temp.keySet()) {
