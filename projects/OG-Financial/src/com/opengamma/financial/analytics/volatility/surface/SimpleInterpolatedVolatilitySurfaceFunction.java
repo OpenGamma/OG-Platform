@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +20,10 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.config.ConfigSource;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -48,6 +49,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
    */
   public static final String PROPERTY_SURFACE_DEFINITION_NAME = "NAME";
 
+  @SuppressWarnings("unused")
   private String _interpolator;
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
@@ -83,7 +85,6 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     return _specificationName;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -158,7 +159,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
-        final Map<Pair<Object, Object>, Double> volatilityValues = new TreeMap<Pair<Object, Object>, Double>();
+        final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
             Identifier identifier = ((SurfaceInstrumentProvider<Object, Object>)_specification.getSurfaceInstrumentProvider()).getInstrument(x, y);

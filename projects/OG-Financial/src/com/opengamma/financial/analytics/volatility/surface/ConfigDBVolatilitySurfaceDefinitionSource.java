@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 import javax.time.Instant;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.engine.config.ConfigSource;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
