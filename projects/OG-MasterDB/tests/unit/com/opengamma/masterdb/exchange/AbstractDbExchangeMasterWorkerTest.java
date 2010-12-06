@@ -71,7 +71,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
 //    name varchar(255) not null,
 //    time_zone varchar(255),
 //    detail blob not null,
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     _exgMaster.setTimeSource(TimeSource.fixed(now));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);

@@ -176,8 +176,8 @@ public interface ValueRequirementNames {
   // History
   public static final String PRICE_SERIES = "Price Series";
   public static final String RETURN_SERIES = "Return Series";
-  public static final String PNL = "P&L";
   public static final String PNL_SERIES = "P&L Series";
+  public static final String PNL = "PnL";
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
   public static final String SKEW = "Skew";
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";

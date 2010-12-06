@@ -54,8 +54,6 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private final Timer _timer = new Timer("LiveDataClient Timer");
   private HeartbeatSender _heartbeatSender;
   private final Lock _subscriptionLock = new ReentrantLock();
-  private final Set<SubscriptionHandle> _pendingSubscriptions =
-    new HashSet<SubscriptionHandle>();
   private final Map<LiveDataSpecification, Set<SubscriptionHandle>> _fullyQualifiedSpec2PendingSubscriptions =
     new HashMap<LiveDataSpecification, Set<SubscriptionHandle>>();
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
@@ -145,8 +143,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
       SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
-      subscriptionHandles.add(subHandle);                      
-      addPendingSubscription(subHandle);
+      subscriptionHandles.add(subHandle);
     }
     
     if (!subscriptionHandles.isEmpty()) {
@@ -265,54 +262,37 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    _subscriptionLock.lock();
-    try {
+    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
+      // Atomically (to valueUpdate callers) turn the pending subscription into a full subscription.
+      // REVIEW jonathan 2010-12-01 -- rearranged this so that the internal _subscriptionLock is not being held while
+      // releasing ticks to listeners, which is a recipe for deadlock.
       removePendingSubscription(subHandle);
-      _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
-      getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
-
-    } finally {
-      _subscriptionLock.unlock();
+      subHandle.releaseTicksOnHold();
+      _subscriptionLock.lock();
+      try {
+        _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
+        getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
+      } finally {
+        _subscriptionLock.unlock();
+      }
     }
   }
   
   protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    _subscriptionLock.lock();
-    try {
-      removePendingSubscription(subHandle);
-    } finally {
-      _subscriptionLock.unlock();
-    }
-  }
-  
-  protected void addPendingSubscription(SubscriptionHandle subHandle) {
-    _subscriptionLock.lock();
-    try {
-      _pendingSubscriptions.add(subHandle);
-    } finally {
-      _subscriptionLock.unlock();
-    }
+    removePendingSubscription(subHandle);
   }
   
   protected void removePendingSubscription(SubscriptionHandle subHandle) {
-    _subscriptionLock.lock();
-    try {
-      _pendingSubscriptions.remove(subHandle);
-      
-      synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
-        for (Iterator<Set<SubscriptionHandle>> iterator = _fullyQualifiedSpec2PendingSubscriptions.values().iterator(); iterator.hasNext(); ) {
-          Set<SubscriptionHandle> handleSet = iterator.next();
-          boolean removed = handleSet.remove(subHandle);
-          if (removed && handleSet.isEmpty()) {
-            iterator.remove();
-          }
+    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
+      for (Iterator<Set<SubscriptionHandle>> iterator = _fullyQualifiedSpec2PendingSubscriptions.values().iterator(); iterator.hasNext(); ) {
+        Set<SubscriptionHandle> handleSet = iterator.next();
+        boolean removed = handleSet.remove(subHandle);
+        if (removed && handleSet.isEmpty()) {
+          iterator.remove();
         }
-        
-        subHandle.releaseTicksOnHold();
       }
-    
-    } finally {
-      _subscriptionLock.unlock();
+      
+
     }
   }
   

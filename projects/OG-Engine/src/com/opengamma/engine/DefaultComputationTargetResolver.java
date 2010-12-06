@@ -5,17 +5,22 @@
  */
 package com.opengamma.engine;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
@@ -154,10 +159,38 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
             final PositionImpl newPosition = new PositionImpl(position);
             newPosition.setSecurity(security);
+            Set<Trade> newTrades = Sets.newHashSet();
+            for (Trade trade : position.getTrades()) {
+              final ComputationTarget resolvedTrade = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
+              newTrades.add(resolvedTrade.getTrade());
+            }
+            newPosition.setTrades(newTrades);
             position = newPosition;
           }
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
+      }
+      case TRADE: {
+        checkSecuritySource(ComputationTargetType.TRADE);
+        checkPositionSource(ComputationTargetType.TRADE);
+        Trade trade = getPositionSource().getTrade(uid);
+        if (trade == null) {
+          s_logger.info("Unable to resolve trade UID {}", uid);
+          return null;
+        }
+        s_logger.info("Resolved trade UID {} to trade {}", uid, trade);
+        if (trade.getSecurity() == null) {
+          Security security = getSecuritySource().getSecurity(trade.getSecurityKey());
+          if (security == null) {
+            s_logger.warn("Unable to resolve security ID {} for trade UID {}", trade.getSecurityKey(), uid);
+          } else {
+            s_logger.info("Resolved security ID {} to security {}", trade.getSecurityKey(), security);
+            final TradeImpl newTrade = new TradeImpl(trade);
+            newTrade.setSecurity(security);
+            trade = newTrade;
+          }
+        }
+        return new ComputationTarget(ComputationTargetType.TRADE, trade);
       }
       case PORTFOLIO_NODE: {
         checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);

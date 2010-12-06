@@ -64,7 +64,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
 //    corr_to_instant timestamp not null,
 //    name varchar(255) not null,
 //    sec_type varchar(255) not null,
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     _secMaster.setTimeSource(TimeSource.fixed(now));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);

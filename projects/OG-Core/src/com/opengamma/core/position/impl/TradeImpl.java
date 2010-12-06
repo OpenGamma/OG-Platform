@@ -126,6 +126,22 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _securityKey = security.getIdentifiers();
   }
   
+  /**
+   * Construct a mutable trade copying data from another, possibly immutable, {@link Trade} implementation.
+   * 
+   * @param copyFrom instance to copy fields from, not null
+   */
+  public TradeImpl(final Trade copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _identifier = copyFrom.getUniqueIdentifier();
+    _quantity = copyFrom.getQuantity();
+    _counterparty = copyFrom.getCounterparty();
+    _tradeInstant = copyFrom.getTradeInstant();
+    _position = copyFrom.getPosition();
+    _securityKey = copyFrom.getSecurityKey();
+    _security = copyFrom.getSecurity();
+  }
+
   @Override
   public BigDecimal getQuantity() {
     return _quantity;
@@ -191,6 +207,15 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   @Override
   public UniqueIdentifier getPosition() {
     return _position;
+  }
+  
+  /**
+   * Sets the parent position identifier.
+   * @param positionUid  the position uid, not null
+   */
+  public void setPosition(UniqueIdentifier positionUid) {
+    ArgumentChecker.notNull(positionUid, "position uid");
+    _position = positionUid;
   }
   
   @Override

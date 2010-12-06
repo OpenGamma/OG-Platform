@@ -75,27 +75,39 @@ public class UsersResource {
     }
   }
 
-  public Runnable createDeleteTask() {
-    return new Runnable() {
+  public DeleteClientsRunnable createDeleteTask() {
+    return new DeleteClientsRunnable();
+  }
 
-      private long _timeout = 1800000; // 30m default
+  /**
+   * Runnable to delete clients.
+   */
+  class DeleteClientsRunnable implements Runnable {
+    /**
+     * The timeout.
+     */
+    private long _timeoutMillis = 1800000; // 30m default
 
-      @Override
-      public void run() {
-        deleteClients(System.currentTimeMillis() - _timeout);
-      }
+    @Override
+    public void run() {
+      deleteClients(System.currentTimeMillis() - _timeoutMillis);
+    }
 
-      @SuppressWarnings("unused")
-      public void setTimeout(final long timeout) {
-        _timeout = timeout * 1000;
-      }
+    /**
+     * Sets the timeout.
+     * @param timeoutSecs  the timeout seconds
+     */
+    public void setTimeout(final long timeoutSecs) {
+      _timeoutMillis = timeoutSecs * 1000;
+    }
 
-      @SuppressWarnings("unused")
-      public void setScheduler(final ScheduledExecutorService scheduler) {
-        scheduler.scheduleWithFixedDelay(this, _timeout, _timeout, TimeUnit.MILLISECONDS);
-      }
-
-    };
+    /**
+     * Sets the scheduler.
+     * @param scheduler  the scheduler, not null
+     */
+    public void setScheduler(final ScheduledExecutorService scheduler) {
+      scheduler.scheduleWithFixedDelay(this, _timeoutMillis, _timeoutMillis, TimeUnit.MILLISECONDS);
+    }
   }
 
 }

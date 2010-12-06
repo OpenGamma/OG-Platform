@@ -97,7 +97,7 @@ public class CachingFunctionRepositoryCompilerTest {
     functions.addFunction (validWithin);
     final CachingFunctionRepositoryCompiler compiler = new CachingFunctionRepositoryCompiler();
     final CompiledFunctionService context = new CompiledFunctionService (functions, compiler, new FunctionCompilationContext ());
-    final Instant timestamp = Instant.nowSystemClock();
+    final Instant timestamp = Instant.now();
 
     // Everything compiled once
     final CompiledFunctionRepository compiledFunctionsNow = context.compileFunctionRepository(timestamp);

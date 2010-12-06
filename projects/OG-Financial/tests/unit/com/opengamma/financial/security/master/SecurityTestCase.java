@@ -281,7 +281,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(DateProvider.class, new TestDataProvider<DateProvider>() {
       @Override
       public void getValues(final Collection<DateProvider> values) {
-        values.add(LocalDate.nowSystemClock());
+        values.add(LocalDate.now());
         // TODO: random date in the past
         // TODO: random date in the future
       }
@@ -289,7 +289,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(TimeProvider.class, new TestDataProvider<TimeProvider>() {
       @Override
       public void getValues(final Collection<TimeProvider> values) {
-        values.add(LocalTime.nowSystemClock().withNanoOfSecond(0));
+        values.add(LocalTime.now().withNanoOfSecond(0));
         // TODO: random time in the past
         // TODO: random time in the future
       }

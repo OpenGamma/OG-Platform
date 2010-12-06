@@ -107,7 +107,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     
     final T value = document.getValue();
     final UniqueIdentifier uid = _uidSupplier.get();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     UniqueIdentifiables.setInto(value, uid);
     final ConfigDocument<T> doc = new ConfigDocument<T>();
     doc.setName(document.getName());
@@ -126,7 +126,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document.getConfigId(), "document.configId");
     
     final UniqueIdentifier uid = document.getConfigId();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final ConfigDocument<T> storedDocument = _configs.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Config not found: " + uid);

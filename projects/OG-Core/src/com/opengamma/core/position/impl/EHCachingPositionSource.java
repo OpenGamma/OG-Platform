@@ -79,6 +79,7 @@ public class EHCachingPositionSource implements PositionSource {
     EHCacheUtils.addCache(cacheManager, PORTFOLIO_CACHE);
     EHCacheUtils.addCache(cacheManager, PORTFOLIONODE_CACHE);
     EHCacheUtils.addCache(cacheManager, POSITION_CACHE);
+    EHCacheUtils.addCache(cacheManager, TRADE_CACHE);
     _portfolio = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIO_CACHE);
     _portfolioNode = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
     _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
@@ -169,6 +170,18 @@ public class EHCachingPositionSource implements PositionSource {
       }
       return t;
     }
+  }
+  
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache.
+   * It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _cacheManager.removeCache(PORTFOLIO_CACHE);
+    _cacheManager.removeCache(PORTFOLIONODE_CACHE);
+    _cacheManager.removeCache(POSITION_CACHE);
+    _cacheManager.removeCache(TRADE_CACHE);
+    _cacheManager.shutdown();
   }
   
   

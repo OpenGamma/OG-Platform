@@ -22,43 +22,12 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * Fundamentally, this is nothing other than a type-safe wrapper on top of
  * a name describing the identification scheme.
- * <p/>
- * Real-world examples of a scheme include:
- * <ul>
- *   <li>ISIN, CUSIP for globally unique identifiers on traded securities.</li>
- *   <li>A trading system instance name for trades and positions.</li>
- *   <li>RIC for a Reuters-provided market data object.</li>
- * </ul>
  * <p>
  * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
-  /**
-   * Scheme for Bloomberg BUIDs.
-   */
-  public static final IdentificationScheme BLOOMBERG_BUID = new IdentificationScheme("BLOOMBERG_BUID");
-  /**
-   * Scheme for Bloomberg tickers.
-   */
-  public static final IdentificationScheme BLOOMBERG_TICKER = new IdentificationScheme("BLOOMBERG_TICKER");
-  /**
-   * Scheme for CUSIPs.
-   */
-  public static final IdentificationScheme CUSIP = new IdentificationScheme("CUSIP");
-  /**
-   * Scheme for ISIN.
-   */
-  public static final IdentificationScheme ISIN = new IdentificationScheme("ISIN");
-  /**
-   * Scheme for Reuters RICs.
-   */
-  public static final IdentificationScheme RIC = new IdentificationScheme("RIC");
-  /**
-   * Scheme for SEDOL1.
-   */
-  public static final IdentificationScheme SEDOL1 = new IdentificationScheme("SEDOL1");
   /**
    * Computing cache for the schemes.
    */

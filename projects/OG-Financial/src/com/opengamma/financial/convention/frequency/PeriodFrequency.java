@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.time.calendar.Period;
@@ -15,7 +16,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Frequency convention implementation using {@code Period}.
  */
-public final class PeriodFrequency implements Frequency {
+public final class PeriodFrequency implements Frequency, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * A frequency with a period of one year.

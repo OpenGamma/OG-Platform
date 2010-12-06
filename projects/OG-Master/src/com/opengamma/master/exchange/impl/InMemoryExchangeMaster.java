@@ -123,7 +123,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueIdentifier(uid);
     document.setUniqueId(uid);
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final ExchangeDocument doc = new ExchangeDocument();
     doc.setExchange(exchange);
     doc.setUniqueId(uid);
@@ -141,7 +141,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     final UniqueIdentifier uid = document.getUniqueId();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final ExchangeDocument storedDocument = _exchanges.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Exchange not found: " + uid);
