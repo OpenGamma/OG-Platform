@@ -7,7 +7,7 @@
 /**
  * Introduce the DayCount element as a Fudge-Proto identifier.
  */
-namespace com.opengamma.financial.convention.daycount {
+namespace com.opengamma.core.convention {
 
   extern typedef DayCount = string;
 

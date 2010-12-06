@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.core.convention.DayCount;
+
 /**
  * Test ActualThreeSixty.
  */

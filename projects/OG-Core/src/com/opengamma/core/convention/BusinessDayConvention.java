@@ -3,13 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention.businessday;
+package com.opengamma.core.convention;
 
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * Convention for handling business days.

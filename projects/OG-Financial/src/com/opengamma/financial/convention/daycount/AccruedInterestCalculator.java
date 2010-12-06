@@ -12,6 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.core.convention.DayCount;
 import com.opengamma.financial.analytics.securityconverters.StubCalculator;
 import com.opengamma.financial.analytics.securityconverters.StubType;
 

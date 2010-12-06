@@ -14,6 +14,8 @@ import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
 
+import com.opengamma.core.convention.Calendar;
+
 /**
  * Test Calendar.
  */

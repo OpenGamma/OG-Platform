@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.timeseries;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.core.convention.Calendar;
 
 /**
  * 

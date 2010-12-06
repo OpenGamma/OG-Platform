@@ -17,7 +17,7 @@ import static com.opengamma.financial.security.master.db.hibernate.Converters.zo
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.core.convention.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;

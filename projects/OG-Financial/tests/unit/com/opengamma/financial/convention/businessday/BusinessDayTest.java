@@ -13,7 +13,8 @@ import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
 
-import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.core.convention.BusinessDayConvention;
+import com.opengamma.core.convention.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarFactory;
 
 /**

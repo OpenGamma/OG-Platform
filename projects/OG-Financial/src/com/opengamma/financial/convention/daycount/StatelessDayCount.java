@@ -9,6 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.core.convention.DayCount;
+
 /**
  * Base class providing a hash and equality test based on the class.
  */

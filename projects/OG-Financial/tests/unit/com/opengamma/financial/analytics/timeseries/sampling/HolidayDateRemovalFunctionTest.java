@@ -12,9 +12,9 @@ import javax.time.calendar.LocalDate;
 
 import org.junit.Test;
 
+import com.opengamma.core.convention.Calendar;
 import com.opengamma.financial.analytics.timeseries.DailyScheduleCalculator;
 import com.opengamma.financial.analytics.timeseries.Schedule;
-import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * 

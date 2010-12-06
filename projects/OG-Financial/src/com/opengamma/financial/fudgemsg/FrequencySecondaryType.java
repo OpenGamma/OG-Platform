@@ -9,7 +9,7 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 
 /**

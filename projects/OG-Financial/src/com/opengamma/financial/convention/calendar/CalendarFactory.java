@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.convention.Calendar;
 
 /**
  * Factory to obtain instances of {@code Calendar}.
