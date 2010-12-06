@@ -40,7 +40,7 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
   @GET
   public String get() {
     ConfigHistoryRequest request = new ConfigHistoryRequest();
-    request.setConfigId(data().getConfig().getUniqueId());
+    request.setObjectId(data().getConfig().getUniqueId());
     ConfigHistoryResult<T> result = data().getConfigTypeMaster().history(request);
     
     FlexiBean out = createRootData();

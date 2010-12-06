@@ -214,8 +214,8 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getConfigId(), "request.configId");
-    checkScheme(request.getConfigId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryWorker().history(request);
   }

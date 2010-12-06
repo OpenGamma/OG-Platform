@@ -450,7 +450,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     // from infinity to infinity
     ConfigHistoryRequest historicRequest = new ConfigHistoryRequest();
-    historicRequest.setConfigId(doc1.getUniqueId());
+    historicRequest.setObjectId(doc1.getUniqueId());
     ConfigHistoryResult<T> searchHistoric = _configMaster.history(historicRequest);
     List<ConfigDocument<T>> allDocs = searchHistoric.getDocuments();
     assertNotNull(allDocs);
@@ -461,7 +461,7 @@ public abstract class MongoDBConfigTypeMasterTestCase<T extends Serializable> {
     
     // whole range
     historicRequest = new ConfigHistoryRequest();
-    historicRequest.setConfigId(doc1.getUniqueId());
+    historicRequest.setObjectId(doc1.getUniqueId());
     historicRequest.setVersionsFromInstant(Instant.EPOCH);
     historicRequest.setVersionsToInstant(Instant.EPOCH.plusSeconds(6));
     searchHistoric = _configMaster.history(historicRequest);

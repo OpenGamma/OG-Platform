@@ -379,11 +379,11 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getConfigId(), "request.configId");
-    checkScheme(request.getConfigId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     DBObject queryObj = new BasicDBObject();
-    queryObj.put(OID_FIELD_NAME, request.getConfigId().getValue());
+    queryObj.put(OID_FIELD_NAME, request.getObjectId().getValue());
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
       queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(request.getVersionsFromInstant().toEpochMillisLong())));

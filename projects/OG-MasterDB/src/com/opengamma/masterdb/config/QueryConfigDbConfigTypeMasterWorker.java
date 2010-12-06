@@ -164,7 +164,7 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
   protected ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     s_logger.debug("historyConfig: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("config_oid", extractOid(request.getConfigId()))
+      .addValue("config_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addValue("config_type", getMaster().getReifiedType().getName());

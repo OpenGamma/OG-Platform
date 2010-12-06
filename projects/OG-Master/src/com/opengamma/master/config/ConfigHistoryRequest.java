@@ -47,7 +47,7 @@ public class ConfigHistoryRequest extends DirectBean {
    * The configuration object identifier to match.
    */
   @PropertyDefinition
-  private UniqueIdentifier _configId;
+  private UniqueIdentifier _objectId;
   /**
    * The instant to retrieve versions on or after (inclusive).
    * If this instant equals the {@code versionsToInstant} the search is at a single instant.
@@ -86,7 +86,7 @@ public class ConfigHistoryRequest extends DirectBean {
    * @param versionInstantProvider  the version instant to retrieve, null for all versions
    */
   public ConfigHistoryRequest(final UniqueIdentifier oid, InstantProvider versionInstantProvider) {
-    setConfigId(oid);
+    setObjectId(oid);
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
       setVersionsFromInstant(versionInstant);
@@ -114,8 +114,8 @@ public class ConfigHistoryRequest extends DirectBean {
     switch (propertyName.hashCode()) {
       case -2092032669:  // pagingRequest
         return getPagingRequest();
-      case -580140035:  // configId
-        return getConfigId();
+      case 90495162:  // objectId
+        return getObjectId();
       case 825630012:  // versionsFromInstant
         return getVersionsFromInstant();
       case 288644747:  // versionsToInstant
@@ -130,8 +130,8 @@ public class ConfigHistoryRequest extends DirectBean {
       case -2092032669:  // pagingRequest
         setPagingRequest((PagingRequest) newValue);
         return;
-      case -580140035:  // configId
-        setConfigId((UniqueIdentifier) newValue);
+      case 90495162:  // objectId
+        setObjectId((UniqueIdentifier) newValue);
         return;
       case 825630012:  // versionsFromInstant
         setVersionsFromInstant((Instant) newValue);
@@ -176,24 +176,24 @@ public class ConfigHistoryRequest extends DirectBean {
    * Gets the configuration object identifier to match.
    * @return the value of the property
    */
-  public UniqueIdentifier getConfigId() {
-    return _configId;
+  public UniqueIdentifier getObjectId() {
+    return _objectId;
   }
 
   /**
    * Sets the configuration object identifier to match.
-   * @param configId  the new value of the property
+   * @param objectId  the new value of the property
    */
-  public void setConfigId(UniqueIdentifier configId) {
-    this._configId = configId;
+  public void setObjectId(UniqueIdentifier objectId) {
+    this._objectId = objectId;
   }
 
   /**
-   * Gets the the {@code configId} property.
+   * Gets the the {@code objectId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> configId() {
-    return metaBean().configId().createProperty(this);
+  public final Property<UniqueIdentifier> objectId() {
+    return metaBean().objectId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -276,9 +276,9 @@ public class ConfigHistoryRequest extends DirectBean {
      */
     private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
     /**
-     * The meta-property for the {@code configId} property.
+     * The meta-property for the {@code objectId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _configId = DirectMetaProperty.ofReadWrite(this, "configId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _objectId = DirectMetaProperty.ofReadWrite(this, "objectId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
@@ -296,7 +296,7 @@ public class ConfigHistoryRequest extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("pagingRequest", _pagingRequest);
-      temp.put("configId", _configId);
+      temp.put("objectId", _objectId);
       temp.put("versionsFromInstant", _versionsFromInstant);
       temp.put("versionsToInstant", _versionsToInstant);
       _map = Collections.unmodifiableMap(temp);
@@ -327,11 +327,11 @@ public class ConfigHistoryRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code configId} property.
+     * The meta-property for the {@code objectId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> configId() {
-      return _configId;
+    public final MetaProperty<UniqueIdentifier> objectId() {
+      return _objectId;
     }
 
     /**
