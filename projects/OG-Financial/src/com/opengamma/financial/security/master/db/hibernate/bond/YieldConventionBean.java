@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.master.db.hibernate.bond;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.convention.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.master.db.hibernate.EnumBean;
 

@@ -9,7 +9,7 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
-import com.opengamma.core.convention.DayCount;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**

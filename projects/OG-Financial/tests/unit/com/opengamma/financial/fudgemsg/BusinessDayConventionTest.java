@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
-import com.opengamma.core.convention.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 
 public class BusinessDayConventionTest extends FinancialTestBase {

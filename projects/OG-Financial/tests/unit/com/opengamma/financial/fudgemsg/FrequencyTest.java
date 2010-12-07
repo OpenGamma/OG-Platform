@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
-import com.opengamma.core.convention.Frequency;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 
 public class FrequencyTest extends FinancialTestBase {

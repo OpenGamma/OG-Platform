@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.convention.Calendar;
+import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * 

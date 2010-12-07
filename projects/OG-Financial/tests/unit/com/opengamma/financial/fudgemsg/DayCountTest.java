@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
-import com.opengamma.core.convention.DayCount;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 public class DayCountTest extends FinancialTestBase {

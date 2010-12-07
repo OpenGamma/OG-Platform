@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.convention.Calendar;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
@@ -24,8 +23,9 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.analytics.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;

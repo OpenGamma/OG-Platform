@@ -16,10 +16,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.convention.BusinessDayConvention;
-import com.opengamma.core.convention.Calendar;
-import com.opengamma.core.convention.DayCount;
-import com.opengamma.core.convention.Frequency;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;

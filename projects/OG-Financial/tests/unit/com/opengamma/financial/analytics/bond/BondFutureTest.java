@@ -14,13 +14,13 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.core.convention.DayCount;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;

@@ -14,10 +14,10 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.junit.Test;
 
-import com.opengamma.core.convention.Calendar;
-import com.opengamma.core.convention.DayCount;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.swap.Notional;
