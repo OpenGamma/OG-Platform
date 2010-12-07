@@ -12,11 +12,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.common.Currency;
-import com.opengamma.core.convention.BusinessDayConvention;
-import com.opengamma.core.convention.DayCount;
-import com.opengamma.core.convention.Frequency;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.id.Identifier;

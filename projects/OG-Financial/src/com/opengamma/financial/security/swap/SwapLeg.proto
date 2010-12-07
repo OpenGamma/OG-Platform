@@ -10,10 +10,10 @@ namespace com.opengamma.financial.security.swap {
    * Represents one leg of a swap.
    */
   abstract message SwapLeg {
-    required readonly com.opengamma.core.convention.DayCount dayCount;
-    required readonly com.opengamma.core.convention.Frequency frequency;
+    required readonly com.opengamma.financial.convention.daycount.DayCount dayCount;
+    required readonly com.opengamma.financial.convention.frequency.Frequency frequency;
     required readonly id.Identifier regionIdentifier;
-    required readonly com.opengamma.core.convention.BusinessDayConvention businessDayConvention;
+    required readonly com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention;
     required readonly Notional notional;
     
     binding Java {

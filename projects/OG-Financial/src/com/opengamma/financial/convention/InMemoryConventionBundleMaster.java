@@ -8,13 +8,13 @@ package com.opengamma.financial.convention;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.opengamma.core.convention.BusinessDayConvention;
-import com.opengamma.core.convention.DayCount;
-import com.opengamma.core.convention.Frequency;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;

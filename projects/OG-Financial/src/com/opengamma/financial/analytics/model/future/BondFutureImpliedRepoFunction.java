@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.convention.DayCount;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -34,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.bond.BondFutureCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;

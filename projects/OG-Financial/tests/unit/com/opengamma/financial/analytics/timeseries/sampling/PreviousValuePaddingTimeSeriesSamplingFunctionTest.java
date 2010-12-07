@@ -17,9 +17,9 @@ import javax.time.calendar.MonthOfYear;
 
 import org.junit.Test;
 
-import com.opengamma.core.convention.Calendar;
 import com.opengamma.financial.analytics.timeseries.DailyScheduleCalculator;
 import com.opengamma.financial.analytics.timeseries.WeeklyScheduleOnDayCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
