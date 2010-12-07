@@ -34,7 +34,7 @@ public final class DayCountFactory {
    * Creates the factory
    */
   private DayCountFactory() {
-    final ResourceBundle conventions = ResourceBundle.getBundle(DayCount.class.getName());
+    final ResourceBundle conventions = ResourceBundle.getBundle(DayCountFactory.class.getName());
     final Map<String, DayCount> instances = new HashMap<String, DayCount>();
     for (final String convention : conventions.keySet()) {
       final String clazz = conventions.getString(convention);

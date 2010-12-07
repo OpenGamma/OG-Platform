@@ -7,13 +7,14 @@ package com.opengamma.financial.convention.businessday;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.convention.BusinessDayConvention;
 import com.opengamma.core.convention.Calendar;
 
 /**
- * 
+ * The no adjustment business day convention.
+ * <p>
+ * This implementation always returns the input date, performing no adjustments.
  */
-public class NoAdjustBusinessDayConvention extends BusinessDayConvention {
+public class NoAdjustBusinessDayConvention extends AbstractBusinessDayConvention {
 
   @Override
   public LocalDate adjustDate(final Calendar workingDayCalendar, final LocalDate date) {

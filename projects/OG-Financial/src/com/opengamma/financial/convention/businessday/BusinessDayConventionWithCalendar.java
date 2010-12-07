@@ -3,11 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.core.convention;
+package com.opengamma.financial.convention.businessday;
 
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.convention.BusinessDayConvention;
+import com.opengamma.core.convention.Calendar;
 
 /**
  * Allows a {@code BusinessDayConvention} to fulfill the {@code DateAdjuster} interface.
@@ -25,6 +27,7 @@ import javax.time.calendar.LocalDate;
 
   /**
    * Creates an instance.
+   * 
    * @param businessDayConvention  the convention, not null
    * @param workingDayCalendar  the working days, not null
    */

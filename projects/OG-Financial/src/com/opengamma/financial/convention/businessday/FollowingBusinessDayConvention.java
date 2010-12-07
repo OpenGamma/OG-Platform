@@ -7,7 +7,6 @@ package com.opengamma.financial.convention.businessday;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.convention.BusinessDayConvention;
 import com.opengamma.core.convention.Calendar;
 
 /**
@@ -15,7 +14,7 @@ import com.opengamma.core.convention.Calendar;
  * <p>
  * This chooses the next working day following a non-working day.
  */
-public class FollowingBusinessDayConvention extends BusinessDayConvention {
+public class FollowingBusinessDayConvention extends AbstractBusinessDayConvention {
 
   @Override
   public LocalDate adjustDate(final Calendar workingDays, LocalDate date) {

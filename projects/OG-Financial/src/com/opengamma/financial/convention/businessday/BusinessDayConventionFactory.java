@@ -33,7 +33,7 @@ public final class BusinessDayConventionFactory {
    * Creates the factory.
    */
   private BusinessDayConventionFactory() {
-    final ResourceBundle conventions = ResourceBundle.getBundle(BusinessDayConvention.class.getName());
+    final ResourceBundle conventions = ResourceBundle.getBundle(BusinessDayConventionFactory.class.getName());
     final Map<String, BusinessDayConvention> instances = new HashMap<String, BusinessDayConvention>();
     for (final String convention : conventions.keySet()) {
       final String clazz = conventions.getString(convention);
