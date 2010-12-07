@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -15,7 +16,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.BondPriceCalculator;

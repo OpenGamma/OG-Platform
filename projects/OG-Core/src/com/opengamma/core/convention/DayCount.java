@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention.daycount;
+package com.opengamma.core.convention;
 
 import javax.time.calendar.ZonedDateTime;
 

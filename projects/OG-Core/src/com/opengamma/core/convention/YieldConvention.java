@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention.yield;
+package com.opengamma.core.convention;
 
 /**
  * Convention for yields.

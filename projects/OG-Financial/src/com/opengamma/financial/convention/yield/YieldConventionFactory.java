@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import com.opengamma.core.convention.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 
 /**

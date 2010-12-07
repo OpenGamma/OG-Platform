@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 

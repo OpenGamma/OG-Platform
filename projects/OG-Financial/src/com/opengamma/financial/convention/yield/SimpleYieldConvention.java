@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.convention.yield;
 
+import com.opengamma.core.convention.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 
 /**

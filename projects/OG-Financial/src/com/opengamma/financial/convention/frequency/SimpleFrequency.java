@@ -7,6 +7,7 @@ package com.opengamma.financial.convention.frequency;
 
 import java.io.Serializable;
 
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**

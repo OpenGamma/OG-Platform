@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.master.db.hibernate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 
 /**

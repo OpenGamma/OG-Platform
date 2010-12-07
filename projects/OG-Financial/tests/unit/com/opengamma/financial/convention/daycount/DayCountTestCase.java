@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.core.convention.DayCount;
 import com.opengamma.util.time.DateUtil;
 
 /**

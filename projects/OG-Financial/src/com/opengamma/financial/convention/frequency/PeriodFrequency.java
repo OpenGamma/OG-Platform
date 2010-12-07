@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.time.calendar.Period;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**

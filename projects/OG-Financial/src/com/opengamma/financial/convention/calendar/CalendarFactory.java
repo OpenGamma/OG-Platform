@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.convention.Calendar;
 
 /**
  * Factory to obtain instances of {@code Calendar}.
@@ -46,7 +47,7 @@ public final class CalendarFactory {
 
   @SuppressWarnings("unchecked")
   private void loadCalendarInstances() {
-    final ResourceBundle calendars = ResourceBundle.getBundle(Calendar.class.getName());
+    final ResourceBundle calendars = ResourceBundle.getBundle(CalendarFactory.class.getName());
     for (final String calendarName : calendars.keySet()) {
       try {
         String uri = null;

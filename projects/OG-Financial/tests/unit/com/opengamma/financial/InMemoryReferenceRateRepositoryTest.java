@@ -9,15 +9,15 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.opengamma.core.convention.BusinessDayConvention;
+import com.opengamma.core.convention.DayCount;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

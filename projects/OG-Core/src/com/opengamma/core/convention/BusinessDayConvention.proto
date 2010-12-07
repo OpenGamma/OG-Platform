@@ -7,7 +7,7 @@
 /**
  * Introduce the BusinessDayConvention element as a Fudge-Proto identifier.
  */
-namespace com.opengamma.financial.convention.businessday {
+namespace com.opengamma.core.convention {
 
   extern typedef BusinessDayConvention = string;
 

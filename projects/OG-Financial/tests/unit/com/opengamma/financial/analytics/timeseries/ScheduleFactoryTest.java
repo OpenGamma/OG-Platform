@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.core.convention.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.util.time.DateUtil;

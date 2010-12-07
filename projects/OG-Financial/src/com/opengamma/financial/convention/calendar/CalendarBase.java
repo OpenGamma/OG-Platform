@@ -7,6 +7,7 @@ package com.opengamma.financial.convention.calendar;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.convention.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
