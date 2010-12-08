@@ -194,8 +194,8 @@ create table pos_trade (
     trade_date date not null,
     trade_time time null,
     zone_offset int null,
-    cparty_scheme varchar(255) not null,
-    cparty_value varchar(255) not null,
+    cparty_scheme varchar(255) null,
+    cparty_value varchar(255) null,
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
