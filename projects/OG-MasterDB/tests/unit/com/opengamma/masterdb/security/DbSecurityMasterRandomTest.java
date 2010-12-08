@@ -12,8 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.opengamma.financial.master.db.DbMasterTestUtils;
-import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 
 /**

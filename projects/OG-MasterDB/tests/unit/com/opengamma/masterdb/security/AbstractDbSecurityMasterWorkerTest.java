@@ -23,13 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 
 /**

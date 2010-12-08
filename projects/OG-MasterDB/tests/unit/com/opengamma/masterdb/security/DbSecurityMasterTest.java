@@ -18,13 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.financial.master.db.DbMasterTestUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
 
 /**
