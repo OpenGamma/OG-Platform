@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
+import javax.time.calendar.OffsetDateTime;
 
 import org.junit.Test;
 
@@ -91,12 +91,12 @@ public class DefaultComputationTargetResolverTest {
   
   @Test
   public void test_resolve_trade() {
-    Instant now = Instant.nowSystemClock();
+    OffsetDateTime now = OffsetDateTime.nowSystemClock();
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     PortfolioImpl portfolio = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     PositionImpl position = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-    TradeImpl trade = new TradeImpl(position, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now);
+    TradeImpl trade = new TradeImpl(position.getUniqueIdentifier(), IdentifierBundle.EMPTY, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
     trade.setUniqueIdentifier(UniqueIdentifier.of("TradeScheme", "1"));
     position.getTrades().add(trade);
     portfolio.getRootNode().addPosition(position);
