@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.position;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,10 +27,14 @@ import com.opengamma.util.ArgumentChecker;
  * To find the positions on a node, a separate search must be performed.
  */
 @BeanDefinition
-public class PortfolioTreeDocument extends AbstractDocument {
+public class PortfolioTreeDocument extends AbstractDocument implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The portfolio unique identifier.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -97,6 +102,7 @@ public class PortfolioTreeDocument extends AbstractDocument {
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -105,6 +111,7 @@ public class PortfolioTreeDocument extends AbstractDocument {
 
   /**
    * Sets the portfolio unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -113,6 +120,7 @@ public class PortfolioTreeDocument extends AbstractDocument {
 
   /**
    * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {

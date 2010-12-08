@@ -15,11 +15,14 @@ create table cfg_config (
     oid bigint not null,
     ver_from_instant timestamp not null,
     ver_to_instant timestamp not null,
+    corr_from_instant timestamp not null,
+    corr_to_instant timestamp not null,
     name varchar(255) not null,
     config_type varchar(255) not null,
     config blob not null,
     primary key (id),
-    constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant)
+    constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant),
+    constraint cfg_chk_config_corr_order check (corr_from_instant <= corr_to_instant)
 );
 
 create index ix_cfg_config_oid on cfg_config(oid);

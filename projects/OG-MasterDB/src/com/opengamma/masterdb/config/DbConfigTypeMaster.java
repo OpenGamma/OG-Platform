@@ -195,8 +195,8 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
-    ArgumentChecker.notNull(document.getConfigId(), "document.configId");
-    checkScheme(document.getConfigId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     return getWorkers().getUpdateWorker().update(document);
   }
@@ -214,10 +214,22 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getConfigId(), "request.configId");
-    checkScheme(request.getConfigId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     return getWorkers().getHistoryWorker().history(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getName(), "document.name");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
+    
+    return getWorkers().getCorrectWorker().correct(document);
   }
 
   //-------------------------------------------------------------------------
