@@ -60,7 +60,6 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
         sum1 += payments.getAmount();
         sum2 += payments.getAmount() * (deliveryDate - ti); // TODO this should be done on a daycount basis
       }
-      System.out.println(sum1 + " " + sum2);
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(deliverable, cleanPrices.get(i));
       final double invoicePrice = futurePrice * conversionFactors[i] + accruedInterest.get(i);
       result[i] = (invoicePrice - dirtyPrice + sum1) / (dirtyPrice * deliveryDate - sum2);
