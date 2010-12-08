@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.fudgemsg;
+package com.opengamma.master.timeseries.impl;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataRating;
 
 /**
  * Builder for converting TimeSeriesMetaDataRating instances to/from Fudge messages.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries.impl;
 
 
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
@@ -33,15 +33,18 @@ import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesMetaData;
 import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
+import com.opengamma.master.timeseries.impl.DefaultTimeSeriesMetaDataResolver;
 import com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMaster;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfiguration;
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataRating;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Test DefaultTimeSeriesResolver.
  */
-public class DefaultTimeSeriesResolverTest {
+public class DefaultTimeSeriesMetaDataResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
@@ -53,14 +56,14 @@ public class DefaultTimeSeriesResolverTest {
   private static final String[] DATA_SOURCES = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
   private static final String CONFIG_DOC_NAME = "TEST";
 
-  private DefaultTimeSeriesResolver<LocalDate> _metaDataResolver;
+  private DefaultTimeSeriesMetaDataResolver<LocalDate> _metaDataResolver;
   private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
   @Before
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
-    _metaDataResolver = new DefaultTimeSeriesResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
+    _metaDataResolver = new DefaultTimeSeriesMetaDataResolver<LocalDate>(_tsMaster, new MasterConfigSource(configMaster));
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {

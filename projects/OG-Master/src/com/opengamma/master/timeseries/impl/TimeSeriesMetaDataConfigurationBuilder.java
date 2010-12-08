@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.fudgemsg;
+package com.opengamma.master.timeseries.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,8 +17,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataConfiguration;
-import com.opengamma.financial.timeseries.config.TimeSeriesMetaDataRating;
 
 /**
  * Builder for converting TimeSeriesMataDataConfiguration instances to/from Fudge messages.

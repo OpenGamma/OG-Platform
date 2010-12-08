@@ -3,13 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries.impl;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**

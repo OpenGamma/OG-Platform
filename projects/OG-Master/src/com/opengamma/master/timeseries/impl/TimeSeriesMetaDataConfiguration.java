@@ -1,4 +1,4 @@
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +12,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.timeseries.TimeSeriesMetaData;
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**

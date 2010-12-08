@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries.impl;
 
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
@@ -19,6 +19,8 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfiguration;
+import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataRating;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**

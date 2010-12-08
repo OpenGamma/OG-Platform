@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.config;
+package com.opengamma.master.timeseries.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +29,10 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @param <T> the type of the time-series, such as LocalDate/LocalDateTime
  */
-public class DefaultTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver {
+public class DefaultTimeSeriesMetaDataResolver<T> implements TimeSeriesMetaDataResolver {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesResolver.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultTimeSeriesMetaDataResolver.class);
 
   /**
    * The time-series master.
@@ -49,7 +49,7 @@ public class DefaultTimeSeriesResolver<T> implements TimeSeriesMetaDataResolver 
    * @param timeSeriesMaster  the time-series master, not null
    * @param configSource  the config source, not null
    */
-  public DefaultTimeSeriesResolver(TimeSeriesMaster<T> timeSeriesMaster, ConfigSource configSource) {
+  public DefaultTimeSeriesMetaDataResolver(TimeSeriesMaster<T> timeSeriesMaster, ConfigSource configSource) {
     ArgumentChecker.notNull(timeSeriesMaster, "timeseries master");
     ArgumentChecker.notNull(configSource, "configSource");
     _configSource = configSource;
