@@ -11,8 +11,6 @@ import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
 /**
  * Custom Hibernate usertype for the OptionType enum
- * 
- * @author andrew
  */
 public class OptionTypeUserType extends EnumUserType<OptionType> {
 

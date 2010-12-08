@@ -20,8 +20,6 @@ import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
  * A bean representation of a {@link OptionSecurity}.
- * 
- * @author Andrew
  */
 public class OptionSecurityBean extends SecurityBean {
 

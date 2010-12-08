@@ -7,7 +7,6 @@ package com.opengamma.master.position;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;

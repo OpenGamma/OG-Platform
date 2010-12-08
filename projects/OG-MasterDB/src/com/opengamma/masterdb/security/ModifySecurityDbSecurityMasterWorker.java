@@ -180,8 +180,8 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
       }
     }
     getJdbcTemplate().update(sqlInsertSecurity(), securityArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), (DbMapSqlParameterSource[]) idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), (DbMapSqlParameterSource[]) assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId);
     document.getSecurity().setUniqueIdentifier(uid);

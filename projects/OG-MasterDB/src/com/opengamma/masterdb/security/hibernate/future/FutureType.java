@@ -17,14 +17,25 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 
+/**
+ * Hibernate bean for storage.
+ */
 public enum FutureType {
+  /** Agriculture. */
   AGRICULTURE,
+  /** Bond. */
   BOND,
+  /** Foreign exchange. */
   FX,
+  /** Energy. */
   ENERGY,
+  /** Interest rate. */
   INTEREST_RATE,
+  /** Metal. */
   METAL,
+  /** Stock. */
   STOCK,
+  /** Index. */
   INDEX;
   
   public static FutureType identify(final FutureSecurity object) {
@@ -76,6 +87,9 @@ public enum FutureType {
     });
   }
   
+  /**
+   * Visitor.
+   */
   public static interface Visitor<T> {
     T visitAgricultureFutureType();
     T visitBondFutureType();

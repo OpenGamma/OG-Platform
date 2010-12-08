@@ -155,10 +155,10 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   @Override
   public ManageableSecurity loadSecurityDetail(final ManageableSecurity base) {
     s_logger.debug("loading detail for security {}", base.getUniqueIdentifier());
-    return (ManageableSecurity) getHibernateTemplate().execute(new HibernateCallback() {
-      @SuppressWarnings("unchecked")
+    return getHibernateTemplate().execute(new HibernateCallback<ManageableSecurity>() {
+      @SuppressWarnings({"unchecked", "rawtypes" })
       @Override
-      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      public ManageableSecurity doInHibernate(Session session) throws HibernateException, SQLException {
         final SecurityBeanOperation beanOperation = getBeanOperation(base.getSecurityType());
         HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(base, beanOperation);
@@ -186,8 +186,8 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     if (security.getClass() == ManageableSecurity.class) {
       return;  // no detail to store
     }
-    getHibernateTemplate().execute(new HibernateCallback() {
-      @SuppressWarnings("unchecked")
+    getHibernateTemplate().execute(new HibernateCallback<Object>() {
+      @SuppressWarnings({"unchecked", "rawtypes" })
       @Override
       public Object doInHibernate(final Session session) throws HibernateException, SQLException {
         final HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
