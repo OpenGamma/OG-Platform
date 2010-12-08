@@ -1,7 +1,3 @@
-
-DROP TABLE IF EXISTS pos_securitykey;
-DROP TABLE IF EXISTS pos_trade;
-
 create sequence pos_idkey_seq
 	start with 1000 increment by 1 no cycle;
 
