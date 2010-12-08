@@ -129,6 +129,15 @@ public class DbPositionMasterWorker {
   protected long nextId() {
     return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect("pos_master_seq"));
   }
+  
+  /**
+   * Gets the next database id.
+   * @param sequenceName  the name of the sequence to query, not null
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().queryForLong(getDbHelper().sqlNextSequenceValueSelect(sequenceName));
+  }
 
   /**
    * Extracts the row id.
