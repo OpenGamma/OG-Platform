@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
+  <class name="IdentifierAssociationBean" table="sec_identifier_association">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="validStartDate" type="timestamp" not-null="false" />
+    <property name="validEndDate" type="timestamp" not-null="false" />
+    <!-- this is a special association that deals with the fact we've implemented
+         securities with a table-per-concrete class model.  This means that whenever
+         we have a polymorphic reference to the base class we need a discriminator to
+         tell us which table to look in.  We use table-per-concrete class because in 
+         the normal lookup case it means we can avoid joins. -->
+    <any name="security"
+         meta-type="string"
+         id-type="long"
+         cascade="save-update">
+      <meta-value value="BOND" class="com.opengamma.masterdb.security.hibernate.bond.BondSecurityBean" />
+      <meta-value value="CASH" class="com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean" />
+      <meta-value value="EQUITY" class="com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean"/>
+      <meta-value value="FRA" class="com.opengamma.masterdb.security.hibernate.fra.FRASecurityBean" />
+      <meta-value value="FUTURE" class="com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean" />
+      <meta-value value="OPTION" class="com.opengamma.masterdb.security.hibernate.option.OptionSecurityBean" />
+      <meta-value value="SWAP" class="com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBean" />
+      <column name="security_discriminator"/>
+      <column name="security_id"/>
+    </any>
+    <!-- component means that it's 'part of' the object, although Java models it as a reference, I wanted
+         the actual identifier to be a separate class -->
+    <component name="identifier"
+               class="IdentifierBean">
+      <property name="scheme" type="string" not-null="true" unique-key="unique_associations"/>
+      <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
+    </component>
+  </class>
+  <query name="IdentifierAssociationBean.one.byDateIdentifier"><![CDATA[ 
+    from 
+      IdentifierAssociationBean as a 
+    where
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.byDateIdentifierSecurity"><![CDATA[ 
+    from 
+      IdentifierAssociationBean as a 
+    where
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier and
+      a.security = :security
+  ]]></query>
+  <query name="IdentifierAssociationBean.many.byDateSecurity"><![CDATA[ 
+    from 
+      IdentifierAssociationBean as a 
+    where
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
+      a.security = :security
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.previousAssociation"><![CDATA[ 
+    from
+      IdentifierAssociationBean as a
+    where
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier and
+      (a.validStartDate is null or a.validEndDate > a.validStartDate) and
+      a.validEndDate = (select max(b.validEndDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validEndDate <= :now)
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.nextAssociation"><![CDATA[ 
+    from
+      IdentifierAssociationBean as a
+    where
+      a.identifier.scheme = :scheme and 
+      a.identifier.identifier = :identifier and 
+      (a.validStartDate is null or a.validEndDate > a.validStartDate) and
+      a.validStartDate = (select min(b.validStartDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validStartDate > :now)
+  ]]></query>
+</hibernate-mapping>
