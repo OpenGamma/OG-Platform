@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
@@ -390,8 +391,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setRunTime(getObservationDateTime(job));
     riskRun.setLiveDataSnapshot(snapshot);
-    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
-    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
+    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp((InstantProvider) now));
+    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp((InstantProvider) now));
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     

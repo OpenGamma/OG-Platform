@@ -135,8 +135,7 @@ public class MockPositionSource implements PositionSource {
         positionImpl.setPortfolioNode(node.getUniqueIdentifier());
         
         //add trades
-        Set<Trade> trades = positionImpl.getTrades();
-        for (Trade trade : trades) {
+        for (Trade trade : positionImpl.getTrades()) {
           if (trade instanceof TradeImpl) {
             TradeImpl tradeImpl = (TradeImpl) trade;
             tradeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));

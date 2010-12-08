@@ -8,8 +8,8 @@ package com.opengamma.master.position;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -19,7 +19,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -57,10 +57,10 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private IdentifierBundle _securityKey;
   /**
-   * The trades that form the position, not null.
+   * The trades that the make up the position
    */
   @PropertyDefinition
-  private final Set<ManageableTrade> _trades = Sets.newHashSet();
+  private final List<ManageableTrade> _trades = Lists.newArrayList();
 
   /**
    * Creates an instance.
@@ -158,7 +158,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         setSecurityKey((IdentifierBundle) newValue);
         return;
       case -865715313:  // trades
-        setTrades((Set<ManageableTrade>) newValue);
+        setTrades((List<ManageableTrade>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -250,18 +250,18 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trades that form the position, not null.
+   * Gets the trades that the make up the position
    * @return the value of the property
    */
-  public Set<ManageableTrade> getTrades() {
+  public List<ManageableTrade> getTrades() {
     return _trades;
   }
 
   /**
-   * Sets the trades that form the position, not null.
+   * Sets the trades that the make up the position
    * @param trades  the new value of the property
    */
-  public void setTrades(Set<ManageableTrade> trades) {
+  public void setTrades(List<ManageableTrade> trades) {
     this._trades.clear();
     this._trades.addAll(trades);
   }
@@ -270,7 +270,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * Gets the the {@code trades} property.
    * @return the property, not null
    */
-  public final Property<Set<ManageableTrade>> trades() {
+  public final Property<List<ManageableTrade>> trades() {
     return metaBean().trades().createProperty(this);
   }
 
@@ -304,7 +304,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<ManageableTrade>> _trades = DirectMetaProperty.ofReadWrite(this, "trades", (Class) Set.class);
+    private final MetaProperty<List<ManageableTrade>> _trades = DirectMetaProperty.ofReadWrite(this, "trades", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -373,7 +373,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
      * The meta-property for the {@code trades} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<ManageableTrade>> trades() {
+    public final MetaProperty<List<ManageableTrade>> trades() {
       return _trades;
     }
 

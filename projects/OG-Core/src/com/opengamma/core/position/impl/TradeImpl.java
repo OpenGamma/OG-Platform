@@ -8,15 +8,16 @@ package com.opengamma.core.position.impl;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -33,7 +34,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * The identifier of the parent position.
    */
-  private UniqueIdentifier _position;
+  private UniqueIdentifier _positionId;
   /**
    * The identifier of the trade.
    */
@@ -55,29 +56,37 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    */
   private Counterparty _counterparty;
   /**
-   * Instant that trade happened
+   * The trade date.
    */
-  private Instant _tradeInstant;
+  private LocalDate _tradeDate;
+  /**
+   * The trade time with timezone if available
+   */
+  private OffsetTime _tradeTime;
   
   /**
    * Creates a trade from a position, counterparty, tradeinstant, and an amount.
    * 
-   * @param position the parent position, not null
+   * @param positionUid the parent positionid, not null
+   * @param securityKey  the security identifier, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty the counterparty, not null
-   * @param tradeInstant the trade instant, not null
+   * @param tradeDate the trade date, not null
+   * @param tradeTime the trade time with timezone, may be null
    */
-  public TradeImpl(Position position, BigDecimal quantity, Counterparty counterparty, Instant tradeInstant) {
-    ArgumentChecker.notNull(position, "position");
+  public TradeImpl(UniqueIdentifier positionUid, Identifier securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
+    ArgumentChecker.notNull(positionUid, "position uid");
+    ArgumentChecker.notNull(securityKey, "security key");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
-    ArgumentChecker.notNull(tradeInstant, "tradeInstant");
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
     _quantity = quantity;
     _counterparty = counterparty;
-    _tradeInstant = tradeInstant;
-    _position = position.getUniqueIdentifier();
-    _securityKey = position.getSecurityKey();
-    _security = position.getSecurity();
+    _tradeDate = tradeDate;
+    _tradeTime = tradeTime;
+    _positionId = positionUid;
+    _securityKey = IdentifierBundle.of(securityKey);
+    _security = null;
   }
   
   /**
@@ -87,18 +96,20 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @param securityKey  the security identifier, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty the counterparty, not null
-   * @param tradeInstant the trade instant, not null
+   * @param tradeDate the trade date, not null
+   * @param tradeTime the trade time with timezone, may be null
    */
-  public TradeImpl(UniqueIdentifier positionUid, IdentifierBundle securityKey, BigDecimal quantity, Counterparty counterparty, Instant tradeInstant) {
+  public TradeImpl(UniqueIdentifier positionUid, IdentifierBundle securityKey, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(positionUid, "position uid");
     ArgumentChecker.notNull(securityKey, "securityKey");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
-    ArgumentChecker.notNull(tradeInstant, "tradeInstant");
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
     _quantity = quantity;
     _counterparty = counterparty;
-    _tradeInstant = tradeInstant;
-    _position = positionUid;
+    _tradeDate = tradeDate;
+    _tradeTime = tradeTime;
+    _positionId = positionUid;
     _securityKey = securityKey;
     _security = null;
   }
@@ -110,18 +121,20 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @param security the security, not null
    * @param quantity the amount of the trade, not null
    * @param counterparty the counterparty, not null
-   * @param tradeInstant the trade instant, not null
+   * @param tradeDate the trade date, not null
+   * @param tradeTime the trade time with timezone, may be null
    */
-  public TradeImpl(UniqueIdentifier positionUid, Security security, BigDecimal quantity, Counterparty counterparty, Instant tradeInstant) {
+  public TradeImpl(UniqueIdentifier positionUid, Security security, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(positionUid, "position uid");
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
-    ArgumentChecker.notNull(tradeInstant, "tradeInstant");
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
     _quantity = quantity;
     _counterparty = counterparty;
-    _tradeInstant = tradeInstant;
-    _position = positionUid;
+    _tradeDate = tradeDate;
+    _tradeTime = tradeTime;
+    _positionId = positionUid;
     _security = security;
     _securityKey = security.getIdentifiers();
   }
@@ -136,10 +149,20 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _identifier = copyFrom.getUniqueIdentifier();
     _quantity = copyFrom.getQuantity();
     _counterparty = copyFrom.getCounterparty();
-    _tradeInstant = copyFrom.getTradeInstant();
-    _position = copyFrom.getPosition();
+    _tradeDate = copyFrom.getTradeDate();
+    _tradeTime = copyFrom.getTradeTime();
+    _positionId = copyFrom.getPositionId();
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
+  }
+  
+  /**
+   * Adds an identifier to the security key.
+   * @param securityKeyIdentifier  the identifier to add, not null
+   */
+  public void addSecurityKey(final Identifier securityKeyIdentifier) {
+    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
+    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
   }
 
   @Override
@@ -172,8 +195,13 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   }
 
   @Override
-  public Instant getTradeInstant() {
-    return _tradeInstant;
+  public LocalDate getTradeDate() {
+    return _tradeDate;
+  }
+
+  @Override
+  public OffsetTime getTradeTime() {
+    return _tradeTime;
   }
 
   @Override
@@ -205,17 +233,17 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   }
   
   @Override
-  public UniqueIdentifier getPosition() {
-    return _position;
+  public UniqueIdentifier getPositionId() {
+    return _positionId;
   }
   
   /**
    * Sets the parent position identifier.
    * @param positionUid  the position uid, not null
    */
-  public void setPosition(UniqueIdentifier positionUid) {
+  public void setPositionId(UniqueIdentifier positionUid) {
     ArgumentChecker.notNull(positionUid, "position uid");
-    _position = positionUid;
+    _positionId = positionUid;
   }
   
   @Override
@@ -226,7 +254,9 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     if (obj instanceof TradeImpl) {
       TradeImpl other = (TradeImpl) obj;
       return (CompareUtils.compareWithNull(_quantity, other._quantity) == 0) && ObjectUtils.equals(_counterparty, other._counterparty)
-          && ObjectUtils.equals(_tradeInstant, other._tradeInstant);
+          && ObjectUtils.equals(_tradeDate, other._tradeDate) && ObjectUtils.equals(_tradeTime, _tradeTime) 
+          && ObjectUtils.equals(_securityKey, other._securityKey) && ObjectUtils.equals(_security, other._security);
+      
     }
     return false;
   }
@@ -235,14 +265,21 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public int hashCode() {
     int hashCode = 65;
     hashCode += _quantity.hashCode();
-    return hashCode ^ ObjectUtils.hashCode(_counterparty) ^ ObjectUtils.hashCode(_tradeInstant);
+    hashCode += hashCode ^ ObjectUtils.hashCode(_counterparty) ^ ObjectUtils.hashCode(_tradeDate) ^ ObjectUtils.hashCode(_tradeTime);
+    if (getSecurity() != null) {
+      hashCode *= 31;
+      hashCode += _security.hashCode();
+    }
+    hashCode *= 31;
+    hashCode += _securityKey.hashCode();
+    return hashCode;
   }
   
   @Override
   public String toString() {
     return new StrBuilder().append("Trade[").append(getUniqueIdentifier()).append(", ").append(getQuantity()).append(' ')
-      .append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(" PositionID: ").append(_position)
-      .append(" Counterparty: ").append(_counterparty).append(" Trade Instant: ").append(_tradeInstant).append(']').toString();
+      .append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(" PositionID:").append(_positionId)
+      .append(" ").append(_counterparty).append(" ").append(_tradeDate).append(" ").append(_tradeTime).append(']').toString();
   }
   
 }

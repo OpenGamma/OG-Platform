@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 
 import javax.time.Instant;
+import javax.time.calendar.OffsetDateTime;
 
 import org.junit.Test;
 
@@ -123,13 +124,13 @@ public class MasterPositionSourceTest {
     PositionMaster mock = mock(PositionMaster.class);
     FullTradeGetRequest request = new FullTradeGetRequest(UID);
 
-    Instant now = Instant.now();
+    OffsetDateTime now = OffsetDateTime.now();
     final UniqueIdentifier positionId = UniqueIdentifier.of("P", "A");
     final MockSecurity security = new MockSecurity("A");
     security.setIdentifiers(IdentifierBundle.of(Identifier.of("S", "A")));
     final Counterparty counterparty = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
     
-    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.minusSeconds(100));
+    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.toLocalDate(), now.toOffsetTime().minusSeconds(100));
     trade.setUniqueIdentifier(UID);
     
     when(mock.getFullTrade(request)).thenReturn(trade);
@@ -142,8 +143,8 @@ public class MasterPositionSourceTest {
     assertEquals(BigDecimal.TEN, testResult.getQuantity());
     assertEquals(Identifier.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
     assertEquals(counterparty, testResult.getCounterparty());
-    assertEquals(positionId, testResult.getPosition());
-    assertEquals(now.minusSeconds(100), testResult.getTradeInstant());
+    assertEquals(positionId, testResult.getPositionId());
+    assertEquals(now.toLocalDate(), testResult.getTradeDate());
   }
 
 }

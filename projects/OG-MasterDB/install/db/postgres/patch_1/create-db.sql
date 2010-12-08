@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
     create sequence hibernate_sequence start 1 increment 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -38,7 +36,6 @@ create table cfg_config (
 
 create index ix_cfg_config_oid on cfg_config(oid);
 create index ix_cfg_config_config_type on cfg_config(config_type);
-
 
 -- create-db-refdata.sql
 
@@ -127,7 +124,6 @@ create table exg_exchange2idkey (
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
 create index ix_exg_exchange_oid on exg_exchange(oid);
-
 
 -- create-db-security.sql: Security Master
 
@@ -493,7 +489,6 @@ create table sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
-
 -- create-db-position.sql: Security Master
 
 -- design has two documents
@@ -577,7 +572,6 @@ create table pos_trade (
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
 -- pos_trade is fully dependent of pos_position
-
 
 DROP TABLE IF EXISTS tss_identifier CASCADE;
 DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
@@ -741,4 +735,3 @@ CREATE TABLE tss_identifier (
 ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
-

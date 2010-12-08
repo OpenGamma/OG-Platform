@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.position;
 
-import java.util.Collection;
+import java.util.Set;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
@@ -32,10 +32,10 @@ public interface Position extends PositionOrTrade {
   /**
    * Gets the trades immediate children of this position.
    * <p>
-   * The collection of trades is optional and if present may be incomplete.
+   * The set of trades is optional and if present may be incomplete.
    * 
    * @return the trades, unmodifiable, not null
    */
-  Collection<Trade> getTrades();
+  Set<Trade> getTrades();
 
 }
