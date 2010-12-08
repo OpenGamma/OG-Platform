@@ -91,7 +91,7 @@ public class DefaultComputationTargetResolverTest {
   
   @Test
   public void test_resolve_trade() {
-    OffsetDateTime now = OffsetDateTime.nowSystemClock();
+    OffsetDateTime now = OffsetDateTime.now();
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     PortfolioImpl portfolio = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");

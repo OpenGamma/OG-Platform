@@ -124,7 +124,7 @@ public class MasterPositionSourceTest {
     PositionMaster mock = mock(PositionMaster.class);
     FullTradeGetRequest request = new FullTradeGetRequest(UID);
 
-    OffsetDateTime now = OffsetDateTime.nowSystemClock();
+    OffsetDateTime now = OffsetDateTime.now();
     final UniqueIdentifier positionId = UniqueIdentifier.of("P", "A");
     final MockSecurity security = new MockSecurity("A");
     security.setIdentifiers(IdentifierBundle.of(Identifier.of("S", "A")));

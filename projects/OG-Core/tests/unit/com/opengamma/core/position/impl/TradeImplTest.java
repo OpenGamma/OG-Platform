@@ -25,7 +25,7 @@ public class TradeImplTest {
   private static final Counterparty COUNTERPARTY = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
   private static final UniqueIdentifier POSITION_UID = UniqueIdentifier.of("P", "A");
   private static final Position POSITION = new PositionImpl(POSITION_UID, BigDecimal.ONE, Identifier.of("A", "B"));
-  private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.nowSystemClock();
+  private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
 
   @Test
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {

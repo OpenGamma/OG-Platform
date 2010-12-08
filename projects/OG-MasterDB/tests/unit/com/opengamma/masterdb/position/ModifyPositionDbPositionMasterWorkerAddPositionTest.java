@@ -167,7 +167,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addPositionWithTwoTrades_add() {
     Instant now = Instant.now(_posMaster.getTimeSource());
     
-    OffsetDateTime offsetDateTime = OffsetDateTime.nowSystemClock();
+    OffsetDateTime offsetDateTime = OffsetDateTime.now();
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), Identifier.of("CPS", "CPV"), Identifier.of("A", "C")));
@@ -250,7 +250,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_addPositionWithTwoTrades_addThenGet() {
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(20), Identifier.of("A", "B"));
     
-    OffsetDateTime offsetDateTime = OffsetDateTime.nowSystemClock();
+    OffsetDateTime offsetDateTime = OffsetDateTime.now();
     
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(600).toOffsetTime(), Identifier.of("CPS", "CPV"), Identifier.of("A", "B")));
     position.getTrades().add(new ManageableTrade(BigDecimal.TEN, offsetDateTime.toLocalDate(), offsetDateTime.minusSeconds(500).toOffsetTime(), Identifier.of("CPS", "CPV"), Identifier.of("A", "C")));
