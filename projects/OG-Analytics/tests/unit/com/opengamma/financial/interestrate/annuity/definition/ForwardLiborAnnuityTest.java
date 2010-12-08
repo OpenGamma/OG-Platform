@@ -24,8 +24,6 @@ public class ForwardLiborAnnuityTest {
 
   private static final String FUNDING = "Funding";
   private static final String LIBOR = "Libor";
-  // private static final VariableAnnuity ANNUITY1 = new VariableAnnuity(T, FUNDING, LIBOR);
-  // private static final VariableAnnuity ANNUITY2 = new VariableAnnuity(T, NOTIONAL, FUNDING, LIBOR);
 
   private static final ForwardLiborAnnuity ANNUITY3 = new ForwardLiborAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR);
   private static final ForwardLiborAnnuity ANNUITY4 = new ForwardLiborAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR);
@@ -246,10 +244,10 @@ public class ForwardLiborAnnuityTest {
     final double[] spreads = new double[] {4, 6, 7};
     final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(t, indexFixing, indexMaturity, paymentYearFractions, forwardYearFractions, spreads, notional, FUNDING, LIBOR);
 
-    int n = annuity.getNumberOfPayments();
+    final int n = annuity.getNumberOfPayments();
     assertEquals(3, n, 0);
     int index = 0;
-    for (ForwardLiborPayment p : annuity.getPayments()) {
+    for (final ForwardLiborPayment p : annuity.getPayments()) {
       assertEquals(p.getLiborFixingTime(), indexFixing[index], 0);
       assertEquals(p.getLiborMaturityTime(), indexMaturity[index], 0);
       assertEquals(p.getFundingCurveName(), FUNDING);
@@ -265,7 +263,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    ForwardLiborAnnuity other = new ForwardLiborAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR);
+    final ForwardLiborAnnuity other = new ForwardLiborAnnuity(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR);
     assertEquals(other, ANNUITY3);
     assertEquals(other.hashCode(), ANNUITY3.hashCode());
     assertEquals(other, ANNUITY4);

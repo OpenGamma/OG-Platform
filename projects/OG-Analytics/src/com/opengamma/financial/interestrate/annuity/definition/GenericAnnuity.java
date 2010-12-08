@@ -26,14 +26,16 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
 
   public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
+    Validate.isTrue(payments.length > 0);
     _payments = payments;
   }
 
   @SuppressWarnings("unchecked")
   public GenericAnnuity(final List<? extends P> payments, final Class<P> pType) {
     Validate.noNullElements(payments);
+    Validate.notNull(pType);
+    Validate.isTrue(payments.size() > 0);
     _payments = payments.toArray((P[]) Array.newInstance(pType, 0));
-
   }
 
   public int getNumberOfPayments() {

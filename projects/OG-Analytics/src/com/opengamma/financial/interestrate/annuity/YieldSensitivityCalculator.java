@@ -3,10 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.annuity.definition;
+package com.opengamma.financial.interestrate.annuity;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;

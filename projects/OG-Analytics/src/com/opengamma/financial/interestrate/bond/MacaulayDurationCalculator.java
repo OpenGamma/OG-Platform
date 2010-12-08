@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.bond;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.YieldSensitivityCalculator;
+import com.opengamma.financial.interestrate.annuity.YieldSensitivityCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**

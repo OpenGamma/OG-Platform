@@ -24,18 +24,18 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
   }
 
   public FixedCouponAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName) {
-    this(paymentTimes, notional, couponRate, setupBasisYearFraction(paymentTimes), yieldCurveName);
+    this(paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName);
   }
 
   public FixedCouponAnnuity(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
-    super(setup(paymentTimes, notional, couponRate, yearFractions, yieldCurveName));
+    super(init(paymentTimes, notional, couponRate, yearFractions, yieldCurveName));
   }
 
   public double getCouponRate() {
     return getNthPayment(0).getCoupon(); // all coupons are the same value
   }
 
-  private static FixedCouponPayment[] setup(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
+  private static FixedCouponPayment[] init(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yearFractions);
@@ -50,13 +50,13 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
     return temp;
   }
 
-  private static double[] setupBasisYearFraction(final double[] paymentTimes) {
+  private static double[] initBasisYearFraction(final double[] paymentTimes) {
     Validate.notNull(paymentTimes);
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     final int n = paymentTimes.length;
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = (i == 0 ? paymentTimes[0] : paymentTimes[i] - paymentTimes[i - 1]);
+      res[i] = (i == 0 ? paymentTimes[0] : paymentTimes[i] - paymentTimes[i - 1]); //TODO ????????? so the payment year fractions could be 2.5, 0.5, 0.5, 0.5?
     }
     return res;
   }

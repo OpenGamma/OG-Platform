@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.financial.interestrate.annuity.YieldSensitivityCalculator;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 
 /**

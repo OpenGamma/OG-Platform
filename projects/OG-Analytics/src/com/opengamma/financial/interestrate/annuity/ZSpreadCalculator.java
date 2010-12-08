@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.annuity.definition;
+package com.opengamma.financial.interestrate.annuity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
