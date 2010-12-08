@@ -24,6 +24,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.Identifier;
 
 /**

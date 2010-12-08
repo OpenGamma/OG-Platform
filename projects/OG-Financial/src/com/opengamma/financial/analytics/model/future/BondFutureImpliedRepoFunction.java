@@ -40,6 +40,7 @@ import com.opengamma.financial.interestrate.bond.BondFutureCalculator;
 import com.opengamma.financial.interestrate.bond.BondFutureImpliedRepoRateCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -52,6 +53,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureImpliedRepoFunction.class);
   private static final BondFutureCalculator IMPLIED_REPO_CALCULATOR = BondFutureImpliedRepoRateCalculator.getInstance();
+
   @Override
   public String getShortName() {
     return "BondFutureImpliedRepoFunction";
@@ -118,7 +120,8 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
       }
     }
     //    s_logger.error("{} IRR: {}", sec.getName(), irr);
-    final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors), deliveryDates, cleanPrices, accruedInterest, repoRates, futurePrice);
+    final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
+    final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors), basketData, futurePrice);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueIdentifier());
     values.add(new ComputedValue(specification, impliedRepos));
     return values;
@@ -136,9 +139,8 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      final HashSet<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-          ComputationTargetType.SECURITY,
-          target.getPosition().getSecurity().getUniqueIdentifier()));
+      final HashSet<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity()
+          .getUniqueIdentifier()));
       final SecuritySource secSource = context.getSecuritySource();
       final Position position = target.getPosition();
       final BondFutureSecurity security = (BondFutureSecurity) position.getSecurity();
@@ -147,12 +149,12 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
         final IdentifierBundle ids = del.getIdentifiers();
         final Security deliverableBond = secSource.getSecurity(ids);
         if (deliverableBond != null) {
-          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, deliverableBond.getUniqueIdentifier()));;
+          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, deliverableBond.getUniqueIdentifier()));
+          ;
         } else {
           s_logger.warn("bond {} in deliverable basket of {} has empty IdentifierBundle, skipping", del, security);
           continue;
         }
-
 
       }
       return requirements;

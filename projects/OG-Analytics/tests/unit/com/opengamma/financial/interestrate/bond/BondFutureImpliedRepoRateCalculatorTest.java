@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 
 /**
  * 
@@ -31,76 +32,27 @@ public class BondFutureImpliedRepoRateCalculatorTest {
   private static final List<Double> CLEAN_PRICES = Arrays.asList(97., 98., 99.);
   private static final List<Double> ACCRUED_INTEREST = Arrays.asList(0., 0.04, 1.);
   private static final List<Double> REPO_RATES = Arrays.asList(0.03, 0.02, 0.03);
+  private static final BondFutureDeliverableBasketDataBundle BASKET_DATA = new BondFutureDeliverableBasketDataBundle(DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES);
   private static final double FUTURE_PRICE = 105;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBondFuture() {
-    IRR_CALCULATOR.calculate(null, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+    IRR_CALCULATOR.calculate(null, BASKET_DATA, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullDeliveryDates() {
-    IRR_CALCULATOR.calculate(FUTURE, null, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+  public void testNullBasketData() {
+    IRR_CALCULATOR.calculate(FUTURE, null, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullCleanPrices() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, null, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullAccruedInterest() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, null, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullRepoRates() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, null, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testDeliveryDateWithNull() {
-    IRR_CALCULATOR.calculate(FUTURE, Arrays.asList(0.1, null, 0.1), CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testCleanPricesWithNull() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, Arrays.asList(100., null, 103.), ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAccruedInterestWithNull() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, Arrays.asList(0.3, null, 0.), REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testRepoRatesWithNull() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, Arrays.asList(0.02, 0.01, null), FUTURE_PRICE);
+  public void testWrongBasketSize() {
+    IRR_CALCULATOR.calculate(new BondFuture(new Bond[] {DELIVERABLES[0]}, new double[] {0.78}), BASKET_DATA, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeFuturePrice() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, -FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadDeliveryDates() {
-    IRR_CALCULATOR.calculate(FUTURE, Arrays.asList(0.1, 0.1), CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadCleanPrices() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, Arrays.asList(100., 103.), ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadAccruedInterest() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, Arrays.asList(0.3, 0.), REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadRepoRates() {
-    IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, Arrays.asList(0.02, 0.01), FUTURE_PRICE);
+    IRR_CALCULATOR.calculate(FUTURE, BASKET_DATA, -FUTURE_PRICE);
   }
 
   @Test
@@ -114,7 +66,7 @@ public class BondFutureImpliedRepoRateCalculatorTest {
       invoicePrice[i] = FUTURE_PRICE * CONVERSION_FACTORS[i] + ACCRUED_INTEREST.get(i);
       result[i] = (invoicePrice[i] - dirtyPrice[i] + COUPONS[i]) / (dirtyPrice[i] * DELIVERY_DATES.get(i) - COUPONS[i] / 2);
     }
-    final double[] irr = IRR_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+    final double[] irr = IRR_CALCULATOR.calculate(FUTURE, BASKET_DATA, FUTURE_PRICE);
     assertArrayEquals(irr, result, 1e-15);
   }
 

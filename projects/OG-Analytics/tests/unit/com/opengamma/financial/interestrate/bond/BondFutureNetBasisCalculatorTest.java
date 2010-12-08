@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 
 /**
  * 
@@ -32,76 +33,27 @@ public class BondFutureNetBasisCalculatorTest {
   private static final List<Double> CLEAN_PRICES = Arrays.asList(97., 98., 99.);
   private static final List<Double> ACCRUED_INTEREST = Arrays.asList(0., 0.04, 1.);
   private static final List<Double> REPO_RATES = Arrays.asList(0.03, 0.02, 0.03);
+  private static final BondFutureDeliverableBasketDataBundle BASKET_DATA = new BondFutureDeliverableBasketDataBundle(DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES);
   private static final double FUTURE_PRICE = 105;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBondFuture() {
-    NET_BASIS_CALCULATOR.calculate(null, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+    NET_BASIS_CALCULATOR.calculate(null, BASKET_DATA, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullDeliveryDates() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, null, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+  public void testNullBasket() {
+    NET_BASIS_CALCULATOR.calculate(FUTURE, null, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullCleanPrices() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, null, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullAccruedInterest() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, null, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullRepoRates() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, null, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testDeliveryDateWithNull() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, Arrays.asList(0.1, null, 0.1), CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testCleanPricesWithNull() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, Arrays.asList(100., null, 103.), ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAccruedInterestWithNull() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, Arrays.asList(0.3, null, 0.), REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testRepoRatesWithNull() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, Arrays.asList(0.02, 0.01, null), FUTURE_PRICE);
+  public void testWrongBasketSize() {
+    NET_BASIS_CALCULATOR.calculate(new BondFuture(new Bond[] {DELIVERABLES[0]}, new double[] {0.78}), BASKET_DATA, FUTURE_PRICE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeFuturePrice() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, -FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadDeliveryDates() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, Arrays.asList(0.1, 0.1), CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadCleanPrices() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, Arrays.asList(100., 103.), ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadAccruedInterest() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, Arrays.asList(0.3, 0.), REPO_RATES, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testBadRepoRates() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, Arrays.asList(0.02, 0.01), FUTURE_PRICE);
+    NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA, -FUTURE_PRICE);
   }
 
   @Test
@@ -117,7 +69,7 @@ public class BondFutureNetBasisCalculatorTest {
       forwardDirtyPrices[i] = FORWARD_DIRTY_PRICE_CALCULATOR.calculate(new BondForward(DELIVERABLES[i], DELIVERY_DATES.get(i)), deliverableDirtyPrices[i], REPO_RATES.get(i));
       netBasis[i] = forwardDirtyPrices[i] - invoicePrices[i];
     }
-    final double[] result = NET_BASIS_CALCULATOR.calculate(FUTURE, DELIVERY_DATES, CLEAN_PRICES, ACCRUED_INTEREST, REPO_RATES, FUTURE_PRICE);
+    final double[] result = NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA, FUTURE_PRICE);
     assertArrayEquals(result, netBasis, 1e-15);
   }
 }

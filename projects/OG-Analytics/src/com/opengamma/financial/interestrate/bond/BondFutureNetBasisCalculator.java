@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 
 /**
  * 
@@ -29,20 +30,17 @@ public final class BondFutureNetBasisCalculator extends BondFutureCalculator {
   }
 
   @Override
-  public double[] calculate(final BondFuture bondFuture, final List<Double> deliveryDates, final List<Double> cleanPrices, final List<Double> accruedInterest, final List<Double> repoRates,
-      final double futurePrice) {
+  public double[] calculate(final BondFuture bondFuture, final BondFutureDeliverableBasketDataBundle basketData, final double futurePrice) {
     Validate.notNull(bondFuture, "bond future");
-    Validate.noNullElements(deliveryDates, "delivery dates");
-    Validate.noNullElements(cleanPrices, "clean prices");
-    Validate.noNullElements(accruedInterest, "accrued interest");
-    Validate.noNullElements(repoRates, "repo rates");
+    Validate.notNull(basketData, "basket data");
     Validate.isTrue(futurePrice > 0, "future price must be positive");
     final Bond[] deliverableBonds = bondFuture.getBonds();
     final int n = deliverableBonds.length;
-    Validate.isTrue(deliveryDates.size() == n, "there must be a delivery date for each bond");
-    Validate.isTrue(cleanPrices.size() == n, "there must be a clean price for each bond");
-    Validate.isTrue(accruedInterest.size() == n, "there must be a value for accrued interest for each bond");
-    Validate.isTrue(repoRates.size() == n, "there must be a repo rate for each bond");
+    Validate.isTrue(n == basketData.getSize());
+    final List<Double> deliveryDates = basketData.getDeliveryDates();
+    final List<Double> cleanPrices = basketData.getCleanPrices();
+    final List<Double> accruedInterest = basketData.getAccruedInterest();
+    final List<Double> repoRates = basketData.getRepoRates();
     final double[] conversionFactors = bondFuture.getConversionFactors();
     final double[] result = new double[n];
     Bond deliverable;

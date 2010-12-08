@@ -38,6 +38,7 @@ import com.opengamma.financial.interestrate.bond.BondFutureNetBasisCalculator;
 import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -141,14 +142,15 @@ public class BondFutureTest {
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, CLEAN_PRICE[i] / 100.0);
       double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
-      assertEquals(CONV_YIELD[i], 100 * yield, 1e-3); //TODO should have accuracy to 3 dp
+      assertEquals(CONV_YIELD[i], 100 * yield, 1e-3);
     }
     final BondFuture bondFuture = new BondFuture(deliverables, C_FACTOR);
-    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, FUTURE_PRICE / 100);
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, FUTURE_PRICE / 100);
     assertArrayEquals(grossBasis, GROSS_BASIS, 1e-5);
-    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, FUTURE_PRICE / 100);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, FUTURE_PRICE / 100);
     assertArrayEquals(netBasis, NET_BASIS, 1e-5);
-    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, FUTURE_PRICE / 100);
+    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, FUTURE_PRICE / 100);
     assertArrayEquals(irr, IMPLIED_REPO, 1e-4);
   }
 
@@ -186,10 +188,11 @@ public class BondFutureTest {
     final List<Double> accruedInterest = Arrays.asList(accruedToDelivery / 100);
     final List<Double> repoRates = Arrays.asList(repoRate);
     final BondFuture bondFuture = new BondFuture(new Bond[] {bond}, new double[] {conversionFactor});
-    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(grossBasis.length, 1);
     assertEquals(1.24358491, 100 * grossBasis[0], 1e-8);
-    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(netBasis.length, 1);
     assertEquals(1.0407732, 100 * netBasis[0], 1e-7); //NOTE the calculated number in the book is wrong!!!!
   }
@@ -234,12 +237,13 @@ public class BondFutureTest {
     double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice / 100);
     yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
     assertEquals(4.870, 100 * yield, 1e-3);
-    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(grossBasis.length, 1);
     assertEquals(0.1154801, 100 * grossBasis[0], 1e-7);
-    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(0.0231429, 100 * netBasis[0], 1e-7); //book is slightly out
-    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(irr.length, 1);
     assertEquals(4.7353923, 100 * irr[0], 1e-7); //again book is slightly out
   }
@@ -277,13 +281,14 @@ public class BondFutureTest {
     final List<Double> accruedInterest = Arrays.asList(fwdBond.getAccruedInterest());
     final List<Double> repoRates = Arrays.asList(repoRate);
     final BondFuture bondFuture = new BondFuture(new Bond[] {bond}, new double[] {conversionFactor});
-    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(grossBasis.length, 1);
     assertEquals(2.856, 100 * grossBasis[0], 1e-3);
-    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(netBasis.length, 1);
     assertEquals(2.665, 100 * netBasis[0], 1e-3); //book is slightly out
-    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterest, repoRates, futuresPrice / 100);
+    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
     assertEquals(irr.length, 1);
     assertEquals(-11.23, 100 * irr[0], 1e-2); //again book is slightly out
   }

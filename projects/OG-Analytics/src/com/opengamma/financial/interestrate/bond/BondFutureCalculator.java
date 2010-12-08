@@ -5,16 +5,13 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import java.util.List;
-
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 
 /**
  * 
  */
 public abstract class BondFutureCalculator {
 
-  //TODO do we need a list for the delivery dates?
-  //TODO bundle for the deliverables data
-  public abstract double[] calculate(BondFuture bondFuture, List<Double> deliveryDates, List<Double> cleanPrices, List<Double> accruedInterest, List<Double> repoRates, double futurePrice);
+  public abstract double[] calculate(BondFuture bondFuture, BondFutureDeliverableBasketDataBundle basketData, double futurePrice);
 }
