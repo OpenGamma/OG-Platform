@@ -62,8 +62,6 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.master.db.hibernate.option.OptionExerciseType;
-import com.opengamma.financial.security.master.db.hibernate.option.OptionPayoffStyle;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -76,7 +74,6 @@ import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.ExtremeSpreadPayoffStyle;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FadeInPayoffStyle;
@@ -86,7 +83,6 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.GapPayoffStyle;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.PayoffStyle;
-import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
@@ -340,111 +336,30 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
-        for (final OptionExerciseType exerciseType : OptionExerciseType.values()) {
-          values.add(exerciseType.accept(new ExerciseTypeVisitor<ExerciseType>() {
-
-            @Override
-            public ExerciseType visitAmericanExerciseType(final AmericanExerciseType exerciseType) {
-              return new AmericanExerciseType();
-            }
-
-            @Override
-            public ExerciseType visitAsianExerciseType(final AsianExerciseType exerciseType) {
-              return new AsianExerciseType();
-            }
-
-            @Override
-            public ExerciseType visitBermudanExerciseType(final BermudanExerciseType exerciseType) {
-              return new BermudanExerciseType();
-            }
-
-            @Override
-            public ExerciseType visitEuropeanExerciseType(final EuropeanExerciseType exerciseType) {
-              return new EuropeanExerciseType();
-            }
-          }));
-        }
+        values.add(new AmericanExerciseType());
+        values.add(new AsianExerciseType());
+        values.add(new BermudanExerciseType());
+        values.add(new EuropeanExerciseType());
       }
     });
     s_dataProviders.put(PayoffStyle.class, new TestDataProvider<PayoffStyle>() {
       @Override
       public void getValues(final Collection<PayoffStyle> values) {
-        for (final OptionPayoffStyle payoffStyle : OptionPayoffStyle.values()) {
-          values.add(payoffStyle.accept(new PayoffStyleVisitor<PayoffStyle>() {
-
-            @Override
-            public PayoffStyle visitAssetOrNothingPayoffStyle(final AssetOrNothingPayoffStyle payoffStyle) {
-              return new AssetOrNothingPayoffStyle();
-            }
-
-            @Override
-            public PayoffStyle visitAsymmetricPoweredPayoffStyle(final AsymmetricPoweredPayoffStyle payoffStyle) {
-              return new AsymmetricPoweredPayoffStyle(s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitBarrierPayoffStyle(final BarrierPayoffStyle payoffStyle) {
-              return new BarrierPayoffStyle();
-            }
-
-            @Override
-            public PayoffStyle visitCappedPoweredPayoffStyle(final CappedPoweredPayoffStyle payoffStyle) {
-              return new CappedPoweredPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitCashOrNothingPayoffStyle(final CashOrNothingPayoffStyle payoffStyle) {
-              return new CashOrNothingPayoffStyle(s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitFadeInPayoffStyle(final FadeInPayoffStyle payoffStyle) {
-              return new FadeInPayoffStyle(s_random.nextDouble(), s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitFixedStrikeLookbackPayoffStyle(final FixedStrikeLookbackPayoffStyle payoffStyle) {
-              return new FixedStrikeLookbackPayoffStyle();
-            }
-
-            @Override
-            public PayoffStyle visitFloatingStrikeLookbackPayoffStyle(final FloatingStrikeLookbackPayoffStyle payoffStyle) {
-              return new FloatingStrikeLookbackPayoffStyle();
-            }
-
-            @Override
-            public PayoffStyle visitGapPayoffStyle(final GapPayoffStyle payoffStyle) {
-              return new GapPayoffStyle(s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitPoweredPayoffStyle(final PoweredPayoffStyle payoffStyle) {
-              return new PoweredPayoffStyle(s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitSupersharePayoffStyle(final SupersharePayoffStyle payoffStyle) {
-              return new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble());
-            }
-
-            @Override
-            public PayoffStyle visitVanillaPayoffStyle(final VanillaPayoffStyle payoffStyle) {
-              return new VanillaPayoffStyle();
-            }
-
-            @Override
-            public PayoffStyle visitExtremeSpreadPayoffStyle(final ExtremeSpreadPayoffStyle payoffStyle) {
-              return new ExtremeSpreadPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextBoolean());
-            }
-
-            @Override
-            public PayoffStyle visitSimpleChooserPayoffStyle(final SimpleChooserPayoffStyle payoffStyle) {
-              return new SimpleChooserPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextDouble(), new Expiry(ZonedDateTime.now(Clock
-                  .systemDefaultZone()), ExpiryAccuracy.MONTH_YEAR));
-            }
-
-          }));
-        }
+        values.add(new AssetOrNothingPayoffStyle());
+        values.add(new AsymmetricPoweredPayoffStyle(s_random.nextDouble()));
+        values.add(new BarrierPayoffStyle());
+        values.add(new CappedPoweredPayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
+        values.add(new CashOrNothingPayoffStyle(s_random.nextDouble()));
+        values.add(new FadeInPayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
+        values.add(new FixedStrikeLookbackPayoffStyle());
+        values.add(new FloatingStrikeLookbackPayoffStyle());
+        values.add(new GapPayoffStyle(s_random.nextDouble()));
+        values.add(new PoweredPayoffStyle(s_random.nextDouble()));
+        values.add(new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
+        values.add(new VanillaPayoffStyle());
+        values.add(new ExtremeSpreadPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextBoolean()));
+        values.add(new SimpleChooserPayoffStyle(new DateTimeWithZone(ZonedDateTime.now(Clock.systemDefaultZone()).withNanoOfSecond(0)), s_random.nextDouble(),
+            new Expiry(ZonedDateTime.now(Clock.systemDefaultZone()), ExpiryAccuracy.MONTH_YEAR)));
       }
     });
     s_dataProviders.put(Boolean.class, provider = new TestDataProvider<Boolean>() {
