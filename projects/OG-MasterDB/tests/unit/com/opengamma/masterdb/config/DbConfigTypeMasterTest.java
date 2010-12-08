@@ -69,7 +69,7 @@ public class DbConfigTypeMasterTest extends DBTest {
     addDoc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> added = _cfgMaster.add(addDoc);
     
-    ConfigDocument<Identifier> loaded = _cfgMaster.get(added.getConfigId());
+    ConfigDocument<Identifier> loaded = _cfgMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
 

@@ -414,7 +414,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     
     riskRun.setOpenGammaVersion(getOpenGammaVersion(batch.getJob()));
     riskRun.setMasterProcessHost(getLocalComputeHost());
@@ -434,7 +434,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     
     riskRun.setEndInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setComplete(true);

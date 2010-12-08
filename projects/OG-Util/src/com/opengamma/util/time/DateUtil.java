@@ -225,21 +225,6 @@ public class DateUtil {
     return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minute), TimeZone.UTC);
   }
 
-  /**
-   * Returns a date given year, month, day, hour, minutes and the name of the time zone.
-   * 
-   * @param year  the year
-   * @param month  the month
-   * @param day  the day of month
-   * @param hour  the hour
-   * @param minute  the minute
-   * @param timeZone  the zone, not null
-   * @return the date-time, not null
-   */
-  public static ZonedDateTime getDateInTimeZone(final int year, final int month, final int day, final int hour, final int minute, final String timeZone) {
-    return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minute), TimeZone.of("London"));  // TODO: use zone id
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the exact number of 24 hour days in between two dates.
@@ -433,19 +418,6 @@ public class DateUtil {
   }
 
   //-------------------------------------------------------------------------
-  // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.
-  /**
-   * Creates a clock with a fixed time-source and default time-zone.
-   * @param epochMilliseconds  the epoch millis
-   * @return the clock, not null
-   */
-  public static Clock epochFixedClockDefaultZone(long epochMilliseconds) {
-    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
-    TimeSource timeSource = TimeSource.fixed(instant);
-    Clock clock = Clock.clockDefaultZone(timeSource);
-    return clock;
-  }
-
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.
   /**
    * Creates a clock with a fixed time-source and UTC time-zone.

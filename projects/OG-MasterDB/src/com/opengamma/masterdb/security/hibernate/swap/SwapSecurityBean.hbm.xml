@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.swap">
+  <union-subclass name="SwapSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_swap">
+    <property name="swapType" column="swaptype" type="com.opengamma.masterdb.security.hibernate.swap.SwapTypeUserType" not-null="true" />
+    <component name="tradeDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="trade_date" not-null="true" />
+      <property name="zone" type="string" column="trade_zone" not-null="true" />
+    </component>
+    <component name="effectiveDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="effective_date" not-null="true" />
+      <property name="zone" type="string" column="effective_zone" not-null="true" />
+    </component>
+    <component name="maturityDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="maturity_date" not-null="true" />
+      <property name="zone" type="string" column="maturity_zone" not-null="true" />
+    </component>
+    <component name="forwardStartDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" type="timestamp" column="forwardstart_date" />
+      <property name="zone" type="string" column="forwardstart_zone" />
+    </component>
+    <property name="counterparty" column="counterparty" type="string" not-null="true" />
+    <component name="payLeg" class="SwapLegBean">
+      <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="pay_legtype" not-null="true" />
+      <many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="pay_daycount_id" not-null="true" />
+      <many-to-one name="frequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_frequency_id" not-null="true" />
+      <component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <property name="scheme" type="string" column="pay_regionscheme" not-null="true" />
+        <property name="identifier" type="string" column="pay_regionid" not-null="true" />
+      </component>
+      <many-to-one name="businessDayConvention" class="com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean" column="pay_businessdayconvention_id" not-null="true" />
+      <component name="notional" class="NotionalBean">
+        <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="pay_notionaltype" not-null="true" />
+        <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="pay_notionalcurrency_id" />
+        <property name="amount" type="double" column="pay_notionalamount" />
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+          <property name="scheme" type="string" column="pay_notionalscheme" />
+          <property name="identifier" type="string" column="pay_notionalid" />
+        </component>
+      </component>
+      <property name="rate" type="double" column="pay_rate" />
+      <property name="spread" type="double" column="pay_spread" />
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <property name="scheme" type="string" column="pay_rateidentifierscheme" />
+        <property name="identifier" type="string" column="pay_rateidentifierid" />
+      </component>
+    </component>
+    <component name="receiveLeg" class="SwapLegBean">
+      <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="receive_legtype" not-null="true" />
+      <many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="receive_daycount_id" not-null="true" />
+      <many-to-one name="frequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_frequency_id" not-null="true" />
+      <component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <property name="scheme" type="string" column="receive_regionscheme" not-null="true" />
+        <property name="identifier" type="string" column="receive_regionid" not-null="true" />
+      </component>
+      <many-to-one name="businessDayConvention" class="com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean" column="receive_businessdayconvention_id" not-null="true" />
+      <component name="notional" class="NotionalBean">
+        <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="receive_notionaltype" not-null="true" />
+        <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="receive_notionalcurrency_id" />
+        <property name="amount" type="double" column="receive_notionalamount" />
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+          <property name="scheme" type="string" column="receive_notionalscheme" />
+          <property name="identifier" type="string" column="receive_notionalid" />
+        </component>
+      </component>
+      <property name="rate" type="double" column="receive_rate" />
+      <property name="spread" type="double" column="receive_spread" />
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <property name="scheme" type="string" column="receive_rateidentifierscheme" />
+        <property name="identifier" type="string" column="receive_rateidentifierid" />
+      </component>
+    </component>
+  </union-subclass>
+
+  <query name="SwapSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      SwapSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="SwapSecurityBean.all">
+    from SwapSecurityBean
+  </query>
+
+</hibernate-mapping>

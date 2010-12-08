@@ -62,7 +62,7 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getHoliday_found() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     
     Holiday hol = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
@@ -77,7 +77,7 @@ public class MasterHolidaySourceTest {
 
   @Test
   public void test_getHoliday_notFound() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     
     when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
@@ -91,7 +91,7 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateCurrency_holiday() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
@@ -111,7 +111,7 @@ public class MasterHolidaySourceTest {
 
   @Test
   public void test_isHoliday_LocalDateCurrency_workday() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
@@ -129,7 +129,7 @@ public class MasterHolidaySourceTest {
 
   @Test
   public void test_isHoliday_LocalDateCurrency_sunday() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_SUNDAY);
@@ -148,7 +148,7 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateTypeIdentifier_holiday() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, IdentifierBundle.of(ID));
     request.setDateToCheck(DATE_MONDAY);
@@ -169,7 +169,7 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateTypeIdentifierBundle_holiday() throws Exception {
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, BUNDLE);
     request.setDateToCheck(DATE_MONDAY);

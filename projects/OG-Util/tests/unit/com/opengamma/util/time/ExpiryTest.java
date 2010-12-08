@@ -45,14 +45,14 @@ public class ExpiryTest {
   @Test
   public void testFudgeMessageUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
-      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.UTC), accuracy));
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.UTC), accuracy));
     }
   }
 
   @Test
   public void testFudgeMessageNonUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
-      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.nowSystemClock(), TimeZone.of("GMT+02:00")), accuracy));
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.of("GMT+02:00")), accuracy));
     }
   }
 

@@ -80,7 +80,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     doc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> test = _worker.add(doc);
     
-    UniqueIdentifier uid = test.getConfigId();
+    UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
     assertEquals("DbCfg", uid.getScheme());
     assertTrue(uid.isVersioned());
@@ -88,6 +88,8 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
     assertEquals(Identifier.of("A", "B"), test.getValue());
     assertEquals("TestConfig", test.getName());
   }
@@ -99,7 +101,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     doc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> added = _worker.add(doc);
     
-    ConfigDocument<Identifier> test = _queryWorker.get(added.getConfigId());
+    ConfigDocument<Identifier> test = _queryWorker.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

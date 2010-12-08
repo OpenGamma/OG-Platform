@@ -18,7 +18,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
@@ -61,32 +60,32 @@ public class UserEntitlementCheckerTest {
     when(userManager.getUser("john")).thenReturn(user);
     
     DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "EQ12345"),
+        Identifier.of("BLOOMBERG_BUID", "EQ12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"); 
     
     DistributionSpecification aaplOnBloombergWithNormalization = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "EQ12345"),
+        Identifier.of("BLOOMBERG_BUID", "EQ12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule"); 
     
     DistributionSpecification bondOnBloomberg = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BOND12345"),
+        Identifier.of("BLOOMBERG_BUID", "BOND12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Bond.IBMBOND123"); 
     
     DistributionSpecification bondOnBloombergWithNormalization = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "BOND12345"),
+        Identifier.of("BLOOMBERG_BUID", "BOND12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
 
     DistributionSpecification fxOnBloomberg = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "FX12345"),
+        Identifier.of("BLOOMBERG_BUID", "FX12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.FX.EURUSD");
     
     DistributionSpecification fxOnBloombergWithNormalization = new DistributionSpecification(
-        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "FX12345"),
+        Identifier.of("BLOOMBERG_BUID", "FX12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
     
@@ -120,7 +119,7 @@ public class UserEntitlementCheckerTest {
     Assert.assertFalse(userEntitlementChecker.isEntitled(john, 
         new LiveDataSpecification(
             StandardRules.getOpenGammaRuleSetId(), 
-            Identifier.of(IdentificationScheme.RIC, "bar"))));
+            Identifier.of("RIC", "bar"))));
   }
 
 }

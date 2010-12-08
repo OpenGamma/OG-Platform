@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.bond">
+  <class name="YieldConventionBean" table="sec_yieldconvention">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="name" unique="true" type="string" not-null="true"/>
+  </class>
+  <query name="YieldConventionBean.all">
+    from YieldConventionBean
+  </query>
+  <query name="YieldConventionBean.one">
+    from YieldConventionBean as y where y.name=:name
+  </query>
+</hibernate-mapping>

@@ -62,7 +62,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
     }
     ConfigDocument<T> oldDoc = data().getConfig();
     ConfigDocument<T> doc = new ConfigDocument<T>();
-    doc.setConfigId(oldDoc.getConfigId());
+    doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
     doc.setValue(oldDoc.getValue());
     doc = data().getConfigTypeMaster().update(doc);
@@ -74,7 +74,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   @DELETE
   public Response delete() {
     ConfigDocument<?> doc = data().getConfig();
-    data().getConfigTypeMaster().remove(doc.getConfigId());
+    data().getConfigTypeMaster().remove(doc.getUniqueId());
     URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
   }

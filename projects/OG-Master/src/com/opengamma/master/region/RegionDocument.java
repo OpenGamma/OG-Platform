@@ -36,6 +36,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   /**
    * The region unique identifier.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -120,6 +121,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the region unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -128,6 +130,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   /**
    * Sets the region unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -136,6 +139,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   /**
    * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {

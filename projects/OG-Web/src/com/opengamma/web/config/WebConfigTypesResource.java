@@ -90,7 +90,7 @@ public class WebConfigTypesResource<T> extends AbstractWebConfigTypeResource<T> 
     doc.setName(name);
     // doc.setValue((T) "PLACEHOLDER");
     ConfigDocument<T> added = data().getConfigTypeMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getConfigId().toLatest().toString()).build();
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
 

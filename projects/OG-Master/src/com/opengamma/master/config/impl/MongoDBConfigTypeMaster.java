@@ -295,7 +295,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     
     Instant now = Instant.now(getTimeSource());
     String id = ObjectId.get().toString();
-    document.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), id, id));
+    document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), id, id));
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     DBObject insertDoc = convertToDb(document);
@@ -310,13 +310,13 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
-    ArgumentChecker.notNull(document.getConfigId(), "document.configId");
-    checkScheme(document.getConfigId());
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    checkScheme(document.getUniqueId());
     
     // load old row
-    ConfigDocument<T> oldDoc = get(document.getConfigId());  // checks uid exists
+    ConfigDocument<T> oldDoc = get(document.getUniqueId());  // checks uid exists
     if (oldDoc.getVersionToInstant() != null) {
-      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + document.getConfigId());
+      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + document.getUniqueId());
     }
     // not possible to do a transactional update in Mongo as there are two documents
     // http://groups.google.com/group/mongodb-user/browse_thread/thread/51765eae8c337b8c
@@ -325,14 +325,14 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     // prepare to insert new row
     Instant now = Instant.now(getTimeSource());
     ObjectId id = ObjectId.get();
-    document.setConfigId(document.getConfigId().withVersion(id.toString()));
+    document.setUniqueId(document.getUniqueId().withVersion(id.toString()));
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     DBObject insertDoc = convertToDb(document);
     s_logger.debug("Config update, insert={}", insertDoc);
     // prepare to update old row
     DBObject updateQueryObj = new BasicDBObject();
-    updateQueryObj.put(ID_FIELD_NAME, extractRowId(oldDoc.getConfigId()));
+    updateQueryObj.put(ID_FIELD_NAME, extractRowId(oldDoc.getUniqueId()));
     updateQueryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new Date(MAX_INSTANT.toEpochMillisLong()));
     BasicDBObject updateObj = new BasicDBObject("$set", new BasicDBObject(VERSION_TO_INSTANT_FIELD_NAME, new Date(now.toEpochMillisLong())));
     s_logger.debug("Config update, find={} action={}", updateQueryObj, updateObj);
@@ -379,11 +379,11 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getConfigId(), "request.configId");
-    checkScheme(request.getConfigId());
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    checkScheme(request.getObjectId());
     
     DBObject queryObj = new BasicDBObject();
-    queryObj.put(OID_FIELD_NAME, request.getConfigId().getValue());
+    queryObj.put(OID_FIELD_NAME, request.getObjectId().getValue());
     if (request.getVersionsFromInstant() != null && request.getVersionsFromInstant().equals(request.getVersionsToInstant())) {
       queryObj.put(VERSION_FROM_INSTANT_FIELD_NAME, new BasicDBObject("$lte", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
       queryObj.put(VERSION_TO_INSTANT_FIELD_NAME, new BasicDBObject("$gt", new Date(request.getVersionsFromInstant().toEpochMillisLong())));
@@ -415,6 +415,12 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     result.setPaging(configSearchResult.getPaging());
     result.setDocuments(configSearchResult.getDocuments());
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    return update(document);  // TODO if we use Mongo again
   }
 
   //-------------------------------------------------------------------------
@@ -489,7 +495,7 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ConfigDocument<T> doc = new ConfigDocument<T>();
     ObjectId id = (ObjectId) dbObject.get("_id");
     String oid = (String) dbObject.get(OID_FIELD_NAME);
-    doc.setConfigId(UniqueIdentifier.of(getIdentifierScheme(), oid, id.toString()));
+    doc.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), oid, id.toString()));
     doc.setName((String) dbObject.get(NAME_FIELD_NAME));
     Date versionFromTime = (Date) dbObject.get(VERSION_FROM_INSTANT_FIELD_NAME);
     doc.setVersionFromInstant(Instant.ofEpochMillis(versionFromTime.getTime()));
@@ -509,8 +515,8 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   protected DBObject convertToDb(final ConfigDocument<T> document) {
     FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(document.getValue());
     DBObject insertDoc = new BasicDBObject();
-    insertDoc.put(ID_FIELD_NAME, extractRowId(document.getConfigId()));
-    insertDoc.put(OID_FIELD_NAME, extractOid(document.getConfigId()));
+    insertDoc.put(ID_FIELD_NAME, extractRowId(document.getUniqueId()));
+    insertDoc.put(OID_FIELD_NAME, extractOid(document.getUniqueId()));
     insertDoc.put(NAME_FIELD_NAME, document.getName());
     insertDoc.put(VERSION_FROM_INSTANT_FIELD_NAME, new Date(document.getVersionFromInstant().toEpochMillisLong()));
     if (document.getVersionToInstant() != null) {

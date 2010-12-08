@@ -72,7 +72,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
 //    exchange_scheme varchar(255),
 //    exchange_value varchar(255),
 //    currency_iso varchar(255),
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     _holMaster.setTimeSource(TimeSource.fixed(now));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);

@@ -66,7 +66,7 @@ public class MasterPositionSourceTest {
   public void test_getPortfolio() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPortfolioGetRequest request = new FullPortfolioGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     Portfolio portfolio = new PortfolioImpl(UID, "Hello");
@@ -85,7 +85,7 @@ public class MasterPositionSourceTest {
   public void test_getPortfolioNode() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     PortfolioNode node = new PortfolioNodeImpl(UID, "Hello");
@@ -104,7 +104,7 @@ public class MasterPositionSourceTest {
   public void test_getPosition() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPositionGetRequest request = new FullPositionGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     Position node = new PositionImpl(UID, BigDecimal.TEN, Identifier.of("B", "C"));

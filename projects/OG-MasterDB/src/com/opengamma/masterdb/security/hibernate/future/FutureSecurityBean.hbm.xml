@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.future">
+  <union-subclass name="FutureSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_future">
+    <property name="futureType" column="future_type" type="com.opengamma.masterdb.security.hibernate.future.FutureTypeUserType" not-null="true" />
+    
+    <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
+			<component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+				<property name="date" column="expiry_date" type="timestamp" not-null="true" />
+				<property name="zone" column="expiry_zone" type="string" not-null="true" />
+			</component>
+			<property name="accuracy" column="expiry_accuracy" type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true" />
+	</component>
+    <many-to-one name="tradingExchange" column="tradingexchange_id" class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true" />
+    <many-to-one name="settlementExchange" column="settlementexchange_id" class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true" />
+    <many-to-one name="currency1" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
+    <many-to-one name="currency2" column="currency2_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
+    <many-to-one name="currency3" column="currency3_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
+    <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean" />
+    <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
+    <many-to-one name="cashRateType" column="cashratetype_id" class="CashRateTypeBean" />
+    <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
+    <property name="unitNumber" column="unitnumber" type="double" />
+  </union-subclass>
+
+  <query name="FutureSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      FutureSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="FutureSecurityBean.all">
+    from FutureSecurityBean
+  </query>
+
+</hibernate-mapping>

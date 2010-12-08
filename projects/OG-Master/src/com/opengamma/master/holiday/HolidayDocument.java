@@ -36,6 +36,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
   /**
    * The holiday unique identifier.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -151,6 +152,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the holiday unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -159,6 +161,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
   /**
    * Sets the holiday unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -167,6 +170,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
   /**
    * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {
