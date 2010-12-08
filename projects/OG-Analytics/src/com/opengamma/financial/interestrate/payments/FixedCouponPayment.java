@@ -95,6 +95,6 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
 
   @Override
   public String toString() {
-    return "FixedCouponPayment[" + _coupon + ", notional = " + _notional + ", t = " + _yearFraction;
+    return "FixedCouponPayment[" + _coupon + ", notional = " + _notional + ", t = " + _yearFraction + "]";
   }
 }

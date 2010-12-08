@@ -51,7 +51,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureImpliedRepoFunction.class);
-  private static final BondFutureCalculator IMPLIED_REPO_CALCULATOR = new BondFutureImpliedRepoRateCalculator();
+  private static final BondFutureCalculator IMPLIED_REPO_CALCULATOR = BondFutureImpliedRepoRateCalculator.getInstance();
   @Override
   public String getShortName() {
     return "BondFutureImpliedRepoFunction";

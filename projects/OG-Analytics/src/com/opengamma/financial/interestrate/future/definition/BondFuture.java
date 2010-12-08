@@ -15,15 +15,14 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
  * 
  */
 public class BondFuture {
-
   private final Bond[] _bonds;
   private final double[] _conversionFactors;
 
   public BondFuture(final Bond[] bonds, final double[] conversionFactors) {
     Validate.noNullElements(bonds, "null bonds");
-    Validate.notNull(conversionFactors, "null convertion facrtors");
+    Validate.notNull(conversionFactors, "null conversion factors");
+    Validate.isTrue(bonds.length > 0, "bond array was empty");
     Validate.isTrue(bonds.length == conversionFactors.length);
-
     _bonds = bonds;
     _conversionFactors = conversionFactors;
   }
@@ -68,7 +67,7 @@ public class BondFuture {
     if (!Arrays.equals(_bonds, other._bonds)) {
       return false;
     }
-    return !Arrays.equals(_conversionFactors, other._conversionFactors);
+    return Arrays.equals(_conversionFactors, other._conversionFactors);
   }
 
 }

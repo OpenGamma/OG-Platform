@@ -15,10 +15,10 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
  * 
  */
 public class BondZSpreadCalculator {
+
   public double calculate(final Bond bond, final YieldCurveBundle curves, final Double dirtyPrice) {
     Validate.notNull(bond, "bond");
     Validate.isTrue(dirtyPrice > 0.0, "need dirtyPrice greater than zero");
     return ZSpreadCalculator.getInstance().calculateZSpread(bond.getAnnuity(), curves, dirtyPrice);
   }
-
 }

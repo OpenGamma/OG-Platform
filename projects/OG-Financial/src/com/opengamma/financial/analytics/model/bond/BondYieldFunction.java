@@ -29,7 +29,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondYieldFunction extends BondFunction {
-  private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
+  private static final BondYieldCalculator CALCULATOR = BondYieldCalculator.getInstance();
   private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   public BondYieldFunction() {

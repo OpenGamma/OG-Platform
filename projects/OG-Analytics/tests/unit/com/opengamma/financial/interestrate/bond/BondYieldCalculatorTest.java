@@ -20,7 +20,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
  * 
  */
 public class BondYieldCalculatorTest {
-  private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
+  private static final BondYieldCalculator CALCULATOR = BondYieldCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final double PRICE = 1.;
   private static final double YIELD = 0.05;
@@ -45,8 +45,8 @@ public class BondYieldCalculatorTest {
 
   @Test
   public void testBond() {
-    final double yield = CALCULATOR.calculate(BOND, PRICE);
-    assertEquals(YIELD, yield, 1e-8);
+    assertEquals(YIELD, CALCULATOR.calculate(BOND, PRICE), 1e-8);
+    assertEquals(YIELD, CALCULATOR.calculate(BOND, BUNDLE), 1e-8);
   }
 
 }

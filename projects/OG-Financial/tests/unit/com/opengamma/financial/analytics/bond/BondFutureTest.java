@@ -5,20 +5,62 @@
  */
 package com.opengamma.financial.analytics.bond;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.junit.Test;
+
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.Holiday;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.DefaultConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.interestrate.bond.BondDirtyPriceCalculator;
+import com.opengamma.financial.interestrate.bond.BondForwardDirtyPriceCalculator;
+import com.opengamma.financial.interestrate.bond.BondFutureCalculator1;
+import com.opengamma.financial.interestrate.bond.BondFutureGrossBasisCalculator;
+import com.opengamma.financial.interestrate.bond.BondFutureImpliedRepoRateCalculator;
+import com.opengamma.financial.interestrate.bond.BondFutureNetBasisCalculator;
+import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
+import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.security.DateTimeWithZone;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.Expiry;
+
 
 /**
  * The data in this test is from a Bloomberg screen shot show on page 362 of Fixed-income Securities
  */
 public class BondFutureTest {
-  /*  private static final BondYieldCalculator YIELD_CALCULATOR = new BondYieldCalculator();
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
-  private static final BondFutureImpliedRepoRateCalculator IMPLIED_REPO_CALCULATOR = new BondFutureImpliedRepoRateCalculator();
-  private static final BondFutureGrossBasisCalculator GROSS_BASIS_CALCULATOR = new BondFutureGrossBasisCalculator();
-  private static final BondFutureNetBasisCalculator NET_BASIS_CALCULATOR = new BondFutureNetBasisCalculator();
-  //private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
+  private static final BondYieldCalculator YIELD_CALCULATOR = BondYieldCalculator.getInstance();
+  private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
+  private static final BondForwardDirtyPriceCalculator FORWARD_DIRTY_PRICE_CALCULATOR = BondForwardDirtyPriceCalculator.getInstance();
+  private static final BondFutureImpliedRepoRateCalculator IMPLIED_REPO_CALCULATOR = BondFutureImpliedRepoRateCalculator.getInstance();
+  private static final BondFutureGrossBasisCalculator GROSS_BASIS_CALCULATOR = BondFutureGrossBasisCalculator.getInstance();
+  private static final BondFutureNetBasisCalculator NET_BASIS_CALCULATOR = BondFutureNetBasisCalculator.getInstance();
+  private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondConverter CONVERTER = new BondSecurityToBondConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final BondForwardCalculator BOND_FORWARD_CALCULATOR= new BondForwardCalculator(HOLIDAY_SOURCE, CONVENTION_SOURCE);
+  private static final BondForwardCalculator BOND_FORWARD_CALCULATOR = new BondForwardCalculator(HOLIDAY_SOURCE, CONVENTION_SOURCE);
 
   private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2001, 12, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2001, 12, 10);
@@ -71,24 +113,22 @@ public class BondFutureTest {
           100);
     }
   }
-   */
 
-
-  /*  @Test
+  @Test
   public void testYield(){
-    for(int i=0;i<N_BONDS;i++){
+    for(int i = 0;i < N_BONDS; i++){
       final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, CLEAN_PRICE[i]/100.0);
       double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
-      assertEquals(CONV_YIELD[i],100*yield,1e-2); //TODO should have accuracy to 3 dp
+      assertEquals(CONV_YIELD[i], 100 * yield, 1e-3); //TODO should have accuracy to 3 dp
       System.out.println("BBG yield: "+CONV_YIELD[i]+", Cal yield: " +100*yield);
     }
   }
 
   @Test
   public void testGrossBasis(){
-    for(int i=0;i<N_BONDS;i++){
+    for(int i = 0; i < N_BONDS; i++){
       final double grossBasis = BondFutureCalculator1.grossBasis(CLEAN_PRICE[i]/100.0, FUTURE_PRICE/100.0, C_FACTOR[i]);
       assertEquals(GROSS_BASIS[i], 100.0*grossBasis,1e-3);
     }
@@ -97,44 +137,37 @@ public class BondFutureTest {
   //TODO all these tests can be collapsed into one
   @Test
   public void testNetBasis() {
-    //    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("actual/360"); //TODO this needs to be pulled from a convention
-    //    final double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
-    //    final List<Double> deliveryDates = new ArrayList<Double>();
-    //    final List<Double> cleanPrices = new ArrayList<Double>();
-    //    final List<Double> accruedInterest = new ArrayList<Double>();
-    //    final List<Double> repoRates = new ArrayList<Double>();
-    //    final Bond[] deliverables = new Bond[N_BONDS];
-    //    final double[] cf = new double[N_BONDS];
-    //    for(int i = 0; i < N_BONDS; i++){
-    //      final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
-    //      deliverables[i] = bond;
-    //      BondForward = new BondForward(BOND[i], )
-    //      final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE, false);
-    //      final double fwdDP = CALCULATOR.getForwardDirtyPrice(BOND[i], CLEAN_PRICE[i], SETTLEMENT_DATE, LAST_DELIVERY_DATE, ACTUAL_REPO / 100);
-    //      final double netBasisFromDates =  fwdDP - (C_FACTOR[i] * FUTURE_PRICE + fwdBond.getAccruedInterest() * 100);
-    //      final double netBasis = BondFutureCalculator1.netBasis(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i],
-    //          fwdBond.getAccruedInterest(), ACTUAL_REPO/100.0);
-    //      assertEquals(NET_BASIS[i],100*netBasis,1e-3);
-    //    }
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("actual/360"); //TODO this needs to be pulled from a convention    
+    final double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
+
+    for(int i = 0; i < N_BONDS; i++){
+      final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
+      final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE, false);
+      final double fwdDP = BOND_FORWARD_CALCULATOR.getForwardDirtyPrice(BOND[i], CLEAN_PRICE[i], SETTLEMENT_DATE, LAST_DELIVERY_DATE, ACTUAL_REPO/100);
+      final double netBasisFromDates = fwdDP - (C_FACTOR[i]*FUTURE_PRICE + fwdBond.getAccruedInterest()*100);
+      final double netBasis = BondFutureCalculator1.netBasis(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i],
+          fwdBond.getAccruedInterest(), ACTUAL_REPO/100.0);
+      assertEquals(NET_BASIS[i], 100 * netBasis, 1e-3);
+      System.out.println("BBG net basis: " + NET_BASIS[i] + ", Cal net basis: " + 100 * netBasis + " with dates: "+ netBasisFromDates);
+    }
   }
 
 
   @Test
   public void testImpliedRepo() {
-    //    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360"); //TODO this needs to be pulled from a convention
-    //    final double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
-    //    for(int i = 0;i<N_BONDS;i++){
-    //      final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
-    //      final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE, false);
-    //      final double irr = BondFutureCalculator1.impliedRepoRate(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i],
-    //          fwdBond.getAccruedInterest());
-    //      assertEquals(IMPLIED_REPO[i],100*irr,1e-2);
-    //    }
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360"); //TODO this needs to be pulled from a convention
+    final double deliveryDate = dayCount.getDayCountFraction(SETTLEMENT_DATE, LAST_DELIVERY_DATE);
+    for(int i = 0;i<N_BONDS;i++){
+      final Bond bond = CONVERTER.getBond(BOND[i], "some curve", TRADE_DATE);
+      final Bond fwdBond = CONVERTER.getBond(BOND[i], "some curve", LAST_DELIVERY_DATE, false);
+      final double irr = BondFutureCalculator1.impliedRepoRate(bond, deliveryDate, CLEAN_PRICE[i]/100., FUTURE_PRICE/100., C_FACTOR[i], fwdBond.getAccruedInterest());
+      assertEquals(IMPLIED_REPO[i],100*irr,1e-2);
+    }
   }
 
-   *//**
+  /**
    * The number in this test are from Bond & Money Markets p586
-   *//*
+   */
   @Test
   public void testNetBasis2() {
     final ZonedDateTime settlementDate = DateUtil.getUTCDate(2000, 3, 16);
@@ -179,19 +212,19 @@ public class BondFutureTest {
     assertEquals(accruedInterest, 100 * bond.getAccruedInterest(),1e-8);
     assertEquals(accruedToDelivery, 100 * delivered.getAccruedInterest(),1e-7);
     final List<Double> deliveryDates = Arrays.asList(t);
-    final List<Double> cleanPrices = Arrays.asList()
+    final List<Double> cleanPrices = Arrays.asList();
 
     final double grossBasis = BondFutureCalculator1.grossBasis(cleanPrice, futuresPrice, conversionFactor);
     assertEquals(1.24358491, grossBasis, 1e-8);
 
     final double netBasis = BondFutureCalculator1.netBasis(bond, t, cleanPrice/100, futuresPrice/100, conversionFactor, accruedToDelivery/100, repoRate);
-    assertEquals(1.0407732, 100*netBasis, 1e-7); //NOTE the calculated number in the book is wrong!!!!
+    assertEquals(1.0407732, 100 * netBasis, 1e-7); //NOTE the calculated number in the book is wrong!!!!
   }
 
 
-    *//**
-    * The number in this test are from The Repo Handbook  p426
-    *//*
+  /**
+   * The number in this test are from The Repo Handbook  p426
+   */
   @Test
   public void testBasis3() {
 
@@ -236,7 +269,6 @@ public class BondFutureTest {
         1000,
         100,
         100);
-
     final double t = repoDayCount.getDayCountFraction(settlementDate, deliveryDate);
 
     final Bond bond = CONVERTER.getBond(bondSec, "some curve", settlementDate, false);
@@ -251,24 +283,19 @@ public class BondFutureTest {
     yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
     assertEquals(4.870,100*yield,1e-3);
 
-    final BondFuture bondFuture = new BondFuture(new Bond[]{bond}, new double[]{conversionFactor});
-    final List<Double> deliveryDates = Arrays.asList(t);
-    final List<Double> cleanPrices = Arrays.asList(cleanPrice / 100);
-    final List<Double> accruedInterestList = Arrays.asList(accruedToDelivery / 100);
-    final List<Double> repoRateList = Arrays.asList(repoRate);
-    final double[] grossBases = GROSS_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterestList, repoRateList, futuresPrice);
-    assertEquals(0.1154801, grossBases[0], 1e-7);
+    final double grossBasis = BondFutureCalculator1.grossBasis(cleanPrice, futuresPrice, conversionFactor);
+    assertEquals(0.1154801, grossBasis, 1e-7);
 
-    final double netBases[] = NET_BASIS_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterestList, repoRateList, futuresPrice);
-    assertEquals(0.0231429, 100*netBases[0], 1e-7); //book is slightly out
+    final double netBasis = BondFutureCalculator1.netBasis(bond, t, cleanPrice/100, futuresPrice/100, conversionFactor, accruedToDelivery/100, repoRate);
+    assertEquals(0.0231429, 100*netBasis, 1e-7); //book is slightly out
 
-    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, deliveryDates, cleanPrices, accruedInterestList, repoRateList, futuresPrice);
-    assertEquals(4.7353923, 100*irr[0], 1e-7); //again book is slightly out
+    final double irr = BondFutureCalculator1.impliedRepoRate(bond, t, cleanPrice/100, futuresPrice/100, conversionFactor, accruedToDelivery/100);
+    assertEquals(4.7353923, 100*irr, 1e-7); //again book is slightly out
   }
 
-     *//**
-     * The number in this test are from The Repo Handbook  p426
-     *//*
+  /**
+   * The number in this test are from The Repo Handbook  p426
+   */
   @Test
   public void testBasis4() {
 
@@ -354,6 +381,6 @@ public class BondFutureTest {
       return null;
     }
 
-  }*/
+  }
 
 }

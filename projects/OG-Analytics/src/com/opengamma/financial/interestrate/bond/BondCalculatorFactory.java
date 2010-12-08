@@ -19,11 +19,11 @@ public final class BondCalculatorFactory {
   /** Bond forward dirty price */
   public static final String BOND_FORWARD_DIRTY_PRICE = "BondForwardDirtyPrice";
   /** Bond clean price calculator */
-  public static final BondCleanPriceCalculator BOND_CLEAN_PRICE_CALCULATOR = new BondCleanPriceCalculator();
+  public static final BondCleanPriceCalculator BOND_CLEAN_PRICE_CALCULATOR = BondCleanPriceCalculator.getInstance();
   /** Bond dirty price calculator */
-  public static final BondDirtyPriceCalculator BOND_DIRTY_PRICE_CALCULATOR = new BondDirtyPriceCalculator();
+  public static final BondDirtyPriceCalculator BOND_DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
   /** Bond forward dirty price calculator */
-  public static final BondForwardDirtyPriceCalculator BOND_FORWARD_DIRTY_PRICE_CALCULATOR = new BondForwardDirtyPriceCalculator();
+  public static final BondForwardDirtyPriceCalculator BOND_FORWARD_DIRTY_PRICE_CALCULATOR = BondForwardDirtyPriceCalculator.getInstance();
   private static final Map<String, BondCalculator> s_bondInstances = new HashMap<String, BondCalculator>();
   private static final Map<Class<?>, String> s_bondInstanceNames = new HashMap<Class<?>, String>();
   private static final Map<String, BondForwardCalculator> s_bondForwardInstances = new HashMap<String, BondForwardCalculator>();
@@ -35,7 +35,7 @@ public final class BondCalculatorFactory {
     s_bondInstances.put(BOND_DIRTY_PRICE, BOND_DIRTY_PRICE_CALCULATOR);
     s_bondInstanceNames.put(BOND_DIRTY_PRICE_CALCULATOR.getClass(), BOND_DIRTY_PRICE);
     s_bondForwardInstances.put(BOND_FORWARD_DIRTY_PRICE, BOND_FORWARD_DIRTY_PRICE_CALCULATOR);
-    s_bondForwardInstanceNames.put(BOND_DIRTY_PRICE_CALCULATOR.getClass(), BOND_DIRTY_PRICE);
+    s_bondForwardInstanceNames.put(BOND_FORWARD_DIRTY_PRICE_CALCULATOR.getClass(), BOND_FORWARD_DIRTY_PRICE);
   }
 
   private BondCalculatorFactory() {
