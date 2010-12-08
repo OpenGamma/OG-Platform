@@ -14,7 +14,6 @@ import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
-
 /**
  * Custom Hibernate usertype for the EquityOptionType enum
  */

@@ -16,8 +16,7 @@ import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
- * 
- * @author Andrew
+ * Hibernate bean for storage.
  */
 public class FutureSecurityBean extends SecurityBean {
   

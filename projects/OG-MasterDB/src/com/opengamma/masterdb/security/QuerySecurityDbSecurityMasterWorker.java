@@ -283,7 +283,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     result.setPaging(new Paging(request.getPagingRequest(), count));
     if (count > 0) {
       final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
-      result.getDocuments().addAll((List<SecurityDocument>) namedJdbc.query(sql[0], args, extractor));
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       if (request.isFullDetail()) {
         loadDetail(result.getDocuments());
       }

@@ -7,6 +7,9 @@ package com.opengamma.masterdb.security.hibernate.future;
 
 import com.opengamma.masterdb.security.hibernate.EnumBean;
 
+/**
+ * Hibernate bean for storage.
+ */
 public class CommodityFutureTypeBean extends EnumBean {
   
   protected CommodityFutureTypeBean() {

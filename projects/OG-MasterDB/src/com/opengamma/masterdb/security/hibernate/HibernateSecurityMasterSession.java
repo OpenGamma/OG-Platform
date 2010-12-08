@@ -179,7 +179,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     return getBeansFromNamedQuery("BusinessDayConventionBean.all");
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private List getBeansFromNamedQuery(String namedQuery) {
     final Query query = getSession().getNamedQuery(namedQuery);
     return query.list();

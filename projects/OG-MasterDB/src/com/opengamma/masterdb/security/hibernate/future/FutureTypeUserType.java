@@ -7,14 +7,11 @@ package com.opengamma.masterdb.security.hibernate.future;
 
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
-
 /**
- * Custom Hibernate usertype for the FutureType enum
- * 
- * @author andrew
+ * Hibernate bean for storage.
  */
 public class FutureTypeUserType extends EnumUserType<FutureType> {
-  
+
   private static final String AGRICULTURE_FUTURE_TYPE = "Agriculture";
   private static final String BOND_FUTURE_TYPE = "Bond";
   private static final String FX_FUTURE_TYPE = "FX";

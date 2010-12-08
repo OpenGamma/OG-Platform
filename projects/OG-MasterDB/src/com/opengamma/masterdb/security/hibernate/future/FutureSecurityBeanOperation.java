@@ -39,10 +39,10 @@ import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
 /**
- * 
+ * Hibernate bean for storage.
  */
 public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOperation<FutureSecurity, FutureSecurityBean> {
-  
+
   /**
    * Singleton.
    * */
@@ -69,10 +69,8 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
       public FutureSecurity visitBondFutureType() {
         final Set<FutureBundleBean> basketBeans = bean.getBasket();
         final Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable>(basketBeans.size());
-        if (basketBeans != null) {
-          for (FutureBundleBean basketBean : basketBeans) {
-            basket.add(futureBundleBeanToBondFutureDeliverable(basketBean));
-          }
+        for (FutureBundleBean basketBean : basketBeans) {
+          basket.add(futureBundleBeanToBondFutureDeliverable(basketBean));
         }
         return new BondFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean.getCurrency1()),
             basket,

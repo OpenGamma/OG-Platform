@@ -13,9 +13,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 
 /**
- * 
- *
- * @author Andrew Griffin
+ * Hibernate bean for storage.
  */
 public class FutureBundleBean {
   
