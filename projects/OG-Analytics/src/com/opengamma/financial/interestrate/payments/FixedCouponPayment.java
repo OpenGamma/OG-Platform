@@ -59,6 +59,11 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
   }
 
   @Override
+  public String toString() {
+    return "FixedCouponPayment[" + _coupon + ", notional = " + _notional + ", t = " + _yearFraction + "]";
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -91,10 +96,5 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
       return false;
     }
     return Double.doubleToLongBits(_yearFraction) == Double.doubleToLongBits(other._yearFraction);
-  }
-
-  @Override
-  public String toString() {
-    return "FixedCouponPayment[" + _coupon + ", notional = " + _notional + ", t = " + _yearFraction + "]";
   }
 }

@@ -28,6 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class ZSpreadCalculator {
   private static final PresentValueCalculator PRESENT_VALUE_CALCULATOR = PresentValueCalculator.getInstance();
+  private static final PresentValueSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
   private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
   private static final RealSingleRootFinder ROOT_FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
   private static final ZSpreadCalculator CALCULATOR = new ZSpreadCalculator();
@@ -50,7 +51,7 @@ public final class ZSpreadCalculator {
       }
     };
 
-    final double[] range = ROOT_BRACKETER.getBracketedPoints(f, 0.0, 0.2);
+    final double[] range = ROOT_BRACKETER.getBracketedPoints(f, 0.0, 1.2);
     return ROOT_FINDER.getRoot(f, range[0], range[1]);
   }
 
@@ -91,7 +92,7 @@ public final class ZSpreadCalculator {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
-    final Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().visit(annuity, curves);
+    final Map<String, List<DoublesPair>> temp = PV_SENSITIVITY_CALCULATOR.visit(annuity, curves);
     if (zSpread == 0.0) {
       return temp;
     }
@@ -115,7 +116,7 @@ public final class ZSpreadCalculator {
     final double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
     Validate.isTrue(dPricedZ != 0.0, "Price Sensitivity To ZSpread is zero");
 
-    final Map<String, List<DoublesPair>> temp = PresentValueSensitivityCalculator.getInstance().visit(annuity, curves);
+    final Map<String, List<DoublesPair>> temp = PV_SENSITIVITY_CALCULATOR.visit(annuity, curves);
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : temp.keySet()) {

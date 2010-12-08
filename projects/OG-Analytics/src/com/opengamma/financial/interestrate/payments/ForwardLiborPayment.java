@@ -167,9 +167,8 @@ public class ForwardLiborPayment implements Payment {
   public ForwardLiborPayment withZeroSpread() {
     if (getSpread() == 0.0) {
       return this;
-    } else {
-      return withSpread(0.0);
     }
+    return withSpread(0.0);
   }
 
   public ForwardLiborPayment withSpread(final double spread) {
