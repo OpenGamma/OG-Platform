@@ -338,17 +338,6 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
               "(:position_id, :position_oid, :portfolio_oid, :parent_node_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :quantity)";
   }
 
-  /**
-   * Gets the SQL for inserting a security key.
-   * @return the SQL, not null
-   */
-  protected String sqlInsertSecurityKey() {
-    return "INSERT INTO pos_securitykey " +
-              "(id, position_id, id_scheme, id_value) " +
-            "VALUES " +
-              "(:seckey_id, :position_id, :id_scheme, :id_value)";
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the position document ensuring that it is the latest version.

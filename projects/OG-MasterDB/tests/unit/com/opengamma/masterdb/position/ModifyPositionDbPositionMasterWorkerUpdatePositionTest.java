@@ -138,7 +138,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test
   public void test_updatePosition_rollback() {
     ModifyPositionDbPositionMasterWorker w = new ModifyPositionDbPositionMasterWorker() {
-      protected String sqlInsertSecurityKey() {
+      protected String sqlInsertIdKey() {
         return "INSERT";  // bad sql
       };
     };
