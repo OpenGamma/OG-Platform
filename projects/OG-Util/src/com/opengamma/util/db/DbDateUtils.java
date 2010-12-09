@@ -157,6 +157,18 @@ public class DbDateUtils {
     LocalTime time = LocalTime.of(timeProvider);
     return new Time(time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
   }
+  
+  /**
+   * Creates a SQL time from a {@code TimeProvider}.
+   * @param timeProvider  the time to convert, not null
+   * @return the SQL time, not null
+   */
+  @SuppressWarnings("deprecation")
+  public static Timestamp toSqlTimestamp(TimeProvider timeProvider) {
+    ArgumentChecker.notNull(timeProvider, "timeProvider");
+    LocalTime time = LocalTime.of(timeProvider);
+    return new Timestamp(70, 0, 1, time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute(), time.getNanoOfSecond());
+  }
 
   /**
    * Creates a {@code LocalTime} from an SQL time.
@@ -167,6 +179,17 @@ public class DbDateUtils {
   public static LocalTime fromSqlTime(Time time) {
     ArgumentChecker.notNull(time, "time");
     return LocalTime.of(time.getHours(), time.getMinutes(), time.getSeconds());
+  }
+  
+  /**
+   * Creates a {@code LocalTime} from an SQL timestamp, truncate the year, month and date part
+   * @param timestamp  the SQL timestamp to convert, not null
+   * @return the time, not null
+   */
+  @SuppressWarnings("deprecation")
+  public static LocalTime fromSqlTime(Timestamp timestamp) {
+    ArgumentChecker.notNull(timestamp, "timestamp");
+    return LocalTime.of(timestamp.getHours(), timestamp.getMinutes(), timestamp.getSeconds(), timestamp.getNanos());
   }
 
 }

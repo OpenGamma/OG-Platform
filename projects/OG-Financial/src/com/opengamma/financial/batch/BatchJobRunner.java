@@ -20,14 +20,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.DbSourceFactoryBean;
-import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -91,7 +89,6 @@ public class BatchJobRunner {
     DbSourceFactoryBean dbSourceFactory = new DbSourceFactoryBean();
     dbSourceFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
     dbSourceFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
-    dbSourceFactory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateSecurityMasterFiles()});
     dbSourceFactory.setName("BatchJobRunnerConfig");
     dbSourceFactory.setDialect(dbhelper);
     dbSourceFactory.setDataSource(cfgDataSource);

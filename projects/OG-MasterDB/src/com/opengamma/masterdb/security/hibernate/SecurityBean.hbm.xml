@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
+
+  <class name="SecurityBean" abstract="true">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="securityId" type="long" column="security_id" />
+  </class>
+
+  <query name="SecurityBean.one.bySecurityId"><![CDATA[
+    select 
+      s
+    from 
+      SecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+</hibernate-mapping>
