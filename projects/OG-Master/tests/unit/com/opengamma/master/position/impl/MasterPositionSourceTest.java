@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 
 import javax.time.Instant;
+import javax.time.calendar.OffsetDateTime;
 
 import org.junit.Test;
 
@@ -65,7 +66,7 @@ public class MasterPositionSourceTest {
   public void test_getPortfolio() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPortfolioGetRequest request = new FullPortfolioGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     Portfolio portfolio = new PortfolioImpl(UID, "Hello");
@@ -84,7 +85,7 @@ public class MasterPositionSourceTest {
   public void test_getPortfolioNode() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPortfolioNodeGetRequest request = new FullPortfolioNodeGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     PortfolioNode node = new PortfolioNodeImpl(UID, "Hello");
@@ -103,7 +104,7 @@ public class MasterPositionSourceTest {
   public void test_getPosition() throws Exception {
     PositionMaster mock = mock(PositionMaster.class);
     FullPositionGetRequest request = new FullPositionGetRequest(UID);
-    Instant now = Instant.nowSystemClock();
+    Instant now = Instant.now();
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     Position node = new PositionImpl(UID, BigDecimal.TEN, Identifier.of("B", "C"));
@@ -123,13 +124,13 @@ public class MasterPositionSourceTest {
     PositionMaster mock = mock(PositionMaster.class);
     FullTradeGetRequest request = new FullTradeGetRequest(UID);
 
-    Instant now = Instant.nowSystemClock();
+    OffsetDateTime now = OffsetDateTime.now();
     final UniqueIdentifier positionId = UniqueIdentifier.of("P", "A");
     final MockSecurity security = new MockSecurity("A");
     security.setIdentifiers(IdentifierBundle.of(Identifier.of("S", "A")));
     final Counterparty counterparty = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
     
-    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.minusSeconds(100));
+    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.toLocalDate(), now.toOffsetTime().minusSeconds(100));
     trade.setUniqueIdentifier(UID);
     
     when(mock.getFullTrade(request)).thenReturn(trade);
@@ -142,8 +143,8 @@ public class MasterPositionSourceTest {
     assertEquals(BigDecimal.TEN, testResult.getQuantity());
     assertEquals(Identifier.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
     assertEquals(counterparty, testResult.getCounterparty());
-    assertEquals(positionId, testResult.getPosition());
-    assertEquals(now.minusSeconds(100), testResult.getTradeInstant());
+    assertEquals(positionId, testResult.getPositionId());
+    assertEquals(now.toLocalDate(), testResult.getTradeDate());
   }
 
 }

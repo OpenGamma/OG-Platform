@@ -46,9 +46,9 @@ public class ParRateCalculatorTest {
     final double yearFrac = 5.0 / 360.0;
 
     Cash cash = new Cash(t, 0, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.getValue(cash, CURVES);
+    final double rate = PRC.visit(cash, CURVES);
     cash = new Cash(t, rate, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    assertEquals(0.0, PVC.getValue(cash, CURVES), 1e-12);
+    assertEquals(0.0, PVC.visit(cash, CURVES), 1e-12);
   }
 
   @Test
@@ -60,9 +60,9 @@ public class ParRateCalculatorTest {
     final double discountYearFrac = 30.0 / 360;
 
     ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.getValue(fra, CURVES);
+    final double rate = PRC.visit(fra, CURVES);
     fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    assertEquals(0.0, PVC.getValue(fra, CURVES), 1e-12);
+    assertEquals(0.0, PVC.visit(fra, CURVES), 1e-12);
   }
 
   @Test
@@ -73,10 +73,10 @@ public class ParRateCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
     InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 100.0, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.getValue(edf, CURVES);
+    final double rate = PRC.visit(edf, CURVES);
     final double price = 100 * (1 - rate);
     edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
-    assertEquals(0.0, PVC.getValue(edf, CURVES), 1e-12);
+    assertEquals(0.0, PVC.visit(edf, CURVES), 1e-12);
   }
 
   @Test
@@ -92,9 +92,9 @@ public class ParRateCalculatorTest {
       yearFracs[i] = yearFrac;
     }
     Bond bond = new Bond(paymentTimes, 0.0, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.getValue(bond, CURVES);
+    final double rate = PRC.visit(bond, CURVES);
     bond = new Bond(paymentTimes, rate, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
-    assertEquals(1.0, PVC.getValue(bond, CURVES), 1e-12);
+    assertEquals(1.0, PVC.visit(bond, CURVES), 1e-12);
   }
 
   @Test
@@ -111,9 +111,9 @@ public class ParRateCalculatorTest {
     }
 
     Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final double rate = PRC.getValue(swap, CURVES);
+    final double rate = PRC.visit(swap, CURVES);
     swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
+    assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }
 
   @Test
@@ -135,14 +135,14 @@ public class ParRateCalculatorTest {
     ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
-    final double rate = PRC.getValue(swap, CURVES);
+    final double rate = PRC.visit(swap, CURVES);
     final double[] spreads = new double[n];
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
     receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     swap = new TenorSwap(payLeg, receiveLeg);
-    assertEquals(0.0, PVC.getValue(swap, CURVES), 1e-12);
+    assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }
 
 }

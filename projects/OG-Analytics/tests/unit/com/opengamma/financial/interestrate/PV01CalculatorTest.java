@@ -32,7 +32,6 @@ import com.opengamma.math.function.Function;
  * 
  */
 public class PV01CalculatorTest {
-
   private final static YieldAndDiscountCurve FUNDING_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.1, 0.05)));
   private final static YieldAndDiscountCurve LIBOR_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.005, 0.11, 0.055)));
   private final static PV01Calculator PV01 = PV01Calculator.getInstance();
@@ -189,7 +188,7 @@ public class PV01CalculatorTest {
   }
 
   private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> ana = PV01.calculate(ird, curves);
+    final Map<String, Double> ana = PV01.visit(ird, curves);
     final Map<String, Double> fd = finiteDifferancePV01(ird, curves);
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {
@@ -210,10 +209,10 @@ public class PV01CalculatorTest {
       final YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      final double upPV = PV.getValue(ird, newCurves);
+      final double upPV = PV.visit(ird, newCurves);
       final YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      final double downPV = PV.getValue(ird, newCurves);
+      final double downPV = PV.visit(ird, newCurves);
 
       final double res = (upPV - downPV) / 10000 / 2 / EPS;
       result.put(name, res);

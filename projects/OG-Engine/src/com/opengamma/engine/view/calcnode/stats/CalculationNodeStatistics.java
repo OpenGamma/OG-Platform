@@ -195,7 +195,7 @@ public class CalculationNodeStatistics {
     _jobItems.addAndGet(jobItems);
     _executionNanos.addAndGet(executionNanos);
     _nonExecutionNanos.addAndGet(durationNanos - executionNanos);
-    _lastJobInstant = Instant.nowSystemClock();
+    _lastJobInstant = Instant.now();
   }
 
   /**
@@ -206,7 +206,7 @@ public class CalculationNodeStatistics {
   public void recordUnsuccessfulJob(final long durationNanos) {
     _unsuccessfulJobs.incrementAndGet();
     _nonExecutionNanos.addAndGet(durationNanos);
-    _lastJobInstant = Instant.nowSystemClock();
+    _lastJobInstant = Instant.now();
   }
 
   //-------------------------------------------------------------------------

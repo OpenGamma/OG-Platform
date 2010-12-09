@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public final class ParRateParallelSensitivityCalculator {
+public final class ParRateParallelSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
   private static final ParRateParallelSensitivityCalculator s_instance = new ParRateParallelSensitivityCalculator();
   private final ParRateCurveSensitivityCalculator _prcsc = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -33,9 +33,9 @@ public final class ParRateParallelSensitivityCalculator {
    * @param curves bundle of relevant yield curves 
    * @return a Map between curve name and sensitivity for that curve 
    */
-  public Map<String, Double> getValue(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-
-    final Map<String, List<DoublesPair>> sense = _prcsc.getValue(ird, curves);
+  @Override
+  public Map<String, Double> visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
+    final Map<String, List<DoublesPair>> sense = _prcsc.visit(ird, curves);
     final Map<String, Double> res = new HashMap<String, Double>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
     while (iterator.hasNext()) {

@@ -42,9 +42,9 @@ public class FixedCouponPaymentTest {
     assertEquals(other.hashCode(), PAYMENT.hashCode());
     other = new FixedCouponPayment(PAYMENT_TIME + 0.01, YEAR_FRACTION, COUPON, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new FixedCouponPayment(PAYMENT_TIME, YEAR_FRACTION - 0.01, COUPON, CURVE_NAME);
+    other = new FixedCouponPayment(PAYMENT_TIME, YEAR_FRACTION * 2, COUPON / 2, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new FixedCouponPayment(PAYMENT_TIME, YEAR_FRACTION, COUPON + 0.01, CURVE_NAME);
+    other = new FixedCouponPayment(PAYMENT_TIME, YEAR_FRACTION, COUPON * 2, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
     other = new FixedCouponPayment(PAYMENT_TIME, YEAR_FRACTION, COUPON, "dasdsgdfgf");
     assertFalse(other.equals(PAYMENT));

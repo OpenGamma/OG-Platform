@@ -13,9 +13,11 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeProvider;
 
 import org.junit.Test;
 
@@ -28,15 +30,20 @@ public class DbDateUtilsTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_toSqlTimestamp() {
-    Instant instant = Instant.nowSystemClock();
+    Instant instant = Instant.now();
     Timestamp ts = DbDateUtils.toSqlTimestamp(instant);
     assertEquals(instant.toEpochMillisLong(), ts.getTime());
     assertEquals(instant.getNanoOfSecond(), ts.getNanos());
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_toSqlTimestamp_null() {
-    DbDateUtils.toSqlTimestamp(null);
+  public void test_toSqlTimestamp_TimeProvider_null() {
+    DbDateUtils.toSqlTimestamp((TimeProvider) null);
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void test_toSqlTimestamp_InstantProvider_null() {
+    DbDateUtils.toSqlTimestamp((InstantProvider) null);
   }
 
   @Test
@@ -146,8 +153,13 @@ public class DbDateUtilsTest {
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_fromSqlTime_null() {
-    DbDateUtils.fromSqlTime(null);
+  public void test_fromSqlTime_time_null() {
+    DbDateUtils.fromSqlTime((Time) null);
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void test_fromSqlTime_timestamp_null() {
+    DbDateUtils.fromSqlTime((Timestamp) null);
   }
 
 }

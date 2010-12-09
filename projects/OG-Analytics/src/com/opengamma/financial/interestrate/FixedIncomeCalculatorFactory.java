@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -47,11 +47,11 @@ public final class FixedIncomeCalculatorFactory {
   static {
     s_instances.put(PAR_RATE, PAR_RATE_CALCULATOR);
     s_instances.put(PAR_RATE_CURVE_SENSITIVITY, PAR_RATE_CURVE_SENSITIVITY_CALCULATOR);
-    //s_instances.put(PAR_RATE_PARALLEL_SENSITIVITY, PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR);
+    s_instances.put(PAR_RATE_PARALLEL_SENSITIVITY, PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR);
     s_instances.put(PRESENT_VALUE, PRESENT_VALUE_CALCULATOR);
     s_instances.put(PRESENT_VALUE_COUPON_SENSITIVITY, PRESENT_VALUE_COUPON_SENSITIVITY_CALCULATOR);
     s_instances.put(PRESENT_VALUE_SENSITIVITY, PRESENT_VALUE_SENSITIVITY_CALCULATOR);
-    //s_instances.put(PV01, PV01_CALCULATOR);
+    s_instances.put(PV01, PV01_CALCULATOR);
     s_instanceNames.put(PAR_RATE_CALCULATOR.getClass(), PAR_RATE);
     s_instanceNames.put(PAR_RATE_CURVE_SENSITIVITY_CALCULATOR.getClass(), PAR_RATE_CURVE_SENSITIVITY);
     s_instanceNames.put(PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR.getClass(), PAR_RATE_PARALLEL_SENSITIVITY);

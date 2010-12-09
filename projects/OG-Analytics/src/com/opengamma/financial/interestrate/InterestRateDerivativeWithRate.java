@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate;
 /**
  * 
  */
+//TODO yuck yuck yuck
 public interface InterestRateDerivativeWithRate extends InterestRateDerivative {
 
   InterestRateDerivativeWithRate withRate(double rate);

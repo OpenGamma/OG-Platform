@@ -32,6 +32,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -67,7 +68,6 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -196,7 +196,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         .getISOCode()
         + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final Identifier initialRefRateId = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, referenceRateConvention.getIdentifiers().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
+    final Identifier initialRefRateId = SecurityUtils.bloombergTickerSecurityId(referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return Collections.unmodifiableSet(result);
   }
@@ -320,7 +320,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           }
           derivatives.add(derivative);
           initialRatesGuess[i] = 0.01;
-          nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative);
+          nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
           _identifierToFundingNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
           _identifierToForwardNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
           i++;
@@ -406,7 +406,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
-        fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.getValue(derivative);
+        fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         _identifierToFundingNodeTimes.put(strip.getSecurityIdentifier(), fundingNodeTimes[fundingIndex]); // just for debugging.
         fundingIndex++;
       }
@@ -438,7 +438,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
-        forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.getValue(derivative);
+        forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         _identifierToForwardNodeTimes.put(strip.getSecurityIdentifier(), forwardNodeTimes[forwardIndex]); // just for debugging.
         forwardIndex++;
       }

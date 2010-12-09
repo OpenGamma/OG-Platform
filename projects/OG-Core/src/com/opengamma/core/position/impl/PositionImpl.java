@@ -52,7 +52,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    */
   private Security _security;
   /**
-   * The collections of Trades that make up the position
+   * The sets of trades that make up the position
    */
   private Set<Trade> _trades = Sets.newHashSet();
 
@@ -256,7 +256,6 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     return _trades;
   }
   
- 
   /**
    * Sets the _trades field.
    * @param trades  the trades

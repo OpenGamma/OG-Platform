@@ -397,7 +397,7 @@ public class SingleComputationCycle {
   // --------------------------------------------------------------------------
 
   public void populateResultModel() {
-    Instant resultTimestamp = Instant.nowSystemClock();
+    Instant resultTimestamp = Instant.now();
     getResultModel().setResultTimestamp(resultTimestamp);
 
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {

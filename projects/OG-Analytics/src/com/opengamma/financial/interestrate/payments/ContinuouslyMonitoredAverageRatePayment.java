@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -13,7 +14,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
  * Continuously monitored 
  */
 public class ContinuouslyMonitoredAverageRatePayment implements Payment {
-
   private final double _paymentTime;
   private final double _paymentYearFraction;
   private final double _rateYearFraction;
@@ -24,15 +24,13 @@ public class ContinuouslyMonitoredAverageRatePayment implements Payment {
   private final String _fundingCurveName;
   private final String _indexCurveName;
 
-  public ContinuouslyMonitoredAverageRatePayment(double paymentTime, double notional, double startTime, double endTime, double paymentYearFraction, double rateYearFraction, double spread,
-      String fundingCurve, String indexCurve) {
-
+  public ContinuouslyMonitoredAverageRatePayment(final double paymentTime, final double notional, final double startTime, final double endTime, final double paymentYearFraction,
+      final double rateYearFraction, final double spread, final String fundingCurve, final String indexCurve) {
     Validate.isTrue(paymentTime > 0, "paymentTime <= 0");
     Validate.isTrue(startTime >= 0, "startTime < 0");
     Validate.isTrue(endTime > startTime && endTime <= paymentTime, "endTime < startTime or endTime > paymentTime");
     Validate.notNull(fundingCurve);
     Validate.notNull(indexCurve);
-
     _paymentTime = paymentTime;
     _notional = notional;
     _startTime = startTime;
@@ -111,8 +109,76 @@ public class ContinuouslyMonitoredAverageRatePayment implements Payment {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitContinuouslyMonitoredAverageRatePayment(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitContinuouslyMonitoredAverageRatePayment(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_endTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _fundingCurveName.hashCode();
+    result = prime * result + _indexCurveName.hashCode();
+    temp = Double.doubleToLongBits(_notional);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_paymentTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_paymentYearFraction);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_rateYearFraction);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_startTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ContinuouslyMonitoredAverageRatePayment other = (ContinuouslyMonitoredAverageRatePayment) obj;
+    if (Double.doubleToLongBits(_endTime) != Double.doubleToLongBits(other._endTime)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fundingCurveName, other._fundingCurveName)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_indexCurveName, other._indexCurveName)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_paymentTime) != Double.doubleToLongBits(other._paymentTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_paymentYearFraction) != Double.doubleToLongBits(other._paymentYearFraction)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rateYearFraction) != Double.doubleToLongBits(other._rateYearFraction)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_startTime) == Double.doubleToLongBits(other._startTime);
   }
 
 }

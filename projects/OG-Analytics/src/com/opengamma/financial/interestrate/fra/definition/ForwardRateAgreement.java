@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.interestrate.fra.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -58,11 +58,10 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
   public ForwardRateAgreement(final double settlement, final double maturity, final double fixingDate, final double forwardYearFraction, final double discountingYearFraction, final double strike,
       final String fundingCurveName, final String liborCurveName) {
     checkInputs(settlement, maturity, strike, fundingCurveName, liborCurveName);
-    ArgumentChecker.notNegative(fixingDate, "fixing Date");
-    ArgumentChecker.notNegative(forwardYearFraction, "forward year fraction");
-    ArgumentChecker.notNegative(discountingYearFraction, "dicounting year fraction");
+    Validate.isTrue(fixingDate >= 0, "fixing Date is negative");
+    Validate.isTrue(forwardYearFraction >= 0, "forward year fraction is negative");
+    Validate.isTrue(discountingYearFraction >= 0, "dicounting year fraction is negative");
     Validate.isTrue(fixingDate <= settlement, "must have fixing date before or equal to settlement date");
-
     _fundingCurveName = fundingCurveName;
     _liborCurveName = liborCurveName;
     _strike = strike;
@@ -74,9 +73,9 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
   }
 
   private void checkInputs(final double settlementDate, final double maturity, final double strike, final String fundingCurveName, final String liborCurveName) {
-    ArgumentChecker.notNegative(settlementDate, "settlement date");
-    ArgumentChecker.notNegative(maturity, "maturity");
-    ArgumentChecker.notNegative(strike, "strike");
+    Validate.isTrue(settlementDate >= 0, "settlement date is negative");
+    Validate.isTrue(maturity >= 0, "maturity is negative");
+    Validate.isTrue(strike >= 0, "strike is negative");
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     if (settlementDate >= maturity) {
@@ -127,8 +126,8 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_forwardYearFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_fundingCurveName == null) ? 0 : _fundingCurveName.hashCode());
-    result = prime * result + ((_liborCurveName == null) ? 0 : _liborCurveName.hashCode());
+    result = prime * result + _fundingCurveName.hashCode();
+    result = prime * result + _liborCurveName.hashCode();
     temp = Double.doubleToLongBits(_maturity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_settlement);
@@ -139,7 +138,7 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -149,7 +148,7 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForwardRateAgreement other = (ForwardRateAgreement) obj;
+    final ForwardRateAgreement other = (ForwardRateAgreement) obj;
     if (Double.doubleToLongBits(_discountingYearFraction) != Double.doubleToLongBits(other._discountingYearFraction)) {
       return false;
     }
@@ -159,18 +158,10 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
     if (Double.doubleToLongBits(_forwardYearFraction) != Double.doubleToLongBits(other._forwardYearFraction)) {
       return false;
     }
-    if (_fundingCurveName == null) {
-      if (other._fundingCurveName != null) {
-        return false;
-      }
-    } else if (!_fundingCurveName.equals(other._fundingCurveName)) {
+    if (!ObjectUtils.equals(_fundingCurveName, other._fundingCurveName)) {
       return false;
     }
-    if (_liborCurveName == null) {
-      if (other._liborCurveName != null) {
-        return false;
-      }
-    } else if (!_liborCurveName.equals(other._liborCurveName)) {
+    if (!ObjectUtils.equals(_liborCurveName, other._liborCurveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_maturity) != Double.doubleToLongBits(other._maturity)) {
@@ -179,19 +170,21 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
     if (Double.doubleToLongBits(_settlement) != Double.doubleToLongBits(other._settlement)) {
       return false;
     }
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_strike) == Double.doubleToLongBits(other._strike);
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitForwardRateAgreement(this, data);
   }
 
   @Override
-  public ForwardRateAgreement withRate(double rate) {
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitForwardRateAgreement(this);
+  }
+
+  @Override
+  public ForwardRateAgreement withRate(final double rate) {
     return new ForwardRateAgreement(getSettlementDate(), getMaturity(), getFixingDate(), getForwardYearFraction(), getDiscountingYearFraction(), rate, getFundingCurveName(), getLiborCurveName());
   }
 

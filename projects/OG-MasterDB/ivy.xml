@@ -9,7 +9,7 @@
       <artifact name="og-masterdb" type="jar"/>
     </publications>
     <dependencies>
-        <dependency name="og-master" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>

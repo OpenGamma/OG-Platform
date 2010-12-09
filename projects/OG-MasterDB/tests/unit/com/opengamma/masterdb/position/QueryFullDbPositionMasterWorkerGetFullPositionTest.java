@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
@@ -28,9 +30,6 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPositionGetRequest;
-import com.opengamma.masterdb.position.DbPositionMasterWorker;
-import com.opengamma.masterdb.position.QueryFullDbPositionMasterWorker;
-import com.opengamma.masterdb.position.QueryPositionDbPositionMasterWorker;
 
 /**
  * Tests QueryFullDbPositionMasterWorker.
@@ -100,28 +99,37 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterparty().getIdentifier());
     assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
     assertEquals(testSecKey, trade.getSecurityKey());
-    assertNotNull(trade.getTradeInstant());
+    assertEquals(_now.toLocalDate(), trade.getTradeDate());
+    assertEquals(_now.toOffsetTime().minusSeconds(220), trade.getTradeTime());
   }
   
   @Test
   public void test_getFullPosition_oneSecurityKey_twoTrades() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122");
     FullPositionGetRequest request = new FullPositionGetRequest(uid);
-    Position test = _worker.getFullPosition(request);
+    Position testPosition = _worker.getFullPosition(request);
     
-    assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), test.getUniqueIdentifier());
-    assertEquals(BigDecimal.valueOf(122.987), test.getQuantity());
-    IdentifierBundle testSecKey = test.getSecurityKey();
+    assertEquals(UniqueIdentifier.of("DbPos", "122", "0"), testPosition.getUniqueIdentifier());
+    assertEquals(BigDecimal.valueOf(122.987), testPosition.getQuantity());
+    IdentifierBundle testSecKey = testPosition.getSecurityKey();
     assertNotNull(testSecKey);
     assertEquals(1, testSecKey.size());
     assertEquals(Identifier.of("TICKER", "ORCL"), testSecKey.getIdentifiers().iterator().next());
     
-    Collection<Trade> trades = test.getTrades();
+    Collection<Trade> trades = testPosition.getTrades();
     assertNotNull(trades);
     assertEquals(2, trades.size());
     
-    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "JMP")), _version1Instant.minusSeconds(122))));
-    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(22.987), new CounterpartyImpl(Identifier.of("CPARTY", "CISC")), _version1Instant.minusSeconds(122))));
+    List<TradeImpl> expectedTrades = Lists.newArrayList();
+    expectedTrades.add(new TradeImpl(testPosition.getUniqueIdentifier(), testSecKey, BigDecimal.valueOf(100.987), 
+        new CounterpartyImpl(Identifier.of("CPARTY", "JMP")), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(222)));
+    expectedTrades.get(0).setUniqueIdentifier(UniqueIdentifier.of("DbPos", "402", "0"));
+    
+    expectedTrades.add(new TradeImpl(testPosition.getUniqueIdentifier(), testSecKey, BigDecimal.valueOf(22.987), 
+        new CounterpartyImpl(Identifier.of("CPARTY", "CISC")), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(222)));
+    expectedTrades.get(1).setUniqueIdentifier(UniqueIdentifier.of("DbPos", "403", "0"));
+    
+    assertTrue(trades.containsAll(expectedTrades));
     
   }
 
@@ -147,7 +155,8 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterparty().getIdentifier());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
     assertEquals(testSecKey, trade.getSecurityKey());
-    assertEquals(_version1Instant.minusSeconds(121), trade.getTradeInstant());
+    assertEquals(_now.toLocalDate(), trade.getTradeDate());
+    assertEquals(_now.toOffsetTime().minusSeconds(221), trade.getTradeTime());
   }
   
   @Test
@@ -168,10 +177,20 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertNotNull(trades);
     assertEquals(3, trades.size());
     
-    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(100.987), new CounterpartyImpl(Identifier.of("CPARTY", "C104")), _version1Instant.minusSeconds(123))));
-    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(200.987), new CounterpartyImpl(Identifier.of("CPARTY", "C105")), _version1Instant.minusSeconds(123))));
-    assertTrue(trades.contains(new TradeImpl(test, BigDecimal.valueOf(300.987), new CounterpartyImpl(Identifier.of("CPARTY", "C106")), _version1Instant.minusSeconds(123))));
+    List<TradeImpl> expectedTrades = Lists.newArrayList();
+    expectedTrades.add(new TradeImpl(test.getUniqueIdentifier(), testSecKey, BigDecimal.valueOf(100.987), 
+        new CounterpartyImpl(Identifier.of("CPARTY", "C104")), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(223)));
+    expectedTrades.get(0).setUniqueIdentifier(UniqueIdentifier.of("DbPos", "404", "0"));
     
+    expectedTrades.add(new TradeImpl(test.getUniqueIdentifier(), testSecKey, BigDecimal.valueOf(200.987), 
+        new CounterpartyImpl(Identifier.of("CPARTY", "C105")), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(223)));
+    expectedTrades.get(1).setUniqueIdentifier(UniqueIdentifier.of("DbPos", "405", "0"));
+    
+    expectedTrades.add(new TradeImpl(test.getUniqueIdentifier(), testSecKey, BigDecimal.valueOf(300.987), 
+        new CounterpartyImpl(Identifier.of("CPARTY", "C106")), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(223)));
+    expectedTrades.get(1).setUniqueIdentifier(UniqueIdentifier.of("DbPos", "406", "0"));
+    
+    assertTrue(trades.containsAll(expectedTrades));
   }
 
   @Test
@@ -197,6 +216,17 @@ public class QueryFullDbPositionMasterWorkerGetFullPositionTest extends Abstract
     assertNotNull(testSecKey);
     assertEquals(1, testSecKey.size());
     assertEquals(Identifier.of("TICKER", "IBMC"), testSecKey.getIdentifiers().iterator().next());
+    
+    Collection<Trade> trades = test.getTrades();
+    assertNotNull(trades);
+    assertEquals(1, trades.size());
+    Trade trade = trades.iterator().next();
+    assertNotNull(trade);
+    assertEquals(Identifier.of("CPARTY", "C221"), trade.getCounterparty().getIdentifier());
+    assertEquals(BigDecimal.valueOf(221.987), trade.getQuantity());
+    assertEquals(testSecKey, trade.getSecurityKey());
+    assertEquals(_now.toLocalDate(), trade.getTradeDate());
+    assertEquals(_now.toOffsetTime().minusSeconds(200), trade.getTradeTime());
   }
 
   //-------------------------------------------------------------------------

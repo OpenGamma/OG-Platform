@@ -164,7 +164,7 @@ public abstract class YieldCurveFittingSetup {
     // this is possibly a redundant test, as the very fact that
     // the root finder converged (and modelMarketValueDiff are within EPS of 0) means this will also pass
     for (int i = 0; i < data.getMarketRates().length; i++) {
-      assertEquals(data.getMarketRates()[i], data.getMarketValueCalculator().getValue(data.getDerivative(i), bundle), EPS);
+      assertEquals(data.getMarketRates()[i], data.getMarketValueCalculator().visit(data.getDerivative(i), bundle), EPS);
     }
 
     // this test cannot be performed when we don't know what the true yield curves are - i.e. we start from market data

@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MoneyCalculationUtil;
-import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -75,8 +73,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
     if (currentTradeValue != null) {
       final Double tradeValue = (Double) currentTradeValue;
       final Security security = trade.getSecurity();
-      Instant tradeInstant = trade.getTradeInstant();
-      LocalDate tradeDate = LocalDate.ofEpochDays(tradeInstant.getEpochSeconds() / DateUtil.SECONDS_PER_DAY);
+      LocalDate tradeDate = trade.getTradeDate();
       
       final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,

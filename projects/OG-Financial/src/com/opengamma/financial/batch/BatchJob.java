@@ -5,15 +5,12 @@
  */
 package com.opengamma.financial.batch;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.Executors;
@@ -26,17 +23,10 @@ import javax.time.calendar.format.CalendricalParseException;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.common.Currency;
@@ -67,33 +57,27 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
-import com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
-import com.opengamma.masterdb.config.DbConfigMaster;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtil;
-import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.DbSourceFactoryBean;
-import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * The entry point for running OpenGamma batches. 
+ * A single batch job holding all necessary configuration.
  */
 public class BatchJob {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BatchJob.class);
 
   // --------------------------------------------------------------------------
@@ -281,7 +265,7 @@ public class BatchJob {
 
   public BatchJob() {
     _user = UserPrincipal.getLocalUser();
-    _creationTime = ZonedDateTime.nowSystemClock();
+    _creationTime = ZonedDateTime.now();
   }
 
   // --------------------------------------------------------------------------
@@ -319,11 +303,11 @@ public class BatchJob {
   }
 
   public String getViewOid() {
-    return _viewDefinitionConfig.getConfigId().getValue();
+    return _viewDefinitionConfig.getUniqueId().getValue();
   }
 
   public String getViewVersion() {
-    return _viewDefinitionConfig.getConfigId().getVersion();
+    return _viewDefinitionConfig.getUniqueId().getVersion();
   }
   
   public BatchJobParameters getParameters() {
@@ -753,127 +737,6 @@ public class BatchJob {
         run.setFailed(true);
         s_logger.error("Failed to run " + run, e);                        
       }
-    }
-  }
-  
-  private static String getProperty(Properties properties, String propertyName, String configDbConnectionSettingsFile) {
-    String property = properties.getProperty(propertyName);
-    if (property == null) {
-      s_logger.error("Cannot find property " + propertyName + " in " + configDbConnectionSettingsFile);            
-      System.exit(-1);
-    }
-    return property;
-  }
-
-  public static void usage() {
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJob [options] {name of config}", getOptions());
-  }
-
-  public static void main(String[] args) throws Exception { // CSIGNORE
-    if (args.length == 0) {
-      usage();
-      System.exit(-1);
-    }
-    
-    CommandLine line = null;
-    try {
-      CommandLineParser parser = new PosixParser();
-      line = parser.parse(getOptions(), args);
-    } catch (ParseException e) {
-      usage();
-      System.exit(-1);
-    }
-    
-    String configName = args[args.length - 1];
-    
-    final String propertyFile = "batchJob.properties";
-    String configDbConnectionSettingsFile = propertyFile;
-    if (System.getProperty(propertyFile) != null) {
-      configDbConnectionSettingsFile = System.getProperty(propertyFile);      
-    }
-    
-    FileInputStream fis = null;
-    try {
-      fis = new FileInputStream(configDbConnectionSettingsFile);
-    } catch (FileNotFoundException e) {
-      s_logger.error("The system cannot find " + configDbConnectionSettingsFile);            
-      System.exit(-1);      
-    }
-    Properties configDbProperties = new Properties();
-    configDbProperties.load(fis);
-    fis.close();
-    
-    String driver = getProperty(configDbProperties, "opengamma.config.jdbc.driver", configDbConnectionSettingsFile);
-    String url = getProperty(configDbProperties, "opengamma.config.jdbc.url", configDbConnectionSettingsFile);
-    String username = getProperty(configDbProperties, "opengamma.config.jdbc.username", configDbConnectionSettingsFile);
-    String password = getProperty(configDbProperties, "opengamma.config.jdbc.password", configDbConnectionSettingsFile);
-    String dbhelper = getProperty(configDbProperties, "opengamma.config.db.dbhelper", configDbConnectionSettingsFile);
-    String scheme = getProperty(configDbProperties, "opengamma.config.db.configmaster.scheme", configDbConnectionSettingsFile);
-    
-    BasicDataSource cfgDataSource = new BasicDataSource();
-    cfgDataSource.setDriverClassName(driver);
-    cfgDataSource.setUrl(url);
-    cfgDataSource.setUsername(username);
-    cfgDataSource.setPassword(password);
-    
-    DbSourceFactoryBean dbSourceFactory = new DbSourceFactoryBean();
-    dbSourceFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");
-    dbSourceFactory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
-    dbSourceFactory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateSecurityMasterFiles()});
-    dbSourceFactory.setName("Config");
-    dbSourceFactory.setDialect(dbhelper);
-    dbSourceFactory.setDataSource(cfgDataSource);
-    
-    dbSourceFactory.afterPropertiesSet();
-    DbSource dbSource = dbSourceFactory.getObject();
-    
-    DbConfigMaster configMaster = new DbConfigMaster(dbSource);
-    configMaster.setIdentifierScheme(scheme);
-    
-    String springContextFile;
-    BatchJobParameters parameters = null;
-
-    if (line.hasOption("springXml")) {
-      springContextFile = line.getOptionValue("springXml");
-    } else {
-      ConfigSearchRequest request = new ConfigSearchRequest();
-      request.setName(configName);
-      ConfigSearchResult<BatchJobParameters> searchResult = configMaster.getTypedMaster(BatchJobParameters.class).search(request);
-      if (searchResult.getValues().size() != 1) {
-        throw new IllegalStateException("No unique document with name " + configName + " found - search result was: " + searchResult.getValues());      
-      }
-      parameters = searchResult.getFirstValue();
-      springContextFile = parameters.getSpringXml();
-    }
-
-    ApplicationContext context = new FileSystemXmlApplicationContext(springContextFile);
-    BatchJob job = (BatchJob) context.getBean("batchJob");
-    
-    job.setConfigSource(new MasterConfigSource(configMaster));
-
-    try {
-      job.initialize(line, parameters);
-    } catch (Exception e) {
-      s_logger.error("Failed to initialize BatchJob", e);
-      System.exit(-1);
-    }
-
-    job.execute();
-
-    boolean failed = false;
-    for (BatchJobRun run : job._runs) {
-      if (run.isFailed()) {
-        failed = true;
-      }
-    }
-    
-    if (failed) {
-      s_logger.error("Batch failed.");
-      System.exit(-1);
-    } else {
-      s_logger.info("Batch succeeded.");
-      System.exit(0);
     }
   }
 

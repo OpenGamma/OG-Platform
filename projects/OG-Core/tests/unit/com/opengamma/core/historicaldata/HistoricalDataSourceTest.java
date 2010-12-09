@@ -20,11 +20,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.core.historicaldata.impl.EHCachingHistoricalDataSource;
 import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -89,7 +87,7 @@ public class HistoricalDataSourceTest {
   }
 
   private IdentifierBundle makeDomainSpecificIdentifiers() {
-    return IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, makeUniqueRandomId()), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
+    return IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId(makeUniqueRandomId()), SecurityUtils.bloombergBuidSecurityId(makeUniqueRandomId()));
   }
 
   private Pair<HistoricalDataSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {

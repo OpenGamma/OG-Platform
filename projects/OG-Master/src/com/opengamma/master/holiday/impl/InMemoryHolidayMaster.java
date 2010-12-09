@@ -153,7 +153,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueIdentifier(uid);
     document.setUniqueId(uid);
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
@@ -171,7 +171,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
     final UniqueIdentifier uid = document.getUniqueId();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final HolidayDocument storedDocument = _holidays.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Holiday not found: " + uid);

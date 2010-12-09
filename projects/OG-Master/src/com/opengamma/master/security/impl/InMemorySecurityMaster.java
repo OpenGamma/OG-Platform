@@ -130,7 +130,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     
     final ManageableSecurity security = document.getSecurity();
     final UniqueIdentifier uid = _uidSupplier.get();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     UniqueIdentifiables.setInto(security, uid);
     final SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
@@ -149,7 +149,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
     final UniqueIdentifier uid = document.getUniqueId();
-    final Instant now = Instant.nowSystemClock();
+    final Instant now = Instant.now();
     final SecurityDocument storedDocument = _securities.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Security not found: " + uid);

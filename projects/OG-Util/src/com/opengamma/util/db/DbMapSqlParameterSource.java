@@ -77,7 +77,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    */
   public DbMapSqlParameterSource addTime(final String name, final TimeProvider timeProvider) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DbDateUtils.toSqlTime(timeProvider));
+    addValue(name, DbDateUtils.toSqlTimestamp(timeProvider));
     return this;
   }
 

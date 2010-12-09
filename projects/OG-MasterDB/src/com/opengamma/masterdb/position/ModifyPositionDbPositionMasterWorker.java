@@ -8,6 +8,7 @@ package com.opengamma.masterdb.position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.Instant;
 
@@ -18,6 +19,7 @@ import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiables;
@@ -27,6 +29,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Position master worker to modify a position.
@@ -179,6 +182,45 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
               "AND (f.ver_from_instant <= :version_as_of_instant AND f.ver_to_instant > :version_as_of_instant) " +
               "AND (f.corr_from_instant <= :corrected_to_instant AND f.corr_to_instant > :corrected_to_instant) ";
   }
+  
+  /**
+   * Gets the SQL for selecting an idkey.
+   * @return the SQL, not null
+   */
+  protected String sqlSelectIdKey() {
+    return "SELECT id FROM pos_idkey WHERE key_scheme = :key_scheme AND key_value = :key_value";
+  }
+  
+  /**
+   * Gets the SQL for inserting an idkey.
+   * @return the SQL, not null
+   */
+  protected String sqlInsertIdKey() {
+    return "INSERT INTO pos_idkey (id, key_scheme, key_value) " +
+            "VALUES (:idkey_id, :key_scheme, :key_value)";
+  }
+  
+  /**
+   * Gets the SQL for inserting a position-idkey association.
+   * @return the SQL, not null
+   */
+  protected String sqlInsertPositionIdKey() {
+    return "INSERT INTO pos_position2idkey " +
+              "(position_id, idkey_id) " +
+            "VALUES " +
+              "(:position_id, (" + sqlSelectIdKey() + "))";
+  }
+  
+  /**
+   * Gets the SQL for inserting a position-idkey association.
+   * @return the SQL, not null
+   */
+  protected String sqlInsertTradeIdKey() {
+    return "INSERT INTO pos_trade2idkey " +
+              "(trade_id, idkey_id) " +
+            "VALUES " +
+              "(:trade_id, (" + sqlSelectIdKey() + "))";
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -199,47 +241,79 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("quantity", document.getPosition().getQuantity());
-    // the arguments for inserting into the seckey table
-    final List<DbMapSqlParameterSource> secKeyList = new ArrayList<DbMapSqlParameterSource>();
+    
+    // the arguments for inserting into the idkey tables
+    final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
+    final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
+    
     for (Identifier id : document.getPosition().getSecurityKey()) {
-      final long secKeyId = nextId();
-      final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
-        .addValue("seckey_id", secKeyId)
+      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("position_id", positionId)
-        .addValue("id_scheme", id.getScheme().getName())
-        .addValue("id_value", id.getValue());
-      secKeyList.add(treeArgs);
+        .addValue("key_scheme", id.getScheme().getName())
+        .addValue("key_value", id.getValue());
+      posAssocList.add(assocArgs);
+      schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
     }
     
-    // set the uid
     final UniqueIdentifier positionUid = createUniqueIdentifier(positionOid, positionId, null);
-    UniqueIdentifiables.setInto(document.getPosition(), positionUid);
-    document.setUniqueId(positionUid);
-    
     //the arguments for inserting into the trade table
     final List<DbMapSqlParameterSource> tradeList = new ArrayList<DbMapSqlParameterSource>();
+    final List<DbMapSqlParameterSource> tradeAssocList = new ArrayList<DbMapSqlParameterSource>();
+    
     for (ManageableTrade trade : document.getPosition().getTrades()) {
       final long tradeId = nextId();
       final long tradeOid = (trade.getUniqueIdentifier() != null ? extractOid(trade.getUniqueIdentifier()) : tradeId);
       final Identifier counterpartyId = trade.getCounterpartyId();
-      final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource()
         .addValue("trade_id", tradeId)
         .addValue("trade_oid", tradeOid)
         .addValue("position_id", positionId)
+        .addValue("position_oid", positionOid)
         .addValue("quantity", trade.getQuantity())
-        .addTimestamp("trade_instant", trade.getTradeInstant())
+        .addDate("trade_date", trade.getTradeDate())
+        .addTime("trade_time", trade.getTradeTime().toLocalTime())
+        .addValue("zone_offset", trade.getTradeTime().getOffset().getAmountSeconds())
         .addValue("cparty_scheme", counterpartyId.getScheme().getName())
         .addValue("cparty_value", counterpartyId.getValue());
-      tradeList.add(treeArgs);
+      tradeList.add(tradeArgs);
       //set the trade uid
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
       UniqueIdentifiables.setInto(trade, tradeUid);
       trade.setPositionId(positionUid);
+      
+      for (Identifier id : trade.getSecurityKey()) {
+        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+          .addValue("trade_id", tradeId)
+          .addValue("key_scheme", id.getScheme().getName())
+          .addValue("key_value", id.getValue());
+        tradeAssocList.add(assocArgs);
+        schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
+      }
     }
+    
+    final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
+    for (Pair<String, String> pair : schemeValueSet) {
+      final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+        .addValue("key_scheme", pair.getFirst())
+        .addValue("key_value", pair.getSecond());
+      if (getJdbcTemplate().queryForList(sqlSelectIdKey(), idkeyArgs).isEmpty()) {
+        // select avoids creating unecessary id, but id may still not be used
+        final long idKeyId = nextId("pos_idkey_seq");
+        idkeyArgs.addValue("idkey_id", idKeyId);
+        idKeyList.add(idkeyArgs);
+      }
+    }
+    
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertSecurityKey(), secKeyList.toArray(new DbMapSqlParameterSource[secKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertPositionIdKey(), posAssocList.toArray(new DbMapSqlParameterSource[posAssocList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
-   
+    getJdbcTemplate().batchUpdate(sqlInsertTradeIdKey(), tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
+    
+    // set the uid
+    UniqueIdentifiables.setInto(document.getPosition(), positionUid);
+    document.setUniqueId(positionUid);
+    
   }
 
   /**
@@ -248,9 +322,9 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected String sqlInsertTrades() {
     return "INSERT INTO pos_trade " +
-              "(id, oid, position_id, quantity, trade_instant, cparty_scheme, cparty_value) " +
+              "(id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value) " +
             "VALUES " +
-              "(:trade_id, :trade_oid, :position_id, :quantity, :trade_instant, :cparty_scheme, :cparty_value)";
+              "(:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value)";
   }
 
   /**
@@ -262,17 +336,6 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
               "(id, oid, portfolio_oid, parent_node_oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, quantity) " +
             "VALUES " +
               "(:position_id, :position_oid, :portfolio_oid, :parent_node_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :quantity)";
-  }
-
-  /**
-   * Gets the SQL for inserting a security key.
-   * @return the SQL, not null
-   */
-  protected String sqlInsertSecurityKey() {
-    return "INSERT INTO pos_securitykey " +
-              "(id, position_id, id_scheme, id_value) " +
-            "VALUES " +
-              "(:seckey_id, :position_id, :id_scheme, :id_value)";
   }
 
   //-------------------------------------------------------------------------

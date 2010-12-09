@@ -37,7 +37,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
@@ -56,7 +56,6 @@ import com.opengamma.master.timeseries.TimeSeriesSearchHistoricResult;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
-import com.opengamma.masterdb.timeseries.DbTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -404,7 +403,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   protected List<TimeSeriesDocument<T>> addAndTestTimeSeries() {
     List<TimeSeriesDocument<T>> result = new ArrayList<TimeSeriesDocument<T>>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "ticker" + i), Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "buid" + i));
+      IdentifierBundle identifiers = IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
       LocalDate start = DateUtil.previousWeekDay().minusDays(7);
       for (String dataSource : DATA_SOURCES) {
         for (String dataProvider : DATA_PROVIDERS) {
@@ -585,7 +584,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
   public void getHistoricalTimeSeriesWithoutDataProvider() throws Exception {
     Map<String, DoubleTimeSeries<T>> expectedTSMap = new HashMap<String, DoubleTimeSeries<T>>();
     
-    IdentifierBundle bundle = IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "id1"));
+    IdentifierBundle bundle = IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("id1"));
     for (String dataProvider : DATA_PROVIDERS) {
       
       DoubleTimeSeries<T> timeSeries = makeRandomTimeSeries(DEFAULT_START, 7);
@@ -1039,15 +1038,15 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     Map<Identifier, DoubleTimeSeries<T>> expectedTS = new HashMap<Identifier, DoubleTimeSeries<T>>();
     
     //add EDU10 Comdty
-    Identifier edu10Buid = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "IX613196-0");
-    Identifier edu0Id = Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "EDU0 Comdty");
+    Identifier edu10Buid = SecurityUtils.bloombergBuidSecurityId("IX613196-0");
+    Identifier edu0Id = SecurityUtils.bloombergTickerSecurityId("EDU0 Comdty");
     TimeSeriesDocument<T> tsDocument = new TimeSeriesDocument<T>();
     tsDocument.setDataField(CLOSE_DATA_FIELD);
     tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
     tsDocument.setDataSource(BBG_DATA_SOURCE);
     tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
     IdentifierWithDates edu0 = IdentifierWithDates.of(edu0Id, LocalDate.of(2000, MonthOfYear.SEPTEMBER, 19), LocalDate.of(2010, MonthOfYear.SEPTEMBER, 13));
-    IdentifierWithDates edu10 = IdentifierWithDates.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "EDU10 Comdty"), LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), null);
+    IdentifierWithDates edu10 = IdentifierWithDates.of(SecurityUtils.bloombergTickerSecurityId("EDU10 Comdty"), LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), null);
     IdentifierWithDates eduBuid = IdentifierWithDates.of(edu10Buid, null, null);
     tsDocument.setIdentifiers(IdentifierBundleWithDates.of(new IdentifierWithDates[]{edu0, edu10, eduBuid}));
     
@@ -1069,14 +1068,14 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     expectedTS.put(edu10Buid, timeSeries);
     
     //add EDU20 Comdty
-    Identifier edu20Buid = Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "IX11084074-0");
+    Identifier edu20Buid = SecurityUtils.bloombergBuidSecurityId("IX11084074-0");
     tsDocument = new TimeSeriesDocument<T>();
     tsDocument.setDataField(CLOSE_DATA_FIELD);
     tsDocument.setDataProvider(CMPL_DATA_PROVIDER);
     tsDocument.setDataSource(BBG_DATA_SOURCE);
     tsDocument.setObservationTime(LCLOSE_OBSERVATION_TIME);
     edu0 = IdentifierWithDates.of(edu0Id, LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14));
-    IdentifierWithDates edu20 = IdentifierWithDates.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "EDU20 Comdty"), LocalDate.of(2010, MonthOfYear.SEPTEMBER, 15), null);
+    IdentifierWithDates edu20 = IdentifierWithDates.of(SecurityUtils.bloombergTickerSecurityId("EDU20 Comdty"), LocalDate.of(2010, MonthOfYear.SEPTEMBER, 15), null);
     eduBuid = IdentifierWithDates.of(edu20Buid, null, null);
     tsDocument.setIdentifiers(IdentifierBundleWithDates.of(new IdentifierWithDates[]{edu0, edu20, eduBuid}));
     
@@ -1180,14 +1179,14 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     assertTrue(expectedTS.values().contains(ts2));
     
     //search edu10 without date
-    searchResult = search(null, null, IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "EDU10 Comdty")), CLOSE_DATA_FIELD, CMPL_DATA_PROVIDER, BBG_DATA_SOURCE, LCLOSE_OBSERVATION_TIME, true, false);
+    searchResult = search(null, null, IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EDU10 Comdty")), CLOSE_DATA_FIELD, CMPL_DATA_PROVIDER, BBG_DATA_SOURCE, LCLOSE_OBSERVATION_TIME, true, false);
     assertNotNull(searchResult);
     assertNotNull(searchResult.getDocuments());
     assertTrue(searchResult.getDocuments().size() == 1);
     assertEquals(expectedTS.get(edu10Buid), searchResult.getDocuments().get(0).getTimeSeries());
     
     //search edu20 without date
-    searchResult = search(null, null, IdentifierBundle.of(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "EDU20 Comdty")), CLOSE_DATA_FIELD, CMPL_DATA_PROVIDER, BBG_DATA_SOURCE, LCLOSE_OBSERVATION_TIME, true, false);
+    searchResult = search(null, null, IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EDU20 Comdty")), CLOSE_DATA_FIELD, CMPL_DATA_PROVIDER, BBG_DATA_SOURCE, LCLOSE_OBSERVATION_TIME, true, false);
     assertNotNull(searchResult);
     assertNotNull(searchResult.getDocuments());
     assertTrue(searchResult.getDocuments().size() == 1);

@@ -15,25 +15,24 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
  * 
  */
 public class BondFuture {
-
   private final Bond[] _bonds;
-  private final double[] _convertionFactors;
+  private final double[] _conversionFactors;
 
-  public BondFuture(final Bond[] bonds, final double[] convertionFactors) {
+  public BondFuture(final Bond[] bonds, final double[] conversionFactors) {
     Validate.noNullElements(bonds, "null bonds");
-    Validate.notNull(convertionFactors, "null convertion facrtors");
-    Validate.isTrue(bonds.length == convertionFactors.length);
-
+    Validate.notNull(conversionFactors, "null conversion factors");
+    Validate.isTrue(bonds.length > 0, "bond array was empty");
+    Validate.isTrue(bonds.length == conversionFactors.length);
     _bonds = bonds;
-    _convertionFactors = convertionFactors;
+    _conversionFactors = conversionFactors;
   }
 
   /**
-   * Gets the convertionFactors field.
-   * @return the convertionFactors
+   * Gets the array of deliverable bond conversion factors
+   * @return the conversionFactors
    */
-  public double[] getConvertionFactors() {
-    return _convertionFactors;
+  public double[] getConversionFactors() {
+    return _conversionFactors;
   }
 
   /**
@@ -49,12 +48,12 @@ public class BondFuture {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_bonds);
-    result = prime * result + Arrays.hashCode(_convertionFactors);
+    result = prime * result + Arrays.hashCode(_conversionFactors);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -64,14 +63,11 @@ public class BondFuture {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuture other = (BondFuture) obj;
+    final BondFuture other = (BondFuture) obj;
     if (!Arrays.equals(_bonds, other._bonds)) {
       return false;
     }
-    if (!Arrays.equals(_convertionFactors, other._convertionFactors)) {
-      return false;
-    }
-    return true;
+    return Arrays.equals(_conversionFactors, other._conversionFactors);
   }
 
 }

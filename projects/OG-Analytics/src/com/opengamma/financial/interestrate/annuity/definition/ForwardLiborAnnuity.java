@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -81,13 +80,13 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "paymentTime");
-    int n = paymentTimes.length;
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    final int n = paymentTimes.length;
     // sanity checks
     for (int i = 0; i < n; i++) {
-      Validate.isTrue(paymentTimes[i] > 0.0, "payment times <= 0");
+      Validate.isTrue(paymentTimes[i] >= 0.0, "payment time is negative");
     }
-    ForwardLiborPayment[] res = new ForwardLiborPayment[n];
+    final ForwardLiborPayment[] res = new ForwardLiborPayment[n];
     res[0] = new ForwardLiborPayment(paymentTimes[0], notional, 0.0, paymentTimes[0], paymentTimes[0], paymentTimes[0], 0.0, fundingCurveName, liborCurveName);
     for (int i = 1; i < n; i++) {
       res[i] = new ForwardLiborPayment(paymentTimes[i], notional, paymentTimes[i - 1], paymentTimes[i], paymentTimes[i] - paymentTimes[i - 1], paymentTimes[i] - paymentTimes[i - 1], 0.0,
@@ -101,25 +100,23 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
-    ArgumentChecker.notEmpty(paymentTimes, "paymentTime");
+    Validate.isTrue(paymentTimes.length > 0, "payment time array is empty");
     Validate.notNull(paymentYearFraction);
-    ArgumentChecker.notEmpty(paymentYearFraction, "payment year Fraction");
+    Validate.isTrue(paymentYearFraction.length > 0, "payment year array is empty");
     Validate.notNull(forwardYearFraction);
-    ArgumentChecker.notEmpty(forwardYearFraction, "payment year Fraction");
+    Validate.isTrue(forwardYearFraction.length > 0, "payment year fraction is empty");
     Validate.notNull(spreads);
-    ArgumentChecker.notEmpty(spreads, "spreads");
+    Validate.isTrue(spreads.length > 0, "spreads array is empty");
     Validate.notNull(indexFixingTimes);
-    ArgumentChecker.notEmpty(indexFixingTimes, "indexFixingTimes");
+    Validate.isTrue(indexFixingTimes.length > 0, "index fixing times array is empty");
     Validate.notNull(indexMaturityTimes);
-    ArgumentChecker.notEmpty(indexMaturityTimes, "indexMaturityTimes");
-
-    int n = paymentTimes.length;
+    Validate.isTrue(indexMaturityTimes.length > 0, "index maturity times is empty");
+    final int n = paymentTimes.length;
     Validate.isTrue(indexFixingTimes.length == n);
     Validate.isTrue(indexMaturityTimes.length == n);
     Validate.isTrue(paymentYearFraction.length == n);
     Validate.isTrue(forwardYearFraction.length == n);
     Validate.isTrue(spreads.length == n);
-
     // sanity checks
     for (int i = 0; i < n; i++) {
       Validate.isTrue(indexFixingTimes[i] >= 0.0, "index fixing < 0");
@@ -127,7 +124,7 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
       Validate.isTrue(indexFixingTimes[i] < indexMaturityTimes[i], "fixing times after maturity times");
     }
 
-    ForwardLiborPayment[] res = new ForwardLiborPayment[n];
+    final ForwardLiborPayment[] res = new ForwardLiborPayment[n];
     for (int i = 0; i < n; i++) {
       res[i] = new ForwardLiborPayment(paymentTimes[i], notional, indexFixingTimes[i], indexMaturityTimes[i], paymentYearFraction[i], forwardYearFraction[i], spreads[i], fundingCurveName,
           liborCurveName);
@@ -136,8 +133,8 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   public ForwardLiborAnnuity withZeroSpread() {
-    int n = getNumberOfPayments();
-    ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
+    final int n = getNumberOfPayments();
+    final ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withZeroSpread();
     }
@@ -145,17 +142,17 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   public FixedCouponAnnuity withUnitCoupons() {
-    int n = getNumberOfPayments();
-    FixedCouponPayment[] temp = new FixedCouponPayment[n];
+    final int n = getNumberOfPayments();
+    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withUnitCoupon();
     }
     return new FixedCouponAnnuity(temp);
   }
 
-  public ForwardLiborAnnuity withSpread(double rate) {
-    int n = getNumberOfPayments();
-    ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
+  public ForwardLiborAnnuity withSpread(final double rate) {
+    final int n = getNumberOfPayments();
+    final ForwardLiborPayment[] temp = new ForwardLiborPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = getNthPayment(i).withSpread(rate);
     }
@@ -163,7 +160,7 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   @Override
-  public ForwardLiborAnnuity withRate(double rate) {
+  public ForwardLiborAnnuity withRate(final double rate) {
     return withSpread(rate);
   }
 
