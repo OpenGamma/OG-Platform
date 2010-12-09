@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.position.ManageablePortfolio;
 import com.opengamma.master.position.ManageablePortfolioNode;
 import com.opengamma.master.position.PortfolioTreeDocument;
@@ -34,6 +35,7 @@ import com.opengamma.master.position.PortfolioTreeSearchResult;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -180,15 +182,8 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
-    final String[] sql = sqlSearchPortfolioTrees(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final PortfolioTreeSearchResult result = new PortfolioTreeSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchPortfolioTrees(request), args, new PortfolioTreeDocumentExtractor(), result);
     return result;
   }
 
@@ -225,15 +220,8 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant())
       .addValue("depth", request.getDepth());
-    final String[] sql = sqlSearchPortfolioTreeHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final PortfolioTreeHistoryResult result = new PortfolioTreeHistoryResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final PortfolioTreeDocumentExtractor extractor = new PortfolioTreeDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchPortfolioTreeHistoric(request), args, new PortfolioTreeDocumentExtractor(), result);
     return result;
   }
 
@@ -277,6 +265,31 @@ public class QueryPortfolioTreeDbPositionMasterWorker extends DbPositionMasterWo
     search += "ORDER BY f.ver_from_instant DESC, f.corr_from_instant DESC, n.tree_left";
     String count = "SELECT COUNT(*) FROM pos_portfolio " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<PortfolioTreeDocument>> extractor, final AbstractDocumentsResult<PortfolioTreeDocument> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

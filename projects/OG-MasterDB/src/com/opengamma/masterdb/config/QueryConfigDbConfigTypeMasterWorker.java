@@ -24,6 +24,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -32,6 +33,7 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Config master worker to query a configuration document.
@@ -126,21 +128,14 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
   @Override
   protected ConfigSearchResult<T> search(ConfigSearchRequest request) {
     s_logger.debug("searchConfig: {}", request);
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("config_type", getMaster().getReifiedType().getName());
-    final String[] sql = sqlSearchConfigs(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final ConfigDocumentExtractor extractor = new ConfigDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    searchWithPaging(request.getPagingRequest(), sqlSearchConfigs(request), args, new ConfigDocumentExtractor(), result);
     return result;
   }
 
@@ -174,15 +169,8 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant())
       .addValue("config_type", getMaster().getReifiedType().getName());
-    final String[] sql = sqlSearchConfigHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final ConfigDocumentExtractor extractor = new ConfigDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchConfigHistoric(request), args, new ConfigDocumentExtractor(), result);
     return result;
   }
 
@@ -223,6 +211,31 @@ public class QueryConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterWo
     String search = SELECT + FROM + "WHERE c.id IN (" + inner + ") ORDER BY c.ver_from_instant DESC, c.corr_from_instant DESC ";
     String count = "SELECT COUNT(*) FROM cfg_config " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<ConfigDocument<T>>> extractor, final AbstractDocumentsResult<ConfigDocument<T>> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
