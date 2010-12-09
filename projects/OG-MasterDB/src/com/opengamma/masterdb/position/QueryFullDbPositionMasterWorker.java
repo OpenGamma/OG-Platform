@@ -347,8 +347,8 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       
       while (rs.next()) {
         if (portfolio == null) {
-          final Timestamp maxPosVer = rs.getTimestamp("FIXED_VER");
-          final Timestamp maxPosCorr = rs.getTimestamp("FIXED_CORR");
+          final Timestamp maxPosVer = Objects.firstNonNull(rs.getTimestamp("FIXED_VER"), new Timestamp(0));
+          final Timestamp maxPosCorr = Objects.firstNonNull(rs.getTimestamp("FIXED_CORR"), new Timestamp(0));
           final Timestamp maxPorVer = rs.getTimestamp("VER_FROM_INSTANT");
           final Timestamp maxPorCorr = rs.getTimestamp("CORR_FROM_INSTANT");
           final Instant maxVer = CompareUtils.max(DbDateUtils.fromSqlTimestamp(maxPosVer), DbDateUtils.fromSqlTimestamp(maxPorVer));
