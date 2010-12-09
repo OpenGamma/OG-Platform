@@ -36,7 +36,6 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**

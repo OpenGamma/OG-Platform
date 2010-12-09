@@ -9,11 +9,11 @@
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <!--property name="hibernateMappingFiles">
+    <property name="hibernateMappingFiles">
       <list>
-        <bean class="com.opengamma.financial.security.master.db.hibernate.HibernateSecurityMasterFiles"/>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
       </list>
-    </property-->
+    </property>
   </bean>
 
   <!-- ============================================================================== -->
@@ -40,10 +40,10 @@
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
-  <!--bean id="hsqldbDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+  <bean id="hsqldbDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbSec" />
-  </bean-->
+  </bean>
 
   <bean id="hsqldbDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="hsqldbDbSource" />
@@ -79,10 +79,10 @@
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
-  <!--bean id="postgresDbSecurityMaster" class="com.opengamma.financial.security.master.db.DbSecurityMaster">
+  <bean id="postgresDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbSec" />
-  </bean-->
+  </bean>
 
   <bean id="postgresDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="postgresDbSource" />
