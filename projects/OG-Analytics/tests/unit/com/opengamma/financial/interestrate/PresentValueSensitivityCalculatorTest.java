@@ -62,7 +62,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double df = curve.getDiscountFactor(t);
     double r = 1 / t * (1 / df - 1);
     Cash cash = new Cash(t, r, FIVE_PC_CURVE_NAME);
-    Map<String, List<DoublesPair>> sense = PVSC.getValue(cash, CURVES);
+    Map<String, List<DoublesPair>> sense = PVSC.visit(cash, CURVES);
 
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
@@ -83,7 +83,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double dfa = curve.getDiscountFactor(tradeTime);
     r = 1 / yearFrac * (dfa / df - 1);
     cash = new Cash(t, r, tradeTime, yearFrac, FIVE_PC_CURVE_NAME);
-    sense = PVSC.getValue(cash, CURVES);
+    sense = PVSC.visit(cash, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
       if (pair.getFirst() == tradeTime) {
@@ -106,7 +106,7 @@ public class PresentValueSensitivityCalculatorTest {
     final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, strike, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double ratio = curve.getDiscountFactor(settlement) / curve.getDiscountFactor(maturity) / (1 + tau * strike);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(fra, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(fra, CURVES);
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertTrue(sense.containsKey(ZERO_PC_CURVE_NAME));
 
@@ -142,7 +142,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double rate = (curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity) - 1.0) / indexYearFraction;
     final double price = 100 * (1 - rate);
     final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, FIVE_PC_CURVE_NAME);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(edf, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(edf, CURVES);
     final double ratio = valueYearFraction / indexYearFraction * curve.getDiscountFactor(fixingDate) / curve.getDiscountFactor(maturity);
 
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
@@ -174,7 +174,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
 
     final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, Math.PI, coupon, yearFracs, FIVE_PC_CURVE_NAME);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     final Iterator<DoublesPair> iterator = temp.iterator();
     int index = 0;
@@ -219,8 +219,8 @@ public class PresentValueSensitivityCalculatorTest {
 
     final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final ForwardLiborAnnuity bumpedAnnuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, "Bumped Curve");
-    final double pv = PVC.getValue(annuity, CURVES);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
+    final double pv = PVC.visit(annuity, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
 
     List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     temp = mergeSameTimes(temp);
@@ -231,7 +231,7 @@ public class PresentValueSensitivityCalculatorTest {
       final YieldCurveBundle curves = new YieldCurveBundle();
       curves.addAll(CURVES);
       curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.getValue(bumpedAnnuity, curves);
+      final double bumpedpv = PVC.visit(bumpedAnnuity, curves);
       final double res = (bumpedpv - pv) / eps;
       final DoublesPair pair = temp.get(i);
       assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
@@ -253,7 +253,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
 
     final GenericAnnuity<Payment> annuity = new GenericAnnuity<Payment>(payments);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(annuity, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
 
     int count0pc = 0;
     int count5pc = 0;
@@ -281,7 +281,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double amount = 4345.3;
     final FixedPayment payment = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
@@ -302,7 +302,7 @@ public class PresentValueSensitivityCalculatorTest {
 
     final FixedPayment payment = new FixedCouponPayment(time, notional, yearFrac, coupon, ZERO_PC_CURVE_NAME);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
     assertFalse(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertTrue(sense.containsKey(ZERO_PC_CURVE_NAME));
@@ -333,8 +333,8 @@ public class PresentValueSensitivityCalculatorTest {
 
     ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, "Bumped Curve");
 
-    final double pv = PVC.getValue(payment, CURVES);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+    final double pv = PVC.visit(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
     List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
 
@@ -345,7 +345,7 @@ public class PresentValueSensitivityCalculatorTest {
       final YieldCurveBundle curves = new YieldCurveBundle();
       curves.addAll(CURVES);
       curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+      final double bumpedpv = PVC.visit(bumpedPayment, curves);
       final double res = (bumpedpv - pv) / eps;
       final DoublesPair pair = temp.get(i);
       assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
@@ -359,7 +359,7 @@ public class PresentValueSensitivityCalculatorTest {
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.addAll(CURVES);
     curves.setCurve("Bumped Curve", bumpedCurve);
-    final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+    final double bumpedpv = PVC.visit(bumpedPayment, curves);
     final double res = (bumpedpv - pv) / eps;
     final DoublesPair pair = temp.get(0);
     assertEquals(time, pair.getFirst(), 0.0);
@@ -384,8 +384,8 @@ public class PresentValueSensitivityCalculatorTest {
 
     final ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, "Bumped Curve", "Bumped Curve");
 
-    final double pv = PVC.getValue(payment, CURVES);
-    final Map<String, List<DoublesPair>> sense = PVSC.getValue(payment, CURVES);
+    final double pv = PVC.visit(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     final Set<DoublesPair> sorted = new TreeSet<DoublesPair>(new FirstThenSecondDoublesPairComparator());
@@ -399,7 +399,7 @@ public class PresentValueSensitivityCalculatorTest {
       final YieldCurveBundle curves = new YieldCurveBundle();
       curves.addAll(CURVES);
       curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.getValue(bumpedPayment, curves);
+      final double bumpedpv = PVC.visit(bumpedPayment, curves);
       final double res = (bumpedpv - pv) / eps;
       final DoublesPair pair = interator.next();
       assertEquals(nodeTimes[i], pair.getFirst(), 0.0);

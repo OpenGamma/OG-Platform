@@ -44,6 +44,7 @@ public class DbDateUtils {
   //-------------------------------------------------------------------------
   /**
    * Creates a time-stamp from an {@code InstantProvider}.
+   * 
    * @param instantProvider  the instant to convert, not null
    * @return the SQL time-stamp, not null
    */
@@ -57,6 +58,7 @@ public class DbDateUtils {
 
   /**
    * Creates an {@code Instant} from an SQL time-stamp.
+   * 
    * @param timestamp  the SQL time-stamp to convert, not null
    * @return the instant, null if far-future
    */
@@ -69,6 +71,7 @@ public class DbDateUtils {
 
   /**
    * Creates an {@code Instant} from an SQL time-stamp treating null as far-future.
+   * 
    * @param timestamp  the SQL time-stamp to convert, not null
    * @return the instant, null if far-future
    */
@@ -82,6 +85,7 @@ public class DbDateUtils {
   //-------------------------------------------------------------------------
   /**
    * Creates a SQL date from a {@code DateTimeProvider}.
+   * 
    * @param dateTimeProvider  the date-time to convert, not null
    * @return the SQL date, not null
    */
@@ -97,6 +101,7 @@ public class DbDateUtils {
   /**
    * Creates a {@code LocalDateTime} from an SQL time-stamp.
    * This is used when the time-stamp represents a local date-time rather than an instant.
+   * 
    * @param timestamp  the SQL time-stamp to convert, not null
    * @return the date-time, null if far-future
    */
@@ -111,6 +116,7 @@ public class DbDateUtils {
   /**
    * Creates a {@code LocalDateTime} from an SQL time-stamp.
    * This is used when the time-stamp represents a local date-time rather than an instant.
+   * 
    * @param timestamp  the SQL time-stamp to convert, not null
    * @return the date-time, null if far-future
    */
@@ -124,6 +130,7 @@ public class DbDateUtils {
   //-------------------------------------------------------------------------
   /**
    * Creates a SQL date from a {@code DateProvider}.
+   * 
    * @param dateProvider  the date to convert, not null
    * @return the SQL date, not null
    */
@@ -135,7 +142,8 @@ public class DbDateUtils {
   }
 
   /**
-   * Creates a {@code LocalDate} from a SQL date
+   * Creates a {@code LocalDate} from a SQL date.
+   * 
    * @param date  the SQL date to convert, not null
    * @return the date, not null
    */
@@ -148,6 +156,7 @@ public class DbDateUtils {
   //-------------------------------------------------------------------------
   /**
    * Creates a SQL time from a {@code TimeProvider}.
+   * 
    * @param timeProvider  the time to convert, not null
    * @return the SQL time, not null
    */
@@ -159,7 +168,10 @@ public class DbDateUtils {
   }
   
   /**
-   * Creates a SQL time from a {@code TimeProvider}.
+   * Creates a SQL timestamp from a {@code TimeProvider}.
+   * <p>
+   * This method is needed to be able to pass nanoseconds to the database when dealing with times.
+   * 
    * @param timeProvider  the time to convert, not null
    * @return the SQL time, not null
    */
@@ -172,6 +184,7 @@ public class DbDateUtils {
 
   /**
    * Creates a {@code LocalTime} from an SQL time.
+   * 
    * @param time  the SQL time to convert, not null
    * @return the time, not null
    */
@@ -182,7 +195,10 @@ public class DbDateUtils {
   }
   
   /**
-   * Creates a {@code LocalTime} from an SQL timestamp, truncate the year, month and date part
+   * Creates a {@code LocalTime} from an SQL timestamp.
+   * <p>
+   * This method is needed to be able to retrieve nanoseconds from the database when dealing with times.
+   * 
    * @param timestamp  the SQL timestamp to convert, not null
    * @return the time, not null
    */

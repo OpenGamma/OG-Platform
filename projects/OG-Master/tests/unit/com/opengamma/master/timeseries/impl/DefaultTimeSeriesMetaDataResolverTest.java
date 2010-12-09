@@ -26,6 +26,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -71,7 +72,7 @@ public class DefaultTimeSeriesMetaDataResolverTest {
     ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     testDoc.setName(CONFIG_DOC_NAME);
     testDoc.setValue(createRules());
-    timeSeriesConfigMaster.add(testDoc);
+    ConfigMasterUtils.storeByName(timeSeriesConfigMaster, testDoc);
   }
 
   private TimeSeriesMetaDataConfiguration createRules() {

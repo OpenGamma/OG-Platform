@@ -49,7 +49,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
-    final Map<String, Double> pv01ForCurve = CALCULATOR.calculate(swap, bundle);
+    final Map<String, Double> pv01ForCurve = CALCULATOR.visit(swap, bundle);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     if (!(pv01ForCurve.containsKey(getForwardCurveName()) && pv01ForCurve.containsKey(getFundingCurveName()))) {
       throw new NullPointerException("Could not get PV01 for " + getForwardCurveName() + " and " + getFundingCurveName());

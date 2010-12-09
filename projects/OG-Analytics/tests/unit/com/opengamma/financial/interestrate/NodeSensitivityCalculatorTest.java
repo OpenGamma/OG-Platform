@@ -161,7 +161,7 @@ public class NodeSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.getValue(ird, curves);
+        return valueCalculator.visit(ird, curves);
       }
     };
 

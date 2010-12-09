@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -40,7 +39,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
    * Setup for a general interest rate future. This follows the Eurodollar futures system of having a quoted price of 100(1-r)  where r is the rate for a hypothetical loan on a some
    * index rate (normal a Libor rate)
    * @param settlement The date-time (in years as a double) at which the future is cash settled (for Eurodollars this is two days before the fixing date, unless that is a bank holiday)
-   * @param fixingDate The data-time (in years as a double) when the reference rate is set (normally the third Wednesday of March, June, September & December for 3m contracts,
+   * @param fixingTime The data-time (in years as a double) when the reference rate is set (normally the third Wednesday of March, June, September & December for 3m contracts,
    * but any positive value is allowed)
    * @param maturity The maturity of the reference rate (in years as a double)
    * @param indexYearFraction The year fraction to used for calculating the reference rate
@@ -48,20 +47,20 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
    * @param price  The quoted price of the future, price = 100*(1-r), where r is the implied futures rate as a fraction 
    * @param indexCurveName The name of the curve used to calculate the reference rate 
    */
-  public InterestRateFuture(final double settlement, final double fixingDate, final double maturity, final double indexYearFraction, final double valueYearFraction, final double price,
+  public InterestRateFuture(final double settlement, final double fixingTime, final double maturity, final double indexYearFraction, final double valueYearFraction, final double price,
       final String indexCurveName) {
-    ArgumentChecker.notNegative(settlement, "Settlement Date");
-    ArgumentChecker.notNegative(fixingDate, "Fixing Date");
-    ArgumentChecker.notNegative(maturity, "maturity");
-    ArgumentChecker.notNegative(indexYearFraction, "index year fraction");
-    ArgumentChecker.notNegative(valueYearFraction, "Value year fraction");
-    ArgumentChecker.notNegative(price, "price");
+    Validate.isTrue(settlement >= 0, "Settlement Date is negative");
+    Validate.isTrue(fixingTime >= 0, "Fixing Date is negative");
+    Validate.isTrue(maturity >= 0, "maturity is negative");
+    Validate.isTrue(indexYearFraction >= 0, "index year fraction is negative");
+    Validate.isTrue(valueYearFraction >= 0, "Value year fraction is negative");
+    Validate.isTrue(price >= 0, "price");
     Validate.isTrue(price <= 100, "price must be less than 100");
     Validate.notNull(indexCurveName);
-    Validate.isTrue(settlement >= fixingDate, "settlement must be after or at fixing Date");
-    Validate.isTrue(maturity > fixingDate, "maturity must be after fixing date");
+    Validate.isTrue(settlement >= fixingTime, "settlement must be after or at fixing Date");
+    Validate.isTrue(maturity > fixingTime, "maturity must be after fixing date");
     _settlement = settlement;
-    _fixingDate = fixingDate;
+    _fixingDate = fixingTime;
     _maturity = maturity;
     _indexYearFraction = indexYearFraction;
     _valueYearFraction = valueYearFraction;
@@ -129,7 +128,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
+    result = prime * result + _curveName.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_fixingDate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -147,7 +146,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -157,12 +156,8 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFuture other = (InterestRateFuture) obj;
-    if (_curveName == null) {
-      if (other._curveName != null) {
-        return false;
-      }
-    } else if (!ObjectUtils.equals(_curveName, other._curveName)) {
+    final InterestRateFuture other = (InterestRateFuture) obj;
+    if (!ObjectUtils.equals(_curveName, other._curveName)) {
       return false;
     }
     if (Double.doubleToLongBits(_fixingDate) != Double.doubleToLongBits(other._fixingDate)) {
@@ -180,10 +175,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
     if (Double.doubleToLongBits(_settlement) != Double.doubleToLongBits(other._settlement)) {
       return false;
     }
-    if (Double.doubleToLongBits(_valueYearFraction) != Double.doubleToLongBits(other._valueYearFraction)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_valueYearFraction) == Double.doubleToLongBits(other._valueYearFraction);
   }
 
   @Override
@@ -192,8 +184,13 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
   }
 
   @Override
-  public InterestRateFuture withRate(double rate) {
+  public InterestRateFuture withRate(final double rate) {
     return new InterestRateFuture(getSettlementDate(), getFixingDate(), getMaturity(), getIndexYearFraction(), getValueYearFraction(), 100 * (1 - rate), getCurveName());
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitInterestRateFuture(this);
   }
 
 }

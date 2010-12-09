@@ -26,6 +26,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -35,6 +36,7 @@ import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Exchange master worker to get the exchange.
@@ -125,7 +127,6 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
   @Override
   protected ExchangeSearchResult search(ExchangeSearchRequest request) {
     s_logger.debug("searchExchanges: {}", request);
-    final ExchangeSearchResult result = new ExchangeSearchResult();
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
@@ -140,14 +141,8 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
         i++;
       }
     }
-    final String[] sql = sqlSearchExchanges(request, bundles);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final ExchangeDocumentExtractor extractor = new ExchangeDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    final ExchangeSearchResult result = new ExchangeSearchResult();
+    searchWithPaging(request.getPagingRequest(), sqlSearchExchanges(request, bundles), args, new ExchangeDocumentExtractor(), result);
     return result;
   }
 
@@ -234,15 +229,8 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    final String[] sql = sqlSearchExchangeHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final ExchangeHistoryResult result = new ExchangeHistoryResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final ExchangeDocumentExtractor extractor = new ExchangeDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchExchangeHistoric(request), args, new ExchangeDocumentExtractor(), result);
     return result;
   }
 
@@ -282,6 +270,31 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
     String search = SELECT + FROM + "WHERE main.id IN (" + inner + ") ORDER BY main.ver_from_instant DESC, main.corr_from_instant DESC ";
     String count = "SELECT COUNT(*) FROM exg_exchange " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<ExchangeDocument>> extractor, final AbstractDocumentsResult<ExchangeDocument> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

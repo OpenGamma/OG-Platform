@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -13,12 +14,11 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
  * 
  */
 public class FixedPayment implements Payment {
-
   private final double _time;
   private final double _amount;
   private final String _fundingCurveName;
 
-  public FixedPayment(double paymentTime, double paymentAmount, String fundingCurve) {
+  public FixedPayment(final double paymentTime, final double paymentAmount, final String fundingCurve) {
     Validate.isTrue(paymentTime >= 0.0, "Payment time < 0");
     Validate.notNull(fundingCurve);
     _time = paymentTime;
@@ -47,14 +47,14 @@ public class FixedPayment implements Payment {
     long temp;
     temp = Double.doubleToLongBits(_amount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_fundingCurveName == null) ? 0 : _fundingCurveName.hashCode());
+    result = prime * result + _fundingCurveName.hashCode();
     temp = Double.doubleToLongBits(_time);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -64,26 +64,24 @@ public class FixedPayment implements Payment {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FixedPayment other = (FixedPayment) obj;
+    final FixedPayment other = (FixedPayment) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
       return false;
     }
-    if (_fundingCurveName == null) {
-      if (other._fundingCurveName != null) {
-        return false;
-      }
-    } else if (!_fundingCurveName.equals(other._fundingCurveName)) {
+    if (!ObjectUtils.equals(_fundingCurveName, other._fundingCurveName)) {
       return false;
     }
-    if (Double.doubleToLongBits(_time) != Double.doubleToLongBits(other._time)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_time) == Double.doubleToLongBits(other._time);
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFixedPayment(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitFixedPayment(this);
   }
 
 }

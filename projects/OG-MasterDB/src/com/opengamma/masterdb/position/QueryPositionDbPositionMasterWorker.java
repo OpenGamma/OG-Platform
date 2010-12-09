@@ -32,6 +32,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -43,6 +44,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Position master worker to get the position.
@@ -166,15 +168,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       args.addValue("parent_node_oid", extractOid(request.getParentNodeId()));
     }
     // TODO: security key
-    final String[] sql = sqlSearchPositions(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final PositionSearchResult result = new PositionSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
   }
 
@@ -215,15 +210,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    final String[] sql = sqlSearchPositionHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final PositionHistoryResult result = new PositionHistoryResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchPositionHistoric(request), args, new PositionDocumentExtractor(), result);
     return result;
   }
 
@@ -263,6 +251,31 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC, t.id DESC";
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<PositionDocument>> extractor, final AbstractDocumentsResult<PositionDocument> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

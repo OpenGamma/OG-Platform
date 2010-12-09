@@ -143,7 +143,7 @@ public class YieldCurveBootStrapTest {
     double swapRate;
     for (int i = 0; i < n; i++) {
       instrument = setupSwap(payments[i], FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-      swapRate = SWAP_RATE_CALCULATOR.getValue(instrument, curveBundle);
+      swapRate = SWAP_RATE_CALCULATOR.visit(instrument, curveBundle);
       instrument = setParSwapRate((FixedFloatSwap) instrument, swapRate);
 
       DOUBLE_CURVE_INSTRUMENTS.add(instrument);
@@ -302,7 +302,7 @@ public class YieldCurveBootStrapTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(LIBOR_CURVE_NAME, curve);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
-      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getValue(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
+      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.visit(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
     }
   }
 
@@ -330,7 +330,7 @@ public class YieldCurveBootStrapTest {
     bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
 
     for (int i = 0; i < SWAP_VALUES.length; i++) {
-      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getValue(DOUBLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
+      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.visit(DOUBLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
     }
   }
 
@@ -366,7 +366,7 @@ public class YieldCurveBootStrapTest {
       final YieldCurveBundle bundle = new YieldCurveBundle();
       bundle.setCurve(LIBOR_CURVE_NAME, curve);
       for (int i = 0; i < swapRates.length; i++) {
-        assertEquals(swapRates[i], SWAP_RATE_CALCULATOR.getValue(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
+        assertEquals(swapRates[i], SWAP_RATE_CALCULATOR.visit(SINGLE_CURVE_INSTRUMENTS.get(i), bundle), EPS);
       }
     }
   }
@@ -414,7 +414,7 @@ public class YieldCurveBootStrapTest {
 
     knownCurves.setCurve(LIBOR_CURVE_NAME, fwdCurve);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
-      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getValue(DOUBLE_CURVE_INSTRUMENTS.get(i), knownCurves), EPS);
+      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.visit(DOUBLE_CURVE_INSTRUMENTS.get(i), knownCurves), EPS);
     }
   }
 
@@ -440,7 +440,7 @@ public class YieldCurveBootStrapTest {
 
     knownCurves.setCurve(FUNDING_CURVE_NAME, fundCurve);
     for (int i = 0; i < SWAP_VALUES.length; i++) {
-      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.getValue(DOUBLE_CURVE_INSTRUMENTS.get(i), knownCurves), EPS);
+      assertEquals(SWAP_VALUES[i], SWAP_RATE_CALCULATOR.visit(DOUBLE_CURVE_INSTRUMENTS.get(i), knownCurves), EPS);
     }
 
   }

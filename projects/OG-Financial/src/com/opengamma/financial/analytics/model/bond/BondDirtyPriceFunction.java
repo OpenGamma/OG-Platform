@@ -15,7 +15,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.bond.BondPriceCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculator;
+import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
@@ -23,6 +24,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class BondDirtyPriceFunction extends BondFunction {
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   public BondDirtyPriceFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
@@ -32,7 +34,7 @@ public class BondDirtyPriceFunction extends BondFunction {
   protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueIdentifier());
-    final double dirtyPrice = BondPriceCalculator.dirtyPrice(bond, cleanPrice / 100.0);
+    final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
   }
 
