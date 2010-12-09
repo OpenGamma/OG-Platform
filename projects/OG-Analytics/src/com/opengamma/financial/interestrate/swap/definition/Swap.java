@@ -19,7 +19,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
  * @param <R> The type of the payments in the receiveLeg
  */
 public class Swap<P extends Payment, R extends Payment> implements InterestRateDerivative {
-
   private final GenericAnnuity<P> _payLeg;
   private final GenericAnnuity<R> _receiveLeg;
 
@@ -44,11 +43,16 @@ public class Swap<P extends Payment, R extends Payment> implements InterestRateD
   }
 
   @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitSwap(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_payLeg == null) ? 0 : _payLeg.hashCode());
-    result = prime * result + ((_receiveLeg == null) ? 0 : _receiveLeg.hashCode());
+    result = prime * result + _payLeg.hashCode();
+    result = prime * result + _receiveLeg.hashCode();
     return result;
   }
 
@@ -67,5 +71,4 @@ public class Swap<P extends Payment, R extends Payment> implements InterestRateD
     return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
 
   }
-
 }

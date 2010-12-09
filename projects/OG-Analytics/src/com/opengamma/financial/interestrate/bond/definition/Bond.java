@@ -13,7 +13,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -27,10 +26,9 @@ public class Bond implements InterestRateDerivativeWithRate {
 
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-
     double yearFraction;
     final FixedCouponPayment[] payments = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
@@ -44,7 +42,7 @@ public class Bond implements InterestRateDerivativeWithRate {
 
   public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
     final FixedCouponPayment[] payments = new FixedCouponPayment[n];
@@ -60,17 +58,13 @@ public class Bond implements InterestRateDerivativeWithRate {
     Validate.notNull(paymentTimes, "payment times");
     Validate.notNull(coupons, "coupons");
     Validate.notNull(yearFractions, "year fractions");
-    ArgumentChecker.notEmpty(paymentTimes, "payment times");
-    ArgumentChecker.notEmpty(coupons, "coupons");
-    ArgumentChecker.notEmpty(yearFractions, "year fractions");
+    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    Validate.isTrue(coupons.length > 0, "coupons array is empty");
+    Validate.isTrue(yearFractions.length > 0, "year fractions array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-    if (n != coupons.length) {
-      throw new IllegalArgumentException("Must have a payment for each payment time");
-    }
-    if (n != yearFractions.length) {
-      throw new IllegalArgumentException("Must have a year fraction for each payment time");
-    }
+    Validate.isTrue(coupons.length == n, "Must have a payment for each payment time");
+    Validate.isTrue(yearFractions.length == n, "Must have a payment for each payment time");
     final FixedCouponPayment[] payments = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       payments[i] = new FixedCouponPayment(paymentTimes[i], yearFractions[i], coupons[i], yieldCurveName);
@@ -90,7 +84,6 @@ public class Bond implements InterestRateDerivativeWithRate {
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i);
     }
-
     temp[n] = _principle;
     return new GenericAnnuity<FixedPayment>(temp);
   }
@@ -116,13 +109,11 @@ public class Bond implements InterestRateDerivativeWithRate {
    * @return Coupons only Payments (i.e. excluding the principle payment) where the coupon is set to 1
    */
   public GenericAnnuity<FixedCouponPayment> getUnitCouponAnnuity() {
-
     final int n = _coupons.getNumberOfPayments();
     final FixedCouponPayment[] temp = new FixedCouponPayment[n];
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i).withUnitCoupon();
     }
-
     return new GenericAnnuity<FixedCouponPayment>(temp);
   }
 
@@ -173,10 +164,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     if (!ObjectUtils.equals(this._coupons, other._coupons)) {
       return false;
     }
-    if (!ObjectUtils.equals(this._principle, other._principle)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(this._principle, other._principle);
   }
 
   /**
@@ -189,6 +177,11 @@ public class Bond implements InterestRateDerivativeWithRate {
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitBond(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitBond(this);
   }
 
 }

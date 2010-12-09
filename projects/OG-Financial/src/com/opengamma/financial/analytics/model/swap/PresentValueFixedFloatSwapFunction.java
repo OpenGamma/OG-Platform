@@ -47,7 +47,7 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
-    final Double presentValue = CALCULATOR.getValue(swap, bundle);
+    final Double presentValue = CALCULATOR.visit(swap, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), getUniqueIdentifier());
     return Sets.newHashSet(new ComputedValue(specification, presentValue));
   }

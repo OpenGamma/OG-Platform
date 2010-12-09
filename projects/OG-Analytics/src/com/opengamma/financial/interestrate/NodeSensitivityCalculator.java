@@ -53,7 +53,7 @@ public class NodeSensitivityCalculator {
       allCurves.addAll(fixedCurves);
     }
 
-    final Map<String, List<DoublesPair>> senseMap = calculator.getValue(ird, allCurves);
+    final Map<String, List<DoublesPair>> senseMap = calculator.visit(ird, allCurves);
 
     return curveToNodeSensitivities(senseMap, interpolatedCurves);
 

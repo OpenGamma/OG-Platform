@@ -320,7 +320,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           }
           derivatives.add(derivative);
           initialRatesGuess[i] = 0.01;
-          nodeTimes[i] = LAST_DATE_CALCULATOR.getValue(derivative);
+          nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
           _identifierToFundingNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
           _identifierToForwardNodeTimes.put(strip.getSecurityIdentifier(), nodeTimes[i]); // just for debugging.
           i++;
@@ -406,7 +406,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
-        fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.getValue(derivative);
+        fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         _identifierToFundingNodeTimes.put(strip.getSecurityIdentifier(), fundingNodeTimes[fundingIndex]); // just for debugging.
         fundingIndex++;
       }
@@ -438,7 +438,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
-        forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.getValue(derivative);
+        forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         _identifierToForwardNodeTimes.put(strip.getSecurityIdentifier(), forwardNodeTimes[forwardIndex]); // just for debugging.
         forwardIndex++;
       }

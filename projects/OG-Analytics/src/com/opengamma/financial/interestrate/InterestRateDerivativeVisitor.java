@@ -20,12 +20,15 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
- * @param <S> Type of additional data needed for the calculation (this can be a null object if not needed) 
- *  @param <T> Type of visitor
+ * 
+ * @param <S> The type of the data
+ * @param <T> The return type of the calculation
  */
 public interface InterestRateDerivativeVisitor<S, T> {
 
-  T getValue(InterestRateDerivative ird, S data);
+  T visit(InterestRateDerivative derivative, S data);
+
+  T visit(InterestRateDerivative derivative);
 
   T visitCash(Cash cash, S data);
 
@@ -33,25 +36,45 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
-  T visitSwap(final Swap<?, ?> swap, S data);
+  T visitSwap(Swap<?, ?> swap, S data);
 
-  T visitFixedCouponSwap(final FixedCouponSwap<?> swap, S data);
+  T visitFixedCouponSwap(FixedCouponSwap<?> swap, S data);
 
-  T visitTenorSwap(final TenorSwap swap, S data);
+  T visitTenorSwap(TenorSwap swap, S data);
 
-  T visitFloatingRateNote(final FloatingRateNote frn, S data);
+  T visitFloatingRateNote(FloatingRateNote frn, S data);
 
-  T visitBond(final Bond bond, S data);
+  T visitBond(Bond bond, S data);
 
-  // T visitConstantCouponAnnuity(final FixedCouponAnnuity annuity, S data);
-  //
-  // T visitVariableAnnuity(final ForwardLiborAnnuity annuity, S data);
-
-  T visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, S data);
+  T visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, S data);
 
   T visitFixedPayment(FixedPayment payment, S data);
 
   T visitForwardLiborPayment(ForwardLiborPayment payment, S data);
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
+
+  T visitCash(Cash cash);
+
+  T visitForwardRateAgreement(ForwardRateAgreement fra);
+
+  T visitInterestRateFuture(InterestRateFuture future);
+
+  T visitSwap(Swap<?, ?> swap);
+
+  T visitFixedCouponSwap(FixedCouponSwap<?> swap);
+
+  T visitTenorSwap(TenorSwap swap);
+
+  T visitFloatingRateNote(FloatingRateNote frn);
+
+  T visitBond(Bond bond);
+
+  T visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity);
+
+  T visitFixedPayment(FixedPayment payment);
+
+  T visitForwardLiborPayment(ForwardLiborPayment payment);
+
+  T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 }

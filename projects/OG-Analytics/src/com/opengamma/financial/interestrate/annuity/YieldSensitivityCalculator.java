@@ -3,10 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.annuity.definition;
+package com.opengamma.financial.interestrate.annuity;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
@@ -17,15 +18,15 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
  * 
  */
 public final class YieldSensitivityCalculator {
-  private static BracketRoot s_bracketRoot = new BracketRoot();
-  private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
-  private static final YieldSensitivityCalculator s_instance = new YieldSensitivityCalculator();
+  private static final BracketRoot BRACKETER = new BracketRoot();
+  private static final RealSingleRootFinder ROOT_FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final YieldSensitivityCalculator INSTANCE = new YieldSensitivityCalculator();
 
   private YieldSensitivityCalculator() {
   }
 
   public static YieldSensitivityCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
   /**
@@ -46,8 +47,8 @@ public final class YieldSensitivityCalculator {
 
     };
 
-    final double[] range = s_bracketRoot.getBracketedPoints(f, 0.0, 0.2);
-    return s_root.getRoot(f, range[0], range[1]);
+    final double[] range = BRACKETER.getBracketedPoints(f, 0.0, 0.2);
+    return ROOT_FINDER.getRoot(f, range[0], range[1]);
   }
 
   /**
@@ -89,10 +90,11 @@ public final class YieldSensitivityCalculator {
    * @param annuity Set of known cash flows 
    * @param yield Continuously compounded constant interest rate 
    * @param order The order of the derivative 
-   * @return nth order yield sensitivity (times (-1)^n
+   * @return nth order yield sensitivity (times (-1)^n)
    */
   public double calculateNthOrderSensitivityFromYield(final GenericAnnuity<? extends FixedPayment> annuity, final double yield, final int order) {
     Validate.notNull(annuity, "annuity");
+    Validate.isTrue(order >= 0, "order must be positive");
     double sum = 0;
 
     double t;

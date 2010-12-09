@@ -29,16 +29,15 @@ public class FixedCouponSwap<R extends Payment> extends Swap<FixedCouponPayment,
 
   public FixedCouponAnnuity getFixedLeg() {
     return (FixedCouponAnnuity) getPayLeg();
-    // return new FixedCouponAnnuity(getPayLeg().getPayments());
   }
 
   @Override
-  public FixedCouponSwap<R> withRate(double rate) {
+  public FixedCouponSwap<R> withRate(final double rate) {
     return new FixedCouponSwap<R>(getFixedLeg().withRate(rate), getReceiveLeg());
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFixedCouponSwap(this, data);
   }
 }

@@ -30,7 +30,7 @@ public class LastDataCalculatorTest {
   public void testCash() {
     final double t = 7 / 365.0;
     Cash cash = new Cash(t, 0.0445, 1 / 365.0, 5.0 / 365, "t");
-    assertEquals(t, LDC.getValue(cash), 1e-12);
+    assertEquals(t, LDC.visit(cash), 1e-12);
   }
 
   @Test
@@ -43,7 +43,7 @@ public class LastDataCalculatorTest {
 
     ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.05, "", "");
 
-    assertEquals(maturity, LDC.getValue(fra), 1e-12);
+    assertEquals(maturity, LDC.visit(fra), 1e-12);
   }
 
   @Test
@@ -55,13 +55,13 @@ public class LastDataCalculatorTest {
     final double valueYearFraction = 0.25;
 
     InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 98.4, "");
-    assertEquals(maturity, LDC.getValue(edf, fixingDate), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
+    assertEquals(maturity, LDC.visit(edf, fixingDate), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
   }
 
   @Test
   public void testFixedCouponAnnuity() {
     FixedCouponAnnuity annuity = new FixedCouponAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "");
-    assertEquals(10, LDC.getValue(annuity), 1e-12);
+    assertEquals(10, LDC.visit(annuity), 1e-12);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class LastDataCalculatorTest {
       spreads[i] = spread;
     }
     ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben");
-    assertEquals(n * alpha + 0.1, LDC.getValue(annuity), 1e-12);
+    assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
   }
 
   @Test
@@ -98,7 +98,7 @@ public class LastDataCalculatorTest {
     }
 
     Bond bond = new Bond(paymentTimes, coupon, yearFrac, 0.0, "dummy");
-    assertEquals(n * tau, LDC.getValue(bond), 1e-12);
+    assertEquals(n * tau, LDC.visit(bond), 1e-12);
   }
 
   @Test
@@ -116,7 +116,7 @@ public class LastDataCalculatorTest {
     final double swapRate = 0.045;
 
     final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "");
-    assertEquals(n * 0.5, LDC.getValue(swap), 1e-12);
+    assertEquals(n * 0.5, LDC.visit(swap), 1e-12);
 
   }
 
@@ -143,7 +143,7 @@ public class LastDataCalculatorTest {
 
     final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
 
-    assertEquals(n * tau, LDC.getValue(swap, swap), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
+    assertEquals(n * tau, LDC.visit(swap, swap), 1e-12);// passing in swap twice is just to show that anything can be passed in -second case is it is ignored
 
   }
 

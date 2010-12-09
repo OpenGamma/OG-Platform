@@ -120,7 +120,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
           _forwardCurveName, fixedRate, initialFloatingRate, now);
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) forwardCurveObject;
       final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName}, new YieldAndDiscountCurve[] {curve});
-      final Map<String, Double> parRateSensitivity = CALCULATOR.getValue(swap, bundle);
+      final Map<String, Double> parRateSensitivity = CALCULATOR.visit(swap, bundle);
       final Set<ComputedValue> result = new HashSet<ComputedValue>();
       if (!(parRateSensitivity.containsKey(_forwardCurveName) && parRateSensitivity.containsKey(_fundingCurveName))) {
         throw new NullPointerException("Could not get par rate sensitivity for " + _forwardCurveName + " and " + _fundingCurveName);
@@ -137,7 +137,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
-    final Map<String, Double> parRateSensitivity = CALCULATOR.getValue(swap, bundle);
+    final Map<String, Double> parRateSensitivity = CALCULATOR.visit(swap, bundle);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     if (!(parRateSensitivity.containsKey(_forwardCurveName) && parRateSensitivity.containsKey(_fundingCurveName))) {
       throw new NullPointerException("Could not get par rate sensitivity for " + _forwardCurveName + " and " + _fundingCurveName);
