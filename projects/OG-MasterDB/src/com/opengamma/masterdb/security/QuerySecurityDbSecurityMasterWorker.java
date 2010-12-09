@@ -24,6 +24,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -33,6 +34,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Security master worker to get the security.
@@ -128,7 +130,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   @Override
   protected SecuritySearchResult search(SecuritySearchRequest request) {
     s_logger.debug("searchSecurities: {}", request);
-    final SecuritySearchResult result = new SecuritySearchResult();
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
@@ -144,16 +145,10 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
         total++;
       }
     }
-    final String[] sql = sqlSearchSecurities(request, bundles, total);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-      if (request.isFullDetail()) {
-        loadDetail(result.getDocuments());
-      }
+    final SecuritySearchResult result = new SecuritySearchResult();
+    searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request, bundles, total), args, new SecurityDocumentExtractor(), result);
+    if (request.isFullDetail()) {
+      loadDetail(result.getDocuments());
     }
     return result;
   }
@@ -276,17 +271,10 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    final String[] sql = sqlSearchSecurityHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final SecurityHistoryResult result = new SecurityHistoryResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final SecurityDocumentExtractor extractor = new SecurityDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-      if (request.isFullDetail()) {
-        loadDetail(result.getDocuments());
-      }
+    searchWithPaging(request.getPagingRequest(), sqlSearchSecurityHistoric(request), args, new SecurityDocumentExtractor(), result);
+    if (request.isFullDetail()) {
+      loadDetail(result.getDocuments());
     }
     return result;
   }
@@ -339,6 +327,31 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (detailProvider != null) {
       for (SecurityDocument doc : docs) {
         doc.setSecurity(detailProvider.loadSecurityDetail(doc.getSecurity()));
+      }
+    }
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<SecurityDocument>> extractor, final AbstractDocumentsResult<SecurityDocument> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       }
     }
   }

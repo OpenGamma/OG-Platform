@@ -28,6 +28,7 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -37,6 +38,7 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Holiday master worker to get the holiday.
@@ -136,12 +138,11 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   @Override
   protected HolidaySearchResult search(HolidaySearchRequest request) {
     s_logger.debug("searchHolidays: {}", request);
-    final HolidaySearchResult result = new HolidaySearchResult();
     IdentifierBundle regionIds = request.getRegionIdentifiers();
     IdentifierBundle exchangeIds = request.getExchangeIdentifiers();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
     if (IdentifierBundle.EMPTY.equals(regionIds) || IdentifierBundle.EMPTY.equals(exchangeIds)) {
-      return result;  // containsAny with empty bundle always returns nothing
+      return new HolidaySearchResult();  // containsAny with empty bundle always returns nothing
     }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -170,14 +171,8 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
         i++;
       }
     }
-    final String[] sql = sqlSearchHolidays(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final HolidayDocumentExtractor extractor = new HolidayDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    final HolidaySearchResult result = new HolidaySearchResult();
+    searchWithPaging(request.getPagingRequest(), sqlSearchHolidays(request), args, new HolidayDocumentExtractor(), result);
     return result;
   }
 
@@ -238,15 +233,8 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
       .addTimestampNullIgnored("corrections_from_instant", request.getCorrectionsFromInstant())
       .addTimestampNullIgnored("corrections_to_instant", request.getCorrectionsToInstant());
-    final String[] sql = sqlSearchHolidayHistoric(request);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final int count = namedJdbc.queryForInt(sql[1], args);
     final HolidayHistoryResult result = new HolidayHistoryResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
-    if (count > 0) {
-      final HolidayDocumentExtractor extractor = new HolidayDocumentExtractor();
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-    }
+    searchWithPaging(request.getPagingRequest(), sqlSearchHolidayHistoric(request), args, new HolidayDocumentExtractor(), result);
     return result;
   }
 
@@ -286,6 +274,31 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     String search = SELECT + FROM + "WHERE h.id IN (" + inner + ") ORDER BY h.ver_from_instant DESC, h.corr_from_instant DESC, d.hol_date ";
     String count = "SELECT COUNT(*) FROM hol_holiday " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Searches for documents with paging.
+   * 
+   * @param pagingRequest  the paging request, not null
+   * @param sql  the array of SQL, query and count, not null
+   * @param args  the query arguments, not null
+   * @param extractor  the extractor of results, not null
+   * @param result  the object to populate, not null
+   */
+  protected void searchWithPaging(
+      final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<HolidayDocument>> extractor, final AbstractDocumentsResult<HolidayDocument> result) {
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    if (pagingRequest.equals(PagingRequest.ALL)) {
+      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+    } else {
+      final int count = namedJdbc.queryForInt(sql[1], args);
+      result.setPaging(new Paging(pagingRequest, count));
+      if (count > 0) {
+        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
