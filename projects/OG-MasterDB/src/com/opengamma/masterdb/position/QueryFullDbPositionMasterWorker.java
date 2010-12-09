@@ -79,7 +79,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "t.trade_time AS trade_time, " +
         "t.zone_offset AS zone_offset, " +
         "t.cparty_scheme AS cparty_scheme, " +
-        "t.cparty_value AS cparty_value " +
+        "t.cparty_value AS cparty_value, " +
         "s.key_scheme AS seckey_scheme, " +
         "s.key_value AS seckey_value ";
   /**
