@@ -305,10 +305,10 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
     }
     
     getJdbcTemplate().update(sqlInsertPosition(), positionArgs);
-    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), (DbMapSqlParameterSource[]) idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertPositionIdKey(), (DbMapSqlParameterSource[]) posAssocList.toArray(new DbMapSqlParameterSource[posAssocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertPositionIdKey(), posAssocList.toArray(new DbMapSqlParameterSource[posAssocList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertTrades(), tradeList.toArray(new DbMapSqlParameterSource[tradeList.size()]));
-    getJdbcTemplate().batchUpdate(sqlInsertTradeIdKey(), (DbMapSqlParameterSource[]) tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlInsertTradeIdKey(), tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
     
     // set the uid
     UniqueIdentifiables.setInto(document.getPosition(), positionUid);
