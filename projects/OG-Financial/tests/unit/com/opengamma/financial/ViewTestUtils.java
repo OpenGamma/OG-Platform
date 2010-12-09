@@ -7,10 +7,6 @@ package com.opengamma.financial;
 
 import java.util.Timer;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheManager;
 
@@ -46,7 +42,6 @@ import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.transport.InMemoryRequestConduit;
-import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -78,8 +73,8 @@ public class ViewTestUtils {
         new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
-    ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
+//    ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
+//    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
 
     ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionCompilation,
         new DefaultFunctionResolver(functionCompilation), positionSource, securitySource, targetResolver, computationCache, jobDispatcher, viewProcessorQueryReceiver, new SingleNodeExecutorFactory(),
