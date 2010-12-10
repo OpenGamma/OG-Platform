@@ -8,13 +8,20 @@ package com.opengamma.util.monitor;
 import org.slf4j.Logger;
 
 /**
- * Reports on how long particular operations, maintained by {@link OperationTimer} instances,
- * took to perform.
- *
- * @author kirk
+ * Reporter handling timing events.
+ * <p>
+ * The {@link OperationTimer} class calls the class whenever a timing session is complete.
  */
 public interface OperationTimeReporter {
-  
-  void report(long duration, Logger logger, String format, Object[] arguments);
+
+  /**
+   * Handles a timer reporting event.
+   * 
+   * @param durationMillis  the duration in milliseconds
+   * @param logger  the logger for reporting, not null
+   * @param format  the format for reporting, not null
+   * @param arguments  the arguments for reporting, not null
+   */
+  void report(long durationMillis, Logger logger, String format, Object[] arguments);
 
 }
