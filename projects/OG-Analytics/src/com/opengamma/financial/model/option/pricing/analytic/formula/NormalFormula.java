@@ -9,7 +9,7 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ * Bachelier pricing formula. European option price when the forward value follows a Brownian dynamic df = sigma*f^beta dw 
  */
 public class NormalFormula {
 

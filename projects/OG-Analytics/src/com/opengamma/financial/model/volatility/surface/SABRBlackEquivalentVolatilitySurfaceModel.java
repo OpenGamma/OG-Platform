@@ -9,14 +9,14 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * 
  */
 public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, SABRDataBundle> {
-  private static final SABRFormula SABR = new SABRFormula();
+  private static final SABRFormulaHagan SABR = new SABRFormulaHagan();
 
   @Override
   public VolatilitySurface getSurface(final OptionDefinition option, final SABRDataBundle data) {

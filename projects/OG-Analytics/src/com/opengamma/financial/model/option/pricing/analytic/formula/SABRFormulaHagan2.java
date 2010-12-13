@@ -8,10 +8,10 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 import com.opengamma.util.CompareUtils;
 
 /**
- *  This is the form given in Obloj, Fine-Tune Your Simle (2008), and supposedly corresponds to that given in Berestycki, 
- *  Computing the implied volatility in stochastic volatility models (2004). However appears to be the same as Hagan's 
+ * This is the form given in Obloj, Fine-Tune Your Simle (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
+ * @see SABRFormulaBerestycki   
  */
-public class SABRFormulaBerestycki implements SABRFormula {
+public class SABRFormulaHagan2 implements SABRFormula {
   private static final double EPS = 1e-15;
 
   public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
@@ -32,15 +32,16 @@ public class SABRFormulaBerestycki implements SABRFormula {
         i0 = x * alpha * beta1 / (Math.pow(f, beta1) - Math.pow(k, beta1));
       } else {
 
-        double z;
+        double z, zeta;
         if (beta == 1.0) {
           z = nu * x / alpha;
-
+          zeta = z;
         } else {
           z = nu * (Math.pow(f, beta1) - Math.pow(k, beta1)) / alpha / beta1;
+          zeta = nu * (f - k) / alpha / Math.pow(f * k, beta / 2);
         }
-        double temp = (Math.sqrt(1 + z * (z - 2 * rho)) + z - rho) / (1 - rho);
-        i0 = nu * x / Math.log(temp);
+        double temp = (Math.sqrt(1 + zeta * (zeta - 2 * rho)) + zeta - rho) / (1 - rho);
+        i0 = nu * x * zeta / z / Math.log(temp);
 
       }
     }

@@ -68,33 +68,19 @@ public class NonCentralChiSquareDistributionTest {
     NonCentralChiSquareDistribution dist = new NonCentralChiSquareDistribution(dof, nonCent);
     assertEquals(0.7930769, dist.getCDF(x), 1e-6);
 
-  }
+    x = 455.038;
+    dof = 12;
+    nonCent = 444.44;
 
-  @Test
-  public void testAgainstInfinateSum() {
-    double dof = 2.65;
-    double nonCentrality = 10.;
-    NonCentralChiSquareDistribution dist = new NonCentralChiSquareDistribution(dof, nonCentrality);
-    for (int i = 0; i < 100; i++) {
-      double x = 1.0 * i;
-      double cdf1 = dist.getCDF(x);
-      double cdf2 = nonCenteredChiSquare(x, dof, nonCentrality);
-      // System.out.println(x + "\t" + cdf1 + "\t" + cdf2);
-      assertEquals(cdf1, cdf2, 1e-4);
-    }
+    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    assertEquals(0.4961805, dist.getCDF(x), 1e-6);
 
-  }
+    x = 999400;
+    dof = 500;
+    nonCent = 1000000;
+    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    assertEquals(0.2913029, dist.getCDF(x), 1e-6);
 
-  private static double nonCenteredChiSquare(final double z, final double k, final double lambda) {
-    double sum = 0.0;
-    double fact = 1;
-    for (int i = 0; i < 100; i++) {
-      ChiSquareDistribution chiSq = new ChiSquareDistribution(k + 2 * i);
-
-      sum += Math.pow(lambda / 2.0, i) / fact * chiSq.getCDF(z);
-      fact *= (i + 1);
-    }
-    return Math.exp(-lambda / 2) * sum;
   }
 
 }
