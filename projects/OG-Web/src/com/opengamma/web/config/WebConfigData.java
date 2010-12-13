@@ -100,7 +100,7 @@ public class WebConfigData<T> extends DirectBean {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }
-    return getConfig() != null ? getConfig().getConfigId().toLatest().toString() : getUriConfigId();
+    return getConfig() != null ? getConfig().getUniqueId().toLatest().toString() : getUriConfigId();
   }
 
   //-------------------------------------------------------------------------

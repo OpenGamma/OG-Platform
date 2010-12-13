@@ -14,6 +14,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -135,12 +136,8 @@ public class MockPositionSource implements PositionSource {
         positionImpl.setPortfolioNode(node.getUniqueIdentifier());
         
         //add trades
-        Set<Trade> trades = positionImpl.getTrades();
-        for (Trade trade : trades) {
-          if (trade instanceof TradeImpl) {
-            TradeImpl tradeImpl = (TradeImpl) trade;
-            tradeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
-          }
+        for (Trade trade : positionImpl.getTrades()) {
+          UniqueIdentifiables.setInto(trade, _uidSupplier.getWithValuePrefix(portfolioId + "-"));
           _trades.put(trade.getUniqueIdentifier(), trade);
         }
       }

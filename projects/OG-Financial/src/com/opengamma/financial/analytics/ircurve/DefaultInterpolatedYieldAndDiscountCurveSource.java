@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 
@@ -38,7 +39,7 @@ public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInte
     ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>();
     doc.setName(name + "_" + currency.getISOCode());
     doc.setValue(definition);
-    configMaster.add(doc);
+    ConfigMasterUtils.storeByName(configMaster, doc);
   }
 
 }

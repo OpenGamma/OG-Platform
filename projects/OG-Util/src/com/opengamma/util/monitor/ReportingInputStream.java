@@ -28,9 +28,11 @@ public class ReportingInputStream extends FilterInputStream {
   private long _readOperations;
 
   /**
-   * @param logger device to report to
-   * @param streamName identifier to include in the log output
-   * @param underlying source stream
+   * Creates an instance.
+   * 
+   * @param logger  the device to report to, not null
+   * @param streamName  the identifier to include in the log output
+   * @param underlying  the underlying stream, not null
    */
   public ReportingInputStream(final Logger logger, final String streamName, final InputStream underlying) {
     super(underlying);
@@ -53,9 +55,9 @@ public class ReportingInputStream extends FilterInputStream {
       if (time >= _nextReportTime) {
         _nextReportTime = time + TIME_TO_REPORT;
         _logger.info("Stream {} read {}Kb in {}ms from {} operations ({}M)}", new Object[] {_streamName, (double) _readBytes / 1024d, (double) _readTime / 1000000d, _readOperations,
-            (double) _readBytes * 8192d / (double) _readTime});
-
-        // Scale down influence of older data
+          (double) _readBytes * 8192d / (double) _readTime});
+        
+        // scale down influence of older data
         _readOperations >>= 1;
         _readBytes >>= 1;
         _readTime >>= 1;

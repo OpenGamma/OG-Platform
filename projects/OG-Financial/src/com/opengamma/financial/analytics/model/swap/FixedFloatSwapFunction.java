@@ -40,7 +40,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  * 
  */
 public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompiledInvoker {
-
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String _forwardValueRequirementName;

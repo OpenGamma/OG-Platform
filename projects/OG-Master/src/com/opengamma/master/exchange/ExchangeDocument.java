@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.exchange;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,10 +24,14 @@ import com.opengamma.util.ArgumentChecker;
  * A document used to pass into and out of the exchange master.
  */
 @BeanDefinition
-public class ExchangeDocument extends AbstractDocument {
+public class ExchangeDocument extends AbstractDocument implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The exchange unique identifier.
+   * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -105,6 +110,7 @@ public class ExchangeDocument extends AbstractDocument {
   //-----------------------------------------------------------------------
   /**
    * Gets the exchange unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -113,6 +119,7 @@ public class ExchangeDocument extends AbstractDocument {
 
   /**
    * Sets the exchange unique identifier.
+   * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -121,6 +128,7 @@ public class ExchangeDocument extends AbstractDocument {
 
   /**
    * Gets the the {@code uniqueId} property.
+   * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {

@@ -80,7 +80,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
-    doc.setConfigId(uid);
+    doc.setUniqueId(uid);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
     _worker.update(doc);
@@ -90,7 +90,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
-    doc.setConfigId(uid);
+    doc.setUniqueId(uid);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
     _worker.update(doc);
@@ -103,23 +103,27 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     ConfigDocument<Identifier> base = _queryWorker.get(uid);
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
-    input.setConfigId(uid);
+    input.setUniqueId(uid);
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
     ConfigDocument<Identifier> updated = _worker.update(input);
-    assertEquals(false, base.getConfigId().equals(updated.getConfigId()));
+    assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
+    assertEquals(now, updated.getCorrectionFromInstant());
+    assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getValue(), updated.getValue());
     
     ConfigDocument<Identifier> old = _queryWorker.get(uid);
-    assertEquals(base.getConfigId(), old.getConfigId());
+    assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
+    assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
+    assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getValue(), old.getValue());
     
-    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getConfigId(), null);
+    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getUniqueId(), null, now);
     ConfigHistoryResult<Identifier> searchResult = _queryWorker.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
@@ -136,7 +140,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     final ConfigDocument<Identifier> base = _queryWorker.get(UniqueIdentifier.of("DbCfg", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
-    input.setConfigId(uid);
+    input.setUniqueId(uid);
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     try {

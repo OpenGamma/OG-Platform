@@ -5,7 +5,8 @@
  */
 package com.opengamma.core.position;
 
-import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
@@ -25,7 +26,7 @@ public interface Trade extends PositionOrTrade {
    * 
    * @return the unique identifier
    */
-  UniqueIdentifier getPosition();
+  UniqueIdentifier getPositionId();
   
   /**
    * Gets the counterparty associated with the trade.
@@ -35,10 +36,17 @@ public interface Trade extends PositionOrTrade {
   Counterparty getCounterparty();
 
   /**
-   * Gets the instant the trade happened.
+   * Gets the trade date.
    * 
-   * @return the instant
+   * @return the trade date, not  null
    */
-  Instant getTradeInstant();
+  LocalDate getTradeDate();
+  
+  /**
+   * Gets the trade time with offset
+   * 
+   * @return the trade time with offset if available
+   */
+  OffsetTime getTradeTime();
 
 }

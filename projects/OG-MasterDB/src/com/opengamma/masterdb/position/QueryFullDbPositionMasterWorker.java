@@ -16,6 +16,10 @@ import java.util.Set;
 import java.util.Stack;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.ZoneOffset;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +38,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
@@ -65,21 +70,23 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
    */
   protected static final String TRADE_SELECT =
       "SELECT " +
-        "p.id AS position_id, " +
-        "p.oid AS position_oid, " +
-        "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value, " +
+        "t.position_id AS position_id, " +
+        "t.position_oid AS position_oid, " +
         "t.id AS trade_id, " +
         "t.oid AS trade_oid, " +
         "t.quantity AS trade_quantity, " +
-        "t.trade_instant AS trade_instant, " +
+        "t.trade_date AS trade_date, " +
+        "t.trade_time AS trade_time, " +
+        "t.zone_offset AS zone_offset, " +
         "t.cparty_scheme AS cparty_scheme, " +
-        "t.cparty_value AS cparty_value ";
+        "t.cparty_value AS cparty_value, " +
+        "s.key_scheme AS seckey_scheme, " +
+        "s.key_value AS seckey_value ";
   /**
    * SQL from.
    */
   protected static final String TRADE_FROM =
-      "FROM pos_position p LEFT JOIN pos_securitykey s ON (s.position_id = p.id) LEFT JOIN pos_trade t ON (t.position_id = p.id) ";
+      "FROM pos_trade t LEFT JOIN pos_trade2idkey ti ON (t.id = ti.trade_id) LEFT JOIN pos_idkey s ON (ti.idkey_id = s.id) ";
 
   /**
    * Creates an instance.
@@ -127,7 +134,8 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     Set<Trade> trades = Sets.newHashSet();
     for (ManageableTrade manageableTrade : firstPosition.getTrades()) {
       CounterpartyImpl counterparty = new CounterpartyImpl(manageableTrade.getCounterpartyId());
-      TradeImpl trade = new TradeImpl(position, manageableTrade.getQuantity(), counterparty, manageableTrade.getTradeInstant());
+      TradeImpl trade = new TradeImpl(position.getUniqueIdentifier(), manageableTrade.getSecurityKey(), manageableTrade.getQuantity(), 
+          counterparty, manageableTrade.getTradeDate(), manageableTrade.getTradeTime());
       trade.setUniqueIdentifier(manageableTrade.getUniqueIdentifier());
       trades.add(trade);
     }
@@ -150,7 +158,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
   /**
    * Gets a trade by identifier.
    * @param uid  the unique identifier
-   * @return the position document, null if not found
+   * @return the trade, null if not found
    */
   protected Trade getTradeById(final UniqueIdentifier uid) {
     s_logger.debug("getTradeById {}", uid);
@@ -180,7 +188,6 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final String sql = sqlSelectFullPortfolio(id.toLatest());
-    s_logger.debug("args: {}", args);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
     return namedJdbc.query(sql, args, extractor);
@@ -211,15 +218,19 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "n.name AS node_name, " +
         "p.id AS position_id, " +
         "p.oid AS position_oid, " +
-        "p.quantity AS quantity, " +
-        "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value, " +
+        "p.quantity AS pos_quantity, " +
+        "ps.key_scheme AS pos_key_scheme, " +
+        "ps.key_value AS pos_key_value, " +
         "t.id AS trade_id, " +
         "t.oid AS trade_oid, " +
         "t.quantity AS trade_quantity, " +
-        "t.trade_instant AS trade_instant, " +
+        "t.trade_date AS trade_date, " +
+        "t.trade_time AS trade_time, " +
+        "t.zone_offset AS zone_offset, " +
         "t.cparty_scheme AS cparty_scheme, " +
         "t.cparty_value AS cparty_value, " +
+        "ts.key_scheme AS trade_key_scheme, " +
+        "ts.key_value AS trade_key_value, " +
         "m.fixed_ver AS fixed_ver, " +
         "m.fixed_corr AS fixed_corr " +
       "FROM pos_portfolio f " +
@@ -227,13 +238,16 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
           "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
           "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-        "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
-        "LEFT JOIN pos_trade t ON (t.position_id = p.id), " +
+        "LEFT JOIN pos_position2idkey pi ON (p.id = pi.position_id) " +
+        "LEFT JOIN pos_idkey ps ON (pi.idkey_id = ps.id) " +
+        "LEFT JOIN pos_trade t ON (p.id = t.position_id) " +
+        "LEFT JOIN pos_trade2idkey ti ON (t.id = ti.trade_id) " +
+        "LEFT JOIN pos_idkey ts ON (ti.idkey_id = ts.id), " +
         "(" + selectMax + ") m " +
       "WHERE f.oid = :portfolio_oid " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
         "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
-      "ORDER BY n.tree_left, p.id ";
+      "ORDER BY n.tree_left, p.id, t.id ";
     return sql;
   }
 
@@ -246,7 +260,6 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     final String sql = sqlSelectFullPortfolioNode(id.toLatest());
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final FullPortfolioDocumentExtractor extractor = new FullPortfolioDocumentExtractor();
-    s_logger.debug("args: {}", args);
     Portfolio portfolio = namedJdbc.query(sql, args, extractor);
     return (portfolio != null ? portfolio.getRootNode() : null);
   }
@@ -276,15 +289,19 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "n.name AS node_name, " +
         "p.id AS position_id, " +
         "p.oid AS position_oid, " +
-        "p.quantity AS quantity, " +
-        "s.id_scheme AS seckey_scheme, " +
-        "s.id_value AS seckey_value, " +
+        "p.quantity AS pos_quantity, " +
+        "ps.key_scheme AS pos_key_scheme, " +
+        "ps.key_value AS pos_key_value, " +
         "t.id AS trade_id, " +
         "t.oid AS trade_oid, " +
         "t.quantity AS trade_quantity, " +
-        "t.trade_instant AS trade_instant, " +
+        "t.trade_date AS trade_date, " +
+        "t.trade_time AS trade_time, " +
+        "t.zone_offset AS zone_offset, " +
         "t.cparty_scheme AS cparty_scheme, " +
         "t.cparty_value AS cparty_value, " +
+        "ts.key_scheme AS trade_key_scheme, " +
+        "ts.key_value AS trade_key_value, " +
         "m.fixed_ver AS fixed_ver, " +
         "m.fixed_corr AS fixed_corr " +
       "FROM " +
@@ -294,8 +311,11 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           "LEFT JOIN pos_position p ON (p.parent_node_oid = n.oid " +
             "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
             "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to) " +
-          "LEFT JOIN pos_securitykey s ON (s.position_id = p.id) " +
-          "LEFT JOIN pos_trade t ON (t.position_id = p.id), " +
+          "LEFT JOIN pos_position2idkey pi ON (p.id = pi.position_id) " +
+          "LEFT JOIN pos_idkey ps ON (pi.idkey_id = ps.id) " +
+          "LEFT JOIN pos_trade t ON (p.id = t.position_id) " +
+          "LEFT JOIN pos_trade2idkey ti ON (t.id = ti.trade_id) " +
+          "LEFT JOIN pos_idkey ts ON (ti.idkey_id = ts.id), " +
           "(" + selectMax + ") m " +
       "WHERE base.portfolio_id = f.id " +
         "AND n.portfolio_id = f.id " +
@@ -303,7 +323,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
         "AND n.tree_left >= base.tree_left AND n.tree_right <= base.tree_right " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
         "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
-      "ORDER BY n.tree_left, p.id ";
+      "ORDER BY n.tree_left, p.id, t.id ";
     return sql;
   }
 
@@ -322,10 +342,13 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       PortfolioNodeImpl node = null;
       PositionImpl position = null;
       Long lastPositionId = Long.valueOf(-1);
+      Long lastTradeId = Long.valueOf(-1);
+      TradeImpl trade = null;
+      
       while (rs.next()) {
         if (portfolio == null) {
-          final Timestamp maxPosVer = rs.getTimestamp("FIXED_VER");
-          final Timestamp maxPosCorr = rs.getTimestamp("FIXED_CORR");
+          final Timestamp maxPosVer = Objects.firstNonNull(rs.getTimestamp("FIXED_VER"), new Timestamp(0));
+          final Timestamp maxPosCorr = Objects.firstNonNull(rs.getTimestamp("FIXED_CORR"), new Timestamp(0));
           final Timestamp maxPorVer = rs.getTimestamp("VER_FROM_INSTANT");
           final Timestamp maxPorCorr = rs.getTimestamp("CORR_FROM_INSTANT");
           final Instant maxVer = CompareUtils.max(DbDateUtils.fromSqlTimestamp(maxPosVer), DbDateUtils.fromSqlTimestamp(maxPorVer));
@@ -346,30 +369,57 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           lastPositionId = positionId;
           position = buildPosition(rs, node);
         }
-        final String idScheme = rs.getString("SECKEY_SCHEME");
-        final String idValue = rs.getString("SECKEY_VALUE");
-        if (idScheme != null && idValue != null) {
-          Identifier id = Identifier.of(idScheme, idValue);
+        final String posIdScheme = rs.getString("POS_KEY_SCHEME");
+        final String posIdValue = rs.getString("POS_KEY_VALUE");
+        if (posIdScheme != null && posIdValue != null) {
+          Identifier id = Identifier.of(posIdScheme, posIdValue);
           position.setSecurityKey(position.getSecurityKey().withIdentifier(id));
         }
-        
-        final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
-        if (tradeInstant != null) {
-          final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
-          final String cpartyScheme = rs.getString("CPARTY_SCHEME");
-          final String cpartyValue = rs.getString("CPARTY_VALUE");
-          Identifier id = Identifier.of(cpartyScheme, cpartyValue);
-          CounterpartyImpl counterparty = new CounterpartyImpl(id);
-          TradeImpl trade = new TradeImpl(position, tradeQuantity, counterparty, DbDateUtils.fromSqlTimestamp(tradeInstant));
-          final long tradeOid = rs.getLong("TRADE_OID");
-          final long tradeId = rs.getLong("TRADE_ID");
-          final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
-          trade.setUniqueIdentifier(tradeUid);
-          position.getTrades().add(trade);
+        final Long tradeId = (Long) rs.getObject("TRADE_ID");
+        if (tradeId != null && tradeId.equals(lastTradeId) == false) {
+          lastTradeId = tradeId;
+          trade = buildTrade(rs, position);
+        }
+        final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
+        final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
+        if (tradeIdScheme != null && tradeIdValue != null) {
+          Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
+          trade.setSecurityKey(trade.getSecurityKey().withIdentifier(id));
+        }
+      }
+      
+      //trade securities are set after trades are added to positions, original hashcode has changed, hence reset the set
+      if (portfolio != null) {
+        Set<Position> accumulatedPositions = PositionAccumulator.getAccumulatedPositions(portfolio.getRootNode());
+        for (Position pos : accumulatedPositions) {
+          PositionImpl positionImp = (PositionImpl) pos;
+          positionImp.setTrades(Sets.newHashSet(pos.getTrades()));
         }
       }
       
       return portfolio;
+    }
+
+    private TradeImpl buildTrade(final ResultSet rs, final PositionImpl position) throws SQLException {
+      final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
+      final String cpartyScheme = rs.getString("CPARTY_SCHEME");
+      final String cpartyValue = rs.getString("CPARTY_VALUE");
+      Identifier id = Identifier.of(cpartyScheme, cpartyValue);
+      CounterpartyImpl counterparty = new CounterpartyImpl(id);
+      LocalDate tradeDate = DbDateUtils.fromSqlDate(rs.getDate("TRADE_DATE"));
+      LocalTime tradeTime = DbDateUtils.fromSqlTime(rs.getTimestamp("TRADE_TIME"));
+      int zoneOffset = rs.getInt("ZONE_OFFSET");
+      OffsetTime tradeOffsetTime = null;
+      if (tradeTime != null) {
+        tradeOffsetTime = OffsetTime.of(tradeTime, ZoneOffset.ofTotalSeconds(zoneOffset));
+      }
+      TradeImpl trade = new TradeImpl(position.getUniqueIdentifier(), IdentifierBundle.EMPTY, tradeQuantity, counterparty, tradeDate, tradeOffsetTime);
+      final long tradeOid = rs.getLong("TRADE_OID");
+      final long tradeId = rs.getLong("TRADE_ID");
+      final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
+      trade.setUniqueIdentifier(tradeUid);
+      position.getTrades().add(trade);
+      return trade;
     }
 
     private PortfolioNodeImpl buildNode(ResultSet rs, final PortfolioImpl portfolio, final String fixedInstants) throws SQLException {
@@ -396,7 +446,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     private PositionImpl buildPosition(ResultSet rs, final PortfolioNodeImpl node) throws SQLException {
       final long positionId = rs.getLong("POSITION_ID");
       final long positionOid = rs.getLong("POSITION_OID");
-      final BigDecimal quantity = extractBigDecimal(rs, "QUANTITY");
+      final BigDecimal quantity = extractBigDecimal(rs, "POS_QUANTITY");
       final UniqueIdentifier uid = createUniqueIdentifier(positionOid, positionId, null);
       PositionImpl pos = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
       pos.setPortfolioNode(node.getUniqueIdentifier());
@@ -438,13 +488,18 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       UniqueIdentifier positionUid = createUniqueIdentifier(positionOid, positionId, _duplicate);
       
       final BigDecimal quantity = extractBigDecimal(rs, "TRADE_QUANTITY");
-      final Timestamp tradeInstant = rs.getTimestamp("TRADE_INSTANT");
       
       final String cpartyScheme = rs.getString("CPARTY_SCHEME");
       final String cpartyValue = rs.getString("CPARTY_VALUE");
       Identifier counterpartyId = Identifier.of(cpartyScheme, cpartyValue);
-      
-      _trade = new TradeImpl(positionUid, IdentifierBundle.EMPTY, quantity, new CounterpartyImpl(counterpartyId), DbDateUtils.fromSqlTimestamp(tradeInstant));
+      LocalDate tradeDate = DbDateUtils.fromSqlDate(rs.getDate("TRADE_DATE"));
+      LocalTime tradeTime = DbDateUtils.fromSqlTime(rs.getTimestamp("trade_time"));
+      int zoneOffset = rs.getInt("zone_offset");
+      OffsetTime tradeOffsetTime = null;
+      if (tradeTime != null) {
+        tradeOffsetTime = OffsetTime.of(tradeTime, ZoneOffset.ofTotalSeconds(zoneOffset));
+      }
+      _trade = new TradeImpl(positionUid, IdentifierBundle.EMPTY, quantity, new CounterpartyImpl(counterpartyId), tradeDate, tradeOffsetTime);
       
       long tradeOid = rs.getLong("TRADE_OID");
       UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, _duplicate);

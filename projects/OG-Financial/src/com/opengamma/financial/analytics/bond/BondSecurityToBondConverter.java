@@ -19,8 +19,8 @@ import com.opengamma.financial.analytics.schedule.ScheduleCalculator;
 import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.businessday.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -45,15 +45,14 @@ public class BondSecurityToBondConverter {
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
   }
-  
-  public Bond getBond(final BondSecurity security, final String curveName, final ZonedDateTime now){
+
+  public Bond getBond(final BondSecurity security, final String curveName, final ZonedDateTime now) {
     return getBond(security, curveName, now, true);
   }
-  
 
   /**
    * 
-   * @param security A BondSecuirty 
+   * @param security A BondSecurity 
    * @param curveName Name of yield curve for bond pricing 
    * @param now The cashflow calculation date (i.e time zero) for cash flow calculations (see rollToSettlement)
    * @param rollToSettlement if true the cashflow calculation date is rolled forward to the settlement date 
@@ -84,14 +83,13 @@ public class BondSecurityToBondConverter {
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
     final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory 
-  //TODO remove this when the definitions for USD treasuries are correct
-    final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention(); 
+    //TODO remove this when the definitions for USD treasuries are correct
+    final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
     final int settlementDays = convention.getSettlementDays();
     final double coupon = security.getCouponRate();
     final boolean isEOMConvention = convention.isEOMConvention();
-    final LocalDate cashflowCalculationDate = (rollToSettlement ?  getSettlementDate(today, calendar, settlementDays) : today);
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, cashflowCalculationDate, schedule, coupon,
-        periodsPerYear, isEOMConvention, convention.getExDividendDays());
+    final LocalDate cashflowCalculationDate = (rollToSettlement ? getSettlementDate(today, calendar, settlementDays) : today);
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(daycount, cashflowCalculationDate, schedule, coupon, periodsPerYear, isEOMConvention, convention.getExDividendDays());
     final List<Double> paymentTimes = new ArrayList<Double>();
     final double accrualTime = accruedInterest / coupon;
     double timeToNextCoupon = timeBetweenPeriods - accrualTime;

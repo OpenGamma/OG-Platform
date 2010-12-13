@@ -157,7 +157,7 @@ public class ParRateParallelSensitivityCalculatorTest {
   }
 
   private void doTest(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> ana = PRPSC.getValue(ird, curves);
+    final Map<String, Double> ana = PRPSC.visit(ird, curves);
     final Map<String, Double> fd = finiteDifferanceSense(ird, curves);
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {
@@ -178,10 +178,10 @@ public class ParRateParallelSensitivityCalculatorTest {
       final YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      final double upRate = PRC.getValue(ird, newCurves);
+      final double upRate = PRC.visit(ird, newCurves);
       final YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      final double downRate = PRC.getValue(ird, newCurves);
+      final double downRate = PRC.visit(ird, newCurves);
 
       final double res = (upRate - downRate) / 2 / EPS;
       result.put(name, res);

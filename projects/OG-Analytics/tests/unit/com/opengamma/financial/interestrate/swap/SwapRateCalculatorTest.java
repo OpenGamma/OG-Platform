@@ -44,14 +44,14 @@ public class SwapRateCalculatorTest {
   public void testNullForwardCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
-    CALCULATOR.getValue(SWAP, bundle);
+    CALCULATOR.visit(SWAP, bundle);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFundingCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getValue(SWAP, bundle);
+    CALCULATOR.visit(SWAP, bundle);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -59,7 +59,7 @@ public class SwapRateCalculatorTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getValue(null, bundle);
+    CALCULATOR.visit(null, bundle);
   }
 
   @Test
@@ -67,6 +67,6 @@ public class SwapRateCalculatorTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.getValue(SWAP, bundle);
+    CALCULATOR.visit(SWAP, bundle);
   }
 }

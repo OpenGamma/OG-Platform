@@ -60,7 +60,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
     final double[] res = new double[_data.getNumInstruments()];
     for (int i = 0; i < _data.getNumInstruments(); i++) {
-      res[i] = _calculator.getValue(_data.getDerivative(i), curves) - _data.getMarketValue(i);
+      res[i] = _calculator.visit(_data.getDerivative(i), curves) - _data.getMarketValue(i);
     }
 
     return new DoubleMatrix1D(res);

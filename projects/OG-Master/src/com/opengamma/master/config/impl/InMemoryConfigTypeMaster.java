@@ -112,7 +112,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     final ConfigDocument<T> doc = new ConfigDocument<T>();
     doc.setName(document.getName());
     doc.setValue(value);
-    doc.setConfigId(uid);
+    doc.setUniqueId(uid);
     doc.setVersionFromInstant(now);
     _configs.put(uid, doc);  // unique identifier should be unique
     return doc;
@@ -123,9 +123,9 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   public ConfigDocument<T> update(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getValue(), "document.value");
-    ArgumentChecker.notNull(document.getConfigId(), "document.configId");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    final UniqueIdentifier uid = document.getConfigId();
+    final UniqueIdentifier uid = document.getUniqueId();
     final Instant now = Instant.now();
     final ConfigDocument<T> storedDocument = _configs.get(uid);
     if (storedDocument == null) {
@@ -153,15 +153,21 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getConfigId(), "request.configId");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    final ConfigDocument<T> doc = get(request.getConfigId());
+    final ConfigDocument<T> doc = get(request.getObjectId());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
     result.setPaging(Paging.of(result.getDocuments()));
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    return update(document);
   }
 
 }

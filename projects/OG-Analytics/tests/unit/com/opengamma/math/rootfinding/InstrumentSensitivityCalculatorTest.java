@@ -86,7 +86,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     final InstrumentSensitivityCalculator isc = new InstrumentSensitivityCalculator();
     for (int i = 0; i < data.getNumInstruments(); i++) {
       final DoubleMatrix1D bunkedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
-      final double sense = PresentValueCouponSensitivityCalculator.getInstance().getValue(data.getDerivative(i), allCurves);
+      final double sense = PresentValueCouponSensitivityCalculator.getInstance().visit(data.getDerivative(i), allCurves);
       // PresentValueCouponSensitivityCalculator is sensitivity to change in the coupon rate for that instrument - what we calculate here is the (hypothetical) change of PV of the
       // instrument with a fixed coupon when its par-rate change - this is exactly the negative of the coupon sensitivity
       assertEquals(-sense, bunkedDelta.getEntry(i), 1e-8);

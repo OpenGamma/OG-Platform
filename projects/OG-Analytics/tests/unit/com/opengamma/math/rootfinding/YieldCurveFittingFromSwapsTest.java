@@ -214,9 +214,9 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       final double[] marketValue = new double[n];
       for (int i = 0; i < n; i++) {
         instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);
-        instrument = instrument.withRate(ParRateCalculator.getInstance().getValue(instrument, curveBundle));
+        instrument = instrument.withRate(ParRateCalculator.getInstance().visit(instrument, curveBundle));
         instruments.add(instrument);
-        marketValue[i] = data.getMarketValueCalculator().getValue(instrument, curveBundle);
+        marketValue[i] = data.getMarketValueCalculator().visit(instrument, curveBundle);
       }
 
       dataBundle = updateInstruments(dataBundle, instruments, marketValue);
@@ -329,10 +329,10 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
     for (int i = 0; i < n; i++) {
       instrument = makeSwap(swapMaturities[i], curve1, curve2, 0);
-      instrument = instrument.withRate(ParRateCalculator.getInstance().getValue(instrument, curveBundle));
+      instrument = instrument.withRate(ParRateCalculator.getInstance().visit(instrument, curveBundle));
       instruments.add(instrument);
       // if the calculator is Present Value this should be zero (by definition of what par-rate is)
-      marketValues[i] = marketValueCalculator.getValue(instrument, curveBundle);
+      marketValues[i] = marketValueCalculator.visit(instrument, curveBundle);
     }
 
     YieldCurveBundle knowCurves = null;

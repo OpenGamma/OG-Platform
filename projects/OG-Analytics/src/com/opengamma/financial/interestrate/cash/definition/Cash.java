@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A cash loan with a unit amount borrowed on some some trade date (which could be now), and an amount (1+r*t) paid at maturity, where r is the Libor rate and t is the time (in years) 
@@ -48,8 +47,8 @@ public class Cash implements InterestRateDerivativeWithRate {
    */
   public Cash(final double maturity, final double rate, final double tradeTime, final double yearFraction, final String yieldCurveName) {
     checkInputs(maturity, rate, yieldCurveName);
-    ArgumentChecker.notNegative(tradeTime, "trade time");
-    ArgumentChecker.notNegative(yearFraction, "year fraction");
+    Validate.isTrue(tradeTime >= 0, "trade time is negative");
+    Validate.isTrue(yearFraction >= 0, "year fraction is negative");
     Validate.isTrue(tradeTime < maturity, "Trade time must be less than payment time");
     _maturity = maturity;
     _curveName = yieldCurveName;
@@ -60,8 +59,8 @@ public class Cash implements InterestRateDerivativeWithRate {
   }
 
   private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
-    ArgumentChecker.notNegative(maturity, "payment time");
-    ArgumentChecker.notNegative(rate, "rate");
+    Validate.isTrue(maturity >= 0, "maturity is negative");
+    Validate.isTrue(rate >= 0, "rate is negative");
     Validate.notNull(yieldCurveName);
   }
 
@@ -91,10 +90,15 @@ public class Cash implements InterestRateDerivativeWithRate {
   }
 
   @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCash(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_curveName == null) ? 0 : _curveName.hashCode());
+    result = prime * result + _curveName.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_maturity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -131,14 +135,11 @@ public class Cash implements InterestRateDerivativeWithRate {
     if (Double.doubleToLongBits(_tradeTime) != Double.doubleToLongBits(other._tradeTime)) {
       return false;
     }
-    if (Double.doubleToLongBits(_yearFraction) != Double.doubleToLongBits(other._yearFraction)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_yearFraction) == Double.doubleToLongBits(other._yearFraction);
   }
 
   @Override
-  public Cash withRate(double rate) {
+  public Cash withRate(final double rate) {
     return new Cash(getMaturity(), rate, getTradeTime(), getYearFraction(), getYieldCurveName());
   }
 }

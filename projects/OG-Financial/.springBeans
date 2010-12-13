@@ -7,8 +7,6 @@
 	</configSuffixes>
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
-		<config>config/demoFinancialMasters.xml</config>
-		<config>config/test-master-context.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

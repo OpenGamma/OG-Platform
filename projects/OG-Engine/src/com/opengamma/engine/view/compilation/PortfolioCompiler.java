@@ -232,7 +232,7 @@ import com.opengamma.util.monitor.OperationTimer;
       Set<Trade> newTrades = Sets.newHashSet();
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setPosition(populatedPosition.getUniqueIdentifier());
+        populatedTrade.setPositionId(populatedPosition.getUniqueIdentifier());
         populatedTrade.setSecurity(security);
         newTrades.add(populatedTrade);
       }
