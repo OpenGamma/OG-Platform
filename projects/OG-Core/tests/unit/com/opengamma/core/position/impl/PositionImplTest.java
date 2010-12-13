@@ -6,12 +6,18 @@
 package com.opengamma.core.position.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
+import javax.time.calendar.OffsetDateTime;
+
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
@@ -22,6 +28,9 @@ import com.opengamma.id.UniqueIdentifier;
  * Test PositionImpl.
  */
 public class PositionImplTest {
+  
+  private static final Counterparty COUNTERPARTY = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
+  private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
 
   @Test
   public void test_construction_BigDecimal_Identifier() {
@@ -201,6 +210,60 @@ public class PositionImplTest {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setSecurity(null);
     assertEquals(null, test.getSecurity());
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_addTrade() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getTrades().isEmpty());
+    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    testPosition.addTrade(testTrade1);
+    
+    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    testPosition.addTrade(testTrade2);
+    
+    assertEquals(2, testPosition.getTrades().size());
+    assertTrue(testPosition.getTrades().containsAll(Lists.newArrayList(testTrade1, testTrade2)));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addTrade_null() {
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    test.addTrade(null);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_removeTrade() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    assertTrue(testPosition.getTrades().isEmpty());
+    TradeImpl testTrade1 = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    testPosition.addTrade(testTrade1);
+    TradeImpl testTrade2 = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    testPosition.addTrade(testTrade2);
+    
+    TradeImpl testTrade3 = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    
+    assertTrue(testPosition.removeTrade(testTrade1));
+    assertTrue(testPosition.removeTrade(testTrade2));
+    assertFalse(testPosition.removeTrade(testTrade3));
+    assertTrue(testPosition.getTrades().isEmpty());
+    
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getTrades_readOnly() {
+    PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    TradeImpl testTrade = new TradeImpl(testPosition.getUniqueIdentifier(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    int sizeBeforeAddition = testPosition.getTrades().size();
+    try {
+      testPosition.getTrades().add(testTrade);
+    } catch (Exception ex) {
+      //do nothing
+    }
+    assertEquals(sizeBeforeAddition, testPosition.getTrades().size());
   }
 
 }

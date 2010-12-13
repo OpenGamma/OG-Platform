@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import javax.time.Instant;
@@ -30,7 +29,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -38,7 +36,6 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
@@ -131,15 +128,13 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
     }
     final PositionImpl position = new PositionImpl(firstPosition.getUniqueIdentifier(), firstPosition.getQuantity(), firstPosition.getSecurityKey());
     position.setPortfolioNode(searchResult.getFirstDocument().getParentNodeId());
-    Set<Trade> trades = Sets.newHashSet();
     for (ManageableTrade manageableTrade : firstPosition.getTrades()) {
       CounterpartyImpl counterparty = new CounterpartyImpl(manageableTrade.getCounterpartyId());
       TradeImpl trade = new TradeImpl(position.getUniqueIdentifier(), manageableTrade.getSecurityKey(), manageableTrade.getQuantity(), 
           counterparty, manageableTrade.getTradeDate(), manageableTrade.getTradeTime());
       trade.setUniqueIdentifier(manageableTrade.getUniqueIdentifier());
-      trades.add(trade);
+      position.addTrade(trade);
     }
-    position.setTrades(trades);
     return position;
   }
   
@@ -380,24 +375,30 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
           lastTradeId = tradeId;
           trade = buildTrade(rs, position);
         }
-        final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
-        final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
-        if (tradeIdScheme != null && tradeIdValue != null) {
-          Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
-          trade.setSecurityKey(trade.getSecurityKey().withIdentifier(id));
-        }
+        addSecurityIdentifierToTrade(rs, position, trade);
       }
-      
-      //trade securities are set after trades are added to positions, original hashcode has changed, hence reset the set
-      if (portfolio != null) {
-        Set<Position> accumulatedPositions = PositionAccumulator.getAccumulatedPositions(portfolio.getRootNode());
-        for (Position pos : accumulatedPositions) {
-          PositionImpl positionImp = (PositionImpl) pos;
-          positionImp.setTrades(Sets.newHashSet(pos.getTrades()));
-        }
-      }
-      
+            
       return portfolio;
+    }
+
+    /**
+     * @param rs
+     * @param position
+     * @param trade
+     * @throws SQLException
+     */
+    private void addSecurityIdentifierToTrade(ResultSet rs, PositionImpl position, TradeImpl trade) throws SQLException {
+      final String tradeIdScheme = rs.getString("TRADE_KEY_SCHEME");
+      final String tradeIdValue = rs.getString("TRADE_KEY_VALUE");
+      if (tradeIdScheme != null && tradeIdValue != null) {
+        Identifier id = Identifier.of(tradeIdScheme, tradeIdValue);
+        //hence remove previous trade
+        position.removeTrade(trade);
+        //modifying trade after adding to set will create inconsistent hashcode in set of trades
+        trade.setSecurityKey(trade.getSecurityKey().withIdentifier(id));
+        //add trade with new security identifier
+        position.addTrade(trade);
+      }
     }
 
     private TradeImpl buildTrade(final ResultSet rs, final PositionImpl position) throws SQLException {
@@ -418,7 +419,7 @@ public class QueryFullDbPositionMasterWorker extends DbPositionMasterWorker {
       final long tradeId = rs.getLong("TRADE_ID");
       final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, null);
       trade.setUniqueIdentifier(tradeUid);
-      position.getTrades().add(trade);
+      position.addTrade(trade);
       return trade;
     }
 

@@ -7,6 +7,7 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -253,15 +254,37 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    */
   @Override
   public Set<Trade> getTrades() {
-    return _trades;
+    return Collections.unmodifiableSet(_trades);
   }
   
   /**
-   * Sets the _trades field.
+   * Add a trade to trades collection
+   * 
+   * @param trade the trade, not - null
+   */
+  public void addTrade(Trade trade) {
+    ArgumentChecker.notNull(trade, "trade");
+    _trades.add(trade);
+  }
+  
+  /**
+   * Removes a given trade from the set
+   * @param trade the trade to remove
+   * @return <tt>true</tt> if the trades set contained the specified trade
+   */
+  public boolean removeTrade(Trade trade) {
+    return _trades.remove(trade);
+  }
+  
+  /**
+   * Initialize the trades with given set of trades
+   * 
    * @param trades  the trades
    */
-  public void setTrades(Set<Trade> trades) {
-    _trades = trades;
+  public void initializeTrades(Set<Trade> trades) {
+    ArgumentChecker.notNull(trades, "trades");
+    _trades.clear();
+    _trades.addAll(trades);
   }
 
   //-------------------------------------------------------------------------

@@ -229,14 +229,12 @@ import com.opengamma.util.monitor.OperationTimer;
       populatedPosition.setSecurity(security);
       populatedPosition.setPortfolioNode(populatedNode.getUniqueIdentifier());
       //set the children trade security as well
-      Set<Trade> newTrades = Sets.newHashSet();
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
         populatedTrade.setPositionId(populatedPosition.getUniqueIdentifier());
         populatedTrade.setSecurity(security);
-        newTrades.add(populatedTrade);
+        populatedPosition.addTrade(populatedTrade);
       }
-      populatedPosition.setTrades(newTrades);
       populatedNode.addPosition(populatedPosition);
     }
     // Add resolved copies of any nodes directly underneath this node
