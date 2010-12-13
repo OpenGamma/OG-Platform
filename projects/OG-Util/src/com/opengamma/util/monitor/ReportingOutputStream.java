@@ -28,9 +28,11 @@ public class ReportingOutputStream extends FilterOutputStream {
   private long _writeOperations;
 
   /**
-   * @param logger device to report to
-   * @param streamName stream identifier to include in output
-   * @param underlying target stream
+   * Creates an instance.
+   * 
+   * @param logger  the device to report to, not null
+   * @param streamName  the identifier to include in the log output
+   * @param underlying  the underlying stream, not null
    */
   public ReportingOutputStream(final Logger logger, final String streamName, final OutputStream underlying) {
     super(underlying);
@@ -53,9 +55,9 @@ public class ReportingOutputStream extends FilterOutputStream {
       if (time >= _nextReportTime) {
         _nextReportTime = time + TIME_TO_REPORT;
         _logger.info("Stream {} wrote {}Kb in {}ms from {} operations ({}M)", new Object[] {_streamName, (double) _writeBytes / 1024d, (double) _writeTime / 1000000d, _writeOperations,
-            (double) _writeBytes * 8192d / (double) _writeTime});
-
-        // Scale down influence of older data
+          (double) _writeBytes * 8192d / (double) _writeTime});
+        
+        // scale down influence of older data
         _writeOperations >>= 1;
         _writeBytes >>= 1;
         _writeTime >>= 1;

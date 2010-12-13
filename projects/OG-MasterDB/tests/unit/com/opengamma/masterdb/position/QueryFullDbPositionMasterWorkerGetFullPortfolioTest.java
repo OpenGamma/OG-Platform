@@ -35,9 +35,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.FullPortfolioGetRequest;
-import com.opengamma.masterdb.position.DbPositionMasterWorker;
-import com.opengamma.masterdb.position.QueryFullDbPositionMasterWorker;
-import com.opengamma.masterdb.position.QueryPositionDbPositionMasterWorker;
+import com.opengamma.master.position.ManageablePortfolio;
+import com.opengamma.master.position.PortfolioTreeDocument;
 
 /**
  * Tests QueryFullDbPositionMasterWorker.
@@ -49,6 +48,7 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioTest extends Abstrac
 
   private QueryFullDbPositionMasterWorker _worker;
   private DbPositionMasterWorker _queryWorker;
+  private DbPositionMasterWorker _modifyTreeWorker;
 
   public QueryFullDbPositionMasterWorkerGetFullPortfolioTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -63,6 +63,8 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioTest extends Abstrac
     _worker.init(_posMaster);
     _queryWorker = new QueryPositionDbPositionMasterWorker();
     _queryWorker.init(_posMaster);
+    _modifyTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
+    _modifyTreeWorker.init(_posMaster);
   }
 
   @After
@@ -181,6 +183,16 @@ public class QueryFullDbPositionMasterWorkerGetFullPortfolioTest extends Abstrac
     assertEquals(UniqueIdentifier.of("DbPos", "201"), test.getUniqueIdentifier().toLatest());
     assertEquals(testBase.getUniqueIdentifier(), test.getUniqueIdentifier());
     assertEquals(Long.toHexString(_version1Instant.toEpochMillisLong()) + "-0", test.getUniqueIdentifier().getVersion());
+  }
+
+  @Test
+  public void test_getFullPortfolio_noPositions() {
+    PortfolioTreeDocument doc = _modifyTreeWorker.addPortfolioTree(new PortfolioTreeDocument(new ManageablePortfolio("Root")));
+    
+    // not latest version
+    FullPortfolioGetRequest request = new FullPortfolioGetRequest(doc.getUniqueId(), null, null);
+    Portfolio test = _worker.getFullPortfolio(request);
+    assertEquals(doc.getUniqueId().toLatest(), test.getUniqueIdentifier().toLatest());
   }
 
   //-------------------------------------------------------------------------
