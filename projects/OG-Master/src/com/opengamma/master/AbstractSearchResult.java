@@ -84,7 +84,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   /**
    * The meta-bean for {@code AbstractSearchResult}.
    */
-  public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta {
+  public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta<D> {
     /**
      * The singleton instance of the meta-bean.
      */
