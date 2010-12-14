@@ -35,8 +35,7 @@ public class CompiledFunctionService {
   private boolean _localExecutorService;
   private ExecutorService _executorService;
 
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
-      final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
@@ -96,6 +95,13 @@ public class CompiledFunctionService {
     }
     timer.finished();
     getFunctionCompilationContext().setFunctionInitializationTimestamp(System.currentTimeMillis());
+  }
+
+  public synchronized void reinitializeIfTooOld(final long requiredTimestamp) {
+    if (getFunctionCompilationContext().getFunctionInitializationTimestamp() < requiredTimestamp) {
+      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitializationTimestamp(), requiredTimestamp);
+      initialize();
+    }
   }
 
   public FunctionRepository getFunctionRepository() {

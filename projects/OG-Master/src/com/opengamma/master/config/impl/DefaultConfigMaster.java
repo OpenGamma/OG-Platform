@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.base.Function;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
+import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -21,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * DefaultConfigMaster uses a concurrent map and is thread-safe.
  */
-public class DefaultConfigMaster implements ConfigMaster {
+public class DefaultConfigMaster implements ConfigMaster, NotifyingMaster {
 
   /**
    * Map of masters by class.
@@ -91,6 +92,16 @@ public class DefaultConfigMaster implements ConfigMaster {
   @Override
   public <T> ConfigTypeMaster<T> typed(Class<T> clazz) {
     return getTypedMaster(clazz);
+  }
+
+  @Override
+  public void addOnChangeListener(MasterChangeListener listener) {
+    // TODO This method is a hack put in until the listeners are handled properly
+  }
+
+  @Override
+  public void removeOnChangeListener(MasterChangeListener listener) {
+    // TODO This method is a hack put in until the listeners are handled properly
   }
 
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,9 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.master.NotifyingMaster.MasterChangeListener;
 import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -41,15 +44,16 @@ public class ViewProcessorManager implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorManager.class);
 
-  private final Set<ViewProcessorImpl> _viewProcessors;
-  private final Map<AbstractMaster<?>, VersionedSource> _masterToSource = new HashMap<AbstractMaster<?>, VersionedSource>();
+  private final Set<ViewProcessorImpl> _viewProcessors = new HashSet<ViewProcessorImpl>();
+  private final Set<CompiledFunctionService> _functions = new HashSet<CompiledFunctionService>();
+  private final Map<NotifyingMaster, VersionedSource> _masterToSource = new HashMap<NotifyingMaster, VersionedSource>();
+  private final Map<NotifyingMaster, MasterChangeListener> _masterToListener = new HashMap<NotifyingMaster, MasterChangeListener>();
   private Map<VersionedSource, Instant> _latchInstants = new HashMap<VersionedSource, Instant>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
   private boolean _isRunning;
 
   public ViewProcessorManager() {
-    _viewProcessors = new HashSet<ViewProcessorImpl>();
   }
 
   private void assertNotRunning() {
@@ -77,7 +81,7 @@ public class ViewProcessorManager implements Lifecycle {
     return Collections.unmodifiableSet(_viewProcessors);
   }
 
-  public void setMasterAndSource(final AbstractMaster<?> master, final VersionedSource source) {
+  public void setMasterAndSource(final NotifyingMaster master, final VersionedSource source) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(source, "source");
     assertNotRunning();
@@ -85,7 +89,7 @@ public class ViewProcessorManager implements Lifecycle {
     _masterToSource.put(master, source);
   }
 
-  public void setMastersAndSources(final Map<AbstractMaster<?>, VersionedSource> masterToSource) {
+  public void setMastersAndSources(final Map<NotifyingMaster, VersionedSource> masterToSource) {
     ArgumentChecker.notNull(masterToSource, "masterToSource");
     assertNotRunning();
     _masterToSource.clear();
@@ -107,22 +111,38 @@ public class ViewProcessorManager implements Lifecycle {
     _lifecycleLock.lock();
     try {
       if (!_isRunning) {
-        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
-          viewProcessor.start();
-        }
         _changeLock.lock();
         try {
           final Instant now = Instant.now();
-          for (Map.Entry<AbstractMaster<?>, VersionedSource> entry : _masterToSource.entrySet()) {
-            final AbstractMaster<?> master = entry.getKey();
+          for (Map.Entry<NotifyingMaster, VersionedSource> entry : _masterToSource.entrySet()) {
+            final NotifyingMaster master = entry.getKey();
             final VersionedSource source = entry.getValue();
-            s_logger.error("TODO: register with {} as a listener", master);
+            final MasterChangeListener listener = new MasterChangeListener() {
+              @Override
+              public void onMasterChanged(InstantProvider changeInstant) {
+                ViewProcessorManager.this.onMasterChanged(Instant.of(changeInstant), source);
+              }
+            };
+            master.addOnChangeListener(listener);
+            _masterToListener.put(master, listener);
             s_logger.debug("Latching {} to {}", source, now);
             // TODO this isn't ideal if there is clock drift between nodes - the time needs to be the system time at the master
             source.setVersionAsOfInstant(now);
           }
         } finally {
           _changeLock.unlock();
+        }
+        _functions.clear();
+        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
+          _functions.add(viewProcessor.getFunctionCompilationService());
+        }
+        s_logger.debug("Initializing functions");
+        for (CompiledFunctionService function : _functions) {
+          function.initialize();
+        }
+        s_logger.debug("Initializing views");
+        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
+          viewProcessor.start();
         }
         _isRunning = true;
       }
@@ -139,8 +159,11 @@ public class ViewProcessorManager implements Lifecycle {
         for (ViewProcessorImpl viewProcessor : _viewProcessors) {
           viewProcessor.stop();
         }
-        for (AbstractMaster<?> master : _masterToSource.keySet()) {
-          s_logger.error("TODO: unregister with {} as a listener", master);
+        final Iterator<Map.Entry<NotifyingMaster, MasterChangeListener>> itr = _masterToListener.entrySet().iterator();
+        while (itr.hasNext()) {
+          Map.Entry<NotifyingMaster, MasterChangeListener> entry = itr.next();
+          entry.getKey().removeOnChangeListener(entry.getValue());
+          itr.remove();
         }
         _isRunning = false;
       }
@@ -149,17 +172,12 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  protected void onMasterChanged(final InstantProvider latchInstantProvider, final AbstractMaster<?> master) {
-    final Instant latchInstant = Instant.of(latchInstantProvider);
-    final VersionedSource source = _masterToSource.get(master);
-    if (source == null) {
-      s_logger.error("Master {} not registered", master);
-      throw new IllegalArgumentException();
-    }
-    s_logger.debug("Change timestamp {}", latchInstant);
+  private void onMasterChanged(final Instant latchInstant, final VersionedSource source) {
+    s_logger.debug("Change timestamp {} for {}", latchInstant, source);
     _changeLock.lock();
     try {
       if (_latchInstants.isEmpty()) {
+        s_logger.debug("Starting latching job");
         // Kick off a latch; this may take some time if the view processors must wait for their views to finish calculating first
         _viewProcessors.iterator().next().getFunctionCompilationService().getExecutorService().submit(new Runnable() {
           @Override
@@ -167,6 +185,8 @@ public class ViewProcessorManager implements Lifecycle {
             latchSources();
           }
         });
+      } else {
+        s_logger.debug("Latching job already active");
       }
       final Instant previousInstant = _latchInstants.get(source);
       if ((previousInstant == null) || previousInstant.isBefore(latchInstant)) {
@@ -209,6 +229,10 @@ public class ViewProcessorManager implements Lifecycle {
       for (Map.Entry<VersionedSource, Instant> entry : latchInstants.entrySet()) {
         s_logger.debug("Latching {} to {}", entry.getKey(), entry.getValue());
         entry.getKey().setVersionAsOfInstant(entry.getValue());
+      }
+      s_logger.debug("Re-initializing functions");
+      for (CompiledFunctionService functions : _functions) {
+        functions.initialize();
       }
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {

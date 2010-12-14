@@ -50,7 +50,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), null, createTestJobItems(), CacheSelectHint.allPrivate());
+    return new CalculationJob(createTestJobSpec(), 0L, null, createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {

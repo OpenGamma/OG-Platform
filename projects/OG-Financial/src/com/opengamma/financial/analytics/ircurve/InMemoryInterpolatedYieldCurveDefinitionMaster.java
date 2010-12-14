@@ -6,7 +6,9 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.time.Instant;
@@ -15,6 +17,7 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -22,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * An in-memory master for yield curve definitions, backed by a hash-map.
  */
-public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource {
+public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource, NotifyingMaster {
   
   /**
    * Default scheme used for identifiers created.
@@ -30,6 +33,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
+  private final Set<MasterChangeListener> _listeners = new HashSet<MasterChangeListener>();
 
   private String _identifierScheme;
   private Instant _sourceVersionAsOfInstant;
@@ -109,6 +113,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     value.put(Instant.now(), document.getYieldCurveDefinition());
     _definitions.put(key, value);
     document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name));
+    fireChangeEvent();
     return document;
   }
 
@@ -136,6 +141,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       _definitions.put(key, value);
     }
     document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name));
+    fireChangeEvent();
     return document;
   }
 
@@ -213,6 +219,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         throw new DataNotFoundException("Curve definition not found");
       }
     }
+    fireChangeEvent();
   }
 
   @Override
@@ -240,7 +247,36 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     value.put(Instant.now(), document.getYieldCurveDefinition());
     document.setUniqueId(uid);
+    fireChangeEvent();
     return document;
+  }
+
+  private synchronized void fireChangeEvent() {
+    // TODO temporary hack until listeners are done properly
+    final Instant now = Instant.now();
+    for (final MasterChangeListener listener : _listeners) {
+      final Thread async = new Thread() {
+        @Override
+        public void run() {
+          listener.onMasterChanged(now);
+        }
+      };
+      async.start();
+    }
+  }
+
+  @Override
+  public synchronized void addOnChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    // TODO temporary hack until listeners are done properly
+    _listeners.add(listener);
+  }
+
+  @Override
+  public synchronized void removeOnChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    // TODO temporary hack until listeners are done properly
+    _listeners.remove(listener);
   }
 
 }

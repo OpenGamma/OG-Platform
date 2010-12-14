@@ -115,7 +115,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
+    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher()
+        .dispatchJob(new CalculationJob(jobSpec, _cycle.getFunctionInitializationTimestamp(), null, items, cacheHint), this);
     future.setCancel(cancel);
 
     return future;
