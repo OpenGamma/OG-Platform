@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
@@ -26,7 +27,7 @@ public interface ViewProcessor {
    * @return a set of view names
    */
   Set<String> getViewNames();
-  
+
   /**
    * Obtains a {@link View} instance.
    * 
@@ -35,10 +36,5 @@ public interface ViewProcessor {
    * @return the view
    */
   View getView(String name, UserPrincipal credentials);
-  
-  /**
-   * Asynchronously reinitializes the view processor.
-   */
-  void reinitAsync();
 
 }

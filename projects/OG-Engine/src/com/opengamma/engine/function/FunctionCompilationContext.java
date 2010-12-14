@@ -26,6 +26,15 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
 
   /**
+   * The name under which the initialization time of the functions should be bound.
+   */
+  public static final String FUNCTION_INITIALIZATION_TIMESTAMP = "functionInitializationTimestamp";
+  
+  /**
+   * The name under which a configuration source should be bound.
+   */
+
+  /**
    * Creates an empty function compilation context.
    */
   public FunctionCompilationContext() {
@@ -70,6 +79,24 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
     put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
+  }
+
+  /**
+   * Sets the function initialization timestamp.
+   * 
+   * @param timestamp the timestamp
+   */
+  public void setFunctionInitializationTimestamp(final long timestamp) {
+    put(FUNCTION_INITIALIZATION_TIMESTAMP, timestamp);
+  }
+
+  /**
+   * Gets the function initialization timestamp.
+   * 
+   * @return the timestamp
+   */
+  public long getFunctionInitializationTimestamp() {
+    return (Long) get(FUNCTION_INITIALIZATION_TIMESTAMP);
   }
 
   @Override

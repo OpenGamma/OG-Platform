@@ -34,10 +34,8 @@ public class CompiledFunctionService {
   private final FunctionCompilationContext _functionCompilationContext;
   private boolean _localExecutorService;
   private ExecutorService _executorService;
-  private boolean _initialized;
 
-  public CompiledFunctionService(
-      final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
       final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
@@ -66,7 +64,7 @@ public class CompiledFunctionService {
     }
   }
 
-  protected void initializeImpl() {
+  public synchronized void initialize() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing function definitions");
     s_logger.info("Initializing all function definitions.");
     // TODO kirk 2010-03-07 -- Better error handling.
@@ -97,22 +95,7 @@ public class CompiledFunctionService {
       }
     }
     timer.finished();
-  }
-
-  public synchronized void initialize() {
-    if (!_initialized) {
-      initializeImpl();
-      _initialized = true;
-    } else {
-      s_logger.debug("Function definitions already initialized");
-    }
-  }
-  
-  public synchronized void reinit() {
-    // A terrible, terrible hack
-    initializeImpl();
-    ((CachingFunctionRepositoryCompiler) getFunctionRepositoryCompiler()).invalidateCache();
-    // This won't work if there are calc nodes (e.g. remote ones) that are using a different service 
+    getFunctionCompilationContext().setFunctionInitializationTimestamp(System.currentTimeMillis());
   }
 
   public FunctionRepository getFunctionRepository() {
