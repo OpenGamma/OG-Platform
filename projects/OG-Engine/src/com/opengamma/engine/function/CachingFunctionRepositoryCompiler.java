@@ -187,8 +187,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return compiled;
   }
 
-  protected synchronized void clearInvalidCache(final long initId) {
-    if (_functionInitId != initId) {
+  protected synchronized void clearInvalidCache(final Long initId) {
+    if ((initId != null) && (_functionInitId != initId)) {
       getCompilationCache().clear();
       _functionInitId = initId;
     }

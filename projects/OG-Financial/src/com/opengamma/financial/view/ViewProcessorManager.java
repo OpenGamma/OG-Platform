@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -26,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.NotifyingMaster.MasterChangeListener;
@@ -44,13 +46,14 @@ public class ViewProcessorManager implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorManager.class);
 
-  private final Set<ViewProcessorImpl> _viewProcessors = new HashSet<ViewProcessorImpl>();
+  private final Set<ViewProcessorInternal> _viewProcessors = new HashSet<ViewProcessorInternal>();
   private final Set<CompiledFunctionService> _functions = new HashSet<CompiledFunctionService>();
   private final Map<NotifyingMaster, VersionedSource> _masterToSource = new HashMap<NotifyingMaster, VersionedSource>();
   private final Map<NotifyingMaster, MasterChangeListener> _masterToListener = new HashMap<NotifyingMaster, MasterChangeListener>();
   private Map<VersionedSource, Instant> _latchInstants = new HashMap<VersionedSource, Instant>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
+  private final ExecutorService _executor = Executors.newCachedThreadPool();
   private boolean _isRunning;
 
   public ViewProcessorManager() {
@@ -62,14 +65,14 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  public void setViewProcessor(final ViewProcessorImpl viewProcessor) {
+  public void setViewProcessor(final ViewProcessorInternal viewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     assertNotRunning();
     _viewProcessors.clear();
     _viewProcessors.add(viewProcessor);
   }
 
-  public void setViewProcessors(final Collection<ViewProcessorImpl> viewProcessors) {
+  public void setViewProcessors(final Collection<ViewProcessorInternal> viewProcessors) {
     ArgumentChecker.notNull(viewProcessors, "viewProcessors");
     assertNotRunning();
     _viewProcessors.clear();
@@ -77,7 +80,7 @@ public class ViewProcessorManager implements Lifecycle {
   }
 
   @SuppressWarnings("unchecked")
-  public Set<ViewProcessorImpl> getViewProcessors() {
+  public Set<ViewProcessorInternal> getViewProcessors() {
     return Collections.unmodifiableSet(_viewProcessors);
   }
 
@@ -133,7 +136,7 @@ public class ViewProcessorManager implements Lifecycle {
           _changeLock.unlock();
         }
         _functions.clear();
-        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
+        for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           _functions.add(viewProcessor.getFunctionCompilationService());
         }
         s_logger.debug("Initializing functions");
@@ -141,7 +144,7 @@ public class ViewProcessorManager implements Lifecycle {
           function.initialize();
         }
         s_logger.debug("Initializing views");
-        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
+        for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           viewProcessor.start();
         }
         _isRunning = true;
@@ -156,7 +159,7 @@ public class ViewProcessorManager implements Lifecycle {
     _lifecycleLock.lock();
     try {
       if (_isRunning) {
-        for (ViewProcessorImpl viewProcessor : _viewProcessors) {
+        for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           viewProcessor.stop();
         }
         final Iterator<Map.Entry<NotifyingMaster, MasterChangeListener>> itr = _masterToListener.entrySet().iterator();
@@ -179,7 +182,7 @@ public class ViewProcessorManager implements Lifecycle {
       if (_latchInstants.isEmpty()) {
         s_logger.debug("Starting latching job");
         // Kick off a latch; this may take some time if the view processors must wait for their views to finish calculating first
-        _viewProcessors.iterator().next().getFunctionCompilationService().getExecutorService().submit(new Runnable() {
+        _executor.submit(new Runnable() {
           @Override
           public void run() {
             latchSources();
@@ -204,13 +207,15 @@ public class ViewProcessorManager implements Lifecycle {
       final List<Runnable> resumes = new ArrayList<Runnable>(_viewProcessors.size());
       final List<Future<Runnable>> suspends = new ArrayList<Future<Runnable>>(_viewProcessors.size());
       s_logger.debug("Suspending view processors");
-      for (ViewProcessorImpl viewProcessor : _viewProcessors) {
-        suspends.add(viewProcessor.suspend());
+      for (ViewProcessorInternal viewProcessor : _viewProcessors) {
+        suspends.add(viewProcessor.suspend(_executor));
       }
       while (!suspends.isEmpty()) {
         final Future<Runnable> future = suspends.remove(suspends.size() - 1);
         try {
+          s_logger.info("Waiting for future");
           resumes.add(future.get(3000, TimeUnit.MILLISECONDS));
+          s_logger.info("Got resume");
         } catch (TimeoutException e) {
           s_logger.warn("Timeout waiting for view to suspend");
           suspends.add(future);

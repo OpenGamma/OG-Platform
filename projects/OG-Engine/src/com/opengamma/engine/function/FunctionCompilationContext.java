@@ -95,7 +95,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * 
    * @return the identifier
    */
-  public long getFunctionInitId() {
+  public Long getFunctionInitId() {
     return (Long) get(FUNCTION_INIT_ID_NAME);
   }
 

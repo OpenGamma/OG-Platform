@@ -47,7 +47,7 @@ public class CompiledFunctionService {
   }
 
   protected ExecutorService createDefaultExecutorService() {
-    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors() - 1, 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors(), 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
   public void setExecutorService(final ExecutorService executorService) {

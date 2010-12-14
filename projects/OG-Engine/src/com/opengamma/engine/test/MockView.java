@@ -102,7 +102,7 @@ public class MockView implements ViewInternal {
   public boolean isLiveComputationRunning() {
     return _isRunning;
   }
-  
+
   public boolean isRunning() {
     return _isRunning;
   }
@@ -214,6 +214,14 @@ public class MockView implements ViewInternal {
 
   @Override
   public void reinit(InstantProvider initializationInstant) {
+  }
+
+  @Override
+  public void suspend() {
+  }
+
+  @Override
+  public void resume() {
   }
 
 }

@@ -67,11 +67,16 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     if (definitions == null) {
       return null;
     }
+    final Map.Entry<Instant, YieldCurveDefinition> entry;
     if (_sourceVersionAsOfInstant == null) {
-      return definitions.lastEntry().getValue();
+      entry = definitions.lastEntry();
     } else {
-      return definitions.floorEntry(_sourceVersionAsOfInstant).getValue();
+      entry = definitions.floorEntry(_sourceVersionAsOfInstant);
     }
+    if (entry == null) {
+      return null;
+    }
+    return entry.getValue();
   }
 
   /**
@@ -211,7 +216,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       }
       // Don't need to keep the old values before the one needed by "versionAsOfInstant"
       final Instant oldestNeeded = value.floorKey(_sourceVersionAsOfInstant);
-      value.headMap(oldestNeeded).clear();
+      if (oldestNeeded != null) {
+        value.headMap(oldestNeeded).clear();
+      }
       // Store a null to indicate the delete
       value.put(Instant.now(), null);
     } else {
