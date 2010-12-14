@@ -14,6 +14,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.view.ViewProcessor;
 
@@ -30,8 +31,8 @@ public class DataViewProcessorsResource {
   private final Map<String, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<String, DataViewProcessorResource>();
   
   //-------------------------------------------------------------------------
-  public void addViewProcessor(String name, ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String topicPrefix) {
-    _viewProcessorResourceMap.put(name, new DataViewProcessorResource(viewProcessor, connectionFactory, topicPrefix));
+  public void addViewProcessor(String name, ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String topicPrefix, FudgeContext fudgeContext) {
+    _viewProcessorResourceMap.put(name, new DataViewProcessorResource(viewProcessor, connectionFactory, topicPrefix, fudgeContext));
   }
   
   //-------------------------------------------------------------------------

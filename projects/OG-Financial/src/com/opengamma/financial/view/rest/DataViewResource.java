@@ -19,6 +19,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
@@ -36,6 +38,7 @@ public class DataViewResource {
   private final View _view;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final String _jmsTopicPrefix;
+  private final FudgeContext _fudgeContext;
   
   //CSOFF: just constants
   public static final String PATH_NAME = "name";
@@ -61,11 +64,12 @@ public class DataViewResource {
    * @param jmsMessageSenderService  the JMS message sender service
    * @param jmsTopicPrefix  a JMS topic prefix
    */
-  public DataViewResource(View view, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix) {
+  public DataViewResource(View view, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(view, "view");
     _view = view;
     _jmsMessageSenderService = jmsMessageSenderService;
     _jmsTopicPrefix = jmsTopicPrefix;
+    _fudgeContext = fudgeContext;
   }
   
   //-------------------------------------------------------------------------
@@ -105,7 +109,7 @@ public class DataViewResource {
   @Path("clients/{viewClientId}")
   public DataViewClientResource getClient(@PathParam("viewClientId") String idStr) {
     UniqueIdentifier id = UniqueIdentifier.parse(idStr);
-    return new DataViewClientResource(_view.getClient(id), _jmsMessageSenderService, _jmsTopicPrefix);
+    return new DataViewClientResource(_view.getClient(id), _jmsMessageSenderService, _jmsTopicPrefix, _fudgeContext);
   }
   
   @POST

@@ -401,9 +401,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       for (ComputationResultListener resultListener : _resultListeners) {
         resultListener.computationResultAvailable(result);
       }
-      if (!_deltaListeners.isEmpty() && previousResult != null) {
-        // We only start deltas once the second result comes in. Clients must combine the delta stream with an initial
-        // call to getLatestResult() to obtain the full picture.
+      if (!_deltaListeners.isEmpty()) {
         ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
         for (DeltaComputationResultListener deltaListener : _deltaListeners) {
           deltaListener.deltaResultAvailable(deltaModel);

@@ -18,7 +18,7 @@ import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting CurveInstrumentProvider instances to/from Fudge messages.  Not sure if this is ever actually used, shouldn't fudge deal with the subclasses?
  */
 @FudgeBuilderFor(CurveInstrumentProvider.class)
 public class CurveInstrumentProviderBuilder implements FudgeBuilder<CurveInstrumentProvider> {
