@@ -38,6 +38,7 @@ import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
+import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -85,6 +86,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewEvaluationModel _viewEvaluationModel;
+  private long _functionInitId;
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
 
@@ -151,7 +153,9 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
 
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
+      final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
+      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -193,7 +197,9 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       // Recompile the view definition, replacing old live data subscriptions with new ones (perhaps the functions are
       // now configured different so that different live data is required).
       removeLiveDataSubscriptions();
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
+      final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
+      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
 
       if (calculationState == ViewCalculationState.RUNNING) {
@@ -440,16 +446,28 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private SingleComputationCycle createCycleImpl(final long valuationTime) {
     // Caller MUST hold the semaphore
-    if (!getViewEvaluationModel().isValidFor(valuationTime)) {
+    boolean recompile = false;
+    long functionInitId = getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+    if (functionInitId == _functionInitId) {
+      if (getViewEvaluationModel().isValidFor(valuationTime)) {
+        s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+        recompile = false;
+      } else {
+        recompile = true;
+      }
+    } else {
+      _functionInitId = functionInitId;
+      recompile = true;
+    }
+    if (recompile) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+      // TODO for "expired" also read "re-initialized"
       // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
       // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
       final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime)));
       updateLiveDataSubscriptions(previousRequirement);
       timer.finished();
-    } else {
-      s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
     }
     SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;

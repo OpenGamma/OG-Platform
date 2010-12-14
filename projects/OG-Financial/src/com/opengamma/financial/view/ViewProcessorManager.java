@@ -213,9 +213,7 @@ public class ViewProcessorManager implements Lifecycle {
       while (!suspends.isEmpty()) {
         final Future<Runnable> future = suspends.remove(suspends.size() - 1);
         try {
-          s_logger.info("Waiting for future");
           resumes.add(future.get(3000, TimeUnit.MILLISECONDS));
-          s_logger.info("Got resume");
         } catch (TimeoutException e) {
           s_logger.warn("Timeout waiting for view to suspend");
           suspends.add(future);
