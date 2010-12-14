@@ -26,9 +26,9 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
 
   /**
-   * The name under which the initialization time of the functions should be bound.
+   * The name under which the initialization reference of the functions should be bound.
    */
-  public static final String FUNCTION_INITIALIZATION_TIMESTAMP = "functionInitializationTimestamp";
+  public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
   
   /**
    * The name under which a configuration source should be bound.
@@ -82,21 +82,21 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   }
 
   /**
-   * Sets the function initialization timestamp.
+   * Sets the function initialization identifier.
    * 
-   * @param timestamp the timestamp
+   * @param id the identifier
    */
-  public void setFunctionInitializationTimestamp(final long timestamp) {
-    put(FUNCTION_INITIALIZATION_TIMESTAMP, timestamp);
+  public void setFunctionInitId(final long id) {
+    put(FUNCTION_INIT_ID_NAME, id);
   }
 
   /**
-   * Gets the function initialization timestamp.
+   * Gets the function initialization identifier.
    * 
-   * @return the timestamp
+   * @return the identifier
    */
-  public long getFunctionInitializationTimestamp() {
-    return (Long) get(FUNCTION_INITIALIZATION_TIMESTAMP);
+  public long getFunctionInitId() {
+    return (Long) get(FUNCTION_INIT_ID_NAME);
   }
 
   @Override

@@ -29,7 +29,7 @@ public class CalculationJob implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
 
   private final CalculationJobSpecification _specification;
-  private final long _functionInitializationTimestamp;
+  private final long _functionInitializationIdentifier;
   private final Collection<Long> _required;
   private final List<CalculationJobItem> _jobItems;
 
@@ -51,13 +51,13 @@ public class CalculationJob implements Serializable {
     this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), 0, null, jobItems, cacheSelect);
   }
 
-  public CalculationJob(CalculationJobSpecification specification, long functionInitializationTimestamp, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems,
+  public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems,
       final CacheSelectHint cacheSelect) {
     ArgumentChecker.notNull(specification, "specification");
     ArgumentChecker.notNull(jobItems, "jobItems");
     ArgumentChecker.notNull(cacheSelect, "cacheSelect");
     _specification = specification;
-    _functionInitializationTimestamp = functionInitializationTimestamp;
+    _functionInitializationIdentifier = functionInitializationIdentifier;
     _required = (requiredJobIds != null) ? new ArrayList<Long>(requiredJobIds) : null;
     _jobItems = new ArrayList<CalculationJobItem>(jobItems);
     _cacheSelect = cacheSelect;
@@ -70,8 +70,8 @@ public class CalculationJob implements Serializable {
     return _specification;
   }
 
-  public long getFunctionInitializationTimestamp() {
-    return _functionInitializationTimestamp;
+  public long getFunctionInitializationIdentifier() {
+    return _functionInitializationIdentifier;
   }
 
   public Collection<Long> getRequiredJobIds() {

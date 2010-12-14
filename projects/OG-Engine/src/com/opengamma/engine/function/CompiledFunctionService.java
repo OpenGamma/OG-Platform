@@ -63,9 +63,8 @@ public class CompiledFunctionService {
     }
   }
 
-  public synchronized void initialize() {
+  protected void initializeImpl(final long initId) {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing function definitions");
-    s_logger.info("Initializing all function definitions.");
     // TODO kirk 2010-03-07 -- Better error handling.
     final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
     int nFunctions = getFunctionRepository().getAllFunctions().size();
@@ -93,15 +92,33 @@ public class CompiledFunctionService {
         throw new OpenGammaRuntimeException("Couldn't initialise function", e);
       }
     }
+    getFunctionCompilationContext().setFunctionInitId(initId);
     timer.finished();
-    getFunctionCompilationContext().setFunctionInitializationTimestamp(System.currentTimeMillis());
   }
 
-  public synchronized void reinitializeIfTooOld(final long requiredTimestamp) {
-    if (getFunctionCompilationContext().getFunctionInitializationTimestamp() < requiredTimestamp) {
-      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitializationTimestamp(), requiredTimestamp);
-      initialize();
+  public void initialize() {
+    // If the view processor node has restarted, remote nodes might have old values knocking around. We need a value
+    // that won't "accidentally" be the same as theirs. As we increment the ID by 1 each time, the clock is possibly
+    // a good choice unless we're clocking config changes at sub-millisecond speeds.
+    initialize(System.currentTimeMillis());
+  }
+
+  public synchronized void initialize(final long initId) {
+    s_logger.info("Initializing all function definitions to {}", initId);
+    initializeImpl(initId);
+  }
+
+  public synchronized void reinitializeIfNeeded(final long initId) {
+    if (getFunctionCompilationContext().getFunctionInitId() != initId) {
+      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitId(), initId);
+      initializeImpl(initId);
     }
+  }
+
+  public synchronized void reinitialize() {
+    long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
+    s_logger.info("Re-initializing all function definitions to {}", initId);
+    initializeImpl(initId);
   }
 
   public FunctionRepository getFunctionRepository() {

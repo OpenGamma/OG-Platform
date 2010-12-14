@@ -7,7 +7,8 @@
 namespace com.opengamma.engine.view.calcnode.msg {
 
   message Init extends RemoteCalcNodeMessage {
-    // TODO random number seed
+  
+    required long functionInitId;
 
     binding Java {
       body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitInitMessage (this); }";

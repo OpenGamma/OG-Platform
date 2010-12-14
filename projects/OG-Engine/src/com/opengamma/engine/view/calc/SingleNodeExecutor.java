@@ -116,7 +116,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
     Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher()
-        .dispatchJob(new CalculationJob(jobSpec, _cycle.getFunctionInitializationTimestamp(), null, items, cacheHint), this);
+        .dispatchJob(new CalculationJob(jobSpec, _cycle.getFunctionInitId(), null, items, cacheHint), this);
     future.setCancel(cancel);
 
     return future;

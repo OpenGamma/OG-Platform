@@ -29,7 +29,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>();
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
   private int _cacheSize = 16;
-  private long _functionInitializationTimestamp;
+  private long _functionInitId;
 
   public synchronized void setCacheSize(final int cacheSize) {
     _cacheSize = cacheSize;
@@ -151,7 +151,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
 
   @Override
   public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final InstantProvider atInstantProvider) {
-    clearInvalidCache(context.getFunctionInitializationTimestamp());
+    clearInvalidCache(context.getFunctionInitId());
     final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation
@@ -187,10 +187,10 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     return compiled;
   }
 
-  protected synchronized void clearInvalidCache(final long timestamp) {
-    if (_functionInitializationTimestamp < timestamp) {
+  protected synchronized void clearInvalidCache(final long initId) {
+    if (_functionInitId != initId) {
       getCompilationCache().clear();
-      _functionInitializationTimestamp = timestamp;
+      _functionInitId = initId;
     }
   }
 

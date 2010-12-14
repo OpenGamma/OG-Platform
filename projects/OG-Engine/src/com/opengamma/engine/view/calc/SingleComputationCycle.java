@@ -124,8 +124,8 @@ public class SingleComputationCycle {
     return _valuationTime;
   }
 
-  public long getFunctionInitializationTimestamp() {
-    return getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitializationTimestamp();
+  public long getFunctionInitId() {
+    return getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
   }
 
   /**

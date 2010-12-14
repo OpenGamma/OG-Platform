@@ -174,7 +174,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     final RootGraphFragment execution = _cache.getCachedExecutionPlan(graph);
     if (execution != null) {
-      if (execution.getFunctionInitializationTimestamp() != getCycle().getFunctionInitializationTimestamp()) {
+      if (execution.getFunctionInitializationTimestamp() != getCycle().getFunctionInitId()) {
         s_logger.warn("Invalid cached execution plan for {} due to re-initialization", graph);
       } else {
         final Set<GraphFragment> visited = new HashSet<GraphFragment>();

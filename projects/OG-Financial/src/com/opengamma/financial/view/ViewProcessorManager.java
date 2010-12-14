@@ -232,7 +232,7 @@ public class ViewProcessorManager implements Lifecycle {
       }
       s_logger.debug("Re-initializing functions");
       for (CompiledFunctionService functions : _functions) {
-        functions.initialize();
+        functions.reinitialize();
       }
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {

@@ -53,7 +53,7 @@ import com.opengamma.util.Cancellable;
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
     _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalcConfName());
-    _functionInitializationTimestamp = executor.getCycle().getFunctionInitializationTimestamp();
+    _functionInitializationTimestamp = executor.getCycle().getFunctionInitId();
   }
 
   /**

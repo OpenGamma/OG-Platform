@@ -58,7 +58,7 @@ public class CalculationJobTest {
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    assertEquals (inputJob.getFunctionInitializationTimestamp(), outputJob.getFunctionInitializationTimestamp());
+    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
     CalculationJobItem outputItem = outputJob.getJobItems().get(0);
@@ -94,7 +94,7 @@ public class CalculationJobTest {
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
-    assertEquals (inputJob.getFunctionInitializationTimestamp(), outputJob.getFunctionInitializationTimestamp());
+    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
 
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
