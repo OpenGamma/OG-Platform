@@ -265,11 +265,8 @@ public class ViewClientImpl implements ViewClient {
   }
 
   private void configureViewResultSubscription() {
-    if (_userResultListener != null) {
-      _view.addResultListener(_liveResultListener);
-    } else {
-      _view.removeResultListener(_liveResultListener);
-    }
+    // Always want to listen to the full results so that getLatestResult works correctly
+    _view.addResultListener(_liveResultListener);
   }
   
   private void stopViewSubscriptions() {

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.fudgemsg.FudgeContext;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.View;
@@ -35,8 +36,9 @@ public class DataViewProcessorResource {
   private final ViewProcessor _viewProcessor;
   private final String _jmsTopicPrefix;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
+  private final FudgeContext _fudgeContext;
   
-  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix) {
+  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext) {
     _viewProcessor = viewProcessor;
     
     JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
@@ -44,6 +46,7 @@ public class DataViewProcessorResource {
     
     _jmsMessageSenderService = new JmsByteArrayMessageSenderService(jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
+    _fudgeContext = fudgeContext;
   }
   
   //-------------------------------------------------------------------------
@@ -62,7 +65,7 @@ public class DataViewProcessorResource {
     if (view == null) {
       return null;
     }
-    return new DataViewResource(view, _jmsMessageSenderService, _jmsTopicPrefix);
+    return new DataViewResource(view, _jmsMessageSenderService, _jmsTopicPrefix, _fudgeContext);
   }
   
   @POST

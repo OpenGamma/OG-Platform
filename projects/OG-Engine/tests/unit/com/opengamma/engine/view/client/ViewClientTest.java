@@ -380,9 +380,11 @@ public class ViewClientTest {
     ViewRecalculationJob recalcJob = env.getCurrentRecalcJob(view);
     assertTrue(view.isRunning());
     computationListener1.getResult(TIMEOUT);
+    deltaListener1.getResult(TIMEOUT);
     assertEquals(0, computationListener1.getQueueSize());
+    assertEquals(0, deltaListener1.getQueueSize());
     
-    // Push through a second result - should have a delta this time
+    // Push through a second result
     snapshotProvider.addValue(env.getPrimitive1(), 3);
     recalcJob.liveDataChanged();
     computationListener1.getResult(TIMEOUT);
