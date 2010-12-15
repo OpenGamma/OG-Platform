@@ -65,6 +65,9 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
     assertEquals(MODEL.getSurface(OPTION, data).getVolatility(PAIR), ATM_VOL.getVolatility(PAIR));
   }
 
+  /**
+   * Number from Option Pricing Formulas, p270
+   */
   @Test
   public void test() {
     assertEquals(MODEL.getSurface(OPTION, DATA).getVolatility(PAIR), 0.3454, EPS);

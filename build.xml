@@ -259,5 +259,9 @@
 			<fileset dir="common"/>
 		</sync>
 	</target>
+
+        <target name="ivy-report" depends="publish-all-local" description="generate ivy dependency report">
+                <ivy:report conf="opengamma" organisation="com.opengamma" module="og-integration" />
+        </target>
 </project>
 

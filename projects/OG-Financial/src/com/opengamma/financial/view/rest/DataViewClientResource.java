@@ -5,13 +5,21 @@
  */
 package com.opengamma.financial.view.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -19,6 +27,8 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * RESTful resource for a view client.
  */
 @Path("/data/viewclients/clients/{clientId}")
+@Consumes(FudgeRest.MEDIA)
+@Produces(FudgeRest.MEDIA)
 public class DataViewClientResource {
 
   //CSOFF: just constants
@@ -41,15 +51,25 @@ public class DataViewClientResource {
   
   private final ViewClient _viewClient;
   private final JmsResultPublisher _resultPublisher;
+  private final FudgeContext _fudgeContext;
   
-  public DataViewClientResource(ViewClient viewClient, JmsByteArrayMessageSenderService messageSenderService, String topicPrefix) {
+  public DataViewClientResource(ViewClient viewClient, JmsByteArrayMessageSenderService messageSenderService, String topicPrefix, FudgeContext fudgeContext) {
     _viewClient = viewClient;
     _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix,
         messageSenderService);
+    _fudgeContext = fudgeContext;
   }
   
   private ViewClient getViewClient() {
     return _viewClient;
+  }
+  
+  private FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+  
+  private FudgeSerializationContext getFudgeSerializationContext() {
+    return new FudgeSerializationContext(getFudgeContext());
   }
   
   //-------------------------------------------------------------------------
@@ -74,8 +94,11 @@ public class DataViewClientResource {
   
   @GET
   @Path(PATH_LATEST_RESULT)
-  public Response getLastResult() {
-    return Response.ok(getViewClient().getLatestResult()).build();
+  public Response getLatestResult() {
+    FudgeSerializationContext context = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, PATH_LATEST_RESULT, null, getViewClient().getLatestResult());
+    return Response.ok(new FudgeMsgEnvelope(msg)).build();
   }
   
   @GET

@@ -34,12 +34,14 @@ public class ViewDeltaResultCalculator {
     ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
-    deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
+    if (previousResult != null) {
+      deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
+      deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
+    }
+    deltaModel.ensureCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(viewDefinition, deltaModel, targetSpec, previousResult, result);
     }
-    
     return deltaModel;
   }
   
@@ -48,7 +50,7 @@ public class ViewDeltaResultCalculator {
     for (String calcConfigName : result.getCalculationConfigurationNames()) {
       DeltaDefinition deltaDefinition = viewDefinition.getCalculationConfiguration(calcConfigName).getDeltaDefinition();
       ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
-      ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);      
+      ViewCalculationResultModel previousCalcModel = previousResult != null ? previousResult.getCalculationResult(calcConfigName) : null;      
       computeDeltaModel(deltaDefinition, deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
     }
   }
