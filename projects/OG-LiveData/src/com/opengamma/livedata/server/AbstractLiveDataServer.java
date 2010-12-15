@@ -211,7 +211,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return _connectionStatus;
   }
   
-  void setConnectionStatus(ConnectionStatus connectionStatus) {
+  public void setConnectionStatus(ConnectionStatus connectionStatus) {
     _connectionStatus = connectionStatus;
     s_logger.info("Connection status changed to " + connectionStatus);
     
