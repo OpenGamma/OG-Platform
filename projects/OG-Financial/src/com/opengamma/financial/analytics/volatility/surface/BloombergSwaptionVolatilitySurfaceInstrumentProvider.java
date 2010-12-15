@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Tenor;
 
@@ -40,7 +40,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(tenorToCode(startTenor, _zeroPadFirstTenor));
     ticker.append(tenorToCode(maturity, _zeroPadSecondTenor));
     ticker.append(_postfix);
-    return Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, ticker.toString());
+    return Identifier.of(SecurityUtils.BLOOMBERG_TICKER, ticker.toString());
   }
   
   private String tenorToCode(Tenor tenor, boolean prepadWithZero) {
