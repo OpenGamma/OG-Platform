@@ -211,6 +211,8 @@ public class RestClient {
           return decodeResponse(resp);
         }
       } else {
+        // Must consume any content so that the response can be released
+        resp.getEntity().consumeContent();
         throw new RestRuntimeException("PUT", target, sc, resp.getStatusLine().getReasonPhrase());
       }
     } catch (IOException ex) {
@@ -259,6 +261,8 @@ public class RestClient {
           return decodeResponse(resp);
         }
       } else {
+        // Must consume any content so that the response can be released
+        resp.getEntity().consumeContent();
         throw new RestRuntimeException("POST", target, sc, resp.getStatusLine().getReasonPhrase());
       }
     } catch (IOException ex) {
@@ -332,6 +336,8 @@ public class RestClient {
           return decodeResponse(resp);
         }
       } else {
+        // Must consume any content so that the response can be released
+        resp.getEntity().consumeContent();
         throw new RestRuntimeException("DELETE", target, sc, resp.getStatusLine().getReasonPhrase());
       }
     } catch (IOException ex) {

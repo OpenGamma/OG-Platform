@@ -38,6 +38,10 @@ public class SecurityUtils {
    * Identification scheme for Reuters RICs.
    */
   public static final IdentificationScheme RIC = IdentificationScheme.of("RIC");
+  /**
+   * Identification scheme for ActivFeed tickers.
+   */
+  public static final IdentificationScheme ACTIVFEED_TICKER = IdentificationScheme.of("ACTIVFEED_TICKER");
 
   /**
    * Restricted constructor.
@@ -159,6 +163,23 @@ public class SecurityUtils {
       throw new IllegalArgumentException("RIC code is invalid: " + code);
     }
     return Identifier.of(RIC, code);
+  }
+  
+  /**
+   * Creates an ActivFeed ticker.
+   * <p>
+   * This is the ticker used by ActivFeed.
+   * Examples might be {@code IBM.N} or {@code C/04H.CB}.
+   * 
+   * @param ticker  the ActivFeed ticker, not null
+   * @return the security identifier, not null
+   */
+  public static Identifier activFeedTickerSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "code");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return Identifier.of(ACTIVFEED_TICKER, ticker);
   }
 
 }

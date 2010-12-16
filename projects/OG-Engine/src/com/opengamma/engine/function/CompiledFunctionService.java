@@ -112,6 +112,7 @@ public class CompiledFunctionService {
     // A terrible, terrible hack
     initializeImpl();
     ((CachingFunctionRepositoryCompiler) getFunctionRepositoryCompiler()).invalidateCache();
+    // This won't work if there are calc nodes (e.g. remote ones) that are using a different service 
   }
 
   public FunctionRepository getFunctionRepository() {
