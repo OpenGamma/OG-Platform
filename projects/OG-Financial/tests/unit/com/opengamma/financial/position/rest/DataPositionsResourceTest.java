@@ -54,7 +54,7 @@ public class DataPositionsResourceTest {
     
     final PositionDocument result = new PositionDocument(position);
     result.setUniqueId(UniqueIdentifier.of("Test", "PosA"));
-    when(_underlying.addPosition(same(request))).thenReturn(result);
+    when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
     assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
