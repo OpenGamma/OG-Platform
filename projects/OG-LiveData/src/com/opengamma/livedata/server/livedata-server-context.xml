@@ -23,15 +23,6 @@
         </property>
 	</bean>
 
-	<bean id="entitlementChecker" class="com.opengamma.livedata.entitlement.UserEntitlementChecker">
-		<constructor-arg index="0">
-			<bean class="com.opengamma.security.user.HibernateUserManager">
-				<constructor-arg ref="dbSource" />
-			</bean>
-		</constructor-arg>
-		<constructor-arg index="1" ref="distributionSpecificationResolver"/>
-	</bean>
-	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
 	    <property name="driverClassName" value="${jdbc.driverClassName}"/>
 	    <property name="url" value="${jdbc.url}"/>
