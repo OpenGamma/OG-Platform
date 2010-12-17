@@ -10,7 +10,7 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.util.CompareUtils;
 
 /**
- * From the paper Johnson & Nonas, Arbitrage-free construction of the swaption cube (2009). <b>Note:</b> truncation weight does not seem to work and is therefore turned off
+ * From the paper Johnson & Nonas, Arbitrage-free construction of the swaption cube (2009). <b>Note:</b> truncation weight does not seem to work
  */
 public class SABRFormulaJohnson implements SABRFormula {
   private static final double EPS = 1e-15;
@@ -30,7 +30,7 @@ public class SABRFormulaJohnson implements SABRFormula {
         double z = nu / sigmaDD * Math.log((f + eta) / (k + eta));
         sigmaBBF = sigmaDD * z / Math.log((z - rho + Math.sqrt(1 - 2 * rho * z + z * z)) / (1 - rho));
         sigmaTrunc = sigmaDD * Math.pow(1 - 4 * rho * z + (4.0 / 3.0 + 5 * rho * rho) * z * z, 1.0 / 8.0);
-        double w = 1.0;// Math.min(1.0, 1.0 / nu / Math.sqrt(t));
+        double w = Math.min(1.0, 1.0 / nu / Math.sqrt(t));
         sigmaBlend = 1.0 / (w / sigmaBBF + (1 - w) / sigmaTrunc);
       }
 
