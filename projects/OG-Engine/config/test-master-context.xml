@@ -7,7 +7,7 @@
   </bean>
 
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
-    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 

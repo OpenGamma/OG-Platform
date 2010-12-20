@@ -6,12 +6,19 @@
 package com.opengamma.masterdb.security;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.LinkedList;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +84,44 @@ public class DbSecurityMasterTest extends DBTest {
     
     SecurityDocument loaded = _secMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Ignore("Test fails because of a known issue")
+  @Test
+  public void test_concurrentModification() {    
+    final AtomicBoolean exceptionOccurred = new AtomicBoolean();
+    Runnable task = new Runnable() {
+      @Override
+      public void run() {
+        try {
+          test_equity();
+        } catch (Throwable t) {
+          exceptionOccurred.set(true);
+          s_logger.error("Error running task", t);
+        }
+      }
+    };
+    
+    // 5 threads for plenty of concurrent activity
+    ExecutorService executor = Executors.newFixedThreadPool(5);
+    
+    // 10 security inserts is always enough to produce a duplicate key exception
+    LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
+    for (int i = 0; i < 10; i++) {
+      futures.add(executor.submit(task));
+    }
+    
+    while (!futures.isEmpty()) {
+      Future<?> future = futures.poll();
+      try {
+        future.get();
+      } catch (Throwable t) {
+        s_logger.error("Exception waiting for task to complete", t);
+      }
+    }
+    
+    assertFalse(exceptionOccurred.get());
   }
 
   //-------------------------------------------------------------------------

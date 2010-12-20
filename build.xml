@@ -172,6 +172,7 @@
 			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
 			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db/clover-db-" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Activ/tests/output/clover.db/clover-db-" />
             <cloverDb span="30 mins"  initstring="projects/OG-Web/tests/output/clover.db/clover-db-" />
 		</clover-merge>
 		<clover-html-report
@@ -230,6 +231,7 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Integration.git" dest="projects/OG-Integration" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Activ.git" dest="projects/OG-Activ" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Excel.git" dest="projects/OG-Excel" />
 	</target>
 
@@ -240,6 +242,7 @@
 		<git-pull dest="projects/OG-Bloomberg" />
 		<git-pull dest="projects/OG-Integration" />
 		<git-pull dest="projects/OG-Reuters" />
+		<git-pull dest="projects/OG-Activ" />
 		<git-pull dest="projects/OG-Excel" />
 	</target>
 
@@ -250,6 +253,7 @@
 		<git-status dest="projects/OG-Bloomberg" displayName="OG-Bloomberg" />
 		<git-status dest="projects/OG-Integration" displayName="OG-Integration" />
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
+		<git-status dest="projects/OG-Activ" displayName="OG-Activ" />
 		<git-status dest="projects/OG-Excel" displayName="OG-Excel" />
 	</target>
 
@@ -259,5 +263,9 @@
 			<fileset dir="common"/>
 		</sync>
 	</target>
+
+        <target name="ivy-report" depends="publish-all-local" description="generate ivy dependency report">
+                <ivy:report conf="opengamma" organisation="com.opengamma" module="og-integration" />
+        </target>
 </project>
 
