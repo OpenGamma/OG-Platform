@@ -135,7 +135,7 @@ public class MasterPositionSourceTest {
     manPos.addTrade(manTrade);
     PositionDocument posDoc = new PositionDocument(manPos);
     PositionSearchRequest posRequest = new PositionSearchRequest();
-    posRequest.getPositionIds().add(UID4);
+    posRequest.addPositionId(UID4);
     posRequest.setVersionAsOfInstant(VERSION_AS_OF);
     posRequest.setCorrectedToInstant(CORRECTED_TO);
     PositionSearchResult posResult = new PositionSearchResult();
