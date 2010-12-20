@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.calendar;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
 /**
  * Abstract base class implementing the {@code Calendar} interface.
@@ -26,7 +26,7 @@ public abstract class CalendarBase implements Calendar {
    * @param name  the convention name, not null
    */
   protected CalendarBase(final String name) {
-    ArgumentChecker.notNull(name, "name");
+    Validate.notNull(name, "name");
     _name = name;
   }
 
@@ -42,12 +42,11 @@ public abstract class CalendarBase implements Calendar {
    */
   @Override
   public final boolean isWorkingDay(final LocalDate date) {
-    ArgumentChecker.notNull(date, "date");
+    Validate.notNull(date, "date");
     if (isNormallyWorkingDay(date)) {
       return !isWorkingDayException(date);
-    } else {
-      return isNonWorkingDayException(date);
     }
+    return isNonWorkingDayException(date);
   }
 
   @Override

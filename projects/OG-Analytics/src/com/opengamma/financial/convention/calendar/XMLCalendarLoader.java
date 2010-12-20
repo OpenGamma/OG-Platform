@@ -12,12 +12,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang.Validate;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Populates an {@code ExceptionCalendar} with working and non-working days from
@@ -46,7 +46,7 @@ public class XMLCalendarLoader {
    * @param sourceDataUri  the source URI, not null
    */
   public XMLCalendarLoader(final String sourceDataUri) {
-    ArgumentChecker.notNull(sourceDataUri, "URI");
+    Validate.notNull(sourceDataUri, "URI");
     _sourceDataURI = sourceDataUri;
   }
 
@@ -81,7 +81,7 @@ public class XMLCalendarLoader {
         private String _innerText;
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) {
           switch (_state) {
             case OTHER:
               if (qName.equalsIgnoreCase(TAG_WORKING_DAYS)) {
@@ -94,12 +94,12 @@ public class XMLCalendarLoader {
         }
 
         @Override
-        public void characters(char[] ch, int start, int length) {
+        public void characters(final char[] ch, final int start, final int length) {
           _innerText = new String(ch, start, length);
         }
 
         @Override
-        public void endElement(String uri, String localName, String qName) {
+        public void endElement(final String uri, final String localName, final String qName) {
           switch (_state) {
             case WORKING_DAYS:
               if (qName.equalsIgnoreCase(TAG_DATE)) {
@@ -118,11 +118,11 @@ public class XMLCalendarLoader {
           }
         }
       });
-    } catch (ParserConfigurationException ex) {
+    } catch (final ParserConfigurationException ex) {
       throw wrap(ex);
-    } catch (SAXException ex) {
+    } catch (final SAXException ex) {
       throw wrap(ex);
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       throw wrap(ex);
     }
   }

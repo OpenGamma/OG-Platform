@@ -53,7 +53,7 @@ public class ThirtyEThreeSixtyISDATest {
 
   @Test
   public void testNoAccruedInterest() {
-    assertEquals(DC.getAccruedInterest(D1, D1, D3, COUPON, PAYMENTS, true), 0, 0);
+    assertEquals(DC.getAccruedInterest(D1, D1, COUPON, true), 0, 0);
     assertEquals(DC.getConventionName(), "30E/360 ISDA");
   }
 

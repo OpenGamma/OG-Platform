@@ -34,9 +34,7 @@ public interface DayCount {
    * @param paymentsPerYear  the number of payments per year, one, two, three, four, six or twelve
    * @return the accrued interest
    */
-  double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear);
+  double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear);
 
   /**
    * Gets the name of the convention.

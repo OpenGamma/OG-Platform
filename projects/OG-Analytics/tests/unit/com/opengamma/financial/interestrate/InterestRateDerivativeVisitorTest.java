@@ -13,8 +13,10 @@ import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuit
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
@@ -163,6 +165,26 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
       return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitBondForward(final BondForward bondForward, final Object data) {
+      return visit(bondForward, data);
+    }
+
+    @Override
+    public Class<?> visitBondFuture(final BondFuture bondFuture, final Object data) {
+      return visit(bondFuture, data);
+    }
+
+    @Override
+    public Class<?> visitBondForward(final BondForward bondForward) {
+      return visit(bondForward);
+    }
+
+    @Override
+    public Class<?> visitBondFuture(final BondFuture bondFuture) {
+      return visit(bondFuture);
     }
   };
 

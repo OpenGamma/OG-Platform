@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SimpleYieldConvention implements YieldConvention {
   // TODO: should be an enum?
-  
+
   /**
    * 
    */
@@ -46,6 +46,10 @@ public class SimpleYieldConvention implements YieldConvention {
    * The true yield convention.
    */
   public static final YieldConvention TRUE = new SimpleYieldConvention("True");
+  /** 
+   * US bond (T-bill and treasuries) yield convention - US treasury for all periods but the last, in which case use money-market
+   */
+  public static final YieldConvention US_BOND = new SimpleYieldConvention("US Treasury"); //TODO better name
 
   /**
    * The convention name.

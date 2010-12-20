@@ -17,6 +17,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -39,69 +40,45 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  */
-public class BondSecurityToBondConverterTest {
+public class BondSecurityToBondDefinitionConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
-  private static final BondSecurityToBondConverter CONVERTER = new BondSecurityToBondConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
+  private static final BondSecurityToBondDefinitionConverter CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2007, 10, 2);
- private static final double COUPON = 4.0;
-  private static final BondSecurity BOND = new GovernmentBondSecurity("US",
-                                                                        "Government",
-                                                                        "US",
-                                                                        "Treasury",
-                                                                        Currency.getInstance("USD"),
-                                                                        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"),
-                                                                        new Expiry(DateUtil.getUTCDate(2008, 9, 30)),
-                                                                        "",
-                                                                        COUPON,
-                                                                        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME),
-                                                                        DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
-                                                                        new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)),
-                                                                        new DateTimeWithZone(DateUtil.getUTCDate(2007, 10, 3)),
-                                                                        new DateTimeWithZone(DateUtil.getUTCDate(2008, 3, 31)),
-                                                                        100,
-                                                                        100000000,
-                                                                        5000,
-                                                                        1000,
-                                                                        100,
-                                                                        100);
+  private static final double COUPON = 4.0;
+  private static final BondSecurity BOND = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.getInstance("USD"),
+      YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(DateUtil.getUTCDate(2008, 9, 30)), "", COUPON,
+      SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
+      new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)), new DateTimeWithZone(DateUtil.getUTCDate(2007, 10, 3)), new DateTimeWithZone(DateUtil.getUTCDate(2008, 3, 31)), 100, 100000000, 5000,
+      1000, 100, 100);
   private static final String NAME = "BOND_YIELD";
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullHolidaySource() {
-    new BondSecurityToBondConverter(null, CONVENTION_SOURCE);
+    new BondSecurityToBondDefinitionConverter(null, CONVENTION_SOURCE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullConventionSource() {
-    new BondSecurityToBondConverter(HOLIDAY_SOURCE, null);
+    new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity() {
-    CONVERTER.getBond(null, "", DATE);
+    CONVERTER.getBond(null, "");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullName() {
-    CONVERTER.getBond(BOND, null, DATE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullNow() {
-    CONVERTER.getBond(BOND, "", null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testExpiredBond() {
-    CONVERTER.getBond(BOND, "", DateUtil.getUTCDate(2010, 1, 1));
+    CONVERTER.getBond(BOND, null);
   }
 
   @Test
   public void test() {
-    final Bond bond = CONVERTER.getBond(BOND, NAME, DATE);
-    assertEquals(bond.getAccruedInterest(), COUPON / 100 / 2.0* 3. / 183, EPS);
+    final BondDefinition definition = CONVERTER.getBond(BOND, NAME);
+    final Bond bond = definition.toDerivative(DATE.toLocalDate(), NAME);
+    assertEquals(bond.getAccruedInterest(), COUPON / 100 / 2.0 * 3. / 183, EPS);
     final GenericAnnuity<FixedPayment> annuity = bond.getAnnuity();
     assertEquals(annuity.getNumberOfPayments(), 3);
     final FixedPayment[] payments = annuity.getPayments();

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
@@ -34,19 +32,15 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
     Validate.notNull(bondFuture, "bond future");
     Validate.notNull(basketData, "basket data");
     Validate.isTrue(futurePrice > 0, "future price must be positive");
-    final Bond[] deliverableBonds = bondFuture.getBonds();
+    final BondForward[] deliverableBonds = bondFuture.getBondForwards();
     final int n = deliverableBonds.length;
-    Validate.isTrue(n == basketData.getSize());
+    Validate.isTrue(n == basketData.getBasketSize());
     final double[] conversionFactors = bondFuture.getConversionFactors();
     final double[] result = new double[n];
-    final List<Double> deliveryDates = basketData.getDeliveryDates();
-    final List<Double> cleanPrices = basketData.getCleanPrices();
-    final List<Double> accruedInterest = basketData.getAccruedInterest();
-    Bond deliverable;
+    final double[] cleanPrices = basketData.getCleanPrices();
     for (int i = 0; i < n; i++) {
-      deliverable = deliverableBonds[i];
-      final double deliveryDate = deliveryDates.get(i);
-      final GenericAnnuity<FixedCouponPayment> coupons = deliverable.getCouponAnnuity();
+      final double deliveryDate = deliverableBonds[i].getForwardTime();
+      final GenericAnnuity<FixedCouponPayment> coupons = deliverableBonds[i].getBond().getCouponAnnuity();
       double sum1 = 0.0;
       double sum2 = 0.0;
       for (final FixedCouponPayment payments : coupons.getPayments()) {
@@ -55,10 +49,10 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
           break;
         }
         sum1 += payments.getAmount();
-        sum2 += payments.getAmount() * (deliveryDate - ti); // TODO this should be done on a daycount basis
+        sum2 += payments.getAmount() * (deliveryDate - ti); //TODO are the times right?
       }
-      final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(deliverable, cleanPrices.get(i));
-      final double invoicePrice = futurePrice * conversionFactors[i] + accruedInterest.get(i);
+      final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(deliverableBonds[i].getBond(), cleanPrices[i]);
+      final double invoicePrice = futurePrice * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
       result[i] = (invoicePrice - dirtyPrice + sum1) / (dirtyPrice * deliveryDate - sum2);
     }
     return result;

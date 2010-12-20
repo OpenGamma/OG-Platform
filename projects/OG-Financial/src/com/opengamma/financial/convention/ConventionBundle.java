@@ -8,6 +8,7 @@ package com.opengamma.financial.convention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -231,4 +232,10 @@ public interface ConventionBundle {
    * @return the number of ex-dividend days
    */
   int getExDividendDays();
+
+  /**
+   * Gets the yield quotation convention for a bond
+   * @return The yield quotation convention for the bond
+   */
+  YieldConvention getYieldConvention();
 }

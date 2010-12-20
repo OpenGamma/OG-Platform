@@ -21,9 +21,7 @@ public class ActualThreeSixtyFive extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     return getDayCountFraction(previousCouponDate, date) * coupon;
   }
 

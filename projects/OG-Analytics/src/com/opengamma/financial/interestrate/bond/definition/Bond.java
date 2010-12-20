@@ -24,6 +24,7 @@ public class Bond implements InterestRateDerivativeWithRate {
   private final FixedPayment _principle;
   private final double _accruedInterest;
 
+  //TODO don't need this constructor
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
@@ -40,6 +41,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     _accruedInterest = 0.0;
   }
 
+  //TODO don't need this constructor
   public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");

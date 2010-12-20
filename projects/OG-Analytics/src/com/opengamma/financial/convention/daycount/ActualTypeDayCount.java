@@ -13,8 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 public abstract class ActualTypeDayCount extends StatelessDayCount {
 
   @Override
-  public abstract double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear);
+  public abstract double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear);
 
 }

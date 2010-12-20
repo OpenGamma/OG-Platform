@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
@@ -15,6 +17,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.interestrate.bond.BondCalculator;
 import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -31,9 +34,10 @@ public class BondDirtyPriceFunction extends BondFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
+  protected Set<ComputedValue> getComputedValues(final Position position, final BondDefinition bondDefinition, final Object value, final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueIdentifier());
+    final Bond bond = bondDefinition.toDerivative(now, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
   }

@@ -24,25 +24,22 @@ public class ActualActualICMANormal extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
   }
 
-  public double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear, final StubType stubType) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
+      final StubType stubType) {
     testDates(previousCouponDate, date, nextCouponDate);
     Validate.notNull(stubType, "stub type");
-    
+
     final LocalDate previous = previousCouponDate.toLocalDate();
     final LocalDate next = nextCouponDate.toLocalDate();
     long daysBetween, daysBetweenCoupons;
     final long previousCouponDateJulian = previous.toModifiedJulianDays();
     final long nextCouponDateJulian = next.toModifiedJulianDays();
     final long dateJulian = date.toLocalDate().toModifiedJulianDays();
-    final int months = 12 / paymentsPerYear;
+    final int months = (int) (12 / paymentsPerYear);
     switch (stubType) {
       case NONE: {
         daysBetween = dateJulian - previousCouponDateJulian;
@@ -56,10 +53,10 @@ public class ActualActualICMANormal extends ActualTypeDayCount {
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_START: {
-        long firstNotionalJulian = next.minusMonths(months * 2).toModifiedJulianDays();
-        long secondNotionalJulian = next.minusMonths(months).toModifiedJulianDays();
-        long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
-        double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
+        final long firstNotionalJulian = next.minusMonths(months * 2).toModifiedJulianDays();
+        final long secondNotionalJulian = next.minusMonths(months).toModifiedJulianDays();
+        final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
+        final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
         if (dateJulian > secondNotionalJulian) {
           daysBetween = dateJulian - secondNotionalJulian;
           return coupon * (daysBetweenStub / daysBetweenTwoNotionalCoupons + 1) / paymentsPerYear;
@@ -74,15 +71,15 @@ public class ActualActualICMANormal extends ActualTypeDayCount {
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_END: {
-        long firstNotionalJulian = previous.plusMonths(months).toModifiedJulianDays();
-        long secondNotionalJulian = previous.plusMonths(2 * months).toModifiedJulianDays();
+        final long firstNotionalJulian = previous.plusMonths(months).toModifiedJulianDays();
+        final long secondNotionalJulian = previous.plusMonths(2 * months).toModifiedJulianDays();
         final long daysBetweenPreviousAndFirstNotional = firstNotionalJulian - previousCouponDateJulian;
         if (dateJulian < firstNotionalJulian) {
           daysBetween = dateJulian - previousCouponDateJulian;
           return coupon * daysBetween / daysBetweenPreviousAndFirstNotional / paymentsPerYear;
         }
-        long daysBetweenStub = dateJulian - firstNotionalJulian;
-        double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
+        final long daysBetweenStub = dateJulian - firstNotionalJulian;
+        final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
         return coupon * (1 + daysBetweenStub / daysBetweenTwoNotionalCoupons) / paymentsPerYear;
       }
       default:

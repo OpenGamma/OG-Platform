@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.bond.BondSecurityToBondConverter;
+import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.BondCalculator;
@@ -73,7 +73,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final Bond bond = new BondSecurityToBondConverter(holidaySource, conventionSource).getBond(security, _curveName, now);
+    final Bond bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, _curveName).toDerivative(now.toLocalDate(), _curveName);
 
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
@@ -104,8 +104,8 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()), new ValueRequirement(
+          MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
     }
     return null;
   }
