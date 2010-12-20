@@ -37,12 +37,14 @@ public final class BondFutureNetBasisCalculator extends BondFutureCalculator {
     final double[] repoRates = basketData.getRepoRates();
     final double[] conversionFactors = bondFuture.getConversionFactors();
     final double[] result = new double[n];
+    System.out.println("NET BASIS CALCULATOR");
     for (int i = 0; i < n; i++) {
       final double invoicePrice = futurePrice * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
       final double forwardDirtyPrice = BOND_FORWARD_CALCULATOR.calculate(deliverableBonds[i], cleanPrices[i], repoRates[i]);
       System.out.println("future price\t" + futurePrice);
       System.out.println("conversion factor\t" + conversionFactors[i]);
-      System.out.println("accrued interest\t" + deliverableBonds[i].getAccruedInterestAtDelivery());
+      System.out.println("bond forward accrued interest\t" + deliverableBonds[i].getAccruedInterestAtDelivery());
+      System.out.println("bond accrued interest\t" + deliverableBonds[i].getBond().getAccruedInterest());
       System.out.println("forward dirty price\t" + forwardDirtyPrice);
       System.out.println("--------------------------------------------------------------------");
       result[i] = forwardDirtyPrice - invoicePrice;

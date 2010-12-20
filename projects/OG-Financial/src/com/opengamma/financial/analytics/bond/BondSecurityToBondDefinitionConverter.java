@@ -85,7 +85,8 @@ public class BondSecurityToBondDefinitionConverter {
     final LocalDate[] nominalDates = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     //TODO should be in schedule factory 
-    final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, convention.getSettlementDays()) : nominalDates);
+    final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, convention.getSettlementDays())
+        : ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, 0));
     final double coupon = security.getCouponRate();
     final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);

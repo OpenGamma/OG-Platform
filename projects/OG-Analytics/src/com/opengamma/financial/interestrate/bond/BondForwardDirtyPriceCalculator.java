@@ -39,6 +39,7 @@ public final class BondForwardDirtyPriceCalculator extends BondForwardCalculator
     final double bondDirtyPrice = bondCleanPrice + bondForward.getAccruedInterest();
     final double repoPeriod = bondForward.getForwardTime();
     final FixedCouponPayment[] expiredCoupons = bondForward.getTimeBetweenExpiredCoupons();
+    System.out.println("FORWARD DIRTY PRICE CALCULATOR");
     double valueOfExpiredCoupons = 0;
     for (final FixedCouponPayment payment : expiredCoupons) {
       valueOfExpiredCoupons += payment.getAmount() * (1 + fundingRate * payment.getPaymentTime());

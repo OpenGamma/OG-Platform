@@ -94,12 +94,13 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
     final LocalDate bondSettlementDate = getSettlementDate(date, underlyingConvention.getWorkingDayCalendar(), underlyingConvention.getBusinessDayConvention(),
         underlyingConvention.getSettlementDays());
     final double accruedInterest = _underlyingBond.toDerivative(settlementDate, yieldCurveNames).getAccruedInterest();
-    final double accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(_convention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), _underlyingBond.getCoupons()[0],
-        _underlyingBond.getCouponsPerYear(), _convention.isEOM(), _convention.getExDividendDays()); //TODO move this into the forward definition
+    final double accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(),
+        _underlyingBond.getCoupons()[0], _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays()); //TODO move this into the forward definition
+    System.out.println("accruedInterestAtDelivery\t" + accruedInterestAtDelivery + "\t forwardDate\t" + _forwardDate);
     final Bond bond = _underlyingBond.toDerivative(bondSettlementDate, yieldCurveNames);
     final DayCount repoDaycount = _convention.getDayCount();
     final double timeToExpiry = repoDaycount.getDayCountFraction(settlementDate.atMidnight().atZone(TimeZone.UTC), _forwardDate.atMidnight().atZone(TimeZone.UTC));
-    final LocalDate[] schedule = _underlyingBond.getNominalDates(); // settlement dates should equal nominal dates for bond forwards
+    final LocalDate[] schedule = _underlyingBond.getSettlementDates();//.getNominalDates(); // settlement dates should equal nominal dates for bond forwards
     final double[] coupons = _underlyingBond.getCoupons();
     final List<FixedCouponPayment> expiredCoupons = new ArrayList<FixedCouponPayment>();
     int i = 0;

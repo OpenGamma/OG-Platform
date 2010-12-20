@@ -133,6 +133,7 @@ public final class AccruedInterestCalculator {
     final ZonedDateTime previousCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(schedule[index]), TimeZone.UTC);
     final ZonedDateTime date = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final ZonedDateTime nextCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(schedule[index + 1]), TimeZone.UTC);
+    System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&\t" + previousCouponDate + " " + date + " " + nextCouponDate + " " + dayCount);
     final double accruedInterest = getAccruedInterest(dayCount, index, length, previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, isEndOfMonthConvention);
     if (exDividendDays != 0 && schedule[index + 1].minusDays(exDividendDays).isBefore(settlementDate)) {
       return accruedInterest - coupon;

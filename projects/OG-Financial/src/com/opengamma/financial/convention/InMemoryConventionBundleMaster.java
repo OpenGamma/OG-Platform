@@ -424,7 +424,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addUSDTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")), "USD_TREASURY_COUPON_DATE_CONVENTION", true, true, 0, 1);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")), "USD_TREASURY_BOND_CONVENTION", true, true, 0, 1);
   }
 
   private void addUSDBondFutureConvention() {
@@ -433,7 +433,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addGBPTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_BOND_CONVENTION")), "GBP_TREASURY_COUPON_DATE_CONVENTION", true, true, 7, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_BOND_CONVENTION")), "GBP_TREASURY_BOND_CONVENTION", true, true, 7, 0);
   }
 
   private void addGBPBondFutureConvention() {

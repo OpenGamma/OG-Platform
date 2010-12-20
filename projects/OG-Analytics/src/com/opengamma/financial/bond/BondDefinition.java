@@ -162,7 +162,6 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
     final DayCount dayCount = _convention.getDayCount();
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final LocalDate settlementDate = getSettlementDate(date, calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
-    System.out.println(date + " " + settlementDate);
     accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(), position);
     accrualTime = accruedInterest / coupon;
     final double timeBetweenCoupons = 1. / _couponsPerYear;
@@ -179,7 +178,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
 
   //TODO this only works for following 
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
-    //LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
+    //final LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
     LocalDate date = businessDayConvention.adjustDate(calendar, today);
     for (int i = 0; i < settlementDays; i++) {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
