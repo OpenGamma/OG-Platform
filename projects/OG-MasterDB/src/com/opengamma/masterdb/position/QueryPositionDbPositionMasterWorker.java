@@ -60,6 +60,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "p.ver_to_instant AS ver_to_instant, " +
         "p.corr_from_instant AS corr_from_instant, " +
         "p.corr_to_instant AS corr_to_instant, " +
+        "p.provider_scheme AS provider_scheme, " +
+        "p.provider_value AS provider_value, " +
         "p.quantity AS pos_quantity, " +
         "ps.key_scheme AS pos_key_scheme, " +
         "ps.key_value AS pos_key_value, " +
@@ -154,6 +156,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
+    if (request.getProviderId() != null) {
+      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
+      args.addValue("provider_value", request.getProviderId().getValue());
+    }
     // TODO: security key
     final PositionSearchResult result = new PositionSearchResult();
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
@@ -168,6 +174,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
+    if (request.getProviderId() != null) {
+      where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
+    }
     if (request.getMinQuantity() != null) {
       where += "AND quantity >= :min_quantity ";
     }
@@ -348,6 +357,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
+      final String providerScheme = rs.getString("PROVIDER_SCHEME");
+      final String providerValue = rs.getString("PROVIDER_VALUE");
       _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
       _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId));
       PositionDocument doc = new PositionDocument(_position);
@@ -356,6 +367,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setUniqueId(createUniqueIdentifier(positionOid, positionId));
+      if (providerScheme != null && providerValue != null) {
+        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+      }
       _documents.add(doc);
     }
   }

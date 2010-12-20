@@ -16,6 +16,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
@@ -35,6 +36,13 @@ public class PositionDocument extends AbstractDocument implements Serializable {
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
+  /**
+   * The identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _providerId;
   /**
    * The position.
    */
@@ -77,6 +85,8 @@ public class PositionDocument extends AbstractDocument implements Serializable {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
+      case 205149932:  // providerId
+        return getProviderId();
       case 747804969:  // position
         return getPosition();
     }
@@ -88,6 +98,9 @@ public class PositionDocument extends AbstractDocument implements Serializable {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
+        return;
+      case 205149932:  // providerId
+        setProviderId((Identifier) newValue);
         return;
       case 747804969:  // position
         setPosition((ManageablePosition) newValue);
@@ -122,6 +135,37 @@ public class PositionDocument extends AbstractDocument implements Serializable {
    */
   public final Property<UniqueIdentifier> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getProviderId() {
+    return _providerId;
+  }
+
+  /**
+   * Sets the identifier of the provider of the data.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @param providerId  the new value of the property
+   */
+  public void setProviderId(Identifier providerId) {
+    this._providerId = providerId;
+  }
+
+  /**
+   * Gets the the {@code providerId} property.
+   * This optional field can be used to capture the identifier used by the data provider.
+   * This can be useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -164,6 +208,10 @@ public class PositionDocument extends AbstractDocument implements Serializable {
      */
     private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
+     * The meta-property for the {@code providerId} property.
+     */
+    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    /**
      * The meta-property for the {@code position} property.
      */
     private final MetaProperty<ManageablePosition> _position = DirectMetaProperty.ofReadWrite(this, "position", ManageablePosition.class);
@@ -176,6 +224,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("uniqueId", _uniqueId);
+      temp.put("providerId", _providerId);
       temp.put("position", _position);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -202,6 +251,14 @@ public class PositionDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<UniqueIdentifier> uniqueId() {
       return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code providerId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerId() {
+      return _providerId;
     }
 
     /**

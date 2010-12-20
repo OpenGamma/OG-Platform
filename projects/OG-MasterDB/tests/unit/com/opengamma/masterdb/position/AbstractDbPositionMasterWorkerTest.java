@@ -72,20 +72,20 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     final SimpleJdbcTemplate template = _posMaster.getDbSource().getJdbcTemplate();
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        100, 100, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(100.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        120, 120, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(120.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        121, 121, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(121.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        122, 122, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(122.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        123, 123, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(123.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        221, 221, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(221.987));
-    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?)",
-        222, 221, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, BigDecimal.valueOf(222.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        100, 100, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "100", BigDecimal.valueOf(100.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        120, 120, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "120", BigDecimal.valueOf(120.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        121, 121, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "121", BigDecimal.valueOf(121.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        122, 122, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "122", BigDecimal.valueOf(122.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        123, 123, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "123", BigDecimal.valueOf(123.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        221, 221, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "221", BigDecimal.valueOf(221.987));
+    template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
+        222, 221, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "A", "222", BigDecimal.valueOf(222.987));
     _totalPositions = 6;
     
     template.update("INSERT INTO pos_idkey VALUES (?,?,?)",
@@ -173,6 +173,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "100"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -195,6 +196,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "120"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -224,6 +226,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "121"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -253,6 +256,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "122"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -272,6 +276,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "123"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -308,6 +313,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "221"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());
@@ -332,6 +338,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
+    assertEquals(Identifier.of("A", "222"), test.getProviderId());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueIdentifier());

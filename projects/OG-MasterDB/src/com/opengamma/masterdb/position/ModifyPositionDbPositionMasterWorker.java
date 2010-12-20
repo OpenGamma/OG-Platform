@@ -156,6 +156,8 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
+      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
       .addValue("quantity", document.getPosition().getQuantity());
     
     // the arguments for inserting into the idkey tables
@@ -233,9 +235,9 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
    */
   protected String sqlInsertPosition() {
     return "INSERT INTO pos_position " +
-              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, quantity) " +
+              "(id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, provider_scheme, provider_value, quantity) " +
             "VALUES " +
-              "(:position_id, :position_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :quantity)";
+              "(:position_id, :position_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :provider_scheme, :provider_value, :quantity)";
   }
 
   /**

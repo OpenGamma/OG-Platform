@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -177,6 +178,26 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     PositionSearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_providerNoMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setProviderId(Identifier.of("A", "999"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_providerFound() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setProviderId(Identifier.of("A", "121"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert121(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------

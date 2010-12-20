@@ -18,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
@@ -44,6 +45,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private final List<UniqueIdentifier> _tradeIds = new ArrayList<UniqueIdentifier>();
+  /**
+   * The identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _providerId;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -88,6 +95,8 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return getPositionIds();
       case 1271202484:  // tradeIds
         return getTradeIds();
+      case 205149932:  // providerId
+        return getProviderId();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
@@ -107,6 +116,9 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return;
       case 1271202484:  // tradeIds
         setTradeIds((List<UniqueIdentifier>) newValue);
+        return;
+      case 205149932:  // providerId
+        setProviderId((Identifier) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -174,6 +186,34 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    */
   public final Property<List<UniqueIdentifier>> tradeIds() {
     return metaBean().tradeIds().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getProviderId() {
+    return _providerId;
+  }
+
+  /**
+   * Sets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @param providerId  the new value of the property
+   */
+  public void setProviderId(Identifier providerId) {
+    this._providerId = providerId;
+  }
+
+  /**
+   * Gets the the {@code providerId} property.
+   * This field is useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -272,6 +312,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
     /**
+     * The meta-property for the {@code providerId} property.
+     */
+    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    /**
      * The meta-property for the {@code minQuantity} property.
      */
     private final MetaProperty<BigDecimal> _minQuantity = DirectMetaProperty.ofReadWrite(this, "minQuantity", BigDecimal.class);
@@ -293,6 +337,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("positionIds", _positionIds);
       temp.put("tradeIds", _tradeIds);
+      temp.put("providerId", _providerId);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
@@ -329,6 +374,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<List<UniqueIdentifier>> tradeIds() {
       return _tradeIds;
+    }
+
+    /**
+     * The meta-property for the {@code providerId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerId() {
+      return _providerId;
     }
 
     /**

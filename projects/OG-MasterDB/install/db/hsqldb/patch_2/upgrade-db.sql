@@ -62,6 +62,8 @@ create table pos_position (
     ver_to_instant timestamp not null,
     corr_from_instant timestamp not null,
     corr_to_instant timestamp not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
     quantity decimal(31,8) not null,
     primary key (id),
     constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
