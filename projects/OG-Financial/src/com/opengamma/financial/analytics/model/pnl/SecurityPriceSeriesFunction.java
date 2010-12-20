@@ -83,7 +83,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
       throw new NullPointerException("Could not get identifier / price series pair for security " + security);
     }
     final DoubleTimeSeries<?> ts = tsPair.getSecond();
-    if (ts == null) {
+    if ((ts == null) || (ts.isEmpty())) {
       throw new NullPointerException("Could not get price series for security " + security);
     }
     final DoubleTimeSeries<?> resultTS;
