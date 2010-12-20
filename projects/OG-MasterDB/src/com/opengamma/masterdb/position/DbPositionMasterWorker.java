@@ -8,27 +8,14 @@ package com.opengamma.masterdb.position;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import javax.time.TimeSource;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.position.FullPortfolioGetRequest;
-import com.opengamma.master.position.FullPortfolioNodeGetRequest;
-import com.opengamma.master.position.FullPositionGetRequest;
-import com.opengamma.master.position.FullTradeGetRequest;
-import com.opengamma.master.position.PortfolioTreeDocument;
-import com.opengamma.master.position.PortfolioTreeHistoryRequest;
-import com.opengamma.master.position.PortfolioTreeHistoryResult;
-import com.opengamma.master.position.PortfolioTreeSearchRequest;
-import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
@@ -168,41 +155,21 @@ public class DbPositionMasterWorker {
   //-------------------------------------------------------------------------
   /**
    * Creates an object identifier.
-   * @param oid  the portfolio object identifier
-   * @param deduplicate  the deduplication map, may be null
+   * @param oid  the position object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createObjectIdentifier(final long oid, Map<UniqueIdentifier, UniqueIdentifier> deduplicate) {
-    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
-    if (deduplicate == null) {
-      return uid;
-    }
-    UniqueIdentifier stored = deduplicate.get(uid);
-    if (stored != null) {
-      return stored;
-    }
-    deduplicate.put(uid, uid);
-    return uid;
+  protected UniqueIdentifier createObjectIdentifier(final long oid) {
+    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
   }
 
   /**
    * Creates a unique identifier.
-   * @param oid  the portfolio object identifier
+   * @param oid  the position object identifier
    * @param rowId  the node unique row identifier, null if object identifier
-   * @param deduplicate  the deduplication map, may be null
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId, Map<UniqueIdentifier, UniqueIdentifier> deduplicate) {
-    UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
-    if (deduplicate == null) {
-      return uid;
-    }
-    UniqueIdentifier stored = deduplicate.get(uid);
-    if (stored != null) {
-      return stored;
-    }
-    deduplicate.put(uid, uid);
-    return uid;
+  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
+    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 
   //-------------------------------------------------------------------------
@@ -226,83 +193,41 @@ public class DbPositionMasterWorker {
   }
 
   //-------------------------------------------------------------------------
-  protected PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {
+  protected PositionSearchResult search(PositionSearchRequest request) {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeDocument getPortfolioTree(UniqueIdentifier uid) {
+  protected PositionDocument get(final UniqueIdentifier uid) {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeDocument addPortfolioTree(PortfolioTreeDocument document) {
+  protected PositionDocument add(PositionDocument document) {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeDocument updatePortfolioTree(PortfolioTreeDocument document) {
+  protected PositionDocument update(PositionDocument document) {
     throw new UnsupportedOperationException();
   }
 
-  protected void removePortfolioTree(UniqueIdentifier uid) {
+  protected void remove(UniqueIdentifier uid) {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeHistoryResult historyPortfolioTree(PortfolioTreeHistoryRequest request) {
+  protected PositionHistoryResult history(PositionHistoryRequest request) {
     throw new UnsupportedOperationException();
   }
 
-  protected PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document) {
+  protected PositionDocument correct(PositionDocument document) {
     throw new UnsupportedOperationException();
   }
 
-  //-------------------------------------------------------------------------
-  protected PositionSearchResult searchPositions(PositionSearchRequest request) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PositionDocument getPosition(final UniqueIdentifier uid) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PositionDocument addPosition(PositionDocument document) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PositionDocument updatePosition(PositionDocument document) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected void removePosition(UniqueIdentifier uid) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PositionHistoryResult historyPosition(PositionHistoryRequest request) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PositionDocument correctPosition(PositionDocument document) {
-    throw new UnsupportedOperationException();
-  }
-
-  //-------------------------------------------------------------------------
-  protected Portfolio getFullPortfolio(FullPortfolioGetRequest request) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected PortfolioNode getFullPortfolioNode(FullPortfolioNodeGetRequest request) {
-    throw new UnsupportedOperationException();
-  }
-
-  protected Position getFullPosition(FullPositionGetRequest request) {
-    throw new UnsupportedOperationException();
-  }
-  
-  protected Trade getFullTrade(FullTradeGetRequest request) {
+  protected ManageableTrade getTrade(final UniqueIdentifier uid) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a string summary of this position master.
+   * Returns a string summary of this worker.
    * @return the string summary, not null
    */
   @Override

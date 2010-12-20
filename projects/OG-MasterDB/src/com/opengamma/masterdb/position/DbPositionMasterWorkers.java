@@ -13,39 +13,21 @@ package com.opengamma.masterdb.position;
 public class DbPositionMasterWorkers {
 
   /** Worker. */
-  private DbPositionMasterWorker _searchPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _searchWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _getPortfolioTreeWorker = new QueryPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _getWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _addPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _addWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _updatePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _updateWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _removePortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _removeWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _historyPortfolioTreesWorker = new QueryPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _historyWorker = new QueryPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _correctPortfolioTreeWorker = new ModifyPortfolioTreeDbPositionMasterWorker();
+  private DbPositionMasterWorker _correctWorker = new ModifyPositionDbPositionMasterWorker();
   /** Worker. */
-  private DbPositionMasterWorker _searchPositionsWorker = new QueryPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _getPositionWorker = new QueryPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _addPositionWorker = new ModifyPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _updatePositionWorker = new ModifyPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _removePositionWorker = new ModifyPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _historyPositionsWorker = new QueryPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _correctPositionWorker = new ModifyPositionDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioWorker = new QueryFullDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _getFullPortfolioNodeWorker = new QueryFullDbPositionMasterWorker();
-  /** Worker. */
-  private DbPositionMasterWorker _getFullPositionWorker = new QueryFullDbPositionMasterWorker();
+  private DbPositionMasterWorker _getTradeWorker = new QueryPositionDbPositionMasterWorker();
 
   /**
    * Creates an instance.
@@ -58,317 +40,155 @@ public class DbPositionMasterWorkers {
    * @param master  the position master, not null
    */
   protected void init(final DbPositionMaster master) {
-    _searchPortfolioTreesWorker.init(master);
-    _getPortfolioTreeWorker.init(master);
-    _addPortfolioTreeWorker.init(master);
-    _updatePortfolioTreeWorker.init(master);
-    _removePortfolioTreeWorker.init(master);
-    _historyPortfolioTreesWorker.init(master);
-    _correctPortfolioTreeWorker.init(master);
-    _searchPositionsWorker.init(master);
-    _getPositionWorker.init(master);
-    _addPositionWorker.init(master);
-    _updatePositionWorker.init(master);
-    _removePositionWorker.init(master);
-    _historyPositionsWorker.init(master);
-    _correctPositionWorker.init(master);
-    _getFullPortfolioWorker.init(master);
-    _getFullPortfolioNodeWorker.init(master);
-    _getFullPositionWorker.init(master);
+    _searchWorker.init(master);
+    _getWorker.init(master);
+    _addWorker.init(master);
+    _updateWorker.init(master);
+    _removeWorker.init(master);
+    _historyWorker.init(master);
+    _correctWorker.init(master);
+    _getTradeWorker.init(master);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the searchPortfolioTreesWorker field.
-   * @return the searchPortfolioTreesWorker
+   * Gets the searchWorker field.
+   * @return the searchWorker
    */
-  public DbPositionMasterWorker getSearchPortfolioTreesWorker() {
-    return _searchPortfolioTreesWorker;
+  public DbPositionMasterWorker getSearchWorker() {
+    return _searchWorker;
   }
 
   /**
-   * Sets the searchPortfolioTreesWorker field.
-   * @param searchPortfolioTreesWorker  the searchPortfolioTreesWorker
+   * Sets the searchWorker field.
+   * @param searchWorker  the searchWorker
    */
-  public void setSearchPortfolioTreesWorker(DbPositionMasterWorker searchPortfolioTreesWorker) {
-    _searchPortfolioTreesWorker = searchPortfolioTreesWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the getPortfolioTreeWorker field.
-   * @return the getPortfolioTreeWorker
-   */
-  public DbPositionMasterWorker getGetPortfolioTreeWorker() {
-    return _getPortfolioTreeWorker;
-  }
-
-  /**
-   * Sets the getPortfolioTreeWorker field.
-   * @param getPortfolioTreeWorker  the getPortfolioTreeWorker
-   */
-  public void setGetPortfolioTreeWorker(DbPositionMasterWorker getPortfolioTreeWorker) {
-    _getPortfolioTreeWorker = getPortfolioTreeWorker;
+  public void setSearchWorker(DbPositionMasterWorker searchWorker) {
+    _searchWorker = searchWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the addPortfolioTreeWorker field.
-   * @return the addPortfolioTreeWorker
+   * Gets the getWorker field.
+   * @return the getWorker
    */
-  public DbPositionMasterWorker getAddPortfolioTreeWorker() {
-    return _addPortfolioTreeWorker;
+  public DbPositionMasterWorker getGetWorker() {
+    return _getWorker;
   }
 
   /**
-   * Sets the addPortfolioTreeWorker field.
-   * @param addPortfolioTreeWorker  the addPortfolioTreeWorker
+   * Sets the getWorker field.
+   * @param getWorker  the getWorker
    */
-  public void setAddPortfolioTreeWorker(DbPositionMasterWorker addPortfolioTreeWorker) {
-    _addPortfolioTreeWorker = addPortfolioTreeWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the updatePortfolioTreeWorker field.
-   * @return the updatePortfolioTreeWorker
-   */
-  public DbPositionMasterWorker getUpdatePortfolioTreeWorker() {
-    return _updatePortfolioTreeWorker;
-  }
-
-  /**
-   * Sets the updatePortfolioTreeWorker field.
-   * @param updatePortfolioTreeWorker  the updatePortfolioTreeWorker
-   */
-  public void setUpdatePortfolioTreeWorker(DbPositionMasterWorker updatePortfolioTreeWorker) {
-    _updatePortfolioTreeWorker = updatePortfolioTreeWorker;
+  public void setGetWorker(DbPositionMasterWorker getWorker) {
+    _getWorker = getWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the removePortfolioTreeWorker field.
-   * @return the removePortfolioTreeWorker
+   * Gets the addWorker field.
+   * @return the addWorker
    */
-  public DbPositionMasterWorker getRemovePortfolioTreeWorker() {
-    return _removePortfolioTreeWorker;
+  public DbPositionMasterWorker getAddWorker() {
+    return _addWorker;
   }
 
   /**
-   * Sets the removePortfolioTreeWorker field.
-   * @param removePortfolioTreeWorker  the removePortfolioTreeWorker
+   * Sets the addWorker field.
+   * @param addWorker  the addWorker
    */
-  public void setRemovePortfolioTreeWorker(DbPositionMasterWorker removePortfolioTreeWorker) {
-    _removePortfolioTreeWorker = removePortfolioTreeWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the historyPortfolioTreesWorker field.
-   * @return the historyPortfolioTreesWorker
-   */
-  public DbPositionMasterWorker getHistoryPortfolioTreesWorker() {
-    return _historyPortfolioTreesWorker;
-  }
-
-  /**
-   * Sets the historyPortfolioTreesWorker field.
-   * @param historyPortfolioTreesWorker  the historyPortfolioTreesWorker
-   */
-  public void setHistoryPortfolioTreesWorker(DbPositionMasterWorker historyPortfolioTreesWorker) {
-    _historyPortfolioTreesWorker = historyPortfolioTreesWorker;
+  public void setAddWorker(DbPositionMasterWorker addWorker) {
+    _addWorker = addWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the correctPortfolioTreeWorker field.
-   * @return the correctPortfolioTreeWorker
+   * Gets the updateWorker field.
+   * @return the updateWorker
    */
-  public DbPositionMasterWorker getCorrectPortfolioTreeWorker() {
-    return _correctPortfolioTreeWorker;
+  public DbPositionMasterWorker getUpdateWorker() {
+    return _updateWorker;
   }
 
   /**
-   * Sets the correctPortfolioTreeWorker field.
-   * @param correctPortfolioTreeWorker  the correctPortfolioTreeWorker
+   * Sets the updateWorker field.
+   * @param updateWorker  the updateWorker
    */
-  public void setCorrectPortfolioTreeWorker(DbPositionMasterWorker correctPortfolioTreeWorker) {
-    _correctPortfolioTreeWorker = correctPortfolioTreeWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the searchPositionsWorker field.
-   * @return the searchPositionsWorker
-   */
-  public DbPositionMasterWorker getSearchPositionsWorker() {
-    return _searchPositionsWorker;
-  }
-
-  /**
-   * Sets the searchPositionsWorker field.
-   * @param searchPositionsWorker  the searchPositionsWorker
-   */
-  public void setSearchPositionsWorker(DbPositionMasterWorker searchPositionsWorker) {
-    _searchPositionsWorker = searchPositionsWorker;
+  public void setUpdateWorker(DbPositionMasterWorker updateWorker) {
+    _updateWorker = updateWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the getPositionWorker field.
-   * @return the getPositionWorker
+   * Gets the removeWorker field.
+   * @return the removeWorker
    */
-  public DbPositionMasterWorker getGetPositionWorker() {
-    return _getPositionWorker;
+  public DbPositionMasterWorker getRemoveWorker() {
+    return _removeWorker;
   }
 
   /**
-   * Sets the getPositionWorker field.
-   * @param getPositionWorker  the getPositionWorker
+   * Sets the removeWorker field.
+   * @param removeWorker  the removeWorker
    */
-  public void setGetPositionWorker(DbPositionMasterWorker getPositionWorker) {
-    _getPositionWorker = getPositionWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the addPositionWorker field.
-   * @return the addPositionWorker
-   */
-  public DbPositionMasterWorker getAddPositionWorker() {
-    return _addPositionWorker;
-  }
-
-  /**
-   * Sets the addPositionWorker field.
-   * @param addPositionWorker  the addPositionWorker
-   */
-  public void setAddPositionWorker(DbPositionMasterWorker addPositionWorker) {
-    _addPositionWorker = addPositionWorker;
+  public void setRemoveWorker(DbPositionMasterWorker removeWorker) {
+    _removeWorker = removeWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the updatePositionWorker field.
-   * @return the updatePositionWorker
+   * Gets the historyWorker field.
+   * @return the historyWorker
    */
-  public DbPositionMasterWorker getUpdatePositionWorker() {
-    return _updatePositionWorker;
+  public DbPositionMasterWorker getHistoryWorker() {
+    return _historyWorker;
   }
 
   /**
-   * Sets the updatePositionWorker field.
-   * @param updatePositionWorker  the updatePositionWorker
+   * Sets the historyWorker field.
+   * @param historyWorker  the historyWorker
    */
-  public void setUpdatePositionWorker(DbPositionMasterWorker updatePositionWorker) {
-    _updatePositionWorker = updatePositionWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the removePositionWorker field.
-   * @return the removePositionWorker
-   */
-  public DbPositionMasterWorker getRemovePositionWorker() {
-    return _removePositionWorker;
-  }
-
-  /**
-   * Sets the removePositionWorker field.
-   * @param removePositionWorker  the removePositionWorker
-   */
-  public void setRemovePositionWorker(DbPositionMasterWorker removePositionWorker) {
-    _removePositionWorker = removePositionWorker;
+  public void setHistoryWorker(DbPositionMasterWorker historyWorker) {
+    _historyWorker = historyWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the historyPositionsWorker field.
-   * @return the historyPositionsWorker
+   * Gets the correctWorker field.
+   * @return the correctWorker
    */
-  public DbPositionMasterWorker getHistoryPositionsWorker() {
-    return _historyPositionsWorker;
+  public DbPositionMasterWorker getCorrectWorker() {
+    return _correctWorker;
   }
 
   /**
-   * Sets the historyPositionsWorker field.
-   * @param historyPositionsWorker  the historyPositionsWorker
+   * Sets the correctWorker field.
+   * @param correctWorker  the correctWorker
    */
-  public void setHistoryPositionsWorker(DbPositionMasterWorker historyPositionsWorker) {
-    _historyPositionsWorker = historyPositionsWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the correctPositionWorker field.
-   * @return the correctPositionWorker
-   */
-  public DbPositionMasterWorker getCorrectPositionWorker() {
-    return _correctPositionWorker;
-  }
-
-  /**
-   * Sets the correctPositionWorker field.
-   * @param correctPositionWorker  the correctPositionWorker
-   */
-  public void setCorrectPositionWorker(DbPositionMasterWorker correctPositionWorker) {
-    _correctPositionWorker = correctPositionWorker;
+  public void setCorrectWorker(DbPositionMasterWorker correctWorker) {
+    _correctWorker = correctWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the getFullPortfolioWorker field.
-   * @return the getFullPortfolioWorker
+   * Gets the getTradeWorker field.
+   * @return the getTradeWorker
    */
-  public DbPositionMasterWorker getGetFullPortfolioWorker() {
-    return _getFullPortfolioWorker;
+  public DbPositionMasterWorker getGetTradeWorker() {
+    return _getTradeWorker;
   }
 
   /**
-   * Sets the getFullPortfolioWorker field.
-   * @param getFullPortfolioWorker  the getFullPortfolioWorker
+   * Sets the getTradeWorker field.
+   * @param getTradeWorker  the getTradeWorker
    */
-  public void setGetFullPortfolioWorker(DbPositionMasterWorker getFullPortfolioWorker) {
-    _getFullPortfolioWorker = getFullPortfolioWorker;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the getFullPortfolioNodeWorker field.
-   * @return the getFullPortfolioNodeWorker
-   */
-  public DbPositionMasterWorker getGetFullPortfolioNodeWorker() {
-    return _getFullPortfolioNodeWorker;
-  }
-
-  /**
-   * Sets the getFullPortfolioNodeWorker field.
-   * @param getFullPortfolioNodeWorker  the getFullPortfolioNodeWorker
-   */
-  public void setGetFullPortfolioNodeWorker(DbPositionMasterWorker getFullPortfolioNodeWorker) {
-    _getFullPortfolioNodeWorker = getFullPortfolioNodeWorker;
+  public void setGetTradeWorker(DbPositionMasterWorker getTradeWorker) {
+    _getTradeWorker = getTradeWorker;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the getFullPositionWorker field.
-   * @return the getFullPositionWorker
-   */
-  public DbPositionMasterWorker getGetFullPositionWorker() {
-    return _getFullPositionWorker;
-  }
-
-  /**
-   * Sets the getFullPositionWorker field.
-   * @param getFullPositionWorker  the getFullPositionWorker
-   */
-  public void setGetFullPositionWorker(DbPositionMasterWorker getFullPositionWorker) {
-    _getFullPositionWorker = getFullPositionWorker;
-  }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a string summary of this position master.
+   * Returns a string summary of these workers.
    * @return the string summary, not null
    */
   @Override

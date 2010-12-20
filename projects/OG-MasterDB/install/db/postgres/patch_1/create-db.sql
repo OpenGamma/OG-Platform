@@ -493,8 +493,7 @@ create table sec_swap (
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
 
-
--- create-db-position.sql: Security Master
+-- create-db-position.sql: Position Master
 
 -- design has two documents
 --  portfolio and tree of nodes (nested set model)
@@ -506,7 +505,7 @@ create table sec_swap (
 create sequence pos_master_seq
     start with 1000 increment by 1 no cycle;
 create sequence pos_idkey_seq
-	start with 1000 increment by 1 no cycle;
+    start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
 create table pos_portfolio (
@@ -518,6 +517,7 @@ create table pos_portfolio (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     primary key (id),
+    constraint pos_fk_port2port foreign key (oid) references pos_portfolio (id),
     constraint pos_chk_port_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_port_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -533,6 +533,7 @@ create table pos_node (
     tree_right bigint not null,
     name varchar(255),
     primary key (id),
+    constraint pos_fk_node2node foreign key (oid) references pos_node (id),
     constraint pos_fk_node2portfolio foreign key (portfolio_id) references pos_portfolio (id),
     constraint pos_fk_node2parentnode foreign key (parent_node_id) references pos_node (id)
 );
@@ -552,6 +553,7 @@ create table pos_position (
     corr_to_instant timestamp not null,
     quantity decimal(31,8) not null,
     primary key (id),
+    constraint pos_fk_posi2posi foreign key (oid) references pos_position (id),
     constraint pos_chk_posi_ver_order check (ver_from_instant <= ver_to_instant),
     constraint pos_chk_posi_corr_order check (corr_from_instant <= corr_to_instant)
 );
@@ -566,8 +568,8 @@ create table pos_trade (
     trade_date date not null,
     trade_time time null,
     zone_offset int null,
-    cparty_scheme varchar(255) null,
-    cparty_value varchar(255) null,
+    cparty_scheme varchar(255) not null,
+    cparty_value varchar(255) not null,
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
@@ -595,7 +597,6 @@ create table pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
-
 
 -------------------------------------
 -- Static data

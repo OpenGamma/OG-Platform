@@ -101,5 +101,4 @@ public final class OpenGammaCompilationContext {
   public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
     compilationContext.put(INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
   }
-
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.distribution;
@@ -56,4 +56,31 @@ public class NonCentralChiSquareDistributionTest {
     assertEquals(DIST.getCDF(0.), 0, 0);
     assertEquals(DIST.getCDF(5.), 0.649285, 1e-6);
   }
+
+  /**
+   * Numbers computed from R
+   */
+  @Test
+  public void testLargeValues() {
+    double x = 123;
+    double dof = 6.4;
+    double nonCent = 100.34;
+    NonCentralChiSquareDistribution dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    assertEquals(0.7930769, dist.getCDF(x), 1e-6);
+
+    x = 455.038;
+    dof = 12;
+    nonCent = 444.44;
+
+    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    assertEquals(0.4961805, dist.getCDF(x), 1e-6);
+
+    x = 999400;
+    dof = 500;
+    nonCent = 1000000;
+    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    assertEquals(0.2913029, dist.getCDF(x), 1e-6);
+
+  }
+
 }

@@ -44,11 +44,11 @@ public class DataPositionsResource extends AbstractDataResource {
 
   /**
    * Creates the resource.
-   * @param posMaster  the position master, not null
+   * @param positionMaster  the position master, not null
    */
-  public DataPositionsResource(final PositionMaster posMaster) {
-    ArgumentChecker.notNull(posMaster, "PositionMaster");
-    _posMaster = posMaster;
+  public DataPositionsResource(final PositionMaster positionMaster) {
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    _posMaster = positionMaster;
   }
 
   //-------------------------------------------------------------------------
@@ -64,14 +64,14 @@ public class DataPositionsResource extends AbstractDataResource {
   @GET
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
-    PositionSearchResult result = getPositionMaster().searchPositions(request);
+    PositionSearchResult result = getPositionMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
-    PositionDocument result = getPositionMaster().addPosition(request);
+    PositionDocument result = getPositionMaster().add(request);
     return Response.created(DataPositionResource.uri(uriInfo.getBaseUri(), result.getUniqueId())).entity(result).build();
   }
 

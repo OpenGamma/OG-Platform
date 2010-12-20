@@ -58,6 +58,12 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
   private Set<Trade> _trades = Sets.newHashSet();
 
   /**
+   * Construct an empty instance that must be populated via setters.
+   */
+  public PositionImpl() {
+  }
+
+  /**
    * Construct a mutable position copying data from another, possibly immutable, {@link Position} implementation.
    * 
    * @param copyFrom instance to copy fields from, not null

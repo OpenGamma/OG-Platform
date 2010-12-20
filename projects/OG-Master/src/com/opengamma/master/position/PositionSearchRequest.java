@@ -6,8 +6,10 @@
 package com.opengamma.master.position;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanDefinition;
@@ -16,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
@@ -32,15 +35,22 @@ import com.opengamma.master.AbstractSearchRequest;
 public class PositionSearchRequest extends AbstractSearchRequest {
 
   /**
-   * The portfolio object identifier, null to search all portfolios.
+   * The list of position object identifiers, empty to not limit by position object identifiers.
    */
   @PropertyDefinition
-  private UniqueIdentifier _portfolioId;
+  private final List<UniqueIdentifier> _positionIds = new ArrayList<UniqueIdentifier>();
   /**
-   * The node to search within, null to search all nodes.
+   * The list of trade object identifiers, empty to not limit by trade object identifiers.
+   * Each returned position will contain at least one of these trades.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentNodeId;
+  private final List<UniqueIdentifier> _tradeIds = new ArrayList<UniqueIdentifier>();
+  /**
+   * The identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _providerId;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -81,10 +91,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -5186429:  // portfolioId
-        return getPortfolioId();
-      case 915246087:  // parentNodeId
-        return getParentNodeId();
+      case -137459505:  // positionIds
+        return getPositionIds();
+      case 1271202484:  // tradeIds
+        return getTradeIds();
+      case 205149932:  // providerId
+        return getProviderId();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
@@ -95,14 +107,18 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -5186429:  // portfolioId
-        setPortfolioId((UniqueIdentifier) newValue);
+      case -137459505:  // positionIds
+        setPositionIds((List<UniqueIdentifier>) newValue);
         return;
-      case 915246087:  // parentNodeId
-        setParentNodeId((UniqueIdentifier) newValue);
+      case 1271202484:  // tradeIds
+        setTradeIds((List<UniqueIdentifier>) newValue);
+        return;
+      case 205149932:  // providerId
+        setProviderId((Identifier) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -119,52 +135,85 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolio object identifier, null to search all portfolios.
+   * Gets the list of position object identifiers, empty to not limit by position object identifiers.
    * @return the value of the property
    */
-  public UniqueIdentifier getPortfolioId() {
-    return _portfolioId;
+  public List<UniqueIdentifier> getPositionIds() {
+    return _positionIds;
   }
 
   /**
-   * Sets the portfolio object identifier, null to search all portfolios.
-   * @param portfolioId  the new value of the property
+   * Sets the list of position object identifiers, empty to not limit by position object identifiers.
+   * @param positionIds  the new value of the property
    */
-  public void setPortfolioId(UniqueIdentifier portfolioId) {
-    this._portfolioId = portfolioId;
+  public void setPositionIds(List<UniqueIdentifier> positionIds) {
+    this._positionIds.clear();
+    this._positionIds.addAll(positionIds);
   }
 
   /**
-   * Gets the the {@code portfolioId} property.
+   * Gets the the {@code positionIds} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> portfolioId() {
-    return metaBean().portfolioId().createProperty(this);
+  public final Property<List<UniqueIdentifier>> positionIds() {
+    return metaBean().positionIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the node to search within, null to search all nodes.
+   * Gets the list of trade object identifiers, empty to not limit by trade object identifiers.
+   * Each returned position will contain at least one of these trades.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentNodeId() {
-    return _parentNodeId;
+  public List<UniqueIdentifier> getTradeIds() {
+    return _tradeIds;
   }
 
   /**
-   * Sets the node to search within, null to search all nodes.
-   * @param parentNodeId  the new value of the property
+   * Sets the list of trade object identifiers, empty to not limit by trade object identifiers.
+   * Each returned position will contain at least one of these trades.
+   * @param tradeIds  the new value of the property
    */
-  public void setParentNodeId(UniqueIdentifier parentNodeId) {
-    this._parentNodeId = parentNodeId;
+  public void setTradeIds(List<UniqueIdentifier> tradeIds) {
+    this._tradeIds.clear();
+    this._tradeIds.addAll(tradeIds);
   }
 
   /**
-   * Gets the the {@code parentNodeId} property.
+   * Gets the the {@code tradeIds} property.
+   * Each returned position will contain at least one of these trades.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentNodeId() {
-    return metaBean().parentNodeId().createProperty(this);
+  public final Property<List<UniqueIdentifier>> tradeIds() {
+    return metaBean().tradeIds().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getProviderId() {
+    return _providerId;
+  }
+
+  /**
+   * Sets the identifier of the data provider, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @param providerId  the new value of the property
+   */
+  public void setProviderId(Identifier providerId) {
+    this._providerId = providerId;
+  }
+
+  /**
+   * Gets the the {@code providerId} property.
+   * This field is useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -253,13 +302,19 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code portfolioId} property.
+     * The meta-property for the {@code positionIds} property.
      */
-    private final MetaProperty<UniqueIdentifier> _portfolioId = DirectMetaProperty.ofReadWrite(this, "portfolioId", UniqueIdentifier.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
     /**
-     * The meta-property for the {@code parentNodeId} property.
+     * The meta-property for the {@code tradeIds} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentNodeId = DirectMetaProperty.ofReadWrite(this, "parentNodeId", UniqueIdentifier.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
+    /**
+     * The meta-property for the {@code providerId} property.
+     */
+    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
@@ -280,8 +335,9 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("portfolioId", _portfolioId);
-      temp.put("parentNodeId", _parentNodeId);
+      temp.put("positionIds", _positionIds);
+      temp.put("tradeIds", _tradeIds);
+      temp.put("providerId", _providerId);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       temp.put("securityKey", _securityKey);
@@ -305,19 +361,27 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code portfolioId} property.
+     * The meta-property for the {@code positionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> portfolioId() {
-      return _portfolioId;
+    public final MetaProperty<List<UniqueIdentifier>> positionIds() {
+      return _positionIds;
     }
 
     /**
-     * The meta-property for the {@code parentNodeId} property.
+     * The meta-property for the {@code tradeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentNodeId() {
-      return _parentNodeId;
+    public final MetaProperty<List<UniqueIdentifier>> tradeIds() {
+      return _tradeIds;
+    }
+
+    /**
+     * The meta-property for the {@code providerId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerId() {
+      return _providerId;
     }
 
     /**

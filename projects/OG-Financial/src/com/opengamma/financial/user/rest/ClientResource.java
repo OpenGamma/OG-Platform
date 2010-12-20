@@ -14,14 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
-import com.opengamma.financial.position.master.rest.DataPortfolioTreesResource;
+import com.opengamma.financial.position.master.rest.DataPortfoliosResource;
 import com.opengamma.financial.position.master.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
+import com.opengamma.financial.user.UserPortfolioMaster;
 import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 
 /**
@@ -60,6 +62,7 @@ public class ClientResource {
   private final String _clientName;
   private final UsersResourceContext _usersResourceContext;
   
+  private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
   private SecurityMasterResource _securitiesResource;
   private ViewDefinitionsResource _viewDefinitionsResource;
@@ -112,13 +115,13 @@ public class ClientResource {
    */
 
   @Path(PORTFOLIOS_PATH)
-  public DataPortfolioTreesResource getPortfolios() {
+  public DataPortfoliosResource getPortfolios() {
     _lastAccessed = System.currentTimeMillis();
-    if (_positionMaster == null) {
+    if (_portfolioMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
-      _positionMaster = new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster());
+      _portfolioMaster = new UserPortfolioMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPortfolioMaster());
     }
-    return new DataPortfolioTreesResource(_positionMaster);
+    return new DataPortfoliosResource(_portfolioMaster);
   }
   
   @Path(POSITIONS_PATH)

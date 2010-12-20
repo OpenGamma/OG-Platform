@@ -61,6 +61,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.SecurityMaster;
@@ -125,6 +126,12 @@ public class BatchJob {
    * for more control over the version and correction dates of data.
    */
   private PositionMaster _positionMaster;
+
+  /**
+   * Used to create the PositionSource if none is explicitly specified. Use this
+   * for more control over the version and correction dates of data.
+   */
+  private PortfolioMaster _portfolioMaster;
 
   /**
    * Used to load Positions (needed for building the dependency graph). If not
@@ -365,6 +372,14 @@ public class BatchJob {
     _securitySource = securitySource;
   }
 
+  public PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
+  }
+
+  public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
+    _portfolioMaster = portfolioMaster;
+  }
+
   public PositionMaster getPositionMaster() {
     return _positionMaster;
   }
@@ -513,7 +528,7 @@ public class BatchJob {
     }
     PositionSource positionSource = getPositionSource();
     if (positionSource == null) {
-      positionSource = new MasterPositionSource(getPositionMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
+      positionSource = new MasterPositionSource(getPortfolioMaster(), getPositionMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
     }
     
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext().clone();

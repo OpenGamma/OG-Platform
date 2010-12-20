@@ -14,8 +14,6 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
-import com.opengamma.web.position.WebPortfoliosData;
-import com.opengamma.web.position.WebPortfoliosUris;
 
 /**
  * Abstract base class for RESTful exchange resources.
@@ -66,8 +64,6 @@ public abstract class AbstractWebExchangeResource extends AbstractWebResource {
     FlexiBean out = getFreemarker().createRootData();
     out.put("homeUris", new WebHomeUris(data().getUriInfo()));
     out.put("uris", new WebExchangeUris(data()));
-    WebPortfoliosData portData = new WebPortfoliosData(data().getUriInfo());
-    out.put("portfolioUris", new WebPortfoliosUris(portData));
     return out;
   }
 

@@ -48,8 +48,8 @@ public class DataPositionResourceTest {
   @Test
   public void testGetPosition() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    final PositionDocument result = new PositionDocument(position, UniqueIdentifier.of("Test", "Node"));
-    when(_underlying.getPosition(eq(UID))).thenReturn(result);
+    final PositionDocument result = new PositionDocument(position);
+    when(_underlying.get(eq(UID))).thenReturn(result);
     
     Response test = _resource.get();
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -64,7 +64,7 @@ public class DataPositionResourceTest {
     
     final PositionDocument result = new PositionDocument(position);
     result.setUniqueId(UID);
-    when(_underlying.updatePosition(same(request))).thenReturn(result);
+    when(_underlying.update(same(request))).thenReturn(result);
     
     Response test = _resource.put(request);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
@@ -74,7 +74,7 @@ public class DataPositionResourceTest {
   @Test
   public void testDeletePosition() {
     Response test = _resource.delete();
-    verify(_underlying).removePosition(UID);
+    verify(_underlying).remove(UID);
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }
 

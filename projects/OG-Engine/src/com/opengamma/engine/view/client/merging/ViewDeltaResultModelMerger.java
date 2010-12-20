@@ -48,6 +48,14 @@ public class ViewDeltaResultModelMerger implements IncrementalMerger<ViewDeltaRe
 
   @Override
   public ViewDeltaResultModel consume() {
+    if (_currentMergedResult == null) {
+      return null;
+    }
+    if (_currentMergedResult.getAllTargets().size() == 0) {
+      // No changes
+      return null;
+    }
+    
     ViewDeltaResultModel result = _currentMergedResult;
     // This is a delta merger so now that we've consumed the latest deltas, the next delta should start empty
     _currentMergedResult = null;

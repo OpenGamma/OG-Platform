@@ -5,20 +5,8 @@
  */
 package com.opengamma.financial.user;
 
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.position.FullPortfolioGetRequest;
-import com.opengamma.master.position.FullPortfolioNodeGetRequest;
-import com.opengamma.master.position.FullPositionGetRequest;
-import com.opengamma.master.position.FullTradeGetRequest;
-import com.opengamma.master.position.PortfolioTreeDocument;
-import com.opengamma.master.position.PortfolioTreeHistoryRequest;
-import com.opengamma.master.position.PortfolioTreeHistoryResult;
-import com.opengamma.master.position.PortfolioTreeSearchRequest;
-import com.opengamma.master.position.PortfolioTreeSearchResult;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
@@ -37,6 +25,14 @@ public class UserPositionMaster implements PositionMaster {
   private final UserDataTracker _tracker;
   private final PositionMaster _underlying;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param userName  the user name, not null
+   * @param clientName  the client name, not null
+   * @param tracker  the tracker of user data, not null
+   * @param underlying  the underlying master, not null
+   */
   public UserPositionMaster(final String userName, final String clientName, final UserDataTracker tracker, final PositionMaster underlying) {
     _userName = userName;
     _clientName = clientName;
@@ -44,18 +40,20 @@ public class UserPositionMaster implements PositionMaster {
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PortfolioTreeDocument addPortfolioTree(PortfolioTreeDocument document) {
-    document = _underlying.addPortfolioTree(document);
-    if (document.getUniqueId() != null) {
-      _tracker.created(_userName, _clientName, UserDataType.PORTFOLIO_TREE, document.getUniqueId());
-    }
-    return document;
+  public PositionSearchResult search(PositionSearchRequest request) {
+    return _underlying.search(request);
   }
 
   @Override
-  public PositionDocument addPosition(PositionDocument document) {
-    document = _underlying.addPosition(document);
+  public PositionDocument get(UniqueIdentifier uid) {
+    return _underlying.get(uid);
+  }
+
+  @Override
+  public PositionDocument add(PositionDocument document) {
+    document = _underlying.add(document);
     if (document.getUniqueId() != null) {
       _tracker.created(_userName, _clientName, UserDataType.POSITION, document.getUniqueId());
     }
@@ -63,85 +61,29 @@ public class UserPositionMaster implements PositionMaster {
   }
 
   @Override
-  public PortfolioTreeDocument correctPortfolioTree(PortfolioTreeDocument document) {
-    return _underlying.correctPortfolioTree(document);
+  public PositionDocument update(PositionDocument document) {
+    return _underlying.update(document);
   }
 
   @Override
-  public PositionDocument correctPosition(PositionDocument document) {
-    return _underlying.correctPosition(document);
-  }
-
-  @Override
-  public Portfolio getFullPortfolio(FullPortfolioGetRequest request) {
-    return _underlying.getFullPortfolio(request);
-  }
-
-  @Override
-  public PortfolioNode getFullPortfolioNode(FullPortfolioNodeGetRequest request) {
-    return _underlying.getFullPortfolioNode(request);
-  }
-
-  @Override
-  public Position getFullPosition(FullPositionGetRequest request) {
-    return _underlying.getFullPosition(request);
-  }
-
-  @Override
-  public PortfolioTreeDocument getPortfolioTree(UniqueIdentifier uid) {
-    return _underlying.getPortfolioTree(uid);
-  }
-
-  @Override
-  public PositionDocument getPosition(UniqueIdentifier uid) {
-    return _underlying.getPosition(uid);
-  }
-
-  @Override
-  public PortfolioTreeHistoryResult historyPortfolioTree(PortfolioTreeHistoryRequest request) {
-    return _underlying.historyPortfolioTree(request);
-  }
-
-  @Override
-  public PositionHistoryResult historyPosition(PositionHistoryRequest request) {
-    return _underlying.historyPosition(request);
-  }
-
-  @Override
-  public void removePortfolioTree(UniqueIdentifier uid) {
-    _underlying.removePortfolioTree(uid);
-    _tracker.deleted(_userName, _clientName, UserDataType.PORTFOLIO_TREE, uid);
-  }
-
-  @Override
-  public void removePosition(UniqueIdentifier uid) {
-    _underlying.removePosition(uid);
+  public void remove(UniqueIdentifier uid) {
+    _underlying.remove(uid);
     _tracker.deleted(_userName, _clientName, UserDataType.POSITION, uid);
   }
 
   @Override
-  public PortfolioTreeSearchResult searchPortfolioTrees(PortfolioTreeSearchRequest request) {
-    return _underlying.searchPortfolioTrees(request);
+  public PositionHistoryResult history(PositionHistoryRequest request) {
+    return _underlying.history(request);
   }
 
   @Override
-  public PositionSearchResult searchPositions(PositionSearchRequest request) {
-    return _underlying.searchPositions(request);
+  public PositionDocument correct(PositionDocument document) {
+    return _underlying.correct(document);
   }
 
   @Override
-  public PortfolioTreeDocument updatePortfolioTree(PortfolioTreeDocument document) {
-    return _underlying.updatePortfolioTree(document);
-  }
-
-  @Override
-  public PositionDocument updatePosition(PositionDocument document) {
-    return _underlying.updatePosition(document);
-  }
-
-  @Override
-  public Trade getFullTrade(FullTradeGetRequest request) {
-    return _underlying.getFullTrade(request);
+  public ManageableTrade getTrade(UniqueIdentifier uid) {
+    return _underlying.getTrade(uid);
   }
 
 }
