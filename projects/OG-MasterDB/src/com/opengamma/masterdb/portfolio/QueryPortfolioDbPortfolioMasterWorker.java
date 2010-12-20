@@ -179,13 +179,17 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
   @Override
   protected PortfolioSearchResult search(PortfolioSearchRequest request) {
     s_logger.debug("searchPortfolios: {}", request);
+    final PortfolioSearchResult result = new PortfolioSearchResult();
+    if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
+        (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
+      return result;
+    }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
-    final PortfolioSearchResult result = new PortfolioSearchResult();
     searchWithPaging(request.getPagingRequest(), sqlSearch(request), args, new PortfolioDocumentExtractor(true), result);
     return result;
   }
@@ -201,8 +205,8 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
     if (request.getName() != null) {
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
-    StringBuilder buf = new StringBuilder(Math.max(request.getPortfolioIds().size(), request.getNodeIds().size()) * 10);
-    if (request.getPortfolioIds().size() > 0) {
+    if (request.getPortfolioIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getPortfolioIds().size() * 10);
       for (UniqueIdentifier uid : request.getPortfolioIds()) {
         getMaster().checkScheme(uid);
         buf.append(extractOid(uid)).append(", ");
@@ -210,8 +214,8 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getNodeIds().size() > 0) {
-      buf.setLength(0);
+    if (request.getNodeIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getNodeIds().size() * 10);
       for (UniqueIdentifier uid : request.getNodeIds()) {
         getMaster().checkScheme(uid);
         buf.append(extractOid(uid)).append(", ");

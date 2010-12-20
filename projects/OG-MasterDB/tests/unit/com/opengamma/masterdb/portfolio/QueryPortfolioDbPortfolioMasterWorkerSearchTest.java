@@ -7,6 +7,7 @@ package com.opengamma.masterdb.portfolio;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -124,10 +125,19 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_search_portfolioIds_none() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setPortfolioIds(new ArrayList<UniqueIdentifier>());
+    PortfolioSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
   public void test_search_portfolioIds_one() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "201"));
-    request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "9999"));
+    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "201"));
+    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "9999"));
     PortfolioSearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -137,8 +147,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_portfolioIds_two() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "101"));
-    request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "201"));
+    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "101"));
+    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "201"));
     PortfolioSearchResult test = _worker.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -149,15 +159,24 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test(expected = IllegalArgumentException.class)
   public void test_search_portfolioIds_badSchemeValidOid() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.getPortfolioIds().add(UniqueIdentifier.of("Rubbish", "201"));
+    request.addPortfolioId(UniqueIdentifier.of("Rubbish", "201"));
     _worker.search(request);
+  }
+
+  @Test
+  public void test_search_nodeIds_none() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setNodeIds(new ArrayList<UniqueIdentifier>());
+    PortfolioSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
   }
 
   @Test
   public void test_search_nodeIds() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.getNodeIds().add(UniqueIdentifier.of("DbPrt", "211"));
-    request.getNodeIds().add(UniqueIdentifier.of("DbPrt", "9999"));
+    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
+    request.addNodeId(UniqueIdentifier.of("DbPrt", "9999"));
     PortfolioSearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -175,7 +194,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   public void test_search_portfolioAndNodeIds_matchSome() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
     request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "201"));
-    request.getNodeIds().add(UniqueIdentifier.of("DbPrt", "211"));
+    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
     PortfolioSearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -186,7 +205,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   public void test_search_portfolioAndNodeIds_matchNone() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
     request.getPortfolioIds().add(UniqueIdentifier.of("DbPrt", "101"));
-    request.getNodeIds().add(UniqueIdentifier.of("DbPrt", "211"));
+    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
     PortfolioSearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());

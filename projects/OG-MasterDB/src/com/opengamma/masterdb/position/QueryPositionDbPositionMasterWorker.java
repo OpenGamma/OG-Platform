@@ -150,6 +150,11 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   @Override
   protected PositionSearchResult search(PositionSearchRequest request) {
     s_logger.debug("searchPositions: {}", request);
+    final PositionSearchResult result = new PositionSearchResult();
+    if ((request.getPositionIds() != null && request.getPositionIds().size() == 0) ||
+        (request.getTradeIds() != null && request.getTradeIds().size() == 0)) {
+      return result;
+    }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
@@ -161,7 +166,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       args.addValue("provider_value", request.getProviderId().getValue());
     }
     // TODO: security key
-    final PositionSearchResult result = new PositionSearchResult();
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
   }
@@ -183,8 +187,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     if (request.getMaxQuantity() != null) {
       where += "AND quantity < :max_quantity ";
     }
-    StringBuilder buf = new StringBuilder(Math.max(request.getPositionIds().size(), request.getTradeIds().size()) * 10);
-    if (request.getPositionIds().size() > 0) {
+    if (request.getPositionIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getPositionIds().size() * 10);
       for (UniqueIdentifier uid : request.getPositionIds()) {
         getMaster().checkScheme(uid);
         buf.append(extractOid(uid)).append(", ");
@@ -192,8 +196,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getTradeIds().size() > 0) {
-      buf.setLength(0);
+    if (request.getTradeIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getTradeIds().size() * 10);
       for (UniqueIdentifier uid : request.getTradeIds()) {
         getMaster().checkScheme(uid);
         buf.append(extractOid(uid)).append(", ");
