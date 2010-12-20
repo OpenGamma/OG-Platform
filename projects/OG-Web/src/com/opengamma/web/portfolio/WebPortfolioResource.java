@@ -44,9 +44,14 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @Produces(MediaType.TEXT_HTML)
   public String get() {
     PortfolioDocument doc = data().getPortfolio();
-    PositionSearchRequest positionSearch = new PositionSearchRequest();
-    positionSearch.setPositionIds(doc.getPortfolio().getRootNode().getPositionIds());
-    PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
+    PositionSearchResult positionsResult;
+    if (doc.getPortfolio().getRootNode().getPositionIds().size() > 0) {
+      PositionSearchRequest positionSearch = new PositionSearchRequest();
+      positionSearch.setPositionIds(doc.getPortfolio().getRootNode().getPositionIds());
+      positionsResult = data().getPositionMaster().search(positionSearch);
+    } else {
+      positionsResult = new PositionSearchResult();
+    }
     
     FlexiBean out = createRootData();
     out.put("positionsResult", positionsResult);

@@ -390,13 +390,12 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
         }
         _portfolio.setRootNode(_node);
       } else {
-        LongObjectPair<ManageablePortfolioNode> parentNode = _nodes.peek();
-        _node.setParentNodeId(parentNode.second.getUniqueIdentifier());
-        while (treeLeft > parentNode.first) {
+        while (treeLeft > _nodes.peek().first) {
           _nodes.pop();
         }
-        final ManageablePortfolioNode parent = parentNode.second;
-        parent.addChildNode(_node);
+        final ManageablePortfolioNode parentNode = _nodes.peek().second;
+        _node.setParentNodeId(parentNode.getUniqueIdentifier());
+        parentNode.addChildNode(_node);
       }
       // add to stack
       _nodes.push(LongObjectPair.of(treeRight, _node));

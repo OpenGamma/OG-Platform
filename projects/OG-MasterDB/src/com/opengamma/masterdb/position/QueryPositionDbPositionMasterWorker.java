@@ -320,7 +320,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
           _lastTradeId = tradeId;
           final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
           LocalDate tradeDate = DbDateUtils.fromSqlDate(rs.getDate("TRADE_DATE"));
-          LocalTime tradeTime = DbDateUtils.fromSqlTime(rs.getTimestamp("TRADE_TIME"));
+          LocalTime tradeTime = rs.getTimestamp("TRADE_TIME") != null ? DbDateUtils.fromSqlTime(rs.getTimestamp("TRADE_TIME")) : null;
           int zoneOffset = rs.getInt("ZONE_OFFSET");
           OffsetTime tradeOffsetTime = null;
           if (tradeTime != null) {
