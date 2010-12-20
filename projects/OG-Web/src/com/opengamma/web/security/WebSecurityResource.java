@@ -138,8 +138,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * @return the URI, not null
    */
   public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideSecurityId) {
-    String portfolioId = data.getBestSecurityUriId(overrideSecurityId);
-    return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(portfolioId);
+    String securityId = data.getBestSecurityUriId(overrideSecurityId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(securityId);
   }
 
 }

@@ -1,0 +1,81 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.web.position;
+
+import java.net.URI;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.impl.flexi.FlexiBean;
+
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.PositionDocument;
+
+/**
+ * RESTful resource for a version of a position.
+ */
+@Path("/positions/{positionId}/versions/{versionId}")
+@Produces(MediaType.TEXT_HTML)
+public class WebPositionVersionResource extends AbstractWebPositionResource {
+
+  /**
+   * Creates the resource.
+   * @param parent  the parent resource, not null
+   */
+  public WebPositionVersionResource(final AbstractWebPositionResource parent) {
+    super(parent);
+  }
+
+  //-------------------------------------------------------------------------
+  @GET
+  public String get() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("positions/positionversion.ftl", out);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the output root data.
+   * @return the output root data, not null
+   */
+  protected FlexiBean createRootData() {
+    FlexiBean out = super.createRootData();
+    PositionDocument latestPositionDoc = data().getPosition();
+    PositionDocument versionedPosition = (PositionDocument) data().getVersioned();
+    out.put("latestPositionDoc", latestPositionDoc);
+    out.put("latestPosition", latestPositionDoc.getPosition());
+    out.put("positionDoc", versionedPosition);
+    out.put("position", versionedPosition.getPosition());
+    return out;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @return the URI, not null
+   */
+  public static URI uri(final WebPositionsData data) {
+    return uri(data, null);
+  }
+
+  /**
+   * Builds a URI for this resource.
+   * @param data  the data, not null
+   * @param overrideVersionId  the override version id, null uses information from data
+   * @return the URI, not null
+   */
+  public static URI uri(final WebPositionsData data, final UniqueIdentifier overrideVersionId) {
+    String positionId = data.getBestPositionUriId(null);
+    String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
+    return data.getUriInfo().getBaseUriBuilder().path(WebPositionVersionResource.class).build(positionId, versionId);
+  }
+
+}

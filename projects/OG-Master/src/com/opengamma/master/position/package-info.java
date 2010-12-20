@@ -5,6 +5,6 @@
  */
 
 /**
- * Position master API providing the ability to query and update portfolios and positions.
+ * Position master API providing the ability to query and update positions.
  */
 package com.opengamma.master.position;

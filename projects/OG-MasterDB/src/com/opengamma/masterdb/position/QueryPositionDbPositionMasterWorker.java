@@ -6,13 +6,11 @@
 package com.opengamma.masterdb.position;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
@@ -27,7 +25,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -40,7 +37,6 @@ import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.Paging;
@@ -60,12 +56,12 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       "SELECT " +
         "p.id AS position_id, " +
         "p.oid AS position_oid, " +
-        "p.portfolio_oid AS portfolio_oid, " +
-        "p.parent_node_oid AS parent_node_oid, " +
         "p.ver_from_instant AS ver_from_instant, " +
         "p.ver_to_instant AS ver_to_instant, " +
         "p.corr_from_instant AS corr_from_instant, " +
         "p.corr_to_instant AS corr_to_instant, " +
+        "p.provider_scheme AS provider_scheme, " +
+        "p.provider_value AS provider_value, " +
         "p.quantity AS pos_quantity, " +
         "ps.key_scheme AS pos_key_scheme, " +
         "ps.key_value AS pos_key_value, " +
@@ -100,7 +96,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected PositionDocument getPosition(final UniqueIdentifier uid) {
+  protected PositionDocument get(final UniqueIdentifier uid) {
     if (uid.isVersioned()) {
       return getPositionById(uid);
     } else {
@@ -117,7 +113,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     s_logger.debug("getPositionByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
     final PositionHistoryRequest request = new PositionHistoryRequest(uid, now, now);
-    final PositionHistoryResult result = getMaster().historyPosition(request);
+    final PositionHistoryResult result = getMaster().history(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Position not found: " + uid);
     }
@@ -142,7 +138,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     return docs.get(0);
   }
 
-
   /**
    * Gets the SQL for getting a position by unique row identifier.
    * @return the SQL, not null
@@ -153,7 +148,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected PositionSearchResult searchPositions(PositionSearchRequest request) {
+  protected PositionSearchResult search(PositionSearchRequest request) {
     s_logger.debug("searchPositions: {}", request);
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -161,11 +156,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
-    if (request.getPortfolioId() != null) {
-      args.addValue("portfolio_oid", extractOid(request.getPortfolioId()));
-    }
-    if (request.getParentNodeId() != null) {
-      args.addValue("parent_node_oid", extractOid(request.getParentNodeId()));
+    if (request.getProviderId() != null) {
+      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
+      args.addValue("provider_value", request.getProviderId().getValue());
     }
     // TODO: security key
     final PositionSearchResult result = new PositionSearchResult();
@@ -181,11 +174,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getPortfolioId() != null) {
-      where += "AND portfolio_oid = :portfolio_oid ";
-    }
-    if (request.getParentNodeId() != null) {
-      where += "AND parent_node_oid = :parent_node_oid ";
+    if (request.getProviderId() != null) {
+      where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
     if (request.getMinQuantity() != null) {
       where += "AND quantity >= :min_quantity ";
@@ -193,6 +183,25 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     if (request.getMaxQuantity() != null) {
       where += "AND quantity < :max_quantity ";
     }
+    StringBuilder buf = new StringBuilder(Math.max(request.getPositionIds().size(), request.getTradeIds().size()) * 10);
+    if (request.getPositionIds().size() > 0) {
+      for (UniqueIdentifier uid : request.getPositionIds()) {
+        getMaster().checkScheme(uid);
+        buf.append(extractOid(uid)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
+    }
+    if (request.getTradeIds().size() > 0) {
+      buf.setLength(0);
+      for (UniqueIdentifier uid : request.getTradeIds()) {
+        getMaster().checkScheme(uid);
+        buf.append(extractOid(uid)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN (" + buf + ")) ";
+    }
+    
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.id, t.id ";
@@ -202,7 +211,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
 
   //-------------------------------------------------------------------------
   @Override
-  protected PositionHistoryResult historyPosition(final PositionHistoryRequest request) {
+  protected PositionHistoryResult history(final PositionHistoryRequest request) {
     s_logger.debug("searchPositionHistoric: {}", request);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("position_oid", extractOid(request.getObjectId()))
@@ -287,7 +296,6 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     private long _lastTradeId = -1;
     private ManageablePosition _position;
     private List<PositionDocument> _documents = new ArrayList<PositionDocument>();
-    private Map<UniqueIdentifier, UniqueIdentifier> _deduplicate = Maps.newHashMap();
 
     @Override
     public List<PositionDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
@@ -324,9 +332,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
           if (cpartyScheme != null && cpartyValue != null) {
             counterpartyId = Identifier.of(cpartyScheme, cpartyValue);
           }
-          currentTrade = new ManageableTrade(tradeQuantity, tradeDate, tradeOffsetTime, counterpartyId, IdentifierBundle.EMPTY);
+          currentTrade = new ManageableTrade(tradeQuantity, IdentifierBundle.EMPTY, tradeDate, tradeOffsetTime, counterpartyId);
           long tradeOid = rs.getLong("TRADE_OID");
-          currentTrade.setUniqueIdentifier(createUniqueIdentifier(tradeOid, tradeId, _deduplicate));
+          currentTrade.setUniqueIdentifier(createUniqueIdentifier(tradeOid, tradeId));
           currentTrade.setPositionId(_position.getUniqueIdentifier());
           _position.getTrades().add(currentTrade);
         }
@@ -344,90 +352,95 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
 
     private void buildPosition(final ResultSet rs, final long positionId) throws SQLException {
       final long positionOid = rs.getLong("POSITION_OID");
-      final long portfolioOid = rs.getLong("PORTFOLIO_OID");
-      final long parentNodeOid = rs.getLong("PARENT_NODE_OID");
       final BigDecimal quantity = extractBigDecimal(rs, "POS_QUANTITY");
       final Timestamp versionFrom = rs.getTimestamp("VER_FROM_INSTANT");
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
+      final String providerScheme = rs.getString("PROVIDER_SCHEME");
+      final String providerValue = rs.getString("PROVIDER_VALUE");
       _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
-      _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId, _deduplicate));
+      _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId));
       PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setPortfolioId(createObjectIdentifier(portfolioOid, _deduplicate));
-      doc.setParentNodeId(createObjectIdentifier(parentNodeOid, _deduplicate));
-      doc.setUniqueId(createUniqueIdentifier(positionOid, positionId, _deduplicate));
+      doc.setUniqueId(createUniqueIdentifier(positionOid, positionId));
+      if (providerScheme != null && providerValue != null) {
+        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+      }
       _documents.add(doc);
     }
   }
-  
-  /**
-   * Mapper from SQL rows to a ManageableTrade.
-   */
-  protected final class ManageableTradeExtractor implements ResultSetExtractor<List<ManageableTrade>> {
-    private List<ManageableTrade> _tradeList = new ArrayList<ManageableTrade>();
-    private long _lastTradeId = -1;
-    private ManageableTrade _trade;
-    private Map<UniqueIdentifier, UniqueIdentifier> _duplicate = Maps.newHashMap();
-    private final UniqueIdentifier _positionId;
-    
-    /**
-     * @param positionId the position unique identifier, not -null
-     */
-    public ManageableTradeExtractor(UniqueIdentifier positionId) {
-      ArgumentChecker.notNull(positionId, "position id");
-      _positionId = positionId;
-    }
 
-    @Override
-    public List<ManageableTrade> extractData(ResultSet rs) throws SQLException, DataAccessException {
-      while (rs.next()) {
-        final long tradeId = rs.getLong("TRADE_ID");
-        if (_lastTradeId != tradeId) {
-          _lastTradeId = tradeId;
-          buildTrade(rs, tradeId);
-        }
-        final String idScheme = rs.getString("SECKEY_SCHEME");
-        final String idValue = rs.getString("SECKEY_VALUE");
-        if (idScheme != null && idValue != null) {
-          Identifier id = Identifier.of(idScheme, idValue);
-          _trade.setSecurityKey(_trade.getSecurityKey().withIdentifier(id));
-        }
-      }
-      return _tradeList;
+  //-------------------------------------------------------------------------
+  @Override
+  protected ManageableTrade getTrade(final UniqueIdentifier uid) {
+    if (uid.isVersioned()) {
+      return getTradeById(uid);
+    } else {
+      return getTradeByInstants(uid, null, null);
     }
-    
-    private void buildTrade(final ResultSet rs, final long tradeId) throws SQLException {
-      final long tradeOid = rs.getLong("TRADE_OID");
-      final UniqueIdentifier tradeUid = createUniqueIdentifier(tradeOid, tradeId, _duplicate);
-      
-      final BigDecimal quantity = extractBigDecimal(rs, "TRADE_QUANTITY");
-      final Date tradeDate = rs.getDate("TRADE_DATE");
-      final Timestamp tradeTime = rs.getTimestamp("TRADE_TIME");
-      int timeZoneOffInSec = rs.getInt("ZONE_OFFSET");
-      OffsetTime tradeOffsetTime = null;
-      if (tradeTime != null) {
-        tradeOffsetTime = OffsetTime.of(DbDateUtils.fromSqlTime(tradeTime), ZoneOffset.ofTotalSeconds(timeZoneOffInSec));
-      }
-      
-      final String cpartyScheme = rs.getString("CPARTY_SCHEME");
-      final String cpartyValue = rs.getString("CPARTY_VALUE");
-      Identifier counterpartyId = Identifier.of(cpartyScheme, cpartyValue);
-      
-      _trade = new ManageableTrade();
-      _trade.setQuantity(quantity);
-      _trade.setTradeDate(DbDateUtils.fromSqlDate(tradeDate));
-      _trade.setTradeTime(tradeOffsetTime);
-      _trade.setCounterpartyId(counterpartyId);
-      _trade.setUniqueIdentifier(tradeUid);
-      _trade.setPositionId(_positionId);
-      _trade.setSecurityKey(IdentifierBundle.EMPTY);
-      _tradeList.add(_trade);
+  }
+
+  /**
+   * Gets a trade by searching for the latest version of an object identifier.
+   * @param uid  the unique identifier
+   * @param versionAsOf  the instant to fetch, not null
+   * @param correctedTo  the instant to fetch, not null
+   * @return the trade, null if not found
+   */
+  protected ManageableTrade getTradeByInstants(final UniqueIdentifier uid, final Instant versionAsOf, final Instant correctedTo) {
+    s_logger.debug("getPositionByLatest: {}", uid);
+    final Instant now = Instant.now(getTimeSource());
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("trade_oid", extractOid(uid))
+      .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
+      .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
+    final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final List<PositionDocument> docs = namedJdbc.query(sqlGetTradeByInstants(), args, extractor);
+    if (docs.isEmpty()) {
+      throw new DataNotFoundException("Trade not found: " + uid);
     }
+    return docs.get(0).getPosition().getTrades().get(0);  // SQL loads desired trade as only trade
+  }
+
+  /**
+   * Gets the SQL for getting a trade by unique row identifier.
+   * @return the SQL, not null
+   */
+  protected String sqlGetTradeByInstants() {
+    return SELECT + FROM + "WHERE t.oid = :trade_oid " +
+        "AND (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
+        "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) ";
+  }
+
+  /**
+   * Gets a trade by identifier.
+   * @param uid  the unique identifier
+   * @return the trade, null if not found
+   */
+  protected ManageableTrade getTradeById(final UniqueIdentifier uid) {
+    s_logger.debug("getTradeById {}", uid);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("trade_id", extractRowId(uid));
+    final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
+    NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final List<PositionDocument> docs = namedJdbc.query(sqlGetTradeById(), args, extractor);
+    if (docs.isEmpty()) {
+      throw new DataNotFoundException("Trade not found: " + uid);
+    }
+    return docs.get(0).getPosition().getTrades().get(0);  // SQL loads desired trade as only trade
+  }
+
+  /**
+   * Gets the SQL for getting a trade by unique row identifier.
+   * @return the SQL, not null
+   */
+  protected String sqlGetTradeById() {
+    return SELECT + FROM + "WHERE t.id = :trade_id ";
   }
 
 }

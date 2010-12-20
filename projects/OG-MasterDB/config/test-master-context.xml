@@ -7,7 +7,7 @@
   </bean>
 
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
-    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
     <property name="hibernateMappingFiles">
       <list>
@@ -33,6 +33,11 @@
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbCfg" />
+  </bean>
+
+  <bean id="hsqldbDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbPrt" />
   </bean>
 
   <bean id="hsqldbDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
@@ -72,6 +77,11 @@
   <bean id="postgresDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbCfg" />
+  </bean>
+
+  <bean id="postgresDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbPrt" />
   </bean>
 
   <bean id="postgresDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
