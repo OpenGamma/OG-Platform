@@ -225,7 +225,7 @@ public class MasterPositionSource implements PositionSource {
     String[] values = StringUtils.split(uid.getValue());
     String[] versions = StringUtils.split(uid.getVersion());
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource");
+      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uid);
     }
     UniqueIdentifier nodeUid = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
     UniqueIdentifier posUid = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
