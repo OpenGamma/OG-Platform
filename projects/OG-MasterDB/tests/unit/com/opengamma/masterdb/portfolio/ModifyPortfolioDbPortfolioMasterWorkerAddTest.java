@@ -98,7 +98,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertNotNull(uid);
     assertEquals("DbPrt", uid.getScheme());
     assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
