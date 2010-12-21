@@ -130,7 +130,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     s_logger.debug("getPositionByOidInstants {}", oid);
     final long portfolioOid = extractOid(oid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("portfolio_oid", portfolioOid)
+      .addValue("position_oid", portfolioOid)
       .addTimestamp("version_as_of", versionAsOf)
       .addTimestamp("corrected_to", correctedTo);
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
