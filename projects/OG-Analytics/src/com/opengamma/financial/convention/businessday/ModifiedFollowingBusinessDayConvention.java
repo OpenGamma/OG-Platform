@@ -18,6 +18,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
  */
 public class ModifiedFollowingBusinessDayConvention extends AbstractBusinessDayConvention {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private static final BusinessDayConvention FOLLOWING = new FollowingBusinessDayConvention();
   private static final BusinessDayConvention PRECEDING = new PrecedingBusinessDayConvention();
 

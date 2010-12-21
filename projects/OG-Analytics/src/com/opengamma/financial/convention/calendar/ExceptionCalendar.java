@@ -15,6 +15,9 @@ import javax.time.calendar.LocalDate;
  */
 public abstract class ExceptionCalendar extends CalendarBase {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Map of exception dates and whether they are working or non-working.
    */
@@ -28,7 +31,7 @@ public abstract class ExceptionCalendar extends CalendarBase {
     super(name);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Map of exception dates and whether they are working or non-working.
    * @return the map, not null
