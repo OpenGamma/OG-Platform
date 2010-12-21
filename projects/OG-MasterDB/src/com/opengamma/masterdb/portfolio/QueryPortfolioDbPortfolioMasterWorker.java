@@ -71,6 +71,11 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
       "FROM prt_portfolio f " +
         "LEFT JOIN prt_node n ON (n.portfolio_id = f.id) " +
         "LEFT JOIN prt_position p ON (p.node_id = n.id) ";
+  /**
+   * SQL order by.
+   */
+  protected static final String ORDER_BY =
+      "ORDER BY f.oid, n.tree_left, p.key_scheme, p.key_value ";
 
   /**
    * Creates an instance.
@@ -83,11 +88,7 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
   @Override
   protected PortfolioDocument get(final UniqueIdentifier uid) {
     if (uid.isVersioned()) {
-      if (uid.getVersion().contains("-")) {
-        return getPortfolioByFullPortfolioId(uid);
-      } else {
-        return getPortfolioById(uid);
-      }
+      return getPortfolioById(uid);
     } else {
       return getPortfolioByLatest(uid);
     }
@@ -101,29 +102,19 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
   protected PortfolioDocument getPortfolioByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getPortfolioByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final PortfolioHistoryRequest request = new PortfolioHistoryRequest(uid, now, now);
-    final PortfolioHistoryResult result = getMaster().history(request);
-    if (result.getDocuments().size() != 1) {
-      throw new DataNotFoundException("Portfolio not found: " + uid);
-    }
-    return result.getFirstDocument();
+    return getPortfolioByOidInstants(uid, now, now);
   }
 
   /**
-   * Selects the portfolio tree identifier from the full portfolio identifier.
-   * @param uid  the full portfolio uid, not null
-   * @return the portfolio tree uid, not null
+   * Gets a portfolio by object identifier at instants.
+   * @param oid  the portfolio oid, not null
+   * @param versionAsOf  the version instant, not null
+   * @param correctedTo  the corrected to instant, not null
+   * @return the portfolio document, not null
    */
-  protected PortfolioDocument getPortfolioByFullPortfolioId(final UniqueIdentifier uid) {
-    s_logger.debug("getPortfolioByFullPortfolioId {}", uid);
-    final String[] splitVersion  = StringUtils.split(uid.getVersion(), '-');
-    if (splitVersion.length != 2) {
-      throw new IllegalArgumentException("Invalid identifier: " + uid);
-    }
-    final long versionMillis = Long.parseLong(splitVersion[0], 16);
-    final Instant versionAsOf = Instant.ofEpochMillis(versionMillis);
-    final Instant correctedTo = Instant.ofEpochMillis(versionMillis + Long.parseLong(splitVersion[1], 16));
-    final long portfolioOid = extractOid(uid);
+  protected PortfolioDocument getPortfolioByOidInstants(final UniqueIdentifier oid, final Instant versionAsOf, final Instant correctedTo) {
+    s_logger.debug("getPortfolioByOidInstants {}", oid);
+    final long portfolioOid = extractOid(oid);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addTimestamp("version_as_of", versionAsOf)
@@ -132,7 +123,7 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<PortfolioDocument> docs = namedJdbc.query(sqlSelectPortfolioByOidInstants(), args, extractor);
     if (docs.isEmpty()) {
-      throw new DataNotFoundException("Portfolio not found: " + uid);
+      throw new DataNotFoundException("Portfolio not found: " + oid);
     }
     return docs.get(0);
   }
@@ -145,7 +136,8 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
     return SELECT + FROM +
       "WHERE f.oid = :portfolio_oid " +
         "AND f.ver_from_instant <= :version_as_of AND f.ver_to_instant > :version_as_of " +
-        "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to ";
+        "AND f.corr_from_instant <= :corrected_to AND f.corr_to_instant > :corrected_to " +
+      ORDER_BY;
   }
 
   /**
@@ -172,7 +164,8 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
    */
   protected String sqlSelectPortfolioById() {
     return SELECT + FROM +
-      "WHERE f.id = :portfolio_id ";
+      "WHERE f.id = :portfolio_id " +
+      ORDER_BY;
   }
 
   //-------------------------------------------------------------------------
@@ -225,12 +218,12 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
     }
     
     String selectFromWhereInner = "SELECT id FROM prt_portfolio " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE f.id IN (" + inner + ") ";
     if (request.getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
     }
-    search += "ORDER BY f.id, n.tree_left, p.node_id";
+    search += ORDER_BY;
     String count = "SELECT COUNT(*) FROM prt_portfolio " + where;
     return new String[] {search, count};
   }
@@ -288,7 +281,7 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
     if (request.getDepth() >= 0) {
       search += "AND n.depth <= :depth ";
     }
-    search += "ORDER BY f.ver_from_instant DESC, f.corr_from_instant DESC, n.tree_left, p.node_id";
+    search += "ORDER BY f.ver_from_instant DESC, f.corr_from_instant DESC, n.tree_left, p.key_scheme, p.key_value";
     String count = "SELECT COUNT(*) FROM prt_portfolio " + where;
     return new String[] {search, count};
   }
