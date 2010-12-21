@@ -13,10 +13,9 @@ public interface CurrencyMatrixSource {
   /**
    * Returns a currency conversion matrix.
    * 
+   * @param name of the matrix
    * @return the matrix
    */
-  CurrencyMatrix getCurrencyMatrix();
-
-  // TODO Do we need the concept of naming them, or referring to them by a unique identifier? When would it make sense to have two matrices for a given view processor?
+  CurrencyMatrix getCurrencyMatrix(String name);
 
 }

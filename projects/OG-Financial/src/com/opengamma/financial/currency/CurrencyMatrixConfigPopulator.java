@@ -23,8 +23,6 @@ public class CurrencyMatrixConfigPopulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixConfigPopulator.class);
 
-  private static final String[] s_currencies = new String[] {"EUR", "GBP", "CHF", "AUD", "SEK", "NZD", "CAD", "DKK", "JPY"};
-
   public CurrencyMatrixConfigPopulator(ConfigMaster cfgMaster) {
     populateCurrencyMatrixConfigMaster(cfgMaster);
   }
@@ -35,21 +33,27 @@ public class CurrencyMatrixConfigPopulator {
     return cfgMaster;
   }
 
-  public static void populateCurrencyMatrixConfigMaster(ConfigTypeMaster<CurrencyMatrix> configMaster) {
-    final SimpleCurrencyMatrix defaultMatrix = new SimpleCurrencyMatrix();
+  public static CurrencyMatrix createBloombergConversionMatrix() {
+    final String[] currencies = new String[] {"EUR", "GBP", "CHF", "AUD", "SEK", "NZD", "CAD", "DKK", "JPY"};
+    final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.getInstance("USD");
-    for (String currency : s_currencies) {
+    for (String currency : currencies) {
       final Currency target = Currency.getInstance(currency);
-      defaultMatrix.setLiveData(commonCross, target, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
-      for (String currency2 : s_currencies) {
+      matrix.setLiveData(commonCross, target, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+      for (String currency2 : currencies) {
         if (!currency.equals(currency2)) {
-          defaultMatrix.setCrossConversion(Currency.getInstance(currency2), target, commonCross);
+          matrix.setCrossConversion(Currency.getInstance(currency2), target, commonCross);
         }
       }
     }
+    dumpMatrix(matrix);
+    return matrix;
+  }
+
+  public static void populateCurrencyMatrixConfigMaster(ConfigTypeMaster<CurrencyMatrix> configMaster) {
     ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>();
-    doc.setName(ConfigDBCurrencyMatrixSource.DEFAULT_MATRIX_NAME);
-    doc.setValue(defaultMatrix);
+    doc.setName("BloombergLiveData");
+    doc.setValue(createBloombergConversionMatrix());
     ConfigMasterUtils.storeByName(configMaster, doc);
   }
 

@@ -45,9 +45,11 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   private String _rateLookupIdentifierScheme = CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
   private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
 
+  private final String _currencyMatrixName;
   private CurrencyMatrix _currencyMatrix;
 
-  public CurrencyMatrixSourcingFunction() {
+  public CurrencyMatrixSourcingFunction(final String currencyMatrixName) {
+    _currencyMatrixName = currencyMatrixName;
   }
 
   private static Pair<Currency, Currency> parse(final UniqueIdentifier uniqueIdentifier) {
@@ -81,9 +83,13 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     _currencyMatrix = currencyMatrix;
   }
 
+  protected String getCurrencyMatrixName() {
+    return _currencyMatrixName;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
-    setCurrencyMatrix(OpenGammaCompilationContext.getCurrencyMatrixSource(context).getCurrencyMatrix());
+    setCurrencyMatrix(OpenGammaCompilationContext.getCurrencyMatrixSource(context).getCurrencyMatrix(getCurrencyMatrixName()));
   }
 
   @Override

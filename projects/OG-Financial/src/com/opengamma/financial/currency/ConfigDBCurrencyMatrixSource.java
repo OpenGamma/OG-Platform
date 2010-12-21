@@ -14,11 +14,6 @@ import com.opengamma.util.ArgumentChecker;
 public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
 
   /**
-   * Name of the document. This needs to change if multiple matrices make sense (see ConfigSource).
-   */
-  protected static final String DEFAULT_MATRIX_NAME = "Default";
-
-  /**
    * The config source for the data.
    */
   private final ConfigSource _configSource;
@@ -46,8 +41,8 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
    * @return the matrix
    */
   @Override
-  public CurrencyMatrix getCurrencyMatrix() {
-    return getConfigSource().getLatestByName(CurrencyMatrix.class, DEFAULT_MATRIX_NAME);
+  public CurrencyMatrix getCurrencyMatrix(String name) {
+    return getConfigSource().getLatestByName(CurrencyMatrix.class, name);
   }
 
 }
