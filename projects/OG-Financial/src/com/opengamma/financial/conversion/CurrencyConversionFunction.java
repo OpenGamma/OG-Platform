@@ -93,8 +93,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   /**
-   * Multiples the value (as a double) by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if 
-   * the value is in "somethings per currency unit foo" so needs dividing by the "foo to bar" conversion rate.
+   * Divides the value (as a double) by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if 
+   * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
    * 
    * @param inputValue input value to convert
    * @param desiredValue requested value requirement
@@ -107,7 +107,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       s_logger.warn("Can't convert {} to {}", inputValue, desiredValue);
       return null;
     }
-    return (Double) value * conversionRate;
+    return (Double) value / conversionRate;
   }
 
   @Override
@@ -192,8 +192,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), toCurrency + "_"
-        + fromCurrency)));
+    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
+        + toCurrency)));
   }
 
   @Override

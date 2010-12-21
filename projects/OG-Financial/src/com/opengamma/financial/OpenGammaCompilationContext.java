@@ -11,6 +11,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyMatrixSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionCompilationContext}.
@@ -22,11 +23,21 @@ public final class OpenGammaCompilationContext {
   private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
   private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
   private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
+  private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
 
   /**
    * Restricted constructor.
    */
   private OpenGammaCompilationContext() {
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T get(final FunctionCompilationContext context, final String key) {
+    return (T) context.get(key);
+  }
+
+  private static <T> void set(final FunctionCompilationContext context, final String key, final T value) {
+    context.put(key, value);
   }
 
   // -------------------------------------------------------------------------
@@ -36,7 +47,7 @@ public final class OpenGammaCompilationContext {
    * @return the config source, null if not found
    */
   public static ConfigSource getConfigSource(FunctionCompilationContext compilationContext) {
-    return (ConfigSource) compilationContext.get(CONFIG_SOURCE_NAME);
+    return get(compilationContext, CONFIG_SOURCE_NAME);
   }
 
   /**
@@ -45,7 +56,7 @@ public final class OpenGammaCompilationContext {
    * @param configSource  the config source to store, not null
    */
   public static void setConfigSource(FunctionCompilationContext compilationContext, ConfigSource configSource) {
-    compilationContext.put(CONFIG_SOURCE_NAME, configSource);
+    set(compilationContext, CONFIG_SOURCE_NAME, configSource);
   }
 
   // -------------------------------------------------------------------------
@@ -55,7 +66,7 @@ public final class OpenGammaCompilationContext {
    * @return the region source, null if not found
    */
   public static RegionSource getRegionSource(FunctionCompilationContext compilationContext) {
-    return (RegionSource) compilationContext.get(REGION_SOURCE_NAME);
+    return get(compilationContext, REGION_SOURCE_NAME);
   }
 
   /**
@@ -64,7 +75,7 @@ public final class OpenGammaCompilationContext {
    * @param regionSource  the region source to store, not null
    */
   public static void setRegionSource(FunctionCompilationContext compilationContext, RegionSource regionSource) {
-    compilationContext.put(REGION_SOURCE_NAME, regionSource);
+    set(compilationContext, REGION_SOURCE_NAME, regionSource);
   }
 
   // -------------------------------------------------------------------------
@@ -74,7 +85,7 @@ public final class OpenGammaCompilationContext {
    * @return the convention bundle source, null if not found
    */
   public static ConventionBundleSource getConventionBundleSource(FunctionCompilationContext compilationContext) {
-    return (ConventionBundleSource) compilationContext.get(CONVENTION_BUNDLE_SOURCE_NAME);
+    return get(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME);
   }
 
   /**
@@ -83,22 +94,31 @@ public final class OpenGammaCompilationContext {
    * @param conventionBundleSource  the convention bundle source to store, not null
    */
   public static void setConventionBundleSource(FunctionCompilationContext compilationContext, ConventionBundleSource conventionBundleSource) {
-    compilationContext.put(CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
+    set(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
 
   public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext) {
-    return (InterpolatedYieldCurveDefinitionSource) compilationContext.get(INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
+    return get(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
   }
 
   public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveDefinitionSource source) {
-    compilationContext.put(INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);
+    set(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);
   }
 
   public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext) {
-    return (InterpolatedYieldCurveSpecificationBuilder) compilationContext.get(INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME);
+    return get(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME);
   }
 
   public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
-    compilationContext.put(INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
+    set(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
   }
+
+  public static CurrencyMatrixSource getCurrencyMatrixSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, CURRENCY_MATRIX_SOURCE_NAME);
+  }
+
+  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext, final CurrencyMatrixSource currencyMatrixSource) {
+    set(compilationContext, CURRENCY_MATRIX_SOURCE_NAME, currencyMatrixSource);
+  }
+
 }
