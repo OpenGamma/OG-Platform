@@ -37,11 +37,12 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
 
   /**
    * Returns the currency conversion matrix.
-   * 
+   *
+   * @param name name of the matrix to retrieve
    * @return the matrix
    */
   @Override
-  public CurrencyMatrix getCurrencyMatrix(String name) {
+  public CurrencyMatrix getCurrencyMatrix(final String name) {
     return getConfigSource().getLatestByName(CurrencyMatrix.class, name);
   }
 

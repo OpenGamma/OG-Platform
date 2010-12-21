@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.common.Currency;
 import com.opengamma.engine.ComputationTarget;
@@ -39,6 +42,8 @@ import com.opengamma.util.tuple.Pair;
  * providers should not be used if this is used - or set to a very low priority so that the matrix will override them.
  */
 public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixSourcingFunction.class);
 
   private static final Pattern s_validate = Pattern.compile("[A-Z]{3}_[A-Z]{3}");
 
@@ -162,7 +167,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   private double getConversionRate(final FunctionInputs inputs, final Currency source, final Currency target) {
     final CurrencyMatrixValue value = getCurrencyMatrix().getConversion(source, target);
-    return value.accept(new CurrencyMatrixValueVisitor<Double>() {
+    Double rate = value.accept(new CurrencyMatrixValueVisitor<Double>() {
 
       @Override
       public Double visitCross(CurrencyMatrixCross cross) {
@@ -188,6 +193,8 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
       }
 
     });
+    s_logger.debug("{} to {} = {}", new Object[] {source, target, rate});
+    return rate;
   }
 
   @Override

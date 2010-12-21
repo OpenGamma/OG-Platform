@@ -38,8 +38,10 @@ public class CurrencyMatrixConfigPopulator {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.getInstance("USD");
     for (String currency : currencies) {
+      matrix.setLiveData(commonCross, Currency.getInstance(currency), UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+    }
+    for (String currency : currencies) {
       final Currency target = Currency.getInstance(currency);
-      matrix.setLiveData(commonCross, target, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
       for (String currency2 : currencies) {
         if (!currency.equals(currency2)) {
           matrix.setCrossConversion(Currency.getInstance(currency2), target, commonCross);
