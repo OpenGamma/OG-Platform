@@ -50,7 +50,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorker.class);
   /**
-   * SQL select for position.
+   * SQL select.
    */
   protected static final String SELECT =
       "SELECT " +
@@ -77,7 +77,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
         "ts.key_value AS trade_key_value ";
     
   /**
-   * SQL from for position.
+   * SQL from.
    */
   protected static final String FROM =
       "FROM pos_position p " +
@@ -86,6 +86,10 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       "LEFT JOIN pos_trade t ON (p.id = t.position_id) " +
       "LEFT JOIN pos_trade2idkey ti ON (t.id = ti.trade_id) " +
       "LEFT JOIN pos_idkey ts ON (ti.idkey_id = ts.id) ";
+  /**
+   * SQL order by.
+   */
+  protected static final String ORDER_BY = "ORDER BY p.id, t.trade_date, t.id ";
   
   /**
    * Creates an instance.
@@ -112,12 +116,42 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected PositionDocument getPositionByLatest(final UniqueIdentifier uid) {
     s_logger.debug("getPositionByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
-    final PositionHistoryRequest request = new PositionHistoryRequest(uid, now, now);
-    final PositionHistoryResult result = getMaster().history(request);
-    if (result.getDocuments().size() != 1) {
-      throw new DataNotFoundException("Position not found: " + uid);
+    return getPositionByOidInstants(uid, now, now);
+  }
+
+  /**
+   * Gets a position by object identifier at instants.
+   * @param oid  the position oid, not null
+   * @param versionAsOf  the version instant, not null
+   * @param correctedTo  the corrected to instant, not null
+   * @return the position document, null if not found
+   */
+  protected PositionDocument getPositionByOidInstants(final UniqueIdentifier oid, final Instant versionAsOf, final Instant correctedTo) {
+    s_logger.debug("getPositionByOidInstants {}", oid);
+    final long portfolioOid = extractOid(oid);
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addTimestamp("version_as_of", versionAsOf)
+      .addTimestamp("corrected_to", correctedTo);
+    final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final List<PositionDocument> docs = namedJdbc.query(sqlSelectPositionByOidInstants(), args, extractor);
+    if (docs.isEmpty()) {
+      throw new DataNotFoundException("Position not found: " + oid);
     }
-    return result.getFirstDocument();
+    return docs.get(0);
+  }
+
+  /**
+   * Gets the SQL for getting a position by object identifier and instants.
+   * @return the SQL, not null
+   */
+  protected String sqlSelectPositionByOidInstants() {
+    return SELECT + FROM +
+      "WHERE p.oid = :position_oid " +
+        "AND p.ver_from_instant <= :version_as_of AND p.ver_to_instant > :version_as_of " +
+        "AND p.corr_from_instant <= :corrected_to AND p.corr_to_instant > :corrected_to " +
+      ORDER_BY;
   }
 
   /**
@@ -143,7 +177,9 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
    * @return the SQL, not null
    */
   protected String sqlGetPositionById() {
-    return SELECT + FROM + "WHERE p.id = :position_id ";
+    return SELECT + FROM +
+      "WHERE p.id = :position_id " +
+      ORDER_BY;
   }
 
   //-------------------------------------------------------------------------
@@ -208,7 +244,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.id, t.id ";
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") " + ORDER_BY;
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
@@ -261,7 +297,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     }
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
-    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC, t.id DESC";
+    String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") ORDER BY p.ver_from_instant DESC, p.corr_from_instant DESC, t.trade_date, t.id";
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
   }
