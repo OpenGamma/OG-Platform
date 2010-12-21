@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.convention;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -23,7 +24,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 /**
  * Temporary adapter to make the existing Calendar interface work with the holiday repository.  THIS MUST BE REFACTORED.
  */
-public class HolidaySourceCalendarAdapter implements Calendar {
+public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private final HolidaySource _holidaySource;
   private Set<Region> _regions;
   private Exchange _exchange;
