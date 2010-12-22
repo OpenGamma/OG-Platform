@@ -93,8 +93,10 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   public void init(final FunctionCompilationContext context) {
     final CurrencyMatrix matrix = OpenGammaCompilationContext.getCurrencyMatrixSource(context).getCurrencyMatrix(getCurrencyMatrixName());
     setCurrencyMatrix(matrix);
-    if (matrix.getUniqueIdentifier() != null) {
-      s_logger.debug("TODO: mark as requiring re-init if {} changes", matrix.getUniqueIdentifier());
+    if (matrix != null) {
+      if (matrix.getUniqueIdentifier() != null) {
+        s_logger.debug("TODO: mark as requiring re-init if {} changes", matrix.getUniqueIdentifier());
+      }
     }
   }
 
@@ -110,6 +112,9 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (getCurrencyMatrix() == null) {
+      return false;
+    }
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
