@@ -8,11 +8,12 @@ package com.opengamma.financial.currency;
 import java.util.Set;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Represents a currency conversion matrix.
  */
-public interface CurrencyMatrix {
+public interface CurrencyMatrix extends UniqueIdentifiable {
 
   /**
    * Returns the set of "source" currencies defined in this matrix.

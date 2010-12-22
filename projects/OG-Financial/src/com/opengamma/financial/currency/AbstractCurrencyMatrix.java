@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -17,10 +19,28 @@ import edu.emory.mathcs.backport.java.util.Collections;
 /**
  * A simple base class for a {@link CurrencyMatrix}.
  */
-public abstract class AbstractCurrencyMatrix implements CurrencyMatrix {
+public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableUniqueIdentifiable {
 
   private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();
   private final ConcurrentHashMap<Currency, AtomicInteger> _targets = new ConcurrentHashMap<Currency, AtomicInteger>();
+
+  private UniqueIdentifier _uniqueIdentifier;
+
+  // MutableUniqueIdentifiable
+
+  @Override
+  public void setUniqueIdentifier(final UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
+  }
+
+  // UniqueIdentifiable
+
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _uniqueIdentifier;
+  }
+
+  // CurrencyMatrix
 
   @SuppressWarnings("unchecked")
   @Override
@@ -47,6 +67,8 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix {
       return conversions.get(target);
     }
   }
+
+  // Helper methods for sub-classes
 
   protected void addConversion(final Currency source, final Currency target, final CurrencyMatrixValue rate) {
     ArgumentChecker.notNull(source, "source");
