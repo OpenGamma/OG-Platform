@@ -99,6 +99,7 @@ public class WebTimeSeriesData extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {

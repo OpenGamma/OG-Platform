@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.calendar;
 
+import java.io.Serializable;
+
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
@@ -14,7 +16,10 @@ import org.apache.commons.lang.Validate;
  * <p>
  * This class exists to simplify common patterns of normal+exception data.
  */
-public abstract class CalendarBase implements Calendar {
+public abstract class CalendarBase implements Calendar, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The convention name.
@@ -30,7 +35,7 @@ public abstract class CalendarBase implements Calendar {
     _name = name;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Checks if the date is a working date.
    * <p>
@@ -54,7 +59,7 @@ public abstract class CalendarBase implements Calendar {
     return _name;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Checks if the date would be a working day if no exceptions apply.
    * @param date  the date to check, not null

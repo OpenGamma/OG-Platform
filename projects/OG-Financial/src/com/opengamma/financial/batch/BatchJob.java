@@ -11,16 +11,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.Executors;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
-
-import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -33,43 +28,16 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.DefaultCachingComputationTargetResolver;
-import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
-import com.opengamma.engine.view.ViewInternal;
-import com.opengamma.engine.view.ViewProcessingContext;
-import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
-import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
-import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
-import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.LocalCalculationNode;
-import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
-import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
-import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.MasterSecuritySource;
-import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtil;
-import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -125,6 +93,12 @@ public class BatchJob {
    * for more control over the version and correction dates of data.
    */
   private PositionMaster _positionMaster;
+
+  /**
+   * Used to create the PositionSource if none is explicitly specified. Use this
+   * for more control over the version and correction dates of data.
+   */
+  private PortfolioMaster _portfolioMaster;
 
   /**
    * Used to load Positions (needed for building the dependency graph). If not
@@ -246,22 +220,6 @@ public class BatchJob {
   private final List<BatchJobRun> _runs = new ArrayList<BatchJobRun>();
   
   // --------------------------------------------------------------------------
-  // Variables initialized during the batch run
-  // --------------------------------------------------------------------------
-
-  /**
-   * The ViewDefinition (more precisely, a representation of it in the config DB)
-   */
-  private ConfigDocument<ViewDefinition> _viewDefinitionConfig;
-
-  /**
-   * To initialize _view, you need a ViewDefinition, but also
-   * many other properties - positions loaded from a position master, 
-   * securities from security master, etc.
-   */
-  private ViewInternal _view;
-  
-  // --------------------------------------------------------------------------
 
   public BatchJob() {
     _user = UserPrincipal.getLocalUser();
@@ -282,34 +240,6 @@ public class BatchJob {
     _systemVersionPropertyFile = systemVersionPropertyFile;
   }
 
-  public ViewInternal getView() {
-    return _view;
-  }
-
-  public void setView(ViewInternal view) {
-    _view = view;
-  }
-  
-  public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
-    return getView().getDefinition().getAllCalculationConfigurations();
-  }
-
-  public ConfigDocument<ViewDefinition> getViewDefinitionConfig() {
-    return _viewDefinitionConfig;
-  }
-
-  public void setViewDefinitionConfig(ConfigDocument<ViewDefinition> viewDefinitionConfig) {
-    _viewDefinitionConfig = viewDefinitionConfig;
-  }
-
-  public String getViewOid() {
-    return _viewDefinitionConfig.getUniqueId().getValue();
-  }
-
-  public String getViewVersion() {
-    return _viewDefinitionConfig.getUniqueId().getVersion();
-  }
-  
   public BatchJobParameters getParameters() {
     return _parameters;
   }
@@ -363,6 +293,14 @@ public class BatchJob {
    */
   /* package */void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
+  }
+
+  public PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
+  }
+
+  public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
+    _portfolioMaster = portfolioMaster;
   }
 
   public PositionMaster getPositionMaster() {
@@ -445,109 +383,6 @@ public class BatchJob {
   }
 
   // --------------------------------------------------------------------------
-
-  public InMemoryLKVSnapshotProvider getSnapshotProvider(BatchJobRun run) {
-    InMemoryLKVSnapshotProvider provider;
-    if (_historicalDataProvider != null) {
-      provider = new BatchLiveDataSnapshotProvider(run, _batchDbManager, _historicalDataProvider);
-    } else {
-      provider = new InMemoryLKVSnapshotProvider();
-    }
-    
-    // Initialize provider with values from batch DB
-    
-    Set<LiveDataValue> liveDataValues;
-    try {
-      liveDataValues = _batchDbManager.getSnapshotValues(run.getSnapshotId());
-    } catch (IllegalArgumentException e) {
-      if (_historicalDataProvider != null) {
-        // if there is a historical data provider, that provider
-        // may potentially provide all market data to run the batch,
-        // so no pre-existing snapshot is required
-        s_logger.info("Auto-creating snapshot " + run.getSnapshotId());
-        _batchDbManager.createLiveDataSnapshot(run.getSnapshotId());
-        liveDataValues = Collections.emptySet();
-      } else {
-        throw e;
-      }
-    }
-
-    for (LiveDataValue value : liveDataValues) {
-      ValueRequirement valueRequirement = new ValueRequirement(value.getFieldName(), value.getComputationTargetSpecification());
-      provider.addValue(valueRequirement, value.getValue());
-    }
-
-    provider.snapshot(run.getValuationTime().toInstant().toEpochMillisLong());
-    
-    return provider;
-  }
-
-  // --------------------------------------------------------------------------
-
-  public void createViewDefinition(BatchJobRun run) {
-    
-    if (_configSource == null) {
-      throw new IllegalStateException("Config Source not given.");
-    }
-    
-    String viewName = getParameters().getViewName();
-    _viewDefinitionConfig = getConfigSource().getDocumentByName(
-        ViewDefinition.class, 
-        viewName, 
-        run.getConfigDbTime().toInstant());
-
-    if (_viewDefinitionConfig == null) {
-      throw new IllegalStateException("Could not find view definition " + viewName + " at " +
-          run.getConfigDbTime().toInstant() + " in config db");
-    }
-
-  }
-
-  public void createView(BatchJobRun run) {
-    final CacheManager cacheManager = EHCacheUtils.createCacheManager();
-    InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider(run);
-
-    SecuritySource securitySource = getSecuritySource();
-    if (securitySource == null) {
-      securitySource = new MasterSecuritySource(getSecurityMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
-    }
-    PositionSource positionSource = getPositionSource();
-    if (positionSource == null) {
-      positionSource = new MasterPositionSource(getPositionMaster(), run.getStaticDataTime(), run.getOriginalCreationTime());
-    }
-    
-    FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext().clone();
-    functionExecutionContext.setSecuritySource(securitySource);
-    
-    // this needs to be fixed, at the moment because of this line you can't run multiple days in parallel
-    getFunctionCompilationService().getFunctionCompilationContext().setSecuritySource(securitySource);
-    
-    getFunctionCompilationService().initialize();
-
-    DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    InMemoryViewComputationCacheSource computationCache = new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance());
-
-    ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
-    ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
-    AbstractCalculationNode localNode = new LocalCalculationNode(computationCache, getFunctionCompilationService(), functionExecutionContext, targetResolver, viewProcessorQuerySender, Executors
-        .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
-    JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
-
-    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getBatchDbManager().createDependencyGraphExecutorFactory(run);
-    
-    DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(getFunctionCompilationService());
-    ViewProcessingContext vpc = new ViewProcessingContext(
-        new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider,
-        getFunctionCompilationService(), functionResolver, positionSource, securitySource, computationTargetResolver, computationCache,
-        jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
-        new DiscardingGraphStatisticsGathererProvider());
-
-    ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
-    view.setPopulateResultModel(false);
-    view.init(run.getValuationTime());
-    _view = view;
-  }
 
   public static Options getOptions() {
     Options options = new Options();
@@ -722,12 +557,12 @@ public class BatchJob {
       try {
         s_logger.info("Running {}", run);
   
-        createViewDefinition(run);
-        createView(run);
+        run.createViewDefinition();
+        run.createView();
   
         _batchDbManager.startBatch(run);
 
-        getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
+        run.getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
 
         _batchDbManager.endBatch(run);
         

@@ -63,7 +63,13 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * The trade time with timezone if available
    */
   private OffsetTime _tradeTime;
-  
+
+  /**
+   * Creates a trade which must be initialized by calling methods.
+   */
+  public TradeImpl() {
+  }
+
   /**
    * Creates a trade from a position, counterparty, tradeinstant, and an amount.
    * 
@@ -88,7 +94,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _securityKey = IdentifierBundle.of(securityKey);
     _security = null;
   }
-  
+
   /**
    * Creates a trade from a positionId, an amount of a security identified by key, counterparty and tradeinstant.
    * 
@@ -138,7 +144,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _security = security;
     _securityKey = security.getIdentifiers();
   }
-  
+
   /**
    * Construct a mutable trade copying data from another, possibly immutable, {@link Trade} implementation.
    * 
@@ -155,19 +161,61 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _securityKey = copyFrom.getSecurityKey();
     _security = copyFrom.getSecurity();
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the security key.
-   * @param securityKeyIdentifier  the identifier to add, not null
+   * Gets the unique identifier of the trade.
+   * @return the identifier, not null
    */
-  public void addSecurityKey(final Identifier securityKeyIdentifier) {
-    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
-    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _identifier;
   }
 
+  /**
+   * Sets the unique identifier of the trade.
+   * @param identifier  the new identifier, not null
+   */
+  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    _identifier = identifier;
+  }
+
+  /**
+   * Gets the parent position identifier.
+   * @return the parent position, not null
+   */
+  @Override
+  public UniqueIdentifier getPositionId() {
+    return _positionId;
+  }
+
+  /**
+   * Sets the parent position identifier.
+   * @param positionUid  the position uid, not null
+   */
+  public void setPositionId(UniqueIdentifier positionUid) {
+    ArgumentChecker.notNull(positionUid, "position uid");
+    _positionId = positionUid;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the amount of the position held in terms of the security.
+   * @return the amount of the position, not null
+   */
   @Override
   public BigDecimal getQuantity() {
     return _quantity;
+  }
+
+  /**
+   * Sets the amount of the position held in terms of the security.
+   * @param quantity  the amount of the position, not null
+   */
+  public void setQuantity(BigDecimal quantity) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    _quantity = quantity;
   }
 
   /**
@@ -180,7 +228,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public IdentifierBundle getSecurityKey() {
     return _securityKey;
   }
-  
+
   /**
    * Sets the key to the security being held.
    * @param securityKey  the security key, may be null
@@ -189,41 +237,26 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _securityKey = securityKey;
   }
 
-  @Override
-  public Counterparty getCounterparty() {
-    return _counterparty;
+  /**
+   * Adds an identifier to the security key.
+   * @param securityKeyIdentifier  the identifier to add, not null
+   */
+  public void addSecurityKey(final Identifier securityKeyIdentifier) {
+    ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
+    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
   }
 
-  @Override
-  public LocalDate getTradeDate() {
-    return _tradeDate;
-  }
-
-  @Override
-  public OffsetTime getTradeTime() {
-    return _tradeTime;
-  }
-
+  /**
+   * Gets the security being held, returning {@code null} if it has not been loaded.
+   * <p>
+   * This method is guaranteed to return a security within an analytic function.
+   * @return the security
+   */
   @Override
   public Security getSecurity() {
     return _security;
   }
-  
-  @Override
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _identifier;
-  }
 
-  /**
-   * Sets the unique identifier of the trade.
-   * @param identifier  the new identifier, not null
-   */
-  @Override
-  public void setUniqueIdentifier(UniqueIdentifier identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    _identifier = identifier;
-  }
-  
   /**
    * Sets the security being held.
    * @param security  the security, may be null
@@ -231,21 +264,47 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public void setSecurity(Security security) {
     _security = security;
   }
-  
+
   @Override
-  public UniqueIdentifier getPositionId() {
-    return _positionId;
+  public Counterparty getCounterparty() {
+    return _counterparty;
   }
-  
+
   /**
-   * Sets the parent position identifier.
-   * @param positionUid  the position uid, not null
+   * Sets the counterparty.
+   * @param counterparty  the counterparty, may be null
    */
-  public void setPositionId(UniqueIdentifier positionUid) {
-    ArgumentChecker.notNull(positionUid, "position uid");
-    _positionId = positionUid;
+  public void setCounterparty(Counterparty counterparty) {
+    _counterparty = counterparty;
   }
-  
+
+  @Override
+  public LocalDate getTradeDate() {
+    return _tradeDate;
+  }
+
+  /**
+   * Sets the trade date.
+   * @param tradeDate  the trade date, may be null
+   */
+  public void setTradeDate(LocalDate tradeDate) {
+    _tradeDate = tradeDate;
+  }
+
+  @Override
+  public OffsetTime getTradeTime() {
+    return _tradeTime;
+  }
+
+  /**
+   * Sets the trade time.
+   * @param tradeTime  the trade time, may be null
+   */
+  public void setTradeTime(OffsetTime tradeTime) {
+    _tradeTime = tradeTime;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -271,7 +330,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
       hashCode += _security.hashCode();
     }
     hashCode *= 31;
-    hashCode += _securityKey.hashCode();
+    hashCode += ObjectUtils.hashCode(_securityKey);
     return hashCode;
   }
   

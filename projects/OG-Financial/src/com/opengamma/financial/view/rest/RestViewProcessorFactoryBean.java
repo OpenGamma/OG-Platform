@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
@@ -19,6 +20,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   private ViewProcessor _viewProcessor;
   private ActiveMQConnectionFactory _connectionFactory;
   private String _topicPrefix;
+  private FudgeContext _fudgeContext;
    
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
@@ -43,6 +45,14 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   public void setTopicPrefix(String topicPrefix) {
     _topicPrefix = topicPrefix;
   }
+  
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+  
+  public void setFudgeContext(FudgeContext fudgeContext) {
+    _fudgeContext = fudgeContext;
+  }
 
   @Override
   protected DataViewProcessorsResource createObject() {
@@ -57,7 +67,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(DataViewProcessorsResource.DEFAULT_VIEW_PROCESSOR_NAME, getViewProcessor(), getConnectionFactory(), getTopicPrefix());
+    resource.addViewProcessor(DataViewProcessorsResource.DEFAULT_VIEW_PROCESSOR_NAME, getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext());
     return resource;
   }
 

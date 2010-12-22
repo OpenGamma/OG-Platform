@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting {@link YieldCurveDefinition} instances to/from Fudge messages.
  */
 @FudgeBuilderFor(YieldCurveDefinition.class)
 public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefinition> {

@@ -16,22 +16,22 @@ public enum UserDataType {
   INTERPOLATED_YIELD_CURVE_DEFINITION,
 
   /**
-   * Value from a SecurityMaster
+   * Value from a SecurityMaster.
    */
   SECURITY,
 
   /**
-   * Value from a PositionMaster
+   * Value from a PositionMaster.
    */
   POSITION,
 
   /**
-   * Value from a PositionMaster
+   * Value from a PortfolioMaster.
    */
-  PORTFOLIO_TREE,
+  PORTFOLIO,
 
   /**
-   * Value from a ManageableViewDefinitionRepository
+   * Value from a ManageableViewDefinitionRepository.
    */
   VIEW_DEFINITION
 

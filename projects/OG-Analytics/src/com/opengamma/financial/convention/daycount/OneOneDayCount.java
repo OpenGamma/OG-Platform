@@ -14,6 +14,9 @@ import javax.time.calendar.ZonedDateTime;
  */
 public class OneOneDayCount extends StatelessDayCount {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     return 1;

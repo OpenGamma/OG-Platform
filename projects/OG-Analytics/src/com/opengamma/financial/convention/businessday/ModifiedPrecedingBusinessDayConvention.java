@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.businessday;
@@ -16,6 +16,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
  * In that case, the date is adjusted to be the following business day. 
  */
 public class ModifiedPrecedingBusinessDayConvention extends AbstractBusinessDayConvention {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   private static final BusinessDayConvention PRECEDING = new PrecedingBusinessDayConvention();
   private static final BusinessDayConvention FOLLOWING = new FollowingBusinessDayConvention();

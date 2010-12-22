@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -14,6 +14,9 @@ import org.apache.commons.lang.NotImplementedException;
  * The 'Actual/365L' day count.
  */
 public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {

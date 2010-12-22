@@ -12,6 +12,7 @@ import com.opengamma.financial.user.ClientTracker;
 import com.opengamma.financial.user.DummyTracker;
 import com.opengamma.financial.user.UserDataTracker;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -23,6 +24,7 @@ public class UsersResourceContext {
   private FudgeContext _fudgeContext;
   private UserDataTracker _dataTracker;
   private ClientTracker _clientTracker;
+  private PortfolioMaster _userPortfolioMaster;
   private PositionMaster _userPositionMaster;
   private SecurityMaster _userSecurityMaster;
   private ManageableViewDefinitionRepository _userViewDefinitionRepository;
@@ -48,6 +50,14 @@ public class UsersResourceContext {
 
   public ClientTracker getClientTracker() {
     return _clientTracker;
+  }
+
+  public void setUserPortfolioMaster(PortfolioMaster portfolioMaster) {
+    _userPortfolioMaster = portfolioMaster;
+  }
+  
+  public PortfolioMaster getPortfolioMaster() {
+    return _userPortfolioMaster;
   }
 
   public void setUserPositionMaster(PositionMaster positionMaster) {

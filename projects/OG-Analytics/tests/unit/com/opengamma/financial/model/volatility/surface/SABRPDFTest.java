@@ -22,13 +22,17 @@ import com.opengamma.util.CompareUtils;
  */
 public class SABRPDFTest {
 
-  private static final double F = 4;
+  private static final double F = 5;
   // private static final double ATM_VOL = 0.15;
-  private static final double ALPHA = 0.3;
-  private static final double BETA = 1.0;
-  private static final double NU = 1.0;
+  private static final double ALPHA;// = 0.3;
+  private static final double BETA = 0.99;
+  private static final double NU = 0.4;
   private static final double RHO = -0.5;
-  private static final double T = 10;
+  private static final double T = 25;
+  private static final double ATM_VOL = 0.3;
+  static {
+    ALPHA = ATM_VOL * Math.pow(F, 1 - BETA);
+  }
   // private static final SABRFormula SABR = new SABRFormula();
   // private static final SABRFormulaHagan SABR_HAGAN = new SABRFormulaHagan();
   private static final BlackFormula BLACK = new BlackFormula();
@@ -83,10 +87,6 @@ public class SABRPDFTest {
     }
   };
 
-  static {
-    // ALPHA = ATM_VOL * Math.pow(F, 1 - BETA);
-  }
-
   @Test
   public void test() {
     final int n = 800;
@@ -104,12 +104,12 @@ public class SABRPDFTest {
     final double[] pdf5 = new double[n];
     // double sigmaRootT = ATM_VOL * Math.sqrt(T);
     // double sigmaRootT = ALPHA * Math.sqrt(T);
-    final double step = 10.0 / (n);
+    final double step = 20.0 / (n);
     //System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
     for (int i = 0; i < n; i++) {
       // double z = (i - 3 * n) * step;
       // double k = F * Math.exp(sigmaRootT * z) * 1.2;
-      final double k = (i + 1) * step;
+      final double k = 0.0 + (i + 1) * step;
       strike[i] = k;
       impliedVol[i] = SABR.evaluate(k);
       impliedVol2[i] = SABR_HAGAN.evaluate(k);
@@ -153,18 +153,22 @@ public class SABRPDFTest {
   }
 
   private double sigmaPrime(final double k, final Function1D<Double, Double> sabrFunction) {
-    final double eps = 1e-3;
-    final double impliedVolUp = sabrFunction.evaluate(k + eps);
-    final double impliedVolDown = sabrFunction.evaluate(k - eps);
-    return (impliedVolUp - impliedVolDown) / 2 / eps;
+    final double eps = 1e-2;
+    final double kUp = k * (1 + eps);
+    final double kDown = k * (1 - eps);
+    final double impliedVolUp = sabrFunction.evaluate(kUp);
+    final double impliedVolDown = sabrFunction.evaluate(kDown);
+    return (impliedVolUp - impliedVolDown) / 2 / k / eps;
   }
 
   private double sigmaDoublePrime(final double k, final Function1D<Double, Double> sabrFunction) {
-    final double eps = 1e-3;
+    final double eps = 1e-2;
+    final double kUp = k * (1 + eps);
+    final double kDown = k * (1 - eps);
     final double impliedVol = sabrFunction.evaluate(k);
-    final double impliedVolUp = sabrFunction.evaluate(k + eps);
-    final double impliedVolDown = sabrFunction.evaluate(k - eps);
-    return (impliedVolUp + impliedVolDown - 2 * impliedVol) / eps / eps;
+    final double impliedVolUp = sabrFunction.evaluate(kUp);
+    final double impliedVolDown = sabrFunction.evaluate(kDown);
+    return (impliedVolUp + impliedVolDown - 2 * impliedVol) / k / k / eps / eps;
   }
 
   private double getD1(final double f, final double k, final double simgaRootT) {

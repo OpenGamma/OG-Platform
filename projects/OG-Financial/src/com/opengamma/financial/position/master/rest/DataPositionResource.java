@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
@@ -49,7 +50,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @param positionId  the position unique identifier, not null
    */
   public DataPositionResource(final DataPositionsResource positionsResource, final UniqueIdentifier positionId) {
-    ArgumentChecker.notNull(positionsResource, "position master");
+    ArgumentChecker.notNull(positionsResource, "positionsResource");
     ArgumentChecker.notNull(positionId, "position");
     _positionsResource = positionsResource;
     _urlResourceId = positionId;
@@ -84,7 +85,7 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get() {
-    PositionDocument result = getPositionMaster().getPosition(getUrlPositionId());
+    PositionDocument result = getPositionMaster().get(getUrlPositionId());
     return Response.ok(result).build();
   }
 
@@ -94,14 +95,14 @@ public class DataPositionResource extends AbstractDataResource {
     if (getUrlPositionId().equalsIgnoringVersion(request.getUniqueId()) == false) {
       throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
-    PositionDocument result = getPositionMaster().updatePosition(request);
+    PositionDocument result = getPositionMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getPositionMaster().removePosition(getUrlPositionId());
+    getPositionMaster().remove(getUrlPositionId());
     return Response.noContent().build();
   }
 
@@ -113,7 +114,7 @@ public class DataPositionResource extends AbstractDataResource {
     if (getUrlPositionId().equalsIgnoringVersion(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    PositionHistoryResult result = getPositionMaster().historyPosition(request);
+    PositionHistoryResult result = getPositionMaster().history(request);
     return Response.ok(result).build();
   }
 
@@ -122,6 +123,14 @@ public class DataPositionResource extends AbstractDataResource {
   public Response getVersioned(@PathParam("versionId") String versionId) {
     _urlResourceId = _urlResourceId.withVersion(versionId);
     return get();
+  }
+
+  @GET
+  @Path("trades/{tradeId}")
+  public Response getTrade(@PathParam("tradeId") String idStr) {
+    UniqueIdentifier tradeId = UniqueIdentifier.parse(idStr);
+    ManageableTrade result = getPositionMaster().getTrade(tradeId);
+    return Response.ok(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -159,6 +168,17 @@ public class DataPositionResource extends AbstractDataResource {
   public static URI uriVersion(URI baseUri, UniqueIdentifier uid) {
     return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
       .build(uid.toLatest(), uid.getVersion());
+  }
+
+  /**
+   * Builds a URI for a specific node.
+   * @param baseUri  the base URI, not null
+   * @param tradeUid  the resource unique identifier, not null
+   * @return the URI, not null
+   */
+  public static URI uriTrade(URI baseUri, UniqueIdentifier tradeUid) {
+    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}")
+      .build("-", tradeUid);  // TODO: probably could do with a better URI
   }
 
 }

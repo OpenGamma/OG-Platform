@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -13,6 +13,9 @@ import org.apache.commons.lang.NotImplementedException;
  * The '30E/360 ISDA' day count.
  */
 public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {

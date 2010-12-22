@@ -21,14 +21,39 @@ public class SABRFormulaPaulot implements SABRFormula {
   public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     double sigma0, sigma1;
-    final double beta1 = 1 - beta;
-    final double a = Math.pow(f, beta1);
 
-    if (CompareUtils.closeEquals(f, k, EPS)) {
-      sigma0 = alpha / Math.pow(k, beta1);
-      sigma1 = beta1 * beta1 * alpha * alpha / 24 / a / a + rho * alpha * beta * nu / 4 / a + nu * nu * (2 - 3 * rho * rho) / 24;
+    final double beta1 = 1 - beta;
+
+    final double x = Math.log(k / f);
+
+    // the formula behaves very badly close to ATM
+    if (CompareUtils.closeEquals(x, 0.0, 1e-3)) {
+      double delta = 1.01e-3;
+      double a0 = (new SABRFormulaHagan()).impliedVolitility(f, alpha, beta, nu, rho, f, t);
+      double kPlus, kMinus;
+      kPlus = f * Math.exp(delta);
+      kMinus = f * Math.exp(-delta);
+      // if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
+      // kPlus = f*(1+delta);
+      // kMinus = f*(1-delta);
+      // } else {
+      // kPlus = Math.pow(delta * beta1 + Math.pow(f, beta1), 1 / beta1);
+      // kMinus = Math.pow(-delta * beta1 + Math.pow(f, beta1), 1 / beta1);
+      // }
+      double yPlus = impliedVolitility(f, alpha, beta, nu, rho, kPlus, t);
+      double yMinus = impliedVolitility(f, alpha, beta, nu, rho, kMinus, t);
+      double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
+      double a1 = (yPlus - yMinus) / 2 / delta;
+
+      return a2 * x * x + a1 * x + a0;
+
+      // sigma0 = alpha / Math.pow(k, beta1);
+      // sigma1 = beta1 * beta1 * alpha * alpha / 24 / a / a + rho * alpha * beta * nu / 4 / a + nu * nu * (2 - 3 * rho * rho) / 24;
+      // return sigma0 * (1 + sigma1 * t);
     } else {
-      final double x = Math.log(k / f);
+
+      double tScale = nu * nu * t;
+      double alphaScale = alpha / nu; // TODO treat the nu = 0 limit
 
       double q;
       if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
@@ -37,19 +62,17 @@ public class SABRFormulaPaulot implements SABRFormula {
         q = (Math.pow(k, beta1) - Math.pow(f, beta1)) / beta1;
       }
 
-      final double vMin = Math.sqrt(alpha * alpha + 2 * rho * alpha * nu * q + nu * nu * q * q);
-      final double logTerm = Math.log((vMin + rho * alpha + q * nu) / (1 + rho) / alpha);
-      sigma0 = nu * x / logTerm;
+      final double vMin = Math.sqrt(alphaScale * alphaScale + 2 * rho * alphaScale * q + q * q);
+      final double logTerm = Math.log((vMin + rho * alphaScale + q) / (1 + rho) / alphaScale);
+      sigma0 = x / logTerm;
 
-      final double cTilde = getCTilde(f, k, alpha, beta, rho, nu, q);
-      sigma1 = -square(nu / logTerm) * (cTilde + Math.log(sigma0 / nu * Math.sqrt(k * f)));
-
+      final double cTilde = getCTilde(f, k, alphaScale, beta, rho, q);
+      sigma1 = -(cTilde + Math.log(sigma0 * Math.sqrt(k * f))) / square(logTerm);
+      return nu * sigma0 * (1 + sigma1 * tScale);
     }
-
-    return sigma0 * (1 + sigma1 * t);
   }
 
-  private double getCTilde(final double f, final double k, final double alpha, final double beta, final double rho, final double nu, final double q) {
+  private double getCTilde(final double f, final double k, final double alpha, final double beta, final double rho, final double q) {
     final double rhoStar = Math.sqrt(1 - rho * rho);
     final double beta1 = 1 - beta;
     final double vMin = Math.sqrt(alpha * alpha + 2 * rho * alpha * q + q * q);
@@ -60,10 +83,10 @@ public class SABRFormulaPaulot implements SABRFormula {
       final double a = Math.pow(f, beta1);
       final double b = beta1 * rhoStar;
       final double c = beta1 * rho;
-      final double x1 = -rho * alpha / nu / rhoStar;
-      final double x2 = (q * nu - rho * vMin) / nu / rhoStar;
-      final double y1 = alpha / nu;
-      final double y2 = vMin / nu;
+      final double x1 = -rho * alpha / rhoStar;
+      final double x2 = (q - rho * vMin) / rhoStar;
+      final double y1 = alpha;
+      final double y2 = vMin;
       final double xCap = (x2 * x2 - x1 * x1 + y2 * y2 - y1 * y1) / 2 / (x2 - x1);
       final double rCap = Math.sqrt(y1 * y1 + square(x1 - xCap));
       final double t1 = Math.sqrt((rCap - x1 + xCap) / (rCap + x1 - xCap));

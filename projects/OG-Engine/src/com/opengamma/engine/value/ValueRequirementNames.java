@@ -22,7 +22,8 @@ public interface ValueRequirementNames {
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   public static final String YIELD_CURVE = "YieldCurve";
-  public static final String VOLATILITY_SURFACE = "VolatilitySurface";  
+  public static final String VOLATILITY_SURFACE = "VolatilitySurface";
+  public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";  
   public static final String COST_OF_CARRY = "Cost Of Carry";  
   
   //

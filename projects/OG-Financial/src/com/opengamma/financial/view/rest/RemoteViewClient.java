@@ -13,7 +13,9 @@ import javax.jms.JMSException;
 import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -60,6 +62,14 @@ public class RemoteViewClient implements ViewClient {
     _fudgeContext = fudgeContext;
     _jmsTemplate = jmsTemplate;
   }
+  
+  private FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+  
+  private FudgeDeserializationContext getFudgeDeserializationContext() {
+    return new FudgeDeserializationContext(getFudgeContext());
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -88,7 +98,12 @@ public class RemoteViewClient implements ViewClient {
   @Override
   public ViewComputationResultModel getLatestResult() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
-    return _client.access(uri).get(ViewComputationResultModel.class);
+    FudgeMsgEnvelope envelope = _client.access(uri).get(FudgeMsgEnvelope.class);
+    FudgeField latestResultField = envelope.getMessage().getByName(DataViewClientResource.PATH_LATEST_RESULT);
+    if (latestResultField == null) {
+      return null;
+    }
+    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, latestResultField);
   }
   
   @Override

@@ -134,7 +134,7 @@ abstract public class DBTest implements TableCreationCallback {
   
   public DbSource getDbSource() {
     DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-    transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
     transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
     DbHelper dbHelper = s_dbHelpers.get(getDatabaseType());

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -15,6 +15,9 @@ import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
  * The 'Actual/Actual AFB' day count.
  */
 public class ActualActualAFB extends ActualTypeDayCount {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {

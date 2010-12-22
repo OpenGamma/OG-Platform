@@ -1,17 +1,22 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.yield;
+
+import java.io.Serializable;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A simple yield convention.
  */
-public class SimpleYieldConvention implements YieldConvention {
+public class SimpleYieldConvention implements YieldConvention, Serializable {
   // TODO: should be an enum?
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * 
@@ -65,7 +70,7 @@ public class SimpleYieldConvention implements YieldConvention {
     _name = name;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;

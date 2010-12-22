@@ -84,7 +84,7 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   /**
    * The meta-bean for {@code AbstractHistoryResult}.
    */
-  public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta {
+  public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta<D> {
     /**
      * The singleton instance of the meta-bean.
      */

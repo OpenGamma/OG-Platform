@@ -24,7 +24,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
-
+  
   /**
    * Creates an empty function compilation context.
    */

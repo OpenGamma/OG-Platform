@@ -25,9 +25,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.masterdb.position.DbPositionMasterWorker;
-import com.opengamma.masterdb.position.ModifyPositionDbPositionMasterWorker;
-import com.opengamma.masterdb.position.QueryPositionDbPositionMasterWorker;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -66,7 +63,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   @Test(expected = DataNotFoundException.class)
   public void test_removePosition_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
-    _worker.removePosition(uid);
+    _worker.remove(uid);
   }
 
   @Test
@@ -74,12 +71,10 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "122", "0");
-    _worker.removePosition(uid);
-    PositionDocument test = _queryWorker.getPosition(uid);
+    _worker.remove(uid);
+    PositionDocument test = _queryWorker.get(uid);
     
     assertEquals(uid, test.getUniqueId());
-    assertEquals(UniqueIdentifier.of("DbPos", "101"), test.getPortfolioId());
-    assertEquals(UniqueIdentifier.of("DbPos", "112"), test.getParentNodeId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());

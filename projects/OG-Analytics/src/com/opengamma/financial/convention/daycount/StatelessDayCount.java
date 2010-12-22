@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import java.io.Serializable;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -12,7 +14,10 @@ import org.apache.commons.lang.Validate;
 /**
  * Base class providing a hash and equality test based on the class.
  */
-/* package */abstract class StatelessDayCount implements DayCount {
+/* package */abstract class StatelessDayCount implements DayCount, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Validates that the dates are non-null and ordered/equal.
@@ -38,7 +43,7 @@ import org.apache.commons.lang.Validate;
     Validate.isTrue((d2.isAfter(d1) || d2.equals(d1)) && (d2.isBefore(d3) || d2.equals(d3)), "must have d1 <= d2 <= d3, have d1 = " + d1 + ", d2 = " + d2 + ", d3 = " + d3);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (obj == this) {

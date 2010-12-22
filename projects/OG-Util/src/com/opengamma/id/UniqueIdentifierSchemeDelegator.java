@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,13 +48,13 @@ public class UniqueIdentifierSchemeDelegator<T> {
    * Creates an instance specifying the default delegate.
    * 
    * @param defaultDelegate  the delegate to use when no scheme matches, not null
-   * @param delegates  the map of delegates by scheme to switch on, not null
+   * @param schemePrefixToDelegateMap  the map of delegates by scheme to switch on, not null
    */
-  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate, final Map<String, T> delegates) {
+  protected UniqueIdentifierSchemeDelegator(final T defaultDelegate, final Map<String, T> schemePrefixToDelegateMap) {
     ArgumentChecker.notNull(defaultDelegate, "defaultDelegate");
-    ArgumentChecker.notNull(delegates, "delegates");
+    ArgumentChecker.notNull(schemePrefixToDelegateMap, "schemePrefixToDelegateMap");
     _defaultDelegate = defaultDelegate;
-    for (Map.Entry<String, T> delegate : delegates.entrySet()) {
+    for (Map.Entry<String, T> delegate : schemePrefixToDelegateMap.entrySet()) {
       registerDelegate(delegate.getKey(), delegate.getValue());
     }
   }
@@ -84,7 +86,9 @@ public class UniqueIdentifierSchemeDelegator<T> {
    * @return the delegate, not null
    */
   protected T chooseDelegate(final UniqueIdentifier uid) {
-    final T delegate = _schemeToDelegateMap.get(uid.getScheme());
+    String[] schemeParts = StringUtils.split(uid.getScheme(), "-", 2);
+    String schemePrefix = schemeParts[0];
+    final T delegate = _schemeToDelegateMap.get(schemePrefix);
     return (delegate != null) ? delegate : _defaultDelegate;
   }
 
