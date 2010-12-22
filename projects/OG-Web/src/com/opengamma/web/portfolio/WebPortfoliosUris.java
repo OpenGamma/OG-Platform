@@ -71,4 +71,21 @@ public class WebPortfoliosUris {
     return WebPortfolioNodeResource.uri(_data, node.getUniqueIdentifier());
   }
 
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
+  public URI nodePositions() {
+    return WebPortfolioNodePositionsResource.uri(_data);
+  }
+
+  /**
+   * Gets the URI.
+   * @param node  the node, not null
+   * @return the URI
+   */
+  public URI nodePositions(final ManageablePortfolioNode node) {
+    return WebPortfolioNodePositionsResource.uri(_data, node.getUniqueIdentifier());
+  }
+
 }
