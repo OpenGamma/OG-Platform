@@ -53,7 +53,11 @@ public class ViewCompilationContext {
       builder.setCalculationConfigurationName(configName);
       builder.setLiveDataAvailabilityProvider(compilationServices.getLiveDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
+      // REVIEW 2010-12-22 Andrew -- should the same function resolver be used for all view configurations? How do we select e.g. different function parameters, or re-prioritize the repository?
       builder.setFunctionResolver(functionResolver);
+      // REVIEW 2010-12-22 Andrew -- should the same compilation context be used for all view configurations?
+      // What about config that might influence a function's input requirements and abilities?
+      // Could we pass the ViewCalculationConfiguration object and let the functions make decisions from that?
       builder.setCompilationContext(compilationServices.getFunctionCompilationContext());
       result.put(configName, builder);
     }
