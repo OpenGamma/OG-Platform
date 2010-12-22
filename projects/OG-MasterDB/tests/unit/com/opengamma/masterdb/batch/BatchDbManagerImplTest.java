@@ -66,16 +66,18 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().initializeDefaults(_batchJob);
     _batchJob.setBatchDbManager(_dbManager);
     _batchJob.getParameters().setViewName("test_view");
-    _batchJob.setView(ViewTestUtils.getMockView());
+    
+    _batchJobRun = new BatchJobRun(_batchJob);
+    _batchJobRun.setView(ViewTestUtils.getMockView());
+    
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
-    doc.setValue(_batchJob.getView().getDefinition());
-    _batchJob.setViewDefinitionConfig(doc);
+    doc.setValue(_batchJobRun.getView().getDefinition());
+    _batchJobRun.setViewDefinitionConfig(doc);
     
-    _batchJobRun = new BatchJobRun(_batchJob);
     _batchJob.addRun(_batchJobRun);
   }
     
