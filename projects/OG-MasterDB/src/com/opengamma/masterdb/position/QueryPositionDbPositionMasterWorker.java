@@ -89,7 +89,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   /**
    * SQL order by.
    */
-  protected static final String ORDER_BY = "ORDER BY p.id, t.trade_date, t.id ";
+  protected static final String ORDER_BY = "ORDER BY p.oid, t.trade_date, t.id ";
   
   /**
    * Creates an instance.
@@ -243,7 +243,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     }
     
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") " + ORDER_BY;
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
