@@ -157,8 +157,10 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
     double coupon;
     if (index < 0) {
       position = -index - 2;
+    } else if (index != 0) {
+      position -= 1;
     }
-    coupon = _coupons[position - 1];
+    coupon = _coupons[position];
     final DayCount dayCount = _convention.getDayCount();
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final LocalDate settlementDate = getSettlementDate(date, calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
@@ -178,8 +180,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
 
   //TODO this only works for following 
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
-    //final LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
-    LocalDate date = businessDayConvention.adjustDate(calendar, today);
+    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
     for (int i = 0; i < settlementDays; i++) {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }

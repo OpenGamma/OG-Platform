@@ -73,7 +73,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final Bond bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, _curveName).toDerivative(now.toLocalDate(), _curveName);
+    final Bond bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true).toDerivative(now.toLocalDate(), _curveName);
 
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;

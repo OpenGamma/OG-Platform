@@ -46,7 +46,6 @@ public class ActualActualICMA extends ActualTypeDayCount {
       case NONE: {
         daysBetween = dateJulian - previousCouponDateJulian;
         daysBetweenCoupons = next.toModifiedJulianDays() - previousCouponDateJulian;
-        System.out.println(previousCouponDate + " " + date + " " + nextCouponDate + " " + daysBetween + " " + daysBetweenCoupons);
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case SHORT_START: {

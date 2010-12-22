@@ -63,6 +63,7 @@ public class ConventionTest {
     assertEquals(CONVENTION.getName(), NAME);
     assertEquals(CONVENTION.getSettlementDays(), SETTLEMENT_DAYS);
     assertEquals(CONVENTION.getWorkingDayCalendar(), CALENDAR);
+    assertEquals(CONVENTION.isEOM(), IS_EOM);
   }
 
   @Test
@@ -89,6 +90,8 @@ public class ConventionTest {
       }
 
     }, IS_EOM, NAME);
+    assertFalse(CONVENTION.equals(other));
+    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, !IS_EOM, NAME);
     assertFalse(CONVENTION.equals(other));
     other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME + ")");
     assertFalse(CONVENTION.equals(other));

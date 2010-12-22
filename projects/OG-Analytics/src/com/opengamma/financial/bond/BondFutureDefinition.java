@@ -29,7 +29,6 @@ public class BondFutureDefinition implements InterestRateDerivativeProvider<Bond
     Validate.notNull(conversionFactors, "conversion factor");
     Validate.isTrue(deliverableBonds.length == conversionFactors.length, "each deliverable bond must have a conversion factor");
     Validate.notNull(convention, "convention");
-    //    Validate.isTrue(convention.getSettlementDays() == 0);
     Validate.notNull(deliveryDate, "delivery date");
     _deliverableBonds = deliverableBonds;
     _conversionFactors = conversionFactors;
@@ -90,6 +89,8 @@ public class BondFutureDefinition implements InterestRateDerivativeProvider<Bond
 
   @Override
   public BondFuture toDerivative(final LocalDate date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve name(s)");
     final int n = _deliverableBonds.length;
     final BondForward[] bondForwards = new BondForward[n];
     for (int i = 0; i < n; i++) {

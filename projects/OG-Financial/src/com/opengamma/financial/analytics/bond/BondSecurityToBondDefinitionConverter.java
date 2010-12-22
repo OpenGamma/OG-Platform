@@ -59,12 +59,14 @@ public class BondSecurityToBondDefinitionConverter {
 
   /**
    * 
-   * @param security A BondSecurity 
+   * @param security A BondSecurity, not null
    * @param rollToSettlement if true the cash-flow calculation date is rolled forward to the settlement date 
+   * @param convention A convention bundle, not null
    * @return a Bond
    */
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement, final ConventionBundle convention) {
     Validate.notNull(security, "security");
+    Validate.notNull(convention, "convention");
     final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
@@ -87,7 +89,7 @@ public class BondSecurityToBondDefinitionConverter {
     //TODO should be in schedule factory 
     final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, convention.getSettlementDays())
         : ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, 0));
-    final double coupon = security.getCouponRate();
+    final double coupon = security.getCouponRate() / 100;
     final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);
     return new BondDefinition(nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);

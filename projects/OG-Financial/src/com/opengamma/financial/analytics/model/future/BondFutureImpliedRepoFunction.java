@@ -114,7 +114,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
         final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : bondSec.getDayCountConvention();
         final BondConvention bondConvention = new BondConvention(0, daycount, businessDayConvention, calendar, isEOMConvention, (currency.getISOCode() + "_TREASURY_BOND"),
             convention.getExDividendDays(), SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-        final BondDefinition bondDefinition = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(bondSec, "dummy", true);
+        final BondDefinition bondDefinition = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(bondSec, true);
         final Bond bond = bondDefinition.toDerivative(now.toLocalDate(), "dummy");
         priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, bondSec.getUniqueIdentifier());
         priceObject = inputs.getValue(priceRequirement);

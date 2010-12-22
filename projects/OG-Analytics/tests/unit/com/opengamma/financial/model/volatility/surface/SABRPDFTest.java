@@ -38,7 +38,7 @@ public class SABRPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
@@ -48,7 +48,7 @@ public class SABRPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
@@ -58,7 +58,7 @@ public class SABRPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
@@ -68,7 +68,7 @@ public class SABRPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
@@ -78,7 +78,7 @@ public class SABRPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
@@ -89,27 +89,27 @@ public class SABRPDFTest {
 
   @Test
   public void test() {
-    int n = 800;
-    double[] strike = new double[n];
-    double[] impliedVol = new double[n];
-    double[] impliedVol2 = new double[n];
-    double[] impliedVol3 = new double[n];
-    double[] impliedVol4 = new double[n];
-    double[] impliedVol5 = new double[n];
-    double[] price = new double[n];
-    double[] pdf1 = new double[n];
-    double[] pdf2 = new double[n];
-    double[] pdf3 = new double[n];
-    double[] pdf4 = new double[n];
-    double[] pdf5 = new double[n];
+    final int n = 800;
+    final double[] strike = new double[n];
+    final double[] impliedVol = new double[n];
+    final double[] impliedVol2 = new double[n];
+    final double[] impliedVol3 = new double[n];
+    final double[] impliedVol4 = new double[n];
+    final double[] impliedVol5 = new double[n];
+    final double[] price = new double[n];
+    final double[] pdf1 = new double[n];
+    final double[] pdf2 = new double[n];
+    final double[] pdf3 = new double[n];
+    final double[] pdf4 = new double[n];
+    final double[] pdf5 = new double[n];
     // double sigmaRootT = ATM_VOL * Math.sqrt(T);
     // double sigmaRootT = ALPHA * Math.sqrt(T);
-    double step = 10.0 / (n);
-    System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
+    final double step = 10.0 / (n);
+    //System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
     for (int i = 0; i < n; i++) {
       // double z = (i - 3 * n) * step;
       // double k = F * Math.exp(sigmaRootT * z) * 1.2;
-      double k = (i + 1) * step;
+      final double k = (i + 1) * step;
       strike[i] = k;
       impliedVol[i] = SABR.evaluate(k);
       impliedVol2[i] = SABR_HAGAN.evaluate(k);
@@ -122,8 +122,8 @@ public class SABRPDFTest {
       pdf3[i] = pdf(k, SABR_BERESTYCKI);
       pdf4[i] = pdf(k, SABR_PAULOT);
       pdf5[i] = pdf(k, SABR_JOHNSON);
-      System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
-          + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
+      //System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
+      //    + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
     }
   }
 
@@ -139,31 +139,31 @@ public class SABRPDFTest {
   // return (priceUp + priceDown - 2 * price) / eps / eps;
   // }
 
-  private double pdf(final double k, Function1D<Double, Double> sabrFunction) {
+  private double pdf(final double k, final Function1D<Double, Double> sabrFunction) {
 
-    double sigma = sabrFunction.evaluate(k);
-    double rootT = Math.sqrt(T);
-    double d1 = getD1(F, k, sigma * rootT);
-    double sigmaPrime = sigmaPrime(k, sabrFunction);
-    double sigmaDoublePrime = sigmaDoublePrime(k, sabrFunction);
-    double d1Prime = getD1Prime(F, k, sigma, T, sigmaPrime);
-    double d2Prime = d1Prime - rootT * sigmaPrime;
-    double nPrimed1 = Math.exp(-d1 * d1 / 2) / Math.sqrt(2 * Math.PI);
+    final double sigma = sabrFunction.evaluate(k);
+    final double rootT = Math.sqrt(T);
+    final double d1 = getD1(F, k, sigma * rootT);
+    final double sigmaPrime = sigmaPrime(k, sabrFunction);
+    final double sigmaDoublePrime = sigmaDoublePrime(k, sabrFunction);
+    final double d1Prime = getD1Prime(F, k, sigma, T, sigmaPrime);
+    final double d2Prime = d1Prime - rootT * sigmaPrime;
+    final double nPrimed1 = Math.exp(-d1 * d1 / 2) / Math.sqrt(2 * Math.PI);
     return -F * nPrimed1 * (rootT * (d1 * d1Prime * sigmaPrime - sigmaDoublePrime) + d2Prime / k);
   }
 
-  private double sigmaPrime(final double k, Function1D<Double, Double> sabrFunction) {
-    double eps = 1e-3;
-    double impliedVolUp = sabrFunction.evaluate(k + eps);
-    double impliedVolDown = sabrFunction.evaluate(k - eps);
+  private double sigmaPrime(final double k, final Function1D<Double, Double> sabrFunction) {
+    final double eps = 1e-3;
+    final double impliedVolUp = sabrFunction.evaluate(k + eps);
+    final double impliedVolDown = sabrFunction.evaluate(k - eps);
     return (impliedVolUp - impliedVolDown) / 2 / eps;
   }
 
-  private double sigmaDoublePrime(final double k, Function1D<Double, Double> sabrFunction) {
-    double eps = 1e-3;
-    double impliedVol = sabrFunction.evaluate(k);
-    double impliedVolUp = sabrFunction.evaluate(k + eps);
-    double impliedVolDown = sabrFunction.evaluate(k - eps);
+  private double sigmaDoublePrime(final double k, final Function1D<Double, Double> sabrFunction) {
+    final double eps = 1e-3;
+    final double impliedVol = sabrFunction.evaluate(k);
+    final double impliedVolUp = sabrFunction.evaluate(k + eps);
+    final double impliedVolDown = sabrFunction.evaluate(k - eps);
     return (impliedVolUp + impliedVolDown - 2 * impliedVol) / eps / eps;
   }
 
@@ -176,8 +176,8 @@ public class SABRPDFTest {
   }
 
   private double getD1Prime(final double f, final double k, final double sigma, final double t, final double sigmaPrime) {
-    double rootT = Math.sqrt(t);
-    double res = -1 / k / sigma / rootT - (Math.log(f / k) / sigma / sigma / rootT - 0.5 * rootT) * sigmaPrime;
+    final double rootT = Math.sqrt(t);
+    final double res = -1 / k / sigma / rootT - (Math.log(f / k) / sigma / sigma / rootT - 0.5 * rootT) * sigmaPrime;
     return res;
   }
 

@@ -21,8 +21,8 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureDelivera
 public class BondFutureGrossBasisCalculatorTest {
   private static final BondFutureGrossBasisCalculator CALCULATOR = BondFutureGrossBasisCalculator.getInstance();
   private static final String NAME = "A";
-  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.1, 0),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.1, 0.04), new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.2, 1)};
+  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.1, 0, 0),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.1, 0, 0.04), new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.2, 0, 1)};
   private static final double[] CONVERSION_FACTORS = new double[] {0.123, 0.456, 0.789};
   private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS);
   private static final double[] CLEAN_PRICES = new double[] {97., 98., 99.};

@@ -89,18 +89,18 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
   //TODO pass in the convention here?
   @Override
   public BondForward toDerivative(final LocalDate date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
     final BondConvention underlyingConvention = _underlyingBond.getConvention(); //TODO need a bond forward convention?
     final LocalDate settlementDate = getSettlementDate(date, _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
-    final LocalDate bondSettlementDate = getSettlementDate(date, underlyingConvention.getWorkingDayCalendar(), underlyingConvention.getBusinessDayConvention(),
-        underlyingConvention.getSettlementDays());
-    final double accruedInterest = _underlyingBond.toDerivative(settlementDate, yieldCurveNames).getAccruedInterest();
-    final double accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(),
-        _underlyingBond.getCoupons()[0], _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays()); //TODO move this into the forward definition
-    System.out.println("accruedInterestAtDelivery\t" + accruedInterestAtDelivery + "\t forwardDate\t" + _forwardDate);
-    final Bond bond = _underlyingBond.toDerivative(bondSettlementDate, yieldCurveNames);
+    final double accruedInterest = _underlyingBond.toDerivative(date, yieldCurveNames).getAccruedInterest();
+    final double coupon = _underlyingBond.getCoupons()[0]; //TODO not necessarily - coupons might not be equal (unlikely but should be tested for)
+    final double accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), coupon,
+        _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays()); //TODO move this into the forward definition
+    final Bond bond = _underlyingBond.toDerivative(date, yieldCurveNames);
     final DayCount repoDaycount = _convention.getDayCount();
     final double timeToExpiry = repoDaycount.getDayCountFraction(settlementDate.atMidnight().atZone(TimeZone.UTC), _forwardDate.atMidnight().atZone(TimeZone.UTC));
-    final LocalDate[] schedule = _underlyingBond.getSettlementDates();//.getNominalDates(); // settlement dates should equal nominal dates for bond forwards
+    final LocalDate[] schedule = _underlyingBond.getSettlementDates();
     final double[] coupons = _underlyingBond.getCoupons();
     final List<FixedCouponPayment> expiredCoupons = new ArrayList<FixedCouponPayment>();
     int i = 0;

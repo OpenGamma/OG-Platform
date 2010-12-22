@@ -63,7 +63,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
       throw new NullPointerException("Could not get " + requirement);
     }
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, _bondCurveName);
+    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
     return getComputedValues(position, bond, value, now.toLocalDate(), _bondCurveName);
   }
 

@@ -17,6 +17,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 
 /**
  * 
@@ -36,8 +38,8 @@ public class BondFutureDefinitionTest {
   private static final BondDefinition BOND_DEFINITION2 = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final BondDefinition BOND_DEFINITION3 = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 2, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final BondDefinition BOND_DEFINITION4 = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
-  private static final LocalDate DELIVERY_DATE = LocalDate.of(2010, 2, 15);
-  private static final BondConvention BOND_FUTURE_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
+  private static final LocalDate DELIVERY_DATE = LocalDate.of(2010, 6, 15);
+  private static final BondConvention BOND_FUTURE_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond Future", 0, SimpleYieldConvention.MONEY_MARKET);
   private static final double[] CONVERSION_FACTORS = new double[] {1, .8, .6, .4};
   private static final BondDefinition[] DELIVERABLES = new BondDefinition[] {BOND_DEFINITION1, BOND_DEFINITION2, BOND_DEFINITION3, BOND_DEFINITION4};
@@ -74,10 +76,13 @@ public class BondFutureDefinitionTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNonZeroSettlementDays() {
-    new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, new BondConvention(1, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond Future", 0, SimpleYieldConvention.MONEY_MARKET),
-        DELIVERY_DATE);
+  public void testToDerivativeNullDate() {
+    BOND_FUTURE_DEFINITION.toDerivative(null, "A");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testToDerivativeNullNames() {
+    BOND_FUTURE_DEFINITION.toDerivative(DELIVERY_DATE, (String[]) null);
   }
 
   @Test
@@ -105,8 +110,17 @@ public class BondFutureDefinitionTest {
     assertFalse(other.equals(BOND_FUTURE_DEFINITION));
   }
 
-  //@Test(expected = IllegalArgumentException.class)
-  public void test() {
-
+  @Test
+  public void testToDefinition() {
+    final LocalDate date = DELIVERY_DATE.minusMonths(2);
+    final double[] cf = new double[] {1, 0.95};
+    final String curveName = "a";
+    final BondDefinition b1 = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON, COUPONS_PER_YEAR, BOND_CONVENTION);
+    final BondDefinition b2 = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON * 1.05, COUPONS_PER_YEAR, BOND_CONVENTION);
+    final BondForwardDefinition f1 = new BondForwardDefinition(b1, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
+    final BondForwardDefinition f2 = new BondForwardDefinition(b2, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
+    final BondFutureDefinition definition = new BondFutureDefinition(new BondDefinition[] {b1, b2}, cf, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+    final BondFuture future = new BondFuture(new BondForward[] {f1.toDerivative(date, curveName), f2.toDerivative(date, curveName)}, cf);
+    assertEquals(future, definition.toDerivative(date, curveName));
   }
 }

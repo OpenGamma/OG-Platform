@@ -37,12 +37,12 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.interestrate.bond.BondDirtyPriceCalculator;
-import com.opengamma.financial.interestrate.bond.BondForwardDirtyPriceCalculator;
 import com.opengamma.financial.interestrate.bond.BondFutureGrossBasisCalculator;
 import com.opengamma.financial.interestrate.bond.BondFutureImpliedRepoRateCalculator;
 import com.opengamma.financial.interestrate.bond.BondFutureNetBasisCalculator;
 import com.opengamma.financial.interestrate.bond.BondYieldCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
 import com.opengamma.financial.security.DateTimeWithZone;
@@ -58,11 +58,9 @@ import com.opengamma.util.time.Expiry;
  * The data in this test is from a Bloomberg screen shot show on page 362 of Fixed-income Securities
  */
 public class BondFutureTest {
-  private static final double EPS = 1e-12;
   private static final String CURVE_NAME = "A";
   private static final BondYieldCalculator YIELD_CALCULATOR = BondYieldCalculator.getInstance();
   private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
-  private static final BondForwardDirtyPriceCalculator FORWARD_DIRTY_PRICE_CALCULATOR = BondForwardDirtyPriceCalculator.getInstance();
   private static final BondFutureImpliedRepoRateCalculator IMPLIED_REPO_CALCULATOR = BondFutureImpliedRepoRateCalculator.getInstance();
   private static final BondFutureGrossBasisCalculator GROSS_BASIS_CALCULATOR = BondFutureGrossBasisCalculator.getInstance();
   private static final BondFutureNetBasisCalculator NET_BASIS_CALCULATOR = BondFutureNetBasisCalculator.getInstance();
@@ -70,13 +68,11 @@ public class BondFutureTest {
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondDefinitionConverter BOND_CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
   private static final BondSecurityToBondForwardDefinitionConverter BOND_FORWARD_CONVERTER = new BondSecurityToBondForwardDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final BondForwardCalculator BOND_FORWARD_CALCULATOR = new BondForwardCalculator(HOLIDAY_SOURCE, CONVENTION_SOURCE);
 
   private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2001, 12, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2001, 12, 10);
 
   private static final double FUTURE_PRICE = 1.041406;
-  //private static final ZonedDateTime FIRST_DELIVERY_DATE = DateUtil.getUTCDate(2002,3,01);
   private static final ZonedDateTime LAST_DELIVERY_DATE = DateUtil.getUTCDate(2002, 3, 28);
   private static final double ACTUAL_REPO = 0.0173;
 
@@ -99,7 +95,7 @@ public class BondFutureTest {
       final ZonedDateTime accrualDate = MATURITY_DATE[i].minusYears(11);
       final ZonedDateTime firstCouponDate = MATURITY_DATE[i].minusYears(11).plusMonths(6);
       DELIVERABLE_BONDS[i] = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.getInstance("USD"),
-          YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(MATURITY_DATE[i]), "", COUPON[i],
+          YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(MATURITY_DATE[i]), "", COUPON[i] * 100,
           SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(accrualDate),
           new DateTimeWithZone(accrualDate), new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
     }
@@ -113,7 +109,7 @@ public class BondFutureTest {
     for (int i = 0; i < N_BONDS; i++) {
       final BondForwardDefinition bondForwardDefinition = BOND_FORWARD_CONVERTER.getBondForward(DELIVERABLE_BONDS[i], LAST_DELIVERY_DATE);
       deliverables[i] = bondForwardDefinition.getUnderlyingBond();
-      final Bond bond = BOND_CONVERTER.getBond(DELIVERABLE_BONDS[i], true).toDerivative(SETTLEMENT_DATE.toLocalDate(), CURVE_NAME);
+      final Bond bond = BOND_CONVERTER.getBond(DELIVERABLE_BONDS[i], true).toDerivative(TRADE_DATE.toLocalDate(), CURVE_NAME);
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, CLEAN_PRICE[i]);
       double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
@@ -143,6 +139,7 @@ public class BondFutureTest {
   @Test
   public void testBondFuture1() {
     final ZonedDateTime date = DateUtil.getUTCDate(2000, 3, 15);
+    final ZonedDateTime tradeDate = DateUtil.getUTCDate(2000, 3, 15);
     final ZonedDateTime settlementDate = DateUtil.getUTCDate(2000, 3, 16);
     final ZonedDateTime deliveryDate = DateUtil.getUTCDate(2000, 6, 30);
     final ZonedDateTime maturityDate = DateUtil.getUTCDate(2011, 7, 12);
@@ -150,20 +147,20 @@ public class BondFutureTest {
     final int daysToDelivery = 106;
     final ZonedDateTime firstCouponDate = settlementDate.minusDays(64);
     assertEquals(daysToDelivery, DateUtil.getDaysBetween(settlementDate, deliveryDate), 0);
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount bondDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.getInstance("GBP"),
-        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon,
-        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), dayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(
-            firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), bondDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
+        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
     final double accruedInterestForBond = 0.015780822;
     final double accruedToDelivery = 0.041917808;
     final double repoRate = 0.0624;
     final double cleanPrice = 1.314610;
     final double futuresPrice = 1.1298;
     final double conversionFactor = 1.1525705;
-    assertEquals(accruedInterestForBond, dayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-8);
+    assertEquals(accruedInterestForBond, bondDayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-8);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
-    assertEquals(accruedInterestForBond, delivered.getUnderlyingBond().toDerivative(settlementDate.toLocalDate(), CURVE_NAME).getAccruedInterest(), 1e-8);
+    assertEquals(accruedInterestForBond, delivered.getUnderlyingBond().toDerivative(tradeDate.toLocalDate(), CURVE_NAME).getAccruedInterest(), 1e-8);
     assertEquals(accruedToDelivery, delivered.toDerivative(settlementDate.toLocalDate(), CURVE_NAME).getAccruedInterestAtDelivery(), 1e-7);
     final double[] repoRates = new double[] {repoRate};
     final double[] cleanPrices = new double[] {cleanPrice};
@@ -190,6 +187,7 @@ public class BondFutureTest {
   @Test
   public void testBasis3() {
     final ZonedDateTime date = DateUtil.getUTCDate(2001, 8, 10);
+    final ZonedDateTime tradeDate = DateUtil.getUTCDate(2001, 8, 12);
     final ZonedDateTime settlementDate = DateUtil.getUTCDate(2001, 8, 13);
     final ZonedDateTime deliveryDate = DateUtil.getUTCDate(2001, 9, 28);
     final ZonedDateTime firstCouponDate = DateUtil.getUTCDate(2001, 5, 25);
@@ -200,86 +198,96 @@ public class BondFutureTest {
     final double conversionFactor = 0.9494956;
     final double coupon = 0.0625;
     final int daysToDelivery = 46;
-    final double accruedInterestForBond = (dirtyPrice - cleanPrice);
-    final double accruedToDelivery = 2.139946;
+    final double accruedInterestForBond = dirtyPrice - cleanPrice;
+    final double accruedToDelivery = 0.02139946;
     final double repoRate = 0.049;
     assertEquals(daysToDelivery, DateUtil.getDaysBetween(settlementDate, deliveryDate), 0);
-    final DayCount repoDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365"); //TODO this needs to be pulled from a convention
-    //assertEquals(accruedInterestForBond, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA").getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-6); //TODO WTF is this daycount doing in a GBP bond future?
-    //    final BondSecurity bondSec = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.getInstance("GBP"),
-    //        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon,
-    //        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
-    //        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
-    //    final double t = repoDayCount.getDayCountFraction(settlementDate, deliveryDate);
-    //    final Bond bond = BOND_CONVERTER.getBond(bondSec, CURVE_NAME, settlementDate, false).toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
-    //    final Bond fwdBond = BOND_CONVERTER.getBond(bondSec, CURVE_NAME, deliveryDate, false).toDerivative(deliveryDate.toLocalDate(), CURVE_NAME);
-    //    assertEquals(accruedInterestForBond, 100 * bond.getAccruedInterest(), 1e-6);
-    //    assertEquals(accruedToDelivery, 100 * fwdBond.getAccruedInterest(), 1e-6);
-    //    assertEquals(dirtyPrice, 100 * DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0), 1e-7);
-    //    final List<Double> deliveryDates = Arrays.asList(t);
-    //    final List<Double> cleanPrices = Arrays.asList(cleanPrice / 100);
-    //    final List<Double> accruedInterest = Arrays.asList(accruedToDelivery / 100);
-    //    final List<Double> repoRates = Arrays.asList(repoRate);
-    //    final BondFuture bondFuture = new BondFuture(new Bond[] {bond}, new double[] {conversionFactor});
-    //    double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice / 100);
-    //    yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
-    //    assertEquals(4.870, 100 * yield, 1e-3);
-    //    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
-    //    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-    //    assertEquals(grossBasis.length, 1);
-    //    assertEquals(0.1154801, 100 * grossBasis[0], 1e-7);
-    //    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-    //    assertEquals(0.0231429, 100 * netBasis[0], 1e-7); //book is slightly out
-    //    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-    //    assertEquals(irr.length, 1);
-    //    assertEquals(4.7353923, 100 * irr[0], 1e-7); //again book is slightly out
+    final DayCount accruedInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    assertEquals(accruedInterestForBond, accruedInterestDayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-6);
+    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.getInstance("GBP"),
+        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
+        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+    final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
+    final Bond bond = delivered.getUnderlyingBond().toDerivative(tradeDate.toLocalDate(), CURVE_NAME);
+    final BondForward bondForward = delivered.toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
+    assertEquals(accruedInterestForBond, bond.getAccruedInterest(), 1e-6);
+    assertEquals(accruedToDelivery, bondForward.getAccruedInterestAtDelivery(), 1e-6);
+    assertEquals(dirtyPrice, DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice), 1e-7);
+    double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
+    yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
+    assertEquals(0.04870, yield, 1e-5);
+    final double[] repoRates = new double[] {repoRate};
+    final double[] cleanPrices = new double[] {cleanPrice};
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(cleanPrices, repoRates);
+    final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION");
+    final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
+    final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.getInstance("GBP"));
+    final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
+        "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
+    final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
+        deliveryDate.toLocalDate());
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date.toLocalDate(), CURVE_NAME);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    assertEquals(grossBasis.length, 1);
+    assertEquals(0.1154801, 100 * grossBasis[0], 1e-7);
+    assertEquals(netBasis.length, 1);
+    assertEquals(0.0231432, 100 * netBasis[0], 1e-7);
+    assertEquals(irr.length, 1);
+    assertEquals(0.04735390, irr[0], 1e-7);
   }
 
   /**
     * The number in this test are from The Repo Handbook  p426
     */
-  /*
   @Test
   public void testBasis4() {
-  final ZonedDateTime settlementDate = DateUtil.getUTCDate(2001, 8, 13);
-  final ZonedDateTime deliveryDate = DateUtil.getUTCDate(2001, 9, 28);
-  final ZonedDateTime firstCouponDate = DateUtil.getUTCDate(2001, 3, 27);
-  final ZonedDateTime maturityDate = DateUtil.getUTCDate(2013, 9, 27);
-  final double cleanPrice = 128.13;
-  final double futuresPrice = 115.94;
-  final double conversionFactor = 1.0805114;
-  final double coupon = 8;
-  //final int daysToDelivery = 46; //TODO why is this here?
-  final double repoRate = 0.049;
-  final DayCount repoDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365"); //TODO this needs to be pulled from a convention
-  final DayCount accuredInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); //TODO this needs to be pulled from a convention
-  final BondSecurity bondSec = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.getInstance("GBP"),
-     YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon,
-     SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accuredInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
-     new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
-  final double t = repoDayCount.getDayCountFraction(settlementDate, deliveryDate);
-  final Bond bond = BOND_CONVERTER.getBond(bondSec, CURVE_NAME, false).toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
-  final Bond fwdBond = BOND_CONVERTER.getBond(bondSec, CURVE_NAME, false).toDerivative(deliveryDate.toLocalDate(), CURVE_NAME);
-  final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
-  double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
-  yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
-  assertEquals(4.895, 100 * yield, 1e-3);
-  final List<Double> deliveryDates = Arrays.asList(t);
-  final List<Double> cleanPrices = Arrays.asList(cleanPrice / 100);
-  final List<Double> accruedInterest = Arrays.asList(fwdBond.getAccruedInterest());
-  final List<Double> repoRates = Arrays.asList(repoRate);
-  final BondFuture bondFuture = new BondFuture(new Bond[] {bond}, new double[] {conversionFactor});
-  final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
-  final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-  assertEquals(grossBasis.length, 1);
-  assertEquals(2.856, 100 * grossBasis[0], 1e-3);
-  final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-  assertEquals(netBasis.length, 1);
-  assertEquals(2.665, 100 * netBasis[0], 1e-3); //book is slightly out
-  final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice / 100);
-  assertEquals(irr.length, 1);
-  assertEquals(-11.23, 100 * irr[0], 1e-2); //again book is slightly out
-  }*/
+    final ZonedDateTime date = DateUtil.getUTCDate(2001, 8, 10);
+    final ZonedDateTime settlementDate = DateUtil.getUTCDate(2001, 8, 13);
+    final ZonedDateTime deliveryDate = DateUtil.getUTCDate(2001, 9, 28);
+    final ZonedDateTime firstCouponDate = DateUtil.getUTCDate(2001, 3, 27);
+    final ZonedDateTime maturityDate = DateUtil.getUTCDate(2013, 9, 27);
+    final double cleanPrice = 1.2813;
+    final double futuresPrice = 1.1594;
+    final double conversionFactor = 1.0805114;
+    final double coupon = 0.08;
+    final double repoRate = 0.049;
+    final DayCount accruedInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.getInstance("GBP"),
+        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
+        new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
+    final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
+    final Bond bond = delivered.getUnderlyingBond().toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
+    final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice);
+    double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
+    yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
+    assertEquals(0.04895, yield, 1e-5);
+    final double[] repoRates = new double[] {repoRate};
+    final double[] cleanPrices = new double[] {cleanPrice};
+    final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(cleanPrices, repoRates);
+    final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION");
+    final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
+    final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.getInstance("GBP"));
+    final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
+        "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
+    final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
+        deliveryDate.toLocalDate());
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date.toLocalDate(), CURVE_NAME);
+    final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket, futuresPrice);
+    assertEquals(grossBasis.length, 1);
+    assertEquals(2.856, 100 * grossBasis[0], 1e-3);
+    assertEquals(netBasis.length, 1);
+    assertEquals(2.665, 100 * netBasis[0], 1e-3);
+    assertEquals(irr.length, 1);
+    assertEquals(-0.1123, irr[0], 1e-4);
+  }
 
   private static class MyHolidaySource implements HolidaySource {
 

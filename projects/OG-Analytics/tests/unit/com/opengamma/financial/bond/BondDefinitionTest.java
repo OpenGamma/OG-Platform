@@ -175,7 +175,7 @@ public class BondDefinitionTest {
     final double deltaAI = 0.04 / 12 / 31;
     LocalDate date;
     Bond bond;
-    for (int i = 1; i < 32; i++) {
+    for (int i = 1; i < 28; i++) {
       date = LocalDate.of(2010, 1, i);
       if (CONVENTION.getWorkingDayCalendar().isWorkingDay(date)) {
         bond = DEFINITION.toDerivative(date, "A");

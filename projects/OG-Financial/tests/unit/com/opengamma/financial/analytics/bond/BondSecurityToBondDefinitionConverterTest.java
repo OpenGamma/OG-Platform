@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.bond;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
@@ -25,9 +25,6 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -51,7 +48,6 @@ public class BondSecurityToBondDefinitionConverterTest {
       SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
       new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)), new DateTimeWithZone(DateUtil.getUTCDate(2007, 10, 3)), new DateTimeWithZone(DateUtil.getUTCDate(2008, 3, 31)), 100, 100000000, 5000,
       1000, 100, 100);
-  private static final String NAME = "BOND_YIELD";
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
@@ -65,28 +61,30 @@ public class BondSecurityToBondDefinitionConverterTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullSecurity() {
-    CONVERTER.getBond(null, "");
+  public void testNullSecurity1() {
+    CONVERTER.getBond(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullName() {
-    CONVERTER.getBond(BOND, null);
+  public void testNullSecurity2() {
+    CONVERTER.getBond(null, false);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSecurity3() {
+    CONVERTER.getBond(null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullConvention() {
+    CONVERTER.getBond(BOND, false, null);
   }
 
   @Test
   public void test() {
-    final BondDefinition definition = CONVERTER.getBond(BOND, NAME);
-    final Bond bond = definition.toDerivative(DATE.toLocalDate(), NAME);
-    assertEquals(bond.getAccruedInterest(), COUPON / 100 / 2.0 * 3. / 183, EPS);
-    final GenericAnnuity<FixedPayment> annuity = bond.getAnnuity();
-    assertEquals(annuity.getNumberOfPayments(), 3);
-    final FixedPayment[] payments = annuity.getPayments();
-    for (int i = 0; i < 2; i++) {
-      assertEquals(payments[i].getAmount(), 0.02, 0);
-      assertEquals(payments[i].getPaymentTime(), 0.5 + (i / 2.), 1e-2);
-      assertEquals(payments[i].getFundingCurveName(), NAME);
-    }
+    final String name = "B";
+    final BondDefinition definition = CONVERTER.getBond(BOND, true);
+    assertArrayEquals(definition.getNominalDates(), new LocalDate[] {});
   }
 
   private static class MyHolidaySource implements HolidaySource {

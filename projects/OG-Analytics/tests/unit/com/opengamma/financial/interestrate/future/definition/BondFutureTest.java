@@ -20,9 +20,9 @@ import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
  */
 public class BondFutureTest {
   private static final String NAME = "A";
-  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.5, 0, new FixedCouponPayment[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.5, 0, new FixedCouponPayment[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.5, 0, new FixedCouponPayment[0])};
+  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.5, 0, 0, new FixedCouponPayment[0]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.5, 0, 0, new FixedCouponPayment[0]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.5, 0, 0, new FixedCouponPayment[0])};
   private static final double[] CONVERSION_FACTORS = new double[] {1.23, 3.45, 5.67};
 
   @Test(expected = IllegalArgumentException.class)
@@ -60,7 +60,8 @@ public class BondFutureTest {
     assertArrayEquals(future.getConversionFactors(), CONVERSION_FACTORS, 0);
     other = new BondFuture(DELIVERABLES, CONVERSION_FACTORS);
     assertEquals(future, other);
-    other = new BondFuture(new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.054, NAME), 0.5, 0, new FixedCouponPayment[0]), DELIVERABLES[1], DELIVERABLES[2]}, CONVERSION_FACTORS);
+    other = new BondFuture(new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.054, NAME), 0.5, 0, 0, new FixedCouponPayment[0]), DELIVERABLES[1], DELIVERABLES[2]},
+        CONVERSION_FACTORS);
     assertFalse(future.equals(other));
     other = new BondFuture(DELIVERABLES, new double[] {1, 2, 3});
     assertFalse(future.equals(other));

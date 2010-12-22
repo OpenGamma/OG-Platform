@@ -25,10 +25,12 @@ public class BondFutureNetBasisCalculatorTest {
   private static final double[] DELIVERY_DATES = new double[] {0.1, 0.1, 0.2};
   private static final double[] CLEAN_PRICES = new double[] {97., 98., 99.};
   private static final double[] ACCRUED_INTEREST = new double[] {0., 0.04, 1.};
+  private static final double[] ACCRUED_INTEREST_AT_DELIVERY = new double[] {0.2, 0.4, 0.6};
   private static final double[] REPO_RATES = new double[] {0.03, 0.02, 0.03};
-  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), DELIVERY_DATES[0], ACCRUED_INTEREST[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), DELIVERY_DATES[1], ACCRUED_INTEREST[1]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), DELIVERY_DATES[2], ACCRUED_INTEREST[2])};
+  private static final BondForward[] DELIVERABLES = new BondForward[] {
+      new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), DELIVERY_DATES[0], ACCRUED_INTEREST[0], ACCRUED_INTEREST_AT_DELIVERY[0]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), DELIVERY_DATES[1], ACCRUED_INTEREST[1], ACCRUED_INTEREST_AT_DELIVERY[1]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), DELIVERY_DATES[2], ACCRUED_INTEREST[2], ACCRUED_INTEREST_AT_DELIVERY[2])};
   private static final double[] CONVERSION_FACTORS = new double[] {0.123, 0.456, 0.789};
   private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS);
   private static final BondFutureDeliverableBasketDataBundle BASKET_DATA = new BondFutureDeliverableBasketDataBundle(CLEAN_PRICES, REPO_RATES);
@@ -62,9 +64,10 @@ public class BondFutureNetBasisCalculatorTest {
     final double[] invoicePrices = new double[n];
     final double[] netBasis = new double[n];
     for (int i = 0; i < n; i++) {
-      invoicePrices[i] = FUTURE_PRICE * CONVERSION_FACTORS[i] + ACCRUED_INTEREST[i];
+      invoicePrices[i] = FUTURE_PRICE * CONVERSION_FACTORS[i] + ACCRUED_INTEREST_AT_DELIVERY[i];
       deliverableDirtyPrices[i] = DIRTY_PRICE_CALCULATOR.calculate(DELIVERABLES[i].getBond(), CLEAN_PRICES[i]);
-      forwardDirtyPrices[i] = FORWARD_DIRTY_PRICE_CALCULATOR.calculate(new BondForward(DELIVERABLES[i].getBond(), DELIVERY_DATES[i], ACCRUED_INTEREST[i]), deliverableDirtyPrices[i], REPO_RATES[i]);
+      forwardDirtyPrices[i] = FORWARD_DIRTY_PRICE_CALCULATOR.calculate(new BondForward(DELIVERABLES[i].getBond(), DELIVERY_DATES[i], ACCRUED_INTEREST[i], ACCRUED_INTEREST_AT_DELIVERY[i]),
+          deliverableDirtyPrices[i], REPO_RATES[i]);
       netBasis[i] = forwardDirtyPrices[i] - invoicePrices[i];
     }
     final double[] result = NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA, FUTURE_PRICE);
