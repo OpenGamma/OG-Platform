@@ -6,8 +6,8 @@
 package com.opengamma.financial.currency;
 
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixedValue;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixUniqueIdentifier;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 
 /**
  * Visitor pattern to {@link CurrencyMatrixValue}.
@@ -16,9 +16,9 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixUnique
  */
 public interface CurrencyMatrixValueVisitor<T> {
 
-  T visitFixedValue(CurrencyMatrixFixedValue fixedValue);
+  T visitFixed(CurrencyMatrixFixed fixedValue);
 
-  T visitUniqueIdentifier(CurrencyMatrixUniqueIdentifier uniqueIdentifier);
+  T visitValueRequirement(CurrencyMatrixValueRequirement uniqueIdentifier);
 
   T visitCross(CurrencyMatrixCross cross);
 

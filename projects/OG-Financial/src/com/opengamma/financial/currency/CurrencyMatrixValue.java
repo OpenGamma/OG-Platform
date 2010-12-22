@@ -6,13 +6,17 @@
 package com.opengamma.financial.currency;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,17 +27,17 @@ public abstract class CurrencyMatrixValue {
   /**
    * A fixed conversion rate from one currency to another.
    */
-  public static final class CurrencyMatrixFixedValue extends CurrencyMatrixValue {
+  public static final class CurrencyMatrixFixed extends CurrencyMatrixValue {
 
     private final double _fixedValue;
 
-    private CurrencyMatrixFixedValue(final double fixedValue) {
+    private CurrencyMatrixFixed(final double fixedValue) {
       _fixedValue = fixedValue;
     }
 
     @Override
     public <T> T accept(final CurrencyMatrixValueVisitor<T> visitor) {
-      return visitor.visitFixedValue(this);
+      return visitor.visitFixed(this);
     }
 
     public double getFixedValue() {
@@ -41,11 +45,11 @@ public abstract class CurrencyMatrixValue {
     }
 
     @Override
-    public CurrencyMatrixFixedValue getReciprocal() {
+    public CurrencyMatrixFixed getReciprocal() {
       if (getFixedValue() == 1.0) {
         return this;
       } else {
-        return new CurrencyMatrixFixedValue(1 / getFixedValue());
+        return new CurrencyMatrixFixed(1 / getFixedValue());
       }
     }
 
@@ -54,10 +58,10 @@ public abstract class CurrencyMatrixValue {
       if (o == this) {
         return true;
       }
-      if (!(o instanceof CurrencyMatrixFixedValue)) {
+      if (!(o instanceof CurrencyMatrixFixed)) {
         return false;
       }
-      return ((CurrencyMatrixFixedValue) o).getFixedValue() == getFixedValue();
+      return ((CurrencyMatrixFixed) o).getFixedValue() == getFixedValue();
     }
 
     @Override
@@ -74,25 +78,26 @@ public abstract class CurrencyMatrixValue {
 
   /**
    * A conversion rate from one currency to another supplied by another node in the dependency
-   * graph. This might be a live data sourcing function to use current market data.
+   * graph. This might be a live data sourcing function to use current market data, or a
+   * calculated value based on something else.
    */
-  public static final class CurrencyMatrixUniqueIdentifier extends CurrencyMatrixValue {
+  public static final class CurrencyMatrixValueRequirement extends CurrencyMatrixValue {
 
-    private final UniqueIdentifier _uniqueIdentifier;
+    private final ValueRequirement _valueRequirement;
     private final boolean _reciprocal;
 
-    private CurrencyMatrixUniqueIdentifier(final UniqueIdentifier uniqueIdentifier, boolean reciprocal) {
-      _uniqueIdentifier = uniqueIdentifier;
+    private CurrencyMatrixValueRequirement(final ValueRequirement valueRequirement, boolean reciprocal) {
+      _valueRequirement = valueRequirement;
       _reciprocal = reciprocal;
     }
 
     @Override
     public <T> T accept(final CurrencyMatrixValueVisitor<T> visitor) {
-      return visitor.visitUniqueIdentifier(this);
+      return visitor.visitValueRequirement(this);
     }
 
-    public UniqueIdentifier getUniqueIdentifier() {
-      return _uniqueIdentifier;
+    public ValueRequirement getValueRequirement() {
+      return _valueRequirement;
     }
 
     public boolean isReciprocal() {
@@ -100,8 +105,8 @@ public abstract class CurrencyMatrixValue {
     }
 
     @Override
-    public CurrencyMatrixUniqueIdentifier getReciprocal() {
-      return new CurrencyMatrixUniqueIdentifier(getUniqueIdentifier(), !isReciprocal());
+    public CurrencyMatrixValueRequirement getReciprocal() {
+      return new CurrencyMatrixValueRequirement(getValueRequirement(), !isReciprocal());
     }
 
     @Override
@@ -109,31 +114,32 @@ public abstract class CurrencyMatrixValue {
       if (o == this) {
         return true;
       }
-      if (!(o instanceof CurrencyMatrixUniqueIdentifier)) {
+      if (!(o instanceof CurrencyMatrixValueRequirement)) {
         return false;
       }
-      final CurrencyMatrixUniqueIdentifier oc = (CurrencyMatrixUniqueIdentifier) o;
-      return getUniqueIdentifier().equals(oc.getUniqueIdentifier()) && (isReciprocal() == oc.isReciprocal());
+      final CurrencyMatrixValueRequirement oc = (CurrencyMatrixValueRequirement) o;
+      return getValueRequirement().equals(oc.getValueRequirement()) && (isReciprocal() == oc.isReciprocal());
     }
 
     @Override
     public int hashCode() {
-      return getUniqueIdentifier().hashCode() * 17 + ObjectUtils.hashCode(isReciprocal());
+      return getValueRequirement().hashCode() * 17 + ObjectUtils.hashCode(isReciprocal());
     }
 
-    public void toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
-      getUniqueIdentifier().toFudgeMsg(factory, msg);
+    public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+      final MutableFudgeFieldContainer msg = context.objectToFudgeMsg(getValueRequirement());
       msg.add("reciprocal", null, PrimitiveFieldTypes.BOOLEAN_TYPE, isReciprocal());
+      return msg;
     }
 
-    public static CurrencyMatrixUniqueIdentifier fromFudgeMsg(final FudgeFieldContainer msg) {
-      return new CurrencyMatrixUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg), msg.getBoolean("reciprocal"));
+    public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+      return new CurrencyMatrixValueRequirement(context.fudgeMsgToObject(ValueRequirement.class, msg), msg.getBoolean("reciprocal"));
     }
 
     @Override
     public String toString() {
       final StringBuilder sb = new StringBuilder("CurrencyMatrixValue[");
-      sb.append(getUniqueIdentifier().toString());
+      sb.append(getValueRequirement().toString());
       if (isReciprocal()) {
         sb.append(" ^-1");
       }
@@ -190,15 +196,45 @@ public abstract class CurrencyMatrixValue {
 
   }
 
-  public static CurrencyMatrixFixedValue of(final double fixedValue) {
+  /**
+   * Creates a matrix value that is a given constant value.
+   * 
+   * @param fixedValue the value
+   * @return the matrix value
+   */
+  public static CurrencyMatrixFixed of(final double fixedValue) {
     ArgumentChecker.notZero(fixedValue, 0, "fixedValue");
-    return new CurrencyMatrixFixedValue(fixedValue);
+    return new CurrencyMatrixFixed(fixedValue);
   }
 
-  public static CurrencyMatrixUniqueIdentifier of(final UniqueIdentifier uniqueIdentifier) {
-    return new CurrencyMatrixUniqueIdentifier(uniqueIdentifier, false);
+  /**
+   * Creates a matrix value that is obtained from market data on the given unique identifier.
+   * 
+   * @param uniqueIdentifier the unique identifier to retrieve market data for
+   * @return the matrix value
+   */
+  public static CurrencyMatrixValueRequirement of(final UniqueIdentifier uniqueIdentifier) {
+    return new CurrencyMatrixValueRequirement(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueIdentifier), false);
   }
 
+  /**
+   * Creates a matrix value that is obtained from an arbitrary value produced by the dependency graph. This may
+   * be a requirement satisfied by a live data provider or a value calculated by other functions.
+   * 
+   * @param valueRequirement identifies the value to use
+   * @return the matrix value
+   */
+  public static CurrencyMatrixValueRequirement of(final ValueRequirement valueRequirement) {
+    return new CurrencyMatrixValueRequirement(valueRequirement, false);
+  }
+
+  /**
+   * Creates a matrix value that indicates a conversion between currencies should be performed using
+   * the rates of each to/from an intermediate currency.
+   * 
+   * @param currency the intermediate currency
+   * @return the matrix value
+   */
   public static CurrencyMatrixCross of(final Currency currency) {
     return new CurrencyMatrixCross(currency);
   }

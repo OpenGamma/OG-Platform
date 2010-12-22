@@ -27,10 +27,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixedValue;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixUniqueIdentifier;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -143,14 +142,14 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
         }
 
         @Override
-        public Boolean visitFixedValue(CurrencyMatrixFixedValue fixedValue) {
+        public Boolean visitFixed(CurrencyMatrixFixed fixedValue) {
           // Literal value - nothing required
           return Boolean.TRUE;
         }
 
         @Override
-        public Boolean visitUniqueIdentifier(final CurrencyMatrixUniqueIdentifier uniqueIdentifier) {
-          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueIdentifier.getUniqueIdentifier()));
+        public Boolean visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
+          requirements.add(valueRequirement.getValueRequirement());
           return Boolean.TRUE;
         }
 
@@ -181,18 +180,18 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
       }
 
       @Override
-      public Double visitFixedValue(CurrencyMatrixFixedValue fixedValue) {
+      public Double visitFixed(CurrencyMatrixFixed fixedValue) {
         return fixedValue.getFixedValue();
       }
 
       @Override
-      public Double visitUniqueIdentifier(CurrencyMatrixUniqueIdentifier uniqueIdentifier) {
-        Object marketValue = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueIdentifier.getUniqueIdentifier()));
+      public Double visitValueRequirement(CurrencyMatrixValueRequirement valueRequirement) {
+        Object marketValue = inputs.getValue(valueRequirement.getValueRequirement());
         if (!(marketValue instanceof Number)) {
-          throw new IllegalArgumentException(uniqueIdentifier.getUniqueIdentifier().toString());
+          throw new IllegalArgumentException(valueRequirement.toString());
         }
         double rate = ((Number) marketValue).doubleValue();
-        if (uniqueIdentifier.isReciprocal()) {
+        if (valueRequirement.isReciprocal()) {
           rate = 1.0 / rate;
         }
         return rate;

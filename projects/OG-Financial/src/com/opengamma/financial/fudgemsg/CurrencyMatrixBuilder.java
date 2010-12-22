@@ -24,8 +24,8 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixedValue;
-import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixUniqueIdentifier;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;
 
@@ -68,7 +68,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     final Collection<Currency> targetCurrencies = object.getTargetCurrencies();
     final Map<String, MutableFudgeFieldContainer> fixedValues = new HashMap<String, MutableFudgeFieldContainer>();
     final Map<String, MutableFudgeFieldContainer> crossValues = new HashMap<String, MutableFudgeFieldContainer>();
-    final Map<String, MutableFudgeFieldContainer> uidValues = new HashMap<String, MutableFudgeFieldContainer>();
+    final Map<String, MutableFudgeFieldContainer> reqValues = new HashMap<String, MutableFudgeFieldContainer>();
     for (Currency sourceCurrency : sourceCurrencies) {
       final String sourceISO = sourceCurrency.getISOCode();
       for (Currency targetCurrency : targetCurrencies) {
@@ -116,7 +116,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
           }
 
           @Override
-          public Void visitFixedValue(final CurrencyMatrixFixedValue fixedValue) {
+          public Void visitFixed(final CurrencyMatrixFixed fixedValue) {
             final MutableFudgeFieldContainer entries = getOrCreateMessage(context, sourceISO, fixedValues);
             entries.add(targetISO, null, PrimitiveFieldTypes.DOUBLE_TYPE, fixedValue.getFixedValue());
             if (suppressInverse) {
@@ -126,9 +126,9 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
           }
 
           @Override
-          public Void visitUniqueIdentifier(final CurrencyMatrixUniqueIdentifier uniqueIdentifier) {
-            final MutableFudgeFieldContainer entries = getOrCreateMessage(context, sourceISO, uidValues);
-            context.objectToFudgeMsg(entries, targetISO, null, uniqueIdentifier);
+          public Void visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
+            final MutableFudgeFieldContainer entries = getOrCreateMessage(context, sourceISO, reqValues);
+            context.objectToFudgeMsg(entries, targetISO, null, valueRequirement);
             if (suppressInverse) {
               entries.add(targetISO, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
             }
@@ -141,8 +141,8 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     if (!fixedValues.isEmpty()) {
       msg.add(FIXED_RATE_FIELD_NAME, null, FudgeMsgFieldType.INSTANCE, mapToMessage(context, fixedValues));
     }
-    if (!uidValues.isEmpty()) {
-      msg.add(VALUE_REQUIREMENTS_FIELD_NAME, null, FudgeMsgFieldType.INSTANCE, mapToMessage(context, uidValues));
+    if (!reqValues.isEmpty()) {
+      msg.add(VALUE_REQUIREMENTS_FIELD_NAME, null, FudgeMsgFieldType.INSTANCE, mapToMessage(context, reqValues));
     }
     if (!crossValues.isEmpty()) {
       msg.add(CROSS_CONVERT_FIELD_NAME, null, FudgeMsgFieldType.INSTANCE, mapToMessage(context, crossValues));
@@ -175,14 +175,14 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
       }
     }
 
-    private void loadUID(final FudgeDeserializationContext dctx, final FudgeFieldContainer message) {
+    private void loadReq(final FudgeDeserializationContext dctx, final FudgeFieldContainer message) {
       final Map<Pair<Currency, Currency>, CurrencyMatrixValue> values = new HashMap<Pair<Currency, Currency>, CurrencyMatrixValue>();
       for (FudgeField field : message) {
         final Currency source = Currency.getInstance(field.getName());
         for (FudgeField field2 : message.getFieldValue(FudgeFieldContainer.class, field)) {
           final Currency target = Currency.getInstance(field2.getName());
           if (field2.getValue() instanceof FudgeFieldContainer) {
-            final CurrencyMatrixValue value = dctx.fieldValueToObject(CurrencyMatrixUniqueIdentifier.class, field2);
+            final CurrencyMatrixValue value = dctx.fieldValueToObject(CurrencyMatrixValueRequirement.class, field2);
             values.put(Pair.of(source, target), value);
             values.put(Pair.of(target, source), value.getReciprocal());
           } else {
@@ -237,7 +237,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     }
     field = message.getByName(VALUE_REQUIREMENTS_FIELD_NAME);
     if (field != null) {
-      matrix.loadUID(context, message.getFieldValue(FudgeFieldContainer.class, field));
+      matrix.loadReq(context, message.getFieldValue(FudgeFieldContainer.class, field));
     }
     return matrix;
   }
