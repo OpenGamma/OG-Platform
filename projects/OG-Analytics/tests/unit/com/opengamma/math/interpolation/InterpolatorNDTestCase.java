@@ -21,7 +21,7 @@ import cern.jet.random.engine.RandomEngine;
  * 
  */
 public class InterpolatorNDTestCase {
-  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final Map<List<Double>, Double> FLAT_DATA = new HashMap<List<Double>, Double>();
   protected static final double VALUE = 0.3;
   static {

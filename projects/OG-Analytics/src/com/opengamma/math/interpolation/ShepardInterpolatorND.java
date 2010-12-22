@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -35,11 +35,12 @@ public class ShepardInterpolatorND extends InterpolatorND {
     double r, w;
     final Iterator<Map.Entry<List<Double>, Double>> iter = data.entrySet().iterator();
     Map.Entry<List<Double>, Double> entry;
-    for (int i = 0; i < dimension; i++) {
+    while (iter.hasNext()) {
       entry = iter.next();
       r = getRadius(value, entry.getKey());
       if (r == 0) {
         return entry.getValue();
+
       }
       w = _basisFunction.evaluate(r);
       sum += w;

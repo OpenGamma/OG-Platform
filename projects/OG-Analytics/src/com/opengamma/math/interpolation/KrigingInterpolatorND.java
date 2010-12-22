@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -55,8 +55,8 @@ public class KrigingInterpolatorND extends InterpolatorND {
       v[i] = variogram.evaluate(getRadius(value, entry.getKey()));
     }
     v[n] = 1;
-    final DoubleMatrix1D vector = DoubleFactory1D.dense.make(v);
-    _luDecomposition.solve(vector);
+    // final DoubleMatrix1D vector = DoubleFactory1D.dense.make(v);
+    // _luDecomposition.solve(vector);
     double sum = 0;
     for (int i = 0; i <= n; i++) {
       sum += y[i] * v[i];
@@ -68,14 +68,23 @@ public class KrigingInterpolatorND extends InterpolatorND {
     final double[] y = new double[n + 1];
     final double[][] v = new double[n + 1][n + 1];
     final Iterator<Map.Entry<List<Double>, Double>> iter1 = data.entrySet().iterator();
+
     Iterator<List<Double>> iter2;
     Map.Entry<List<Double>, Double> entry;
     for (int i = 0; i < n; i++) {
       entry = iter1.next();
       y[i] = entry.getValue();
+      List<Double> x1 = entry.getKey();
+
       iter2 = data.keySet().iterator();
-      for (int j = i; j < n; j++) {
-        v[i][j] = variogram.evaluate(getRadius(entry.getKey(), iter2.next()));
+      for (int k = 0; k <= i; k++) {
+        iter2.next(); // TODO Gets the iterator in the right place. Do something else here
+      }
+
+      for (int j = i + 1; j < n; j++) {
+        List<Double> x2 = iter2.next();
+        double temp = variogram.evaluate(getRadius(x1, x2));
+        v[i][j] = temp;
         v[j][i] = v[i][j];
       }
       v[i][n] = 1;
@@ -106,11 +115,11 @@ public class KrigingInterpolatorND extends InterpolatorND {
           rb += getRadius(entry1.getKey().get(k), entry2.getKey().get(k));
         }
         rb = Math.pow(rb, 0.5 * _beta);
-        num += rb * 0.5 * getRadius(entry1.getValue(), entry2.getValue());
-        denom += rb;
+        num += rb * getRadius(entry1.getValue(), entry2.getValue());
+        denom += rb * rb;
       }
     }
-    final double alpha = num / denom;
+    final double alpha = num / 2.0 / denom;
     return new Function1D<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -123,6 +132,6 @@ public class KrigingInterpolatorND extends InterpolatorND {
   }
 
   private double getRadius(final double x1, final double x2) {
-    return Math.sqrt(x1 * x1 + x2 * x2);
+    return (x1 - x2) * (x1 - x2);
   }
 }
