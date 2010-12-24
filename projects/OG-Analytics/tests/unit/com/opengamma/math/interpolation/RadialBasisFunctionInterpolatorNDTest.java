@@ -5,75 +5,70 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
-
-import com.opengamma.math.function.Function1D;
 
 /**
  * 
  */
 public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCase {
-  private static final Function1D<Double, Double> UNIFORM_WEIGHT_FUNCTION = new MultiquadraticRadialBasisFunction();
-  private static final InterpolatorND INTERPOLATOR = new RadialBasisFunctionInterpolatorND(UNIFORM_WEIGHT_FUNCTION, false);
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullFunction() {
-    new RadialBasisFunctionInterpolatorND(null, false);
-  }
+  private static final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> INTERPOLATOR = new RadialBasisFunctionInterpolatorND();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate(null, Arrays.asList(4.));
+    INTERPOLATOR.interpolate(null, new double[] {1, 2});
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullValue() {
-    INTERPOLATOR.interpolate(FLAT_DATA, null);
+  public void testNullPoint() {
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(FLAT_DATA, new GaussianRadialBasisFunction(), false);
+    INTERPOLATOR.interpolate(dataBundle, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongDimension() {
-    INTERPOLATOR.interpolate(FLAT_DATA, Arrays.asList(2., 3., 4., 5.));
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(FLAT_DATA, new GaussianRadialBasisFunction(), false);
+    INTERPOLATOR.interpolate(dataBundle, new double[] {1, 2});
   }
 
   @Test
-  public void testInputs() {
-    super.testData(INTERPOLATOR);
+  public void testGaussianRadialBasisFunction() {
+
+    double r0 = 1;
+
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(COS_EXP_DATA, new GaussianRadialBasisFunction(r0), false);
+    testCosExp(INTERPOLATOR, dataBundle, 5e-2);
+
+    r0 = 5;
+    // why does normalised fit much better for flat surfaces?
+    dataBundle = new RadialBasisFunctionInterpolatorDataBundle(FLAT_DATA, new GaussianRadialBasisFunction(r0), true);
+    // printFlat(INTERPOLATOR, dataBundle);
+    testFlat(INTERPOLATOR, dataBundle, 1e-6);
+
   }
 
   @Test
-  public void testSurface() {
+  public void testMultiquadraticRadialBasisFunction() {
 
-    double x, y;
+    double r0 = 1;
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(COS_EXP_DATA, new MultiquadraticRadialBasisFunction(r0), false);
+    testCosExp(INTERPOLATOR, dataBundle, 1e-2);
+  }
 
-    double r0 = 1 * 10.0 / Math.sqrt(20.0);
-    final InterpolatorND interpolator = new KrigingInterpolatorND(1.5);// (new GaussianRadialBasisFunction(r0), true);
-    // final InterpolatorND interpolator = new ShepardInterpolatorND(4.0);
-    final Map<List<Double>, Double> data = new HashMap<List<Double>, Double>();
+  @Test
+  public void testInverseMultiquadraticRadialBasisFunction() {
 
-    for (int i = 0; i < 20; i++) {
-      x = 10 * RANDOM.nextDouble();
-      y = 10 * RANDOM.nextDouble();
+    double r0 = 2;
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(COS_EXP_DATA, new InverseMultiquadraticRadialBasisFunction(r0), true);
+    testCosExp(INTERPOLATOR, dataBundle, 1e-2);
+  }
 
-      data.put(Arrays.asList(x, y), Math.sin(Math.PI * x / 10.0) * Math.exp(-y / 5.));
-    }
+  @Test
+  public void testThinPlateSplineRadialBasisFunction() {
 
-    for (int i = 0; i < 100; i++) {
-      x = i / 10.0;
-      for (int j = 0; j < 100; j++) {
-        y = j / 10.0;
-        double fit = interpolator.interpolate(data, Arrays.asList(x, y));
-        double real = Math.sin(Math.PI * x / 10.0) * Math.exp(-y / 5.);
-        double diff = real - fit;
-        System.out.print(diff + "\t");
-      }
-      System.out.print("\n");
-    }
+    double r0 = 1.0;
+    RadialBasisFunctionInterpolatorDataBundle dataBundle = new RadialBasisFunctionInterpolatorDataBundle(COS_EXP_DATA, new ThinPlateSplineRadialBasisFunction(r0), true);
+    testCosExp(INTERPOLATOR, dataBundle, 5e-2);
   }
 
 }

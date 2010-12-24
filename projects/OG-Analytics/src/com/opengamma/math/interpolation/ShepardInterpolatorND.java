@@ -5,18 +5,15 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class ShepardInterpolatorND extends InterpolatorND {
+public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBundle> {
   private final Function1D<Double, Double> _basisFunction;
 
   public ShepardInterpolatorND(final double power) {
@@ -24,28 +21,28 @@ public class ShepardInterpolatorND extends InterpolatorND {
   }
 
   @Override
-  public Double interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
-    Validate.notNull(value);
-    checkData(data);
-    final int dimension = getDimension(data.keySet());
-    if (value.size() != dimension) {
-      throw new IllegalArgumentException("The value has dimension " + value.size() + "; the dimension of the data was " + dimension);
-    }
-    double sum = 0, weightedSum = 0;
-    double r, w;
-    final Iterator<Map.Entry<List<Double>, Double>> iter = data.entrySet().iterator();
-    Map.Entry<List<Double>, Double> entry;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      r = getRadius(value, entry.getKey());
-      if (r == 0) {
-        return entry.getValue();
+  public Double interpolate(InterpolatorNDDataBundle data, double[] x) {
+    validateInput(data, x);
 
-      }
-      w = _basisFunction.evaluate(r);
-      sum += w;
-      weightedSum += w * entry.getValue();
+    List<Pair<double[], Double>> rawData = data.getData();
+
+    int n = rawData.size();
+    double sum = 0;
+    double normSum = 0;
+    double[] xi;
+    double yi;
+    double phi;
+    Pair<double[], Double> temp;
+    for (int i = 0; i < n; i++) {
+      temp = rawData.get(i);
+      xi = temp.getFirst();
+      yi = temp.getSecond();
+      phi = _basisFunction.evaluate(InterpolatorNDDataBundle.getDistance(x, xi));
+      sum += yi * phi;
+      normSum += phi;
     }
-    return weightedSum / sum;
+
+    return sum / normSum;
   }
+
 }
