@@ -20,6 +20,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -128,6 +129,17 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * @return the name, not null
    */
   public String getName() {
+    if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
+      if (getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER) != null) {
+        return getQuantity() + " " + getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+      } else if (getSecurityKey().getIdentifier(SecurityUtils.RIC) != null) {
+        return getQuantity() + " " + getSecurityKey().getIdentifier(SecurityUtils.RIC);
+      } else if (getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER) != null) {
+        return getQuantity() + " " + getSecurityKey().getIdentifier(SecurityUtils.ACTIVFEED_TICKER);
+      } else {
+        return getQuantity() + " " + getSecurityKey().getIdentifiers().iterator().next().getValue();
+      }
+    }
     return getUniqueIdentifier() != null ? getUniqueIdentifier().toLatest().toString() : "";
   }
 

@@ -103,20 +103,6 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
-  public void test_get_fullId_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "0-0");
-    _worker.get(uid);
-  }
-
-  @Test
-  public void test_get_fullId_firstVersion() {
-    UniqueIdentifier fullId = UniqueIdentifier.of("DbPrt", "201", Long.toHexString(_version1Instant.toEpochMillisLong()) + "-0");
-    PortfolioDocument test = _worker.get(fullId);
-    assert201(test);
-  }
-
-  //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
     assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());

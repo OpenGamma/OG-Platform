@@ -186,8 +186,8 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
         .addValue("position_oid", positionOid)
         .addValue("quantity", trade.getQuantity())
         .addDate("trade_date", trade.getTradeDate())
-        .addTime("trade_time", trade.getTradeTime().toLocalTime())
-        .addValue("zone_offset", trade.getTradeTime().getOffset().getAmountSeconds())
+        .addTimeNullIgnored("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
+        .addValue("zone_offset", trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null)
         .addValue("cparty_scheme", counterpartyId.getScheme().getName())
         .addValue("cparty_value", counterpartyId.getValue());
       tradeList.add(tradeArgs);

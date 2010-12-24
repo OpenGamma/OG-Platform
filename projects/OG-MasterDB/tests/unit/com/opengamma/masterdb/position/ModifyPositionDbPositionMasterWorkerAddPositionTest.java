@@ -88,7 +88,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
@@ -122,7 +122,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(uid);
     assertEquals("DbPos", uid.getScheme());
     assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) > 1000);
+    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
     assertEquals("0", uid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
@@ -166,7 +166,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(positionUid);
     assertEquals("DbPos", positionUid.getScheme());
     assertTrue(positionUid.isVersioned());
-    assertTrue(Long.parseLong(positionUid.getValue()) > 1000);
+    assertTrue(Long.parseLong(positionUid.getValue()) >= 1000);
     assertEquals("0", positionUid.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
@@ -189,7 +189,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
       assertNotNull(tradeUid);
       assertEquals("DbPos", positionUid.getScheme());
       assertTrue(positionUid.isVersioned());
-      assertTrue(Long.parseLong(positionUid.getValue()) > 1000);
+      assertTrue(Long.parseLong(positionUid.getValue()) >= 1000);
       assertEquals("0", positionUid.getVersion());
       assertEquals(positionUid, testTrade.getPositionId());
     }

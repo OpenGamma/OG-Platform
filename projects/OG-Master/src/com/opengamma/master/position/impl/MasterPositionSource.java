@@ -221,11 +221,11 @@ public class MasterPositionSource implements PositionSource {
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    String[] schemes = StringUtils.split(uid.getScheme());
-    String[] values = StringUtils.split(uid.getValue());
-    String[] versions = StringUtils.split(uid.getVersion());
+    String[] schemes = StringUtils.split(uid.getScheme(), '-');
+    String[] values = StringUtils.split(uid.getValue(), '-');
+    String[] versions = StringUtils.split(uid.getVersion(), '-');
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource");
+      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uid);
     }
     UniqueIdentifier nodeUid = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
     UniqueIdentifier posUid = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
@@ -241,7 +241,7 @@ public class MasterPositionSource implements PositionSource {
     } else {
       // match by uid
       try {
-        PositionDocument posDoc = getPositionMaster().get(uid);
+        PositionDocument posDoc = getPositionMaster().get(posUid);
         manPos = posDoc.getPosition();
       } catch (DataNotFoundException ex) {
         return null;
@@ -255,11 +255,11 @@ public class MasterPositionSource implements PositionSource {
   @Override
   public Trade getTrade(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    String[] schemes = StringUtils.split(uid.getScheme());
-    String[] values = StringUtils.split(uid.getValue());
-    String[] versions = StringUtils.split(uid.getVersion());
+    String[] schemes = StringUtils.split(uid.getScheme(), '-');
+    String[] values = StringUtils.split(uid.getValue(), '-');
+    String[] versions = StringUtils.split(uid.getVersion(), '-');
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource");
+      throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uid);
     }
     UniqueIdentifier nodeUid = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[0], values[0]) : UniqueIdentifier.of(schemes[0], values[0], versions[0]);
     UniqueIdentifier tradeUid = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[1], values[1]) : UniqueIdentifier.of(schemes[1], values[1], versions[1]);
@@ -275,11 +275,11 @@ public class MasterPositionSource implements PositionSource {
         return null;
       }
       ManageablePosition manPos = positions.getFirstPosition();
-      manTrade = manPos.getTrade(uid);
+      manTrade = manPos.getTrade(tradeUid);
     } else {
       // match by uid
       try {
-        manTrade = getPositionMaster().getTrade(uid);
+        manTrade = getPositionMaster().getTrade(tradeUid);
       } catch (DataNotFoundException ex) {
         return null;
       }

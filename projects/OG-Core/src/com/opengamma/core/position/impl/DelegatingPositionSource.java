@@ -33,8 +33,8 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     super(defaultSource);
   }
 
-  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> delegates) {
-    super(defaultSource, delegates);
+  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> schemePrefixToDelegateMap) {
+    super(defaultSource, schemePrefixToDelegateMap);
   }
 
   //-------------------------------------------------------------------------

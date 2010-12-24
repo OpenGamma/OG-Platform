@@ -12,18 +12,26 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A general purpose security loader
+ * A general purpose security loader for populating a master.
  * <p>
- * SecurityLoader loads security reference data from sources like BLOOMBERG/REUTERS and populate the security master
- * If the security is missing in {@link SecurityMaster securityMaster} it will be added, otherwise it will be updated
+ * SecurityLoader adds or updates the details about a security in the attached master.
+ * This will normally be achieved by calling a standard external data source.
  */
 public interface SecurityLoader {
 
   /**
    * Loads the security data for the requested IdentifierBundles
    * 
-   * @param identifiers a collection of identifiers to load, not-null
-   * @return a map of identifierbundle to uniqueidentifier from security master
+   * @param identifiers  a collection of identifiers to load, not null
+   * @return a map of input bundle to created unique identifier from the master, not null
    */
   Map<IdentifierBundle, UniqueIdentifier> loadSecurity(Collection<IdentifierBundle> identifiers);
+
+  /**
+   * Gets the associated master.
+   * 
+   * @return the master that is being populated, not null
+   */
+  SecurityMaster getSecurityMaster();
+
 }
