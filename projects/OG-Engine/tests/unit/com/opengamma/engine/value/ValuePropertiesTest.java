@@ -172,5 +172,34 @@ public class ValuePropertiesTest {
     assertSame (requirement.getValues ("C"), props.getValues ("C"));
     assertSame (offering.getValues ("E"), props.getValues ("E"));
   }
+  
+  @Test
+  public void testEquals () {
+    final ValueProperties requirement1 = ValueProperties.with ("A", "1").with ("B", "2", "3").get ();
+    final ValueProperties requirement2 = ValueProperties.with ("A", "1").with ("B", "3").get ();
+    final ValueProperties requirement3 = ValueProperties.with ("B", "2", "3").get ();
+    final ValueProperties requirement4 = ValueProperties.withOptional("A").with ("A", "1").with ("B", "2", "3").get ();
+    final ValueProperties requirement5 = requirement1.copy().get ();
+    final ValueProperties requirement6 = requirement2.copy().with ("B", "2").get ();
+    final ValueProperties requirement7 = requirement1.copy ().withOptional ("A").get ();
+    assertTrue (requirement1.equals (requirement1));
+    assertFalse (requirement1.equals (requirement2));
+    assertFalse (requirement1.equals (requirement3));
+    assertFalse (requirement1.equals (requirement4));
+    assertTrue (requirement1.equals (requirement5));
+    assertTrue (requirement1.equals (requirement6));
+    assertFalse (requirement1.equals (requirement7));
+    assertTrue (requirement1.equals (requirement1));
+    assertFalse (requirement2.equals (requirement1));
+    assertFalse (requirement3.equals (requirement1));
+    assertFalse (requirement4.equals (requirement1));
+    assertTrue (requirement5.equals (requirement1));
+    assertTrue (requirement6.equals (requirement1));
+    assertFalse (requirement7.equals (requirement1));
+    assertFalse (requirement2.equals (requirement6));
+    assertFalse (requirement6.equals (requirement2));
+    assertTrue (requirement4.equals (requirement7));
+    assertTrue (requirement7.equals (requirement4));
+  }
 
 }

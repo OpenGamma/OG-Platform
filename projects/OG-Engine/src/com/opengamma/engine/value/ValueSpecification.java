@@ -74,7 +74,7 @@ public class ValueSpecification implements java.io.Serializable {
   }
 
   /**
-   * Creates a new specification from a targe tspecification. The properties must include the function identifier.
+   * Creates a new specification from a target specification. The properties must include the function identifier.
    * 
    * @param valueName the name of the value created, not {@code null}
    * @param targetSpecification the target specification, not {@code null}

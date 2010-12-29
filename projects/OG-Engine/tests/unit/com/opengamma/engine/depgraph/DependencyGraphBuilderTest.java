@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +31,21 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.MapComputationTargetResolver;
+import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -548,67 +555,67 @@ public class DependencyGraphBuilderTest {
     assertNotNull(graph);
     assertGraphContains(graph, fn2Bar, fnConv);
   }
-  
+
   @Test
-  public void testAdditionalRequirements () {
-    final DepGraphTestHelper helper = new DepGraphTestHelper ();
+  public void testAdditionalRequirements() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
-    final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
-      
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
+
       private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
-      
+
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
         return Collections.singleton(_result);
       }
-      
+
       @Override
-      public Set<ValueRequirement> getAdditionalRequirements (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
-        assertEquals (1, inputs.size ());
-        assertTrue (inputs.contains (helper.getSpec2Bar ()));
-        assertEquals (1, outputs.size ());
-        assertTrue (outputs.contains (_result.compose(helper.getRequirement1Bar ())));
-        return Collections.singleton (helper.getRequirement1Foo ());
+      public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+        assertEquals(1, inputs.size());
+        assertTrue(inputs.contains(helper.getSpec2Bar()));
+        assertEquals(1, outputs.size());
+        assertTrue(outputs.contains(_result.compose(helper.getRequirement1Bar())));
+        return Collections.singleton(helper.getRequirement1Foo());
       }
-      
+
     };
-    fnConv.addRequirement(helper.getRequirement2Any ());
-    helper.getFunctionRepository().addFunction (fnConv);
+    fnConv.addRequirement(helper.getRequirement2Any());
+    helper.getFunctionRepository().addFunction(fnConv);
     DependencyGraphBuilder builder = helper.getBuilder(null);
     builder.addTarget(helper.getRequirement1Bar());
-    DependencyGraph graph = builder.getDependencyGraph ();
-    assertNotNull (graph);
-    assertGraphContains (graph, fn2Bar, fnConv, fn1Foo);
+    DependencyGraph graph = builder.getDependencyGraph();
+    assertNotNull(graph);
+    assertGraphContains(graph, fn2Bar, fnConv, fn1Foo);
   }
-  
+
   @Test
-  public void testAdditionalRequirementBacktracking () {
-    final DepGraphTestHelper helper = new DepGraphTestHelper ();
+  public void testAdditionalRequirementBacktracking() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
     final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
-    final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
-      
+    final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
+
       private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
-      
+
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
         return Collections.singleton(_result);
       }
-      
+
       @Override
-      public Set<ValueRequirement> getAdditionalRequirements (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
-        if (inputs.contains (helper.getSpec2Foo ())) {
-          return Collections.singleton (helper.getRequirement2Beta());
+      public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+        if (inputs.contains(helper.getSpec2Foo())) {
+          return Collections.singleton(helper.getRequirement2Beta());
         } else {
-          return Collections.singleton (helper.getRequirement1Foo ());
+          return Collections.singleton(helper.getRequirement1Foo());
         }
       }
-      
+
     };
-    fnConv.addRequirement(helper.getRequirement2Any ());
-    helper.getFunctionRepository().addFunction (fnConv);
+    fnConv.addRequirement(helper.getRequirement2Any());
+    helper.getFunctionRepository().addFunction(fnConv);
     DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
@@ -619,11 +626,232 @@ public class DependencyGraphBuilderTest {
       }
     });
     builder.addTarget(helper.getRequirement1Bar());
-    DependencyGraph graph = builder.getDependencyGraph ();
-    assertNotNull (graph);
-    assertGraphContains (graph, fn2Foo, fn2Bar, fnConv, fn1Foo);
+    DependencyGraph graph = builder.getDependencyGraph();
+    assertNotNull(graph);
+    assertGraphContains(graph, fn2Foo, fn2Bar, fnConv, fn1Foo);
     graph.removeUnnecessaryValues();
-    assertGraphContains (graph, fn2Bar, fnConv, fn1Foo);
+    assertGraphContains(graph, fn2Bar, fnConv, fn1Foo);
+  }
+
+  private static abstract class TestFunction extends AbstractFunction.NonCompiledInvoker {
+
+    @Override
+    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      return ComputationTargetType.PRIMITIVE.equals(target.getType());
+    }
+
+    @Override
+    public ComputationTargetType getTargetType() {
+      return ComputationTargetType.PRIMITIVE;
+    }
+
+    public int getPriority() {
+      return 0;
+    }
+
+  };
+
+  @Test
+  public void testTwoLevelConversion() {
+    final DepGraphTestHelper helper = new DepGraphTestHelper();
+    final ComputationTarget target1 = new ComputationTarget(UniqueIdentifier.of("Target", "1"));
+    final ComputationTarget target2 = new ComputationTarget(UniqueIdentifier.of("Target", "2"));
+    final ComputationTarget target3 = new ComputationTarget(UniqueIdentifier.of("Target", "3"));
+    final String property = "Constraint";
+    MockFunction source = new MockFunction("source1", target1);
+    source.addResult(new ComputedValue(new ValueSpecification("A", target1.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "1").with(property, "Foo").get()), 1.0));
+    helper.getFunctionRepository().addFunction(source);
+    source = new MockFunction("source2", target2);
+    source.addResult(new ComputedValue(new ValueSpecification("A", target2.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "1").with(property, "Bar").get()), 2.0));
+    helper.getFunctionRepository().addFunction(source);
+    // Constraint preserving A->B
+    helper.getFunctionRepository().addFunction(new TestFunction() {
+      
+      @Override
+      public String getShortName () {
+        return "AtoB";
+      }
+      
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+        return Collections.singleton(new ValueRequirement("A", target.toSpecification(), ValueProperties.withAny(property).get()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification("B", target.toSpecification(), createValueProperties().withAny(property).get()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        return Collections.singleton(new ValueSpecification("B", target.toSpecification(), createValueProperties().with(property, inputs.iterator().next().getProperty(property)).get()));
+      }
+
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        return null;
+      }
+
+    });
+    // Constraint converting B->B
+    helper.getFunctionRepository().addFunction(new TestFunction() {
+      
+      @Override
+      public String getShortName () {
+        return "BConv";
+      }
+
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        return null;
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+        return Collections.singleton(new ValueRequirement("B", target.toSpecification(), ValueProperties.withAny(property).get()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification("B", target.toSpecification(), ValueProperties.all()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
+        for (ValueSpecification input : inputs) {
+          result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(property).get()));
+        }
+        return result;
+      }
+
+      @Override
+      public int getPriority() {
+        return -1;
+      }
+
+    });
+    // Combining B->C; any constraint but must be the same
+    helper.getFunctionRepository().addFunction(new TestFunction() {
+      
+      @Override
+      public String getShortName () {
+        return "BtoC";
+      }
+
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        return null;
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+        final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
+        Set<String> props = desiredValue.getConstraints().getValues(property);
+        if (props == null) {
+          if (target.equals(target3)) {
+            req.add(new ValueRequirement("B", target1.toSpecification(), ValueProperties.withAny(property).get()));
+            req.add(new ValueRequirement("B", target2.toSpecification(), ValueProperties.withAny(property).get()));
+          } else {
+            req.add(new ValueRequirement("B", target.toSpecification(), ValueProperties.withAny(property).get()));
+          }
+        } else {
+          if (target.equals(target3)) {
+            req.add(new ValueRequirement("B", target1.toSpecification(), ValueProperties.with(property, props).get()));
+            req.add(new ValueRequirement("B", target2.toSpecification(), ValueProperties.with(property, props).get()));
+          } else {
+            req.add(new ValueRequirement("B", target.toSpecification(), ValueProperties.with(property, props).get()));
+          }
+        }
+        return req;
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification(new ValueRequirement("C", target.toSpecification()), createValueProperties().withAny(property).get()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        String propValue = null;
+        for (ValueSpecification input : inputs) {
+          if (propValue == null) {
+            propValue = input.getProperty(property);
+          } else {
+            if (!propValue.equals(input.getProperty(property))) {
+              throw new IllegalArgumentException("property mismatch - " + propValue + " vs " + input.getProperty(property));
+            }
+          }
+        }
+        return Collections.singleton(new ValueSpecification("C", target.toSpecification(), createValueProperties().with(property, propValue).get()));
+      }
+
+    });
+    // Converting C->C; constraint omitted implies default
+    helper.getFunctionRepository().addFunction(new TestFunction() {
+      
+      @Override
+      public String getShortName () {
+        return "CConv";
+      }
+
+      @Override
+      public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+        return null;
+      }
+
+      @Override
+      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+        final Set<String> props = desiredValue.getConstraints().getValues(property);
+        if (props == null) {
+          return Collections.singleton(new ValueRequirement("C", target.toSpecification(), ValueProperties.with(property, "Default").get()));
+        } else {
+          return Collections.singleton(new ValueRequirement("C", target.toSpecification(), ValueProperties.withAny(property).get()));
+        }
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+        return Collections.singleton(new ValueSpecification("C", target.toSpecification(), ValueProperties.all()));
+      }
+
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+        final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
+        for (ValueSpecification input : inputs) {
+          result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(property).get()));
+        }
+        return result;
+      }
+
+      @Override
+      public int getPriority() {
+        return -1;
+      }
+
+    });
+    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+      @Override
+      public int getPriority(CompiledFunctionDefinition function) {
+        if (function instanceof TestFunction) {
+          return ((TestFunction) function).getPriority();
+        }
+        return 0;
+      }
+    });
+    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target1);
+    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target2);
+    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target3);
+    builder.addTarget(new ValueRequirement("C", target3.toSpecification()));
+    builder.addTarget(new ValueRequirement("C", target2.toSpecification()));
+    builder.addTarget(new ValueRequirement("C", target1.toSpecification()));
+    builder.addTarget(new ValueRequirement("B", target1.toSpecification()));
+    builder.addTarget(new ValueRequirement("B", target2.toSpecification()));
+    DependencyGraph graph = builder.getDependencyGraph();
+    assertNotNull(graph);
+    graph.removeUnnecessaryValues();
+    s_logger.debug("After removeUnnecessaryValues");
+    graph.dumpStructureASCII(System.out);
   }
 
 }

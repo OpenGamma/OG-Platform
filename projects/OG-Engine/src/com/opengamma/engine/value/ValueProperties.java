@@ -124,7 +124,7 @@ public abstract class ValueProperties implements Serializable {
      */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String>emptySet());
+      _properties.put(propertyName.intern(), Collections.<String> emptySet());
       return this;
     }
 
@@ -169,7 +169,7 @@ public abstract class ValueProperties implements Serializable {
       if (_optional != null) {
         for (String optionalProperty : _optional) {
           if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String>emptySet());
+            _properties.put(optionalProperty, Collections.<String> emptySet());
           }
         }
         return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
@@ -177,7 +177,7 @@ public abstract class ValueProperties implements Serializable {
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
       }
     }
 
@@ -216,8 +216,7 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           if (!isOptional(property.getKey())) {
@@ -253,6 +252,9 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public ValueProperties compose(final ValueProperties properties) {
       assert properties != null;
+      if ((properties == EMPTY) || (properties == INFINITE)) {
+        return this;
+      }
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if ((available == null) || available.isEmpty()) {
@@ -281,8 +283,7 @@ public abstract class ValueProperties implements Serializable {
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           // Other is not defined, so use current value
@@ -315,12 +316,20 @@ public abstract class ValueProperties implements Serializable {
           continue;
         }
         if (property.getValue().size() != available.size()) {
-          composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
+          final Set<String> intersection = Sets.intersection(property.getValue(), available);
+          // An empty intersection means no resulting property
+          if (!intersection.isEmpty()) {
+            composed.put(property.getKey(), intersection);
+          }
           continue;
         }
         for (String value : property.getValue()) {
           if (!available.contains(value)) {
-            composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
+            final Set<String> intersection = Sets.intersection(property.getValue(), available);
+            // An empty intersection means no resulting property
+            if (!intersection.isEmpty()) {
+              composed.put(property.getKey(), intersection);
+            }
             continue nextProperty;
           }
         }
@@ -331,8 +340,7 @@ public abstract class ValueProperties implements Serializable {
         // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed),
-            (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
       }
     }
 
@@ -368,24 +376,28 @@ public abstract class ValueProperties implements Serializable {
       return _properties.isEmpty();
     }
 
-    @Override
-    public String toString() {
+    public static String toString(final Map<String, Set<String>> properties, final Set<String> optional) {
       final StringBuilder sb = new StringBuilder();
       sb.append("{");
       boolean first = true;
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      for (Map.Entry<String, Set<String>> property : properties.entrySet()) {
         if (first) {
           first = false;
         } else {
           sb.append(",");
         }
         sb.append(property.getKey()).append("=").append(property.getValue());
-        if (isOptional(property.getKey())) {
+        if (optional.contains(property.getKey())) {
           sb.append("?");
         }
       }
       sb.append("}");
       return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+      return toString(_properties, _optional);
     }
   }
 
@@ -396,7 +408,7 @@ public abstract class ValueProperties implements Serializable {
 
     @Override
     public ValueProperties compose(final ValueProperties properties) {
-      // Any composition yields the infinite set again
+      // Composition yields the infinite set
       return this;
     }
 
@@ -441,7 +453,7 @@ public abstract class ValueProperties implements Serializable {
 
     @Override
     public String toString() {
-      return "INF";
+      return "INFINITE";
     }
 
   };
