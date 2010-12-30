@@ -63,8 +63,8 @@ public class BondSecurityToBondConverter {
     Validate.notNull(curveName, "curve name");
     Validate.notNull(now, "now");
     final LocalDate today = now.toLocalDate();
-    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
-    Validate.isTrue(today.isBefore(maturityDate), "The bond has expired");
+    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate(); // was maturity
+    Validate.isTrue(today.isBefore(lastTradeDate), "The bond has expired");
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
@@ -79,7 +79,7 @@ public class BondSecurityToBondConverter {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
-    final LocalDate[] schedule = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
+    final LocalDate[] schedule = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate); // is it okay to pass last trade date instead of maturity?
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
     final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory 

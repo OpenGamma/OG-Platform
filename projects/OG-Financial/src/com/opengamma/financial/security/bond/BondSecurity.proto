@@ -20,7 +20,7 @@ namespace com.opengamma.financial.security.bond {
     required com.opengamma.core.common.Currency currency;
     required com.opengamma.financial.convention.yield.YieldConvention yieldConvention;
     string guaranteeType;
-    required util.time.Expiry maturity;
+    required util.time.Expiry lastTradeDate;
     required string couponType;
     required double couponRate;
     required com.opengamma.financial.convention.frequency.Frequency couponFrequency;

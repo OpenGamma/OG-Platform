@@ -51,9 +51,9 @@ public class BondForwardCalculator {
     Validate.notNull(deliveryDate, "deliveryDate");
     final LocalDate today = now.toLocalDate();
     final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
-    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
-    Validate.isTrue(today.isBefore(maturityDate), "The bond has expired");
-    Validate.isTrue(deliveryDateLD.isBefore(maturityDate), "The bond has expired before delivery");
+    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
+    Validate.isTrue(today.isBefore(lastTradeDate), "The bond has expired");
+    Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before last trade date");
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
     if (frequency instanceof PeriodFrequency) {
@@ -67,7 +67,7 @@ public class BondForwardCalculator {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
-    final LocalDate[] schedule = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
+    final LocalDate[] schedule = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
     final LocalDate[] settlementDateSchedule = schedule;
@@ -101,9 +101,9 @@ public class BondForwardCalculator {
     Validate.notNull(deliveryDate, "deliveryDate");
     final LocalDate today = now.toLocalDate();
     final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
-    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
-    Validate.isTrue(today.isBefore(maturityDate), "The bond has expired");
-    Validate.isTrue(deliveryDateLD.isBefore(maturityDate), "The bond has expired before delivery");
+    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate(); // was maturity / delivery...
+    Validate.isTrue(today.isBefore(lastTradeDate), "The bond has expired");
+    Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before last trade date");  // changed from delivery.
 
     Validate.isTrue(cleanPrice > 10, "please input clean price on price (i.e around 100) bases");
     Validate.isTrue(repoRate < 1, "please input repo rate as fraction");
@@ -121,7 +121,7 @@ public class BondForwardCalculator {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
-    final LocalDate[] schedule = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
+    final LocalDate[] schedule = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate); // check that it's okay to pass last trade date here.
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
     //final LocalDate[] settlementDateSchedule = schedule;
