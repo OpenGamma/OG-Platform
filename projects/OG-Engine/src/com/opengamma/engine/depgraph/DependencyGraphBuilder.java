@@ -7,6 +7,7 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -211,9 +212,16 @@ public class DependencyGraphBuilder {
         return resolved.getLastValid();
       }
       final ResolutionState.Node resolutionNode = resolved.getFirst();
+      boolean strictConstraints = resolutionNode.getValueSpecification().getProperties().isStrict();
+      if (strictConstraints) {
+        final DependencyNode existingNode = _graph.getNodeProducing(resolutionNode.getValueSpecification());
+        if (existingNode != null) {
+          s_logger.debug("Existing node {} produces {}", existingNode, resolutionNode.getValueSpecification());
+          return Pair.of(existingNode, resolutionNode.getValueSpecification());
+        }
+      }
       final DependencyNode graphNode = resolutionNode.getDependencyNode();
       // Resolve and add the inputs, or just add them if repeating because of a backtrack
-      boolean strictConstraints = resolutionNode.getValueSpecification().getProperties().isStrict();
       if (resolutionNode.getInputStates() == null) {
         if (resolutionNode.getParameterizedFunction() != null) {
           try {
@@ -240,6 +248,7 @@ public class DependencyGraphBuilder {
           } catch (Throwable t) {
             // Note catch Throwable rather than the UnsatisfiedDependencyGraphException in case functionDefinition.getRequirements went wrong
             s_logger.debug("Backtracking on dependency graph error", t);
+            graphNode.clearInputs();
             resolved.removeFirst();
             if (resolved.isEmpty()) {
               throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), t);
@@ -284,6 +293,7 @@ public class DependencyGraphBuilder {
           }
         } catch (UnsatisfiableDependencyGraphException e) {
           s_logger.debug("Backtracking on dependency graph error", e);
+          graphNode.clearInputs();
           resolved.removeFirst();
           if (resolved.isEmpty()) {
             throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
@@ -294,6 +304,7 @@ public class DependencyGraphBuilder {
       // Late resolution of the output based on the actual inputs used
       final CompiledFunctionDefinition functionDefinition = resolutionNode.getParameterizedFunction().getFunction();
       ValueSpecification resolvedOutput = resolutionNode.getValueSpecification();
+      Set<ValueSpecification> originalOutputValues = null;
       if (!strictConstraints) {
         final Set<ValueSpecification> newOutputValues;
         try {
@@ -301,12 +312,14 @@ public class DependencyGraphBuilder {
         } catch (Throwable t) {
           // detect failure from .getResults
           s_logger.debug("Deep backtracking at late resolution failure", t);
+          graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
             throw new UnsatisfiableDependencyGraphException("Late resolution failure of " + resolved.getValueRequirement(), t);
           }
           continue;
         }
         if (!graphNode.getOutputValues().equals(newOutputValues)) {
+          originalOutputValues = new HashSet<ValueSpecification>(graphNode.getOutputValues());
           graphNode.clearOutputValues();
           resolvedOutput = null;
           for (ValueSpecification outputValue : newOutputValues) {
@@ -324,6 +337,8 @@ public class DependencyGraphBuilder {
               // Node has reduced to an existing node
               s_logger.debug("Reduce {} to existing node {}", graphNode, existingNode);
               graphNode.clearInputs();
+              graphNode.clearOutputValues();
+              graphNode.addOutputValues(originalOutputValues);
               final Pair<DependencyNode, ValueSpecification> result = Pair.of(existingNode, resolvedOutput);
               if (resolved.isEmpty()) {
                 resolved.setLastValid(result);
@@ -334,6 +349,9 @@ public class DependencyGraphBuilder {
             final String failureMessage = "Deep backtracking as provisional specification " + resolutionNode.getValueSpecification() + " no longer in output after late resolution of "
                 + resolved.getValueRequirement();
             s_logger.debug(failureMessage);
+            graphNode.clearInputs();
+            graphNode.clearOutputValues();
+            graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
               throw new UnsatisfiableDependencyGraphException(failureMessage);
             }
@@ -355,6 +373,11 @@ public class DependencyGraphBuilder {
         } catch (Throwable e) {
           // Catch Throwable in case getAdditionalRequirements fails
           s_logger.debug("Deep backtracking on dependency graph error", e);
+          graphNode.clearInputs();
+          if (originalOutputValues != null) {
+            graphNode.clearOutputValues();
+            graphNode.addOutputValues(originalOutputValues);
+          }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
             throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
           }
@@ -373,7 +396,7 @@ public class DependencyGraphBuilder {
   }
 
   public DependencyGraph getDependencyGraph() {
-    //_graph.dumpStructureASCII(System.out);
+    // _graph.dumpStructureASCII(System.out);
     return _graph;
   }
 

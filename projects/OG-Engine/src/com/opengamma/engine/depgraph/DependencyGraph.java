@@ -381,7 +381,14 @@ public class DependencyGraph {
       // Some children might become root as a result of removing this node
       for (DependencyNode childNode : node.getInputNodes()) {
         final Set<DependencyNode> dependentNodes = childNode.getDependentNodes();
-        if (dependentNodes.size() == 1) {
+        boolean isRoot = true;
+        for (DependencyNode dependentNode : dependentNodes) {
+          if (_dependencyNodes.contains(dependentNode)) {
+            isRoot = false;
+            break;
+          }
+        }
+        if (isRoot) {
           _rootNodes.add(childNode);
         }
       }
@@ -532,8 +539,16 @@ public class DependencyGraph {
     visited.add(node);
     indent = indent + "  ";
     for (ValueSpecification input : node.getInputValues()) {
-      out.println(indent + input);
+      out.println(indent + "Iv=" + input);
     }
+    for (ValueSpecification output : node.getOutputValues()) {
+      out.println(indent + "Ov=" + output);
+    }
+    /*
+     * for (DependencyNode output : node.getDependentNodes()) {
+     * out.println(indent + "On=" + uidMap.get(output) + " " + output);
+     * }
+     */
     for (DependencyNode input : node.getInputNodes()) {
       dumpNodeASCII(out, indent, input, uidMap, visited);
     }
