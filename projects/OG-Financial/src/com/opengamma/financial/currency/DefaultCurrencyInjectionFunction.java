@@ -78,8 +78,14 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
   }
 
   protected static String getViewDefaultCurrencyISO(final FunctionCompilationContext context) {
-    // TODO: lookup the default currency from the compilation context
-    return "EUR";
+    final Set<String> currencies = context.getViewCalculationConfiguration().getDefaultProperties().getValues(ValuePropertyNames.CURRENCY);
+    if (currencies == null) {
+      throw new IllegalStateException("Default currency not set for the view");
+    }
+    if (currencies.size() != 1) {
+      throw new IllegalStateException("Invalid default currency - " + currencies);
+    }
+    return currencies.iterator().next();
   }
 
 }

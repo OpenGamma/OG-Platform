@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.time.Instant;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.view.ViewDefinition;
 
@@ -55,10 +56,9 @@ public class ViewCompilationContext {
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
       // REVIEW 2010-12-22 Andrew -- should the same function resolver be used for all view configurations? How do we select e.g. different function parameters, or re-prioritize the repository?
       builder.setFunctionResolver(functionResolver);
-      // REVIEW 2010-12-22 Andrew -- should the same compilation context be used for all view configurations?
-      // What about config that might influence a function's input requirements and abilities?
-      // Could we pass the ViewCalculationConfiguration object and let the functions make decisions from that?
-      builder.setCompilationContext(compilationServices.getFunctionCompilationContext());
+      final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
+      compilationContext.setViewCalculationConfiguration(viewDefinition.getCalculationConfiguration(configName));
+      builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }
     return result;
