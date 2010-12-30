@@ -15,13 +15,15 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.greeks.Greek;
@@ -46,7 +48,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionGreekToValueGreekConverterFunction extends PropertyPreservingFunction {
+
+  @Override
+  protected String[] getPreservedProperties() {
+    return new String[] {ValuePropertyNames.CURRENCY};
+  }
+
   private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();
   private final String _requirementName;
 
@@ -93,9 +101,8 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     for (final ValueRequirement dV : desiredValues) {
       valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(dV.getValueName());
       valueGreekResult = sensitivities.get(valueGreek);
-      resultSpecification = new ValueSpecification(
-          new ValueRequirement(dV.getValueName(), target.getPosition()),
-          getUniqueIdentifier());
+      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getPosition()), createValueProperties().with(ValuePropertyNames.CURRENCY,
+          dV.getConstraint(ValuePropertyNames.CURRENCY)).get());
       resultValue = new ComputedValue(resultSpecification, valueGreekResult);
       results.add(resultValue);
     }
@@ -118,7 +125,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     Underlying order;
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    requirements.add(new ValueRequirement(underlyingGreekRequirementName, security));
+    requirements.add(new ValueRequirement(underlyingGreekRequirementName, security, getInputConstraint(desiredValue)));
     order = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName).getUnderlying();
     if (order == null) {
       throw new UnsupportedOperationException("No available order for configured value greek " + getRequirementName());
@@ -142,7 +149,23 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     }
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getUniqueIdentifier()));
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getResultProperties()));
+    return results;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    final Position position = target.getPosition();
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    ValueProperties.Builder properties = createValueProperties();
+    final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
+    for (ValueSpecification input : inputs) {
+      if (underlyingGreekRequirementName.equals(input.getValueName())) {
+        properties.with(ValuePropertyNames.CURRENCY, input.getProperty(ValuePropertyNames.CURRENCY));
+        break;
+      }
+    }
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), properties.get()));
     return results;
   }
 
@@ -192,4 +215,5 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
   private double getPointValue(final OptionSecurity option) {
     return option.accept(s_getPointValue);
   }
+
 }
