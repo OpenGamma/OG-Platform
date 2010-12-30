@@ -30,9 +30,14 @@ import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
+import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurityVisitor;
+import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
@@ -151,14 +156,40 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     return ComputationTargetType.POSITION;
   }
 
-  //TODO this will need changing but these are the only two options with point values
+  private static final OptionSecurityVisitor<Double> s_getPointValue = new OptionSecurityVisitor<Double>() {
+
+    @Override
+    public Double visitBondOptionSecurity(BondOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
+      return security.getPointValue();
+    }
+
+    @Override
+    public Double visitFXOptionSecurity(FXOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitFutureOptionSecurity(FutureOptionSecurity security) {
+      return security.getPointValue();
+    }
+
+    @Override
+    public Double visitOptionOptionSecurity(OptionOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitSwapOptionSecurity(SwapOptionSecurity security) {
+      return 1.0;
+    }
+  };
+
   private double getPointValue(final OptionSecurity option) {
-    if (option instanceof EquityOptionSecurity) {
-      return ((EquityOptionSecurity) option).getPointValue();
-    }
-    if (option instanceof FutureOptionSecurity) {
-      return ((FutureOptionSecurity) option).getPointValue();
-    }
-    return 1;
+    return option.accept(s_getPointValue);
   }
 }
