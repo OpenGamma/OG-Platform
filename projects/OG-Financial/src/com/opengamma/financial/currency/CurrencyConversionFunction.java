@@ -51,7 +51,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
   private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
-  private String _defaultCurrencyValueName = DefaultCurrencyFunction.createValueName(DEFAULT_LOOKUP_VALUE_NAME);
+  private String _defaultCurrencyValueName = DefaultCurrencyInjectionFunction.createValueName(DEFAULT_LOOKUP_VALUE_NAME);
   private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
 
   public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
@@ -71,7 +71,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public void setRateLookupValueName(final String rateLookupValueName) {
     ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
     _rateLookupValueName = rateLookupValueName;
-    setDefaultCurrencyValueName(DefaultCurrencyFunction.createValueName(rateLookupValueName));
+    setDefaultCurrencyValueName(DefaultCurrencyInjectionFunction.createValueName(rateLookupValueName));
   }
 
   public String getRateLookupValueName() {
@@ -171,7 +171,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (possibleCurrencies == null) {
       // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
-      String defaultCurrencyISO = DefaultCurrencyFunction.getViewDefaultCurrencyISO(context);
+      String defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
       s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
       final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
       req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));

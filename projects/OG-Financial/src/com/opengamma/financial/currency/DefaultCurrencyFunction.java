@@ -5,50 +5,45 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * Dummy function to work with {@link CurrencyConversionFunction} to reduce a wild-card currency constraint to the
- * default currency. References to this function from a dependency graph are only temporary to force value specification
- * resolution and dropped during construction.
+ * If no currency is explicitly requested, inject the view's default currency. This function should never
+ * be added to a dependency graph as the input will always match the output.
  */
 public class DefaultCurrencyFunction extends AbstractFunction.NonCompiledInvoker {
 
-  /**
-   * Default currency suffix.
-   */
-  protected static final String DEFAULT_CURRENCY_SUFFIX = "Default";
+  private final ComputationTargetType _targetType;
+  private final Set<String> _valueNames;
 
-  private String _defaultCurrencyValueName = createValueName(CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME);
-
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
-    setDefaultCurrencyValueName(createValueName(rateLookupValueName));
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String valueName) {
+    _targetType = targetType;
+    _valueNames = Collections.singleton(valueName);
   }
 
-  protected String getDefaultCurrencyValueName() {
-    return _defaultCurrencyValueName;
+  public DefaultCurrencyFunction(final ComputationTargetType targetType, final String... valueNames) {
+    _targetType = targetType;
+    _valueNames = new HashSet<String>(Arrays.asList(valueNames));
   }
 
-  protected void setDefaultCurrencyValueName(final String valueName) {
-    _defaultCurrencyValueName = valueName;
-  }
-
-  protected static String createValueName(final String rateLookup) {
-    return rateLookup + DEFAULT_CURRENCY_SUFFIX;
+  protected Set<String> getValueNames() {
+    return _valueNames;
   }
 
   @Override
@@ -58,29 +53,41 @@ public class DefaultCurrencyFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return ComputationTargetType.PRIMITIVE.equals(target.getType());
+    return getTargetType() == target.getType();
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    return Collections.emptySet();
+    final ValueProperties constraints = desiredValue.getConstraints().copy().with(ValuePropertyNames.CURRENCY, DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context)).get();
+    final ValueRequirement required = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), constraints);
+    return Collections.singleton(required);
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    final String defaultCurrencyISO = getViewDefaultCurrencyISO(context);
-    return Collections.singleton(new ValueSpecification(getDefaultCurrencyValueName(), target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, defaultCurrencyISO).get()));
+    // Maximal set of outputs is the valueNames with the infinite property set but no currency
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = ValueProperties.all().withoutAny(ValuePropertyNames.CURRENCY);
+    if (getValueNames().size() == 1) {
+      return Collections.singleton(new ValueSpecification(getValueNames().iterator().next(), targetSpec, properties));
+    } else {
+      final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
+      for (String valueName : getValueNames()) {
+        result.add(new ValueSpecification(valueName, targetSpec, properties));
+      }
+      return result;
+    }
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    // Pass the inputs through unchanged - will cause suppression of this node from the graph
+    return inputs;
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  protected static String getViewDefaultCurrencyISO(final FunctionCompilationContext context) {
-    // TODO: lookup the default currency from the compilation context
-    return "EUR";
+    return _targetType;
   }
 
 }
-

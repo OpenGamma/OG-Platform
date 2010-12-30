@@ -402,6 +402,104 @@ public abstract class ValueProperties implements Serializable {
   }
 
   /**
+   * Implements a nearly infinite property set.
+   */
+  private static final class NearlyInfinitePropertiesImpl extends ValueProperties {
+
+    private final Set<String> _without;
+
+    private NearlyInfinitePropertiesImpl(final Set<String> without) {
+      _without = without;
+    }
+
+    @Override
+    public ValueProperties compose(ValueProperties properties) {
+      // Yields the same
+      return this;
+    }
+
+    @Override
+    public Builder copy() {
+      throw new UnsupportedOperationException("Can't copy the nearly infinite set");
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getValues(String propertyName) {
+      if (_without.contains(propertyName)) {
+        return null;
+      } else {
+        return Collections.emptySet();
+      }
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+
+    @Override
+    public boolean isOptional(String propertyName) {
+      return false;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(ValueProperties properties) {
+      if (properties == INFINITE) {
+        return true;
+      }
+      if (!(properties instanceof NearlyInfinitePropertiesImpl)) {
+        return false;
+      }
+      final Set<String> otherWithouts = ((NearlyInfinitePropertiesImpl) properties)._without;
+      for (String otherWithout : otherWithouts) {
+        if (!_without.contains(otherWithout)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public boolean isStrict() {
+      return false;
+    }
+
+    @Override
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      if (_without.contains(propertyName)) {
+        return this;
+      } else {
+        final Set<String> without = new HashSet<String>(_without);
+        without.add(propertyName);
+        return new NearlyInfinitePropertiesImpl(without);
+      }
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("INFINITE-{");
+      boolean first = true;
+      for (String without : _without) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
+        sb.append(without);
+      }
+      sb.append('}');
+      return sb.toString();
+    }
+
+  }
+
+  /**
    * Implements the infinite property set.
    */
   private static final ValueProperties INFINITE = new ValueProperties() {
@@ -454,6 +552,12 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public String toString() {
       return "INFINITE";
+    }
+
+    @Override
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      return new NearlyInfinitePropertiesImpl(Collections.singleton(propertyName));
     }
 
   };
@@ -670,5 +774,15 @@ public abstract class ValueProperties implements Serializable {
    * @return {@code true} if the property set is empty, {@code false} otherwise
    */
   public abstract boolean isEmpty();
+
+  /**
+   * Equivalent to calling {@code copy().withoutAny(propertyName).get()}.
+   * 
+   * @param propertyName property name to remove
+   * @return a property set with the given property removed
+   */
+  public ValueProperties withoutAny(final String propertyName) {
+    return copy().withoutAny(propertyName).get();
+  }
 
 }

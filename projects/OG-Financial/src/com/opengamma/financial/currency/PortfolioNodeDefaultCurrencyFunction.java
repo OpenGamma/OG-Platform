@@ -8,15 +8,15 @@ package com.opengamma.financial.currency;
 import com.opengamma.engine.ComputationTargetType;
 
 /**
- * Converts a value from one currency to another, acting on a portfolio node.
+ * Injects a default currency requirement into the graph at a portfolio node.
  */
-public class PortfolioNodeCurrencyConversionFunction extends CurrencyConversionFunction {
+public class PortfolioNodeDefaultCurrencyFunction extends DefaultCurrencyFunction {
 
-  public PortfolioNodeCurrencyConversionFunction(final String valueName) {
+  public PortfolioNodeDefaultCurrencyFunction(final String valueName) {
     super(ComputationTargetType.PORTFOLIO_NODE, valueName);
   }
 
-  public PortfolioNodeCurrencyConversionFunction(final String... valueNames) {
+  public PortfolioNodeDefaultCurrencyFunction(final String... valueNames) {
     super(ComputationTargetType.PORTFOLIO_NODE, valueNames);
   }
 
