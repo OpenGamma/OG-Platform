@@ -158,10 +158,10 @@ public class DependencyGraphBuilder {
         s_logger.debug("{} producing {}", node.getFirst(), node.getSecond());
       }
       resolutionState = new ResolutionState(requirement);
-      resolutionState.addExistingNodes(existingNodes);
       // If it's live data, stop now. Otherwise fall through to the functions as they may be more generic than the
       // composed specifications attached to the nodes found
       if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
+        resolutionState.addExistingNodes(existingNodes);
         return resolutionState;
       }
     } else {
@@ -180,9 +180,11 @@ public class DependencyGraphBuilder {
       final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
       final ValueSpecification originalOutput = resolvedFunction.getSecond();
       final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-      if (_graph.getNodeProducing(resolvedOutput) != null) {
-        // Resolved function output already in the graph, so would have been added to the resolution state when we checked existing nodes
-        s_logger.debug("Skipping {} - already in graph", resolvedFunction.getSecond());
+      final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
+      if (existingNode != null) {
+        // Resolved function output already in the graph
+        s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+        resolutionState.addExistingNode(existingNode, resolvedOutput);
         continue;
       }
       if (node == null) {
@@ -214,6 +216,7 @@ public class DependencyGraphBuilder {
       final ResolutionState.Node resolutionNode = resolved.getFirst();
       boolean strictConstraints = resolutionNode.getValueSpecification().getProperties().isStrict();
       if (strictConstraints) {
+        // If backtracking and/or substitution has taken place, an exact match may have already been added to the graph
         final DependencyNode existingNode = _graph.getNodeProducing(resolutionNode.getValueSpecification());
         if (existingNode != null) {
           s_logger.debug("Existing node {} produces {}", existingNode, resolutionNode.getValueSpecification());
