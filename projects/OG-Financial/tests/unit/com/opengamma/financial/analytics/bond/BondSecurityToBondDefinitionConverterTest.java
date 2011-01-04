@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.bond;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
@@ -41,14 +42,15 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondDefinitionConverter CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2007, 10, 2);
+  private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtil.getUTCDate(2007, 9, 30);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2007, 10, 3);
+  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2008, 3, 31);
+  private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2008, 9, 30);
   private static final double COUPON = 4.0;
   private static final BondSecurity BOND = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.getInstance("USD"),
-      YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(DateUtil.getUTCDate(2008, 9, 30)), "", COUPON,
-      SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"),
-      new DateTimeWithZone(DateUtil.getUTCDate(2007, 9, 30)), new DateTimeWithZone(DateUtil.getUTCDate(2007, 10, 3)), new DateTimeWithZone(DateUtil.getUTCDate(2008, 3, 31)), 100, 100000000, 5000,
-      1000, 100, 100);
-  private static final double EPS = 1e-12;
+      YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(LAST_TRADE_DATE), "", COUPON,
+      SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(FIRST_ACCRUAL_DATE),
+      new DateTimeWithZone(SETTLEMENT_DATE), new DateTimeWithZone(FIRST_COUPON_DATE), 100, 100000000, 5000, 1000, 100, 100);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullHolidaySource() {
@@ -82,9 +84,9 @@ public class BondSecurityToBondDefinitionConverterTest {
 
   @Test
   public void test() {
-    final String name = "B";
     final BondDefinition definition = CONVERTER.getBond(BOND, true);
-    assertArrayEquals(definition.getNominalDates(), new LocalDate[] {});
+    assertArrayEquals(definition.getNominalDates(), new LocalDate[] {FIRST_ACCRUAL_DATE.toLocalDate(), FIRST_COUPON_DATE.toLocalDate(), LAST_TRADE_DATE.toLocalDate()});
+    assertEquals(definition.getSettlementDates()[0], SETTLEMENT_DATE);
   }
 
   private static class MyHolidaySource implements HolidaySource {

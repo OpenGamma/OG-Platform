@@ -66,16 +66,9 @@ public class BondSecurityToBondDefinitionConverter {
    */
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement, final ConventionBundle convention) {
     Validate.notNull(security, "security");
-<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondDefinitionConverter.java
     Validate.notNull(convention, "convention");
-    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
-=======
-    Validate.notNull(curveName, "curve name");
-    Validate.notNull(now, "now");
-    final LocalDate today = now.toLocalDate();
+    //final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate(); // was maturity
-    Validate.isTrue(today.isBefore(lastTradeDate), "The bond has expired");
->>>>>>> 3b776ebaddab4de83365ca035f53814bb48d5a31:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondConverter.java
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
@@ -87,25 +80,25 @@ public class BondSecurityToBondDefinitionConverter {
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
     final Currency currency = security.getCurrency();
-<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondDefinitionConverter.java
+    //<<<<<<< HEAD:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondDefinitionConverter.java
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-=======
+    //=======
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
-    final ConventionBundle convention = _conventionSource.getConventionBundle(id);
+    //final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
     final LocalDate[] schedule = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate); // is it okay to pass last trade date instead of maturity?
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final double timeBetweenPeriods = 1. / periodsPerYear;
-    final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory 
+    //final LocalDate[] settlementDateSchedule = ScheduleCalculator.getSettlementDateSchedule(schedule, calendar, convention.getSettlementDays()); //TODO should be in schedule factory 
     //TODO remove this when the definitions for USD treasuries are correct
->>>>>>> 3b776ebaddab4de83365ca035f53814bb48d5a31:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondConverter.java
+    //>>>>>>> 3b776ebaddab4de83365ca035f53814bb48d5a31:projects/OG-Financial/src/com/opengamma/financial/analytics/bond/BondSecurityToBondConverter.java
     final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
     final boolean isEOMConvention = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
-    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
-    final LocalDate[] nominalDates = getBondSchedule(security, maturityDate, simpleFrequency, convention, datedDate);
-    final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
-    //TODO should be in schedule factory 
+    //    final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
+    final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);
+    //    final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
+    //    //TODO should be in schedule factory 
     final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, convention.getSettlementDays())
         : ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, 0));
     final double coupon = security.getCouponRate() / 100;

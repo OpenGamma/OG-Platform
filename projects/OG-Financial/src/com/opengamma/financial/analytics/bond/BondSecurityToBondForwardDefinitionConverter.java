@@ -44,8 +44,9 @@ public class BondSecurityToBondForwardDefinitionConverter {
     Validate.notNull(security, "security");
     Validate.notNull(deliveryDate, "deliveryDate");
     final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
-    final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
-    Validate.isTrue(deliveryDateLD.isBefore(maturityDate), "The bond has expired before delivery");
+    //final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
+    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
+    Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
     //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Currency currency = security.getCurrency();
