@@ -98,7 +98,7 @@ public class DefaultComputationTargetResolverTest {
     PositionImpl position = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
     TradeImpl trade = new TradeImpl(position.getUniqueIdentifier(), IdentifierBundle.EMPTY, new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
     trade.setUniqueIdentifier(UniqueIdentifier.of("TradeScheme", "1"));
-    position.getTrades().add(trade);
+    position.addTrade(trade);
     portfolio.getRootNode().addPosition(position);
     posSource.addPortfolio(portfolio);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
