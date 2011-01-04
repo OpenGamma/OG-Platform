@@ -358,7 +358,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar", "1");
     
     MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _dbManager.getComputationTarget(
@@ -377,7 +377,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
     
     MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _dbManager.getComputationTarget(

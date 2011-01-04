@@ -147,7 +147,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     if (!crossValues.isEmpty()) {
       msg.add(CROSS_CONVERT_FIELD_NAME, null, FudgeMsgFieldType.INSTANCE, mapToMessage(context, crossValues));
     }
-    context.objectToFudgeMsg(msg, UNIQUE_IDENTIFIER_FIELD_NAME, null, object.getUniqueIdentifier());
+    context.objectToFudgeMsg(msg, UNIQUE_IDENTIFIER_FIELD_NAME, null, object.getUniqueId());
     return msg;
   }
 
@@ -225,7 +225,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     final MatrixImpl matrix = new MatrixImpl();
     FudgeField field = message.getByName(UNIQUE_IDENTIFIER_FIELD_NAME);
     if (field != null) {
-      matrix.setUniqueIdentifier(context.fieldValueToObject(UniqueIdentifier.class, field));
+      matrix.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, field));
     }
     field = message.getByName(CROSS_CONVERT_FIELD_NAME);
     if (field != null) {

@@ -83,7 +83,7 @@ public class ComputationTarget implements Serializable {
   public UniqueIdentifier getUniqueIdentifier() {
     final Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
-      return ((UniqueIdentifiable) value).getUniqueIdentifier();
+      return ((UniqueIdentifiable) value).getUniqueId();
     }
     return null;
   }

@@ -72,15 +72,15 @@ public class MasterPositionSourceTest {
     PositionMaster mockPosition = mock(PositionMaster.class);
     
     ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
-    manNode.setUniqueIdentifier(UID2);
+    manNode.setUniqueId(UID2);
     manNode.setPortfolioId(UID);
     ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
-    manChild.setUniqueIdentifier(UID3);
+    manChild.setUniqueId(UID3);
     manChild.setParentNodeId(UID2);
     manChild.setPortfolioId(UID);
     manNode.addChildNode(manChild);
     ManageablePortfolio manPrt = new ManageablePortfolio("Hello", manNode);
-    manPrt.setUniqueIdentifier(UID);
+    manPrt.setUniqueId(UID);
     PortfolioDocument prtDoc = new PortfolioDocument(manPrt);
     
     when(mockPortfolio.get(UID)).thenReturn(prtDoc);
@@ -88,15 +88,15 @@ public class MasterPositionSourceTest {
     Portfolio testResult = test.getPortfolio(UID);
     verify(mockPortfolio, times(1)).get(UID);
     
-    assertEquals(UID, testResult.getUniqueIdentifier());
+    assertEquals(UID, testResult.getUniqueId());
     assertEquals("Hello", testResult.getName());
     assertEquals("Node", testResult.getRootNode().getName());
-    assertEquals(UID2, testResult.getRootNode().getUniqueIdentifier());
+    assertEquals(UID2, testResult.getRootNode().getUniqueId());
     assertEquals(null, testResult.getRootNode().getParentNode());
     assertEquals(0, testResult.getRootNode().getPositions().size());
     assertEquals(1, testResult.getRootNode().getChildNodes().size());
     assertEquals("Child", testResult.getRootNode().getChildNodes().get(0).getName());
-    assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueIdentifier());
+    assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueId());
     assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNode());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
@@ -108,16 +108,16 @@ public class MasterPositionSourceTest {
     PositionMaster mockPosition = mock(PositionMaster.class);
     
     ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
-    manNode.setUniqueIdentifier(UID2);
+    manNode.setUniqueId(UID2);
     manNode.setPortfolioId(UID);
     ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
-    manChild.setUniqueIdentifier(UID3);
+    manChild.setUniqueId(UID3);
     manChild.setParentNodeId(UID2);
     manChild.setPortfolioId(UID);
     manChild.addPosition(UID4);
     manNode.addChildNode(manChild);
     ManageablePortfolio manPrt = new ManageablePortfolio("Hello", manNode);
-    manPrt.setUniqueIdentifier(UID);
+    manPrt.setUniqueId(UID);
     PortfolioDocument prtDoc = new PortfolioDocument(manPrt);
     PortfolioHistoryRequest portfolioRequest = new PortfolioHistoryRequest(UID.toLatest(), VERSION_AS_OF, CORRECTED_TO);
     PortfolioHistoryResult portfolioResult = new PortfolioHistoryResult();
@@ -126,12 +126,12 @@ public class MasterPositionSourceTest {
     ManageableTrade manTrade = new ManageableTrade();
     manTrade.setQuantity(BigDecimal.valueOf(1234));
     manTrade.setSecurityKey(IdentifierBundle.of(Identifier.of("CC", "DD")));
-    manTrade.setUniqueIdentifier(UID5);
+    manTrade.setUniqueId(UID5);
     manTrade.setPositionId(UID4);
     ManageablePosition manPos = new ManageablePosition();
     manPos.setQuantity(BigDecimal.valueOf(1235));
     manPos.setSecurityKey(IdentifierBundle.of(Identifier.of("AA", "BB")));
-    manPos.setUniqueIdentifier(UID4);
+    manPos.setUniqueId(UID4);
     manPos.addTrade(manTrade);
     PositionDocument posDoc = new PositionDocument(manPos);
     PositionSearchRequest posRequest = new PositionSearchRequest();
@@ -148,27 +148,27 @@ public class MasterPositionSourceTest {
     verify(mockPortfolio, times(1)).history(portfolioRequest);
     verify(mockPosition, times(1)).search(posRequest);
     
-    assertEquals(UID, testResult.getUniqueIdentifier());
+    assertEquals(UID, testResult.getUniqueId());
     assertEquals("Hello", testResult.getName());
     assertEquals("Node", testResult.getRootNode().getName());
-    assertEquals(UID2, testResult.getRootNode().getUniqueIdentifier());
+    assertEquals(UID2, testResult.getRootNode().getUniqueId());
     assertEquals(null, testResult.getRootNode().getParentNode());
     assertEquals(0, testResult.getRootNode().getPositions().size());
     assertEquals(1, testResult.getRootNode().getChildNodes().size());
     assertEquals("Child", testResult.getRootNode().getChildNodes().get(0).getName());
-    assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueIdentifier());
+    assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueId());
     assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNode());
     assertEquals(1, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
     Position pos = testResult.getRootNode().getChildNodes().get(0).getPositions().get(0);
     UniqueIdentifier combinedUid4 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID4.getScheme(), UID3.getValue() + "-" + UID4.getValue(), "-");
     UniqueIdentifier combinedUid5 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID5.getScheme(), UID3.getValue() + "-" + UID5.getValue(), "-");
-    assertEquals(combinedUid4, pos.getUniqueIdentifier());
+    assertEquals(combinedUid4, pos.getUniqueId());
     assertEquals(BigDecimal.valueOf(1235), pos.getQuantity());
     assertEquals(IdentifierBundle.of(Identifier.of("AA", "BB")), pos.getSecurityKey());
     assertEquals(1, pos.getTrades().size());
     Trade trade = pos.getTrades().iterator().next();
-    assertEquals(combinedUid5, trade.getUniqueIdentifier());
+    assertEquals(combinedUid5, trade.getUniqueId());
     assertEquals(combinedUid4, trade.getPositionId());
     assertEquals(BigDecimal.valueOf(1234), trade.getQuantity());
     assertEquals(IdentifierBundle.of(Identifier.of("CC", "DD")), trade.getSecurityKey());
@@ -181,10 +181,10 @@ public class MasterPositionSourceTest {
     PositionMaster mockPosition = mock(PositionMaster.class);
     
     ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
-    manNode.setUniqueIdentifier(UID2);
+    manNode.setUniqueId(UID2);
     manNode.setPortfolioId(UID);
     ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
-    manChild.setUniqueIdentifier(UID3);
+    manChild.setUniqueId(UID3);
     manChild.setParentNodeId(UID2);
     manChild.setPortfolioId(UID);
     manNode.addChildNode(manChild);
@@ -195,12 +195,12 @@ public class MasterPositionSourceTest {
     verify(mockPortfolio, times(1)).getNode(UID2);
     
     assertEquals("Node", testResult.getName());
-    assertEquals(UID2, testResult.getUniqueIdentifier());
+    assertEquals(UID2, testResult.getUniqueId());
     assertEquals(null, testResult.getParentNode());
     assertEquals(0, testResult.getPositions().size());
     assertEquals(1, testResult.getChildNodes().size());
     assertEquals("Child", testResult.getChildNodes().get(0).getName());
-    assertEquals(UID3, testResult.getChildNodes().get(0).getUniqueIdentifier());
+    assertEquals(UID3, testResult.getChildNodes().get(0).getUniqueId());
     assertEquals(UID2, testResult.getChildNodes().get(0).getParentNode());
     assertEquals(0, testResult.getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getChildNodes().get(0).getChildNodes().size());
@@ -222,7 +222,7 @@ public class MasterPositionSourceTest {
 //    Position testResult = test.getPosition(UID);
 //    verify(mockPortfolio, times(1)).getFullPosition(request);
 //    
-//    assertEquals(UID, testResult.getUniqueIdentifier());
+//    assertEquals(UID, testResult.getUniqueId());
 //    assertEquals(BigDecimal.TEN, testResult.getQuantity());
 //    assertEquals(Identifier.of("B", "C"), testResult.getSecurityKey().getIdentifiers().iterator().next());
 //  }
@@ -240,7 +240,7 @@ public class MasterPositionSourceTest {
 //    final Counterparty counterparty = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
 //    
 //    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.toLocalDate(), now.toOffsetTime().minusSeconds(100));
-//    trade.setUniqueIdentifier(UID);
+//    trade.setUniqueId(UID);
 //    
 //    when(mockPortfolio.getFullTrade(request)).thenReturn(trade);
 //    
@@ -248,7 +248,7 @@ public class MasterPositionSourceTest {
 //    Trade testResult = test.getTrade(UID);
 //    verify(mockPortfolio, times(1)).getFullTrade(request);
 //    
-//    assertEquals(UID, testResult.getUniqueIdentifier());
+//    assertEquals(UID, testResult.getUniqueId());
 //    assertEquals(BigDecimal.TEN, testResult.getQuantity());
 //    assertEquals(Identifier.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
 //    assertEquals(counterparty, testResult.getCounterparty());

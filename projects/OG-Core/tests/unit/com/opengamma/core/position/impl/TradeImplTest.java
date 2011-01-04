@@ -29,8 +29,8 @@ public class TradeImplTest {
 
   @Test
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {
-    TradeImpl test = new TradeImpl(POSITION.getUniqueIdentifier(), POSITION.getSecurityKey(), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
-    assertNull(test.getUniqueIdentifier());
+    TradeImpl test = new TradeImpl(POSITION.getUniqueId(), POSITION.getSecurityKey(), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
@@ -48,22 +48,22 @@ public class TradeImplTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullIdentifierBundle() {
-    new TradeImpl(POSITION.getUniqueIdentifier(), (IdentifierBundle) null, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), (IdentifierBundle) null, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullBigDecimal() {
-    new TradeImpl(POSITION.getUniqueIdentifier(), POSITION.getSecurityKey(), null, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), POSITION.getSecurityKey(), null, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullCounterparty() {
-    new TradeImpl(POSITION.getUniqueIdentifier(), POSITION.getSecurityKey(), BigDecimal.ONE, null, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), POSITION.getSecurityKey(), BigDecimal.ONE, null, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_IdentifierBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLocalDate() {
-    new TradeImpl(POSITION.getUniqueIdentifier(), POSITION.getSecurityKey(), BigDecimal.ONE, COUNTERPARTY, null, TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), POSITION.getSecurityKey(), BigDecimal.ONE, COUNTERPARTY, null, TRADE_OFFSET_DATETIME.toOffsetTime());
   }
   
   @Test
@@ -74,7 +74,7 @@ public class TradeImplTest {
     security.setIdentifiers(securityKey);
     
     TradeImpl test = new TradeImpl(POSITION_UID, security, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
-    assertNull(test.getUniqueIdentifier());
+    assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());

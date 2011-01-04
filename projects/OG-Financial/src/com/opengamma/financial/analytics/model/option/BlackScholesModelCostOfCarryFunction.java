@@ -36,7 +36,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueIdentifier()));
+    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueId()));
     if (curveObject == null) {
       throw new NullPointerException("Could not get yield curve for option");
     }
@@ -59,7 +59,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueId()));
     }
     return null;
   }

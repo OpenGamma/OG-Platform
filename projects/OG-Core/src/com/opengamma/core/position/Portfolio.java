@@ -24,7 +24,7 @@ public interface Portfolio extends UniqueIdentifiable {
    * Gets the unique identifier of the portfolio.
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the name of the portfolio intended for display purposes.

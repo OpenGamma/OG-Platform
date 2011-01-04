@@ -63,7 +63,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final BondSecurity security = (BondSecurity) position.getSecurity();
-    final ValueRequirement curveRequirement = new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    final ValueRequirement curveRequirement = new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId());
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
       throw new NullPointerException("Could not get " + curveRequirement);
@@ -79,7 +79,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {_curveName}, new YieldAndDiscountCurve[] {curve});
 
-    final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
     final Object priceObject = inputs.getValue(priceRequirement);
     if (priceObject == null) {
       throw new NullPointerException("Could not get " + priceRequirement);
@@ -104,8 +104,8 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()),
+          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
     }
     return null;
   }

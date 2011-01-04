@@ -158,7 +158,7 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
     final UniqueIdentifier uid = createUniqueIdentifier(configOid, configId);
     document.setUniqueId(uid);
     if (value instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) value).setUniqueIdentifier(uid);
+      ((MutableUniqueIdentifiable) value).setUniqueId(uid);
     }
     // serialize the configuration value
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(value);

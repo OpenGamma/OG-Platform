@@ -103,7 +103,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       }
       TimeSeriesDocument<LocalDate> timeSeriesDocument = documents.get(0);
       timeseries = timeSeriesDocument.getTimeSeries().toLocalDateDoubleTimeSeries();
-      uid = timeSeriesDocument.getUniqueIdentifier();
+      uid = timeSeriesDocument.getUniqueId();
     }
     return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeseries);
   }

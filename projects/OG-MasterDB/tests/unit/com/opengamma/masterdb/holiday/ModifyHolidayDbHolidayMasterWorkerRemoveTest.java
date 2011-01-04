@@ -81,7 +81,7 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
     assertEquals("GBP", holiday.getCurrency().getISOCode());

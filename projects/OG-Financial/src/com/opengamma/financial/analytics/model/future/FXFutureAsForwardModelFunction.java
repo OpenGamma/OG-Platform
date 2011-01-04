@@ -76,7 +76,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiled
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(
-          new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
+          new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueId()),
           getUniqueIdentifier());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
@@ -102,8 +102,8 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiled
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       final UniqueIdentifier fx = null;
       requirements.add(getUnderlyingMarketDataRequirement(fx));
-      requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getUniqueIdentifier()));
-      requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getUniqueIdentifier()));
+      requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getUniqueId()));
+      requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getUniqueId()));
       return requirements;
     }
     return null;
@@ -116,7 +116,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiled
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String name : AVAILABLE_GREEKS.keySet()) {
         results.add(new ValueSpecification(
-            new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
+            new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueId()),
             getUniqueIdentifier()));
       }
       return results;

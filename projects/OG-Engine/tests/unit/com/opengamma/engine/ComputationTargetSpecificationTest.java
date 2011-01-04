@@ -40,7 +40,7 @@ public class ComputationTargetSpecificationTest {
   };
   private static final UniqueIdentifiable UNIQUE_IDENTIFIABLE = new UniqueIdentifiable() {
     @Override
-    public UniqueIdentifier getUniqueIdentifier() {
+    public UniqueIdentifier getUniqueId() {
       return UniqueIdentifier.of("Test", "4");
     }
   };
@@ -53,28 +53,28 @@ public class ComputationTargetSpecificationTest {
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
-    assertEquals(PORTFOLIO.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(PORTFOLIO.getUniqueId(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Node() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(NODE);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
-    assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(NODE.getUniqueId(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Position() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(POSITION);
     assertEquals(ComputationTargetType.POSITION, test.getType());
-    assertEquals(POSITION.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(POSITION.getUniqueId(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Security() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
-    assertEquals(SECURITY.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(SECURITY.getUniqueId(), test.getUniqueIdentifier());
   }
 
   @Test
@@ -102,7 +102,7 @@ public class ComputationTargetSpecificationTest {
   public void test_constructor_Object_UniqueIdentifiable() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(UNIQUE_IDENTIFIABLE);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UNIQUE_IDENTIFIABLE.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(UNIQUE_IDENTIFIABLE.getUniqueId(), test.getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------

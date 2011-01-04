@@ -11,6 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -20,14 +21,14 @@ import com.opengamma.id.UniqueIdentifier;
  * These can form part of algorithms and contracts.
  * Instances of this interface represent all known holiday dates for a single type of business.
  */
-public interface Holiday {
+public interface Holiday extends UniqueIdentifiable {
 
   /**
    * The unique identifier of the holiday.
    * 
    * @return the unique identifier for this holiday entry, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * The type of the holiday.

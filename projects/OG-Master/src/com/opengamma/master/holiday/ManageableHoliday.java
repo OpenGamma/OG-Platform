@@ -45,7 +45,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * The unique identifier of the holiday.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The type of the holiday.
    */
@@ -90,7 +90,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    */
   public ManageableHoliday(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
-    setUniqueIdentifier(holiday.getUniqueIdentifier());
+    setUniqueId(holiday.getUniqueId());
     setType(holiday.getType());
     setRegionId(holiday.getRegionId());
     setExchangeId(holiday.getExchangeId());
@@ -101,7 +101,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   /**
    * Create a CURRENCY holiday from a collection of holiday dates.
    * <p>
-   * The unique identifier is managed separately using {@link #setUniqueIdentifier}.
+   * The unique identifier is managed separately using {@link #setUniqueId}.
    * 
    * @param currency the currency of this CURRENCY holiday schedule, not null
    * @param holidaySeries the dates on which holidays fall, not null
@@ -117,7 +117,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   /**
    * Create a BANK, SETTLEMENT or TRADING holiday from a collection of holiday dates.
    * <p>
-   * The unique identifier is managed separately using {@link #setUniqueIdentifier}.
+   * The unique identifier is managed separately using {@link #setUniqueId}.
    * 
    * @param holidayType  the type of the holiday, not null
    * @param regionOrExchangeId  the Identifier for either a region (for a BANK holiday) or an exchange (for a SETTLEMENT or TRADING holiday), not null
@@ -161,8 +161,8 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 3575610:  // type
         return getType();
       case -690339025:  // regionId
@@ -181,8 +181,8 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 3575610:  // type
         setType((HolidayType) newValue);
@@ -208,24 +208,24 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * Gets the unique identifier of the holiday.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the holiday.
-   * @param uniqueIdentifier  the new value of the property
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -374,9 +374,9 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code type} property.
      */
@@ -406,7 +406,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("type", _type);
       temp.put("regionId", _regionId);
       temp.put("exchangeId", _exchangeId);
@@ -432,11 +432,11 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

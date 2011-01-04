@@ -61,7 +61,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
    */
   public PositionDocument(final ManageablePosition position) {
     ArgumentChecker.notNull(position, "position");
-    setUniqueId(position.getUniqueIdentifier());
+    setUniqueId(position.getUniqueId());
     setPosition(position);
   }
 

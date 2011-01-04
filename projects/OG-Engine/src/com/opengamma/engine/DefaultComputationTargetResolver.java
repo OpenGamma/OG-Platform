@@ -161,7 +161,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             newPosition.setSecurity(security);
             Set<Trade> newTrades = Sets.newHashSet();
             for (Trade trade : position.getTrades()) {
-              final ComputationTarget resolvedTrade = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
+              final ComputationTarget resolvedTrade = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId()));
               newTrades.add(resolvedTrade.getTrade());
             }
             newPosition.setTrades(newTrades);
@@ -203,7 +203,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         if (portfolio != null) {
           s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
           node = portfolio.getRootNode();
-          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
+          return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), resolvePortfolioNode(uid, node)));
         }
         s_logger.info("Unable to resolve multiple-position UID {}", uid);
         return null;
@@ -215,20 +215,20 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   }
 
   private PortfolioNodeImpl resolvePortfolioNode(final UniqueIdentifier uid, final PortfolioNode node) {
-    final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueIdentifier(), node.getName());
+    final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueId(), node.getName());
     newNode.setParentNode(node.getParentNode());
     for (PortfolioNode child : node.getChildNodes()) {
-      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueIdentifier()));
+      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueId()));
       if (resolvedChild == null) {
-        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier(), uid);
+        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueId(), uid);
       } else {
         newNode.addChildNode(resolvedChild.getPortfolioNode());
       }
     }
     for (Position position : node.getPositions()) {
-      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId()));
       if (resolvedPosition == null) {
-        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(), uid);
+        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueId(), uid);
       } else {
         newNode.addPosition(resolvedPosition.getPosition());
       }

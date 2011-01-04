@@ -181,7 +181,7 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     getJdbcTemplate().batchUpdate(sqlInsertDate(), dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(holidayOid, holidayId);
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     document.setUniqueId(uid);
   }
 
