@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -14,6 +16,13 @@ public class SABRFormulaHagan implements SABRFormula {
   private static final double EPS = 1e-15;
 
   public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
+
+    Validate.isTrue(f > 0.0, "f must be > 0.0");
+    Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");
+    Validate.isTrue(nu >= 0.0, "nu must be >= 0.0");
+    Validate.isTrue(rho >= -1 && rho <= 1, "rho must be between -1 and 1");
+    Validate.isTrue(k > 0.0, "k must be > 0.0");
+    Validate.isTrue(t >= 0.0, "t must be >= 0.0");
 
     double vol, z, chi;
     final double beta1 = 1 - beta;

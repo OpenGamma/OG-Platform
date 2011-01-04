@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -12,6 +12,9 @@ import javax.time.calendar.ZonedDateTime;
  */
 public class ActualThreeSixty extends ActualTypeDayCount {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDateTime, final ZonedDateTime secondDateTime) {
     testDates(firstDateTime, secondDateTime);
@@ -21,9 +24,7 @@ public class ActualThreeSixty extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
     return getDayCountFraction(previousCouponDate, date) * coupon;
   }
 

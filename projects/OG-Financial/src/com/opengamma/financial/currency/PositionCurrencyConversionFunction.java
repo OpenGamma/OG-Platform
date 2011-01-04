@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.conversion;
+package com.opengamma.financial.currency;
 
 import com.opengamma.engine.ComputationTargetType;
 

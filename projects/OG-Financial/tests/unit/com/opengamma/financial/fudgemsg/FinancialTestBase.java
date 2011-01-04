@@ -58,6 +58,12 @@ public class FinancialTestBase {
   }
 
   protected <T> T cycleObject(final Class<T> clazz, final T object) {
+    final T newObject = cycleGenericObject(clazz, object);
+    assertEquals(object.getClass(), newObject.getClass());
+    return newObject;
+  }
+
+  protected <T> T cycleGenericObject(final Class<T> clazz, final T object) {
     s_logger.info("object {}", object);
     final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
     final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
@@ -70,7 +76,6 @@ public class FinancialTestBase {
     assertNotNull(newObject);
     s_logger.info("object {}", newObject);
     assertTrue(clazz.isAssignableFrom(newObject.getClass()));
-    assertEquals(object.getClass(), newObject.getClass());
     return newObject;
   }
 

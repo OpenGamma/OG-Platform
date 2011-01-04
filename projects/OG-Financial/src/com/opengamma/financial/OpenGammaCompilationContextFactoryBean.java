@@ -14,6 +14,7 @@ import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -28,6 +29,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private ConventionBundleSource _conventionBundleSource;
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
+  private CurrencyMatrixSource _currencyMatrixSource;
 
   public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
@@ -85,12 +87,21 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     _interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
 
+  public CurrencyMatrixSource getCurrencyMatrixSource() {
+    return _currencyMatrixSource;
+  }
+
+  public void setCurrencyMatrixSource(final CurrencyMatrixSource currencyMatrixSource) {
+    _currencyMatrixSource = currencyMatrixSource;
+  }
+
   private void configureCompilationContext(final FunctionCompilationContext context) {
     OpenGammaCompilationContext.setConfigSource(context, _configSource);
     OpenGammaCompilationContext.setRegionSource(context, _regionSource);
     OpenGammaCompilationContext.setConventionBundleSource(context, _conventionBundleSource);
     OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, _interpolatedYieldCurveDefinitionSource);
     OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, _interpolatedYieldCurveSpecificationBuilder);
+    OpenGammaCompilationContext.setCurrencyMatrixSource(context, _currencyMatrixSource);
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
   }

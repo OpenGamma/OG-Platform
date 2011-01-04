@@ -241,8 +241,8 @@ public class BatchJobTest {
         "-view MyView -springXml batch.xml -observationDate 99990901".split(" "));
     job.initialize(line, null);
     
-    job.createViewDefinition(job.getRuns().get(0));
-    job.createView(job.getRuns().get(0));
+    job.getRuns().get(0).createViewDefinition();
+    job.getRuns().get(0).createView();
   }
 
 }

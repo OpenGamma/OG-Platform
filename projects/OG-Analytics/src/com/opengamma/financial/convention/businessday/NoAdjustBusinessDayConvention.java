@@ -16,6 +16,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
  */
 public class NoAdjustBusinessDayConvention extends AbstractBusinessDayConvention {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public LocalDate adjustDate(final Calendar workingDayCalendar, final LocalDate date) {
     return date;

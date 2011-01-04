@@ -19,10 +19,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.google.common.base.Objects;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -52,32 +52,27 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
-      @FormParam("quantity") String quantityStr,
-      @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
-    quantityStr = StringUtils.trimToNull(quantityStr);
-    idScheme = StringUtils.trimToNull(idScheme);
-    idValue = StringUtils.trimToNull(idValue);
-    if (quantityStr == null || idScheme == null || idValue == null) {
+      @FormParam("quantity") String quantityStr) {
+    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+    if (quantityStr == null) {
       FlexiBean out = createRootData();
       if (quantityStr == null) {
         out.put("err_quantityMissing", true);
       }
-      if (idScheme == null) {
-        out.put("err_idschemeMissing", true);
-      }
-      if (idValue == null) {
-        out.put("err_idvalueMissing", true);
+      if (quantity == null) {
+        out.put("err_quantityNotNumeric", true);
       }
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
     PositionDocument doc = data().getPosition();
     ManageablePosition position = doc.getPosition();
-    position.setQuantity(new BigDecimal(quantityStr));
-    position.setSecurityKey(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    doc = data().getPositionMaster().update(doc);
-    data().setPosition(doc);
+    if (Objects.equal(position.getQuantity(), quantity) == false) {
+      position.setQuantity(quantity);
+      doc = data().getPositionMaster().update(doc);
+      data().setPosition(doc);
+    }
     URI uri = WebPositionResource.uri(data());
     return Response.seeOther(uri).build();
   }

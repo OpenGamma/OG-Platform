@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.ArgumentChecker;
@@ -150,10 +151,18 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
    * @param document  the document, not null
    */
   protected void insertConfig(final ConfigDocument<T> document) {
-    FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(document.getValue());
-    byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
+    final T value = document.getValue();
     final long configId = nextId("cfg_config_seq");
     final long configOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : configId);
+    // set the uid
+    final UniqueIdentifier uid = createUniqueIdentifier(configOid, configId);
+    document.setUniqueId(uid);
+    if (value instanceof MutableUniqueIdentifiable) {
+      ((MutableUniqueIdentifiable) value).setUniqueIdentifier(uid);
+    }
+    // serialize the configuration value
+    FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(value);
+    byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
     final MapSqlParameterSource configArgs = new DbMapSqlParameterSource()
       .addValue("config_id", configId)
@@ -166,9 +175,6 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
       .addValue("config_type", getMaster().getReifiedType().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
-    // set the uid
-    final UniqueIdentifier uid = createUniqueIdentifier(configOid, configId);
-    document.setUniqueId(uid);
   }
 
   /**

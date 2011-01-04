@@ -11,6 +11,7 @@ import javax.ws.rs.core.UriInfo;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
@@ -30,11 +31,14 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
+   * @param securityLoader  the security loader, not null
    */
-  protected AbstractWebPositionResource(final PositionMaster positionMaster) {
+  protected AbstractWebPositionResource(final PositionMaster positionMaster, final SecurityLoader securityLoader) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(securityLoader, "securityLoader");
     _data = new WebPositionsData();
     data().setPositionMaster(positionMaster);
+    data().setSecurityLoader(securityLoader);
   }
 
   /**

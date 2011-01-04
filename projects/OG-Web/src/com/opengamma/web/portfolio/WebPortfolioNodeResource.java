@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.base.Objects;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -47,14 +48,9 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   @GET
   public String get() {
     ManageablePortfolioNode node = data().getNode();
-    PositionSearchResult positionsResult;
-    if (node.getPositionIds().size() > 0) {
-      PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.setPositionIds(node.getPositionIds());
-      positionsResult = data().getPositionMaster().search(positionSearch);
-    } else {
-      positionsResult = new PositionSearchResult();
-    }
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    positionSearch.setPositionIds(node.getPositionIds());
+    PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
     
     FlexiBean out = createRootData();
     out.put("positionsResult", positionsResult);
@@ -94,10 +90,12 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     }
     PortfolioDocument doc = data().getPortfolio();
     ManageablePortfolioNode node = data().getNode();
-    node.setName(StringUtils.trim(name));
-    doc = data().getPortfolioMaster().update(doc);
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
-    data().setPortfolio(doc);
+    if (Objects.equal(node.getName(), name) == false) {
+      node.setName(name);
+      doc = data().getPortfolioMaster().update(doc);
+      data().setPortfolio(doc);
+    }
     return Response.seeOther(uri).build();
   }
 
@@ -114,6 +112,12 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     data().setPortfolio(doc);
     URI uri = WebPortfolioNodeResource.uri(data(), data().getParentNode().getUniqueIdentifier());
     return Response.seeOther(uri).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Path("positions")
+  public WebPortfolioNodePositionsResource findPositions() {
+    return new WebPortfolioNodePositionsResource(this);
   }
 
   //-------------------------------------------------------------------------
