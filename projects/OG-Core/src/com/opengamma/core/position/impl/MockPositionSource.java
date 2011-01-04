@@ -110,8 +110,8 @@ public class MockPositionSource implements PositionSource {
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
 
-    _portfolios.put(portfolio.getUniqueIdentifier(), portfolio);
-    addToCache(portfolio.getUniqueIdentifier().getValue(), null, portfolio.getRootNode());
+    _portfolios.put(portfolio.getUniqueId(), portfolio);
+    addToCache(portfolio.getUniqueId().getValue(), null, portfolio.getRootNode());
   }
 
   /**
@@ -123,30 +123,30 @@ public class MockPositionSource implements PositionSource {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      nodeImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+      nodeImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
       nodeImpl.setParentNode(parentNode);
     }
-    _nodes.put(node.getUniqueIdentifier(), node);
+    _nodes.put(node.getUniqueId(), node);
 
     // position
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
-        positionImpl.setUniqueIdentifier(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
-        positionImpl.setPortfolioNode(node.getUniqueIdentifier());
+        positionImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+        positionImpl.setPortfolioNode(node.getUniqueId());
         
         //add trades
         for (Trade trade : positionImpl.getTrades()) {
           UniqueIdentifiables.setInto(trade, _uidSupplier.getWithValuePrefix(portfolioId + "-"));
-          _trades.put(trade.getUniqueIdentifier(), trade);
+          _trades.put(trade.getUniqueId(), trade);
         }
       }
-      _positions.put(position.getUniqueIdentifier(), position);
+      _positions.put(position.getUniqueId(), position);
     }
 
     // recurse
     for (PortfolioNode child : node.getChildNodes()) {
-      addToCache(portfolioId, node.getUniqueIdentifier(), child);
+      addToCache(portfolioId, node.getUniqueId(), child);
     }
   }
 
@@ -157,7 +157,7 @@ public class MockPositionSource implements PositionSource {
    */
   public void removePortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    _portfolios.remove(portfolio.getUniqueIdentifier());
+    _portfolios.remove(portfolio.getUniqueId());
     removeFromCache(portfolio.getRootNode());
   }
 
@@ -167,12 +167,12 @@ public class MockPositionSource implements PositionSource {
    * @param node  the node to remove, not null
    */
   private void removeFromCache(PortfolioNode node) {
-    _nodes.remove(node.getUniqueIdentifier());
+    _nodes.remove(node.getUniqueId());
     for (Position position : node.getPositions()) {
       for (Trade trade : position.getTrades()) {
-        _trades.remove(trade.getUniqueIdentifier());
+        _trades.remove(trade.getUniqueId());
       }
-      _positions.remove(position.getUniqueIdentifier());
+      _positions.remove(position.getUniqueId());
     }
     for (PortfolioNode child : node.getChildNodes()) {
       removeFromCache(child);

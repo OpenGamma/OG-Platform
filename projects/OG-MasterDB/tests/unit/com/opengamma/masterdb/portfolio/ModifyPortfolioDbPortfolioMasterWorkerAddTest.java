@@ -106,7 +106,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(null, test.getCorrectionToInstant());
     
     ManageablePortfolio testPortfolio = test.getPortfolio();
-    assertEquals(uid, testPortfolio.getUniqueIdentifier());
+    assertEquals(uid, testPortfolio.getUniqueId());
     assertEquals("Test", testPortfolio.getName());
     
     ManageablePortfolioNode testRootNode = testPortfolio.getRootNode();
@@ -117,7 +117,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     
     ManageablePortfolioNode testChildNode = testRootNode.getChildNodes().get(0);
     assertEquals("Child", testChildNode.getName());
-    assertEquals(testRootNode.getUniqueIdentifier(), testChildNode.getParentNodeId());
+    assertEquals(testRootNode.getUniqueId(), testChildNode.getParentNodeId());
     assertEquals(uid, testChildNode.getPortfolioId());
     assertEquals(0, testChildNode.getChildNodes().size());
     assertEquals(1, testChildNode.getPositionIds().size());

@@ -44,7 +44,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Position position : allPositions) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
-          ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+          ComputationTargetType.POSITION, position.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueIdentifier());
@@ -59,7 +59,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Position position : allPositions) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueId()));
       }
       return requirements;
     }

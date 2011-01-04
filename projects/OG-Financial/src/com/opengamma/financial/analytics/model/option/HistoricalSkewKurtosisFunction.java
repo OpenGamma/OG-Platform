@@ -118,7 +118,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
+      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));

@@ -176,7 +176,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return this;
   }
 

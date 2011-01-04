@@ -136,9 +136,9 @@ public class DefaultTimeSeriesMetaDataResolverTest {
             tsDocument = _tsMaster.addTimeSeries(tsDocument);
             
             assertNotNull(tsDocument);
-            assertNotNull(tsDocument.getUniqueIdentifier());
+            assertNotNull(tsDocument.getUniqueId());
             
-            TimeSeriesDocument<LocalDate> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueIdentifier());
+            TimeSeriesDocument<LocalDate> actualDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
             assertNotNull(actualDoc);
             assertEquals(timeSeries, actualDoc.getTimeSeries());
             result.add(tsDocument);

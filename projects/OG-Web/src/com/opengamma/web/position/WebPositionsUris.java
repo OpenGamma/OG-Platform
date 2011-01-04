@@ -50,7 +50,7 @@ public class WebPositionsUris {
    * @return the URI
    */
   public URI position(final ManageablePosition position) {
-    return WebPositionResource.uri(_data, position.getUniqueIdentifier());
+    return WebPositionResource.uri(_data, position.getUniqueId());
   }
 
   /**
@@ -75,7 +75,7 @@ public class WebPositionsUris {
    * @return the URI
    */
   public URI positionVersion(final ManageablePosition position) {
-    return WebPositionVersionResource.uri(_data, position.getUniqueIdentifier());
+    return WebPositionVersionResource.uri(_data, position.getUniqueId());
   }
 
 }

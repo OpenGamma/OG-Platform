@@ -79,7 +79,7 @@ public final class Currency implements UniqueIdentifiable, Serializable {
    * @return the identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return _identifier;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.leastsquare;
@@ -35,8 +35,7 @@ public class NonLinearLeastSquareTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
-  private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(
-      MersenneTwister64.DEFAULT_SEED));
+  private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
   private static final DoubleMatrix1D X;
   private static final DoubleMatrix1D Y;
   private static final DoubleMatrix1D SIGMA;
@@ -147,8 +146,7 @@ public class NonLinearLeastSquareTest {
       solveExactWithoutGradientTest();
     }
     if (BENCHMARK_CYCLES > 0) {
-      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Levenberg-Marquardt",
-          BENCHMARK_CYCLES);
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Levenberg-Marquardt", BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         solveExactWithoutGradientTest();
       }
@@ -162,8 +160,7 @@ public class NonLinearLeastSquareTest {
       solveExactFromChiSqTest();
     }
     if (BENCHMARK_CYCLES > 0) {
-      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Conugate gradient",
-          BENCHMARK_CYCLES);
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on Conugate gradient", BENCHMARK_CYCLES);
       for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         solveExactFromChiSqTest();
       }
@@ -186,7 +183,8 @@ public class NonLinearLeastSquareTest {
   }
 
   /**
-   * This tests a fit to random data, so it could fail or rare occasions. Only consecutive fails indicate a bug 
+   * This tests a fit to random data, so it could fail or rare occasions. Only consecutive fails indicate a bug. //REVIEW emcleod 4-1-11: no it doesn't - there's a seed given to the random number generator 
+   * so it will produce the same numbers each time 
    */
   @Test
   public void solveRandomNoiseTest() {
@@ -215,14 +213,14 @@ public class NonLinearLeastSquareTest {
 
     assertTrue(chiSqDoF < 4.0);
 
-    //    System.out.println("chiSqr: " + res.getChiSq());
-    //    System.out.println("params: " + res.getParameters());
-    //    System.out.println("covariance: " + res.getCovariance());
-    //    System.out.println("z: " + z);
+    // System.out.println("chiSqr: " + res.getChiSq());
+    // System.out.println("params: " + res.getParameters());
+    // System.out.println("covariance: " + res.getCovariance());
+    // System.out.println("z: " + z);
   }
 
-  private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final DoubleMatrix1D x, final DoubleMatrix1D y,
-      DoubleMatrix1D sigma, final ParameterizedFunction<Double, DoubleMatrix1D, Double> paramFunc) {
+  private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final DoubleMatrix1D x, final DoubleMatrix1D y, DoubleMatrix1D sigma,
+      final ParameterizedFunction<Double, DoubleMatrix1D, Double> paramFunc) {
 
     final int n = x.getNumberOfElements();
     if (y.getNumberOfElements() != n) {

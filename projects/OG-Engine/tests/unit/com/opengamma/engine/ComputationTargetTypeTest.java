@@ -39,7 +39,7 @@ public class ComputationTargetTypeTest {
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
-  private static final Trade TRADE = new TradeImpl(POSITION.getUniqueIdentifier(), SECURITY, new BigDecimal(1), 
+  private static final Trade TRADE = new TradeImpl(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
       new CounterpartyImpl(Identifier.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
 
   @Test

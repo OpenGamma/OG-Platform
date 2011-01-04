@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.time.InstantProvider;
 import javax.time.calendar.TimeZone;
@@ -152,7 +151,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueIdentifier(), _definition.getCurrency().getUniqueIdentifier());
+        return ObjectUtils.equals(target.getUniqueIdentifier(), _definition.getCurrency().getUniqueId());
       }
 
       @SuppressWarnings("unchecked")
@@ -162,7 +161,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
-            Identifier identifier = ((SurfaceInstrumentProvider<Object, Object>)_specification.getSurfaceInstrumentProvider()).getInstrument(x, y);
+            Identifier identifier = ((SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider()).getInstrument(x, y);
             ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, identifier);
             Double volatility = (Double) inputs.getValue(requirement);
             volatilityValues.put(Pair.of(x, y), volatility);

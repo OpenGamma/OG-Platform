@@ -47,7 +47,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * The unique identifier of the region.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The classification of the region.
    */
@@ -97,7 +97,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    */
   public ManageableRegion(final Region region) {
     ArgumentChecker.notNull(region, "region");
-    setUniqueIdentifier(region.getUniqueIdentifier());
+    setUniqueId(region.getUniqueId());
     setClassification(region.getClassification());
     setParentRegionIds(region.getParentRegionIds());
     setName(region.getName());
@@ -202,8 +202,8 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 382350310:  // classification
         return getClassification();
       case 1273190810:  // parentRegionIds
@@ -224,8 +224,8 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 382350310:  // classification
         setClassification((RegionClassification) newValue);
@@ -254,24 +254,24 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * Gets the unique identifier of the region.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the region.
-   * @param uniqueIdentifier  the new value of the property
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -446,9 +446,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code classification} property.
      */
@@ -482,7 +482,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("classification", _classification);
       temp.put("parentRegionIds", _parentRegionIds);
       temp.put("name", _name);
@@ -509,11 +509,11 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

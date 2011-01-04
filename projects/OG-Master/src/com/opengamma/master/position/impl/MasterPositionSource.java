@@ -181,7 +181,7 @@ public class MasterPositionSource implements PositionSource {
         return null;
       }
     }
-    PortfolioImpl prt = new PortfolioImpl(manPrt.getUniqueIdentifier(), manPrt.getName());
+    PortfolioImpl prt = new PortfolioImpl(manPrt.getUniqueId(), manPrt.getName());
     convertNode(versionAsOf, correctedTo, manPrt.getRootNode(), prt.getRootNode());
     return prt;
   }
@@ -299,8 +299,8 @@ public class MasterPositionSource implements PositionSource {
    * @param sourceNode  the source node, not null
    */
   protected void convertNode(final Instant versionAsOf, final Instant correctedTo, final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
-    UniqueIdentifier nodeUid = manNode.getUniqueIdentifier();
-    sourceNode.setUniqueIdentifier(nodeUid);
+    UniqueIdentifier nodeUid = manNode.getUniqueId();
+    sourceNode.setUniqueId(nodeUid);
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNode(manNode.getParentNodeId());
     
@@ -333,15 +333,15 @@ public class MasterPositionSource implements PositionSource {
    * @param sourcePosition  the source position, not null
    */
   protected void convertPosition(final UniqueIdentifier nodeUid, final ManageablePosition manPos, final PositionImpl sourcePosition) {
-    UniqueIdentifier posUid = convertUid(manPos.getUniqueIdentifier(), nodeUid);
-    sourcePosition.setUniqueIdentifier(posUid);
+    UniqueIdentifier posUid = convertUid(manPos.getUniqueId(), nodeUid);
+    sourcePosition.setUniqueId(posUid);
     sourcePosition.setPortfolioNode(nodeUid);
     sourcePosition.setQuantity(manPos.getQuantity());
     sourcePosition.setSecurityKey(manPos.getSecurityKey());
     for (ManageableTrade manTrade : manPos.getTrades()) {
       TradeImpl sourceTrade = new TradeImpl();
       convertTrade(nodeUid, posUid, manTrade, sourceTrade);
-      sourcePosition.getTrades().add(sourceTrade);
+      sourcePosition.addTrade(sourceTrade);
     }
   }
 
@@ -354,7 +354,7 @@ public class MasterPositionSource implements PositionSource {
    * @param sourceTrade  the source trade, not null
    */
   protected void convertTrade(final UniqueIdentifier nodeUid, final UniqueIdentifier posUid, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
-    sourceTrade.setUniqueIdentifier(convertUid(manTrade.getUniqueIdentifier(), nodeUid));
+    sourceTrade.setUniqueId(convertUid(manTrade.getUniqueId(), nodeUid));
     sourceTrade.setPositionId(posUid);
     sourceTrade.setQuantity(manTrade.getQuantity());
     sourceTrade.setSecurityKey(manTrade.getSecurityKey());

@@ -374,8 +374,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
           }
           currentTrade = new ManageableTrade(tradeQuantity, IdentifierBundle.EMPTY, tradeDate, tradeOffsetTime, counterpartyId);
           long tradeOid = rs.getLong("TRADE_OID");
-          currentTrade.setUniqueIdentifier(createUniqueIdentifier(tradeOid, tradeId));
-          currentTrade.setPositionId(_position.getUniqueIdentifier());
+          currentTrade.setUniqueId(createUniqueIdentifier(tradeOid, tradeId));
+          currentTrade.setPositionId(_position.getUniqueId());
           _position.getTrades().add(currentTrade);
         }
         
@@ -400,7 +400,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       final String providerScheme = rs.getString("PROVIDER_SCHEME");
       final String providerValue = rs.getString("PROVIDER_VALUE");
       _position = new ManageablePosition(quantity, IdentifierBundle.EMPTY);
-      _position.setUniqueIdentifier(createUniqueIdentifier(positionOid, positionId));
+      _position.setUniqueId(createUniqueIdentifier(positionOid, positionId));
       PositionDocument doc = new PositionDocument(_position);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));

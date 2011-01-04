@@ -82,7 +82,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   @Test(expected = DataNotFoundException.class)
   public void test_update_notFound() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
-    port.setUniqueIdentifier(UniqueIdentifier.of("DbPrt", "0", "0"));
+    port.setUniqueId(UniqueIdentifier.of("DbPrt", "0", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
     _worker.update(doc);
@@ -91,7 +91,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   @Test(expected = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
-    port.setUniqueIdentifier(UniqueIdentifier.of("DbPrt", "201", "0"));
+    port.setUniqueId(UniqueIdentifier.of("DbPrt", "201", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
     _worker.update(doc);
@@ -104,7 +104,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPrt", "101", "0");
     PortfolioDocument base = _queryWorker.get(oldPortfolioId);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
-    port.setUniqueIdentifier(oldPortfolioId);
+    port.setUniqueId(oldPortfolioId);
     port.setRootNode(base.getPortfolio().getRootNode());
     PortfolioDocument input = new PortfolioDocument(port);
     
@@ -134,10 +134,10 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     assertEquals(null, newer.getCorrectionToInstant());
     assertEquals("NewName", newer.getPortfolio().getName());
     assertEquals("TestNode111", newer.getPortfolio().getRootNode().getName());
-    assertEquals(old.getPortfolio().getRootNode().getUniqueIdentifier().toLatest(),
-        newer.getPortfolio().getRootNode().getUniqueIdentifier().toLatest());
-    assertEquals(false, old.getPortfolio().getRootNode().getUniqueIdentifier().getVersion().equals(
-        newer.getPortfolio().getRootNode().getUniqueIdentifier().getVersion()));
+    assertEquals(old.getPortfolio().getRootNode().getUniqueId().toLatest(),
+        newer.getPortfolio().getRootNode().getUniqueId().toLatest());
+    assertEquals(false, old.getPortfolio().getRootNode().getUniqueId().getVersion().equals(
+        newer.getPortfolio().getRootNode().getUniqueId().getVersion()));
     
     PortfolioHistoryRequest search = new PortfolioHistoryRequest(base.getUniqueId(), null, now);
     PortfolioHistoryResult searchResult = _queryWorker.history(search);

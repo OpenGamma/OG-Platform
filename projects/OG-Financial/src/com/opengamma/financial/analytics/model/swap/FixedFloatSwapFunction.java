@@ -76,14 +76,14 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
-    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier());
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId());
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new NullPointerException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
     if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier());
+      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId());
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new NullPointerException("Could not get " + fundingCurveRequirement);

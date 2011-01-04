@@ -739,7 +739,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
           document.getDataField(), 
           document.getObservationTime(),
           document.getTimeSeries());
-      document.setUniqueIdentifier(uid);
+      document.setUniqueId(uid);
       return document;
     } else {
       throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
@@ -765,7 +765,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
   public void appendTimeSeries(TimeSeriesDocument<T> document) {
-    Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
+    Long tsId = validateAndGetTimeSeriesId(document.getUniqueId());
     insertDataPoints(document.getTimeSeries(), tsId);
   }
 
@@ -842,7 +842,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     Long tsId = validateAndGetTimeSeriesId(uid);
     
     TimeSeriesDocument<T> result = new TimeSeriesDocument<T>();
-    result.setUniqueIdentifier(uid);
+    result.setUniqueId(uid);
     
     MetaData<T> metaData = getTimeSeriesMetaData(tsId);
     
@@ -1045,7 +1045,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       document.setDataSource(tsMetaData.getDataSource());
       document.setIdentifiers(tsMetaData.getIdentifiers());
       document.setObservationTime(tsMetaData.getObservationTime());
-      document.setUniqueIdentifier(uid);
+      document.setUniqueId(uid);
       if (request.isLoadDates()) {
         //load timeseries date ranges
         Map<String, T> dates = getTimeSeriesDateRange(tsId);
@@ -1130,7 +1130,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
         
         document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
         document.setObservationTime(tsMetaData.getObservationTime());
-        document.setUniqueIdentifier(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
+        document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
         if (request.isLoadDates()) {
           document.setEarliest(tsMetaData.getEarliestDate());
           document.setLatest(tsMetaData.getLatestDate());
@@ -1198,7 +1198,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     document.setDataSource(request.getDataSource());
     document.setIdentifiers(IdentifierBundleWithDates.of(request.getIdentifiers()));
     document.setObservationTime(request.getObservationTime());
-    document.setUniqueIdentifier(uid);
+    document.setUniqueId(uid);
     document.setTimeSeries(seriesSnapshot);
     searchResult.getDocuments().add(document);
     return searchResult;
@@ -1218,7 +1218,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   public TimeSeriesDocument<T> updateTimeSeries(TimeSeriesDocument<T> document) {
     ArgumentChecker.notNull(document, "timeseries document");
     ArgumentChecker.notNull(document.getTimeSeries(), "Timeseries");
-    Long tsId = validateAndGetTimeSeriesId(document.getUniqueIdentifier());
+    Long tsId = validateAndGetTimeSeriesId(document.getUniqueId());
     //check we have timeseries with given Id
     //getTimeSeriesMetaData() will throw DataNotFoundException if Id is not present
     getTimeSeriesMetaData(tsId);
@@ -1321,7 +1321,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     TimeSeriesSearchResult<T> searchResult = searchTimeSeries(request);
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
-      result = documents.get(0).getUniqueIdentifier();
+      result = documents.get(0).getUniqueId();
     }
     return result;
   }

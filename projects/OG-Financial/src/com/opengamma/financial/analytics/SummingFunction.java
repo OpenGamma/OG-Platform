@@ -79,7 +79,7 @@ public class SummingFunction extends PropertyPreservingFunction {
     Object currentSum = null;
     for (final Position position : allPositions) {
       final Object positionValue = inputs.getValue(new ValueRequirement(_requirementName,
-          ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+          ComputationTargetType.POSITION, position.getUniqueId()));
       currentSum = addValue(currentSum, positionValue);
     }
     final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.getAllValues())), currentSum);
@@ -117,7 +117,7 @@ public class SummingFunction extends PropertyPreservingFunction {
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final Position position : allPositions) {
-      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier(), getInputConstraint(desiredValue)));
+      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueId(), getInputConstraint(desiredValue)));
     }
     return requirements;
   }

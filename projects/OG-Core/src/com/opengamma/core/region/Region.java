@@ -13,6 +13,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -21,14 +22,14 @@ import com.opengamma.id.UniqueIdentifier;
  * Many aspects of business, algorithms and contracts are specific to a region.
  * The region may be of any size, from a municipality to a super-national group.
  */
-public interface Region {
+public interface Region extends UniqueIdentifiable {
 
   /**
    * Gets the unique identifier of the region.
    * 
    * @return the unique identifier for this region entry, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the classification of the region.

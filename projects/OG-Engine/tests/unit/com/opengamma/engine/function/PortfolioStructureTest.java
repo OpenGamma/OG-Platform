@@ -48,14 +48,14 @@ public class PortfolioStructureTest {
     _child1 = new PortfolioNodeImpl(uid.get(), "child 1");
     _child2 = new PortfolioNodeImpl(uid.get(), "child 2");
     _position1 = new PositionImpl(uid.get(), new BigDecimal(10), Identifier.of("Security", "Foo"));
-    _position1.setPortfolioNode(_child2.getUniqueIdentifier());
+    _position1.setPortfolioNode(_child2.getUniqueId());
     _child2.addPosition(_position1);
     _position2 = new PositionImpl(uid.get(), new BigDecimal(20), Identifier.of("Security", "Bar"));
-    _position2.setPortfolioNode(_child2.getUniqueIdentifier());
+    _position2.setPortfolioNode(_child2.getUniqueId());
     _child2.addPosition(_position2);
-    _child2.setParentNode(_child1.getUniqueIdentifier());
+    _child2.setParentNode(_child1.getUniqueId());
     _child1.addChildNode(_child2);
-    _child1.setParentNode(_root.getUniqueIdentifier());
+    _child1.setParentNode(_root.getUniqueId());
     _root.addChildNode(_child1);
     portfolio.setRootNode(_root);
     positionSource.addPortfolio(portfolio);

@@ -26,7 +26,7 @@ public class BondSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private YieldConventionBean _yieldConvention;
   private GuaranteeTypeBean _guaranteeType;
-  private ExpiryBean _maturity;
+  private ExpiryBean _lastTradeDate;
   private CouponTypeBean _couponType;
   private double _couponRate;
   private FrequencyBean _couponFrequency;
@@ -140,16 +140,16 @@ public class BondSecurityBean extends SecurityBean {
     _guaranteeType = guaranteeType;
   }
   /**
-   * @return the maturity
+   * @return the lastTradeDate
    */
-  public ExpiryBean getMaturity() {
-    return _maturity;
+  public ExpiryBean getLastTradeDate() {
+    return _lastTradeDate;
   }
   /**
-   * @param maturity the maturity to set
+   * @param lastTradeDate the lastTradeDate to set
    */
-  public void setMaturity(ExpiryBean maturity) {
-    _maturity = maturity;
+  public void setLastTradeDate(ExpiryBean lastTradeDate) {
+    _lastTradeDate = lastTradeDate;
   }
   /**
    * @return the couponType

@@ -120,7 +120,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
       if (valueObj instanceof Double) {
         final Double value = (Double) valueObj;
         final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
-        final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
+        final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
         if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
           final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
           for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {

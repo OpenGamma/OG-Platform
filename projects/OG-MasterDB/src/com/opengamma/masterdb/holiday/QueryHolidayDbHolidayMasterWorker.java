@@ -341,7 +341,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       final String currencyISO = rs.getString("CURRENCY_ISO");
       UniqueIdentifier uid = createUniqueIdentifier(holidayOid, holidayId);
       ManageableHoliday holiday = new ManageableHoliday();
-      holiday.setUniqueIdentifier(uid);
+      holiday.setUniqueId(uid);
       holiday.setType(HolidayType.valueOf(type));
       if (regionScheme != null && regionValue != null) {
         holiday.setRegionId(Identifier.of(regionScheme, regionValue));

@@ -152,7 +152,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableRegion region = document.getRegion();
-    region.setUniqueIdentifier(uid);
+    region.setUniqueId(uid);
     document.setUniqueId(uid);
     final Instant now = Instant.now();
     document.setVersionFromInstant(now);

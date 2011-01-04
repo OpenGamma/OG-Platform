@@ -42,11 +42,11 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _identifiers = identifiers;
   }
 
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return _uniqueIdentifier;
   }
 
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
+  public void setUniqueId(UniqueIdentifier uniqueIdentifier) {
     _uniqueIdentifier = uniqueIdentifier;
   }
 

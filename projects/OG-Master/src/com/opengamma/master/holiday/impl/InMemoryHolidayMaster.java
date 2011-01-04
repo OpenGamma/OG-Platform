@@ -151,7 +151,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableHoliday holiday = document.getHoliday();
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     document.setUniqueId(uid);
     final Instant now = Instant.now();
     document.setVersionFromInstant(now);

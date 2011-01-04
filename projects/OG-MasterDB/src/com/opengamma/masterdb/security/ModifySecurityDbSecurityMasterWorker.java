@@ -184,7 +184,7 @@ public class ModifySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker
     getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uid
     final UniqueIdentifier uid = createUniqueIdentifier(securityOid, securityId);
-    document.getSecurity().setUniqueIdentifier(uid);
+    document.getSecurity().setUniqueId(uid);
     document.setUniqueId(uid);
     // store the detail
     SecurityMasterDetailProvider detailProvider = getMaster().getWorkers().getDetailProvider();

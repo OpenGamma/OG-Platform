@@ -47,7 +47,7 @@ public class CoppClarkExchangeFileReaderTest {
     assertEquals("MemExg", doc.getUniqueId().getScheme());
     assertNotNull(doc.getVersionFromInstant());
     assertNotNull(doc.getCorrectionFromInstant());
-    assertEquals(doc.getUniqueId(), doc.getExchange().getUniqueIdentifier());
+    assertEquals(doc.getUniqueId(), doc.getExchange().getUniqueId());
     assertEquals(NAME, doc.getExchange().getName());
     assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionId());
     assertEquals(IdentifierBundle.of(ID_LIFFE_MIC), doc.getExchange().getIdentifiers());

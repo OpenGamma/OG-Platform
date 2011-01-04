@@ -73,7 +73,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   public void test_update_noExchangeId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument();
     doc.setExchange(exchange);
     _worker.update(doc);
@@ -90,7 +90,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     _worker.update(doc);
   }
@@ -99,7 +99,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     _worker.update(doc);
   }
@@ -111,7 +111,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
     ExchangeDocument base = _queryWorker.get(uid);
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument input = new ExchangeDocument(exchange);
     
     ExchangeDocument updated = _worker.update(input);
@@ -147,7 +147,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     final ExchangeDocument base = _queryWorker.get(UniqueIdentifier.of("DbExg", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument input = new ExchangeDocument(exchange);
     try {
       w.update(input);

@@ -103,7 +103,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   
   @Override
   public void cachePortfolioNodeHierarchy(PortfolioNode root) {
-    addToCache(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, root.getUniqueIdentifier()), new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, root));
+    addToCache(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, root.getUniqueId()), new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, root));
     for (PortfolioNode child : root.getChildNodes()) {
       cachePortfolioNodeHierarchy(child);
     }
@@ -116,7 +116,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   
   private void addToCache(Collection<? extends UniqueIdentifiable> targets, ComputationTargetType targetType) {
     for (UniqueIdentifiable target : targets) {
-      addToCache(new ComputationTargetSpecification(targetType, target.getUniqueIdentifier()), new ComputationTarget(targetType, target));
+      addToCache(new ComputationTargetSpecification(targetType, target.getUniqueId()), new ComputationTarget(targetType, target));
     }
   }
 

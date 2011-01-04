@@ -22,7 +22,7 @@ public class PortfolioImplTest {
   @Test
   public void test_construction_String() {
     PortfolioImpl test = new PortfolioImpl("Name");
-    assertEquals(null, test.getUniqueIdentifier());
+    assertEquals(null, test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
@@ -38,7 +38,7 @@ public class PortfolioImplTest {
   @Test
   public void test_construction_PortfolioIdString() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
-    assertEquals(id("Scheme", "Id"), test.getUniqueIdentifier());
+    assertEquals(id("Scheme", "Id"), test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
@@ -60,7 +60,7 @@ public class PortfolioImplTest {
   public void test_construction_PortfolioIdStringNode() {
     PortfolioNodeImpl root = new PortfolioNodeImpl();
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name", root);
-    assertEquals(id("Scheme", "Id"), test.getUniqueIdentifier());
+    assertEquals(id("Scheme", "Id"), test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() == root);
     assertEquals("Portfolio[Scheme::Id]", test.toString());
@@ -89,14 +89,14 @@ public class PortfolioImplTest {
   @Test
   public void test_setUniqueIdentifier() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
-    test.setUniqueIdentifier(id("Scheme2", "Id2"));
-    assertEquals(id("Scheme2", "Id2"), test.getUniqueIdentifier());
+    test.setUniqueId(id("Scheme2", "Id2"));
+    assertEquals(id("Scheme2", "Id2"), test.getUniqueId());
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_setUniqueIdentifier_null() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
-    test.setUniqueIdentifier(null);
+    test.setUniqueId(null);
   }
 
   //-------------------------------------------------------------------------
