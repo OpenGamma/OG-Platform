@@ -1,56 +1,31 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public abstract class InterpolatorND implements Interpolator<Map<List<Double>, Double>, List<Double>> {
+public abstract class InterpolatorND<T extends InterpolatorNDDataBundle> implements Interpolator<T, double[]> {
 
   @Override
-  public abstract Double interpolate(Map<List<Double>, Double> data, List<Double> value);
+  public abstract Double interpolate(T data, double[] x);
 
-  protected void checkData(final Map<List<Double>, Double> data) {
-    Validate.notNull(data);
-    if (data.size() < 2) {
-      throw new IllegalArgumentException("Need at least two points to perform interpolation");
-    }
-    if (data.containsKey(null)) {
-      throw new IllegalArgumentException("Cannot have a null key in the data set");
-    }
-    if (data.containsValue(null)) {
-      throw new IllegalArgumentException("Cannot have a null value in the data set");
-    }
+  protected void validateInput(T data, double[] x) {
+    Validate.notNull(x, "null position");
+    Validate.notNull(data, "null databundle");
+    List<Pair<double[], Double>> rawData = data.getData();
+    int dim = x.length;
+    Validate.isTrue(dim > 0, "0 dimension");
+    Validate.isTrue(rawData.get(0).getFirst().length == dim, "data and requested point different dimension");
   }
 
-  protected int getDimension(final Set<List<Double>> coordinates) {
-    final Iterator<List<Double>> iter = coordinates.iterator();
-    final int size = iter.next().size();
-    while (iter.hasNext()) {
-      if (iter.next().size() != size) {
-        throw new IllegalArgumentException("Not all coordinates in the data set were of the same dimension");
-      }
-    }
-    return size;
-  }
-
-  protected double getRadius(final List<Double> x1, final List<Double> x2) {
-    double sum = 0;
-    double diff;
-    for (int i = 0; i < x1.size(); i++) {
-      diff = x1.get(i) - x2.get(i);
-      sum += diff * diff;
-    }
-    return Math.sqrt(sum);
-  }
 }

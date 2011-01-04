@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -19,7 +19,7 @@ public class ShepardNormalizedRadialBasisFunction extends Function1D<Double, Dou
 
   @Override
   public Double evaluate(final Double x) {
-    return Math.pow(x, _power);
+    return Math.pow(x, -_power);
   }
 
 }
