@@ -107,7 +107,7 @@ public class SABRPDFTest {
     // double sigmaRootT = ATM_VOL * Math.sqrt(T);
     // double sigmaRootT = ALPHA * Math.sqrt(T);
     double step = 20.0 / (n);
-    System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
+    // System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
     for (int i = 0; i < n; i++) {
       // double z = (i - 3 * n) * step;
       // double k = F * Math.exp(sigmaRootT * z) * 1.2;
@@ -124,8 +124,8 @@ public class SABRPDFTest {
       pdf3[i] = BERESTYCKI_DIST.getPDF(k);
       pdf4[i] = PAULOT_DIST.getPDF(k);
       pdf5[i] = JOHNSON_DIST.getPDF(k);
-      System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
-          + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
+      // System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
+      // + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
     }
   }
 
