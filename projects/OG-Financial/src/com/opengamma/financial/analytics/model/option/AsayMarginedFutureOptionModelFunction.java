@@ -79,7 +79,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       final OptionSecurity security = (OptionSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
+        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));
       }
       return results;
     }

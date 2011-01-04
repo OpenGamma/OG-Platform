@@ -29,14 +29,14 @@ public class BondCleanPriceFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final Bond bound, final Object value) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, target.getPosition()), getUniqueId()));
     }
     return null;
   }

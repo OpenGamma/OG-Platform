@@ -79,20 +79,16 @@ public class SecurityMasterResource {
    */
   public class IdentifiedSecurityResource {
 
-    private final UniqueIdentifier _uid;
+    private final UniqueIdentifier _uniqueId;
 
     public IdentifiedSecurityResource(final UniqueIdentifier uid) {
-      _uid = uid;
-    }
-
-    private UniqueIdentifier getUniqueIdentifier() {
-      return _uid;
+      _uniqueId = uid;
     }
 
     @GET
     public FudgeMsgEnvelope get() {
       try {
-        final SecurityDocument document = getSecurityMaster().get(getUniqueIdentifier());
+        final SecurityDocument document = getSecurityMaster().get(_uniqueId);
         return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -125,7 +121,7 @@ public class SecurityMasterResource {
 
     @DELETE
     public void remove() {
-      getSecurityMaster().remove(getUniqueIdentifier());
+      getSecurityMaster().remove(_uniqueId);
     }
 
   }
@@ -144,8 +140,8 @@ public class SecurityMasterResource {
 
     @Path("{uid}")
     public Object resource(@PathParam("uid") String uid) {
-      final UniqueIdentifier uniqueIdentifier = UniqueIdentifier.parse(uid);
-      return new IdentifiedSecurityResource(uniqueIdentifier);
+      final UniqueIdentifier uniqueId = UniqueIdentifier.parse(uid);
+      return new IdentifiedSecurityResource(uniqueId);
     }
 
   }

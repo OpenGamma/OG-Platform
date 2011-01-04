@@ -311,7 +311,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
       }
     }
     childString.append("]");
-    return new StrBuilder().append("PortfolioNode[uniqueIdentifier=").append(getUniqueId()).append(",childNodes=").append(childString).append(",positions=").append(_positions).append("]")
+    return new StrBuilder().append("PortfolioNode[uniqueId=").append(getUniqueId()).append(",childNodes=").append(childString).append(",positions=").append(_positions).append("]")
         .toString();
   }
 

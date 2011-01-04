@@ -124,7 +124,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    UniqueIdentifier uid = specification.getUniqueIdentifier();
+    UniqueIdentifier uid = specification.getUniqueId();
     switch (specification.getType()) {
       case PRIMITIVE: {
         return new ComputationTarget(specification.getType(), uid);

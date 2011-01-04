@@ -88,7 +88,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
 
     final Double zSpread = new BondZSpreadCalculator().calculate(bond, bundle, dirtyPrice);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, zSpread * 10000)); //report z-spread in BPS
   }
 
@@ -113,7 +113,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, target.getPosition()), getUniqueId()));
     }
     return null;
   }

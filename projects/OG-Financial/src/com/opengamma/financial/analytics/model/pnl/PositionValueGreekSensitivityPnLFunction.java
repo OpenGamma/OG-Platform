@@ -94,7 +94,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueId());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
     int i = 0;
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -144,7 +144,7 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction.N
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueIdentifier()));
+    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueId()));
     return results;
   }
 

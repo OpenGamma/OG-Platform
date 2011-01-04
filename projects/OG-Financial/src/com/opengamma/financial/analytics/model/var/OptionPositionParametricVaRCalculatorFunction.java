@@ -112,7 +112,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueId());
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[_valueGreekRequirementNames.size()];
     int i = 0;
     for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -168,7 +168,7 @@ public class OptionPositionParametricVaRCalculatorFunction extends AbstractFunct
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPosition()), getUniqueId()));
     }
     return null;
   }

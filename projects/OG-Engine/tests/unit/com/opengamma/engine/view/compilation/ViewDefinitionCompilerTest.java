@@ -296,7 +296,7 @@ public class ViewDefinitionCompilerTest {
     Set<ComputationTarget> actualTargets = vem.getAllComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
     for (ComputationTarget actualTarget : actualTargets) {
-      assertTrue(expectedTargets.contains(actualTarget.getUniqueIdentifier()));
+      assertTrue(expectedTargets.contains(actualTarget.getUniqueId()));
     }
   }
 

@@ -155,14 +155,14 @@ public class PositionImplTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_setUniqueIdentifier() {
+  public void test_setUniqueId() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setUniqueId(UniqueIdentifier.of("B", "D"));
     assertEquals(UniqueIdentifier.of("B", "D"), test.getUniqueId());
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_setUniqueIdentifier_null() {
+  public void test_setUniqueId_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setUniqueId(null);
   }

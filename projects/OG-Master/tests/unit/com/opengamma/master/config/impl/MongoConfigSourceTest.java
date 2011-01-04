@@ -107,8 +107,8 @@ public class MongoConfigSourceTest {
   public void get() throws Exception {
     for (Entry<String, ConfigDocument<MockViewDefinition>> entry : _viewDefinitions.entrySet()) {
       ConfigDocument<MockViewDefinition> configDocument = entry.getValue();
-      UniqueIdentifier uniqueIdentifier = configDocument.getUniqueId();
-      MockViewDefinition viewDefinition = _configSource.get(MockViewDefinition.class, uniqueIdentifier);
+      UniqueIdentifier uniqueId = configDocument.getUniqueId();
+      MockViewDefinition viewDefinition = _configSource.get(MockViewDefinition.class, uniqueId);
       assertNotNull(viewDefinition);
       assertEquals(configDocument.getValue(), viewDefinition);
     }

@@ -52,7 +52,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   protected boolean addFunctionFromCachedRepository(final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final InMemoryCompiledFunctionRepository compiled,
       final FunctionDefinition function, final Instant atInstant) {
     if (before != null) {
-      final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueId());
       if (compiledFunction.getLatestInvocationTime() == null) {
         // previous one always valid
         compiled.addFunction(compiledFunction);
@@ -67,7 +67,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       }
     }
     if (after != null) {
-      final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueId());
       if (compiledFunction.getEarliestInvocationTime() == null) {
         // next one always valid
         compiled.addFunction(compiledFunction);

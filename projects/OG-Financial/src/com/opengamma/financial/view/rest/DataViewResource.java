@@ -63,6 +63,7 @@ public class DataViewResource {
    * @param view  the underlying view
    * @param jmsMessageSenderService  the JMS message sender service
    * @param jmsTopicPrefix  a JMS topic prefix
+   * @param fudgeContext  the Fudge context
    */
   public DataViewResource(View view, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(view, "view");
@@ -103,7 +104,7 @@ public class DataViewResource {
   @Consumes(FudgeRest.MEDIA)
   public Response createClient(@Context UriInfo uriInfo, UserPrincipal user) {
     ViewClient client = _view.createClient(user);
-    return Response.created(DataViewResource.uriClient(uriInfo.getRequestUri(), client.getUniqueIdentifier())).build();
+    return Response.created(DataViewResource.uriClient(uriInfo.getRequestUri(), client.getUniqueId())).build();
   }
   
   @Path("clients/{viewClientId}")

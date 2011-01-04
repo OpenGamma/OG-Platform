@@ -145,7 +145,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   public String toLongString() {
     return new StrBuilder()
       .append("Portfolio[")
-      .append("uniqueIdentifier=")
+      .append("uniqueId" + "=")
       .append(getUniqueId())
       .append(",rootNode=")
       .append(getRootNode().toLongString())

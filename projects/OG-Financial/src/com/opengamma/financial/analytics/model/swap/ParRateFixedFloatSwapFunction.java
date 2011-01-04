@@ -130,7 +130,7 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
       bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
     }
     final Double parRate = CALCULATOR.visit(swap, bundle);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, parRate));
   }
 
@@ -169,7 +169,7 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, target.getPosition()), getUniqueId()));
     }
     return null;
   }

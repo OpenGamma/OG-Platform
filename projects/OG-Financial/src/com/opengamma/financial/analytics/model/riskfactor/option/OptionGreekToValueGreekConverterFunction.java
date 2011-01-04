@@ -90,7 +90,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
       valueGreekResult = sensitivities.get(valueGreek);
       resultSpecification = new ValueSpecification(
           new ValueRequirement(dV.getValueName(), target.getPosition()),
-          getUniqueIdentifier());
+          getUniqueId());
       resultValue = new ComputedValue(resultSpecification, valueGreekResult);
       results.add(resultValue);
     }
@@ -137,7 +137,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     }
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getUniqueIdentifier()));
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getUniqueId()));
     return results;
   }
 

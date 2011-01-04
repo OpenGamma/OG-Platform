@@ -44,7 +44,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = curve.getInterestRate(t);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, option), getUniqueIdentifier()), b));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, option), getUniqueId()), b));
   }
 
   @Override
@@ -68,7 +68,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Security security = target.getSecurity();
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, security), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, security), getUniqueId()));
     }
     return null;
   }

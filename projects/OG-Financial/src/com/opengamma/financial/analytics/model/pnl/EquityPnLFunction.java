@@ -44,7 +44,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     if (fairValueObj != null && priceSeriesObj != null) {
       final Double fairValue = (Double) fairValueObj;
       final DoubleTimeSeries<?> returnSeries = _returnCalculator.evaluate((DoubleTimeSeries<?>) priceSeriesObj);
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueId());
       //TODO how do we get dividend data for an equity?
       final ComputedValue result = new ComputedValue(valueSpecification, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue()));
       return Sets.newHashSet(result);
@@ -74,7 +74,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueId()));
     }
     return null;
   }

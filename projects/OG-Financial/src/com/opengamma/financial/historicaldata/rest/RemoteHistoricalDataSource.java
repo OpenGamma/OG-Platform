@@ -6,7 +6,7 @@
 package com.opengamma.financial.historicaldata.rest;
 
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_TIMESERIES;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEIDENTIFIER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEID;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_ALL_BY_DATE;
@@ -80,16 +80,16 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     if (message == null) {
       return Pair.of(null, EMPTY_TIMESERIES);
     }
-    final FudgeField uniqueIdentifierField = message.getByName(HISTORICALDATASOURCE_UNIQUEIDENTIFIER);
-    if (uniqueIdentifierField == null) {
-      throw new IllegalArgumentException(HISTORICALDATASOURCE_UNIQUEIDENTIFIER + " not present in message");
+    final FudgeField uniqueIdField = message.getByName(HISTORICALDATASOURCE_UNIQUEID);
+    if (uniqueIdField == null) {
+      throw new IllegalArgumentException(HISTORICALDATASOURCE_UNIQUEID + " not present in message");
     }
     final FudgeField timeSeriesField = message.getByName(HISTORICALDATASOURCE_TIMESERIES);
     if (timeSeriesField == null) {
       throw new IllegalArgumentException(HISTORICALDATASOURCE_TIMESERIES + " not present in message");
     }
     final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    return Pair.of(context.fieldValueToObject(UniqueIdentifier.class, uniqueIdentifierField), context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField));
+    return Pair.of(context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField), context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField));
   }
 
   private LocalDateDoubleTimeSeries decodeTimeSeriesMessage(final FudgeFieldContainer message) {

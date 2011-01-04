@@ -62,14 +62,14 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_setUniqueIdentifier() {
+  public void test_setUniqueId() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setUniqueId(UniqueIdentifier.of("Scheme2", "Id2"));
     assertEquals(UniqueIdentifier.of("Scheme2", "Id2"), test.getUniqueId());
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_setUniqueIdentifier_null() {
+  public void test_setUniqueId_null() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setUniqueId(null);
   }

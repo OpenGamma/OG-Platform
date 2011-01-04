@@ -52,7 +52,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
       if (!pnlSeries.isEmpty()) {
         final double var = _varCalculator.evaluate(pnlSeries);
         return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
-            getUniqueIdentifier()), var));
+            getUniqueId()), var));
       }
     }
     return null;
@@ -71,7 +71,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction.N
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPortfolioNode()),
-        getUniqueIdentifier()));
+        getUniqueId()));
   }
 
   @Override

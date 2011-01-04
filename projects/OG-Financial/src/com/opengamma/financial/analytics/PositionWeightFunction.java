@@ -47,7 +47,7 @@ public class PositionWeightFunction extends AbstractFunction.NonCompiledInvoker 
     if (portfolioValueObject == null) {
       throw new NullPointerException("Could not get fair value for portfolio ");
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, position), getUniqueIdentifier()),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, position), getUniqueId()),
         fairValue / (Double) portfolioValueObject));
   }
 
@@ -74,7 +74,7 @@ public class PositionWeightFunction extends AbstractFunction.NonCompiledInvoker 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target.getPosition()), getUniqueId()));
     }
     return null;
   }

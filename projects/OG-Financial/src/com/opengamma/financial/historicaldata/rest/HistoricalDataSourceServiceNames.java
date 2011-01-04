@@ -28,7 +28,7 @@ public final class HistoricalDataSourceServiceNames {
   /**
   *
   */
-  public static final String HISTORICALDATASOURCE_UNIQUEIDENTIFIER = "uniqueIdentifier";
+  public static final String HISTORICALDATASOURCE_UNIQUEID = "uniqueId";
   /**
   *
   */

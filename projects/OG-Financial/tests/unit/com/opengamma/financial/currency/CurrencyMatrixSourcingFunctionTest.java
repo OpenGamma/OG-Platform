@@ -58,7 +58,7 @@ public class CurrencyMatrixSourcingFunctionTest {
       }
     });
     _function = new CurrencyMatrixSourcingFunction("Foo");
-    _function.setUniqueIdentifier("currencyMatrixSourcing");
+    _function.setUniqueId("currencyMatrixSourcing");
     _function.init(_functionCompilationContext);
   }
 

@@ -42,9 +42,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   private ValueProperties _resultProperties;
 
   @Override
-  public void setUniqueIdentifier(final String identifier) {
-    super.setUniqueIdentifier(identifier);
-    _resultProperties = createResultProperties().copy().with(ValuePropertyNames.FUNCTION, getUniqueIdentifier()).get();
+  public void setUniqueId(final String identifier) {
+    super.setUniqueId(identifier);
+    _resultProperties = createResultProperties().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   protected ValueProperties getInputConstraint(final ValueRequirement desiredValue) {
@@ -56,7 +56,7 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   }
 
   protected ValueProperties getResultProperties(final ValueSpecification inputSpec) {
-    return getInputConstraints().compose(inputSpec.getProperties()).copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueIdentifier()).get();
+    return getInputConstraints().compose(inputSpec.getProperties()).copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   protected ValueProperties getResultProperties(final Collection<?> inputs) {
@@ -68,7 +68,7 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
         properties = properties.compose(((ValueSpecification) input).getProperties());
       }
     }
-    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueIdentifier()).get();
+    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
   
 }

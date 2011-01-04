@@ -1,7 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/master/msg/MasterChangeMessage.proto:9(10)
+// Created from com\opengamma\master\msg\MasterChangeMessage.proto:9(10)
 package com.opengamma.master.msg;
 public class MasterChangeMessage implements java.io.Serializable {
   public void accept (MasterChangeMessageVisitor visitor) { throw new UnsupportedOperationException (); }
