@@ -7,6 +7,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -46,7 +48,7 @@ public class ValueSpecification implements java.io.Serializable {
    * @param requirementSpecification a value requirement, not {@code null}
    * @param functionIdentifier the unique identifier of the function producing this value, not {@code null}
    */
-  public ValueSpecification(ValueRequirement requirementSpecification, String functionIdentifier) {
+  public ValueSpecification(final ValueRequirement requirementSpecification, final String functionIdentifier) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(functionIdentifier, "functionIdentifier");
     // requirement specification interns its valueName
@@ -62,7 +64,7 @@ public class ValueSpecification implements java.io.Serializable {
    * @param requirementSpecification a requirement, not {@code null}
    * @param properties the value properties, not {@code null} and must include the function identifier
    */
-  public ValueSpecification(ValueRequirement requirementSpecification, ValueProperties properties) {
+  public ValueSpecification(final ValueRequirement requirementSpecification, final ValueProperties properties) {
     ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
     ArgumentChecker.notNull(properties, "properties");
     ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
@@ -74,7 +76,7 @@ public class ValueSpecification implements java.io.Serializable {
   }
 
   /**
-   * Creates a new specification from a targe tspecification. The properties must include the function identifier.
+   * Creates a new specification from a target specification. The properties must include the function identifier.
    * 
    * @param valueName the name of the value created, not {@code null}
    * @param targetSpecification the target specification, not {@code null}
@@ -89,7 +91,101 @@ public class ValueSpecification implements java.io.Serializable {
     _targetSpecification = targetSpecification;
     _properties = properties;
   }
+  
+  /**
+   * Convenience function to creates a new specification from a target, building the target specification according to the type of object the target refers to.
+   * The properties must include the function identifier.
+   * 
+   * @param valueName the name of the value created, not {@code null}
+   * @param target the target, not {@code null}
+   * @param properties the value properties, not {@code null} and must include the function identifier
+   */
+  public static ValueSpecification of(final String valueName, final Object target, final ValueProperties properties) {
+    return new ValueSpecification(valueName, new ComputationTargetSpecification(target), properties);
+  }
+  
+  /**
+   * Creates a new specification from a target, building the target specification according to the type of object the target refers to.
+   * The properties must include the function identifier.
+   * 
+   * @param valueName the name of the value created, not {@code null}
+   * @param targetType the ComputationTargetType, not {@code null}
+   * @param uid the unique id of the target, not {@code null}
+   * @param properties the value properties, not {@code null} and must include the function identifier
+   */
+  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueIdentifier uid,  final ValueProperties properties) {
+    ArgumentChecker.notNull(targetType, "targetType");    
+    ArgumentChecker.notNull(properties, "uid");
+    return new ValueSpecification(valueName, new ComputationTargetSpecification(targetType, uid), properties);
+  }
 
+  /**
+   * Convenience function to creates a new specification from a target, building the target specification according to the type of object the target refers to.
+   * The properties must include the function identifier unless it's provided separately in which case it will be added to the properties if any others
+   * are provided.
+   * 
+   * @param valueName the name of the value created, not {@code null}
+   * @param target the target, not {@code null}
+   * @param functionIdentifier the function identifier, or {@code null} if included in properties
+   * @param currencyISO the currency constraint, or {@code null} if none to be included
+   * @param properties the value properties, or can be {@code null} if the function identifier provided separately
+   */
+  public static ValueSpecification of(final String valueName, final Object target, final String functionIdentifier, final String currencyISO, final ValueProperties properties) {
+    ValueProperties props;
+    if ((functionIdentifier == null) && (currencyISO == null)) {
+      props = properties;
+    } else {
+      ValueProperties.Builder builder;
+      if (properties == null) {
+        builder = ValueProperties.builder();
+      } else {
+        builder = properties.copy();
+      }
+      if (currencyISO != null) {
+        builder = builder.with(ValuePropertyNames.CURRENCY, currencyISO);
+      }
+      if (functionIdentifier != null) {
+        builder = builder.with(ValuePropertyNames.FUNCTION, functionIdentifier);
+      }
+      props = builder.get();
+    }
+    return new ValueSpecification(valueName, new ComputationTargetSpecification(target), props);
+  }
+  
+  /**
+   * Creates a new specification from a target, building the target specification according to the type of object the target refers to.
+   * The properties must include the function identifier unless it's provided separately in which case it will be added to the properties
+   * if any others are provided.
+   * 
+   * @param valueName the name of the value created, not {@code null}
+   * @param targetType the ComputationTargetType, not {@code null}
+   * @param uid the unique id of the target, not {@code null}
+   * @param properties the value properties, or can be {@code null} if the function identifier provided separately
+   */
+  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueIdentifier uid, final String functionIdentifier, final String currencyISO, final ValueProperties properties) {
+    ArgumentChecker.notNull(targetType, "targetType");    
+    ArgumentChecker.notNull(properties, "uid");
+    ValueProperties props;
+    if ((functionIdentifier == null) && (currencyISO == null)) {
+      props = properties;
+    } else {
+      ValueProperties.Builder builder;
+      if (properties == null) {
+        builder = ValueProperties.builder();
+      } else {
+        builder = properties.copy();
+      }
+      if (currencyISO != null) {
+        builder = builder.with(ValuePropertyNames.CURRENCY, currencyISO);
+      }
+      if (functionIdentifier != null) {
+        builder = builder.with(ValuePropertyNames.FUNCTION, functionIdentifier);
+      }
+      props = builder.get();
+    }
+    return new ValueSpecification(valueName, new ComputationTargetSpecification(targetType, uid), props);
+  }
+  
   /**
    * Returns the value name.
    * 
