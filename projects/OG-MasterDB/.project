@@ -30,7 +30,6 @@
 		<nature>org.springframework.ide.eclipse.core.springnature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.hibernate.eclipse.console.hibernateNature</nature>
-		<nature>org.apache.derby.ui.derbyEngine</nature>
 		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
 	</natures>
 </projectDescription>
