@@ -33,6 +33,7 @@ import com.mongodb.Mongo;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -537,6 +538,16 @@ public class MongoDBConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
+  }
+
+  @Override
+  public void addChangeListener(MasterChangeListener listener) {
+    throw new UnsupportedOperationException("Mongo implementation doesnt support MasterChange events");
+  }
+
+  @Override
+  public void removeChangeListener(MasterChangeListener listener) {
+    throw new UnsupportedOperationException("Mongo implementation doesnt support MasterChange events");
   }
 
 }

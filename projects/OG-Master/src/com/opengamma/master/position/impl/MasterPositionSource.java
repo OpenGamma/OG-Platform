@@ -341,7 +341,7 @@ public class MasterPositionSource implements PositionSource {
     for (ManageableTrade manTrade : manPos.getTrades()) {
       TradeImpl sourceTrade = new TradeImpl();
       convertTrade(nodeUid, posUid, manTrade, sourceTrade);
-      sourcePosition.getTrades().add(sourceTrade);
+      sourcePosition.addTrade(sourceTrade);
     }
   }
 

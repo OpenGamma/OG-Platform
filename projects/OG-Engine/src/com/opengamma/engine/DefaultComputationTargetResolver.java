@@ -5,12 +5,9 @@
  */
 package com.opengamma.engine;
 
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -159,12 +156,10 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
             final PositionImpl newPosition = new PositionImpl(position);
             newPosition.setSecurity(security);
-            Set<Trade> newTrades = Sets.newHashSet();
             for (Trade trade : position.getTrades()) {
-              final ComputationTarget resolvedTrade = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId()));
-              newTrades.add(resolvedTrade.getTrade());
+              final ComputationTarget resolvedTradeTarget = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId()));
+              newPosition.addTrade(resolvedTradeTarget.getTrade());
             }
-            newPosition.setTrades(newTrades);
             position = newPosition;
           }
         }

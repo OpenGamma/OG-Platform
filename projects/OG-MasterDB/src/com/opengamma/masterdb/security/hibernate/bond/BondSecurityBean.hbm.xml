@@ -12,7 +12,7 @@
 		<many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
 		<many-to-one name="yieldConvention" column="yieldconvention_id" class="YieldConventionBean" not-null="true" />
 		<many-to-one name="guaranteeType" column="guaranteetype_id" class="GuaranteeTypeBean" />
-		<component name="maturity" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
+		<component name="lastTradeDate" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
 			<component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
 				<property name="date" column="maturity_date" type="timestamp" not-null="true" />
 				<property name="zone" column="maturity_zone" type="string" not-null="true" />

@@ -5,12 +5,15 @@
  */
 package com.opengamma.masterdb.config;
 
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -34,6 +37,8 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigTypeMaster.class);
 
+  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
+  
   /**
    * The scheme used for UniqueIdentifier objects.
    */
@@ -186,7 +191,17 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
     
-    return getWorkers().getAddWorker().add(document);
+    ConfigDocument<T> added = getWorkers().getAddWorker().add(document);
+    
+    //notify listeners
+    notifyDocumentAdded(added);
+    return added;
+  }
+
+  private void notifyDocumentAdded(ConfigDocument<T> added) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.added(added.getUniqueId());
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -198,7 +213,15 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     
-    return getWorkers().getUpdateWorker().update(document);
+    ConfigDocument<T> updated = getWorkers().getUpdateWorker().update(document);
+    notifyDocumentUpdated(document.getUniqueId(), updated.getUniqueId());
+    return updated;
+  }
+
+  private void notifyDocumentUpdated(final UniqueIdentifier oldItem, final UniqueIdentifier newItem) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.updated(oldItem, newItem);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -208,6 +231,13 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     checkScheme(uid);
     
     getWorkers().getRemoveWorker().remove(uid);
+    notifyDocumentRemoved(uid);
+  }
+
+  private void notifyDocumentRemoved(final UniqueIdentifier removedItem) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.removed(removedItem);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -229,7 +259,15 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     
-    return getWorkers().getCorrectWorker().correct(document);
+    ConfigDocument<T> corrected = getWorkers().getCorrectWorker().correct(document);
+    notifyDocumentCorrected(document.getUniqueId(), corrected.getUniqueId());
+    return corrected;
+  }
+
+  private void notifyDocumentCorrected(final UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.corrected(oldItem, newItem);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -240,6 +278,18 @@ public class DbConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
+  }
+
+  @Override
+  public void addChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.add(listener);
+  }
+
+  @Override
+  public void removeChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.remove(listener);
   }
 
 }
