@@ -176,7 +176,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
       req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));
       // Eject this requirement as a hack to force the final result to be correct
-      req.add(new ValueRequirement(getDefaultCurrencyValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, target.getUniqueIdentifier())));
+      req.add(new ValueRequirement(getDefaultCurrencyValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, target.getUniqueId())));
       return req;
     } else if (possibleCurrencies.isEmpty()) {
       throw new IllegalArgumentException("Cannot satisfy a wild-card currency constraint " + desiredValue);

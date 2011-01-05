@@ -43,7 +43,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   @Override
   public void setUniqueId(final String identifier) {
     super.setUniqueId(identifier);
-    _resultProperties = createResultProperties().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    final String[] preserve = getPreservedProperties();
+    _resultProperties = createResultProperties(preserve);
+    _inputConstraints = createInputConstraints(preserve);
   }
 
   protected ValueProperties getInputConstraint(final ValueRequirement desiredValue) {
