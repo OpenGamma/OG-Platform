@@ -231,7 +231,7 @@ import com.opengamma.util.monitor.OperationTimer;
       //set the children trade security as well
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setPositionId(populatedPosition.getUniqueId());
+        populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
         populatedTrade.setSecurity(security);
         populatedPosition.addTrade(populatedTrade);
       }

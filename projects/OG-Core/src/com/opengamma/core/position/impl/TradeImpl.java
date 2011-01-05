@@ -198,11 +198,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Sets the parent position unique identifier.
    * 
-   * @param positionId  the parent position unique identifier, not null
+   * @param parentPositionId  the parent position unique identifier, not null
    */
-  public void setPositionId(UniqueIdentifier positionId) {
-    ArgumentChecker.notNull(positionId, "positionId");
-    _parentPositionId = positionId;
+  public void setParentPositionId(UniqueIdentifier parentPositionId) {
+    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
+    _parentPositionId = parentPositionId;
   }
 
   //-------------------------------------------------------------------------
