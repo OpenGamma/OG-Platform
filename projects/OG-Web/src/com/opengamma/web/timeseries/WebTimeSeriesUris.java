@@ -50,7 +50,7 @@ public class WebTimeSeriesUris {
    * @return the URI
    */
   public URI oneTimeSeries(final TimeSeriesDocument<?> timeSeries) {
-    return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueIdentifier());
+    return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueId());
   }
 
 }

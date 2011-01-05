@@ -96,7 +96,7 @@ public class FixedIncomeStripWithSecurity {
     if (result != 0) {
       return result;
     }
-    result = getSecurity().getUniqueIdentifier().getValue().compareTo(o.getSecurity().getUniqueIdentifier().getValue());
+    result = getSecurity().getUniqueId().getValue().compareTo(o.getSecurity().getUniqueId().getValue());
     return result;
   }
 }

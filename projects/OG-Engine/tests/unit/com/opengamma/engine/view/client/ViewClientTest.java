@@ -64,7 +64,7 @@ public class ViewClientTest {
     ViewClient client1 = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
     
     assertEquals(view, client1.getView());
-    assertNotNull(client1.getUniqueIdentifier());
+    assertNotNull(client1.getUniqueId());
     
     client1.startLive();
     assertTrue(view.isLiveComputationRunning());
@@ -463,7 +463,7 @@ public class ViewClientTest {
     for (ComputationTargetSpecification target : targets) {
       Map<String, ComputedValue> values = result.getValues(target);
       for (Map.Entry<String, ComputedValue> value : values.entrySet()) {
-        ValueRequirement requirement = new ValueRequirement(value.getKey(), target.getType(), target.getUniqueIdentifier());
+        ValueRequirement requirement = new ValueRequirement(value.getKey(), target.getType(), target.getUniqueId());
         assertTrue(expected.containsKey(requirement));
         
         assertEquals(expected.get(requirement), value.getValue().getValue());

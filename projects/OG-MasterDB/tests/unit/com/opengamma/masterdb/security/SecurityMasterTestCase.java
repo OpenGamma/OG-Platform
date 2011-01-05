@@ -62,7 +62,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   private UniqueIdentifier updateSecurity(final ManageableSecurity security) {
     SecurityDocument document = new SecurityDocument();
     document.setSecurity(security);
-    document.setUniqueId(security.getUniqueIdentifier());
+    document.setUniqueId(security.getUniqueId());
     document = _secMaster.update(document);
     assertNotNull(document);
     final UniqueIdentifier uid = document.getUniqueId();
@@ -87,9 +87,9 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     return security;
   }
 
-  private Security getSecurity(final UniqueIdentifier uniqueIdentifier) {
-    s_logger.debug("Search for security with identifier {}", uniqueIdentifier);
-    final SecurityDocument document = _secMaster.get(uniqueIdentifier);
+  private Security getSecurity(final UniqueIdentifier uniqueId) {
+    s_logger.debug("Search for security with identifier {}", uniqueId);
+    final SecurityDocument document = _secMaster.get(uniqueId);
     assertNotNull(document);
     final Security security = document.getSecurity();
     assertNotNull(security);

@@ -69,7 +69,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final Trade trade = target.getTrade();
-    final Object currentTradeValue = inputs.getValue(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, trade.getSecurity().getUniqueIdentifier()));
+    final Object currentTradeValue = inputs.getValue(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, trade.getSecurity().getUniqueId()));
     if (currentTradeValue != null) {
       final Double tradeValue = (Double) currentTradeValue;
       final Security security = trade.getSecurity();
@@ -79,7 +79,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
       
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
       
       if (markToMarketSeries == null) {
         s_logger.warn("Could not get identifier / mark to market series pair for security {}", security.getIdentifiers());
@@ -115,7 +115,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
-          new Object[]{trade.getUniqueIdentifier(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
+          new Object[]{trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL));
       return Sets.newHashSet(result);
     }
@@ -133,7 +133,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final Trade trade = target.getTrade();
       final Security security = trade.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, security.getUniqueIdentifier()));
+      requirements.add(new ValueRequirement(getValueRequirementName(), ComputationTargetType.SECURITY, security.getUniqueId()));
       return requirements;
     }
     return null;
@@ -147,7 +147,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueId()));
     }
     return null;
   }

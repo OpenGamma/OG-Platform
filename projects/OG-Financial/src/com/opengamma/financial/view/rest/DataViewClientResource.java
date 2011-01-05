@@ -75,8 +75,8 @@ public class DataViewClientResource {
   //-------------------------------------------------------------------------
   @GET
   @Path(PATH_UNIQUE_IDENTIFIER)
-  public Response getUniqueIdentifier() {
-    return Response.ok(getViewClient().getUniqueIdentifier()).build();
+  public Response getUniqueId() {
+    return Response.ok(getViewClient().getUniqueId()).build();
   }
   
   //-------------------------------------------------------------------------

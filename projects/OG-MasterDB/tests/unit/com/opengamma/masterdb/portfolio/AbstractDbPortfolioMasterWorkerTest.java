@@ -113,14 +113,14 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueIdentifier());
+    assertEquals(uid, portfolio.getUniqueId());
     assertEquals("TestPortfolio101", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode111(rootNode, depth, uid);
   }
 
   protected void assertNode111(final ManageablePortfolioNode node, final int depth, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getUniqueId());
     assertEquals("TestNode111", node.getName());
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());
@@ -135,7 +135,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
   }
 
   protected void assertNode112(final ManageablePortfolioNode node, final int depth, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "112", "0"), node.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPrt", "112", "0"), node.getUniqueId());
     assertEquals("TestNode112", node.getName());
     assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());
@@ -151,7 +151,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
   }
 
   protected void assertNode113(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "113", "0"), node.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPrt", "113", "0"), node.getUniqueId());
     assertEquals("TestNode113", node.getName());
     assertEquals(UniqueIdentifier.of("DbPrt", "112", "0"), node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());
@@ -170,14 +170,14 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueIdentifier());
+    assertEquals(uid, portfolio.getUniqueId());
     assertEquals("TestPortfolio201", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode211(rootNode, uid);
   }
 
   protected void assertNode211(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "211", "0"), node.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPrt", "211", "0"), node.getUniqueId());
     assertEquals("TestNode211", node.getName());
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());
@@ -195,14 +195,14 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueIdentifier());
+    assertEquals(uid, portfolio.getUniqueId());
     assertEquals("TestPortfolio202", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     assertNode212(rootNode, uid);
   }
 
   protected void assertNode212(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "211", "1"), node.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPrt", "211", "1"), node.getUniqueId());
     assertEquals("TestNode212", node.getName());
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());

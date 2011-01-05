@@ -6,7 +6,7 @@
 package com.opengamma.financial.historicaldata.rest;
 
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_TIMESERIES;
-import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEIDENTIFIER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEID;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
 
 import java.util.List;
@@ -97,7 +97,7 @@ public class HistoricalDataSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEIDENTIFIER, null, result.getKey(), UniqueIdentifier.class);
+    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEID, null, result.getKey(), UniqueIdentifier.class);
     context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result.getValue(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }

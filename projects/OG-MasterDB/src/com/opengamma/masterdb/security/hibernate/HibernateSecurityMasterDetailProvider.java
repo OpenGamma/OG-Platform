@@ -154,7 +154,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity loadSecurityDetail(final ManageableSecurity base) {
-    s_logger.debug("loading detail for security {}", base.getUniqueIdentifier());
+    s_logger.debug("loading detail for security {}", base.getUniqueId());
     return getHibernateTemplate().execute(new HibernateCallback<ManageableSecurity>() {
       @SuppressWarnings({"unchecked", "rawtypes" })
       @Override
@@ -163,7 +163,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         HibernateSecurityMasterDao secMasterSession = getHibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(base, beanOperation);
         if (security == null) {
-          s_logger.debug("no detail found for security {}", base.getUniqueIdentifier());
+          s_logger.debug("no detail found for security {}", base.getUniqueId());
           return base;
         }
 //        final SecurityBeanOperation beanOperation = getBeanOperation(security);
@@ -172,7 +172,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         if (Objects.equal(base.getSecurityType(), result.getSecurityType()) == false) {
           throw new IllegalStateException("Security type returned by Hibernate load does not match");
         }
-        result.setUniqueIdentifier(base.getUniqueIdentifier());
+        result.setUniqueId(base.getUniqueId());
         result.setName(base.getName());
         result.setIdentifiers(base.getIdentifiers());
         return result;
@@ -182,7 +182,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
 
   @Override
   public void storeSecurityDetail(final ManageableSecurity security) {
-    s_logger.debug("storing detail for security {}", security.getUniqueIdentifier());
+    s_logger.debug("storing detail for security {}", security.getUniqueId());
     if (security.getClass() == ManageableSecurity.class) {
       return;  // no detail to store
     }

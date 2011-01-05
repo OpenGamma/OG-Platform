@@ -94,7 +94,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday testHoliday = test.getHoliday();
     assertNotNull(testHoliday);
-    assertEquals(uid, testHoliday.getUniqueIdentifier());
+    assertEquals(uid, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
     assertEquals(HolidayType.CURRENCY, testHoliday.getType());
     assertEquals("USD", testHoliday.getCurrency().getISOCode());
@@ -124,7 +124,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday testHoliday = test.getHoliday();
     assertNotNull(testHoliday);
-    assertEquals(uid, testHoliday.getUniqueIdentifier());
+    assertEquals(uid, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
     assertEquals(HolidayType.BANK, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
@@ -154,7 +154,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday testHoliday = test.getHoliday();
     assertNotNull(testHoliday);
-    assertEquals(uid, testHoliday.getUniqueIdentifier());
+    assertEquals(uid, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
     assertEquals(HolidayType.SETTLEMENT, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
@@ -184,7 +184,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday testHoliday = test.getHoliday();
     assertNotNull(testHoliday);
-    assertEquals(uid, testHoliday.getUniqueIdentifier());
+    assertEquals(uid, testHoliday.getUniqueId());
     assertEquals(name, test.getName());
     assertEquals(HolidayType.TRADING, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());

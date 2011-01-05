@@ -287,15 +287,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
       public ComputationTarget doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query;
-        if (spec.getUniqueIdentifier().getVersion() == null) {
+        if (spec.getUniqueId().getVersion() == null) {
           query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNullVersion");
         } else {
           query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNonNullVersion");
-          query.setString("idVersion", spec.getUniqueIdentifier().getVersion());
+          query.setString("idVersion", spec.getUniqueId().getVersion());
         }
         query.setInteger("computationTargetType", ComputationTarget.getType(spec.getType()));
-        query.setString("idScheme", spec.getUniqueIdentifier().getScheme());
-        query.setString("idValue", spec.getUniqueIdentifier().getValue());
+        query.setString("idScheme", spec.getUniqueId().getScheme());
+        query.setString("idValue", spec.getUniqueId().getValue());
         return (ComputationTarget) query.uniqueResult();
       }
     });
@@ -307,9 +307,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     if (computationTarget == null) {
       computationTarget = new ComputationTarget();
       computationTarget.setComputationTargetType(spec.getType());
-      computationTarget.setIdScheme(spec.getUniqueIdentifier().getScheme());      
-      computationTarget.setIdValue(spec.getUniqueIdentifier().getValue());
-      computationTarget.setIdVersion(spec.getUniqueIdentifier().getVersion());
+      computationTarget.setIdScheme(spec.getUniqueId().getScheme());      
+      computationTarget.setIdValue(spec.getUniqueId().getValue());
+      computationTarget.setIdVersion(spec.getUniqueId().getVersion());
       getHibernateTemplate().save(computationTarget);
     }
     return computationTarget;
@@ -320,9 +320,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     if (computationTarget == null) {
       computationTarget = new ComputationTarget();
       computationTarget.setComputationTargetType(ct.getType());
-      computationTarget.setIdScheme(ct.getUniqueIdentifier().getScheme());      
-      computationTarget.setIdValue(ct.getUniqueIdentifier().getValue());
-      computationTarget.setIdVersion(ct.getUniqueIdentifier().getVersion());
+      computationTarget.setIdScheme(ct.getUniqueId().getScheme());      
+      computationTarget.setIdValue(ct.getUniqueId().getValue());
+      computationTarget.setIdVersion(ct.getUniqueId().getVersion());
       computationTarget.setName(ct.getName());
       getHibernateTemplate().save(computationTarget);
     } else {

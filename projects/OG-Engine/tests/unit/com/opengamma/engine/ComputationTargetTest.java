@@ -72,7 +72,7 @@ public class ComputationTargetTest {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(NODE, test.getValue());
-    assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(NODE.getUniqueId(), test.getUniqueId());
     assertEquals(NODE, test.getPortfolioNode());
   }
 
@@ -87,7 +87,7 @@ public class ComputationTargetTest {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     assertEquals(ComputationTargetType.POSITION, test.getType());
     assertEquals(POSITION, test.getValue());
-    assertEquals(POSITION.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(POSITION.getUniqueId(), test.getUniqueId());
     assertEquals(POSITION, test.getPosition());
   }
 
@@ -102,7 +102,7 @@ public class ComputationTargetTest {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.SECURITY, SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
     assertEquals(SECURITY, test.getValue());
-    assertEquals(SECURITY.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(SECURITY.getUniqueId(), test.getUniqueId());
     assertEquals(SECURITY, test.getSecurity());
   }
 
@@ -117,14 +117,14 @@ public class ComputationTargetTest {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.PRIMITIVE, "Str");
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
     assertEquals("Str", test.getValue());
-    assertEquals(null, test.getUniqueIdentifier());
+    assertEquals(null, test.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toSpecification() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
-    ComputationTargetSpecification expected = new ComputationTargetSpecification(ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    ComputationTargetSpecification expected = new ComputationTargetSpecification(ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertEquals(expected, test.toSpecification());
   }
 

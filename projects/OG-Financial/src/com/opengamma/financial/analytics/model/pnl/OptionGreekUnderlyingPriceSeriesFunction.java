@@ -91,7 +91,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (final Pair<UnderlyingType, String> underlying : _underlyings) {
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(underlying.getSecond(), security), getUniqueId());
       final DoubleTimeSeries<?> ts = UnderlyingTypeToHistoricalTimeSeries.getSeries(historicalDataSource, _dataSourceName, null, securitySource,
           underlying.getFirst(), security);
       if (ts == null) {
@@ -129,7 +129,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
       for (final Pair<UnderlyingType, String> underlying : _underlyings) {
-        result.add(new ValueSpecification(new ValueRequirement(underlying.getSecond(), target.getSecurity()), getUniqueIdentifier()));
+        result.add(new ValueSpecification(new ValueRequirement(underlying.getSecond(), target.getSecurity()), getUniqueId()));
       }
       return result;
     }

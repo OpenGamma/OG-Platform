@@ -147,7 +147,7 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   protected ManageableRegion uk() {
     ManageableRegion region = new ManageableRegion();
-    region.setUniqueIdentifier(UID);
+    region.setUniqueId(UID);
     region.setName("United Kingdom");
     region.setCurrency(GBP);
     region.setCountryISO("GB");

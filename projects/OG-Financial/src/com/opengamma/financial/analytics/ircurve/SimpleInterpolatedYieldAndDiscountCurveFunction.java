@@ -181,7 +181,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueIdentifier(), specification.getCurrency().getUniqueIdentifier());
+        return ObjectUtils.equals(target.getUniqueId(), specification.getCurrency().getUniqueId());
       }
 
       @Override

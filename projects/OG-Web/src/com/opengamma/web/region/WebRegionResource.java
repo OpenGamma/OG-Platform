@@ -135,7 +135,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       fullName = name;
     }
     ManageableRegion region = new ManageableRegion();
-    region.setUniqueIdentifier(data().getRegion().getUniqueId());
+    region.setUniqueId(data().getRegion().getUniqueId());
     region.setParentRegionIds(data().getRegion().getRegion().getParentRegionIds());
     region.setName(name);
     region.setFullName(fullName);

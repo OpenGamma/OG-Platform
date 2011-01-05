@@ -183,7 +183,7 @@ public class CSVPositionSource implements PositionSource {
   private Portfolio loadPortfolio(UniqueIdentifier portfolioId, InputStream inStream) throws IOException {
     PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
     UniqueIdentifier rootNodeId = UniqueIdentifier.of(portfolioId.getScheme(), "0");
-    portfolio.getRootNode().setUniqueIdentifier(rootNodeId);
+    portfolio.getRootNode().setUniqueId(rootNodeId);
     _nodes.put(rootNodeId, portfolio.getRootNode());
     
     CSVReader csvReader = new CSVReader(new InputStreamReader(inStream));
@@ -193,9 +193,9 @@ public class CSVPositionSource implements PositionSource {
     while ((tokens = csvReader.readNext()) != null) {
       PositionImpl position = parseLine(tokens, positionId);
       if (position != null) {
-        position.setPortfolioNode(rootNodeId);
+        position.setParentNodeId(rootNodeId);
         ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
-        _positions.put(position.getUniqueIdentifier(), position);
+        _positions.put(position.getUniqueId(), position);
         positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(++curIndex));
       }
     }

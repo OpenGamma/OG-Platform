@@ -12,6 +12,7 @@ import com.opengamma.core.position.Position;
  * Callback interface allowing the tree of portfolio nodes to be traversed.
  * <p>
  * This interface is used during tree traversal to receive events from each node and position.
+ * See {@link AbstractPortfolioNodeTraversalCallback} for a convenient adaptor class.
  */
 public interface PortfolioNodeTraversalCallback {
 

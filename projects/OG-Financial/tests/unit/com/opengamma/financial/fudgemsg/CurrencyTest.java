@@ -31,7 +31,7 @@ public class CurrencyTest extends FinancialTestBase {
   @Test
   public void testFromUniqueIdentifier() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getUniqueIdentifier().toString(), null, null)));
+        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getUniqueId().toString(), null, null)));
   }
 
 }

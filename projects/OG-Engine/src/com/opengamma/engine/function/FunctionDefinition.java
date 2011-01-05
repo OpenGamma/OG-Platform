@@ -51,7 +51,7 @@ public interface FunctionDefinition {
   CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant);
 
   /**
-   * The unique identifier for an {@code FunctionDefinition} is the handle
+   * The unique identifier for a {@code FunctionDefinition} is the handle
    * through which its {@link FunctionInvoker} can be identified
    * from the {@link FunctionRepository} which sourced the function.
    * In general, functions will not specify this themselves, but the repository
@@ -62,7 +62,7 @@ public interface FunctionDefinition {
    * 
    * @return The unique identifier for this function.
    */
-  String getUniqueIdentifier();
+  String getUniqueId();
 
   /**
    * Obtain a short name of the function, suitable for display to the user.

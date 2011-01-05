@@ -30,7 +30,7 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   @Override
   protected SkewKurtosisOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final StandardOptionDataBundle standardData = super.getDataBundle(secMaster, relevantTime, option, inputs);
-    final UniqueIdentifier uid = option.getUniqueIdentifier();
+    final UniqueIdentifier uid = option.getUniqueId();
     final Object skewObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid));
     if (skewObject == null) {
       throw new NullPointerException("Could not get skew");
@@ -47,7 +47,7 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
+      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
       final Set<ValueRequirement> standardRequirements = super.getRequirements(context, target, desiredValue);
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
       result.addAll(standardRequirements);

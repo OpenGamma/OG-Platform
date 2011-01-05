@@ -49,7 +49,7 @@ public class CalculationNodeUtils {
     long iterationTimestamp = System.currentTimeMillis();
     CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
 
-    CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueIdentifier(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
+    CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());
     CalculationJob calcJob = new CalculationJob(jobSpec, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;

@@ -73,7 +73,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    */
   public HolidayDocument(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
-    setUniqueId(holiday.getUniqueIdentifier());
+    setUniqueId(holiday.getUniqueId());
     setHoliday(new ManageableHoliday(holiday));
     createName();
   }

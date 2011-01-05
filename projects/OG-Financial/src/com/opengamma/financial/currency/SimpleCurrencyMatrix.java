@@ -74,18 +74,18 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
   /**
    * Sets the matrix to convert two currencies using market data supplied externally, for example a live data provider.
    * 
-   * @param source the source currency
-   * @param target the target currency
-   * @param uniqueIdentifier the unique identifier of the external data
+   * @param source  the source currency
+   * @param target  the target currency
+   * @param uniqueId  the unique identifier of the external data
    */
-  public void setLiveData(final Currency source, final Currency target, final UniqueIdentifier uniqueIdentifier) {
+  public void setLiveData(final Currency source, final Currency target, final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
-    ArgumentChecker.notNull(uniqueIdentifier, "uniqueIdentifier");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (source.equals(target)) {
       throw new IllegalArgumentException("target");
     }
-    addConversion(source, target, CurrencyMatrixValue.of(uniqueIdentifier));
+    addConversion(source, target, CurrencyMatrixValue.of(uniqueId));
   }
 
 }
