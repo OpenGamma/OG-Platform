@@ -15,13 +15,15 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.greeks.Greek;
@@ -30,9 +32,14 @@ import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
+import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurityVisitor;
+import com.opengamma.financial.security.option.SwapOptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
@@ -41,7 +48,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.NonCompiledInvoker {
+public class OptionGreekToValueGreekConverterFunction extends PropertyPreservingFunction {
+
+  @Override
+  protected String[] getPreservedProperties() {
+    return new String[] {ValuePropertyNames.CURRENCY};
+  }
+
   private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();
   private final String _requirementName;
 
@@ -88,9 +101,8 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     for (final ValueRequirement dV : desiredValues) {
       valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(dV.getValueName());
       valueGreekResult = sensitivities.get(valueGreek);
-      resultSpecification = new ValueSpecification(
-          new ValueRequirement(dV.getValueName(), target.getPosition()),
-          getUniqueId());
+      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getPosition()), createValueProperties().with(ValuePropertyNames.CURRENCY,
+          dV.getConstraint(ValuePropertyNames.CURRENCY)).get());
       resultValue = new ComputedValue(resultSpecification, valueGreekResult);
       results.add(resultValue);
     }
@@ -113,7 +125,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     Underlying order;
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    requirements.add(new ValueRequirement(underlyingGreekRequirementName, security));
+    requirements.add(new ValueRequirement(underlyingGreekRequirementName, security, getInputConstraint(desiredValue)));
     order = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName).getUnderlying();
     if (order == null) {
       throw new UnsupportedOperationException("No available order for configured value greek " + getRequirementName());
@@ -137,7 +149,23 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     }
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getUniqueId()));
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), getResultProperties()));
+    return results;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    final Position position = target.getPosition();
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    ValueProperties.Builder properties = createValueProperties();
+    final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
+    for (ValueSpecification input : inputs) {
+      if (underlyingGreekRequirementName.equals(input.getValueName())) {
+        properties.with(ValuePropertyNames.CURRENCY, input.getProperty(ValuePropertyNames.CURRENCY));
+        break;
+      }
+    }
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position), properties.get()));
     return results;
   }
 
@@ -151,14 +179,41 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction.N
     return ComputationTargetType.POSITION;
   }
 
-  //TODO this will need changing but these are the only two options with point values
+  private static final OptionSecurityVisitor<Double> s_getPointValue = new OptionSecurityVisitor<Double>() {
+
+    @Override
+    public Double visitBondOptionSecurity(BondOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
+      return security.getPointValue();
+    }
+
+    @Override
+    public Double visitFXOptionSecurity(FXOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitFutureOptionSecurity(FutureOptionSecurity security) {
+      return security.getPointValue();
+    }
+
+    @Override
+    public Double visitOptionOptionSecurity(OptionOptionSecurity security) {
+      return 1.0;
+    }
+
+    @Override
+    public Double visitSwapOptionSecurity(SwapOptionSecurity security) {
+      return 1.0;
+    }
+  };
+
   private double getPointValue(final OptionSecurity option) {
-    if (option instanceof EquityOptionSecurity) {
-      return ((EquityOptionSecurity) option).getPointValue();
-    }
-    if (option instanceof FutureOptionSecurity) {
-      return ((FutureOptionSecurity) option).getPointValue();
-    }
-    return 1;
+    return option.accept(s_getPointValue);
   }
+
 }

@@ -73,7 +73,6 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
     FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
     FunctionParameters functionParameters = context.fieldValueToObject(FunctionParameters.class, fudgeField);
 
-
     final long[] inputIdentifiers = (long[]) message.getByName(INPUT_FIELD_NAME).getValue();
 
     List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();

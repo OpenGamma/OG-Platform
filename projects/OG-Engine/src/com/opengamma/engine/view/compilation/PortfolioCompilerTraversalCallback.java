@@ -74,47 +74,19 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public void preOrderOperation(PortfolioNode portfolioNode) {
-    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(portfolioNode);
-    for (Position position : allPositions) {
-      for (Trade trade : position.getTrades()) {
-        if (trade.getSecurity() == null) {
-          s_logger.debug("found a trade with security not resolved {}", trade);
+  public void postOrderOperation(PortfolioNode portfolioNode) {
+    if (s_logger.isDebugEnabled()) {
+      // REVIEW 2010-12-30 Andrew -- Do we need this block of code?
+      final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(portfolioNode);
+      for (Position position : allPositions) {
+        for (Trade trade : position.getTrades()) {
+          if (trade.getSecurity() == null) {
+            s_logger.debug("found a trade with security not resolved {}", trade);
+          }
         }
       }
     }
     addPortfolioRequirements(portfolioNode);
-    addTradeRequirements(portfolioNode);
-  }
-
-  private void addTradeRequirements(PortfolioNode portfolioNode) {
-    Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getTradeRequirementsBySecurityType();
-    for (String secType : subNodeSecurityTypes) {
-      Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
-      if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
-        continue;
-      }
-      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      // add requirements for trades as well
-      if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-        for (Position position : portfolioNode.getPositions()) {
-          requirements.clear();
-          for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-            requirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
-          }
-          // add requirements for trades as well
-          if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-            for (Trade trade : position.getTrades()) {
-              for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-                requirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
-              }
-            }
-          }
-          _dependencyGraphBuilder.addTarget(requirements);
-        }
-      }
-    }
   }
 
   private void addPortfolioRequirements(PortfolioNode portfolioNode) {
@@ -126,12 +98,16 @@ import com.opengamma.util.tuple.Pair;
         continue;
       }
       Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      // If the outputs are not even required in the results then there's no point adding them as terminal outputs
-      if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
-        for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-          requirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
+      if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
+        for (Position position : portfolioNode.getPositions()) {
+          requirements.clear();
+          for (Trade trade : position.getTrades()) {
+            for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+              requirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
+            }
+          }
+          _dependencyGraphBuilder.addTarget(requirements);
         }
-        _dependencyGraphBuilder.addTarget(requirements);
       }
       if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
         for (Position position : portfolioNode.getPositions()) {
@@ -141,6 +117,13 @@ import com.opengamma.util.tuple.Pair;
           }
           _dependencyGraphBuilder.addTarget(requirements);
         }
+      }
+      if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
+        requirements.clear();
+        for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+          requirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
+        }
+        _dependencyGraphBuilder.addTarget(requirements);
       }
     }
   }
