@@ -20,15 +20,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Serializable {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * The identifier.
+   * The unique identifier of the portfolio.
    */
-  private UniqueIdentifier _identifier;
+  private UniqueIdentifier _uniqueId;
   /**
-   * The name.
+   * The display name of the portfolio.
    */
   private String _name;
   /**
@@ -38,6 +38,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
 
   /**
    * Creates a portfolio with the specified name.
+   * 
    * @param name  the name to use, not null
    */
   public PortfolioImpl(String name) {
@@ -46,6 +47,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
 
   /**
    * Creates a portfolio with the specified name and root node.
+   * 
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null
    */
@@ -57,25 +59,27 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   }
 
   /**
-   * Creates a portfolio with the specified identifier.
-   * @param identifier  the portfolio identifier, not null
+   * Creates a portfolio with the specified unique identifier and name.
+   * 
+   * @param uniqueId  the unique identifier, not null
    * @param name  the name to use, not null
    */
-  public PortfolioImpl(UniqueIdentifier identifier, String name) {
-    this(identifier, name, new PortfolioNodeImpl());
+  public PortfolioImpl(UniqueIdentifier uniqueId, String name) {
+    this(uniqueId, name, new PortfolioNodeImpl());
   }
 
   /**
-   * Creates a portfolio with the specified identifier, name and root node.
-   * @param identifier  the portfolio identifier, not null
+   * Creates a portfolio with the specified unique identifier, name and root node.
+   * 
+   * @param uniqueId  the unique identifier, not null
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null
    */
-  public PortfolioImpl(UniqueIdentifier identifier, String name, PortfolioNodeImpl rootNode) {
-    ArgumentChecker.notNull(identifier, "identifier");
+  public PortfolioImpl(UniqueIdentifier uniqueId, String name, PortfolioNodeImpl rootNode) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(rootNode, "root node");
-    _identifier = identifier;
+    ArgumentChecker.notNull(rootNode, "rootNode");
+    _uniqueId = uniqueId;
     _name = name;
     _rootNode = rootNode;
   }
@@ -83,25 +87,28 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   //-------------------------------------------------------------------------
   /**
    * Gets the unique identifier of the portfolio.
+   * 
    * @return the identifier, null if not from a position source
    */
   @Override
   public UniqueIdentifier getUniqueId() {
-    return _identifier;
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the portfolio.
-   * @param identifier  the new identifier, not null
+   * 
+   * @param uniqueId  the new unique identifier, not null
    */
-  public void setUniqueId(UniqueIdentifier identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    _identifier = identifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    _uniqueId = uniqueId;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the name of the portfolio intended for display purposes.
+   * 
    * @return the name, not null
    */
   @Override
@@ -111,6 +118,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
 
   /**
    * Sets the name of the portfolio intended for display purposes.
+   * 
    * @param name  the name, not null
    */
   public void setName(String name) {
@@ -121,6 +129,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   //-------------------------------------------------------------------------
   /**
    * Gets the root node in the portfolio.
+   * 
    * @return the root node of the tree structure, not null
    */
   @Override
@@ -130,6 +139,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
 
   /**
    * Sets the root node in the portfolio.
+   * 
    * @param rootNode  the root node of the tree structure, not null
    */
   public void setRootNode(PortfolioNodeImpl rootNode) {
@@ -139,29 +149,22 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a long string describing the object.
-   * @return the long format string, not null
+   * Gets a full-detail string containing all child nodes and positions.
+   * 
+   * @return the full-detail string, not null
    */
   public String toLongString() {
-    return new StrBuilder()
-      .append("Portfolio[")
-      .append("uniqueId" + "=")
-      .append(getUniqueId())
-      .append(",rootNode=")
-      .append(getRootNode().toLongString())
-      .append("]")
-      .toString();
+    return new StrBuilder(1024)
+        .append("Portfolio[")
+        .append("uniqueId" + "=")
+        .append(getUniqueId())
+        .append(",rootNode=")
+        .append(getRootNode().toLongString())
+        .append("]")
+        .toString();
   }
 
-  @Override
-  public String toString() {
-    return new StrBuilder()
-      .append("Portfolio[")
-      .append(getUniqueId())
-      .append("]")
-      .toString();
-  }
-  
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (obj == this) {
@@ -169,9 +172,9 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     }
     if (obj instanceof PortfolioImpl) {
       final PortfolioImpl other = (PortfolioImpl) obj;
-      return ObjectUtils.equals(getUniqueId(), other.getUniqueId())
-          && ObjectUtils.equals(getName(), other.getName())
-          && ObjectUtils.equals(getRootNode(), other.getRootNode());
+      return ObjectUtils.equals(getUniqueId(), other.getUniqueId()) &&
+          ObjectUtils.equals(getName(), other.getName()) &&
+          ObjectUtils.equals(getRootNode(), other.getRootNode());
     }
     return false;
   }
@@ -186,8 +189,17 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     if (getName() != null) {
       result = result * prime + getName().hashCode(); 
     }
-    // Intentionally skip the root node; no need for it.
+    // intentionally skip the root node
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return new StrBuilder(128)
+        .append("Portfolio[")
+        .append(getUniqueId())
+        .append("]")
+        .toString();
   }
 
 }

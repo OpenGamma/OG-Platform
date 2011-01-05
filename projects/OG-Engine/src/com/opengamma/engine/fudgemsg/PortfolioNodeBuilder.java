@@ -79,7 +79,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
     final MutableFudgeFieldContainer message = buildMessageImpl(context, node);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNode());
+    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNodeId());
     return message;
   }
 
@@ -88,7 +88,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     for (FudgeField field : message) {
       if (field.getValue() instanceof FudgeFieldContainer) {
         final PositionImpl position = PositionBuilder.buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
-        position.setPortfolioNode(node.getUniqueId());
+        position.setParentNodeId(node.getUniqueId());
         node.addPosition(position);
       }
     }
@@ -98,7 +98,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     for (FudgeField field : message) {
       if (field.getValue() instanceof FudgeFieldContainer) {
         final PortfolioNodeImpl child = buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
-        child.setParentNode(node.getUniqueId());
+        child.setParentNodeId(node.getUniqueId());
         node.addChildNode(child);
       }
     }
@@ -123,7 +123,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
     if (parentId != null) {
-      node.setParentNode(parentId);
+      node.setParentNodeId(parentId);
     }
     return node;
   }

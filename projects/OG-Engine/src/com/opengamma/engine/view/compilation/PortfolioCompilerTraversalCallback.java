@@ -69,7 +69,7 @@ import com.opengamma.util.tuple.Pair;
    */
   private static Set<String> getSubNodeSecurityTypes(PortfolioNode portfolioNode) {
     SubNodeSecurityTypeAccumulator accumulator = new SubNodeSecurityTypeAccumulator();
-    new PortfolioNodeTraverser(accumulator).traverse(portfolioNode);
+    PortfolioNodeTraverser.depthFirst(accumulator).traverse(portfolioNode);
     return accumulator.getSubNodeSecurityTypes();
   }
 

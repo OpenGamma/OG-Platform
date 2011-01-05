@@ -24,14 +24,21 @@ public interface PortfolioNode extends UniqueIdentifiable {
   /**
    * Gets the unique identifier of the node.
    * 
-   * @return the identifier, not null
+   * @return the unique identifier, not null
    */
   UniqueIdentifier getUniqueId();
 
   /**
+   * Gets the unique identifier of the parent node, or {@code null} if this is a root node.
+   * 
+   * @return the unique identifier, null if root node
+   */
+  UniqueIdentifier getParentNodeId();
+
+  /**
    * Gets the name of the node intended for display purposes.
    * 
-   * @return the name, not null
+   * @return the display name, not null
    */
   String getName();
 
@@ -43,24 +50,17 @@ public interface PortfolioNode extends UniqueIdentifiable {
   int size();
 
   /**
-   * Gets the nodes which are immediate children of this node.
+   * Gets the nodes that are immediate children of this node.
    * 
    * @return the child nodes, unmodifiable, not null
    */
   List<PortfolioNode> getChildNodes();
 
   /**
-   * Gets the positions immediate children of this node.
+   * Gets the positions that are immediate children of this node.
    * 
    * @return the positions, unmodifiable, not null
    */
   List<Position> getPositions();
-
-  /**
-   * Returns the identifier of the parent node, or {@code null} if this is a root node.
-   * 
-   * @return the identifier, null if root node
-   */
-  UniqueIdentifier getParentNode();
 
 }

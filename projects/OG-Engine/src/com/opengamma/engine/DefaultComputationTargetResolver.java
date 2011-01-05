@@ -211,7 +211,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
 
   private PortfolioNodeImpl resolvePortfolioNode(final UniqueIdentifier uid, final PortfolioNode node) {
     final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueId(), node.getName());
-    newNode.setParentNode(node.getParentNode());
+    newNode.setParentNodeId(node.getParentNodeId());
     for (PortfolioNode child : node.getChildNodes()) {
       final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueId()));
       if (resolvedChild == null) {

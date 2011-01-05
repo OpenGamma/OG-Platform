@@ -34,7 +34,7 @@ public class TradeImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals(POSITION_UID, test.getPositionId());
+    assertEquals(POSITION_UID, test.getParentPositionId());
     assertEquals(COUNTERPARTY, test.getCounterparty());
     assertNull(test.getSecurity());
     assertEquals(TRADE_OFFSET_DATETIME.toLocalDate(), test.getTradeDate());
@@ -78,7 +78,7 @@ public class TradeImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals(POSITION_UID, test.getPositionId());
+    assertEquals(POSITION_UID, test.getParentPositionId());
     assertEquals(COUNTERPARTY, test.getCounterparty());
     assertEquals(security, test.getSecurity());
   }

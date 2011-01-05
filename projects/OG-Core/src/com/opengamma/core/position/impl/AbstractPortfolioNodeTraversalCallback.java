@@ -9,7 +9,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 
 /**
- * A simple no-op implementation of {@code PortfolioNodeTraversalCallback}.
+ * A simple implementation of {@code PortfolioNodeTraversalCallback} with no behavior.
  * Subclasses should override the particular methods they require.
  */
 public class AbstractPortfolioNodeTraversalCallback implements PortfolioNodeTraversalCallback {

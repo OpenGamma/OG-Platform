@@ -24,15 +24,22 @@ import com.opengamma.util.ArgumentChecker;
 public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<SecuritySource> implements SecuritySource {
 
   /**
-   * Creates a new instance with a default source of securities.
-   * @param defaultSource  the default source to fall back to, not null
+   * Creates an instance specifying the default delegate.
+   * 
+   * @param defaultSource  the source to use when no scheme matches, not null
    */
   public DelegatingSecuritySource(SecuritySource defaultSource) {
     super(defaultSource);
   }
 
-  public DelegatingSecuritySource(SecuritySource defaultSource, Map<String, SecuritySource> delegates) {
-    super(defaultSource, delegates);
+  /**
+   * Creates an instance specifying the default delegate.
+   * 
+   * @param defaultSource  the source to use when no scheme matches, not null
+   * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
+   */
+  public DelegatingSecuritySource(SecuritySource defaultSource, Map<String, SecuritySource> schemePrefixToSourceMap) {
+    super(defaultSource, schemePrefixToSourceMap);
   }
 
   //-------------------------------------------------------------------------
