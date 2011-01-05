@@ -527,9 +527,9 @@ public class DependencyGraph {
       uid.put(node, nextId++);
     }
     for (DependencyNode node : getDependencyNodes()) {
-      out.println("# " + (uid.get(node) + " [" + node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier() + "]").replace(' ', '_'));
+      out.println("# " + (uid.get(node) + " [" + node.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
       for (DependencyNode input : node.getDependentNodes()) {
-        out.println((uid.get(input) + " [" + input.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier() + "]").replace(' ', '_'));
+        out.println((uid.get(input) + " [" + input.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
       }
     }
   }
