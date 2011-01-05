@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.junit.Before;
@@ -27,6 +28,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
@@ -413,6 +415,19 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     // get
     FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
+  }
+  
+  @Test
+  public void getResults() {
+    // no results
+    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), "LDN_CLOSE"));
+    
+    _dbManager.startBatch(_batchJobRun);
+    
+    // results (but empty) 
+    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), "LDN_CLOSE");
+    assertNotNull(result);
+    assertTrue(result.getAllTargets().isEmpty());
   }
   
 }
