@@ -6,11 +6,13 @@
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +28,7 @@ import com.opengamma.util.PublicAPI;
  * @see ValuePropertyNames
  */
 @PublicAPI
-public abstract class ValueProperties implements Serializable {
+public abstract class ValueProperties implements Serializable, Comparable<ValueProperties> {
 
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
@@ -124,7 +126,7 @@ public abstract class ValueProperties implements Serializable {
      */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String>emptySet());
+      _properties.put(propertyName.intern(), Collections.<String> emptySet());
       return this;
     }
 
@@ -169,7 +171,7 @@ public abstract class ValueProperties implements Serializable {
       if (_optional != null) {
         for (String optionalProperty : _optional) {
           if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String>emptySet());
+            _properties.put(optionalProperty, Collections.<String> emptySet());
           }
         }
         return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
@@ -177,7 +179,7 @@ public abstract class ValueProperties implements Serializable {
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
       }
     }
 
@@ -216,8 +218,7 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           if (!isOptional(property.getKey())) {
@@ -253,6 +254,9 @@ public abstract class ValueProperties implements Serializable {
     @Override
     public ValueProperties compose(final ValueProperties properties) {
       assert properties != null;
+      if ((properties == EMPTY) || (properties == INFINITE)) {
+        return this;
+      }
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if ((available == null) || available.isEmpty()) {
@@ -281,8 +285,7 @@ public abstract class ValueProperties implements Serializable {
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           // Other is not defined, so use current value
@@ -315,12 +318,20 @@ public abstract class ValueProperties implements Serializable {
           continue;
         }
         if (property.getValue().size() != available.size()) {
-          composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
+          final Set<String> intersection = Sets.intersection(property.getValue(), available);
+          // An empty intersection means no resulting property
+          if (!intersection.isEmpty()) {
+            composed.put(property.getKey(), intersection);
+          }
           continue;
         }
         for (String value : property.getValue()) {
           if (!available.contains(value)) {
-            composed.put(property.getKey(), Sets.intersection(property.getValue(), available));
+            final Set<String> intersection = Sets.intersection(property.getValue(), available);
+            // An empty intersection means no resulting property
+            if (!intersection.isEmpty()) {
+              composed.put(property.getKey(), intersection);
+            }
             continue nextProperty;
           }
         }
@@ -331,8 +342,7 @@ public abstract class ValueProperties implements Serializable {
         // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed),
-            (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
       }
     }
 
@@ -368,25 +378,159 @@ public abstract class ValueProperties implements Serializable {
       return _properties.isEmpty();
     }
 
-    @Override
-    public String toString() {
+    public static String toString(final Map<String, Set<String>> properties, final Set<String> optional) {
       final StringBuilder sb = new StringBuilder();
       sb.append("{");
       boolean first = true;
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      for (Map.Entry<String, Set<String>> property : properties.entrySet()) {
         if (first) {
           first = false;
         } else {
           sb.append(",");
         }
         sb.append(property.getKey()).append("=").append(property.getValue());
-        if (isOptional(property.getKey())) {
+        if (optional.contains(property.getKey())) {
           sb.append("?");
         }
       }
       sb.append("}");
       return sb.toString();
     }
+
+    @Override
+    public String toString() {
+      return toString(_properties, _optional);
+    }
+  }
+
+  /**
+   * Implements a nearly infinite property set.
+   */
+  private static final class NearlyInfinitePropertiesImpl extends ValueProperties {
+
+    private final Set<String> _without;
+
+    private NearlyInfinitePropertiesImpl(final Set<String> without) {
+      _without = without;
+    }
+
+    @Override
+    public ValueProperties compose(ValueProperties properties) {
+      // Yields the same
+      return this;
+    }
+
+    @Override
+    public Builder copy() {
+      throw new UnsupportedOperationException("Can't copy the nearly infinite set");
+    }
+
+    @Override
+    public Set<String> getProperties() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getValues(String propertyName) {
+      if (_without.contains(propertyName)) {
+        return null;
+      } else {
+        return Collections.emptySet();
+      }
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+
+    @Override
+    public boolean isOptional(String propertyName) {
+      return false;
+    }
+
+    @Override
+    public boolean isSatisfiedBy(ValueProperties properties) {
+      if (properties == INFINITE) {
+        return true;
+      }
+      if (!(properties instanceof NearlyInfinitePropertiesImpl)) {
+        return false;
+      }
+      final Set<String> otherWithouts = ((NearlyInfinitePropertiesImpl) properties)._without;
+      for (String otherWithout : otherWithouts) {
+        if (!_without.contains(otherWithout)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
+    public boolean isStrict() {
+      return false;
+    }
+
+    @Override
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      if (_without.contains(propertyName)) {
+        return this;
+      } else {
+        final Set<String> without = new HashSet<String>(_without);
+        without.add(propertyName);
+        return new NearlyInfinitePropertiesImpl(without);
+      }
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("INFINITE-{");
+      boolean first = true;
+      for (String without : _without) {
+        if (first) {
+          first = false;
+        } else {
+          sb.append(',');
+        }
+        sb.append(without);
+      }
+      sb.append('}');
+      return sb.toString();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof NearlyInfinitePropertiesImpl)) {
+        return false;
+      }
+      final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) o;
+      return _without.equals(otherImpl._without);
+    }
+
+    @Override
+    public int hashCode() {
+      return _without.hashCode();
+    }
+
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      if (other == INFINITE) {
+        return -1;
+      }
+      if (other instanceof NearlyInfinitePropertiesImpl) {
+        final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) other;
+        return compareSet(_without, otherImpl._without);
+      }
+      return 1;
+    }
+
   }
 
   /**
@@ -396,7 +540,7 @@ public abstract class ValueProperties implements Serializable {
 
     @Override
     public ValueProperties compose(final ValueProperties properties) {
-      // Any composition yields the infinite set again
+      // Composition yields the infinite set
       return this;
     }
 
@@ -441,7 +585,21 @@ public abstract class ValueProperties implements Serializable {
 
     @Override
     public String toString() {
-      return "INF";
+      return "INFINITE";
+    }
+
+    @Override
+    public ValueProperties withoutAny(final String propertyName) {
+      ArgumentChecker.notNull(propertyName, "propertyName");
+      return new NearlyInfinitePropertiesImpl(Collections.singleton(propertyName));
+    }
+
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      return 1;
     }
 
   };
@@ -658,5 +816,73 @@ public abstract class ValueProperties implements Serializable {
    * @return {@code true} if the property set is empty, {@code false} otherwise
    */
   public abstract boolean isEmpty();
+
+  /**
+   * Equivalent to calling {@code copy().withoutAny(propertyName).get()}.
+   * 
+   * @param propertyName property name to remove
+   * @return a property set with the given property removed
+   */
+  public ValueProperties withoutAny(final String propertyName) {
+    return copy().withoutAny(propertyName).get();
+  }
+
+  protected static int compareSet(final Set<String> s1, final Set<String> s2) {
+    if (s1 == null) {
+      if (s2 == null) {
+        return 0;
+      } else {
+        return -1;
+      }
+    } else if (s2 == null) {
+      return 1;
+    }
+    if (s1.isEmpty()) {
+      if (s2.isEmpty()) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } else if (s2.isEmpty()) {
+      return -1;
+    }
+    if (s1.size() < s2.size()) {
+      return -1;
+    } else if (s1.size() > s2.size()) {
+      return 1;
+    }
+    List<String> sorted = new ArrayList<String>(Sets.symmetricDifference(s1, s2));
+    Collections.sort(sorted);
+    for (String s : sorted) {
+      if (s1.contains(s)) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  @Override
+  public int compareTo(final ValueProperties valueProperties) {
+    if (valueProperties == this) {
+      return 0;
+    }
+    final Set<String> propThis = getProperties();
+    final Set<String> propOther = valueProperties.getProperties();
+    int c = compareSet(propThis, propOther);
+    if (c != 0) {
+      return c;
+    }
+    final List<String> sorted = new ArrayList<String>(propThis);
+    Collections.sort(sorted);
+    for (String property : sorted) {
+      c = compareSet(getValues(property), valueProperties.getValues(property));
+      if (c != 0) {
+        return c;
+      }
+    }
+    return 0;
+  }
 
 }

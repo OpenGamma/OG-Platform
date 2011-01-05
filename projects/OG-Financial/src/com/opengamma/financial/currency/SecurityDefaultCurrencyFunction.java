@@ -8,15 +8,15 @@ package com.opengamma.financial.currency;
 import com.opengamma.engine.ComputationTargetType;
 
 /**
- * Converts a value from one currency to another, acting on a security.
+ * Injects a default currency requirement into the graph at a security.
  */
-public class SecurityCurrencyConversionFunction extends CurrencyConversionFunction {
+public class SecurityDefaultCurrencyFunction extends DefaultCurrencyFunction {
 
-  public SecurityCurrencyConversionFunction(final String valueName) {
+  public SecurityDefaultCurrencyFunction(final String valueName) {
     super(ComputationTargetType.SECURITY, valueName);
   }
 
-  public SecurityCurrencyConversionFunction(final String... valueNames) {
+  public SecurityDefaultCurrencyFunction(final String... valueNames) {
     super(ComputationTargetType.SECURITY, valueNames);
   }
 

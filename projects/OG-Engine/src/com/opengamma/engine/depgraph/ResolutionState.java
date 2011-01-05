@@ -108,8 +108,12 @@ import com.opengamma.util.tuple.Pair;
 
   public void addExistingNodes(final Collection<Pair<DependencyNode, ValueSpecification>> nodes) {
     for (Pair<DependencyNode, ValueSpecification> node : nodes) {
-      _nodes.add(new Node(node.getSecond(), node.getFirst()));
+      addExistingNode(node.getFirst(), node.getSecond());
     }
+  }
+
+  public void addExistingNode(final DependencyNode node, final ValueSpecification resolvedOutput) {
+    _nodes.add(new Node(resolvedOutput, node));
   }
 
   public void addFunction(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final DependencyNode node) {

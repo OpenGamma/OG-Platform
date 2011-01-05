@@ -16,7 +16,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -27,21 +26,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PositionScalingFunction extends PropertyPreservingFunction {
 
-  /**
-   * Constraints to preserve from output to required input.
-   */
-  private static final String[] s_preserve = new String[] {ValuePropertyNames.CURRENCY};
-
-  private static final ValueProperties s_inputConstraints = createInputConstraints(s_preserve);
-
   @Override
-  protected ValueProperties getInputConstraints() {
-    return s_inputConstraints;
-  }
-
-  @Override
-  protected ValueProperties createResultProperties() {
-    return createResultProperties(s_preserve);
+  protected String[] getPreservedProperties() {
+    return new String[] {ValuePropertyNames.CURRENCY};
   }
 
   private final String _requirementName;
