@@ -11,7 +11,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -70,10 +69,10 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     return uid;
   }
 
-  private Security getSecurity(final Collection<IdentifierBundle> identifiers) {
+  private Security getSecurity(final Iterable<Identifier> identifiers) {
     s_logger.debug("Search for security with identifiers {}", identifiers);
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.getIdentifiers().addAll(identifiers);
+    request.addSecurityKeys(identifiers);
     request.setFullDetail(true);
     final SecuritySearchResult result = _secMaster.search(request);
     assertNotNull(result);
@@ -135,16 +134,17 @@ public class SecurityMasterTestCase extends SecurityTestCase {
       final Iterator<Identifier> iterator = security.getIdentifiers().iterator();
       bundle = IdentifierBundle.EMPTY;
       // retrieve with one identifier
-      bundle = bundle.withIdentifier(iterator.next());
-      sec = getSecurity(Collections.singleton(bundle));
+      Identifier id = iterator.next();
+      bundle = bundle.withIdentifier(id);
+      sec = getSecurity(bundle);
       normalizeSecurity(sec);
       assertEquals(security, sec);
       // retrieve with one valid and one incorrect identifier
-      sec = getSecurity(Arrays.asList(bundle, IdentifierBundle.of(Identifier.of("FOO", "BAR"))));
+      sec = getSecurity(Arrays.asList(id, Identifier.of("FOO", "BAR")));
       normalizeSecurity(sec);
       assertEquals(security, sec);
       // retrieve with exact bundle
-      sec = getSecurity(Collections.singleton(security.getIdentifiers()));
+      sec = getSecurity(security.getIdentifiers());
       normalizeSecurity(sec);
       assertEquals(security, sec);
     }
@@ -169,7 +169,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     assertEquals(newName, sec.getName());
     // retrieving by the earlier bundle - gets updated
     if (bundle != null) {
-      sec = getSecurity(Collections.singleton(bundle));
+      sec = getSecurity(bundle);
       assertNotNull(sec);
       assertEquals(newName, sec.getName());
     }

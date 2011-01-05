@@ -14,7 +14,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
@@ -176,9 +175,7 @@ public class MasterSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    for (Identifier identifier : securityKey) {
-      request.addIdentifierBundle(identifier);
-    }
+    request.addSecurityKeys(securityKey);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
     request.setFullDetail(true);

@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.security.ManageableSecurity;
@@ -130,23 +131,26 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   @Override
   protected SecuritySearchResult search(SecuritySearchRequest request) {
     s_logger.debug("searchSecurities: {}", request);
+    final SecuritySearchResult result = new SecuritySearchResult();
+    if ((request.getSecurityIds() != null && request.getSecurityIds().size() == 0) ||
+        (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
+      return result;
+    }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType());
-    List<IdentifierBundle> bundles = new ArrayList<IdentifierBundle>(request.getIdentifiers());  // lock order
-    int total = 0;
-    for (IdentifierBundle bundle : bundles) {
-      for (Identifier id : bundle) {
-        args.addValue("key_scheme" + total, id.getScheme().getName());
-        args.addValue("key_value" + total, id.getValue());
-        total++;
+    if (request.getSecurityKeys() != null) {
+      int i = 0;
+      for (Identifier id : request.getSecurityKeys()) {
+        args.addValue("key_scheme" + i, id.getScheme().getName());
+        args.addValue("key_value" + i, id.getValue());
+        i++;
       }
     }
-    final SecuritySearchResult result = new SecuritySearchResult();
-    searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request, bundles, total), args, new SecurityDocumentExtractor(), result);
+    searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request), args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
       loadDetail(result.getDocuments());
     }
@@ -156,11 +160,9 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
   /**
    * Gets the SQL to search for securities.
    * @param request  the request, not null
-   * @param bundles  the ordered set of bundles, not null
-   * @param total  the total number of bundles
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchSecurities(final SecuritySearchRequest request, final List<IdentifierBundle> bundles, final int total) {
+  protected String[] sqlSearchSecurities(final SecuritySearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
@@ -169,8 +171,17 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     if (request.getSecurityType() != null) {
       where += "AND sec_type = :sec_type ";
     }
-    if (total > 0) {
-      where += "AND id IN (" + sqlSelectMatchingBundles(bundles, total) + ") ";
+    if (request.getSecurityIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
+      for (UniqueIdentifier uid : request.getSecurityIds()) {
+        getMaster().checkScheme(uid);
+        buf.append(extractOid(uid)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
+    }
+    if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
+      where += sqlSelectMatchingIdentifiers(request.getSecurityKeys());
     }
     String selectFromWhereInner = "SELECT id FROM sec_security " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
@@ -181,58 +192,58 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
 
   /**
    * Gets the SQL to find all the ids for all bundles in the set.
-   * @param bundles  the ordered set of bundles, not null
-   * @param total  the total number of identifiers ignoring bundles
-   * @return the SQL search and count, not null
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingBundles(final List<IdentifierBundle> bundles, final int total) {
-    if (bundles.size() == total) {
-      return sqlSelectMatchingIdentifiersOr(total);
-    } else {
-      return sqlSelectMatchingIdentifiersAllWithOr(bundles);
+  protected String sqlSelectMatchingIdentifiers(final IdentifierSearch idSearch) {
+    switch (idSearch.getSearchType()) {
+      case EXACT:
+        return "AND id IN (" + sqlSelectMatchingIdentifiersExact(idSearch) + ") ";
+      case ALL:
+        return "AND id IN (" + sqlSelectMatchingIdentifiersAll(idSearch) + ") ";
+      case ANY:
+        return "AND id IN (" + sqlSelectMatchingIdentifiersAny(idSearch) + ") ";
+      case NONE:
+        return "AND id NOT IN (" + sqlSelectMatchingIdentifiersAny(idSearch) + ") ";
     }
+    throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
   }
 
   /**
-   * Gets the SQL to find all the securities matching any identifier.
-   * @param total  the total number of identifiers ignoring bundles
-   * @return the SQL search and count, not null
+   * Gets the SQL to find all the securities matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersOr(final int total) {
-    // optimized search for commons case of individual ORs
+  protected String sqlSelectMatchingIdentifiersExact(final IdentifierSearch idSearch) {
+    // compare size of all matched to size in total
     // filter by dates to reduce search set
-    String select = "SELECT DISTINCT security_id " +
+    String a = "SELECT security_id AS matched_security_id, COUNT(security_id) AS matched_count " +
       "FROM sec_security2idkey, sec_security main " +
       "WHERE security_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(total, 0) + ") ";
+      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") " +
+      "GROUP BY security_id " +
+      "HAVING COUNT(security_id) >= " + idSearch.size() + " ";
+    String b = "SELECT security_id AS total_security_id, COUNT(security_id) AS total_count " +
+      "FROM sec_security2idkey, sec_security main " +
+      "WHERE security_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "GROUP BY security_id ";
+    String select = "SELECT matched_security_id AS security_id " +
+      "FROM (" + a + ") AS a, (" + b + ") AS b " +
+      "WHERE matched_security_id = total_security_id " +
+        "AND matched_count = total_count ";
     return select;
   }
 
   /**
-   * Gets the SQL to find all the securities matching based on AND/OR combination.
-   * @param bundles  the ordered set of bundles, not null
-   * @return the SQL search and count, not null
+   * Gets the SQL to find all the securities matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersAllWithOr(final List<IdentifierBundle> bundles) {
-    String select = "";
-    int i = 0;
-    for (IdentifierBundle bundle : bundles) {
-      select += (i == 0 ? "" : "UNION ");
-      select += sqlSelectMatchingIdentifiersAll(bundle, i);
-      i += bundle.size();
-    }
-    return select;
-  }
-
-  /**
-   * Gets the SQL to find all the ids for a single bundle.
-   * @param bundle  the bundle, not null
-   * @param idPos  the zero based index of the first identifier
-   * @return the SQL search and count, not null
-   */
-  protected String sqlSelectMatchingIdentifiersAll(final IdentifierBundle bundle, final int idPos) {
+  protected String sqlSelectMatchingIdentifiersAll(final IdentifierSearch idSearch) {
     // only return security_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT security_id " +
@@ -240,23 +251,39 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       "WHERE security_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(bundle.size(), idPos) + ") " +
+      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") " +
       "GROUP BY security_id " +
-      "HAVING COUNT(security_id) >= " + bundle.size() + " ";
+      "HAVING COUNT(security_id) >= " + idSearch.size() + " ";
+    return select;
+  }
+
+  /**
+   * Gets the SQL to find all the securities matching any identifier.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingIdentifiersAny(final IdentifierSearch idSearch) {
+    // optimized search for commons case of individual ORs
+    // filter by dates to reduce search set
+    String select = "SELECT DISTINCT security_id " +
+      "FROM sec_security2idkey, sec_security main " +
+      "WHERE security_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") ";
     return select;
   }
 
   /**
    * Gets the SQL to find all the ids for a single bundle.
-   * @param orSize  the size of the list of identifiers to search using OR
-   * @param idPos  the zero based index of the first identifier
-   * @return the SQL search and count, not null
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersOr(final int orSize, final int idPos) {
+  protected String sqlSelectMatchingIdentifiersOr(final IdentifierSearch idSearch) {
     String select = "SELECT id FROM sec_idkey ";
-    for (int i = 0; i < orSize; i++) {
+    for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
-      select += "(key_scheme = :key_scheme" + (i + idPos) + " AND key_value = :key_value" + (i + idPos) + ") ";
+      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
     }
     return select;
   }
