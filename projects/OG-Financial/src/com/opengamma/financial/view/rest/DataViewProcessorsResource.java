@@ -34,20 +34,20 @@ public class DataViewProcessorsResource {
   public DataViewProcessorsResource() {
   }
 
-  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix) {
-    addViewProcessor(DEFAULT_VIEW_PROCESSOR_NAME, viewProcessor, connectionFactory, topicPrefix);
+  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
+    addViewProcessor(DEFAULT_VIEW_PROCESSOR_NAME, viewProcessor, connectionFactory, topicPrefix, fudgeContext);
   }
 
-  public DataViewProcessorsResource(final Map<String, ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix) {
+  public DataViewProcessorsResource(final Map<String, ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
     for (Map.Entry<String, ViewProcessor> viewProcessor : viewProcessors.entrySet()) {
-      addViewProcessor(viewProcessor.getKey(), viewProcessor.getValue(), connectionFactory, topicPrefix);
+      addViewProcessor(viewProcessor.getKey(), viewProcessor.getValue(), connectionFactory, topicPrefix, fudgeContext);
     }
   }
 
-  public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix) {
+  public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
     int i = 0;
     for (ViewProcessor viewProcessor : viewProcessors) {
-      addViewProcessor(Integer.toString(i++), viewProcessor, connectionFactory, topicPrefix);
+      addViewProcessor(Integer.toString(i++), viewProcessor, connectionFactory, topicPrefix, fudgeContext);
     }
   }
 

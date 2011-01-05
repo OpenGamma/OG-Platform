@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;

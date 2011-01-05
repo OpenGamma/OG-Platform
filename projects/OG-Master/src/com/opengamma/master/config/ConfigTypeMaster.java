@@ -7,6 +7,7 @@ package com.opengamma.master.config;
 
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.MasterChangeListener;
+import com.opengamma.master.NotifyingMaster;
 
 /**
  * A general-purpose configuration master.
@@ -20,7 +21,7 @@ import com.opengamma.master.MasterChangeListener;
  * 
  * @param <T>  the configuration element type
  */
-public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
+public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>>, NotifyingMaster {
 
   /**
    * Searches for configuration documents matching the specified search criteria.
@@ -47,6 +48,7 @@ public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
    * 
    * @param listener the listener to add
    */
+  @Override
   void addChangeListener(MasterChangeListener listener);
   
   /**
@@ -54,6 +56,7 @@ public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
    * 
    * @param listener the listener to remove
    */
+  @Override
   void removeChangeListener(MasterChangeListener listener);
   
 }

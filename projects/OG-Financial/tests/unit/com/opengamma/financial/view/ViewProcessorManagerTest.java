@@ -37,8 +37,10 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.test.Timeout;
@@ -179,13 +181,13 @@ public class ViewProcessorManagerTest {
     private MasterChangeListener _listener;
 
     @Override
-    public void addOnChangeListener(MasterChangeListener listener) {
+    public void addChangeListener(MasterChangeListener listener) {
       assertNull(_listener);
       _listener = listener;
     }
 
     @Override
-    public void removeOnChangeListener(MasterChangeListener listener) {
+    public void removeChangeListener(MasterChangeListener listener) {
       assertEquals(listener, _listener);
       _listener = null;
     }
@@ -195,7 +197,7 @@ public class ViewProcessorManagerTest {
     }
 
     public void notifyListener() {
-      _listener.onMasterChanged(Instant.now());
+      _listener.added(UniqueIdentifier.of("Test", "Identifier"));
     }
 
   }

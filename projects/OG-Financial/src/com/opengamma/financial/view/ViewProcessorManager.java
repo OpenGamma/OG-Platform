@@ -21,7 +21,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +28,10 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
-import com.opengamma.master.NotifyingMaster.MasterChangeListener;
 import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -121,12 +121,29 @@ public class ViewProcessorManager implements Lifecycle {
             final NotifyingMaster master = entry.getKey();
             final VersionedSource source = entry.getValue();
             final MasterChangeListener listener = new MasterChangeListener() {
+
               @Override
-              public void onMasterChanged(InstantProvider changeInstant) {
-                ViewProcessorManager.this.onMasterChanged(Instant.of(changeInstant), source);
+              public void added(UniqueIdentifier addedItem) {
+                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
               }
+
+              @Override
+              public void corrected(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+              }
+
+              @Override
+              public void removed(UniqueIdentifier removedItem) {
+                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+              }
+
+              @Override
+              public void updated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+              }
+
             };
-            master.addOnChangeListener(listener);
+            master.addChangeListener(listener);
             _masterToListener.put(master, listener);
             s_logger.debug("Latching {} to {}", source, now);
             // TODO this isn't ideal if there is clock drift between nodes - the time needs to be the system time at the master
@@ -165,7 +182,7 @@ public class ViewProcessorManager implements Lifecycle {
         final Iterator<Map.Entry<NotifyingMaster, MasterChangeListener>> itr = _masterToListener.entrySet().iterator();
         while (itr.hasNext()) {
           Map.Entry<NotifyingMaster, MasterChangeListener> entry = itr.next();
-          entry.getKey().removeOnChangeListener(entry.getValue());
+          entry.getKey().removeChangeListener(entry.getValue());
           itr.remove();
         }
         _isRunning = false;
@@ -176,6 +193,7 @@ public class ViewProcessorManager implements Lifecycle {
   }
 
   private void onMasterChanged(final Instant latchInstant, final VersionedSource source) {
+    // TODO: filter - we only need to do this if something is registered against the thing that changed
     s_logger.debug("Change timestamp {} for {}", latchInstant, source);
     _changeLock.lock();
     try {

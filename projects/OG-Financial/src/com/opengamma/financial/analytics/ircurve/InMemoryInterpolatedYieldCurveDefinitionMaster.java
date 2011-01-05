@@ -6,10 +6,10 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -17,6 +17,7 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
@@ -33,7 +34,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
-  private final Set<MasterChangeListener> _listeners = new HashSet<MasterChangeListener>();
+  private final Set<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 
   private String _identifierScheme;
   private Instant _sourceVersionAsOfInstant;
@@ -117,8 +118,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final TreeMap<Instant, YieldCurveDefinition> value = new TreeMap<Instant, YieldCurveDefinition>();
     value.put(Instant.now(), document.getYieldCurveDefinition());
     _definitions.put(key, value);
-    document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name));
-    fireChangeEvent();
+    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name);
+    document.setUniqueId(uid);
+    notifyAdded(uid);
     return document;
   }
 
@@ -130,6 +132,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final String name = document.getYieldCurveDefinition().getName();
     final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
+    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name);
     if (value != null) {
       if (_sourceVersionAsOfInstant != null) {
         // Don't need to keep the old values before the one needed by "versionAsOfInstant"
@@ -140,13 +143,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         value.clear();
       }
       value.put(Instant.now(), document.getYieldCurveDefinition());
+      notifyUpdated(uid, uid);
     } else {
       value = new TreeMap<Instant, YieldCurveDefinition>();
       value.put(Instant.now(), document.getYieldCurveDefinition());
       _definitions.put(key, value);
+      notifyAdded(uid);
     }
-    document.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name));
-    fireChangeEvent();
+    document.setUniqueId(uid);
     return document;
   }
 
@@ -226,7 +230,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         throw new DataNotFoundException("Curve definition not found");
       }
     }
-    fireChangeEvent();
+    notifyRemoved(uid);
   }
 
   @Override
@@ -254,18 +258,43 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     value.put(Instant.now(), document.getYieldCurveDefinition());
     document.setUniqueId(uid);
-    fireChangeEvent();
+    notifyUpdated(uid, uid);
     return document;
   }
 
-  private synchronized void fireChangeEvent() {
-    // TODO temporary hack until listeners are done properly
-    final Instant now = Instant.now();
+  private void notifyUpdated(final UniqueIdentifier oldIdentifier, final UniqueIdentifier newIdentifier) {
+    // TODO: should use an executor service rather than kick off threads
     for (final MasterChangeListener listener : _listeners) {
       final Thread async = new Thread() {
         @Override
         public void run() {
-          listener.onMasterChanged(now);
+          listener.updated(oldIdentifier, newIdentifier);
+        }
+      };
+      async.start();
+    }
+  }
+
+  private void notifyAdded(final UniqueIdentifier identifier) {
+    // TODO: should use an executor service rather than kick off threads
+    for (final MasterChangeListener listener : _listeners) {
+      final Thread async = new Thread() {
+        @Override
+        public void run() {
+          listener.added(identifier);
+        }
+      };
+      async.start();
+    }
+  }
+
+  private void notifyRemoved(final UniqueIdentifier identifier) {
+    // TODO: should use an executor service rather than kick off threads
+    for (final MasterChangeListener listener : _listeners) {
+      final Thread async = new Thread() {
+        @Override
+        public void run() {
+          listener.removed(identifier);
         }
       };
       async.start();
@@ -273,16 +302,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   @Override
-  public synchronized void addOnChangeListener(MasterChangeListener listener) {
+  public void addChangeListener(MasterChangeListener listener) {
     ArgumentChecker.notNull(listener, "listener");
-    // TODO temporary hack until listeners are done properly
     _listeners.add(listener);
   }
 
   @Override
-  public synchronized void removeOnChangeListener(MasterChangeListener listener) {
+  public void removeChangeListener(MasterChangeListener listener) {
     ArgumentChecker.notNull(listener, "listener");
-    // TODO temporary hack until listeners are done properly
     _listeners.remove(listener);
   }
 
