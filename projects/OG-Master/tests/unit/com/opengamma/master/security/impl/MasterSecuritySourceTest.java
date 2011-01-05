@@ -71,7 +71,7 @@ public class MasterSecuritySourceTest {
     Security testResult = test.getSecurity(UID);
     verify(mock, times(1)).history(request);
     
-    assertEquals(UID, testResult.getUniqueIdentifier());
+    assertEquals(UID, testResult.getUniqueId());
     assertEquals("Test", testResult.getName());
   }
 
@@ -95,7 +95,7 @@ public class MasterSecuritySourceTest {
     Collection<Security> testResult = test.getSecurities(BUNDLE);
     verify(mock, times(1)).search(request);
     
-    assertEquals(UID, testResult.iterator().next().getUniqueIdentifier());
+    assertEquals(UID, testResult.iterator().next().getUniqueId());
     assertEquals("Test", testResult.iterator().next().getName());
   }
 
@@ -119,7 +119,7 @@ public class MasterSecuritySourceTest {
     Security testResult = test.getSecurity(BUNDLE);
     verify(mock, times(1)).search(request);
     
-    assertEquals(UID, testResult.getUniqueIdentifier());
+    assertEquals(UID, testResult.getUniqueId());
     assertEquals("Test", testResult.getName());
   }
 

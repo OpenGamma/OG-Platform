@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -26,6 +26,9 @@ public class ThinPlateSplineRadialBasisFunction extends Function1D<Double, Doubl
 
   @Override
   public Double evaluate(final Double x) {
+    if (x == 0.0) {
+      return 0.0;
+    }
     return x * x * Math.log(x / _scaleFactor);
   }
 

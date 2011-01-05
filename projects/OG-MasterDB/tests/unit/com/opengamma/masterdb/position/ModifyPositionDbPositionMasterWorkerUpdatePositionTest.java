@@ -85,7 +85,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test(expected = DataNotFoundException.class)
   public void test_update_notFound() {
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "0", "0"));
+    pos.setUniqueId(UniqueIdentifier.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.update(doc);
   }
@@ -93,7 +93,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test(expected = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "221", "0"));
+    pos.setUniqueId(UniqueIdentifier.of("DbPos", "221", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _worker.update(doc);
   }
@@ -104,7 +104,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     
     PositionDocument base = _queryWorker.get(UniqueIdentifier.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
+    pos.setUniqueId(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument updated = _worker.update(input);
@@ -138,7 +138,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     w.init(_posMaster);
     final PositionDocument base = _queryWorker.get(UniqueIdentifier.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
-    pos.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "121", "0"));
+    pos.setUniqueId(UniqueIdentifier.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     try {
       w.update(input);

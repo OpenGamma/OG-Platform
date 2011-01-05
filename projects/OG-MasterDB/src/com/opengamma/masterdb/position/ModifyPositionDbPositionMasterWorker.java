@@ -177,7 +177,7 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
     final List<DbMapSqlParameterSource> tradeAssocList = new ArrayList<DbMapSqlParameterSource>();
     for (ManageableTrade trade : document.getPosition().getTrades()) {
       final long tradeId = nextId();
-      final long tradeOid = (trade.getUniqueIdentifier() != null ? extractOid(trade.getUniqueIdentifier()) : tradeId);
+      final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
       final Identifier counterpartyId = trade.getCounterpartyId();
       final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource()
         .addValue("trade_id", tradeId)

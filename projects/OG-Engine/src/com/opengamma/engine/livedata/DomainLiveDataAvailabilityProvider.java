@@ -62,7 +62,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
         if (security != null) {
           for (Identifier identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {

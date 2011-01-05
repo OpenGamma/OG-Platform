@@ -80,10 +80,10 @@ public class ComputationTarget implements Serializable {
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     final Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
-      return ((UniqueIdentifiable) value).getUniqueIdentifier();
+      return ((UniqueIdentifiable) value).getUniqueId();
     }
     return null;
   }
@@ -185,7 +185,7 @@ public class ComputationTarget implements Serializable {
    * @return the specification equivalent to this target, not null
    */
   public ComputationTargetSpecification toSpecification() {
-    return new ComputationTargetSpecification(_type, getUniqueIdentifier());
+    return new ComputationTargetSpecification(_type, getUniqueId());
   }
 
   //-------------------------------------------------------------------------

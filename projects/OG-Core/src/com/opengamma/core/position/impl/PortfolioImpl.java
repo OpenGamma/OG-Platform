@@ -86,7 +86,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * @return the identifier, null if not from a position source
    */
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return _identifier;
   }
 
@@ -94,7 +94,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * Sets the unique identifier of the portfolio.
    * @param identifier  the new identifier, not null
    */
-  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+  public void setUniqueId(UniqueIdentifier identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
   }
@@ -145,8 +145,8 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   public String toLongString() {
     return new StrBuilder()
       .append("Portfolio[")
-      .append("uniqueIdentifier=")
-      .append(getUniqueIdentifier())
+      .append("uniqueId" + "=")
+      .append(getUniqueId())
       .append(",rootNode=")
       .append(getRootNode().toLongString())
       .append("]")
@@ -157,7 +157,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   public String toString() {
     return new StrBuilder()
       .append("Portfolio[")
-      .append(getUniqueIdentifier())
+      .append(getUniqueId())
       .append("]")
       .toString();
   }
@@ -169,7 +169,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
     }
     if (obj instanceof PortfolioImpl) {
       final PortfolioImpl other = (PortfolioImpl) obj;
-      return ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
+      return ObjectUtils.equals(getUniqueId(), other.getUniqueId())
           && ObjectUtils.equals(getName(), other.getName())
           && ObjectUtils.equals(getRootNode(), other.getRootNode());
     }
@@ -180,8 +180,8 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   public int hashCode() {
     int result = 0;
     int prime = 31;
-    if (getUniqueIdentifier() != null) {
-      result = result * prime + getUniqueIdentifier().hashCode();
+    if (getUniqueId() != null) {
+      result = result * prime + getUniqueId().hashCode();
     }
     if (getName() != null) {
       result = result * prime + getName().hashCode(); 

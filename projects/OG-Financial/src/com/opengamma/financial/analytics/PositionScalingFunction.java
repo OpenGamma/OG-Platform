@@ -47,7 +47,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
     final Security security = position.getSecurity();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier(), getInputConstraint(desiredValue));
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), getInputConstraint(desiredValue));
     return Collections.singleton(requirement);
   }
 

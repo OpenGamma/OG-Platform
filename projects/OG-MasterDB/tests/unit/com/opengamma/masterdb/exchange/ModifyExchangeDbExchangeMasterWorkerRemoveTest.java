@@ -79,7 +79,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueIdentifier());
+    assertEquals(uid, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());

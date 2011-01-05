@@ -101,7 +101,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
   }
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final OptionSecurity security) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueIdentifier(), ValueProperties.with(ValuePropertyNames.CURRENCY,
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY,
         security.getCurrency().getISOCode()).get());
   }
 

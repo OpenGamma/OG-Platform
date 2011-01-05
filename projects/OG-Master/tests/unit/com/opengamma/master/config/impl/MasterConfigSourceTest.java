@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -75,6 +76,14 @@ public class MasterConfigSourceTest {
         }
         @Override
         public ConfigDocument<Identifier> correct(ConfigDocument<Identifier> document) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public void addChangeListener(MasterChangeListener listener) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public void removeChangeListener(MasterChangeListener listener) {
           throw new UnsupportedOperationException();
         }
       };

@@ -41,7 +41,7 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
 
   public void addFunction(final CompiledFunctionDefinition function) {
     ArgumentChecker.notNull(function, "Function definition");
-    final String uid = function.getFunctionDefinition().getUniqueIdentifier();
+    final String uid = function.getFunctionDefinition().getUniqueId();
     _functionDefinitions.put(uid, function);
     Instant time = function.getEarliestInvocationTime();
     if (time != null) {
@@ -71,31 +71,31 @@ public class InMemoryCompiledFunctionRepository implements CompiledFunctionRepos
   }
 
   @Override
-  public CompiledFunctionDefinition getDefinition(final String uniqueIdentifier) {
-    return findDefinition(uniqueIdentifier);
+  public CompiledFunctionDefinition getDefinition(final String uniqueId) {
+    return findDefinition(uniqueId);
   }
 
   /**
    * Separate "find" operation that can be used to bypass a sub-class implementation that may
    * be doing some form of lazy compilation of function definitions.
-   * @param uniqueIdentifier  the definition identifier, not null
+   * @param uniqueId  the definition identifier, not null
    * @return the definition
    */
-  public CompiledFunctionDefinition findDefinition(final String uniqueIdentifier) {
-    return _functionDefinitions.get(uniqueIdentifier);
+  public CompiledFunctionDefinition findDefinition(final String uniqueId) {
+    return _functionDefinitions.get(uniqueId);
   }
 
   @Override
-  public FunctionInvoker getInvoker(final String uniqueIdentifier) {
-    FunctionInvoker invoker = _functionInvokers.get(uniqueIdentifier);
+  public FunctionInvoker getInvoker(final String uniqueId) {
+    FunctionInvoker invoker = _functionInvokers.get(uniqueId);
     if (invoker == null) {
-      final CompiledFunctionDefinition definition = getDefinition(uniqueIdentifier);
+      final CompiledFunctionDefinition definition = getDefinition(uniqueId);
       if (definition == null) {
         invoker = MISSING;
       } else {
         invoker = definition.getFunctionInvoker();
       }
-      final FunctionInvoker previous = _functionInvokers.putIfAbsent(uniqueIdentifier, invoker);
+      final FunctionInvoker previous = _functionInvokers.putIfAbsent(uniqueId, invoker);
       if (previous != null) {
         invoker = previous;
       }

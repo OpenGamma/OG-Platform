@@ -71,7 +71,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("NASDAQ", "ORCL135"), Identifier.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), Identifier.of("CPARTY", "C104"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
-    expected.setUniqueIdentifier(uid);
+    expected.setUniqueId(uid);
     assertEquals(expected, test);
   }
 
@@ -83,7 +83,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("NASDAQ", "ORCL135"), Identifier.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), Identifier.of("CPARTY", "C105"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
-    expected.setUniqueIdentifier(uid);
+    expected.setUniqueId(uid);
     assertEquals(expected, test);
   }
 
@@ -95,7 +95,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "0"));
-    expected.setUniqueIdentifier(uid);
+    expected.setUniqueId(uid);
     assertEquals(expected, test);
   }
 
@@ -107,7 +107,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
-    expected.setUniqueIdentifier(uid);
+    expected.setUniqueId(uid);
     assertEquals(expected, test);
   }
 
@@ -126,7 +126,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     IdentifierBundle secKey = IdentifierBundle.of(Identifier.of("TICKER", "IBMC"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
-    expected.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "407", "1"));
+    expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "1"));
     assertEquals(expected, test);
   }
 

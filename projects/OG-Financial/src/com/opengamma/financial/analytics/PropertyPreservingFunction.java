@@ -34,18 +34,16 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
     for (String value : preserve) {
       builder.withAny(value);
     }
-    return builder.with(ValuePropertyNames.FUNCTION, getUniqueIdentifier()).get();
+    return builder.with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   private ValueProperties _inputConstraints;
   private ValueProperties _resultProperties;
 
   @Override
-  public void setUniqueIdentifier(final String identifier) {
-    super.setUniqueIdentifier(identifier);
-    final String[] preserve = getPreservedProperties();
-    _resultProperties = createResultProperties(preserve);
-    _inputConstraints = createInputConstraints(preserve);
+  public void setUniqueId(final String identifier) {
+    super.setUniqueId(identifier);
+    _resultProperties = createResultProperties().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   protected ValueProperties getInputConstraint(final ValueRequirement desiredValue) {
@@ -61,7 +59,7 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
   }
 
   private ValueProperties getResultProperties(final ValueProperties properties) {
-    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueIdentifier()).get();
+    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   /**

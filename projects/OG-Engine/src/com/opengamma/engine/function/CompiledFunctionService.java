@@ -138,5 +138,12 @@ public class CompiledFunctionService {
   public ExecutorService getExecutorService() {
     return _executorService;
   }
+  
+  public CompiledFunctionService clone() {
+    return new CompiledFunctionService(
+        getFunctionRepository(), 
+        getFunctionRepositoryCompiler(), 
+        getFunctionCompilationContext().clone());
+  }
 
 }

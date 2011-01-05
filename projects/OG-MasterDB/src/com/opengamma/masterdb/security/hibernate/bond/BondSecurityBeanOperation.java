@@ -61,7 +61,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       public BondSecurity visitCorporateBondSecurity(CorporateBondSecurity bond) {
         BondSecurity bondSecurity = new CorporateBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(), bean.getMarket().getName(),
             currencyBeanToCurrency(bean.getCurrency()), yieldConventionBeanToYieldConvention(bean.getYieldConvention()),
-            expiryBeanToExpiry(bean.getMaturity()), bean.getCouponType().getName(), bean.getCouponRate(),
+            expiryBeanToExpiry(bean.getLastTradeDate()), bean.getCouponType().getName(), bean.getCouponRate(),
             frequencyBeanToFrequency(bean.getCouponFrequency()), dayCountBeanToDayCount(bean.getDayCountConvention()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()),
@@ -78,7 +78,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       public BondSecurity visitGovernmentBondSecurity(GovernmentBondSecurity bond) {
         BondSecurity bondSecurity = new GovernmentBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(),
             bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
-            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getMaturity()),
+            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getLastTradeDate()),
             bean.getCouponType().getName(), bean.getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()),
             dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()),
@@ -94,7 +94,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       public BondSecurity visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
         BondSecurity bondSecurity = new MunicipalBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(),
             bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
-            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getMaturity()),
+            yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getLastTradeDate()),
             bean.getCouponType().getName(), bean.getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()),
             dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
             zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()),
@@ -117,7 +117,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
         && ObjectUtils.equals(bean.getMarket().getName(), security.getMarket()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
         && ObjectUtils.equals(yieldConventionBeanToYieldConvention(bean.getYieldConvention()), security.getYieldConvention())
         && ObjectUtils.equals(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null, security.getGuaranteeType())
-        && ObjectUtils.equals(expiryBeanToExpiry(bean.getMaturity()), security.getMaturity())
+        && ObjectUtils.equals(expiryBeanToExpiry(bean.getLastTradeDate()), security.getLastTradeDate())
         && ObjectUtils.equals(bean.getCouponType().getName(), security.getCouponType()) && ObjectUtils.equals(bean.getCouponRate(), security.getCouponRate())
         && ObjectUtils.equals(frequencyBeanToFrequency(bean.getCouponFrequency()), security.getCouponFrequency())
         && ObjectUtils.equals(dayCountBeanToDayCount(bean.getDayCountConvention()), security.getDayCountConvention())
@@ -142,7 +142,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
     bond.setYieldConvention(secMasterSession.getOrCreateYieldConventionBean(security.getYieldConvention().getConventionName()));
     bond.setGuaranteeType(security.getGuaranteeType() != null ? secMasterSession.getOrCreateGuaranteeTypeBean(security.getGuaranteeType()) : null);
-    bond.setMaturity(expiryToExpiryBean(security.getMaturity()));
+    bond.setLastTradeDate(expiryToExpiryBean(security.getLastTradeDate()));
     bond.setCouponType(secMasterSession.getOrCreateCouponTypeBean(security.getCouponType()));
     bond.setCouponRate(security.getCouponRate());
     bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));

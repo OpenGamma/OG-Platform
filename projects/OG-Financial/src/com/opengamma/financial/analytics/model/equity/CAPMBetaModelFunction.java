@@ -81,7 +81,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
       assetReturn = assetReturn.intersectionFirstValue(marketReturn);
       marketReturn = marketReturn.intersectionFirstValue(assetReturn);
       final double beta = _model.evaluate(assetReturn, marketReturn);
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode), getUniqueIdentifier()), beta));
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode), getUniqueId()), beta));
     }
     throw new NullPointerException("Could not get both market time series, asset time series and fair value");
   }
@@ -98,7 +98,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, getTarget(target)), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, getTarget(target)), getUniqueId()));
     }
     return null;
   }

@@ -83,7 +83,7 @@ public class MockSecuritySource implements SecuritySource {
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
     UniqueIdentifiables.setInto(security, _uidSupplier.get());
-    _securities.put(security.getUniqueIdentifier(), security);
+    _securities.put(security.getUniqueId(), security);
   }
 
 }

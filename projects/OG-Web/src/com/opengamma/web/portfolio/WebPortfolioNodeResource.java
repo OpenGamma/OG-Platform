@@ -105,12 +105,12 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       throw new IllegalArgumentException("Root node cannot be deleted");
     }
     PortfolioDocument doc = data().getPortfolio();
-    if (data().getParentNode().removeNode(data().getNode().getUniqueIdentifier()) == false) {
-      throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueIdentifier());
+    if (data().getParentNode().removeNode(data().getNode().getUniqueId()) == false) {
+      throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
     }
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
-    URI uri = WebPortfolioNodeResource.uri(data(), data().getParentNode().getUniqueIdentifier());
+    URI uri = WebPortfolioNodeResource.uri(data(), data().getParentNode().getUniqueId());
     return Response.seeOther(uri).build();
   }
 

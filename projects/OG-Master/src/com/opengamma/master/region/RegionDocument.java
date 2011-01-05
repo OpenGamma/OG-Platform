@@ -66,7 +66,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
    */
   public RegionDocument(final Region region) {
     ArgumentChecker.notNull(region, "region");
-    setUniqueId(region.getUniqueIdentifier());
+    setUniqueId(region.getUniqueId());
     if (region instanceof ManageableRegion) {
       setRegion((ManageableRegion) region);
     } else {

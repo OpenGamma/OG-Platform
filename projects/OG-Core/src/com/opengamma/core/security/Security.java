@@ -22,7 +22,7 @@ public interface Security extends UniqueIdentifiable {
    * Gets the unique identifier of the security.
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the name of the security intended for display purposes.

@@ -128,7 +128,7 @@ public class EHCachingSecuritySource implements SecuritySource {
       if (result != null) {
         _bundleCache.put(new Element(bundle, result));
         for (Security security : result) {
-          _uidCache.put(new Element(security.getUniqueIdentifier(), security));
+          _uidCache.put(new Element(security.getUniqueId(), security));
         }
       }
     }
@@ -159,7 +159,7 @@ public class EHCachingSecuritySource implements SecuritySource {
       if (value instanceof Collection<?>) {
         Collection<Security> securities = (Collection<Security>) value;
         for (Security sec : securities) {
-          _uidCache.remove(sec.getUniqueIdentifier());
+          _uidCache.remove(sec.getUniqueId());
         }
       }
       _bundleCache.remove(securityKey);

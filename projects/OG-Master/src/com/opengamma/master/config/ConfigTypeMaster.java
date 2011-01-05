@@ -6,6 +6,7 @@
 package com.opengamma.master.config;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.MasterChangeListener;
 
 /**
  * A general-purpose configuration master.
@@ -40,5 +41,19 @@ public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
    * @throws IllegalArgumentException if the request is invalid
    */
   ConfigHistoryResult<T> history(ConfigHistoryRequest request);
-
+  
+  /**
+   * Add MasterChangeListener
+   * 
+   * @param listener the listener to add
+   */
+  void addChangeListener(MasterChangeListener listener);
+  
+  /**
+   * Remove MasterChangeListener
+   * 
+   * @param listener the listener to remove
+   */
+  void removeChangeListener(MasterChangeListener listener);
+  
 }

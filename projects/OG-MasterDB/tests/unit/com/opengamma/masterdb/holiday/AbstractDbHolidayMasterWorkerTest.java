@@ -123,7 +123,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals(Identifier.of("COPP_CLARK", "1"), test.getProviderId());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
@@ -143,7 +143,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday102", test.getName());
     assertEquals(Identifier.of("COPP_CLARK", "2"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
@@ -163,7 +163,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday201", test.getName());
     assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
@@ -183,7 +183,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday202", test.getName());
     assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());

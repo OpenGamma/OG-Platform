@@ -210,11 +210,11 @@ public abstract class CurrencyMatrixValue {
   /**
    * Creates a matrix value that is obtained from market data on the given unique identifier.
    * 
-   * @param uniqueIdentifier the unique identifier to retrieve market data for
+   * @param uniqueId the unique identifier to retrieve market data for
    * @return the matrix value
    */
-  public static CurrencyMatrixValueRequirement of(final UniqueIdentifier uniqueIdentifier) {
-    return new CurrencyMatrixValueRequirement(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueIdentifier), false);
+  public static CurrencyMatrixValueRequirement of(final UniqueIdentifier uniqueId) {
+    return new CurrencyMatrixValueRequirement(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueId), false);
   }
 
   /**

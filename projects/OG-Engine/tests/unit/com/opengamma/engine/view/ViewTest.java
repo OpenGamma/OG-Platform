@@ -91,8 +91,8 @@ public class ViewTest {
     ViewClientImpl client = (ViewClientImpl) view.createClient(ViewProcessorTestEnvironment.TEST_USER);
     assertEquals(ViewClientState.STOPPED, client.getState());
     
-    assertNotNull(client.getUniqueIdentifier());
-    assertEquals(client, view.getClient(client.getUniqueIdentifier()));
+    assertNotNull(client.getUniqueId());
+    assertEquals(client, view.getClient(client.getUniqueId()));
     
     view.stop();
     

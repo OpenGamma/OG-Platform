@@ -152,7 +152,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    */
   public TradeImpl(final Trade copyFrom) {
     ArgumentChecker.notNull(copyFrom, "copyFrom");
-    _identifier = copyFrom.getUniqueIdentifier();
+    _identifier = copyFrom.getUniqueId();
     _quantity = copyFrom.getQuantity();
     _counterparty = copyFrom.getCounterparty();
     _tradeDate = copyFrom.getTradeDate();
@@ -168,7 +168,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * @return the identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return _identifier;
   }
 
@@ -176,7 +176,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * Sets the unique identifier of the trade.
    * @param identifier  the new identifier, not null
    */
-  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+  public void setUniqueId(UniqueIdentifier identifier) {
     ArgumentChecker.notNull(identifier, "identifier");
     _identifier = identifier;
   }
@@ -336,7 +336,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   
   @Override
   public String toString() {
-    return new StrBuilder().append("Trade[").append(getUniqueIdentifier()).append(", ").append(getQuantity()).append(' ')
+    return new StrBuilder().append("Trade[").append(getUniqueId()).append(", ").append(getQuantity()).append(' ')
       .append(getSecurity() != null ? getSecurity() : getSecurityKey()).append(" PositionID:").append(_positionId)
       .append(" ").append(_counterparty).append(" ").append(_tradeDate).append(" ").append(_tradeTime).append(']').toString();
   }

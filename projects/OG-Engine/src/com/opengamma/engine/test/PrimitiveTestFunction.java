@@ -49,7 +49,7 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
       ComputationTarget target) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement, getUniqueIdentifier());
+    ValueSpecification specification = new ValueSpecification(requirement, getUniqueId());
     return Collections.singleton(specification);
   }
 

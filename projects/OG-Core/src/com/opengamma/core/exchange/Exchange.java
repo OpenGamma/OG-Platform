@@ -8,6 +8,7 @@ package com.opengamma.core.exchange;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -16,14 +17,14 @@ import com.opengamma.id.UniqueIdentifier;
  * Financial products are often traded at a specific location known as an exchange.
  * This interface represents details of the exchange.
  */
-public interface Exchange {
+public interface Exchange extends UniqueIdentifiable {
 
   /**
    * The unique identifier of the exchange.
    * 
    * @return the unique identifier for this exchange entry, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the bundle of identifiers that define the exchange.

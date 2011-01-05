@@ -33,7 +33,7 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
 
   protected static void addMessageFields(final FudgeSerializationContext context, final MutableFudgeFieldContainer msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());
-    UniqueIdentifier uid = object.getUniqueIdentifier();
+    UniqueIdentifier uid = object.getUniqueId();
     if (uid != null) {
       context.objectToFudgeMsg(msg, IDENTIFIER_FIELD_NAME, null, uid);
     }

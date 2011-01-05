@@ -21,6 +21,6 @@ public interface MutableUniqueIdentifiable {
    * 
    * @param uid  the unique identifier to set, not null
    */
-  void setUniqueIdentifier(UniqueIdentifier uid);
+  void setUniqueId(UniqueIdentifier uid);
 
 }

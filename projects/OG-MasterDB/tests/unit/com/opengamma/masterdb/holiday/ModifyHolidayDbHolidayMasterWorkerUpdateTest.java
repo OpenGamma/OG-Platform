@@ -72,7 +72,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   public void test_update_noHolidayId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument();
     doc.setHoliday(holiday);
     _worker.update(doc);
@@ -89,7 +89,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _worker.update(doc);
   }
@@ -98,7 +98,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _worker.update(doc);
   }
@@ -110,7 +110,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     HolidayDocument base = _queryWorker.get(uid);
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     
     HolidayDocument updated = _worker.update(input);
@@ -146,7 +146,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     final HolidayDocument base = _queryWorker.get(UniqueIdentifier.of("DbHol", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     try {
       w.update(input);

@@ -26,7 +26,7 @@ public interface PortfolioNode extends UniqueIdentifiable {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the name of the node intended for display purposes.

@@ -73,7 +73,7 @@ public class RemoteViewClient implements ViewClient {
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_UNIQUE_IDENTIFIER);
     return _client.access(uri).get(UniqueIdentifier.class);
   }
