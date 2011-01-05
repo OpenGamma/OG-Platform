@@ -32,6 +32,11 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
 
   /**
+   * The name under which the initialization reference of the functions should be bound.
+   */
+  public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
+  
+  /**
    * Creates an empty function compilation context.
    */
   public FunctionCompilationContext() {
@@ -96,9 +101,27 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   }
 
   /**
-   * Produces a copy of the context.
-   * @return the copy
+   * Sets the function initialization identifier.
+   * 
+   * @param id the identifier
    */
+  public void setFunctionInitId(final long id) {
+    put(FUNCTION_INIT_ID_NAME, id);
+  }
+
+  /**
+   * Gets the function initialization identifier.
+   * 
+   * @return the identifier
+   */
+  public Long getFunctionInitId() {
+    return (Long) get(FUNCTION_INIT_ID_NAME);
+  }
+
+/**
+ * Produces a copy of the context.
+ * @return the copy
+ */
   @Override
   public FunctionCompilationContext clone() {
     return new FunctionCompilationContext(this);

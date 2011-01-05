@@ -65,6 +65,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     @Override
     protected void visitExecuteMessage(final Execute message) {
       final CalculationJob job = message.getJob();
+      getFunctionCompilationService().reinitializeIfNeeded(job.getFunctionInitializationIdentifier());
       job.resolveInputs(getIdentifierMap());
       addJob(job, new ExecutionReceiver() {
 
@@ -85,7 +86,8 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
     @Override
     protected void visitInitMessage(final Init message) {
-      // TODO Did we want to force a particular seed value or other local state ?
+      // Note that this may be called multiple times, e.g. after a reconnect.
+      getFunctionCompilationService().initialize(message.getFunctionInitId());
     }
 
     @Override
@@ -195,7 +197,6 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   @Override
   public synchronized void start() {
     if (!_started) {
-      getFunctionCompilationService().initialize();
       s_logger.info("Client starting");
       sendCapabilities();
       _started = true;

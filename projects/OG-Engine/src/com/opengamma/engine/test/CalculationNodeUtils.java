@@ -51,7 +51,7 @@ public class CalculationNodeUtils {
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());
-    CalculationJob calcJob = new CalculationJob(jobSpec, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
+    CalculationJob calcJob = new CalculationJob(jobSpec, 0L, null, Collections.singletonList(calculationJobItem), CacheSelectHint.allShared());
     return calcJob;
   }
 

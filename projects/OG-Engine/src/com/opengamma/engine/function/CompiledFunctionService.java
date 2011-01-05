@@ -34,11 +34,8 @@ public class CompiledFunctionService {
   private final FunctionCompilationContext _functionCompilationContext;
   private boolean _localExecutorService;
   private ExecutorService _executorService;
-  private boolean _initialized;
 
-  public CompiledFunctionService(
-      final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
-      final FunctionCompilationContext functionCompilationContext) {
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
@@ -50,7 +47,7 @@ public class CompiledFunctionService {
   }
 
   protected ExecutorService createDefaultExecutorService() {
-    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors() - 1, 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors(), 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
   public void setExecutorService(final ExecutorService executorService) {
@@ -66,9 +63,8 @@ public class CompiledFunctionService {
     }
   }
 
-  protected void initializeImpl() {
+  protected void initializeImpl(final long initId) {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing function definitions");
-    s_logger.info("Initializing all function definitions.");
     // TODO kirk 2010-03-07 -- Better error handling.
     final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
     int nFunctions = getFunctionRepository().getAllFunctions().size();
@@ -96,23 +92,33 @@ public class CompiledFunctionService {
         throw new OpenGammaRuntimeException("Couldn't initialise function", e);
       }
     }
+    getFunctionCompilationContext().setFunctionInitId(initId);
     timer.finished();
   }
 
-  public synchronized void initialize() {
-    if (!_initialized) {
-      initializeImpl();
-      _initialized = true;
-    } else {
-      s_logger.debug("Function definitions already initialized");
+  public void initialize() {
+    // If the view processor node has restarted, remote nodes might have old values knocking around. We need a value
+    // that won't "accidentally" be the same as theirs. As we increment the ID by 1 each time, the clock is possibly
+    // a good choice unless we're clocking config changes at sub-millisecond speeds.
+    initialize(System.currentTimeMillis());
+  }
+
+  public synchronized void initialize(final long initId) {
+    s_logger.info("Initializing all function definitions to {}", initId);
+    initializeImpl(initId);
+  }
+
+  public synchronized void reinitializeIfNeeded(final long initId) {
+    if (getFunctionCompilationContext().getFunctionInitId() != initId) {
+      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitId(), initId);
+      initializeImpl(initId);
     }
   }
-  
-  public synchronized void reinit() {
-    // A terrible, terrible hack
-    initializeImpl();
-    ((CachingFunctionRepositoryCompiler) getFunctionRepositoryCompiler()).invalidateCache();
-    // This won't work if there are calc nodes (e.g. remote ones) that are using a different service 
+
+  public synchronized void reinitialize() {
+    long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
+    s_logger.info("Re-initializing all function definitions to {}", initId);
+    initializeImpl(initId);
   }
 
   public FunctionRepository getFunctionRepository() {
