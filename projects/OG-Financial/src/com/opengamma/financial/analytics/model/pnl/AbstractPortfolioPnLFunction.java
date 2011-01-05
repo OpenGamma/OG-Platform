@@ -47,7 +47,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
           ComputationTargetType.POSITION, position.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -70,7 +70,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPortfolioNode()),
-        getUniqueIdentifier()));
+        getUniqueId()));
     }
     return null;
   }

@@ -36,7 +36,7 @@ public final class ComputationTargetSpecification implements Serializable {
   /**
    * The identifier of the target.
    */
-  private final UniqueIdentifier _uid;
+  private final UniqueIdentifier _uniqueId;
 
   /**
    * Construct a specification that refers to the specified object.
@@ -50,20 +50,20 @@ public final class ComputationTargetSpecification implements Serializable {
       case POSITION:
       case TRADE:
       case SECURITY: {
-        _uid = ((UniqueIdentifiable) target).getUniqueId();
+        _uniqueId = ((UniqueIdentifiable) target).getUniqueId();
         break;
       }
       case PRIMITIVE: {
         if (target instanceof UniqueIdentifiable) {
-          _uid = ((UniqueIdentifiable) target).getUniqueId();
+          _uniqueId = ((UniqueIdentifiable) target).getUniqueId();
         } else if (target instanceof Identifiable) {
           final Identifier id = ((Identifiable) target).getIdentityKey();
-          _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
+          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else if (target instanceof Identifier) {
           final Identifier id = (Identifier) target;
-          _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
+          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else {
-          _uid = null;
+          _uniqueId = null;
         }
         break;
       }
@@ -83,7 +83,7 @@ public final class ComputationTargetSpecification implements Serializable {
       ArgumentChecker.notNull(uid, "identifier");
     }
     _type = targetType;
-    _uid = uid;
+    _uniqueId = uid;
   }
 
   //-------------------------------------------------------------------------
@@ -100,18 +100,18 @@ public final class ComputationTargetSpecification implements Serializable {
    * @return the identifier, may be null
    */
   public Identifier getIdentifier() {
-    if (_uid == null) {
+    if (_uniqueId == null) {
       return null;
     }
-    return Identifier.of(_uid.getScheme(), _uid.getValue());
+    return Identifier.of(_uniqueId.getScheme(), _uniqueId.getValue());
   }
 
   /**
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uid;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +132,7 @@ public final class ComputationTargetSpecification implements Serializable {
         // Just use the identifier as given.
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
-        final Security security = securitySource.getSecurity(getUniqueIdentifier());
+        final Security security = securitySource.getSecurity(getUniqueId());
         if (security == null) {
           throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
         }
@@ -151,7 +151,7 @@ public final class ComputationTargetSpecification implements Serializable {
     }
     if (obj instanceof ComputationTargetSpecification) {
       ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
-      return _type == other._type && ObjectUtils.equals(_uid, other._uid);
+      return _type == other._type && ObjectUtils.equals(_uniqueId, other._uniqueId);
     }
     return false;
   }
@@ -161,8 +161,8 @@ public final class ComputationTargetSpecification implements Serializable {
     final int prime = 31;
     int result = 1;
     result = prime * result + _type.hashCode();
-    if (_uid != null) {
-      result = prime * result + _uid.hashCode();
+    if (_uniqueId != null) {
+      result = prime * result + _uniqueId.hashCode();
     }
     return result;
   }
@@ -173,7 +173,7 @@ public final class ComputationTargetSpecification implements Serializable {
       .append("CTSpec[")
       .append(getType())
       .append(", ")
-      .append(getUniqueIdentifier())
+      .append(getUniqueId())
       .append(']')
       .toString();
   }

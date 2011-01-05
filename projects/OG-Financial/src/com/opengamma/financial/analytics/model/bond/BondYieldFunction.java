@@ -38,7 +38,7 @@ public class BondYieldFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueId());
     final BondSecurity security = (BondSecurity) position.getSecurity();
     final Frequency frequency = security.getCouponFrequency();
     double paymentsPerYear;
@@ -60,7 +60,7 @@ public class BondYieldFunction extends BondFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getPosition()), getUniqueId()));
     }
     return null;
   }

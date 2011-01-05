@@ -37,9 +37,9 @@ public class DefaultFunctionResolverTest {
     _target = new ComputationTarget(UniqueIdentifier.of("scheme", "test_target"));
 
     _f1 = new PrimitiveTestFunction("req1");
-    _f1.setUniqueIdentifier("1");
+    _f1.setUniqueId("1");
     _f2 = new PrimitiveTestFunction("req1");
-    _f2.setUniqueIdentifier("2");
+    _f2.setUniqueId("2");
 
     _parameterizedF1 = new ParameterizedFunction(_f1, _f1.getDefaultParameters());
     _parameterizedF2 = new ParameterizedFunction(_f2, _f2.getDefaultParameters());

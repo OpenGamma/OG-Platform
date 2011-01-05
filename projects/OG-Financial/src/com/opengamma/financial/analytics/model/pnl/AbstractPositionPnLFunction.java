@@ -38,7 +38,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
           ComputationTargetType.TRADE, trade.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -64,7 +64,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueId()));
     }
     return null;
   }

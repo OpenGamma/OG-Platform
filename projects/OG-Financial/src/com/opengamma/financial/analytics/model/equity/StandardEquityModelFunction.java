@@ -40,7 +40,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
         new ComputedValue(
             new ValueSpecification(
                 new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
-                getUniqueIdentifier()),
+                getUniqueId()),
                 price));
   }
 
@@ -73,7 +73,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(
               new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
-          getUniqueIdentifier()));
+          getUniqueId()));
     }
     return null;
   }

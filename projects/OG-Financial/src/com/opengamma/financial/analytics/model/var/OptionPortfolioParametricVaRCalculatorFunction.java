@@ -115,7 +115,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueId());
     final List<Position> positions = getAllPositions(new ArrayList<Position>(), portfolio);
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[positions.size() * _valueGreekRequirementNames.size()];
     int i = 0;
@@ -195,7 +195,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueId()));
     }
     return null;
   }

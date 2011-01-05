@@ -36,7 +36,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, inputs.getValue(_requirementName)));
   }
 
@@ -55,7 +55,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueIdentifier()));
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueId()));
   }
 
   @Override

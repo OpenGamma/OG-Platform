@@ -171,8 +171,8 @@ public class BatchResultWriterTest extends HibernateTest {
     _dbComputationTargets = new HashSet<com.opengamma.masterdb.batch.ComputationTarget>();
     _dbComputationTarget = new com.opengamma.masterdb.batch.ComputationTarget();
     _dbComputationTarget.setComputationTargetType(_mockFunction.getTarget().getType());
-    _dbComputationTarget.setIdScheme(_mockFunction.getTarget().getUniqueIdentifier().getScheme());
-    _dbComputationTarget.setIdValue(_mockFunction.getTarget().getUniqueIdentifier().getValue());
+    _dbComputationTarget.setIdScheme(_mockFunction.getTarget().getUniqueId().getScheme());
+    _dbComputationTarget.setIdValue(_mockFunction.getTarget().getUniqueId().getValue());
     _dbComputationTargets.add(_dbComputationTarget);
     _hibernateTemplate.saveOrUpdateAll(_dbComputationTargets);
 
@@ -616,7 +616,7 @@ public class BatchResultWriterTest extends HibernateTest {
         _calcJob.getJobItems().get(0),
         new MissingInputException(
             _calcJob.getJobItems().get(0).getInputs(), 
-            _mockFunction.getUniqueIdentifier()));
+            _mockFunction.getUniqueId()));
     
     ComputeFailureKey inputFailureKey = new ComputeFailureKey(
         item.getItem().getFunctionUniqueIdentifier(),
@@ -660,7 +660,7 @@ public class BatchResultWriterTest extends HibernateTest {
         _calcJob.getJobItems().get(0),
         new MissingInputException(
             _calcJob.getJobItems().get(0).getInputs(), 
-            _mockFunction.getUniqueIdentifier()));
+            _mockFunction.getUniqueId()));
     
     CalculationJobResult result = new CalculationJobResult(
         _calcJob.getSpecification(),

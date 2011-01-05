@@ -125,7 +125,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
+  public UniqueIdentifier getUniqueId() {
     return _id;
   }
 

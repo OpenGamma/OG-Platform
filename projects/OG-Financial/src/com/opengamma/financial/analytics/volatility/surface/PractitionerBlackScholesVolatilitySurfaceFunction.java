@@ -117,7 +117,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
 
   private ValueSpecification createResultSpecification(final Security security) {
     final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId());
-    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueIdentifier());
+    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueId());
     return resultSpec;
   }
 

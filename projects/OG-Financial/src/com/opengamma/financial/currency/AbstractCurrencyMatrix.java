@@ -29,8 +29,8 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
   // MutableUniqueIdentifiable
 
   @Override
-  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
-    _uniqueId = uniqueIdentifier;
+  public void setUniqueId(final UniqueIdentifier uniqueId) {
+    _uniqueId = uniqueId;
   }
 
   // UniqueIdentifiable

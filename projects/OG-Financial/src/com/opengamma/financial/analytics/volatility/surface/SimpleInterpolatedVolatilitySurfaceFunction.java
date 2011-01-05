@@ -151,7 +151,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueIdentifier(), _definition.getCurrency().getUniqueId());
+        return ObjectUtils.equals(target.getUniqueId(), _definition.getCurrency().getUniqueId());
       }
 
       @SuppressWarnings("unchecked")

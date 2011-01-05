@@ -91,9 +91,9 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
       pearson = fisher + 3;
     }
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY), getUniqueIdentifier()), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY), getUniqueIdentifier()), pearson));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY), getUniqueIdentifier()), fisher));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY), getUniqueId()), skew));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY), getUniqueId()), pearson));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY), getUniqueId()), fisher));
     return results;
   }
 
@@ -120,9 +120,9 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
     if (canApplyTo(context, target)) {
       final UniqueIdentifier uid = target.getSecurity().getUniqueId();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
       return results;
     }
     return null;

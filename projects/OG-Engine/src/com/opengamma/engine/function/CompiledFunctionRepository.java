@@ -17,9 +17,9 @@ public interface CompiledFunctionRepository {
 
   Collection<CompiledFunctionDefinition> getAllFunctions();
 
-  CompiledFunctionDefinition getDefinition(String uniqueIdentifier);
+  CompiledFunctionDefinition getDefinition(String uniqueId);
 
-  FunctionInvoker getInvoker(String uniqueIdentifier);
+  FunctionInvoker getInvoker(String uniqueId);
 
   FunctionCompilationContext getCompilationContext();
 

@@ -56,7 +56,7 @@ public class RESTMethodTest {
     securitySource.addSecurity(sec2);
     getSecuritySourceService().setUnderlying(securitySource);
     _uid1 = sec1.getUniqueId();
-    // _uid2 = sec2.getUniqueIdentifier();
+    // _uid2 = sec2.getUniqueId();
   }
 
   @Test

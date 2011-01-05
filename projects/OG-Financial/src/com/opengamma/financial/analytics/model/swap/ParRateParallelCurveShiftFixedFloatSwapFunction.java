@@ -127,7 +127,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
       }
       for (final Map.Entry<String, Double> entry : parRateSensitivity.entrySet()) {
         final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT + "_" + entry.getKey() + "_"
-            + _currency.getISOCode(), position), getUniqueIdentifier());
+            + _currency.getISOCode(), position), getUniqueId());
         result.add(new ComputedValue(specification, entry.getValue() / 10000));
       }
       return result;
@@ -144,7 +144,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
     }
     for (final Map.Entry<String, Double> entry : parRateSensitivity.entrySet()) {
       final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT + "_" + entry.getKey() + "_"
-          + _currency.getISOCode(), position), getUniqueIdentifier());
+          + _currency.getISOCode(), position), getUniqueId());
       result.add(new ComputedValue(specification, entry.getValue() / 10000));
     }
     return result;
@@ -192,13 +192,13 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
     if (canApplyTo(context, target)) {
       if (_forwardCurveName.equals(_fundingCurveName)) {
         return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT + "_" + _forwardCurveName + "_" + _currency.getISOCode(),
-            target.getPosition()), getUniqueIdentifier()));
+            target.getPosition()), getUniqueId()));
       }
       return Sets.newHashSet(
           new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT + "_" + _forwardCurveName + "_" + _currency.getISOCode(), target.getPosition()),
-              getUniqueIdentifier()),
+              getUniqueId()),
           new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT + "_" + _fundingCurveName + "_" + _currency.getISOCode(), target.getPosition()),
-              getUniqueIdentifier()));
+              getUniqueId()));
     }
     return null;
   }

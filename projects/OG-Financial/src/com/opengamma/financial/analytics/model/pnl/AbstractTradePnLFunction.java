@@ -79,7 +79,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> markToMarketSeries = historicalDataSource.getHistoricalData(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
           tradeDate, true, tradeDate, false);
       
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
       
       if (markToMarketSeries == null) {
         s_logger.warn("Could not get identifier / mark to market series pair for security {}", security.getIdentifiers());
@@ -147,7 +147,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueId()));
     }
     return null;
   }

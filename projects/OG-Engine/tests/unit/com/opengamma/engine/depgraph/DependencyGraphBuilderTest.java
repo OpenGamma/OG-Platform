@@ -224,7 +224,7 @@ public class DependencyGraphBuilderTest {
     final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
-        if (function.getFunctionDefinition().getUniqueIdentifier().equals(fnBeta.getUniqueIdentifier())) {
+        if (function.getFunctionDefinition().getUniqueId().equals(fnBeta.getUniqueId())) {
           return -1;
         }
         return 0;
@@ -246,7 +246,7 @@ public class DependencyGraphBuilderTest {
     final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
-        if (function.getFunctionDefinition().getUniqueIdentifier().equals(fnBeta.getUniqueIdentifier())) {
+        if (function.getFunctionDefinition().getUniqueId().equals(fnBeta.getUniqueId())) {
           return 1;
         }
         return 0;
@@ -301,7 +301,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Bar(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2Bar(), getUniqueId()));
       }
 
       @Override
@@ -338,7 +338,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
       }
 
       @Override
@@ -377,7 +377,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
       }
 
       @Override
@@ -386,7 +386,7 @@ public class DependencyGraphBuilderTest {
         assertEquals(1, inputs.size());
         final ValueSpecification input = inputs.iterator().next();
         return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetSpecification(), ValueProperties.with(
-            ValuePropertyNames.FUNCTION, getUniqueIdentifier()).with("TEST", input.getProperties().getValues("TEST")).get()));
+            ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
       }
 
     };
@@ -398,7 +398,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
       }
 
       @Override
@@ -450,7 +450,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
       }
 
       @Override
@@ -485,7 +485,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueId()));
       }
 
       @Override
@@ -531,7 +531,7 @@ public class DependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement1Any(), getUniqueId()));
       }
 
       @Override
@@ -556,7 +556,7 @@ public class DependencyGraphBuilderTest {
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
       
-      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
+      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueId());
       
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
@@ -590,7 +590,7 @@ public class DependencyGraphBuilderTest {
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget ()) {
       
-      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueIdentifier());
+      private final ValueSpecification _result = new ValueSpecification(helper.getRequirement1Any(), getUniqueId());
       
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {

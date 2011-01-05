@@ -177,7 +177,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFloatingLegRegion(),
                                                 convention.getSwapFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateConvention.getUniqueIdentifier(), 
+                                                floatRateConvention.getUniqueId(), 
                                                 initialRate, 
                                                 spread),
                                             new FixedInterestRateLeg(
@@ -227,7 +227,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapPayFloatingLegRegion(),
                                                 convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateConvention.getUniqueIdentifier(), 
+                                                floatRateConvention.getUniqueId(), 
                                                 initialRate, 
                                                 spread),
                                             new FloatingInterestRateLeg(
@@ -236,7 +236,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getBasisSwapReceiveFloatingLegRegion(),
                                                 convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateConvention.getUniqueIdentifier(), 
+                                                floatRateConvention.getUniqueId(), 
                                                 initialRate, 
                                                 spread)
                                           );

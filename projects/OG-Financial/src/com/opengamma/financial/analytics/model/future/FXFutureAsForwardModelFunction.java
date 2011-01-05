@@ -77,7 +77,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiled
       final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(
           new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueId()),
-          getUniqueIdentifier());
+          getUniqueId());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
@@ -117,7 +117,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction.NonCompiled
       for (final String name : AVAILABLE_GREEKS.keySet()) {
         results.add(new ValueSpecification(
             new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueId()),
-            getUniqueIdentifier()));
+            getUniqueId()));
       }
       return results;
     }

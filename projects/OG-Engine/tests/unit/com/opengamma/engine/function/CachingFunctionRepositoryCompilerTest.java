@@ -31,7 +31,7 @@ public class CachingFunctionRepositoryCompilerTest {
     private final Long _validAfter;
     
     private MockFunction (final String name, final Long validBefore, final Long validAfter) {
-      setUniqueIdentifier(name);
+      setUniqueId(name);
       _validBefore = validBefore;
       _validAfter = validAfter;
     }
@@ -79,7 +79,7 @@ public class CachingFunctionRepositoryCompilerTest {
 
     @Override
     public String getShortName() {
-      return getUniqueIdentifier ();
+      return getUniqueId ();
     }
     
   }
@@ -101,10 +101,10 @@ public class CachingFunctionRepositoryCompilerTest {
 
     // Everything compiled once
     final CompiledFunctionRepository compiledFunctionsNow = context.compileFunctionRepository(timestamp);
-    assertSame (alwaysValid, compiledFunctionsNow.getDefinition(alwaysValid.getUniqueIdentifier ()).getFunctionDefinition ());
-    assertSame (validUntil, compiledFunctionsNow.getDefinition(validUntil.getUniqueIdentifier ()).getFunctionDefinition ());
-    assertSame (validFrom, compiledFunctionsNow.getDefinition(validFrom.getUniqueIdentifier ()).getFunctionDefinition ());
-    assertSame (validWithin, compiledFunctionsNow.getDefinition(validWithin.getUniqueIdentifier ()).getFunctionDefinition ());
+    assertSame (alwaysValid, compiledFunctionsNow.getDefinition(alwaysValid.getUniqueId ()).getFunctionDefinition ());
+    assertSame (validUntil, compiledFunctionsNow.getDefinition(validUntil.getUniqueId ()).getFunctionDefinition ());
+    assertSame (validFrom, compiledFunctionsNow.getDefinition(validFrom.getUniqueId ()).getFunctionDefinition ());
+    assertSame (validWithin, compiledFunctionsNow.getDefinition(validWithin.getUniqueId ()).getFunctionDefinition ());
     assertEquals (1, alwaysValid._compileCount.get ());
     assertEquals (1, validUntil._compileCount.get ());
     assertEquals (1, validFrom._compileCount.get ());
@@ -129,10 +129,10 @@ public class CachingFunctionRepositoryCompilerTest {
     // Some functions to be recompiled, others from the "previous" cache
     final CompiledFunctionRepository compiledFunctionsAheadBeyond = context.compileFunctionRepository (timestamp.plusMillis(31L));
     assertNotSame (compiledFunctionsNow, compiledFunctionsAheadBeyond);
-    assertSame (compiledFunctionsNow.getDefinition (alwaysValid.getUniqueIdentifier ()), compiledFunctionsAheadBeyond.getDefinition (alwaysValid.getUniqueIdentifier ()));
-    assertNotSame (compiledFunctionsNow.getDefinition (validUntil.getUniqueIdentifier()), compiledFunctionsAheadBeyond.getDefinition(validUntil.getUniqueIdentifier()));
-    assertSame (compiledFunctionsNow.getDefinition (validFrom.getUniqueIdentifier ()), compiledFunctionsAheadBeyond.getDefinition (validFrom.getUniqueIdentifier ()));
-    assertNotSame (compiledFunctionsNow.getDefinition (validWithin.getUniqueIdentifier()), compiledFunctionsAheadBeyond.getDefinition(validWithin.getUniqueIdentifier()));
+    assertSame (compiledFunctionsNow.getDefinition (alwaysValid.getUniqueId ()), compiledFunctionsAheadBeyond.getDefinition (alwaysValid.getUniqueId ()));
+    assertNotSame (compiledFunctionsNow.getDefinition (validUntil.getUniqueId()), compiledFunctionsAheadBeyond.getDefinition(validUntil.getUniqueId()));
+    assertSame (compiledFunctionsNow.getDefinition (validFrom.getUniqueId ()), compiledFunctionsAheadBeyond.getDefinition (validFrom.getUniqueId ()));
+    assertNotSame (compiledFunctionsNow.getDefinition (validWithin.getUniqueId()), compiledFunctionsAheadBeyond.getDefinition(validWithin.getUniqueId()));
     assertEquals (1, alwaysValid._compileCount.get ());
     assertEquals (2, validUntil._compileCount.get ());
     assertEquals (1, validFrom._compileCount.get ());
@@ -149,10 +149,10 @@ public class CachingFunctionRepositoryCompilerTest {
     // Some functions to be recompiled, others from the "ahead" cache
     final CompiledFunctionRepository compiledFunctionsBeforeBeyond = context.compileFunctionRepository (timestamp.minusMillis(31L));
     assertNotSame (compiledFunctionsNow, compiledFunctionsBeforeBeyond);
-    assertSame (compiledFunctionsNow.getDefinition (alwaysValid.getUniqueIdentifier ()), compiledFunctionsBeforeBeyond.getDefinition (alwaysValid.getUniqueIdentifier ()));
-    assertSame (compiledFunctionsNow.getDefinition (validUntil.getUniqueIdentifier()), compiledFunctionsBeforeBeyond.getDefinition(validUntil.getUniqueIdentifier()));
-    assertNotSame (compiledFunctionsNow.getDefinition (validFrom.getUniqueIdentifier ()), compiledFunctionsBeforeBeyond.getDefinition (validFrom.getUniqueIdentifier ()));
-    assertNotSame (compiledFunctionsNow.getDefinition (validWithin.getUniqueIdentifier()), compiledFunctionsBeforeBeyond.getDefinition(validWithin.getUniqueIdentifier()));
+    assertSame (compiledFunctionsNow.getDefinition (alwaysValid.getUniqueId ()), compiledFunctionsBeforeBeyond.getDefinition (alwaysValid.getUniqueId ()));
+    assertSame (compiledFunctionsNow.getDefinition (validUntil.getUniqueId()), compiledFunctionsBeforeBeyond.getDefinition(validUntil.getUniqueId()));
+    assertNotSame (compiledFunctionsNow.getDefinition (validFrom.getUniqueId ()), compiledFunctionsBeforeBeyond.getDefinition (validFrom.getUniqueId ()));
+    assertNotSame (compiledFunctionsNow.getDefinition (validWithin.getUniqueId()), compiledFunctionsBeforeBeyond.getDefinition(validWithin.getUniqueId()));
     assertEquals (1, alwaysValid._compileCount.get ());
     assertEquals (2, validUntil._compileCount.get ());
     assertEquals (2, validFrom._compileCount.get ());

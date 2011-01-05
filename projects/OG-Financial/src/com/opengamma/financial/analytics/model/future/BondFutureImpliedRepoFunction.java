@@ -122,7 +122,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     //    s_logger.error("{} IRR: {}", sec.getName(), irr);
     final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(deliveryDates, cleanPrices, accruedInterest, repoRates);
     final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors), basketData, futurePrice);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueId());
     values.add(new ComputedValue(specification, impliedRepos));
     return values;
   }
@@ -165,7 +165,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, target.getPosition()), getUniqueId()));
 
     }
     return null;
