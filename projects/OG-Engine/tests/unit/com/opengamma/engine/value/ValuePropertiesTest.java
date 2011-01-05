@@ -201,5 +201,37 @@ public class ValuePropertiesTest {
     assertTrue (requirement4.equals (requirement7));
     assertTrue (requirement7.equals (requirement4));
   }
+  
+  private static void compare (final ValueProperties lesser, final ValueProperties greater) {
+    assertEquals (-1, lesser.compareTo (greater));
+    assertEquals (1, greater.compareTo (lesser));
+  }
+  
+  @Test
+  public void testCompareTo () {
+    final ValueProperties empty = ValueProperties.none ();
+    final ValueProperties all = ValueProperties.all ();
+    final ValueProperties allBarFoo = all.withoutAny("Foo");
+    final ValueProperties allBarBar = all.withoutAny("Bar");
+    final ValueProperties allBarFooBar = allBarFoo.withoutAny ("Bar");
+    final ValueProperties oneFoo = ValueProperties.with("Foo", "1").get ();
+    final ValueProperties oneBar = ValueProperties.with("Bar", "1").get ();
+    final ValueProperties oneFooAnyBar = ValueProperties.with("Foo", "1").withAny ("Bar").get ();
+    final ValueProperties oneBarAnyFoo = ValueProperties.with("Bar", "1").withAny ("Foo").get ();
+    compare (empty, all);
+    compare (allBarFoo, all);
+    compare (allBarBar, all);
+    compare (allBarBar, allBarFoo);
+    compare (allBarFoo, allBarFooBar);
+    compare (allBarBar, allBarFooBar);
+    compare (oneFoo, allBarBar);
+    compare (oneFoo, all);
+    compare (oneBar, oneFoo);
+    compare (oneFoo, oneFooAnyBar);
+    compare (oneBar, oneFooAnyBar);
+    compare (oneFoo, oneBarAnyFoo);
+    compare (oneBar, oneBarAnyFoo);
+    compare (oneBarAnyFoo, oneFooAnyBar);
+  }
 
 }

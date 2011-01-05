@@ -6,11 +6,13 @@
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +28,7 @@ import com.opengamma.util.PublicAPI;
  * @see ValuePropertyNames
  */
 @PublicAPI
-public abstract class ValueProperties implements Serializable {
+public abstract class ValueProperties implements Serializable, Comparable<ValueProperties> {
 
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
@@ -497,6 +499,38 @@ public abstract class ValueProperties implements Serializable {
       return sb.toString();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof NearlyInfinitePropertiesImpl)) {
+        return false;
+      }
+      final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) o;
+      return _without.equals(otherImpl._without);
+    }
+
+    @Override
+    public int hashCode() {
+      return _without.hashCode();
+    }
+
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      if (other == INFINITE) {
+        return -1;
+      }
+      if (other instanceof NearlyInfinitePropertiesImpl) {
+        final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) other;
+        return compareSet(_without, otherImpl._without);
+      }
+      return 1;
+    }
+
   }
 
   /**
@@ -558,6 +592,14 @@ public abstract class ValueProperties implements Serializable {
     public ValueProperties withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       return new NearlyInfinitePropertiesImpl(Collections.singleton(propertyName));
+    }
+
+    @Override
+    public int compareTo(final ValueProperties other) {
+      if (other == this) {
+        return 0;
+      }
+      return 1;
     }
 
   };
@@ -783,6 +825,64 @@ public abstract class ValueProperties implements Serializable {
    */
   public ValueProperties withoutAny(final String propertyName) {
     return copy().withoutAny(propertyName).get();
+  }
+
+  protected static int compareSet(final Set<String> s1, final Set<String> s2) {
+    if (s1 == null) {
+      if (s2 == null) {
+        return 0;
+      } else {
+        return -1;
+      }
+    } else if (s2 == null) {
+      return 1;
+    }
+    if (s1.isEmpty()) {
+      if (s2.isEmpty()) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } else if (s2.isEmpty()) {
+      return -1;
+    }
+    if (s1.size() < s2.size()) {
+      return -1;
+    } else if (s1.size() > s2.size()) {
+      return 1;
+    }
+    List<String> sorted = new ArrayList<String>(Sets.symmetricDifference(s1, s2));
+    Collections.sort(sorted);
+    for (String s : sorted) {
+      if (s1.contains(s)) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  @Override
+  public int compareTo(final ValueProperties valueProperties) {
+    if (valueProperties == this) {
+      return 0;
+    }
+    final Set<String> propThis = getProperties();
+    final Set<String> propOther = valueProperties.getProperties();
+    int c = compareSet(propThis, propOther);
+    if (c != 0) {
+      return c;
+    }
+    final List<String> sorted = new ArrayList<String>(propThis);
+    Collections.sort(sorted);
+    for (String property : sorted) {
+      c = compareSet(getValues(property), valueProperties.getValues(property));
+      if (c != 0) {
+        return c;
+      }
+    }
+    return 0;
   }
 
 }
