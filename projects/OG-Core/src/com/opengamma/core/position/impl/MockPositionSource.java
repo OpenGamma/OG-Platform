@@ -45,7 +45,7 @@ public class MockPositionSource implements PositionSource {
    */
   private final Map<UniqueIdentifier, Trade> _trades = new ConcurrentHashMap<UniqueIdentifier, Trade>();
   /**
-   * The next index for the identifier.
+   * The suppler of unique identifiers.
    */
   private final UniqueIdentifierSupplier _uidSupplier;
 
@@ -59,6 +59,7 @@ public class MockPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the list of all portfolio identifiers.
+   * 
    * @return the portfolio identifiers, unmodifiable, not null
    */
   public Set<UniqueIdentifier> getPortfolioIds() {
@@ -67,6 +68,7 @@ public class MockPositionSource implements PositionSource {
 
   /**
    * Gets a specific root portfolio by name.
+   * 
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
@@ -76,6 +78,7 @@ public class MockPositionSource implements PositionSource {
 
   /**
    * Finds a specific node from any portfolio by identifier.
+   * 
    * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
@@ -85,15 +88,17 @@ public class MockPositionSource implements PositionSource {
 
   /**
    * Finds a specific position from any portfolio by identifier.
+   * 
    * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
   public Position getPosition(UniqueIdentifier identifier) {
     return identifier == null ? null : _positions.get(identifier);
   }
-  
+
   /**
    * Finds a specific trade from any portfolio by identifier.
+   * 
    * @param uid  the identifier, null returns null
    * @return the trade, null if not found
    */
@@ -105,6 +110,7 @@ public class MockPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   /**
    * Adds a portfolio to the master.
+   * 
    * @param portfolio  the portfolio to add, not null
    */
   public void addPortfolio(Portfolio portfolio) {
@@ -116,6 +122,7 @@ public class MockPositionSource implements PositionSource {
 
   /**
    * Adds a node to the cache.
+   * 
    * @param portfolioId  the id, not null
    * @param node  the node to add, not null
    */
@@ -124,16 +131,16 @@ public class MockPositionSource implements PositionSource {
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
       nodeImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
-      nodeImpl.setParentNode(parentNode);
+      nodeImpl.setParentNodeId(parentNode);
     }
     _nodes.put(node.getUniqueId(), node);
-
+    
     // position
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
         positionImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
-        positionImpl.setPortfolioNode(node.getUniqueId());
+        positionImpl.setParentNodeId(node.getUniqueId());
         
         //add trades
         for (Trade trade : positionImpl.getTrades()) {
@@ -143,7 +150,7 @@ public class MockPositionSource implements PositionSource {
       }
       _positions.put(position.getUniqueId(), position);
     }
-
+    
     // recurse
     for (PortfolioNode child : node.getChildNodes()) {
       addToCache(portfolioId, node.getUniqueId(), child);
@@ -153,7 +160,7 @@ public class MockPositionSource implements PositionSource {
   /**
    * Removes a portfolio from the master.
    * 
-   * @param portfolio  the portfolio to add, not null
+   * @param portfolio  the portfolio to remove, not null
    */
   public void removePortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");

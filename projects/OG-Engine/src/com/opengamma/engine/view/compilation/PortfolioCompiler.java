@@ -82,7 +82,7 @@ import com.opengamma.util.monitor.OperationTimer;
 
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
-      new PortfolioNodeTraverser(traversalCallback).traverse(portfolio.getRootNode());
+      PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());
     }
     
     return portfolio;
@@ -227,7 +227,7 @@ import com.opengamma.util.monitor.OperationTimer;
       }
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.setSecurity(security);
-      populatedPosition.setPortfolioNode(populatedNode.getUniqueId());
+      populatedPosition.setParentNodeId(populatedNode.getUniqueId());
       //set the children trade security as well
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
@@ -240,7 +240,7 @@ import com.opengamma.util.monitor.OperationTimer;
     // Add resolved copies of any nodes directly underneath this node
     for (PortfolioNode child : rootNode.getChildNodes()) {
       final PortfolioNodeImpl childNode = createFullyResolvedPortfolioHierarchy(child, securitiesByKey);
-      childNode.setParentNode(populatedNode.getUniqueId());
+      childNode.setParentNodeId(populatedNode.getUniqueId());
       populatedNode.addChildNode(childNode);
     }
     return populatedNode;

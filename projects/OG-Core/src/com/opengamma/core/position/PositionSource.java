@@ -19,7 +19,8 @@ import com.opengamma.util.PublicSPI;
 public interface PositionSource {
 
   /**
-   * Finds a specific portfolio by identifier.
+   * Finds a specific portfolio by unique identifier.
+   * 
    * @param uid  the unique identifier, null returns null
    * @return the portfolio, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
@@ -27,7 +28,8 @@ public interface PositionSource {
   Portfolio getPortfolio(UniqueIdentifier uid);
 
   /**
-   * Finds a specific node from any portfolio by identifier.
+   * Finds a specific node from any portfolio by unique identifier.
+   * 
    * @param uid  the unique identifier, null returns null
    * @return the node, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
@@ -35,15 +37,17 @@ public interface PositionSource {
   PortfolioNode getPortfolioNode(UniqueIdentifier uid);
 
   /**
-   * Finds a specific position from any portfolio by identifier.
+   * Finds a specific position from any portfolio by unique identifier.
+   * 
    * @param uid  the unique identifier, null returns null
    * @return the position, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
   Position getPosition(UniqueIdentifier uid);
-  
+
   /**
-   * Finds a specific trade from any portfolio by identifier.
+   * Finds a specific trade from any portfolio by unique identifier.
+   * 
    * @param uid the unique identifier, null returns null
    * @return the trade, null if not found
    * @throws IllegalArgumentException if the identifier is invalid

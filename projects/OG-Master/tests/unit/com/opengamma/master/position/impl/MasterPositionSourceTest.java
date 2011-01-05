@@ -92,12 +92,12 @@ public class MasterPositionSourceTest {
     assertEquals("Hello", testResult.getName());
     assertEquals("Node", testResult.getRootNode().getName());
     assertEquals(UID2, testResult.getRootNode().getUniqueId());
-    assertEquals(null, testResult.getRootNode().getParentNode());
+    assertEquals(null, testResult.getRootNode().getParentNodeId());
     assertEquals(0, testResult.getRootNode().getPositions().size());
     assertEquals(1, testResult.getRootNode().getChildNodes().size());
     assertEquals("Child", testResult.getRootNode().getChildNodes().get(0).getName());
     assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueId());
-    assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNode());
+    assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNodeId());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
   }
@@ -152,12 +152,12 @@ public class MasterPositionSourceTest {
     assertEquals("Hello", testResult.getName());
     assertEquals("Node", testResult.getRootNode().getName());
     assertEquals(UID2, testResult.getRootNode().getUniqueId());
-    assertEquals(null, testResult.getRootNode().getParentNode());
+    assertEquals(null, testResult.getRootNode().getParentNodeId());
     assertEquals(0, testResult.getRootNode().getPositions().size());
     assertEquals(1, testResult.getRootNode().getChildNodes().size());
     assertEquals("Child", testResult.getRootNode().getChildNodes().get(0).getName());
     assertEquals(UID3, testResult.getRootNode().getChildNodes().get(0).getUniqueId());
-    assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNode());
+    assertEquals(UID2, testResult.getRootNode().getChildNodes().get(0).getParentNodeId());
     assertEquals(1, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
     Position pos = testResult.getRootNode().getChildNodes().get(0).getPositions().get(0);
@@ -169,7 +169,7 @@ public class MasterPositionSourceTest {
     assertEquals(1, pos.getTrades().size());
     Trade trade = pos.getTrades().iterator().next();
     assertEquals(combinedUid5, trade.getUniqueId());
-    assertEquals(combinedUid4, trade.getPositionId());
+    assertEquals(combinedUid4, trade.getParentPositionId());
     assertEquals(BigDecimal.valueOf(1234), trade.getQuantity());
     assertEquals(IdentifierBundle.of(Identifier.of("CC", "DD")), trade.getSecurityKey());
   }
@@ -196,12 +196,12 @@ public class MasterPositionSourceTest {
     
     assertEquals("Node", testResult.getName());
     assertEquals(UID2, testResult.getUniqueId());
-    assertEquals(null, testResult.getParentNode());
+    assertEquals(null, testResult.getParentNodeId());
     assertEquals(0, testResult.getPositions().size());
     assertEquals(1, testResult.getChildNodes().size());
     assertEquals("Child", testResult.getChildNodes().get(0).getName());
     assertEquals(UID3, testResult.getChildNodes().get(0).getUniqueId());
-    assertEquals(UID2, testResult.getChildNodes().get(0).getParentNode());
+    assertEquals(UID2, testResult.getChildNodes().get(0).getParentNodeId());
     assertEquals(0, testResult.getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getChildNodes().get(0).getChildNodes().size());
   }

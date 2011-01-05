@@ -19,6 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class MockSecurity implements Security, MutableUniqueIdentifiable, Serializable {
 
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   private UniqueIdentifier _uniqueId;
@@ -28,6 +29,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
 
   /**
    * Creates an instance.
+   * 
    * @param securityType  the security type
    */
   public MockSecurity(String securityType) {

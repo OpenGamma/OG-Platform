@@ -33,7 +33,7 @@ public class MockSecuritySource implements SecuritySource {
    */
   private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
   /**
-   * The next index for the identifier.
+   * The suppler of unique identifiers.
    */
   private final UniqueIdentifierSupplier _uidSupplier;
 
@@ -78,6 +78,7 @@ public class MockSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Adds a security to the master.
+   * 
    * @param security  the security to add, not null
    */
   public void addSecurity(Security security) {
