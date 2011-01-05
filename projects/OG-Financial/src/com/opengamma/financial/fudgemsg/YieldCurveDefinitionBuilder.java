@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -20,6 +20,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.core.common.Currency;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Builder for converting {@link YieldCurveDefinition} instances to/from Fudge messages.
@@ -36,7 +37,8 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
     for (FixedIncomeStrip strip : object.getStrips()) {
       context.objectToFudgeMsg(message, "strip", null, strip);
     }
-    return message; 
+    context.objectToFudgeMsgWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueIdentifier.class);
+    return message;
   }
 
   @Override
@@ -51,6 +53,10 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
       strips.add(strip);
     }
     YieldCurveDefinition curveDefinition = new YieldCurveDefinition(currency, name, interpolatorName, strips);
+    FudgeField uniqueId = message.getByName("uniqueId");
+    if (uniqueId != null) {
+      curveDefinition.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
+    }
     return curveDefinition;
   }
 

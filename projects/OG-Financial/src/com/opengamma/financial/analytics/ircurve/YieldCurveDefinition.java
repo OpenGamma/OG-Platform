@@ -6,21 +6,14 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -114,6 +107,9 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
     if (!ObjectUtils.equals(_strips, other._strips)) {
       return false;
     }
+    if (!ObjectUtils.equals(_uniqueIdentifier, other._uniqueIdentifier)) {
+      return false;
+    }
     return true;
   }
 
@@ -131,6 +127,10 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
     for (FixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();
     }
+    result *= prime;
+    if (_uniqueIdentifier != null) {
+      result += _uniqueIdentifier.hashCode();
+    }
     return result;
   }
 
@@ -147,42 +147,6 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
   @Override
   public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
     _uniqueIdentifier = uniqueIdentifier;
-  }
-
-  // /CSOFF
-  private static final String CURRENCY_KEY = "currency";
-  private static final String NAME_KEY = "name";
-  private static final String INTERPOLATOR_NAME_KEY = "interpolatorName";
-  private static final String STRIP_KEY = "strip";
-  private static final String UNIQUE_ID_KEY = "uniqueId";
-
-  // /CSON
-
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    context.objectToFudgeMsgWithClassHeaders(message, CURRENCY_KEY, null, _currency, Currency.class);
-    message.add(NAME_KEY, _name);
-    message.add(INTERPOLATOR_NAME_KEY, _interpolatorName);
-    for (FixedIncomeStrip strip : _strips) {
-      context.objectToFudgeMsgWithClassHeaders(message, STRIP_KEY, null, strip, FixedIncomeStrip.class);
-    }
-    context.objectToFudgeMsgWithClassHeaders(message, UNIQUE_ID_KEY, null, _uniqueIdentifier, UniqueIdentifier.class);
-  }
-
-  public static YieldCurveDefinition fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY));
-    final String name = message.getString(NAME_KEY);
-    final String interpolatorName = message.getString(INTERPOLATOR_NAME_KEY);
-    final List<FudgeField> stripFields = message.getAllByName(STRIP_KEY);
-    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>(stripFields.size());
-    for (FudgeField stripField : stripFields) {
-      strips.add(context.fieldValueToObject(FixedIncomeStrip.class, stripField));
-    }
-    final YieldCurveDefinition ycd = new YieldCurveDefinition(currency, name, interpolatorName, strips);
-    final FudgeField uniqueId = message.getByName(UNIQUE_ID_KEY);
-    if (uniqueId != null) {
-      ycd.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
-    }
-    return ycd;
   }
 
 }
