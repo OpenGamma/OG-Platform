@@ -24,12 +24,14 @@ import org.junit.Test;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -58,7 +60,16 @@ public class ViewProcessorManagerTest {
     private boolean _suspended;
 
     public MockViewProcessor() {
-      _compiledFunctionService = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+      final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
+      _compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+      functions.addFunction(new MockFunction("mock", new ComputationTarget("Foo")) {
+
+        @Override
+        public void init(final FunctionCompilationContext context) {
+          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), UniqueIdentifier.of("Test", "Watched"));
+        }
+
+      });
     }
 
     @Override
@@ -168,10 +179,8 @@ public class ViewProcessorManagerTest {
       _running = false;
     }
 
-    public boolean isSuspended(final long timeout) throws InterruptedException {
-      Boolean state = _suspendState.poll(timeout, TimeUnit.MILLISECONDS);
-      assertNotNull(state);
-      return state;
+    public Boolean isSuspended(final long timeout) throws InterruptedException {
+      return _suspendState.poll(timeout, TimeUnit.MILLISECONDS);
     }
 
   }
@@ -196,23 +205,27 @@ public class ViewProcessorManagerTest {
       return _listener != null;
     }
 
-    public void notifyListener() {
-      _listener.added(UniqueIdentifier.of("Test", "Identifier"));
+    public void notifyListenerUnwatchedIdentifier() {
+      _listener.added(UniqueIdentifier.of("Test", "Unwatched"));
+    }
+
+    public void notifyListenerWatchedIdentifier() {
+      _listener.added(UniqueIdentifier.of("Test", "Watched"));
     }
 
   }
 
   private static class MockVersionedSource implements VersionedSource {
 
-    private Instant _versionAsOf;
+    private final LinkedBlockingQueue<Instant> _versionAsOf = new LinkedBlockingQueue<Instant>();
 
     @Override
     public void setVersionAsOfInstant(InstantProvider versionAsOf) {
-      _versionAsOf = Instant.of(versionAsOf);
+      _versionAsOf.add(Instant.of(versionAsOf));
     }
 
-    public Instant getVersionAsOf() {
-      return _versionAsOf;
+    public Instant getVersionAsOf() throws InterruptedException {
+      return _versionAsOf.poll(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
     }
 
   }
@@ -235,11 +248,17 @@ public class ViewProcessorManagerTest {
     Instant initialVersion = source.getVersionAsOf();
     // Notify it of a change to the master
     Thread.sleep(10);
-    master.notifyListener();
+    master.notifyListenerUnwatchedIdentifier();
+    assertNull(vp.isSuspended(Timeout.standardTimeoutMillis()));
+    master.notifyListenerWatchedIdentifier();
     assertTrue(vp.isSuspended(Timeout.standardTimeoutMillis()));
     Instant newVersion = source.getVersionAsOf();
     assertTrue(newVersion.isAfter(initialVersion));
-    Long newId = vp.getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+    Long newId = 0L;
+    for (int i = 0; i < 10; i++) {
+      Thread.sleep(Timeout.standardTimeoutMillis() / 10);
+      newId = vp.getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+    }
     assertTrue(newId > initialId);
     assertFalse(vp.isSuspended(Timeout.standardTimeoutMillis()));
     // Shutdown

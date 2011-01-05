@@ -108,6 +108,9 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _result = new ValueSpecification(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, new ComputationTargetSpecification(_definition.getCurrency()),
         createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _curveName).get());
     _results = Collections.singleton(_result);
+    if (_definition.getUniqueId() != null) {
+      context.getFunctionReinitializer().reinitializeFunction(this, _definition.getUniqueId());
+    }
   }
 
   @Override

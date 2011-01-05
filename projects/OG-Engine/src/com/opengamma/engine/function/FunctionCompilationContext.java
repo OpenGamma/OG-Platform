@@ -35,7 +35,12 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which the initialization reference of the functions should be bound.
    */
   public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
-  
+
+  /**
+   * The name under which a re-initialization hook should be bound.
+   */
+  public static final String FUNCTION_REINITIALIZER_NAME = "functionReinitializer";
+
   /**
    * Creates an empty function compilation context.
    */
@@ -118,10 +123,32 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     return (Long) get(FUNCTION_INIT_ID_NAME);
   }
 
-/**
- * Produces a copy of the context.
- * @return the copy
- */
+  /**
+   * Sets the function re-initialization hook.
+   * 
+   * @param reinitializer the re-initialization hook
+   */
+  public void setFunctionReinitializer(final FunctionReinitializer reinitializer) {
+    if (reinitializer == null) {
+      remove(FUNCTION_REINITIALIZER_NAME);
+    } else {
+      put(FUNCTION_REINITIALIZER_NAME, reinitializer);
+    }
+  }
+
+  /**
+   * Gets the function re-initialization hook.
+   * 
+   * @return the re-initialization hook
+   */
+  public FunctionReinitializer getFunctionReinitializer() {
+    return (FunctionReinitializer) get(FUNCTION_REINITIALIZER_NAME);
+  }
+
+  /**
+   * Produces a copy of the context.
+   * @return the copy
+   */
   @Override
   public FunctionCompilationContext clone() {
     return new FunctionCompilationContext(this);

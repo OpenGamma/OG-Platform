@@ -23,13 +23,17 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  *
  */
-public class YieldCurveDefinition implements Serializable {
+public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
+  private UniqueIdentifier _uniqueIdentifier;
   private final Currency _currency;
   private final String _name;
   private final String _interpolatorName;
@@ -135,11 +139,22 @@ public class YieldCurveDefinition implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  @Override
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueIdentifier;
+  }
+
+  @Override
+  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
+  }
+
   // /CSOFF
-  private static String CURRENCY_KEY = "currency";
-  private static String NAME_KEY = "name";
-  private static String INTERPOLATOR_NAME_KEY = "interpolatorName";
-  private static String STRIP_KEY = "strip";
+  private static final String CURRENCY_KEY = "currency";
+  private static final String NAME_KEY = "name";
+  private static final String INTERPOLATOR_NAME_KEY = "interpolatorName";
+  private static final String STRIP_KEY = "strip";
+  private static final String UNIQUE_ID_KEY = "uniqueId";
 
   // /CSON
 
@@ -150,6 +165,7 @@ public class YieldCurveDefinition implements Serializable {
     for (FixedIncomeStrip strip : _strips) {
       context.objectToFudgeMsgWithClassHeaders(message, STRIP_KEY, null, strip, FixedIncomeStrip.class);
     }
+    context.objectToFudgeMsgWithClassHeaders(message, UNIQUE_ID_KEY, null, _uniqueIdentifier, UniqueIdentifier.class);
   }
 
   public static YieldCurveDefinition fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
@@ -161,7 +177,12 @@ public class YieldCurveDefinition implements Serializable {
     for (FudgeField stripField : stripFields) {
       strips.add(context.fieldValueToObject(FixedIncomeStrip.class, stripField));
     }
-    return new YieldCurveDefinition(currency, name, interpolatorName, strips);
+    final YieldCurveDefinition ycd = new YieldCurveDefinition(currency, name, interpolatorName, strips);
+    final FudgeField uniqueId = message.getByName(UNIQUE_ID_KEY);
+    if (uniqueId != null) {
+      ycd.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
+    }
+    return ycd;
   }
 
 }

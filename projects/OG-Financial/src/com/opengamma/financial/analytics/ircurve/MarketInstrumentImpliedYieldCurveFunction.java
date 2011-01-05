@@ -163,17 +163,23 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _forwardCurveValueRequirementName = forwardValueRequirementName;
   }
 
+  private YieldCurveDefinition getDefinition(final FunctionCompilationContext context, final String name) {
+    final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
+    final YieldCurveDefinition definition = curveDefinitionSource.getDefinition(_currency, name);
+    if (definition == null) {
+      s_logger.warn("No curve definition for {} on {}", name, _currency);
+    } else {
+      if (definition.getUniqueId() != null) {
+        context.getFunctionReinitializer().reinitializeFunction(this, definition.getUniqueId());
+      }
+    }
+    return definition;
+  }
+
   @Override
   public void init(final FunctionCompilationContext context) {
-    final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
-    _fundingCurveDefinition = curveDefinitionSource.getDefinition(_currency, _fundingCurveDefinitionName);
-    if (_fundingCurveDefinition == null) {
-      s_logger.warn("No curve definition for " + _fundingCurveDefinitionName + " on " + _currency);
-    }
-    _forwardCurveDefinition = curveDefinitionSource.getDefinition(_currency, _forwardCurveDefinitionName);
-    if (_forwardCurveDefinition == null) {
-      s_logger.warn("No curve definition for " + _forwardCurveDefinitionName + " on " + _currency);
-    }
+    _fundingCurveDefinition = getDefinition(context, _fundingCurveDefinitionName);
+    _forwardCurveDefinition = getDefinition(context, _forwardCurveDefinitionName);
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
     _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)

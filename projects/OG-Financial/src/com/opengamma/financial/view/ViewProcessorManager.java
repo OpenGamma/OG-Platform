@@ -54,6 +54,7 @@ public class ViewProcessorManager implements Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
   private final ExecutorService _executor = Executors.newCachedThreadPool();
+  private final Set<UniqueIdentifier> _watchSet = new HashSet<UniqueIdentifier>();
   private boolean _isRunning;
 
   public ViewProcessorManager() {
@@ -124,22 +125,30 @@ public class ViewProcessorManager implements Lifecycle {
 
               @Override
               public void added(UniqueIdentifier addedItem) {
-                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+                if (_watchSet.contains(addedItem)) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, addedItem);
+                }
               }
 
               @Override
               public void corrected(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+                if (_watchSet.contains(oldItem)) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, oldItem);
+                }
               }
 
               @Override
               public void removed(UniqueIdentifier removedItem) {
-                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+                if (_watchSet.contains(removedItem)) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, removedItem);
+                }
               }
 
               @Override
               public void updated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-                ViewProcessorManager.this.onMasterChanged(Instant.now(), source);
+                if (_watchSet.contains(oldItem)) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, oldItem);
+                }
               }
 
             };
@@ -158,7 +167,7 @@ public class ViewProcessorManager implements Lifecycle {
         }
         s_logger.debug("Initializing functions");
         for (CompiledFunctionService function : _functions) {
-          function.initialize();
+          _watchSet.addAll(function.initialize());
         }
         s_logger.debug("Initializing views");
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
@@ -192,9 +201,8 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void onMasterChanged(final Instant latchInstant, final VersionedSource source) {
-    // TODO: filter - we only need to do this if something is registered against the thing that changed
-    s_logger.debug("Change timestamp {} for {}", latchInstant, source);
+  private void onMasterChanged(final Instant latchInstant, final VersionedSource source, final UniqueIdentifier uniqueIdentifier) {
+    s_logger.debug("Change timestamp {} for {} - change from {}", new Object[] {latchInstant, source, uniqueIdentifier});
     _changeLock.lock();
     try {
       if (_latchInstants.isEmpty()) {
@@ -252,8 +260,9 @@ public class ViewProcessorManager implements Lifecycle {
         entry.getKey().setVersionAsOfInstant(entry.getValue());
       }
       s_logger.debug("Re-initializing functions");
+      _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        functions.reinitialize();
+        _watchSet.addAll(functions.reinitialize());
       }
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {

@@ -263,41 +263,20 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   private void notifyUpdated(final UniqueIdentifier oldIdentifier, final UniqueIdentifier newIdentifier) {
-    // TODO: should use an executor service rather than kick off threads
     for (final MasterChangeListener listener : _listeners) {
-      final Thread async = new Thread() {
-        @Override
-        public void run() {
-          listener.updated(oldIdentifier, newIdentifier);
-        }
-      };
-      async.start();
+      listener.updated(oldIdentifier, newIdentifier);
     }
   }
 
   private void notifyAdded(final UniqueIdentifier identifier) {
-    // TODO: should use an executor service rather than kick off threads
     for (final MasterChangeListener listener : _listeners) {
-      final Thread async = new Thread() {
-        @Override
-        public void run() {
-          listener.added(identifier);
-        }
-      };
-      async.start();
+      listener.added(identifier);
     }
   }
 
   private void notifyRemoved(final UniqueIdentifier identifier) {
-    // TODO: should use an executor service rather than kick off threads
     for (final MasterChangeListener listener : _listeners) {
-      final Thread async = new Thread() {
-        @Override
-        public void run() {
-          listener.removed(identifier);
-        }
-      };
-      async.start();
+      listener.removed(identifier);
     }
   }
 
