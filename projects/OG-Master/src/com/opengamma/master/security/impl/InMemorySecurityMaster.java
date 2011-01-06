@@ -83,6 +83,14 @@ public class InMemorySecurityMaster implements SecurityMaster {
         }
       });
     }
+    if (request.getSecurityIds() != null) {
+      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
+        @Override
+        public boolean apply(final SecurityDocument doc) {
+          return request.getSecurityIds().contains(doc.getUniqueId());
+        }
+      });
+    }
     if (request.getSecurityKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
         @Override

@@ -74,6 +74,14 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(request, "request");
     final ExchangeSearchResult result = new ExchangeSearchResult();
     Collection<ExchangeDocument> docs = _exchanges.values();
+    if (request.getExchangeIds() != null) {
+      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
+        @Override
+        public boolean apply(final ExchangeDocument doc) {
+          return request.getExchangeIds().contains(doc.getUniqueId());
+        }
+      });
+    }
     if (request.getExchangeKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
         @Override
