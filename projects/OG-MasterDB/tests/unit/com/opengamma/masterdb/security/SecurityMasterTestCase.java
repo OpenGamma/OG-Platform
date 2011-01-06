@@ -73,7 +73,6 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     s_logger.debug("Search for security with identifiers {}", identifiers);
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityKeys(identifiers);
-    request.setFullDetail(true);
     final SecuritySearchResult result = _secMaster.search(request);
     assertNotNull(result);
     final List<SecurityDocument> documents = result.getDocuments();
