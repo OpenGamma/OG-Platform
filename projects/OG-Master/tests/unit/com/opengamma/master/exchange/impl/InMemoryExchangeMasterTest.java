@@ -115,8 +115,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_OTHER1);
-    request.addIdentifierBundle(ID_OTHER2);
+    request.addExchangeKey(ID_OTHER1);
+    request.addExchangeKey(ID_OTHER2);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -124,8 +124,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_oneMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_LIFFE_MIC);
-    request.addIdentifierBundle(ID_OTHER1);
+    request.addExchangeKey(ID_LIFFE_MIC);
+    request.addExchangeKey(ID_OTHER1);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
@@ -134,8 +134,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_bothMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_LIFFE_MIC);
-    request.addIdentifierBundle(ID_LIFFE_CCID);
+    request.addExchangeKey(ID_LIFFE_MIC);
+    request.addExchangeKey(ID_LIFFE_CCID);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());

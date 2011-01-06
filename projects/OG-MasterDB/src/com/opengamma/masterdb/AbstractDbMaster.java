@@ -101,7 +101,7 @@ public abstract class AbstractDbMaster {
    * Checks the unique identifier scheme is valid.
    * @param uid  the unique identifier, not null
    */
-  protected void checkScheme(final UniqueIdentifier uid) {
+  public void checkScheme(final UniqueIdentifier uid) {
     if (getIdentifierScheme().equals(uid.getScheme()) == false) {
       throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + getIdentifierScheme() + "): " + uid);
     }
