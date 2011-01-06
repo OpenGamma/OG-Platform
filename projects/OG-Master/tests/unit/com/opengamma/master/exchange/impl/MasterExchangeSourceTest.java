@@ -149,7 +149,7 @@ public class MasterExchangeSourceTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UID);
     exchange.setName("NYSE");
-    exchange.setRegionId(IdentifierBundle.of(RegionUtils.countryRegionId("US")));
+    exchange.setRegionKey(IdentifierBundle.of(RegionUtils.countryRegionId("US")));
     return exchange;
   }
 

@@ -75,11 +75,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request, "request");
     final HolidaySearchResult result = new HolidaySearchResult();
     Collection<HolidayDocument> docs = _holidays.values();
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return request.getProviderId().equals(doc.getProviderId());
+          return request.getProviderKey().equals(doc.getProviderKey());
         }
       });
     }
@@ -95,8 +95,8 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getRegionId() != null &&
-            request.getRegionIdentifiers().contains(doc.getHoliday().getRegionId());
+          return doc.getHoliday().getRegionKey() != null &&
+            request.getRegionIdentifiers().contains(doc.getHoliday().getRegionKey());
         }
       });
     }
@@ -104,8 +104,8 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getExchangeId() != null &&
-            request.getExchangeIdentifiers().contains(doc.getHoliday().getExchangeId());
+          return doc.getHoliday().getExchangeKey() != null &&
+            request.getExchangeIdentifiers().contains(doc.getHoliday().getExchangeKey());
         }
       });
     }

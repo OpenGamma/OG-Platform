@@ -54,11 +54,11 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @PropertyDefinition
   private RegionClassification _classification;
   /**
-   * The identifier of the data provider, null to not match on provider.
+   * The data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * The unique identifier to get children of, null to not retrieve based on children.
    * Only the immediate children of the identifier will be matched.
@@ -170,8 +170,8 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
         return getName();
       case 382350310:  // classification
         return getClassification();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case 178436081:  // childrenOfId
         return getChildrenOfId();
       case 1368189162:  // identifiers
@@ -190,8 +190,8 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
       case 382350310:  // classification
         setClassification((RegionClassification) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case 178436081:  // childrenOfId
         setChildrenOfId((UniqueIdentifier) newValue);
@@ -255,30 +255,30 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -360,9 +360,9 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      */
     private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(this, "classification", RegionClassification.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code childrenOfId} property.
      */
@@ -382,7 +382,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
       temp.put("classification", _classification);
-      temp.put("providerId", _providerId);
+      temp.put("providerKey", _providerKey);
       temp.put("childrenOfId", _childrenOfId);
       temp.put("identifiers", _identifiers);
       _map = Collections.unmodifiableMap(temp);
@@ -421,11 +421,11 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**

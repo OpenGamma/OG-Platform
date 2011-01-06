@@ -50,11 +50,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @PropertyDefinition
   private HolidayType _type;
   /**
-   * The identifier of the data provider, null to not match on provider.
+   * The data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * A date to check to determine if it is a holiday, null to not match on type.
    */
@@ -159,8 +159,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         return getName();
       case 3575610:  // type
         return getType();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case 14222271:  // dateToCheck
         return getDateToCheck();
       case 575402001:  // currency
@@ -182,8 +182,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case 3575610:  // type
         setType((HolidayType) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case 14222271:  // dateToCheck
         setDateToCheck((LocalDate) newValue);
@@ -253,30 +253,30 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -416,9 +416,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      */
     private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code dateToCheck} property.
      */
@@ -445,7 +445,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
       temp.put("type", _type);
-      temp.put("providerId", _providerId);
+      temp.put("providerKey", _providerKey);
       temp.put("dateToCheck", _dateToCheck);
       temp.put("currency", _currency);
       temp.put("regionIdentifiers", _regionIdentifiers);
@@ -486,11 +486,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**

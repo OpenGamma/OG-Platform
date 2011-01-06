@@ -38,7 +38,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   /**
    * The portfolio node unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -282,7 +282,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio node unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -291,7 +291,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   /**
    * Sets the portfolio node unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -300,7 +300,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   /**
    * Gets the the {@code uniqueId} property.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {

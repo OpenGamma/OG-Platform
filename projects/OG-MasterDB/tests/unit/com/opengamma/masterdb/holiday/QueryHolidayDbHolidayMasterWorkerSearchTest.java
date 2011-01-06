@@ -167,7 +167,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("A", "B"));
+    request.setProviderKey(Identifier.of("A", "B"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -176,7 +176,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerFound() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("COPP_CLARK", "2"));
+    request.setProviderKey(Identifier.of("COPP_CLARK", "2"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());

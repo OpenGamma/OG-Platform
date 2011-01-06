@@ -151,9 +151,9 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
-    if (request.getProviderId() != null) {
-      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
-      args.addValue("provider_value", request.getProviderId().getValue());
+    if (request.getProviderKey() != null) {
+      args.addValue("provider_scheme", request.getProviderKey().getScheme().getName());
+      args.addValue("provider_value", request.getProviderKey().getValue());
     }
     if (regionIds != null) {
       int i = 0;
@@ -190,7 +190,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     if (request.getType() != null) {
       where += "AND hol_type = :hol_type ";
     }
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
     if (request.getRegionIdentifiers() != null) {
@@ -344,10 +344,10 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       holiday.setUniqueId(uid);
       holiday.setType(HolidayType.valueOf(type));
       if (regionScheme != null && regionValue != null) {
-        holiday.setRegionId(Identifier.of(regionScheme, regionValue));
+        holiday.setRegionKey(Identifier.of(regionScheme, regionValue));
       }
       if (exchangeScheme != null && exchangeValue != null) {
-        holiday.setExchangeId(Identifier.of(exchangeScheme, exchangeValue));
+        holiday.setExchangeKey(Identifier.of(exchangeScheme, exchangeValue));
       }
       if (currencyISO != null) {
         holiday.setCurrency(Currency.getInstance(currencyISO));
@@ -360,7 +360,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       doc.setUniqueId(uid);
       doc.setName(name);
       if (providerScheme != null && providerValue != null) {
-        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+        doc.setProviderKey(Identifier.of(providerScheme, providerValue));
       }
       _holiday = doc.getHoliday();
       _documents.add(doc);

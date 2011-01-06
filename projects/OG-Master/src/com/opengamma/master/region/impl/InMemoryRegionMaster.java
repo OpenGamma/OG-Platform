@@ -80,11 +80,11 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(request, "request");
     final RegionSearchResult result = new RegionSearchResult();
     Collection<RegionDocument> docs = _regions.values();
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
         @Override
         public boolean apply(final RegionDocument doc) {
-          return request.getProviderId().equals(doc.getProviderId());
+          return request.getProviderKey().equals(doc.getProviderKey());
         }
       });
     }

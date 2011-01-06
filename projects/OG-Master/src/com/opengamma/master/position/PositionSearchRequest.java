@@ -299,7 +299,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
@@ -308,7 +308,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @param providerKey  the new value of the property
    */

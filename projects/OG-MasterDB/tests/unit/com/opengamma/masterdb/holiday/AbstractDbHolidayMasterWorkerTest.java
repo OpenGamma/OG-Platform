@@ -124,11 +124,11 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
     assertEquals(uid, holiday.getUniqueId());
-    assertEquals(Identifier.of("COPP_CLARK", "1"), test.getProviderId());
+    assertEquals(Identifier.of("COPP_CLARK", "1"), test.getProviderKey());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals("GBP", holiday.getCurrency().getISOCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 1)), holiday.getHolidayDates());
   }
@@ -145,10 +145,10 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertNotNull(holiday);
     assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday102", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "2"), test.getProviderId());
+    assertEquals(Identifier.of("COPP_CLARK", "2"), test.getProviderKey());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals("EUR", holiday.getCurrency().getISOCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 2), LocalDate.of(2010, 1, 3)), holiday.getHolidayDates());
   }
@@ -165,10 +165,10 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertNotNull(holiday);
     assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday201", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderId());
+    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderKey());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals("GBP", holiday.getCurrency().getISOCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 2, 1)), holiday.getHolidayDates());
   }
@@ -185,10 +185,10 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     assertNotNull(holiday);
     assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday202", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderId());
+    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderKey());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals("GBP", holiday.getCurrency().getISOCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 2, 1)), holiday.getHolidayDates());
   }

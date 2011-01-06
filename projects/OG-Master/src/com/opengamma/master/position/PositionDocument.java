@@ -37,7 +37,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
   /**
-   * The identifier of the provider of the data.
+   * The provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    */
@@ -139,7 +139,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the provider of the data.
+   * Gets the provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the value of the property
@@ -149,7 +149,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   }
 
   /**
-   * Sets the identifier of the provider of the data.
+   * Sets the provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @param providerKey  the new value of the property
