@@ -39,8 +39,8 @@ import com.opengamma.util.ArgumentChecker;
 public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
-   * The list of security object identifiers, null to not limit by security object identifiers.
-   * Note that an empty list will return no securities.
+   * The set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
    */
   @PropertyDefinition(set = "manual")
   private SortedSet<UniqueIdentifier> _securityIds;
@@ -77,28 +77,29 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param identifier  the identifier to look up, not null
+   * @param securityKey  the security key identifier to search for, not null
    */
-  public SecuritySearchRequest(Identifier identifier) {
-    addSecurityKeys(IdentifierBundle.of(identifier));
+  public SecuritySearchRequest(Identifier securityKey) {
+    addSecurityKey(securityKey);
   }
 
   /**
-   * Creates an instance matching any of a bundle of identifiers.
+   * Creates an instance using a bundle of identifiers.
    * 
-   * @param bundle  the bundle of identifiers to look up, not null
+   * @param securityKeys  the security key identifiers to search for, not null
    */
-  public SecuritySearchRequest(IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "identifiers");
-    addSecurityKeys(bundle);
+  public SecuritySearchRequest(IdentifierBundle securityKeys) {
+    addSecurityKeys(securityKeys);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a position id to the list.
-   * @param securityId  the position id to add, not null
+   * Adds a single security id to the set.
+   * 
+   * @param securityId  the security id to add, not null
    */
   public void addSecurityId(UniqueIdentifier securityId) {
+    ArgumentChecker.notNull(securityId, "securityId");
     if (_securityIds == null) {
       _securityIds = new TreeSet<UniqueIdentifier>();
     }
@@ -106,9 +107,10 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
-   * @param securityIds  the new value of the property
+   * Sets the set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
+   * 
+   * @param securityIds  the new security identifiers, null clears the security id search
    */
   public void setSecurityIds(Iterable<UniqueIdentifier> securityIds) {
     if (securityIds == null) {
@@ -121,14 +123,15 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a security key identifier to the collection to search for.
+   * Adds a single security key identifier to the collection to search for.
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifier  the identifier to add as a bundle, not null
+   * @param securityKey  the security key identifier to add, not null
    */
-  public void addSecurityKey(Identifier identifier) {
-    addSecurityKeys(Arrays.asList(identifier));
+  public void addSecurityKey(Identifier securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    addSecurityKeys(Arrays.asList(securityKey));
   }
 
   /**
@@ -136,14 +139,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifiers  the bundle to add, not nullO
+   * @param securityKeys  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Identifier... identifiers) {
-    ArgumentChecker.notNull(identifiers, "bundle");
+  public void addSecurityKeys(Identifier... securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
     if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(identifiers));
+      setSecurityKeys(new IdentifierSearch(securityKeys));
     } else {
-      getSecurityKeys().addIdentifiers(identifiers);
+      getSecurityKeys().addIdentifiers(securityKeys);
     }
   }
 
@@ -152,14 +155,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifiers  the bundle to add, not nullO
+   * @param securityKeys  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Iterable<Identifier> identifiers) {
-    ArgumentChecker.notNull(identifiers, "bundle");
+  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
     if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(identifiers));
+      setSecurityKeys(new IdentifierSearch(securityKeys));
     } else {
-      getSecurityKeys().addIdentifiers(identifiers);
+      getSecurityKeys().addIdentifiers(securityKeys);
     }
   }
 
@@ -220,8 +223,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of security object identifiers, null to not limit by security object identifiers.
-   * Note that an empty list will return no securities.
+   * Gets the set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
    * @return the value of the property
    */
   public SortedSet<UniqueIdentifier> getSecurityIds() {
@@ -230,7 +233,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code securityIds} property.
-   * Note that an empty list will return no securities.
+   * Note that an empty set will return no securities.
    * @return the property, not null
    */
   public final Property<SortedSet<UniqueIdentifier>> securityIds() {

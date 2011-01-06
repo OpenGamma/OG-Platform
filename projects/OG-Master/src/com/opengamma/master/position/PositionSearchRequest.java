@@ -6,12 +6,12 @@
 package com.opengamma.master.position;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -19,6 +19,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
@@ -38,18 +39,18 @@ import com.opengamma.util.ArgumentChecker;
 public class PositionSearchRequest extends AbstractSearchRequest {
 
   /**
-   * The list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
+   * The set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _positionIds;
+  private SortedSet<UniqueIdentifier> _positionIds;
   /**
-   * The list of trade object identifiers, null to not limit by trade object identifiers.
+   * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _tradeIds;
+  private SortedSet<UniqueIdentifier> _tradeIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -80,64 +81,73 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a position id to the list.
+   * Adds a single position id to the set.
+   * 
    * @param positionId  the position id to add, not null
    */
   public void addPositionId(UniqueIdentifier positionId) {
+    ArgumentChecker.notNull(positionId, "positionId");
     if (_positionIds == null) {
-      _positionIds = new ArrayList<UniqueIdentifier>();
+      _positionIds = new TreeSet<UniqueIdentifier>();
     }
     _positionIds.add(positionId);
   }
 
   /**
-   * Sets the list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
-   * @param positionIds  the new value of the property
+   * Sets the set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
+   * 
+   * @param positionIds  the new position identifiers, null clears the position id search
    */
-  public void setPositionIds(List<UniqueIdentifier> positionIds) {
+  public void setPositionIds(Iterable<UniqueIdentifier> positionIds) {
     if (positionIds == null) {
       _positionIds = null;
     } else {
-      _positionIds = new ArrayList<UniqueIdentifier>(positionIds);
+      _positionIds = new TreeSet<UniqueIdentifier>();
+      Iterables.addAll(_positionIds, positionIds);
     }
   }
 
   /**
-   * Adds a trade id to the list.
+   * Adds a single trade id to the set.
+   * 
    * @param tradeId  the trade id to add, not null
    */
   public void addTradeId(UniqueIdentifier tradeId) {
+    ArgumentChecker.notNull(tradeId, "tradeId");
     if (_tradeIds == null) {
-      _tradeIds = new ArrayList<UniqueIdentifier>();
+      _tradeIds = new TreeSet<UniqueIdentifier>();
     }
     _tradeIds.add(tradeId);
   }
 
   /**
-   * Sets the list of trade object identifiers, null to not limit by trade object identifiers.
+   * Sets the set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
-   * Note that an empty list will return no positions.
-   * @param tradeIds  the new value of the property
+   * Note that an empty set will return no positions.
+   * 
+   * @param tradeIds  the new trade identifiers, null clears the trade id search
    */
-  public void setTradeIds(List<UniqueIdentifier> tradeIds) {
+  public void setTradeIds(Iterable<UniqueIdentifier> tradeIds) {
     if (tradeIds == null) {
       _tradeIds = null;
     } else {
-      _tradeIds = new ArrayList<UniqueIdentifier>(tradeIds);
+      _tradeIds = new TreeSet<UniqueIdentifier>();
+      Iterables.addAll(_tradeIds, tradeIds);
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a security key identifier to the collection to search for.
+   * Adds a single security key identifier to the collection to search for.
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifier  the identifier to add as a bundle, not null
+   * @param securityKey  the security key identifier to add, not null
    */
-  public void addSecurityKey(Identifier identifier) {
-    addSecurityKeys(Arrays.asList(identifier));
+  public void addSecurityKey(Identifier securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    addSecurityKeys(Arrays.asList(securityKey));
   }
 
   /**
@@ -145,14 +155,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifiers  the bundle to add, not nullO
+   * @param securityKeys  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Identifier... identifiers) {
-    ArgumentChecker.notNull(identifiers, "bundle");
+  public void addSecurityKeys(Identifier... securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
     if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(identifiers));
+      setSecurityKeys(new IdentifierSearch(securityKeys));
     } else {
-      getSecurityKeys().addIdentifiers(identifiers);
+      getSecurityKeys().addIdentifiers(securityKeys);
     }
   }
 
@@ -161,14 +171,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
-   * @param identifiers  the bundle to add, not nullO
+   * @param securityKeys  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Iterable<Identifier> identifiers) {
-    ArgumentChecker.notNull(identifiers, "bundle");
+  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
     if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(identifiers));
+      setSecurityKeys(new IdentifierSearch(securityKeys));
     } else {
-      getSecurityKeys().addIdentifiers(identifiers);
+      getSecurityKeys().addIdentifiers(securityKeys);
     }
   }
 
@@ -211,10 +221,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -137459505:  // positionIds
-        setPositionIds((List<UniqueIdentifier>) newValue);
+        setPositionIds((SortedSet<UniqueIdentifier>) newValue);
         return;
       case 1271202484:  // tradeIds
-        setTradeIds((List<UniqueIdentifier>) newValue);
+        setTradeIds((SortedSet<UniqueIdentifier>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -234,31 +244,31 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
+   * Gets the set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getPositionIds() {
+  public SortedSet<UniqueIdentifier> getPositionIds() {
     return _positionIds;
   }
 
   /**
    * Gets the the {@code positionIds} property.
-   * Note that an empty list will return no positions.
+   * Note that an empty set will return no positions.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> positionIds() {
+  public final Property<SortedSet<UniqueIdentifier>> positionIds() {
     return metaBean().positionIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of trade object identifiers, null to not limit by trade object identifiers.
+   * Gets the set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getTradeIds() {
+  public SortedSet<UniqueIdentifier> getTradeIds() {
     return _tradeIds;
   }
 
@@ -268,7 +278,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> tradeIds() {
+  public final Property<SortedSet<UniqueIdentifier>> tradeIds() {
     return metaBean().tradeIds().createProperty(this);
   }
 
@@ -389,12 +399,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
+    private final MetaProperty<SortedSet<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) SortedSet.class);
     /**
      * The meta-property for the {@code tradeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
+    private final MetaProperty<SortedSet<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) SortedSet.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
@@ -448,7 +458,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> positionIds() {
+    public final MetaProperty<SortedSet<UniqueIdentifier>> positionIds() {
       return _positionIds;
     }
 
@@ -456,7 +466,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code tradeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> tradeIds() {
+    public final MetaProperty<SortedSet<UniqueIdentifier>> tradeIds() {
       return _tradeIds;
     }
 
