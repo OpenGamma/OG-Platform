@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swap;
@@ -14,6 +14,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -48,7 +49,8 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
     final Double presentValue = CALCULATOR.visit(swap, bundle);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), getUniqueId());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), createValueProperties().with(ValuePropertyNames.CURRENCY,
+        getCurrencyForTarget(security).getISOCode()).get());
     return Sets.newHashSet(new ComputedValue(specification, presentValue));
   }
 
@@ -58,8 +60,8 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
       if (getForwardCurveName().equals(getFundingCurveName())) {
         return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
       }
-      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()),
-          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()), new ValueRequirement(
+          getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
     }
     return null;
   }
@@ -67,7 +69,8 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, target.getSecurity()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, target.getSecurity()), createValueProperties().with(ValuePropertyNames.CURRENCY,
+          getCurrencyForTarget(target).getISOCode()).get()));
     }
     return null;
   }
