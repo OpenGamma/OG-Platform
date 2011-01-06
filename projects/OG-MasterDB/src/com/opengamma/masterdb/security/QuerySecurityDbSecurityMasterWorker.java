@@ -181,7 +181,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       where += "AND oid IN (" + buf + ") ";
     }
     if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
-      where += sqlSelectMatchingIdentifiers(request.getSecurityKeys());
+      where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
     }
     String selectFromWhereInner = "SELECT id FROM sec_security " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
@@ -195,16 +195,16 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiers(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeys(final IdentifierSearch idSearch) {
     switch (idSearch.getSearchType()) {
       case EXACT:
-        return "AND id IN (" + sqlSelectMatchingIdentifiersExact(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysExact(idSearch) + ") ";
       case ALL:
-        return "AND id IN (" + sqlSelectMatchingIdentifiersAll(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysAll(idSearch) + ") ";
       case ANY:
-        return "AND id IN (" + sqlSelectMatchingIdentifiersAny(idSearch) + ") ";
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysAny(idSearch) + ") ";
       case NONE:
-        return "AND id NOT IN (" + sqlSelectMatchingIdentifiersAny(idSearch) + ") ";
+        return "AND id NOT IN (" + sqlSelectMatchingSecurityKeysAny(idSearch) + ") ";
     }
     throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
   }
@@ -214,7 +214,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersExact(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysExact(final IdentifierSearch idSearch) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT security_id AS matched_security_id, COUNT(security_id) AS matched_count " +
@@ -222,7 +222,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       "WHERE security_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") " +
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") " +
       "GROUP BY security_id " +
       "HAVING COUNT(security_id) >= " + idSearch.size() + " ";
     String b = "SELECT security_id AS total_security_id, COUNT(security_id) AS total_count " +
@@ -243,7 +243,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersAll(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAll(final IdentifierSearch idSearch) {
     // only return security_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT security_id " +
@@ -251,7 +251,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       "WHERE security_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") " +
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") " +
       "GROUP BY security_id " +
       "HAVING COUNT(security_id) >= " + idSearch.size() + " ";
     return select;
@@ -262,7 +262,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersAny(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAny(final IdentifierSearch idSearch) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT security_id " +
@@ -270,7 +270,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
       "WHERE security_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectMatchingIdentifiersOr(idSearch) + ") ";
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") ";
     return select;
   }
 
@@ -279,7 +279,7 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingIdentifiersOr(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysOr(final IdentifierSearch idSearch) {
     String select = "SELECT id FROM sec_idkey ";
     for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");

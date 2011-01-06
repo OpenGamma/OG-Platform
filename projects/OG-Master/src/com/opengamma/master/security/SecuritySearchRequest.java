@@ -45,7 +45,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @PropertyDefinition(set = "manual")
   private SortedSet<UniqueIdentifier> _securityIds;
   /**
-   * The security keys to match, null to not match on security keys, not null.
+   * The security keys to match, null to not match on security keys.
    */
   @PropertyDefinition
   private IdentifierSearch _securityKeys;
@@ -121,7 +121,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the collection to search for.
+   * Adds a security key identifier to the collection to search for.
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
@@ -132,7 +132,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Adds a collection of identifiers to the collection to search for.
+   * Adds a collection of security key identifiers to the collection to search for.
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
@@ -148,7 +148,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Adds a collection of identifiers to the collection to search for.
+   * Adds a collection of security key identifiers to the collection to search for.
    * Unless customized, the search will match 
    * {@link IdentifierSearchType#ANY any} of the identifiers.
    * 
@@ -239,7 +239,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security keys to match, null to not match on security keys, not null.
+   * Gets the security keys to match, null to not match on security keys.
    * @return the value of the property
    */
   public IdentifierSearch getSecurityKeys() {
@@ -247,7 +247,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the security keys to match, null to not match on security keys, not null.
+   * Sets the security keys to match, null to not match on security keys.
    * @param securityKeys  the new value of the property
    */
   public void setSecurityKeys(IdentifierSearch securityKeys) {
