@@ -5,12 +5,12 @@
  */
 package com.opengamma.master.security;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -43,7 +43,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _securityIds;
+  private List<UniqueIdentifier> _securityIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -101,7 +101,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public void addSecurityId(UniqueIdentifier securityId) {
     ArgumentChecker.notNull(securityId, "securityId");
     if (_securityIds == null) {
-      _securityIds = new TreeSet<UniqueIdentifier>();
+      _securityIds = new ArrayList<UniqueIdentifier>();
     }
     _securityIds.add(securityId);
   }
@@ -116,7 +116,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (securityIds == null) {
       _securityIds = null;
     } else {
-      _securityIds = new TreeSet<UniqueIdentifier>();
+      _securityIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_securityIds, securityIds);
     }
   }
@@ -203,7 +203,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 1550081880:  // securityIds
-        setSecurityIds((SortedSet<UniqueIdentifier>) newValue);
+        setSecurityIds((List<UniqueIdentifier>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -227,7 +227,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getSecurityIds() {
+  public List<UniqueIdentifier> getSecurityIds() {
     return _securityIds;
   }
 
@@ -236,7 +236,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> securityIds() {
+  public final Property<List<UniqueIdentifier>> securityIds() {
     return metaBean().securityIds().createProperty(this);
   }
 
@@ -363,7 +363,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
@@ -416,7 +416,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> securityIds() {
+    public final MetaProperty<List<UniqueIdentifier>> securityIds() {
       return _securityIds;
     }
 

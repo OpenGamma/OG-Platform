@@ -6,12 +6,12 @@
 package com.opengamma.master.region;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.time.calendar.TimeZone;
 
@@ -52,7 +52,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _regionIds;
+  private List<UniqueIdentifier> _regionIds;
   /**
    * The region keys to match, null to not match on region keys.
    */
@@ -114,7 +114,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public void addRegionId(UniqueIdentifier regionId) {
     ArgumentChecker.notNull(regionId, "regionId");
     if (_regionIds == null) {
-      _regionIds = new TreeSet<UniqueIdentifier>();
+      _regionIds = new ArrayList<UniqueIdentifier>();
     }
     _regionIds.add(regionId);
   }
@@ -129,7 +129,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     if (regionIds == null) {
       _regionIds = null;
     } else {
-      _regionIds = new TreeSet<UniqueIdentifier>();
+      _regionIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_regionIds, regionIds);
     }
   }
@@ -248,7 +248,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 74326820:  // regionIds
-        setRegionIds((SortedSet<UniqueIdentifier>) newValue);
+        setRegionIds((List<UniqueIdentifier>) newValue);
         return;
       case -1990775032:  // regionKeys
         setRegionKeys((IdentifierSearch) newValue);
@@ -275,7 +275,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getRegionIds() {
+  public List<UniqueIdentifier> getRegionIds() {
     return _regionIds;
   }
 
@@ -284,7 +284,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> regionIds() {
+  public final Property<List<UniqueIdentifier>> regionIds() {
     return metaBean().regionIds().createProperty(this);
   }
 
@@ -433,7 +433,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) List.class);
     /**
      * The meta-property for the {@code regionKeys} property.
      */
@@ -491,7 +491,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> regionIds() {
+    public final MetaProperty<List<UniqueIdentifier>> regionIds() {
       return _regionIds;
     }
 
