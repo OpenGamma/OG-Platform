@@ -91,7 +91,6 @@ public class QuerySecurityDbSecurityMasterWorker extends DbSecurityMasterWorker 
     s_logger.debug("getSecurityByLatest: {}", uid);
     final Instant now = Instant.now(getTimeSource());
     final SecurityHistoryRequest request = new SecurityHistoryRequest(uid, now, now);
-    request.setFullDetail(true);
     final SecurityHistoryResult result = getMaster().history(request);
     if (result.getDocuments().size() != 1) {
       throw new DataNotFoundException("Security not found: " + uid);
