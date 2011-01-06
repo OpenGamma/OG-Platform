@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.junit.Before;
@@ -420,12 +419,17 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void getResults() {
     // no results
-    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), "LDN_CLOSE"));
+    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime()));
     
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _dbManager.startBatch(_batchJobRun);
     
+    // these two lines inserted here to resolve locking issue with HSQLDB
+    commit();
+    startNewTransaction();
+    
     // results (but empty) 
-    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), "LDN_CLOSE");
+    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime());
     assertNotNull(result);
     assertTrue(result.getAllTargets().isEmpty());
   }

@@ -10,7 +10,6 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -53,7 +52,7 @@ public class MaterializedRiskValue {
       "name, " +
       "function_unique_id, " +
       "value " +
-      " from vw_rsk where" +
+      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk where" +
       " rsk_run_id = :rsk_run_id";
   }
   

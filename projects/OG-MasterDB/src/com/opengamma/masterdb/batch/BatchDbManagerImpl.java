@@ -36,7 +36,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -771,11 +770,21 @@ public class BatchDbManagerImpl implements BatchDbManager {
   public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
     // At the moment, we simply load all results into memory.
     // This needs to be made more scalable.
-    RiskRun riskRun = getRiskRunFromDb(observationDate, observationTime);
-    if (riskRun == null) {
-      return null;
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      riskRun = getRiskRunFromDb(observationDate, observationTime);
+      if (riskRun == null) {
+        return null;
+      }
+
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    
+
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("rsk_run_id", riskRun.getId());
     
