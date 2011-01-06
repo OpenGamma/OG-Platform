@@ -17,6 +17,7 @@ import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
@@ -91,6 +92,7 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_oneBundle_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_OTHER);
+    request.getExchangeKeys().setSearchType(IdentifierSearchType.ALL);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -115,8 +117,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_OTHER1);
-    request.addIdentifierBundle(ID_OTHER2);
+    request.addExchangeKey(ID_OTHER1);
+    request.addExchangeKey(ID_OTHER2);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -124,8 +126,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_oneMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_LIFFE_MIC);
-    request.addIdentifierBundle(ID_OTHER1);
+    request.addExchangeKey(ID_LIFFE_MIC);
+    request.addExchangeKey(ID_OTHER1);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
@@ -134,8 +136,8 @@ public class InMemoryExchangeMasterTest {
   @Test
   public void test_search_twoBundles_bothMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addIdentifierBundle(ID_LIFFE_MIC);
-    request.addIdentifierBundle(ID_LIFFE_CCID);
+    request.addExchangeKey(ID_LIFFE_MIC);
+    request.addExchangeKey(ID_LIFFE_CCID);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());

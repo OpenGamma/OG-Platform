@@ -15,7 +15,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -75,16 +74,11 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(request, "request");
     final ExchangeSearchResult result = new ExchangeSearchResult();
     Collection<ExchangeDocument> docs = _exchanges.values();
-    if (request.getIdentifiers().size() > 0) {
+    if (request.getExchangeKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
         @Override
         public boolean apply(final ExchangeDocument doc) {
-          for (IdentifierBundle bundle : request.getIdentifiers()) {
-            if (doc.getExchange().getIdentifiers().containsAll(bundle)) {
-              return true;
-            }
-          }
-          return false;
+          return request.getExchangeKeys().matches(doc.getExchange().getIdentifiers());
         }
       });
     }

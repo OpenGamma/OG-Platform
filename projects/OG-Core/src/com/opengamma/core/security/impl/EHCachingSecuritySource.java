@@ -56,6 +56,7 @@ public class EHCachingSecuritySource implements SecuritySource {
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
+   * 
    * @param underlying  the underlying security source, not null
    * @param cacheManager  the cache manager, not null
    */
@@ -73,6 +74,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of securities.
+   * 
    * @return the underlying source of securities, not null
    */
   protected SecuritySource getUnderlying() {
@@ -81,6 +83,7 @@ public class EHCachingSecuritySource implements SecuritySource {
 
   /**
    * Gets the cache manager.
+   * 
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -148,6 +151,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Refreshes the value for the specified security key.
+   * 
    * @param securityKey  the security key, not null
    */
   @SuppressWarnings("unchecked")

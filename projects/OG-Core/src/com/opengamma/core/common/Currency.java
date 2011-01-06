@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.common;
 
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class Currency implements UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
-  private static final long serialVersionUID = -4051633241450293247L;
+  private static final long serialVersionUID = 1L;
   /**
    * A scheme for the unique identifier.
    */
@@ -44,6 +43,7 @@ public final class Currency implements UniqueIdentifiable, Serializable {
 
   /**
    * Obtains a currency.
+   * 
    * @param isoCode  the 3 letter ISO code, not null
    * @return the currency instance, not null
    */
@@ -59,16 +59,27 @@ public final class Currency implements UniqueIdentifiable, Serializable {
 
   /**
    * Restricted constructor.
-   * @param isoCode  the ISO code, not null
+   * 
+   * @param isoCode  the 3 letter ISO code, not null
    */
   private Currency(String isoCode) {
     _identifier = UniqueIdentifier.of(IDENTIFICATION_DOMAIN, isoCode);
   }
 
+  /**
+   * Ensure singleton on deserialization.
+   * 
+   * @return the singleton, not null
+   */
+  public Object readResolve() {
+    return getInstance(getISOCode());
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets the ISO code.
-   * @return the ISO code, not null
+   * Gets the 3 letter ISO code.
+   * 
+   * @return the 3 letter ISO code, not null
    */
   public String getISOCode() {
     return _identifier.getValue();
@@ -76,6 +87,7 @@ public final class Currency implements UniqueIdentifiable, Serializable {
 
   /**
    * Gets the unique identifier for the currency.
+   * 
    * @return the identifier, not null
    */
   @Override
@@ -88,11 +100,10 @@ public final class Currency implements UniqueIdentifiable, Serializable {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof Currency)) {
-      return false;
+    if (obj instanceof Currency) {
+      return (this == obj);  // relies on caching of instances
     }
-    _identifier.equals(obj);
-    return (this == obj);  // relies on caching of instances
+    return false;
   }
 
   public int hashCode() {
@@ -103,8 +114,4 @@ public final class Currency implements UniqueIdentifiable, Serializable {
     return getISOCode();
   }
 
-  // this means if the object is deserialized, it's always replaced with one that's in the cache and the deserialized one is available for GC.
-  public Object readResolve() throws ObjectStreamException {
-    return getInstance(getISOCode());
-  }
 }

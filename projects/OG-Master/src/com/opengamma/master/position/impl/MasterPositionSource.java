@@ -302,7 +302,7 @@ public class MasterPositionSource implements PositionSource {
     UniqueIdentifier nodeUid = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeUid);
     sourceNode.setName(manNode.getName());
-    sourceNode.setParentNode(manNode.getParentNodeId());
+    sourceNode.setParentNodeId(manNode.getParentNodeId());
     
     if (manNode.getPositionIds().size() > 0) {
       PositionSearchRequest positionSearch = new PositionSearchRequest();
@@ -335,7 +335,7 @@ public class MasterPositionSource implements PositionSource {
   protected void convertPosition(final UniqueIdentifier nodeUid, final ManageablePosition manPos, final PositionImpl sourcePosition) {
     UniqueIdentifier posUid = convertUid(manPos.getUniqueId(), nodeUid);
     sourcePosition.setUniqueId(posUid);
-    sourcePosition.setPortfolioNode(nodeUid);
+    sourcePosition.setParentNodeId(nodeUid);
     sourcePosition.setQuantity(manPos.getQuantity());
     sourcePosition.setSecurityKey(manPos.getSecurityKey());
     for (ManageableTrade manTrade : manPos.getTrades()) {
@@ -355,7 +355,7 @@ public class MasterPositionSource implements PositionSource {
    */
   protected void convertTrade(final UniqueIdentifier nodeUid, final UniqueIdentifier posUid, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
     sourceTrade.setUniqueId(convertUid(manTrade.getUniqueId(), nodeUid));
-    sourceTrade.setPositionId(posUid);
+    sourceTrade.setParentPositionId(posUid);
     sourceTrade.setQuantity(manTrade.getQuantity());
     sourceTrade.setSecurityKey(manTrade.getSecurityKey());
     if (manTrade.getCounterpartyId() != null) {

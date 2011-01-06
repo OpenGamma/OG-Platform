@@ -95,7 +95,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     assertEquals(uid, testExchange.getUniqueId());
     assertEquals("Test", test.getName());
     assertEquals(BUNDLE, testExchange.getIdentifiers());
-    assertEquals(REGION, testExchange.getRegionId());
+    assertEquals(REGION, testExchange.getRegionKey());
     assertEquals(null, testExchange.getTimeZone());
   }
 

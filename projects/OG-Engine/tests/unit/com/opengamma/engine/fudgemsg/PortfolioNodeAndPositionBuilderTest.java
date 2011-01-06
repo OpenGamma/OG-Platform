@@ -46,7 +46,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   }
 
   private void linkNodes(final PortfolioNodeImpl parent, final PortfolioNodeImpl child) {
-    child.setParentNode(parent.getUniqueId());
+    child.setParentNodeId(parent.getUniqueId());
     parent.addChildNode(child);
   }
 
@@ -86,7 +86,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     assertEquals(expected.getUniqueId(), actual.getUniqueId());
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.size(), actual.size());
-    assertEquals(expected.getParentNode(), actual.getParentNode());
+    assertEquals(expected.getParentNodeId(), actual.getParentNodeId());
     final List<PortfolioNode> expectedChildren = expected.getChildNodes();
     final List<PortfolioNode> actualChildren = actual.getChildNodes();
     assertNotNull(expectedChildren);
@@ -114,7 +114,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     assertEquals(expected.getUniqueId(), actual.getUniqueId());
     assertEquals(expected.getQuantity(), actual.getQuantity());
     assertEquals(expected.getSecurityKey(), actual.getSecurityKey());
-    assertEquals(expected.getPortfolioNode(), actual.getPortfolioNode());
+    assertEquals(expected.getParentNodeId(), actual.getParentNodeId());
   }
 
   private FudgeFieldContainer runPortfolioNodeTest(final PortfolioNode original) {
@@ -153,7 +153,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   @Test
   public void testPortfolioWithParent() {
     final PortfolioNodeImpl root = createPortfolioNodes()[0];
-    root.setParentNode(nextIdentifier());
+    root.setParentNodeId(nextIdentifier());
     final FudgeFieldContainer message = runPortfolioNodeTest(root);
     assertEquals(1, countParentIdentifiers(message));
   }
@@ -176,7 +176,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   @Test
   public void testPositionWithPortfolioNode() {
     final PositionImpl position = new PositionImpl(nextIdentifier(), new BigDecimal(100), Identifier.of("Security", "Bar"));
-    position.setPortfolioNode(nextIdentifier());
+    position.setParentNodeId(nextIdentifier());
     final FudgeFieldContainer message = runPositionTest(position);
     assertEquals(1, countParentIdentifiers(message));
   }

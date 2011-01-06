@@ -54,7 +54,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final Position position) {
     final MutableFudgeFieldContainer message = buildMessageImpl(context, position);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, position.getPortfolioNode());
+    context.objectToFudgeMsg(message, FIELD_PARENT, null, position.getParentNodeId());
     return message;
   }
 
@@ -76,7 +76,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
     if (parentId != null) {
-      position.setPortfolioNode(parentId);
+      position.setParentNodeId(parentId);
     }
     return position;
   }
