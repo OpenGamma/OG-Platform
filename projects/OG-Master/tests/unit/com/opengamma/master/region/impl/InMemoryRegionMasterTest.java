@@ -18,12 +18,12 @@ import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.master.region.impl.InMemoryRegionMaster;
 
 /**
  * Test InMemoryRegionRepository.
@@ -97,6 +97,7 @@ public class InMemoryRegionMasterTest {
   @Test
   public void test_search_oneBundle_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_OTHER);
+    request.getRegionKeys().setSearchType(IdentifierSearchType.ALL);
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -121,8 +122,8 @@ public class InMemoryRegionMasterTest {
   @Test
   public void test_search_twoBundles_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(ID_OTHER1);
-    request.addIdentifierBundle(ID_OTHER2);
+    request.addRegionKey(ID_OTHER1);
+    request.addRegionKey(ID_OTHER2);
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -130,8 +131,8 @@ public class InMemoryRegionMasterTest {
   @Test
   public void test_search_twoBundles_oneMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(ID_COUNTRY);
-    request.addIdentifierBundle(ID_OTHER1);
+    request.addRegionKey(ID_COUNTRY);
+    request.addRegionKey(ID_OTHER1);
     RegionSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
@@ -140,8 +141,8 @@ public class InMemoryRegionMasterTest {
   @Test
   public void test_search_twoBundles_bothMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addIdentifierBundle(ID_COUNTRY);
-    request.addIdentifierBundle(ID_CURENCY);
+    request.addRegionKey(ID_COUNTRY);
+    request.addRegionKey(ID_CURENCY);
     RegionSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
