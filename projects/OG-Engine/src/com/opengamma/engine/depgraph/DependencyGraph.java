@@ -544,12 +544,10 @@ public class DependencyGraph {
     for (ValueSpecification output : node.getOutputValues()) {
       out.println(indent + "Ov=" + output);
     }
-    /*
-     * for (DependencyNode output : node.getDependentNodes()) {
-     * out.println(indent + "On=" + uidMap.get(output) + " " + output);
-     * }
-     */
     for (DependencyNode input : node.getInputNodes()) {
+      if (!input.getDependentNodes().contains(node)) {
+        out.println(indent + "** " + input);
+      }
       dumpNodeASCII(out, indent, input, uidMap, visited);
     }
   }
@@ -567,7 +565,13 @@ public class DependencyGraph {
     // Nodes disjoint from the tree
     for (DependencyNode node : getDependencyNodes()) {
       if (!visited.contains(node)) {
-        dumpNodeASCII(out, "* ", node, uid, visited);
+        dumpNodeASCII(out, "- ", node, uid, visited);
+      }
+    }
+    // Nodes in tree but not in graph
+    for (DependencyNode node : visited) {
+      if (!containsNode(node)) {
+        dumpNodeASCII(out, "+ ", node, uid, visited);
       }
     }
   }
