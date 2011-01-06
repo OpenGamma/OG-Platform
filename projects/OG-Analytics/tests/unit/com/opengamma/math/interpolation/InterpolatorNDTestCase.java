@@ -24,6 +24,7 @@ public class InterpolatorNDTestCase {
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<Pair<double[], Double>>();
   protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<Pair<double[], Double>>();
+  protected static final List<Pair<double[], Double>> SWAPTION_ATM_VOL_DATA = new ArrayList<Pair<double[], Double>>();
   protected static final double VALUE = 0.3;
 
   protected static Function1D<double[], Double> COS_EXP_FUNCTION = new Function1D<double[], Double>() {
@@ -45,6 +46,21 @@ public class InterpolatorNDTestCase {
       temp = new double[] {x, y};
       COS_EXP_DATA.add(new ObjectsPair<double[], Double>(temp, COS_EXP_FUNCTION.evaluate(temp)));
     }
+
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 1}, 0.7332));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 5}, 0.36995));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 5}, 0.23845));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 10}, 0.2177));
+    // SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {10, 10}, 0.18745));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {10, 20}, 0.1697));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
+
+    // x 1 5 10 15 20
+    // 1 0.7332 0.36995 x x x
+    // 5 x 0.23845 0.2177 x x
+    // 10 x x 0.18745 x 0.1697
+    // 15 x x x 0.162 x
+
   }
 
   protected <T extends InterpolatorNDDataBundle> void testFlat(InterpolatorND<T> interpolator, T dataBundle, double tol) {
@@ -96,53 +112,23 @@ public class InterpolatorNDTestCase {
     }
   }
 
-  // public void testData(final InterpolatorND interpolator) {
-  // try {
-  // interpolator.checkData(null);
-  // fail();
-  // } catch (final IllegalArgumentException e) {
-  // // Expected
-  // }
-  // try {
-  // interpolator.checkData(Collections.singletonMap(Collections.singletonList(3.), 4.));
-  // fail();
-  // } catch (final IllegalArgumentException e) {
-  // // Expected
-  // }
-  // final Map<List<Double>, Double> data = new HashMap<List<Double>, Double>();
-  // final List<Double> l1 = Arrays.asList(1., 2., 3.);
-  // final List<Double> l2 = Arrays.asList(4., 5., 6.);
-  // final List<Double> l3 = Arrays.asList(7., 8., 9., 10.);
-  // data.put(null, 0.1);
-  // data.put(null, 0.1);
-  // try {
-  // interpolator.checkData(data);
-  // fail();
-  // } catch (final IllegalArgumentException e) {
-  // // Expected
-  // }
-  // data.clear();
-  // data.put(l1, 0.1);
-  // data.put(l2, null);
-  // try {
-  // interpolator.checkData(data);
-  // fail();
-  // } catch (final IllegalArgumentException e) {
-  // // Expected
-  // }
-  // data.put(l1, 0.1);
-  // data.put(l2, 0.2);
-  // data.put(l3, 0.3);
-  // try {
-  // interpolator.getDimension(data.keySet());
-  // fail();
-  // } catch (final IllegalArgumentException e) {
-  // // Expected
-  // }
-  // data.clear();
-  // data.put(l1, 0.1);
-  // data.put(l2, 0.2);
-  // data.put(l2, 0.3);
-  // assertEquals(interpolator.getDimension(data.keySet()), 3);
-  // }
+  protected <T extends InterpolatorNDDataBundle> void printSwaptionData(InterpolatorND<T> interpolator, T dataBundle) {
+    double[] x = new double[2];
+    for (int j = 0; j < 101; j++) {
+      System.out.print("\t" + j / 5.0);
+    }
+    System.out.print("\n");
+
+    for (int i = 0; i < 76; i++) {
+      System.out.print(i / 5.0);
+      x[0] = i / 5.0;
+      for (int j = 0; j < 101; j++) {
+        x[1] = j / 5.0;
+        double fit = interpolator.interpolate(dataBundle, x);
+
+        System.out.print("\t" + fit);
+      }
+      System.out.print("\n");
+    }
+  }
 }
