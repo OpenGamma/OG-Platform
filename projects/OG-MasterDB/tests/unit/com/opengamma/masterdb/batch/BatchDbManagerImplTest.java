@@ -27,6 +27,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
@@ -413,6 +414,24 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     // get
     FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
+  }
+  
+  @Test
+  public void getResults() {
+    // no results
+    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime()));
+    
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    // these two lines inserted here to resolve locking issue with HSQLDB
+    commit();
+    startNewTransaction();
+    
+    // results (but empty) 
+    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime());
+    assertNotNull(result);
+    assertTrue(result.getAllTargets().isEmpty());
   }
   
 }

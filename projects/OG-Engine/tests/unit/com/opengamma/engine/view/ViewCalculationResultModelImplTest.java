@@ -59,7 +59,7 @@ public class ViewCalculationResultModelImplTest {
 
   @Test
   public void addValue() {
-    ViewResultModelImpl resultModel = new ViewResultModelImpl() {
+    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
     };
     resultModel.ensureCalculationConfigurationNames(Arrays.asList("Default"));
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
