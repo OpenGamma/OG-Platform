@@ -118,7 +118,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final TreeMap<Instant, YieldCurveDefinition> value = new TreeMap<Instant, YieldCurveDefinition>();
     value.put(Instant.now(), document.getYieldCurveDefinition());
     _definitions.put(key, value);
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name);
+    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
     document.setUniqueId(uid);
     notifyAdded(uid);
     return document;
@@ -132,12 +132,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final String name = document.getYieldCurveDefinition().getName();
     final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name);
+    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
     if (value != null) {
       if (_sourceVersionAsOfInstant != null) {
         // Don't need to keep the old values before the one needed by "versionAsOfInstant"
         final Instant oldestNeeded = value.floorKey(_sourceVersionAsOfInstant);
-        value.headMap(oldestNeeded).clear();
+        if (oldestNeeded != null) {
+          value.headMap(oldestNeeded).clear();
+        }
       } else {
         // Don't need any old values
         value.clear();
@@ -172,8 +174,8 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     if (i <= 0) {
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
     }
-    final String iso = uid.getValue().substring(0, i);
-    final String name = uid.getValue().substring(i + 1);
+    final String name = uid.getValue().substring(0, i);
+    final String iso = uid.getValue().substring(i + 1);
     final Currency currency;
     try {
       currency = Currency.getInstance(iso);
@@ -204,8 +206,8 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     if (i <= 0) {
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
     }
-    final String iso = uid.getValue().substring(0, i);
-    final String name = uid.getValue().substring(i + 1);
+    final String name = uid.getValue().substring(0, i);
+    final String iso = uid.getValue().substring(i + 1);
     final Currency currency;
     try {
       currency = Currency.getInstance(iso);
@@ -239,7 +241,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
     final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), currency.getISOCode() + "_" + name);
+    final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
     if (!uid.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Invalid unique identifier");
     }

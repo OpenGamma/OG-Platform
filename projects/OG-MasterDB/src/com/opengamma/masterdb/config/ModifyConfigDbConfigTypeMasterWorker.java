@@ -162,6 +162,8 @@ public class ModifyConfigDbConfigTypeMasterWorker<T> extends DbConfigTypeMasterW
     }
     // serialize the configuration value
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(value);
+    // REVIEW 2011-01-06 Andrew -- the serialization should only add headers for anything subclass to the reified type to match the deserialization call, reduce payload size and allow easier
+    // refactoring of stored objects following an upgrade through database operations.
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
     // the arguments for inserting into the config table
     final MapSqlParameterSource configArgs = new DbMapSqlParameterSource()

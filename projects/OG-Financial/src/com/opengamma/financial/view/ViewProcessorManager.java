@@ -55,6 +55,7 @@ public class ViewProcessorManager implements Lifecycle {
   private final ReentrantLock _changeLock = new ReentrantLock();
   private final ExecutorService _executor = Executors.newCachedThreadPool();
   private final Set<UniqueIdentifier> _watchSet = new HashSet<UniqueIdentifier>();
+  private final Set<WatchSetProvider> _watchSetProviders = new HashSet<WatchSetProvider>();
   private boolean _isRunning;
 
   public ViewProcessorManager() {
@@ -98,6 +99,13 @@ public class ViewProcessorManager implements Lifecycle {
     assertNotRunning();
     _masterToSource.clear();
     _masterToSource.putAll(masterToSource);
+  }
+
+  public void setWatchSetProviders(final Set<WatchSetProvider> watchSetProviders) {
+    ArgumentChecker.notNull(watchSetProviders, "watchSetProviders");
+    assertNotRunning();
+    _watchSetProviders.clear();
+    _watchSetProviders.addAll(watchSetProviders);
   }
 
   @Override
@@ -146,8 +154,11 @@ public class ViewProcessorManager implements Lifecycle {
 
               @Override
               public void updated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+                s_logger.debug("updated {} to {}", oldItem, newItem);
                 if (_watchSet.contains(oldItem)) {
                   ViewProcessorManager.this.onMasterChanged(Instant.now(), source, oldItem);
+                } else {
+                  s_logger.debug("Watchset doesn't contain");
                 }
               }
 
@@ -165,11 +176,14 @@ public class ViewProcessorManager implements Lifecycle {
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           _functions.add(viewProcessor.getFunctionCompilationService());
         }
-        s_logger.debug("Initializing functions");
+        s_logger.info("Initializing functions");
         for (CompiledFunctionService function : _functions) {
-          _watchSet.addAll(function.initialize());
+          final Set<UniqueIdentifier> watch = function.initialize();
+          _watchSet.addAll(watch);
+          addAlternateWatchSet(watch);
         }
-        s_logger.debug("Initializing views");
+        s_logger.debug("WatchSet = {}", _watchSet);
+        s_logger.info("Starting view processors");
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           viewProcessor.start();
         }
@@ -262,8 +276,11 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        _watchSet.addAll(functions.reinitialize());
+        final Set<UniqueIdentifier> watch = functions.reinitialize();
+        _watchSet.addAll(watch);
+        addAlternateWatchSet(watch);
       }
+      s_logger.debug("WatchSet = {}", _watchSet);
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {
         resume.run();
@@ -271,6 +288,15 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.info("Configuration change complete");
     } finally {
       _lifecycleLock.unlock();
+    }
+  }
+
+  private void addAlternateWatchSet(final Set<UniqueIdentifier> watchSet) {
+    for (WatchSetProvider provider : _watchSetProviders) {
+      final Set<UniqueIdentifier> additional = provider.getAdditionalWatchSet(watchSet);
+      if (additional != null) {
+        _watchSet.addAll(additional);
+      }
     }
   }
 
