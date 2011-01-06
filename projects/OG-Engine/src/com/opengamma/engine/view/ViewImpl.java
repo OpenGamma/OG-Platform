@@ -256,6 +256,26 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public void suspend() {
     s_logger.info("Suspending view {}", getName());
     lock();
+    if (getRecalcJob() == null) {
+      s_logger.debug("Suspending calculation job");
+      getRecalcJob().terminate();
+      if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
+        // In this case it might be waiting on a recalculation pass. Interrupt it.
+        s_logger.debug("Interrupting calculation job thread");
+        getRecalcThread().interrupt();
+      }
+      setRecalcJob(null);
+      try {
+        s_logger.debug("Waiting for calculation thread to finish");
+        getRecalcThread().wait();
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted waiting for calculation thread");
+        throw new OpenGammaRuntimeException("Couldn't suspend view", e);
+      } finally {
+        setRecalcThread(null);
+      }
+    }
+    s_logger.info("View {} suspended", getName());
   }
 
   @Override

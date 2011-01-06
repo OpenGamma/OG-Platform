@@ -101,6 +101,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
       ViewProcessingContext viewProcessingContext = createViewProcessingContext();
       view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
+      // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
       try {
         if (_isSuspended) {
@@ -109,7 +110,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       } finally {
         _lifecycleLock.unlock();
       }
-      // TODO the view must be created in a locked state if this view processor is suspended
       _viewsByName.put(name, view);
     }
     getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
