@@ -81,8 +81,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addIdentifierBundle(ID1);
-    request.addIdentifierBundle(ID2);
+    request.addSecurityKey(ID1);
+    request.addSecurityKey(ID2);
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
@@ -105,8 +105,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addIdentifierBundle(ID1);
-    request.addIdentifierBundle(ID2);
+    request.addSecurityKey(ID1);
+    request.addSecurityKey(ID2);
     request.setFullDetail(true);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));

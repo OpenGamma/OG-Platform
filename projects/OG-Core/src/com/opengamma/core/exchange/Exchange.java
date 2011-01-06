@@ -41,11 +41,11 @@ public interface Exchange extends UniqueIdentifiable {
   String getName();
 
   /**
-   * Gets the bundle of identifiers that define where the exchange is located.
+   * Gets the region key identifier bundle that defines where the exchange is located.
    * 
-   * @return the region identifier bundle of the exchange, null if no location
+   * @return the region key identifier bundle of the exchange, null if no location
    */
-  IdentifierBundle getRegionId();
+  IdentifierBundle getRegionKey();
 
   /**
    * Gets the time-zone of the exchange.

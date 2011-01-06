@@ -49,7 +49,7 @@ public class CoppClarkExchangeFileReaderTest {
     assertNotNull(doc.getCorrectionFromInstant());
     assertEquals(doc.getUniqueId(), doc.getExchange().getUniqueId());
     assertEquals(NAME, doc.getExchange().getName());
-    assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionId());
+    assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionKey());
     assertEquals(IdentifierBundle.of(ID_LIFFE_MIC), doc.getExchange().getIdentifiers());
   }
 

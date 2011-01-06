@@ -98,8 +98,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.CURRENCY, testHoliday.getType());
     assertEquals("USD", testHoliday.getCurrency().getISOCode());
-    assertEquals(null, testHoliday.getRegionId());
-    assertEquals(null, testHoliday.getExchangeId());
+    assertEquals(null, testHoliday.getRegionKey());
+    assertEquals(null, testHoliday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -128,8 +128,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.BANK, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getRegionId());
-    assertEquals(null, testHoliday.getExchangeId());
+    assertEquals(Identifier.of("A", "B"), testHoliday.getRegionKey());
+    assertEquals(null, testHoliday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -158,8 +158,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.SETTLEMENT, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(null, testHoliday.getRegionId());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeId());
+    assertEquals(null, testHoliday.getRegionKey());
+    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -188,8 +188,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.TRADING, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(null, testHoliday.getRegionId());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeId());
+    assertEquals(null, testHoliday.getRegionKey());
+    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 

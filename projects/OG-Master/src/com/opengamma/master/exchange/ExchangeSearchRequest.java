@@ -40,7 +40,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   private String _name;
   /**
    * The exchange identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
+   * An exchange matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    */
   @PropertyDefinition(set = "setClearAddAll")
@@ -159,7 +159,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   /**
    * Gets the exchange identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
+   * An exchange matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    * @return the value of the property
    */
@@ -169,7 +169,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
 
   /**
    * Sets the exchange identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
+   * An exchange matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    * @param identifiers  the new value of the property
    */
@@ -180,7 +180,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code identifiers} property.
-   * A region matches if one of the bundles matches.
+   * An exchange matches if one of the bundles matches.
    * Note that an empty set places no restrictions on the result.
    * @return the property, not null
    */

@@ -113,8 +113,8 @@ public class InMemorySecurityMasterTest {
   @Test
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addIdentifierBundle(BUNDLE1);
-    request.addIdentifierBundle(BUNDLE2);
+    request.addSecurityKeys(BUNDLE1);
+    request.addSecurityKeys(BUNDLE2);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();

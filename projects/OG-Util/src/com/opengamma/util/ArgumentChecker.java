@@ -5,7 +5,6 @@
  */
 package com.opengamma.util;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -23,6 +22,7 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified boolean is true.
    * This will normally be the result of a caller-specific check.
+   * 
    * @param trueIfValid  a boolean resulting from testing an argument, may be null
    * @param message  the error message, not null
    * @throws IllegalArgumentException if the test value is false
@@ -36,6 +36,7 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified boolean is false.
    * This will normally be the result of a caller-specific check.
+   * 
    * @param falseIfValid  a boolean resulting from testing an argument, may be null
    * @param message  the error message, not null
    * @throws IllegalArgumentException if the test value is false
@@ -49,6 +50,7 @@ public final class ArgumentChecker {
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter is non-null.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -77,6 +79,7 @@ public final class ArgumentChecker {
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -91,6 +94,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the specified parameter array is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -105,6 +109,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the specified parameter array is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -119,6 +124,7 @@ public final class ArgumentChecker {
   
   /**
    * Checks that the specified parameter array is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -133,6 +139,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the specified parameter array is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -147,20 +154,22 @@ public final class ArgumentChecker {
   
   /**
    * Checks that the specified parameter collection is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
    * @throws IllegalArgumentException if the input is empty
    */
-  public static void notEmpty(Collection<?> parameter, String name) {
+  public static void notEmpty(Iterable<?> parameter, String name) {
     notNull(parameter, name);
-    if (parameter.size() == 0) {
+    if (parameter.iterator().hasNext() == false) {
       throw new IllegalArgumentException("Input parameter collection '" + name + "' must not be zero length");
     }
   }
 
   /**
    * Checks that the specified parameter map is non-null and not empty.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
@@ -176,6 +185,7 @@ public final class ArgumentChecker {
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter array is non-null and contains no nulls.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
@@ -191,11 +201,12 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the specified parameter collection is non-null and contains no nulls.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
    */
-  public static void noNulls(Collection<?> parameter, String name) {
+  public static void noNulls(Iterable<?> parameter, String name) {
     notNull(parameter, name);
     for (Object obj : parameter) {
       if (obj == null) {
@@ -207,6 +218,7 @@ public final class ArgumentChecker {
   //-------------------------------------------------------------------------
   /**
    * Checks that the argument is not negative.
+   * 
    * @param parameter  the parameter to check
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is negative
@@ -219,6 +231,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the argument is not negative.
+   * 
    * @param parameter  the parameter to check
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is negative
@@ -231,6 +244,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the argument is not negative or zero.
+   * 
    * @param parameter  the parameter to check
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is negative or zero
@@ -243,6 +257,7 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the argument is not negative or zero.
+   * 
    * @param parameter  the parameter to check
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is negative or zero
@@ -252,12 +267,13 @@ public final class ArgumentChecker {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
     }
   }
-  
+
   /**
-   * Checks that the argument is not equal to zero to within an accuracy eps
-   * @param x The value to check
-   * @param eps The accuracy
-   * @param name The name to use in the error message
+   * Checks that the argument is not equal to zero to within an accuracy eps.
+   * 
+   * @param x  the value to check
+   * @param eps  the accuracy
+   * @param name  the name to use in the error message
    * @throws IllegalArgumentException If the absolute value of the argument is less than eps
    */
   public static void notZero(double x, double eps, String name) {
@@ -267,14 +283,15 @@ public final class ArgumentChecker {
   }
 
   /**
-   * Checks a collection for null elements
-   * @param collection The collection to test
+   * Checks a collection for null elements.
+   * 
+   * @param iterable  the collection to test, not null
    * @return true if the collection contains a null element
-   * @throws IllegalArgumentException If the collection is null
+   * @throws IllegalArgumentException if the collection is null
    */
-  public static boolean hasNullElement(Collection<?> collection) {    
-    notNull(collection, "collection");
-    for (Object o : collection) {
+  public static boolean hasNullElement(Iterable<?> iterable) {    
+    notNull(iterable, "collection");
+    for (Object o : iterable) {
       if (o == null) {
         return true;
       }
@@ -283,27 +300,30 @@ public final class ArgumentChecker {
   }
   
   /**
-   * Checks a collection of doubles for negative elements
-   * @param collection The collection to test
+   * Checks a collection of doubles for negative elements.
+   * 
+   * @param iterable  the collection to test, not null
    * @return true if the collection contains a negative element
-   * @throws IllegalArgumentException If the collection is null
+   * @throws IllegalArgumentException if the collection is null
    */
   
-  public static boolean hasNegativeElement(Collection<Double> collection) {
-    notNull(collection, "collection");
-    for (Double d : collection) {
+  public static boolean hasNegativeElement(Iterable<Double> iterable) {
+    notNull(iterable, "collection");
+    for (Double d : iterable) {
       if (d < 0) {
         return true;
       }
     }
     return false;
   }
-    
+
+  //-------------------------------------------------------------------------
   /**
-   * Checks that a value is within the range low < x < high
+   * Checks that a value is within the range low < x < high.
+   * 
    * @param low Low value of the range
    * @param high High value of the range
-   * @param x The value
+   * @param x  the value
    * @return true if low < x < high
    */
   public static boolean isInRangeExclusive(double low, double high, double x) {
@@ -314,10 +334,11 @@ public final class ArgumentChecker {
   }
 
   /**
-   * Checks that a value is within the range low <= x <= high
-   * @param low Low value of the range
-   * @param high High value of the range
-   * @param x The value
+   * Checks that a value is within the range low <= x <= high.
+   * 
+   * @param low  the low value of the range
+   * @param high  the high value of the range
+   * @param x  the value
    * @return true if low <= x <= high
    */
   public static boolean isInRangeInclusive(double low, double high, double x) {
@@ -328,10 +349,11 @@ public final class ArgumentChecker {
   }
 
   /**
-   * Checks that a value is within the range low < x <= high
-   * @param low Low value of the range
-   * @param high High value of the range
-   * @param x The value
+   * Checks that a value is within the range low < x <= high.
+   * 
+   * @param low  the low value of the range
+   * @param high  the high value of the range
+   * @param x  the value
    * @return true if low < x <= high
    */
 
@@ -341,15 +363,15 @@ public final class ArgumentChecker {
     }
     return false;
   }
-  
+
   /**
-   * Checks that a value is within the range low <= x < high
-   * @param low Low value of the range
-   * @param high High value of the range
-   * @param x The value
+   * Checks that a value is within the range low <= x < high.
+   * 
+   * @param low  the low value of the range
+   * @param high  the high value of the range
+   * @param x  the value
    * @return true if low <= x < high
    */
-
   public static boolean isInRangeExcludingHigh(double low, double high, double x) {
     if (x >= low && x < high) {
       return true;

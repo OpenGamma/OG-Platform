@@ -161,13 +161,13 @@ public class ModifyHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
-      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
+      .addValue("provider_scheme", (document.getProviderKey() != null ? document.getProviderKey().getScheme().getName() : null))
+      .addValue("provider_value", (document.getProviderKey() != null ? document.getProviderKey().getValue() : null))
       .addValue("hol_type", holiday.getType() != null ? holiday.getType().name() : null)
-      .addValue("region_scheme", (holiday.getRegionId() != null ? holiday.getRegionId().getScheme().getName() : null))
-      .addValue("region_value", (holiday.getRegionId() != null ? holiday.getRegionId().getValue() : null))
-      .addValue("exchange_scheme", (holiday.getExchangeId() != null ? holiday.getExchangeId().getScheme().getName() : null))
-      .addValue("exchange_value", (holiday.getExchangeId() != null ? holiday.getExchangeId().getValue() : null))
+      .addValue("region_scheme", (holiday.getRegionKey() != null ? holiday.getRegionKey().getScheme().getName() : null))
+      .addValue("region_value", (holiday.getRegionKey() != null ? holiday.getRegionKey().getValue() : null))
+      .addValue("exchange_scheme", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getScheme().getName() : null))
+      .addValue("exchange_value", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getValue() : null))
       .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getISOCode() : null));
     // the arguments for inserting into the date table
     final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
