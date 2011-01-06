@@ -38,10 +38,10 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   /**
    * The portfolio node unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The parent node unique identifier, null if the root node.
    * This field is managed by the master.
@@ -121,8 +121,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
    */
   public ManageablePortfolioNode findNodeByObjectIdentifier(final UniqueIdentifier nodeOid) {
     ArgumentChecker.notNull(nodeOid, "nodeOid");
-    if (getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
-        getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
+    if (getUniqueId().getScheme().equals(nodeOid.getScheme()) &&
+        getUniqueId().getValue().equals(nodeOid.getValue())) {
       return this;
     }
     for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
@@ -181,8 +181,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
    */
   private Stack<ManageablePortfolioNode> findNodeStackByObjectIdentifier0(final Stack<ManageablePortfolioNode> stack, final UniqueIdentifier nodeOid) {
     stack.push(this);
-    if (getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
-        getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
+    if (getUniqueId().getScheme().equals(nodeOid.getScheme()) &&
+        getUniqueId().getValue().equals(nodeOid.getValue())) {
       return stack;
     }
     for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
@@ -207,8 +207,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     ArgumentChecker.notNull(nodeOid, "nodeOid");
     for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
       final ManageablePortfolioNode child = it.next();
-      if (child.getUniqueIdentifier().getScheme().equals(nodeOid.getScheme()) &&
-          child.getUniqueIdentifier().getValue().equals(nodeOid.getValue())) {
+      if (child.getUniqueId().getScheme().equals(nodeOid.getScheme()) &&
+          child.getUniqueId().getValue().equals(nodeOid.getValue())) {
         it.remove();
         return true;
       }
@@ -237,8 +237,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 915246087:  // parentNodeId
         return getParentNodeId();
       case -5186429:  // portfolioId
@@ -257,8 +257,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 915246087:  // parentNodeId
         setParentNodeId((UniqueIdentifier) newValue);
@@ -282,29 +282,29 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio node unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the portfolio node unique identifier.
-   * This field should be null until added to the master.
-   * @param uniqueIdentifier  the new value of the property
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
-   * This field should be null until added to the master.
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -457,9 +457,9 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code parentNodeId} property.
      */
@@ -490,7 +490,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("parentNodeId", _parentNodeId);
       temp.put("portfolioId", _portfolioId);
       temp.put("name", _name);
@@ -516,11 +516,11 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

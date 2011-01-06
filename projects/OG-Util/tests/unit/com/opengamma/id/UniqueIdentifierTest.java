@@ -157,7 +157,7 @@ public class UniqueIdentifierTest {
   @Test
   public void test_getUniqueId() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertSame(test, test.getUniqueIdentifier());
+    assertSame(test, test.getUniqueId());
   }
 
   @Test

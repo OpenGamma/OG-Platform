@@ -8,7 +8,7 @@ package com.opengamma.financial.currency;
 import com.opengamma.engine.ComputationTargetType;
 
 /**
- * Converts a value from one currency to another, acting on a position
+ * Converts a value from one currency to another, acting on a position.
  */
 public class PositionCurrencyConversionFunction extends CurrencyConversionFunction {
 

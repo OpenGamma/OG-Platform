@@ -41,6 +41,7 @@ public class EHCachingPositionSource implements PositionSource {
    * Cache key for trades.
    */
   private static final String TRADE_CACHE = "trade";
+
   /**
    * The underlying position source.
    */
@@ -52,22 +53,23 @@ public class EHCachingPositionSource implements PositionSource {
   /**
    * The portfolio cache.
    */
-  private final Cache _portfolio;
+  private final Cache _portfolioCache;
   /**
    * The node cache.
    */
-  private final Cache _portfolioNode;
+  private final Cache _portfolioNodeCache;
   /**
    * The position cache.
    */
-  private final Cache _position;
+  private final Cache _positionCache;
   /**
    * The trade cache.
    */
-  private final Cache _trade;
+  private final Cache _tradeCache;
 
   /**
    * Creates the cache around an underlying position source.
+   * 
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
@@ -80,15 +82,16 @@ public class EHCachingPositionSource implements PositionSource {
     EHCacheUtils.addCache(cacheManager, PORTFOLIONODE_CACHE);
     EHCacheUtils.addCache(cacheManager, POSITION_CACHE);
     EHCacheUtils.addCache(cacheManager, TRADE_CACHE);
-    _portfolio = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIO_CACHE);
-    _portfolioNode = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
-    _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
-    _trade = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
+    _portfolioCache = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIO_CACHE);
+    _portfolioNodeCache = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
+    _positionCache = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
+    _tradeCache = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of positions.
+   * 
    * @return the underlying source of positions, not null
    */
   protected PositionSource getUnderlying() {
@@ -97,6 +100,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   /**
    * Gets the cache manager.
+   * 
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -109,13 +113,13 @@ public class EHCachingPositionSource implements PositionSource {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolio(identifier);
     }
-    Element e = _portfolio.get(identifier);
+    Element e = _portfolioCache.get(identifier);
     if (e != null) {
       return (Portfolio) e.getValue();
     } else {
       Portfolio p = getUnderlying().getPortfolio(identifier);
       if (p != null) {
-        _portfolio.put(new Element(identifier, p));
+        _portfolioCache.put(new Element(identifier, p));
       }
       return p;
     }
@@ -126,13 +130,13 @@ public class EHCachingPositionSource implements PositionSource {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolioNode(identifier);
     }
-    Element e = _portfolioNode.get(identifier);
+    Element e = _portfolioNodeCache.get(identifier);
     if (e != null) {
       return (PortfolioNode) e.getValue();
     } else {
       PortfolioNode pn = getUnderlying().getPortfolioNode(identifier);
       if (pn != null) {
-        _portfolioNode.put(new Element(identifier, pn));
+        _portfolioNodeCache.put(new Element(identifier, pn));
       }
       return pn;
     }
@@ -143,13 +147,13 @@ public class EHCachingPositionSource implements PositionSource {
     if (identifier.isLatest()) {
       return getUnderlying().getPosition(identifier);
     }
-    Element e = _position.get(identifier);
+    Element e = _positionCache.get(identifier);
     if (e != null) {
       return (Position) e.getValue();
     } else {
       Position p = getUnderlying().getPosition(identifier);
       if (p != null) {
-        _position.put(new Element(identifier, p));
+        _positionCache.put(new Element(identifier, p));
       }
       return p;
     }
@@ -160,18 +164,18 @@ public class EHCachingPositionSource implements PositionSource {
     if (identifier.isLatest()) {
       return getUnderlying().getTrade(identifier);
     }
-    Element e = _trade.get(identifier);
+    Element e = _tradeCache.get(identifier);
     if (e != null) {
       return (Trade) e.getValue();
     } else {
       Trade t = getUnderlying().getTrade(identifier);
       if (t != null) {
-        _trade.put(new Element(identifier, t));
+        _tradeCache.put(new Element(identifier, t));
       }
       return t;
     }
   }
-  
+
   /**
    * Call this at the end of a unit test run to clear the state of EHCache.
    * It should not be part of a generic lifecycle method.
@@ -183,7 +187,5 @@ public class EHCachingPositionSource implements PositionSource {
     _cacheManager.removeCache(TRADE_CACHE);
     _cacheManager.shutdown();
   }
-  
-  
 
 }

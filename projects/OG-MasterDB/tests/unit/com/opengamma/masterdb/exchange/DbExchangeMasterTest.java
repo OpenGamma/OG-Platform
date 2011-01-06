@@ -68,7 +68,7 @@ public class DbExchangeMasterTest extends DBTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
     exchange.setName("Test");
-    exchange.setRegionId(IdentifierBundle.of(Identifier.of("E", "F"), Identifier.of("G", "H")));
+    exchange.setRegionKey(IdentifierBundle.of(Identifier.of("E", "F"), Identifier.of("G", "H")));
     exchange.setTimeZone(TimeZone.of("Europe/London"));
     ExchangeDocument addDoc = new ExchangeDocument(exchange);
     ExchangeDocument added = _exgMaster.add(addDoc);

@@ -301,7 +301,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
+      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(), node
           .getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);

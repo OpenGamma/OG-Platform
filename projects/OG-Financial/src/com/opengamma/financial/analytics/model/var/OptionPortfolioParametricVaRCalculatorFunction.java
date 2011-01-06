@@ -115,7 +115,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataProvider = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
-    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueIdentifier());
+    final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, portfolio), getUniqueId());
     final List<Position> positions = getAllPositions(new ArrayList<Position>(), portfolio);
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[positions.size() * _valueGreekRequirementNames.size()];
     int i = 0;
@@ -125,7 +125,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
         if (valueObj instanceof Double) {
           final Double value = (Double) valueObj;
           final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(valueGreekRequirementName);
-          final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueIdentifier().toString());
+          final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
           if (sensitivity.getUnderlying().getOrder() <= _maxOrder) {
             final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
             for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
@@ -195,7 +195,7 @@ public class OptionPortfolioParametricVaRCalculatorFunction extends AbstractFunc
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueId()));
     }
     return null;
   }

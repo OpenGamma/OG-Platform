@@ -8,6 +8,6 @@ package com.opengamma.engine.view;
 /**
  * 
  */
-public class ViewComputationResultModelImpl extends ViewResultModelImpl implements ViewComputationResultModel {
+public class InMemoryViewComputationResultModel extends InMemoryViewResultModel implements ViewComputationResultModel {
 
 }

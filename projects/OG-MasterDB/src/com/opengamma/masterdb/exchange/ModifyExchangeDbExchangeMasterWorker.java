@@ -158,7 +158,7 @@ public class ModifyExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker
     final long exchangeOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : exchangeId);
     // set the uid (needs to go in Fudge message)
     final UniqueIdentifier uid = createUniqueIdentifier(exchangeOid, exchangeId);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     document.setUniqueId(uid);
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);

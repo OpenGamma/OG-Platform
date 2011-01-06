@@ -57,7 +57,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
    */
   public PortfolioDocument(final ManageablePortfolio portfolioTree) {
     ArgumentChecker.notNull(portfolioTree, "portfolioTree");
-    setUniqueId(portfolioTree.getUniqueIdentifier());
+    setUniqueId(portfolioTree.getUniqueId());
     setPortfolio(portfolioTree);
   }
 

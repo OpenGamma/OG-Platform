@@ -359,7 +359,7 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
       _portfolio = new ManageablePortfolio(name);
-      _portfolio.setUniqueIdentifier(createUniqueIdentifier(portfolioOid, portfolioId));
+      _portfolio.setUniqueId(createUniqueIdentifier(portfolioOid, portfolioId));
       final PortfolioDocument doc = new PortfolioDocument(_portfolio);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
@@ -375,8 +375,8 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
       _node = new ManageablePortfolioNode(name);
-      _node.setUniqueIdentifier(createUniqueIdentifier(nodeOid, nodeId));
-      _node.setPortfolioId(_portfolio.getUniqueIdentifier());
+      _node.setUniqueId(createUniqueIdentifier(nodeOid, nodeId));
+      _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {
         if (_complete == false) {
           final Long parentNodeId = (Long) rs.getObject("PARENT_NODE_ID");
@@ -391,7 +391,7 @@ public class QueryPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWork
           _nodes.pop();
         }
         final ManageablePortfolioNode parentNode = _nodes.peek().second;
-        _node.setParentNodeId(parentNode.getUniqueIdentifier());
+        _node.setParentNodeId(parentNode.getUniqueId());
         parentNode.addChildNode(_node);
       }
       // add to stack

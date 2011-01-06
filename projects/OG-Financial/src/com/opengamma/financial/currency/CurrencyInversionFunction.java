@@ -67,17 +67,17 @@ public class CurrencyInversionFunction extends AbstractFunction.NonCompiledInvok
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (!getRateLookupIdentifierScheme().equals(target.getUniqueIdentifier().getScheme())) {
+    if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
       return false;
     }
-    return s_validate.matcher(target.getUniqueIdentifier().getValue()).matches();
+    return s_validate.matcher(target.getUniqueId().getValue()).matches();
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    final int underscore = target.getUniqueIdentifier().getValue().indexOf('_');
-    final String numerator = target.getUniqueIdentifier().getValue().substring(0, underscore);
-    final String denominator = target.getUniqueIdentifier().getValue().substring(underscore + 1);
+    final int underscore = target.getUniqueId().getValue().indexOf('_');
+    final String numerator = target.getUniqueId().getValue().substring(0, underscore);
+    final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
     return Collections.singleton(new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator)));
   }
 

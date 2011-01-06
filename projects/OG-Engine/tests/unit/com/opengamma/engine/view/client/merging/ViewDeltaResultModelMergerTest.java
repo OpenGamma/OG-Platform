@@ -20,7 +20,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.engine.view.ViewDeltaResultModelImpl;
+import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -37,7 +37,7 @@ public class ViewDeltaResultModelMergerTest {
     ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
     assertNull(merger.consume());
     
-    ViewDeltaResultModelImpl deltaResult1 = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel deltaResult1 = new InMemoryViewDeltaResultModel();
     deltaResult1.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
     deltaResult1.addValue(CONFIG_1, getComputedValue("value1", 1));
     deltaResult1.addValue(CONFIG_1, getComputedValue("value2", 2));
@@ -45,14 +45,14 @@ public class ViewDeltaResultModelMergerTest {
     assertResultsEqual(deltaResult1, merger.consume());
     assertNull(merger.consume());
     
-    ViewDeltaResultModelImpl deltaResult2 = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel deltaResult2 = new InMemoryViewDeltaResultModel();
     deltaResult2.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
     deltaResult2.addValue(CONFIG_1, getComputedValue("value1", 3));
     
     merger.merge(deltaResult1);
     merger.merge(deltaResult2);
     
-    ViewDeltaResultModelImpl expectedMergedResult = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel expectedMergedResult = new InMemoryViewDeltaResultModel();
     expectedMergedResult.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 3));
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
@@ -60,14 +60,14 @@ public class ViewDeltaResultModelMergerTest {
     assertResultsEqual(expectedMergedResult, merger.consume());
     assertNull(merger.consume());
     
-    ViewDeltaResultModelImpl deltaResult3 = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel deltaResult3 = new InMemoryViewDeltaResultModel();
     deltaResult3.setCalculationConfigurationNames(Collections.singleton(CONFIG_2));
     deltaResult3.addValue(CONFIG_2, getComputedValue("value3", 4));    
     
     merger.merge(deltaResult1);
     merger.merge(deltaResult3);
     
-    expectedMergedResult = new ViewDeltaResultModelImpl();
+    expectedMergedResult = new InMemoryViewDeltaResultModel();
     expectedMergedResult.setCalculationConfigurationNames(Arrays.asList(CONFIG_1, CONFIG_2));
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 1));
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
@@ -80,14 +80,14 @@ public class ViewDeltaResultModelMergerTest {
   @Test
   public void testHandlesPartiallyEmptyModels() {
     ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
-    ViewDeltaResultModelImpl deltaResult = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
     merger.merge(deltaResult);
     
-    deltaResult = new ViewDeltaResultModelImpl();
+    deltaResult = new InMemoryViewDeltaResultModel();
     deltaResult.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
     merger.merge(deltaResult);
     
-    deltaResult = new ViewDeltaResultModelImpl();
+    deltaResult = new InMemoryViewDeltaResultModel();
     // Tests coping with expanding calculation configurations (e.g. if a new one has been added between computation
     // cycles)
     deltaResult.setCalculationConfigurationNames(Arrays.asList(CONFIG_1, CONFIG_2));

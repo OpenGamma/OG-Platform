@@ -46,10 +46,10 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   /**
    * The position unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The position name, not null.
    */
@@ -63,7 +63,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private BigDecimal _quantity;
   /**
-   * The identifiers specifying the security.
+   * The security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
@@ -140,7 +140,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         return getQuantity() + " " + getSecurityKey().getIdentifiers().iterator().next().getValue();
       }
     }
-    return getUniqueIdentifier() != null ? getUniqueIdentifier().toLatest().toString() : "";
+    return getUniqueId() != null ? getUniqueId().toLatest().toString() : "";
   }
 
   //-------------------------------------------------------------------------
@@ -153,8 +153,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   public ManageableTrade getTrade(final UniqueIdentifier tradeOid) {
     ArgumentChecker.notNull(tradeOid, "tradeOid");
     for (ManageableTrade trade : getTrades()) {
-      if (getUniqueIdentifier().getScheme().equals(tradeOid.getScheme()) &&
-          getUniqueIdentifier().getValue().equals(tradeOid.getValue())) {
+      if (getUniqueId().getScheme().equals(tradeOid.getScheme()) &&
+          getUniqueId().getValue().equals(tradeOid.getValue())) {
         return trade;
       }
     }
@@ -179,8 +179,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 3373707:  // name
         return getName();
       case -1285004149:  // quantity
@@ -197,8 +197,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 3373707:  // name
         throw new UnsupportedOperationException("Property cannot be written: name");
@@ -218,29 +218,29 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   //-----------------------------------------------------------------------
   /**
    * Gets the position unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the position unique identifier.
-   * This field should be null until added to the master.
-   * @param uniqueIdentifier  the new value of the property
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
-   * This field should be null until added to the master.
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -282,7 +282,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifiers specifying the security.
+   * Gets the security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    * @return the value of the property
    */
@@ -291,7 +291,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   /**
-   * Sets the identifiers specifying the security.
+   * Sets the security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    * @param securityKey  the new value of the property
    */
@@ -348,9 +348,9 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -376,7 +376,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("name", _name);
       temp.put("quantity", _quantity);
       temp.put("securityKey", _securityKey);
@@ -401,11 +401,11 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

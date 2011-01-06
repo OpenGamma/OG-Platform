@@ -100,11 +100,11 @@ public class ComputedValue implements Serializable {
     style.appendStart(sb, this);
     ValueSpecification spec = getSpecification();
     if (spec != null) {
-      style.append(sb, "functionId", spec.getFunctionUniqueId(), null);
       style.append(sb, "name", spec.getValueName(), null);
       ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
       style.append(sb, "targetId", targetSpec.getIdentifier(), null);
       style.append(sb, "targetType", targetSpec.getType(), null);
+      style.append(sb, "properties", spec.getProperties(), null);
     }
     style.append(sb, "value", getValue(), null);
     style.appendEnd(sb, this);

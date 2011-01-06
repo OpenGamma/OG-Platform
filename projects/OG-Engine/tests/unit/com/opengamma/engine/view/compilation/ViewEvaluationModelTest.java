@@ -77,7 +77,7 @@ public class ViewEvaluationModelTest {
           }
 
           @Override
-          public String getUniqueIdentifier() {
+          public String getUniqueId() {
             return null;
           }
 

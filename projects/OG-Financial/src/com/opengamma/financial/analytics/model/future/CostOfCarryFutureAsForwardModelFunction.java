@@ -95,8 +95,8 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction.No
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(
-          new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
-          getUniqueIdentifier());
+          new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueId()),
+          getUniqueId());
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
@@ -139,8 +139,8 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction.No
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String name : AVAILABLE_GREEKS.keySet()) {
         results.add(new ValueSpecification(
-            new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueIdentifier()),
-            getUniqueIdentifier()));
+            new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueId()),
+            getUniqueId()));
       }
       return results;
     }

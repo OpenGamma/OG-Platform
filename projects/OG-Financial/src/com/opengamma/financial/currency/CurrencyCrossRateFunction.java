@@ -71,9 +71,9 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
   }
 
   private static Pair<String, String> parse(final ComputationTarget target) {
-    final int underscore = target.getUniqueIdentifier().getValue().indexOf('_');
-    final String numerator = target.getUniqueIdentifier().getValue().substring(0, underscore);
-    final String denominator = target.getUniqueIdentifier().getValue().substring(underscore + 1);
+    final int underscore = target.getUniqueId().getValue().indexOf('_');
+    final String numerator = target.getUniqueId().getValue().substring(0, underscore);
+    final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
     return Pair.of(numerator, denominator);
   }
 
@@ -104,10 +104,10 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (!getRateLookupIdentifierScheme().equals(target.getUniqueIdentifier().getScheme())) {
+    if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
       return false;
     }
-    if (!s_validate.matcher(target.getUniqueIdentifier().getValue()).matches()) {
+    if (!s_validate.matcher(target.getUniqueId().getValue()).matches()) {
       return false;
     }
     final Pair<String, String> currencies = parse(target);

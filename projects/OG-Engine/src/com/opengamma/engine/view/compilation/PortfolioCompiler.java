@@ -82,7 +82,7 @@ import com.opengamma.util.monitor.OperationTimer;
 
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
-      new PortfolioNodeTraverser(traversalCallback).traverse(portfolio.getRootNode());
+      PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());
     }
     
     return portfolio;
@@ -168,22 +168,22 @@ import com.opengamma.util.monitor.OperationTimer;
     for (Position position : node.getPositions()) {
       if (position.getSecurity() != null) {
         // Nothing to do here; they pre-resolved the security.
-        s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueIdentifier());
+        s_logger.debug("Security pre-resolved by PositionSource for {}", position.getUniqueId());
       } else if (position.getSecurityKey() != null) {
         result.add(position.getSecurityKey());
       } else {
-        throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueIdentifier());
+        throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueId());
       }
       
       //get trades security identifiers as well
       for (Trade trade : position.getTrades()) {
         if (trade.getSecurity() != null) {
           // Nothing to do here; they pre-resolved the security.
-          s_logger.debug("Security pre-resolved by PositionSource for {}", trade.getUniqueIdentifier());
+          s_logger.debug("Security pre-resolved by PositionSource for {}", trade.getUniqueId());
         } else if (trade.getSecurityKey() != null) {
           result.add(trade.getSecurityKey());
         } else {
-          throw new IllegalArgumentException("Security or security key must be provided: " + trade.getUniqueIdentifier());
+          throw new IllegalArgumentException("Security or security key must be provided: " + trade.getUniqueId());
         }
       }
     }
@@ -202,7 +202,7 @@ import com.opengamma.util.monitor.OperationTimer;
    * @param securitiesByKey the resolved securities to use
    */
   private static Portfolio createFullyResolvedPortfolio(Portfolio portfolio, Map<IdentifierBundle, Security> securitiesByKey) {
-    return new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), createFullyResolvedPortfolioHierarchy(portfolio.getRootNode(), securitiesByKey));
+    return new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), createFullyResolvedPortfolioHierarchy(portfolio.getRootNode(), securitiesByKey));
   }
 
   /**
@@ -215,7 +215,7 @@ import com.opengamma.util.monitor.OperationTimer;
     if (rootNode == null) {
       return null;
     }
-    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getUniqueIdentifier(), rootNode.getName());
+    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getUniqueId(), rootNode.getName());
     // Take copies of any positions directly under this node, adding the resolved security instances. 
     for (Position position : rootNode.getPositions()) {
       Security security = position.getSecurity();
@@ -227,11 +227,11 @@ import com.opengamma.util.monitor.OperationTimer;
       }
       PositionImpl populatedPosition = new PositionImpl(position);
       populatedPosition.setSecurity(security);
-      populatedPosition.setPortfolioNode(populatedNode.getUniqueIdentifier());
+      populatedPosition.setParentNodeId(populatedNode.getUniqueId());
       //set the children trade security as well
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setPositionId(populatedPosition.getUniqueIdentifier());
+        populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
         populatedTrade.setSecurity(security);
         populatedPosition.addTrade(populatedTrade);
       }
@@ -240,7 +240,7 @@ import com.opengamma.util.monitor.OperationTimer;
     // Add resolved copies of any nodes directly underneath this node
     for (PortfolioNode child : rootNode.getChildNodes()) {
       final PortfolioNodeImpl childNode = createFullyResolvedPortfolioHierarchy(child, securitiesByKey);
-      childNode.setParentNode(populatedNode.getUniqueIdentifier());
+      childNode.setParentNodeId(populatedNode.getUniqueId());
       populatedNode.addChildNode(childNode);
     }
     return populatedNode;

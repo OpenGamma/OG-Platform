@@ -163,7 +163,7 @@ public class ModifyPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWor
     getJdbcTemplate().batchUpdate(sqlInsertNode(), nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertPosition(), posList.toArray(new DbMapSqlParameterSource[posList.size()]));
     // set the uid
-    document.getPortfolio().setUniqueIdentifier(portfolioUid);
+    document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
   }
 
@@ -189,9 +189,9 @@ public class ModifyPortfolioDbPortfolioMasterWorker extends DbPortfolioMasterWor
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList, final List<DbMapSqlParameterSource> posList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId();
-    final Long nodeOid = (update && node.getUniqueIdentifier() != null ? extractOid(node.getUniqueIdentifier()) : nodeId);
+    final Long nodeOid = (update && node.getUniqueId() != null ? extractOid(node.getUniqueId()) : nodeId);
     UniqueIdentifier nodeUid = createUniqueIdentifier(nodeOid, nodeId);
-    node.setUniqueIdentifier(nodeUid);
+    node.setUniqueId(nodeUid);
     node.setParentNodeId(parentNodeUid);
     node.setPortfolioId(portfolioUid);
     final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()

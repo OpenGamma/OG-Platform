@@ -5,11 +5,13 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +60,7 @@ public class DependencyGraph {
   /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ValueSpecification, DependencyNode> _specification2DependencyNode = new HashMap<ValueSpecification, DependencyNode>();
 
-  private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications =
-    new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
+  private final Map<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>> _valueRequirement2Specifications = new HashMap<String, Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>>>(); // TODO
 
   private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredLiveData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
   private final Set<ComputationTarget> _allComputationTargets = new HashSet<ComputationTarget>();
@@ -290,7 +291,9 @@ public class DependencyGraph {
   public void addDependencyNode(DependencyNode node) {
     ArgumentChecker.notNull(node, "Node");
 
-    _dependencyNodes.add(node);
+    if (!_dependencyNodes.add(node)) {
+      throw new IllegalStateException("Node " + node + " already in the graph");
+    }
     _outputValues.addAll(node.getOutputValues());
     _terminalOutputValues.addAll(node.getTerminalOutputValues());
     Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
@@ -344,6 +347,55 @@ public class DependencyGraph {
   }
 
   /**
+   * Removes a node from the graph.
+   * 
+   * @param node the node to remove
+   */
+  public void removeDependencyNode(final DependencyNode node) {
+    ArgumentChecker.notNull(node, "node");
+    if (!_dependencyNodes.remove(node)) {
+      return;
+    }
+    _outputValues.removeAll(node.getOutputValues());
+    _terminalOutputValues.removeAll(node.getTerminalOutputValues());
+    final Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
+    if (liveData != null) {
+      _allRequiredLiveData.remove(liveData);
+    }
+    // Note: a target may be shared by multiple nodes so don't remove target from _allComputationTargets - this is wrong in some cases
+    for (ValueSpecification output : node.getOutputValues()) {
+      _specification2DependencyNode.remove(output);
+      final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(output.getValueName());
+      final List<Pair<DependencyNode, ValueSpecification>> values = targets.get(output.getTargetSpecification());
+      final Iterator<Pair<DependencyNode, ValueSpecification>> valueIterator = values.iterator();
+      while (valueIterator.hasNext()) {
+        final Pair<DependencyNode, ValueSpecification> value = valueIterator.next();
+        if (node.equals(value.getFirst())) {
+          valueIterator.remove();
+        }
+      }
+    }
+    final Set<DependencyNode> nodesByType = _computationTargetType2DependencyNode.get(node.getComputationTarget().getType());
+    nodesByType.remove(node);
+    if (_rootNodes.remove(node)) {
+      // Some children might become root as a result of removing this node
+      for (DependencyNode childNode : node.getInputNodes()) {
+        final Set<DependencyNode> dependentNodes = childNode.getDependentNodes();
+        boolean isRoot = true;
+        for (DependencyNode dependentNode : dependentNodes) {
+          if (_dependencyNodes.contains(dependentNode)) {
+            isRoot = false;
+            break;
+          }
+        }
+        if (isRoot) {
+          _rootNodes.add(childNode);
+        }
+      }
+    }
+  }
+
+  /**
    * Marks an output as terminal, meaning that it cannot be pruned.
    * 
    * @param terminalOutput the output to mark as terminal
@@ -390,6 +442,7 @@ public class DependencyGraph {
       }
       s_logger.info("{}: removed {} unnecessary node(s)", this, unnecessaryNodes.size());
       _dependencyNodes.removeAll(unnecessaryNodes);
+      _rootNodes.removeAll(unnecessaryNodes);
       for (DependencyNode node : unnecessaryNodes) {
         _allRequiredLiveData.remove(node.getRequiredLiveData());
         _computationTargetType2DependencyNode.get(node.getComputationTarget().getType()).remove(node);
@@ -465,6 +518,58 @@ public class DependencyGraph {
   @Override
   public String toString() {
     return "DependencyGraph[calcConf=" + getCalcConfName() + ",size=" + getSize() + "]";
+  }
+
+  public void dumpStructureLGL(final PrintStream out) {
+    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    int nextId = 1;
+    for (DependencyNode node : getDependencyNodes()) {
+      uid.put(node, nextId++);
+    }
+    for (DependencyNode node : getDependencyNodes()) {
+      out.println("# " + (uid.get(node) + " [" + node.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
+      for (DependencyNode input : node.getDependentNodes()) {
+        out.println((uid.get(input) + " [" + input.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
+      }
+    }
+  }
+
+  private void dumpNodeASCII(final PrintStream out, String indent, final DependencyNode node, final Map<DependencyNode, Integer> uidMap, final Set<DependencyNode> visited) {
+    out.println(indent + uidMap.get(node) + " " + node);
+    visited.add(node);
+    indent = indent + "  ";
+    for (ValueSpecification input : node.getInputValues()) {
+      out.println(indent + "Iv=" + input);
+    }
+    for (ValueSpecification output : node.getOutputValues()) {
+      out.println(indent + "Ov=" + output);
+    }
+    /*
+     * for (DependencyNode output : node.getDependentNodes()) {
+     * out.println(indent + "On=" + uidMap.get(output) + " " + output);
+     * }
+     */
+    for (DependencyNode input : node.getInputNodes()) {
+      dumpNodeASCII(out, indent, input, uidMap, visited);
+    }
+  }
+
+  public void dumpStructureASCII(final PrintStream out) {
+    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    int nextId = 1;
+    for (DependencyNode node : getDependencyNodes()) {
+      uid.put(node, nextId++);
+    }
+    final Set<DependencyNode> visited = new HashSet<DependencyNode>();
+    for (DependencyNode root : _rootNodes) {
+      dumpNodeASCII(out, "", root, uid, visited);
+    }
+    // Nodes disjoint from the tree
+    for (DependencyNode node : getDependencyNodes()) {
+      if (!visited.contains(node)) {
+        dumpNodeASCII(out, "* ", node, uid, visited);
+      }
+    }
   }
 
 }

@@ -70,7 +70,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
   public void test_correct_noHolidayId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     doc.setUniqueId(null);
     _worker.correct(doc);
@@ -87,7 +87,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _worker.correct(doc);
   }
@@ -107,7 +107,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     HolidayDocument base = _queryWorker.get(uid);
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueIdentifier(uid);
+    holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     
     HolidayDocument corrected = _worker.correct(input);

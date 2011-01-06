@@ -45,6 +45,8 @@ public class DepGraphTestHelper {
   private final ValueSpecification _spec1Foo;
   private final ComputedValue _value1Foo;
   private final ValueRequirement _req1Bar;
+  private final ValueSpecification _spec1Bar;
+  private final ComputedValue _value1Bar;
   private final ValueRequirement _req1Any;
   private final ValueRequirement _req2;
   private final ValueSpecification _spec2;
@@ -76,6 +78,8 @@ public class DepGraphTestHelper {
     _spec1Foo = new ValueSpecification(_req1Foo, MockFunction.UNIQUE_ID);
     _value1Foo = new ComputedValue(_spec1Foo, 14.3);
     _req1Bar = new ValueRequirement(REQUIREMENT_1, targetId, ValueProperties.with(TEST_PROPERTY, "Bar").get());
+    _spec1Bar = new ValueSpecification (_req1Bar, MockFunction.UNIQUE_ID);
+    _value1Bar = new ComputedValue (_spec1Bar, 9.0);
     _req1Any = new ValueRequirement(REQUIREMENT_1, targetId, ValueProperties.withAny(TEST_PROPERTY).get());
     _req2 = new ValueRequirement(REQUIREMENT_2, targetId);
     _spec2 = new ValueSpecification(_req2, MockFunction.UNIQUE_ID);
@@ -191,6 +195,14 @@ public class DepGraphTestHelper {
 
   public ValueRequirement getRequirement1Bar() {
     return _req1Bar;
+  }
+  
+  public ValueSpecification getSpecification1Bar () {
+    return _spec1Bar;
+  }
+  
+  public ComputedValue getValue1Bar () {
+    return _value1Bar;
   }
 
   public ValueRequirement getRequirement1Any() {

@@ -20,7 +20,7 @@ public interface ConventionBundleMaster {
 
   ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest searchRequest);
 
-  ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueIdentifier);
+  ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueId);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
 

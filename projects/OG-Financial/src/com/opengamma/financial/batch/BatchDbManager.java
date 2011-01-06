@@ -7,8 +7,10 @@ package com.opengamma.financial.batch;
 
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
@@ -80,5 +82,21 @@ public interface BatchDbManager {
    * and write results into the database.
    */
   DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
+  
+  /**
+   * Gets the results of a batch from the batch DB.
+   * <p>
+   * Risk failures are not included in the result. 
+   * <p>
+   * This method should not be called while the batch is still
+   * in progress. If this is done, the results may be incomplete
+   * and you may encounter database locking issues. 
+   * 
+   * @param observationDate Date of the batch
+   * @param observationTime Time of the batch, for example, LDN_CLOSE
+   * @return The results of the batch. {@code null} if there is no batch 
+   * for the given date and time. 
+   */
+  ViewComputationResultModel getResults(LocalDate observationDate, String observationTime);
   
 }

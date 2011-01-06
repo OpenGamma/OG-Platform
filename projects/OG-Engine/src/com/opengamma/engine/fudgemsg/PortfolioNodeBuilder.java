@@ -69,7 +69,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
   private static MutableFudgeFieldContainer buildMessageImpl(final FudgeSerializationContext context, final PortfolioNode node) {
     final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueIdentifier());
+    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueId());
     message.add(FIELD_NAME, node.getName());
     message.add(FIELD_POSITIONS, encodePositions(context, node.getPositions()));
     message.add(FIELD_SUBNODES, encodeSubNodes(context, node.getChildNodes()));
@@ -79,7 +79,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
     final MutableFudgeFieldContainer message = buildMessageImpl(context, node);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNode());
+    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNodeId());
     return message;
   }
 
@@ -88,7 +88,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     for (FudgeField field : message) {
       if (field.getValue() instanceof FudgeFieldContainer) {
         final PositionImpl position = PositionBuilder.buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
-        position.setPortfolioNode(node.getUniqueIdentifier());
+        position.setParentNodeId(node.getUniqueId());
         node.addPosition(position);
       }
     }
@@ -98,7 +98,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     for (FudgeField field : message) {
       if (field.getValue() instanceof FudgeFieldContainer) {
         final PortfolioNodeImpl child = buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
-        child.setParentNode(node.getUniqueIdentifier());
+        child.setParentNodeId(node.getUniqueId());
         node.addChildNode(child);
       }
     }
@@ -110,7 +110,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
     final PortfolioNodeImpl node = new PortfolioNodeImpl(name);
     if (id != null) {
-      node.setUniqueIdentifier(id);
+      node.setUniqueId(id);
     }
     readPositions(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_POSITIONS)), node);
     readSubNodes(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_SUBNODES)), node);
@@ -123,7 +123,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
     if (parentId != null) {
-      node.setParentNode(parentId);
+      node.setParentNodeId(parentId);
     }
     return node;
   }

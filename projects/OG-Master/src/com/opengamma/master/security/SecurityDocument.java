@@ -53,7 +53,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
    */
   public SecurityDocument(final ManageableSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    setUniqueId(security.getUniqueIdentifier());
+    setUniqueId(security.getUniqueId());
     setSecurity(security);
   }
 

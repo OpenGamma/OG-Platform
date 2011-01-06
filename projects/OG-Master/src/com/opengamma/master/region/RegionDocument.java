@@ -41,12 +41,12 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
   /**
-   * The identifier of the provider of the data.
+   * The provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * The region.
    */
@@ -66,7 +66,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
    */
   public RegionDocument(final Region region) {
     ArgumentChecker.notNull(region, "region");
-    setUniqueId(region.getUniqueIdentifier());
+    setUniqueId(region.getUniqueId());
     if (region instanceof ManageableRegion) {
       setRegion((ManageableRegion) region);
     } else {
@@ -94,8 +94,8 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case -934795532:  // region
         return getRegion();
     }
@@ -108,8 +108,8 @@ public class RegionDocument extends AbstractDocument implements Serializable {
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case -934795532:  // region
         setRegion((ManageableRegion) newValue);
@@ -148,33 +148,33 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the provider of the data.
+   * Gets the provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the provider of the data.
+   * Sets the provider key identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -217,9 +217,9 @@ public class RegionDocument extends AbstractDocument implements Serializable {
      */
     private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code region} property.
      */
@@ -233,7 +233,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("uniqueId", _uniqueId);
-      temp.put("providerId", _providerId);
+      temp.put("providerKey", _providerKey);
       temp.put("region", _region);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -263,11 +263,11 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**

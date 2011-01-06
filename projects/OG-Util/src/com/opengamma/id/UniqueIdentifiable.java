@@ -18,6 +18,6 @@ public interface UniqueIdentifiable {
    * 
    * @return the unique identifier, may be null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
 }

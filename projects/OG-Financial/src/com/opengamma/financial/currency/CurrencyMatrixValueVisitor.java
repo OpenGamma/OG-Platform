@@ -18,7 +18,7 @@ public interface CurrencyMatrixValueVisitor<T> {
 
   T visitFixed(CurrencyMatrixFixed fixedValue);
 
-  T visitValueRequirement(CurrencyMatrixValueRequirement uniqueIdentifier);
+  T visitValueRequirement(CurrencyMatrixValueRequirement uniqueId);
 
   T visitCross(CurrencyMatrixCross cross);
 

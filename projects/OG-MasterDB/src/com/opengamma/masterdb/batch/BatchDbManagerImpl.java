@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,8 +36,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
@@ -283,15 +286,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
       public ComputationTarget doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query;
-        if (spec.getUniqueIdentifier().getVersion() == null) {
+        if (spec.getUniqueId().getVersion() == null) {
           query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNullVersion");
         } else {
           query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNonNullVersion");
-          query.setString("idVersion", spec.getUniqueIdentifier().getVersion());
+          query.setString("idVersion", spec.getUniqueId().getVersion());
         }
         query.setInteger("computationTargetType", ComputationTarget.getType(spec.getType()));
-        query.setString("idScheme", spec.getUniqueIdentifier().getScheme());
-        query.setString("idValue", spec.getUniqueIdentifier().getValue());
+        query.setString("idScheme", spec.getUniqueId().getScheme());
+        query.setString("idValue", spec.getUniqueId().getValue());
         return (ComputationTarget) query.uniqueResult();
       }
     });
@@ -303,9 +306,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     if (computationTarget == null) {
       computationTarget = new ComputationTarget();
       computationTarget.setComputationTargetType(spec.getType());
-      computationTarget.setIdScheme(spec.getUniqueIdentifier().getScheme());      
-      computationTarget.setIdValue(spec.getUniqueIdentifier().getValue());
-      computationTarget.setIdVersion(spec.getUniqueIdentifier().getVersion());
+      computationTarget.setIdScheme(spec.getUniqueId().getScheme());      
+      computationTarget.setIdValue(spec.getUniqueId().getValue());
+      computationTarget.setIdVersion(spec.getUniqueId().getVersion());
       getHibernateTemplate().save(computationTarget);
     }
     return computationTarget;
@@ -316,9 +319,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     if (computationTarget == null) {
       computationTarget = new ComputationTarget();
       computationTarget.setComputationTargetType(ct.getType());
-      computationTarget.setIdScheme(ct.getUniqueIdentifier().getScheme());      
-      computationTarget.setIdValue(ct.getUniqueIdentifier().getValue());
-      computationTarget.setIdVersion(ct.getUniqueIdentifier().getVersion());
+      computationTarget.setIdScheme(ct.getUniqueId().getScheme());      
+      computationTarget.setIdValue(ct.getUniqueId().getValue());
+      computationTarget.setIdVersion(ct.getUniqueId().getVersion());
       computationTarget.setName(ct.getName());
       getHibernateTemplate().save(computationTarget);
     } else {
@@ -366,19 +369,25 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return functionUniqueId;
   }
   
-  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
+  /*package*/ RiskRun getRiskRunFromDb(final LocalDate observationDate, final String observationTime) {
     RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
       public RiskRun doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("RiskRun.one.byRunTime");
-        query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
-        query.setString("runTime", job.getObservationTime());
+        query.setDate("runDate", DbDateUtils.toSqlDate(observationDate));
+        query.setString("runTime", observationTime);
         return (RiskRun) query.uniqueResult();
       }
     });
     
     return riskRun;
+  }
+
+  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
+    return getRiskRunFromDb(
+        job.getObservationDate(),
+        job.getObservationTime());
   }
   
   /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
@@ -755,6 +764,42 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   public static Class<?>[] getHibernateMappingClasses() {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
+  }
+  
+  @Override
+  public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
+    // At the moment, we simply load all results into memory.
+    // This needs to be made more scalable.
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      riskRun = getRiskRunFromDb(observationDate, observationTime);
+      if (riskRun == null) {
+        return null;
+      }
+
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    List<MaterializedRiskValue> values = _dbSource.getJdbcTemplate().query(
+        MaterializedRiskValue.sqlGet(), 
+        MaterializedRiskValue.ROW_MAPPER, 
+        params);
+    
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    
+    for (MaterializedRiskValue value : values) {
+      result.addValue(value.getCalculationConfiguration(), value.getComputedValue());
+    }
+    
+    return result;
   }
   
 }

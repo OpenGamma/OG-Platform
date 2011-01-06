@@ -83,7 +83,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());

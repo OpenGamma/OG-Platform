@@ -139,7 +139,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       setCalculationState(ViewCalculationState.STOPPED);
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-      
+
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
       addLiveDataSubscriptions();
 
@@ -148,17 +148,18 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       // Reset the state
       setCalculationState(ViewCalculationState.NOT_INITIALIZED);
       setViewEvaluationModel(null);
+      s_logger.warn("The view failed to initialise", t);
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
     } finally {
       _viewLock.unlock();
     }
   }
-  
+
   @Override
   public void reinit() {
     reinit(Instant.now());
   }
-  
+
   @Override
   public void reinit(final InstantProvider initializationInstant) {
     _viewLock.lock();
@@ -168,28 +169,28 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         s_logger.debug("Skipping reinitialization of view '{}' since it has not been initialized", getName());
         return;
       }
-      
+
       OperationTimer timer = new OperationTimer(s_logger, "Reinitializing view {}", getDefinition().getName());
-      
+
       if (calculationState == ViewCalculationState.RUNNING) {
         terminateCalculationJob();
         // Connected clients (and they do exist because we're running) will not receive any further results until a new
         // calculation job is started. This may cause a delay, but the clients will remain connected.
       }
-      
+
       // Recompile the view definition, replacing old live data subscriptions with new ones (perhaps the functions are
       // now configured different so that different live data is required).
       removeLiveDataSubscriptions();
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
       addLiveDataSubscriptions();
-      
+
       if (calculationState == ViewCalculationState.RUNNING) {
         // Start the calcluation job again so that results continue without interruption.
         startCalculationJob();
       }
-      
+
       timer.finished();
-      
+
     } finally {
       _viewLock.unlock();
     }
@@ -767,7 +768,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private UniqueIdentifier generateClientIdentifier() {
     return UniqueIdentifier.of(_uidScheme, CLIENT_UID_PREFIX + "-" + _uidCount.getAndIncrement());
   }
-  
+
   private void startCalculationJob() {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
@@ -782,7 +783,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     if (getRecalcJob() == null) {
       return;
     }
-    
+
     getRecalcJob().terminate();
     if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
       // In this case it might be waiting on a recalculation pass. Interrupt it.

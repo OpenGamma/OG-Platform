@@ -45,11 +45,20 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   /**
    * The unique identifier of the region.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
+  /**
+   * The bundle of identifiers that define the region.
+   * This will include the country, currency and time-zone.
+   * This field must not be null for the object to be valid.
+   */
+  @PropertyDefinition
+  private IdentifierBundle _identifiers = IdentifierBundle.EMPTY;
   /**
    * The classification of the region.
+   * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private RegionClassification _classification;
@@ -61,6 +70,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   private Set<UniqueIdentifier> _parentRegionIds = new HashSet<UniqueIdentifier>();
   /**
    * The short descriptive name for the region.
+   * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private String _name;
@@ -70,13 +80,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   @PropertyDefinition
   private String _fullName;
   /**
-   * The identifiers defining the region.
-   * This will include the country, currency and time-zone.
-   */
-  @PropertyDefinition
-  private IdentifierBundle _identifiers = IdentifierBundle.EMPTY;
-  /**
-   * The extensible data store for additional information.
+   * The extensible data store for additional information, not null.
    * Applications may store additional region based information here.
    */
   @PropertyDefinition
@@ -97,7 +101,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    */
   public ManageableRegion(final Region region) {
     ArgumentChecker.notNull(region, "region");
-    setUniqueIdentifier(region.getUniqueIdentifier());
+    setUniqueId(region.getUniqueId());
     setClassification(region.getClassification());
     setParentRegionIds(region.getParentRegionIds());
     setName(region.getName());
@@ -202,8 +206,10 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
+      case 1368189162:  // identifiers
+        return getIdentifiers();
       case 382350310:  // classification
         return getClassification();
       case 1273190810:  // parentRegionIds
@@ -212,8 +218,6 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
         return getName();
       case 1330852282:  // fullName
         return getFullName();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
       case 3076010:  // data
         return getData();
     }
@@ -224,8 +228,11 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
+        return;
+      case 1368189162:  // identifiers
+        setIdentifiers((IdentifierBundle) newValue);
         return;
       case 382350310:  // classification
         setClassification((RegionClassification) newValue);
@@ -239,9 +246,6 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
       case 1330852282:  // fullName
         setFullName((String) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((IdentifierBundle) newValue);
-        return;
       case 3076010:  // data
         setData((FlexiBean) newValue);
         return;
@@ -252,31 +256,66 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the region.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the region.
-   * @param uniqueIdentifier  the new value of the property
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bundle of identifiers that define the region.
+   * This will include the country, currency and time-zone.
+   * This field must not be null for the object to be valid.
+   * @return the value of the property
+   */
+  public IdentifierBundle getIdentifiers() {
+    return _identifiers;
+  }
+
+  /**
+   * Sets the bundle of identifiers that define the region.
+   * This will include the country, currency and time-zone.
+   * This field must not be null for the object to be valid.
+   * @param identifiers  the new value of the property
+   */
+  public void setIdentifiers(IdentifierBundle identifiers) {
+    this._identifiers = identifiers;
+  }
+
+  /**
+   * Gets the the {@code identifiers} property.
+   * This will include the country, currency and time-zone.
+   * This field must not be null for the object to be valid.
+   * @return the property, not null
+   */
+  public final Property<IdentifierBundle> identifiers() {
+    return metaBean().identifiers().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the classification of the region.
+   * This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public RegionClassification getClassification() {
@@ -285,6 +324,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   /**
    * Sets the classification of the region.
+   * This field must not be null for the object to be valid.
    * @param classification  the new value of the property
    */
   public void setClassification(RegionClassification classification) {
@@ -293,6 +333,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   /**
    * Gets the the {@code classification} property.
+   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<RegionClassification> classification() {
@@ -331,6 +372,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   //-----------------------------------------------------------------------
   /**
    * Gets the short descriptive name for the region.
+   * This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public String getName() {
@@ -339,6 +381,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   /**
    * Sets the short descriptive name for the region.
+   * This field must not be null for the object to be valid.
    * @param name  the new value of the property
    */
   public void setName(String name) {
@@ -347,6 +390,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   /**
    * Gets the the {@code name} property.
+   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -380,35 +424,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifiers defining the region.
-   * This will include the country, currency and time-zone.
-   * @return the value of the property
-   */
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
-  }
-
-  /**
-   * Sets the identifiers defining the region.
-   * This will include the country, currency and time-zone.
-   * @param identifiers  the new value of the property
-   */
-  public void setIdentifiers(IdentifierBundle identifiers) {
-    this._identifiers = identifiers;
-  }
-
-  /**
-   * Gets the the {@code identifiers} property.
-   * This will include the country, currency and time-zone.
-   * @return the property, not null
-   */
-  public final Property<IdentifierBundle> identifiers() {
-    return metaBean().identifiers().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the extensible data store for additional information.
+   * Gets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
    * @return the value of the property
    */
@@ -417,7 +433,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   }
 
   /**
-   * Sets the extensible data store for additional information.
+   * Sets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
    * @param data  the new value of the property
    */
@@ -446,9 +462,13 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    /**
+     * The meta-property for the {@code identifiers} property.
+     */
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
     /**
      * The meta-property for the {@code classification} property.
      */
@@ -467,10 +487,6 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
      */
     private final MetaProperty<String> _fullName = DirectMetaProperty.ofReadWrite(this, "fullName", String.class);
     /**
-     * The meta-property for the {@code identifiers} property.
-     */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
-    /**
      * The meta-property for the {@code data} property.
      */
     private final MetaProperty<FlexiBean> _data = DirectMetaProperty.ofReadWrite(this, "data", FlexiBean.class);
@@ -482,12 +498,12 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
+      temp.put("identifiers", _identifiers);
       temp.put("classification", _classification);
       temp.put("parentRegionIds", _parentRegionIds);
       temp.put("name", _name);
       temp.put("fullName", _fullName);
-      temp.put("identifiers", _identifiers);
       temp.put("data", _data);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -509,11 +525,19 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code identifiers} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<IdentifierBundle> identifiers() {
+      return _identifiers;
     }
 
     /**
@@ -546,14 +570,6 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
      */
     public final MetaProperty<String> fullName() {
       return _fullName;
-    }
-
-    /**
-     * The meta-property for the {@code identifiers} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<IdentifierBundle> identifiers() {
-      return _identifiers;
     }
 
     /**

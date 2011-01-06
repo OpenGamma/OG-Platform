@@ -36,29 +36,30 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class ManageableExchange extends DirectBean implements Exchange {
+  // TODO: regionId should be regionKey, but it is stored in Fudge in DB
 
   /**
    * The unique identifier of the exchange.
-   * This must not be null when retrieved from a master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The bundle of identifiers that define the exchange.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private IdentifierBundle _identifiers = IdentifierBundle.EMPTY;
   /**
    * The name of the exchange intended for display purposes.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private String _name;
   /**
-   * The bundle of identifiers that define where the exchange is located.
+   * The region key identifier bundle that defines where the exchange is located.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "manual", set = "manual")
   private IdentifierBundle _regionId;
   /**
    * The time-zone of the exchange.
@@ -66,7 +67,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   @PropertyDefinition
   private TimeZone _timeZone;
   /**
-   * The detailed information about when an exchange is open or closed.
+   * The detailed information about when an exchange is open or closed, not null.
    */
   @PropertyDefinition
   private final List<ManageableExchangeDetail> _detail = new ArrayList<ManageableExchangeDetail>();
@@ -82,15 +83,15 @@ public class ManageableExchange extends DirectBean implements Exchange {
    * 
    * @param identifiers  the bundle of identifiers that define the exchange, not null
    * @param name  the name of the exchange, for display purposes, not null
-   * @param regionId  the identifier of the region where the exchange is located, null if not applicable (dark pool, electronic, ...)
+   * @param regionKey  the region key identifier bundle where the exchange is located, null if not applicable (dark pool, electronic, ...)
    * @param timeZone  the time-zone, may be null
    */
-  public ManageableExchange(IdentifierBundle identifiers, String name, IdentifierBundle regionId, TimeZone timeZone) {
+  public ManageableExchange(IdentifierBundle identifiers, String name, IdentifierBundle regionKey, TimeZone timeZone) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(name, "name");
     setIdentifiers(identifiers);
     setName(name);
-    setRegionId(regionId);
+    setRegionKey(regionKey);
     setTimeZone(timeZone);
   }
 
@@ -100,12 +101,45 @@ public class ManageableExchange extends DirectBean implements Exchange {
    */
   public ManageableExchange clone() {
     ManageableExchange cloned = new ManageableExchange();
-    cloned._uniqueIdentifier = _uniqueIdentifier;
+    cloned._uniqueId = _uniqueId;
     cloned._name = _name;
     cloned._identifiers = _identifiers;
     cloned._regionId = _regionId;
     cloned._detail.addAll(_detail);
     return cloned;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the region key identifier bundle that defines where the exchange is located.
+   * @return the value of the property
+   */
+  public IdentifierBundle getRegionKey() {
+    return getRegionId();
+  }
+
+  /**
+   * Sets the region key identifier bundle that defines where the exchange is located.
+   * @param regionKey  the new value of the property
+   */
+  public void setRegionKey(IdentifierBundle regionKey) {
+    setRegionId(regionKey);
+  }
+
+  /**
+   * Gets the region key identifier bundle that defines where the exchange is located.
+   * @return the value of the property
+   */
+  private IdentifierBundle getRegionId() {
+    return _regionId;
+  }
+
+  /**
+   * Sets the region key identifier bundle that defines where the exchange is located.
+   * @param regionKey  the new value of the property
+   */
+  private void setRegionId(IdentifierBundle regionKey) {
+    this._regionId = regionKey;
   }
 
   //-------------------------------------------------------------------------
@@ -158,8 +192,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 1368189162:  // identifiers
         return getIdentifiers();
       case 3373707:  // name
@@ -178,8 +212,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundle) newValue);
@@ -203,35 +237,35 @@ public class ManageableExchange extends DirectBean implements Exchange {
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the exchange.
-   * This must not be null when retrieved from a master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the exchange.
-   * This must not be null when retrieved from a master.
-   * @param uniqueIdentifier  the new value of the property
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
-   * This must not be null when retrieved from a master.
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the bundle of identifiers that define the exchange.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public IdentifierBundle getIdentifiers() {
@@ -240,7 +274,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   /**
    * Sets the bundle of identifiers that define the exchange.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @param identifiers  the new value of the property
    */
   public void setIdentifiers(IdentifierBundle identifiers) {
@@ -249,7 +283,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   /**
    * Gets the the {@code identifiers} property.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<IdentifierBundle> identifiers() {
@@ -259,7 +293,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the exchange intended for display purposes.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public String getName() {
@@ -268,7 +302,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   /**
    * Sets the name of the exchange intended for display purposes.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @param name  the new value of the property
    */
   public void setName(String name) {
@@ -277,7 +311,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   /**
    * Gets the the {@code name} property.
-   * This must not be null when retrieved from a master.
+   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -285,22 +319,6 @@ public class ManageableExchange extends DirectBean implements Exchange {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the bundle of identifiers that define where the exchange is located.
-   * @return the value of the property
-   */
-  public IdentifierBundle getRegionId() {
-    return _regionId;
-  }
-
-  /**
-   * Sets the bundle of identifiers that define where the exchange is located.
-   * @param regionId  the new value of the property
-   */
-  public void setRegionId(IdentifierBundle regionId) {
-    this._regionId = regionId;
-  }
-
   /**
    * Gets the the {@code regionId} property.
    * @return the property, not null
@@ -336,7 +354,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the detailed information about when an exchange is open or closed.
+   * Gets the detailed information about when an exchange is open or closed, not null.
    * @return the value of the property
    */
   public List<ManageableExchangeDetail> getDetail() {
@@ -344,7 +362,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   }
 
   /**
-   * Sets the detailed information about when an exchange is open or closed.
+   * Sets the detailed information about when an exchange is open or closed, not null.
    * @param detail  the new value of the property
    */
   public void setDetail(List<ManageableExchangeDetail> detail) {
@@ -371,9 +389,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
@@ -403,7 +421,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("identifiers", _identifiers);
       temp.put("name", _name);
       temp.put("regionId", _regionId);
@@ -429,11 +447,11 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

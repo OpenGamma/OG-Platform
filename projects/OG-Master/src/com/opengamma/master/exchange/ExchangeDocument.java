@@ -53,7 +53,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
    */
   public ExchangeDocument(final ManageableExchange exchange) {
     ArgumentChecker.notNull(exchange, "exchange");
-    setUniqueId(exchange.getUniqueIdentifier());
+    setUniqueId(exchange.getUniqueId());
     setExchange(exchange);
   }
 

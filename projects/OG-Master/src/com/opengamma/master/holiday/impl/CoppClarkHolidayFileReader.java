@@ -162,7 +162,7 @@ public class CoppClarkHolidayFileReader {
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(currency, EMPTY_DATE_LIST));
-        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        doc.setProviderKey(Identifier.of(COPP_CLARK_SCHEME, ccId));
         map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -190,7 +190,7 @@ public class CoppClarkHolidayFileReader {
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.BANK, regionId, EMPTY_DATE_LIST));
-        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        doc.setProviderKey(Identifier.of(COPP_CLARK_SCHEME, ccId));
         map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -218,7 +218,7 @@ public class CoppClarkHolidayFileReader {
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.SETTLEMENT, micId, EMPTY_DATE_LIST));
-        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        doc.setProviderKey(Identifier.of(COPP_CLARK_SCHEME, ccId));
         map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -246,7 +246,7 @@ public class CoppClarkHolidayFileReader {
       HolidayDocument doc = map.get(ccId);
       if (doc == null) {
         doc = new HolidayDocument(new ManageableHoliday(HolidayType.TRADING, micId, EMPTY_DATE_LIST));
-        doc.setProviderId(Identifier.of(COPP_CLARK_SCHEME, ccId));
+        doc.setProviderKey(Identifier.of(COPP_CLARK_SCHEME, ccId));
         map.put(ccId, doc);
       }
       doc.getHoliday().getHolidayDates().add(eventDate);
@@ -263,7 +263,7 @@ public class CoppClarkHolidayFileReader {
     for (HolidayDocument doc : map.values()) {
       Collections.sort(doc.getHoliday().getHolidayDates());
       HolidaySearchRequest search = new HolidaySearchRequest(doc.getHoliday().getType());
-      search.setProviderId(doc.getProviderId());
+      search.setProviderKey(doc.getProviderKey());
       HolidaySearchResult result = _holidayMaster.search(search);
       if (result.getDocuments().size() == 0) {
         // add new data
@@ -272,7 +272,7 @@ public class CoppClarkHolidayFileReader {
         // update existing data
         HolidayDocument existing = result.getFirstDocument();
         doc.setUniqueId(existing.getUniqueId());
-        doc.getHoliday().setUniqueIdentifier(existing.getUniqueId());
+        doc.getHoliday().setUniqueId(existing.getUniqueId());
         // merge dates
         if (doc.getHoliday().getHolidayDates().size() > 0) {
           LocalDate newFirstDate = doc.getHoliday().getHolidayDates().get(0);
@@ -299,7 +299,7 @@ public class CoppClarkHolidayFileReader {
           _holidayMaster.update(doc);
         }
       } else {
-        throw new IllegalStateException("Multiple rows in database for Copp Clark ID: " + doc.getProviderId().getValue() + " " + doc.getHoliday().getType());
+        throw new IllegalStateException("Multiple rows in database for Copp Clark ID: " + doc.getProviderKey().getValue() + " " + doc.getHoliday().getType());
       }
     }
   }

@@ -436,7 +436,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   public SecurityBean getSecurityBean(final ManageableSecurity base, SecurityBeanOperation<?, ?> beanOperation) {
     String beanType = beanOperation.getBeanClass().getSimpleName();
     Query query = getSession().getNamedQuery(beanType + ".one.bySecurityId");
-    query.setLong("securityId", extractRowId(base.getUniqueIdentifier()));
+    query.setLong("securityId", extractRowId(base.getUniqueId()));
     return (SecurityBean) query.uniqueResult();
   }
 
@@ -445,7 +445,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   public <S extends ManageableSecurity, SBean extends SecurityBean> SBean createSecurityBean(
       final OperationContext context, final SecurityBeanOperation<S, SBean> beanOperation, final Date effectiveDateTime, final S security) {
     final SBean bean = beanOperation.createBean(context, this, security);
-    bean.setSecurityId(extractRowId(security.getUniqueIdentifier()));
+    bean.setSecurityId(extractRowId(security.getUniqueId()));
     persistSecurityBean(context, bean);
     beanOperation.postPersistBean(context, this, effectiveDateTime, bean);
     return bean;

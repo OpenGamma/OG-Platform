@@ -121,7 +121,7 @@ import com.opengamma.util.Cancellable;
   }
 
   public FunctionInvocationStatistics getFunctionStatistics(final CompiledFunctionDefinition function) {
-    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueIdentifier());
+    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueId());
   }
 
   @Override

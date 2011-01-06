@@ -96,7 +96,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueIdentifier());
+    assertEquals(uid, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityKey();
     assertNotNull(secKey);
@@ -130,7 +130,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(uid, testPosition.getUniqueIdentifier());
+    assertEquals(uid, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityKey();
     assertNotNull(secKey);
@@ -174,7 +174,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePosition testPosition = test.getPosition();
     assertNotNull(testPosition);
-    assertEquals(positionUid, testPosition.getUniqueIdentifier());
+    assertEquals(positionUid, testPosition.getUniqueId());
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     IdentifierBundle secKey = testPosition.getSecurityKey();
     assertNotNull(secKey);
@@ -185,7 +185,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertTrue(testPosition.getTrades().size() == 2);
     for (ManageableTrade testTrade : testPosition.getTrades()) {
       assertNotNull(testTrade);
-      UniqueIdentifier tradeUid = testTrade.getUniqueIdentifier();
+      UniqueIdentifier tradeUid = testTrade.getUniqueId();
       assertNotNull(tradeUid);
       assertEquals("DbPos", positionUid.getScheme());
       assertTrue(positionUid.isVersioned());
