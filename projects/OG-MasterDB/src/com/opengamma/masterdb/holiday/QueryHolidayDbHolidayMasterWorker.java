@@ -26,7 +26,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -138,11 +139,13 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   @Override
   protected HolidaySearchResult search(HolidaySearchRequest request) {
     s_logger.debug("searchHolidays: {}", request);
-    IdentifierBundle regionIds = request.getRegionIdentifiers();
-    IdentifierBundle exchangeIds = request.getExchangeIdentifiers();
+    final HolidaySearchResult result = new HolidaySearchResult();
+    IdentifierSearch regionKeys = request.getRegionKeys();
+    IdentifierSearch exchangeKeys = request.getExchangeKeys();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
-    if (IdentifierBundle.EMPTY.equals(regionIds) || IdentifierBundle.EMPTY.equals(exchangeIds)) {
-      return new HolidaySearchResult();  // containsAny with empty bundle always returns nothing
+    if (IdentifierSearch.canMatch(regionKeys) == false ||
+        IdentifierSearch.canMatch(exchangeKeys) == false) {
+      return result;
     }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -155,23 +158,28 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       args.addValue("provider_scheme", request.getProviderKey().getScheme().getName());
       args.addValue("provider_value", request.getProviderKey().getValue());
     }
-    if (regionIds != null) {
+    if (regionKeys != null) {
+      if (regionKeys.getSearchType() != IdentifierSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + regionKeys.getSearchType());
+      }
       int i = 0;
-      for (Identifier idKey : regionIds.getIdentifiers()) {
+      for (Identifier idKey : regionKeys.getIdentifiers()) {
         args.addValue("region_scheme" + i, idKey.getScheme().getName());
         args.addValue("region_value" + i, idKey.getValue());
         i++;
       }
     }
-    if (exchangeIds != null) {
+    if (exchangeKeys != null) {
+      if (exchangeKeys.getSearchType() != IdentifierSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + exchangeKeys.getSearchType());
+      }
       int i = 0;
-      for (Identifier idKey : exchangeIds.getIdentifiers()) {
+      for (Identifier idKey : exchangeKeys.getIdentifiers()) {
         args.addValue("exchange_scheme" + i, idKey.getScheme().getName());
         args.addValue("exchange_value" + i, idKey.getValue());
         i++;
       }
     }
-    final HolidaySearchResult result = new HolidaySearchResult();
     searchWithPaging(request.getPagingRequest(), sqlSearchHolidays(request), args, new HolidayDocumentExtractor(), result);
     return result;
   }
@@ -193,11 +201,11 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     if (request.getProviderKey() != null) {
       where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
-    if (request.getRegionIdentifiers() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getRegionIdentifiers(), "region") + ") ";
+    if (request.getRegionKeys() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getRegionKeys(), "region") + ") ";
     }
-    if (request.getExchangeIdentifiers() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getExchangeIdentifiers(), "exchange") + ") ";
+    if (request.getExchangeKeys() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getExchangeKeys(), "exchange") + ") ";
     }
     if (request.getCurrency() != null) {
       where += "AND currency_iso = :currency_iso ";
@@ -215,7 +223,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    * @param type  the type to search for, not null
    * @return the SQL search and count, not null
    */
-  protected String sqlSelectIdKeys(final IdentifierBundle bundle, final String type) {
+  protected String sqlSelectIdKeys(final IdentifierSearch bundle, final String type) {
     List<String> list = new ArrayList<String>();
     for (int i = 0; i < bundle.size(); i++) {
       list.add("(" + type + "_scheme = :" + type + "_scheme" + i + " AND " + type + "_value = :" + type + "_value" + i + ") ");

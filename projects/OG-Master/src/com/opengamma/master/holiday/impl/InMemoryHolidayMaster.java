@@ -91,21 +91,21 @@ public class InMemoryHolidayMaster implements HolidayMaster {
         }
       });
     }
-    if (request.getRegionIdentifiers() != null) {
+    if (request.getRegionKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
           return doc.getHoliday().getRegionKey() != null &&
-            request.getRegionIdentifiers().contains(doc.getHoliday().getRegionKey());
+            request.getRegionKeys().contains(doc.getHoliday().getRegionKey());
         }
       });
     }
-    if (request.getExchangeIdentifiers() != null) {
+    if (request.getExchangeKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
           return doc.getHoliday().getExchangeKey() != null &&
-            request.getExchangeIdentifiers().contains(doc.getHoliday().getExchangeKey());
+            request.getExchangeKeys().contains(doc.getHoliday().getExchangeKey());
         }
       });
     }
