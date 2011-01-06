@@ -230,12 +230,20 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   @Override
   public void stop() {
     // Caller MUST NOT hold the semaphore
+    final Set<ViewClient> currentClients;
     lock();
     try {
-      Set<ViewClient> currentClients = new HashSet<ViewClient>(_clientMap.values());
-      for (ViewClient client : currentClients) {
-        client.shutdown();
-      }
+      currentClients = new HashSet<ViewClient>(_clientMap.values());
+      _clientMap.clear();
+    } finally {
+      unlock();
+    }
+    // Don't hold semaphore while calling out
+    for (ViewClient client : currentClients) {
+      client.shutdown();
+    }
+    lock();
+    try {
       // Shutting down every client should have removed all live computation clients and stopped live computation
       setCalculationState(ViewCalculationState.TERMINATED);
       if (getViewEvaluationModel() != null) {
