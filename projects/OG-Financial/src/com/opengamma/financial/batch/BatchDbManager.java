@@ -92,11 +92,20 @@ public interface BatchDbManager {
    * in progress. If this is done, the results may be incomplete
    * and you may encounter database locking issues. 
    * 
-   * @param observationDate Date of the batch
-   * @param observationTime Time of the batch, for example, LDN_CLOSE
+   * @param observationDate Date of the batch, not null
+   * @param observationTime Time of the batch, for example, LDN_CLOSE, not null
    * @return The results of the batch. {@code null} if there is no batch 
    * for the given date and time. 
    */
   ViewComputationResultModel getResults(LocalDate observationDate, String observationTime);
+  
+  /**
+   * Searches for batches matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchSearchResult search(BatchSearchRequest request);
   
 }

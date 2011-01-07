@@ -72,4 +72,9 @@ public class DummyBatchDbManager implements BatchDbManager {
     return null;
   }
 
+  @Override
+  public BatchSearchResult search(BatchSearchRequest request) {
+    return null;
+  }
+  
 }
