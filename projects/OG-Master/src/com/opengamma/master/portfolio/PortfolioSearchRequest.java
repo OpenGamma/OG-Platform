@@ -5,11 +5,11 @@
  */
 package com.opengamma.master.portfolio;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -38,14 +38,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _portfolioIds;
+  private List<UniqueIdentifier> _portfolioIds;
   /**
    * The set of node object identifiers, null to not limit by node object identifiers.
    * Each returned portfolio will contain at least one of these nodes.
    * Note that an empty list will return no portfolio.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _nodeIds;
+  private List<UniqueIdentifier> _nodeIds;
   /**
    * The portfolio name, wildcards allowed, null to not match on name.
    */
@@ -75,7 +75,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public void addPortfolioId(UniqueIdentifier portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     if (_portfolioIds == null) {
-      _portfolioIds = new TreeSet<UniqueIdentifier>();
+      _portfolioIds = new ArrayList<UniqueIdentifier>();
     }
     _portfolioIds.add(portfolioId);
   }
@@ -90,7 +90,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     if (portfolioIds == null) {
       _portfolioIds = null;
     } else {
-      _portfolioIds = new TreeSet<UniqueIdentifier>();
+      _portfolioIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_portfolioIds, portfolioIds);
     }
   }
@@ -103,7 +103,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public void addNodeId(UniqueIdentifier nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
     if (_nodeIds == null) {
-      _nodeIds = new TreeSet<UniqueIdentifier>();
+      _nodeIds = new ArrayList<UniqueIdentifier>();
     }
     _nodeIds.add(nodeId);
   }
@@ -119,7 +119,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     if (nodeIds == null) {
       _nodeIds = null;
     } else {
-      _nodeIds = new TreeSet<UniqueIdentifier>();
+      _nodeIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_nodeIds, nodeIds);
     }
   }
@@ -159,10 +159,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -160779184:  // portfolioIds
-        setPortfolioIds((SortedSet<UniqueIdentifier>) newValue);
+        setPortfolioIds((List<UniqueIdentifier>) newValue);
         return;
       case 2114427222:  // nodeIds
-        setNodeIds((SortedSet<UniqueIdentifier>) newValue);
+        setNodeIds((List<UniqueIdentifier>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -180,7 +180,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getPortfolioIds() {
+  public List<UniqueIdentifier> getPortfolioIds() {
     return _portfolioIds;
   }
 
@@ -189,7 +189,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> portfolioIds() {
+  public final Property<List<UniqueIdentifier>> portfolioIds() {
     return metaBean().portfolioIds().createProperty(this);
   }
 
@@ -200,7 +200,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no portfolio.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getNodeIds() {
+  public List<UniqueIdentifier> getNodeIds() {
     return _nodeIds;
   }
 
@@ -210,7 +210,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no portfolio.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> nodeIds() {
+  public final Property<List<UniqueIdentifier>> nodeIds() {
     return metaBean().nodeIds().createProperty(this);
   }
 
@@ -287,12 +287,12 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _portfolioIds = DirectMetaProperty.ofReadWrite(this, "portfolioIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _portfolioIds = DirectMetaProperty.ofReadWrite(this, "portfolioIds", (Class) List.class);
     /**
      * The meta-property for the {@code nodeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _nodeIds = DirectMetaProperty.ofReadWrite(this, "nodeIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _nodeIds = DirectMetaProperty.ofReadWrite(this, "nodeIds", (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -336,7 +336,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> portfolioIds() {
+    public final MetaProperty<List<UniqueIdentifier>> portfolioIds() {
       return _portfolioIds;
     }
 
@@ -344,7 +344,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code nodeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> nodeIds() {
+    public final MetaProperty<List<UniqueIdentifier>> nodeIds() {
       return _nodeIds;
     }
 

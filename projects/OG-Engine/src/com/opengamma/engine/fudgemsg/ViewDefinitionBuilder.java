@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
+import com.opengamma.core.common.Currency;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -48,6 +49,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String PORTFOLIO_REQUIREMENT_FIELD = "portfolioRequirement";
   private static final String SPECIFIC_REQUIREMENT_FIELD = "specificRequirement";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
+  private static final String CURRENCY_FIELD = "currency";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
@@ -60,6 +62,12 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
     context.objectToFudgeMsg(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
+    
+    Currency defaultCurrency = viewDefinition.getDefaultCurrency();
+    if (defaultCurrency != null) {
+      message.add(CURRENCY_FIELD, null, defaultCurrency.getISOCode());
+    }
+    
     if (viewDefinition.getMinDeltaCalculationPeriod() != null) {
       message.add(MIN_DELTA_CALC_PERIOD_FIELD, null, viewDefinition.getMinDeltaCalculationPeriod());
     }
@@ -97,9 +105,21 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)), context.fieldValueToObject(UniqueIdentifier.class, message
-        .getByName(IDENTIFIER_FIELD)), context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)), context.fieldValueToObject(ResultModelDefinition.class, message
-          .getByName(RESULT_MODEL_DEFINITION_FIELD)));
+    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)), 
+        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)), 
+        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)), 
+        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
+    
+//    FudgeField currencyField = message.getByName(CURRENCY_FIELD);
+//    if (currencyField != null) {
+//      viewDefinition.setDefaultCurrency(context.fieldValueToObject(Currency.class, currencyField));
+//    }
+    
+    if (message.hasField(CURRENCY_FIELD)) {
+      String isoCode = message.getString(CURRENCY_FIELD);
+      viewDefinition.setDefaultCurrency(Currency.getInstance(isoCode));
+    }
+    
     if (message.hasField(MIN_DELTA_CALC_PERIOD_FIELD)) {
       viewDefinition.setMinDeltaCalculationPeriod(message.getLong(MIN_DELTA_CALC_PERIOD_FIELD));
     }

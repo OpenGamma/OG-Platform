@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swap;
@@ -50,8 +50,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     this(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  public FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
-      final String fundingValueRequirementName) {
+  public FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName, final String fundingValueRequirementName) {
     this(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
   }
 
@@ -106,14 +105,14 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
       initialFloatingRate = ((FloatingInterestRateLeg) payLeg).getInitialFloatingRate();
     }
     if (fundingCurveObject == null) {
-      final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _forwardCurveName,
-          _forwardCurveName, fixedRate, initialFloatingRate, now);
+      final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _forwardCurveName, _forwardCurveName, fixedRate,
+          initialFloatingRate, now);
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) forwardCurveObject;
       final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName}, new YieldAndDiscountCurve[] {curve});
       return getComputedValues(security, swap, bundle);
     }
-    final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _fundingCurveName,
-        _forwardCurveName, fixedRate, initialFloatingRate, now);
+    final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _fundingCurveName, _forwardCurveName, fixedRate,
+        initialFloatingRate, now);
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
@@ -129,8 +128,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
         if (swap.getPayLeg() instanceof InterestRateLeg && swap.getReceiveLeg() instanceof InterestRateLeg) {
           final InterestRateLeg payLeg = (InterestRateLeg) swap.getPayLeg();
           final InterestRateLeg receiveLeg = (InterestRateLeg) swap.getReceiveLeg();
-          if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg)
-              || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
+          if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
             final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
             return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency()) && payLegCurrency.equals(_currency);
           }
@@ -163,10 +161,14 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     return _fundingValueRequirementName;
   }
 
-  protected Currency getCurrencyForTarget(final ComputationTarget target) {
-    final SwapSecurity swap = (SwapSecurity) target.getSecurity();
+  protected Currency getCurrencyForTarget(final Security targetSecurity) {
+    final SwapSecurity swap = (SwapSecurity) targetSecurity;
     final InterestRateLeg leg = (InterestRateLeg) swap.getPayLeg();
     return ((InterestRateNotional) leg.getNotional()).getCurrency();
+  }
+
+  protected Currency getCurrencyForTarget(final ComputationTarget target) {
+    return getCurrencyForTarget(target.getSecurity());
   }
 
   protected Currency getCurrency() {

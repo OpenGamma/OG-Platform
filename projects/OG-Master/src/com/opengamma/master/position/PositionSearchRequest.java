@@ -6,12 +6,12 @@
 package com.opengamma.master.position;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -43,14 +43,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _positionIds;
+  private List<UniqueIdentifier> _positionIds;
   /**
    * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _tradeIds;
+  private List<UniqueIdentifier> _tradeIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -88,7 +88,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addPositionId(UniqueIdentifier positionId) {
     ArgumentChecker.notNull(positionId, "positionId");
     if (_positionIds == null) {
-      _positionIds = new TreeSet<UniqueIdentifier>();
+      _positionIds = new ArrayList<UniqueIdentifier>();
     }
     _positionIds.add(positionId);
   }
@@ -103,7 +103,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (positionIds == null) {
       _positionIds = null;
     } else {
-      _positionIds = new TreeSet<UniqueIdentifier>();
+      _positionIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_positionIds, positionIds);
     }
   }
@@ -116,7 +116,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addTradeId(UniqueIdentifier tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     if (_tradeIds == null) {
-      _tradeIds = new TreeSet<UniqueIdentifier>();
+      _tradeIds = new ArrayList<UniqueIdentifier>();
     }
     _tradeIds.add(tradeId);
   }
@@ -132,7 +132,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (tradeIds == null) {
       _tradeIds = null;
     } else {
-      _tradeIds = new TreeSet<UniqueIdentifier>();
+      _tradeIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_tradeIds, tradeIds);
     }
   }
@@ -221,10 +221,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -137459505:  // positionIds
-        setPositionIds((SortedSet<UniqueIdentifier>) newValue);
+        setPositionIds((List<UniqueIdentifier>) newValue);
         return;
       case 1271202484:  // tradeIds
-        setTradeIds((SortedSet<UniqueIdentifier>) newValue);
+        setTradeIds((List<UniqueIdentifier>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -248,7 +248,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getPositionIds() {
+  public List<UniqueIdentifier> getPositionIds() {
     return _positionIds;
   }
 
@@ -257,7 +257,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> positionIds() {
+  public final Property<List<UniqueIdentifier>> positionIds() {
     return metaBean().positionIds().createProperty(this);
   }
 
@@ -268,7 +268,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getTradeIds() {
+  public List<UniqueIdentifier> getTradeIds() {
     return _tradeIds;
   }
 
@@ -278,7 +278,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> tradeIds() {
+  public final Property<List<UniqueIdentifier>> tradeIds() {
     return metaBean().tradeIds().createProperty(this);
   }
 
@@ -399,12 +399,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
     /**
      * The meta-property for the {@code tradeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
@@ -458,7 +458,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> positionIds() {
+    public final MetaProperty<List<UniqueIdentifier>> positionIds() {
       return _positionIds;
     }
 
@@ -466,7 +466,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code tradeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> tradeIds() {
+    public final MetaProperty<List<UniqueIdentifier>> tradeIds() {
       return _tradeIds;
     }
 

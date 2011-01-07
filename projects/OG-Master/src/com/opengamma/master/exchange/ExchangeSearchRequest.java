@@ -5,12 +5,12 @@
  */
 package com.opengamma.master.exchange;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -43,7 +43,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    */
   @PropertyDefinition(set = "manual")
-  private SortedSet<UniqueIdentifier> _exchangeIds;
+  private List<UniqueIdentifier> _exchangeIds;
   /**
    * The exchange keys to match, null to not match on exchange keys.
    */
@@ -88,7 +88,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExchangeId(UniqueIdentifier exchangeId) {
     ArgumentChecker.notNull(exchangeId, "exchangeId");
     if (_exchangeIds == null) {
-      _exchangeIds = new TreeSet<UniqueIdentifier>();
+      _exchangeIds = new ArrayList<UniqueIdentifier>();
     }
     _exchangeIds.add(exchangeId);
   }
@@ -103,7 +103,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     if (exchangeIds == null) {
       _exchangeIds = null;
     } else {
-      _exchangeIds = new TreeSet<UniqueIdentifier>();
+      _exchangeIds = new ArrayList<UniqueIdentifier>();
       Iterables.addAll(_exchangeIds, exchangeIds);
     }
   }
@@ -186,7 +186,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -1755006571:  // exchangeIds
-        setExchangeIds((SortedSet<UniqueIdentifier>) newValue);
+        setExchangeIds((List<UniqueIdentifier>) newValue);
         return;
       case 1429431991:  // exchangeKeys
         setExchangeKeys((IdentifierSearch) newValue);
@@ -204,7 +204,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the value of the property
    */
-  public SortedSet<UniqueIdentifier> getExchangeIds() {
+  public List<UniqueIdentifier> getExchangeIds() {
     return _exchangeIds;
   }
 
@@ -213,7 +213,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the property, not null
    */
-  public final Property<SortedSet<UniqueIdentifier>> exchangeIds() {
+  public final Property<List<UniqueIdentifier>> exchangeIds() {
     return metaBean().exchangeIds().createProperty(this);
   }
 
@@ -281,7 +281,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<UniqueIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(this, "exchangeIds", (Class) SortedSet.class);
+    private final MetaProperty<List<UniqueIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(this, "exchangeIds", (Class) List.class);
     /**
      * The meta-property for the {@code exchangeKeys} property.
      */
@@ -324,7 +324,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SortedSet<UniqueIdentifier>> exchangeIds() {
+    public final MetaProperty<List<UniqueIdentifier>> exchangeIds() {
       return _exchangeIds;
     }
 

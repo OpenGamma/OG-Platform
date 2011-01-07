@@ -126,7 +126,6 @@ public class MasterSecuritySource implements SecuritySource {
       // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
       // versions and then pick one. Perhaps we should not use the "full detail" mode in this case depending on what comes back.
       SecurityHistoryRequest request = new SecurityHistoryRequest(uid, _versionAsOfInstant, _correctedToInstant);
-      request.setFullDetail(true);
       SecurityHistoryResult result = getSecurityMaster().history(request);
       if (result.getDocuments().isEmpty()) {
         return null;
@@ -178,7 +177,6 @@ public class MasterSecuritySource implements SecuritySource {
     request.addSecurityKeys(securityKey);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
-    request.setFullDetail(true);
     return (Collection) getSecurityMaster().search(request).getSecurities();  // cast safe as supplied list will not be altered
   }
 
