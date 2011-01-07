@@ -71,7 +71,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   public void test_correct_noExchangeId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc.setUniqueId(null);
     _worker.correct(doc);
@@ -88,7 +88,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     _worker.correct(doc);
   }
@@ -108,7 +108,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
     ExchangeDocument base = _queryWorker.get(uid);
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument input = new ExchangeDocument(exchange);
     
     ExchangeDocument corrected = _worker.correct(input);

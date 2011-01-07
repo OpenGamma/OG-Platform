@@ -23,8 +23,10 @@ import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
-import com.opengamma.web.position.WebPortfoliosData;
-import com.opengamma.web.position.WebPortfoliosUris;
+import com.opengamma.web.portfolio.WebPortfoliosData;
+import com.opengamma.web.portfolio.WebPortfoliosUris;
+import com.opengamma.web.position.WebPositionsData;
+import com.opengamma.web.position.WebPositionsUris;
 import com.opengamma.web.region.WebRegionData;
 import com.opengamma.web.region.WebRegionUris;
 import com.opengamma.web.security.WebSecuritiesData;
@@ -65,6 +67,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebPortfoliosData portfolioData = new WebPortfoliosData();
     portfolioData.setUriInfo(uriInfo);
     out.put("portfolioUris", new WebPortfoliosUris(portfolioData));
+    
+    WebPositionsData positionData = new WebPositionsData();
+    positionData.setUriInfo(uriInfo);
+    out.put("positionUris", new WebPositionsUris(positionData));
     
     WebSecuritiesData securityData = new WebSecuritiesData();
     securityData.setUriInfo(uriInfo);

@@ -62,7 +62,7 @@ public class EHCachingSecuritySourceTest {
   public void getSecurity_UniqueIdentifier() {
     addSecuritiesToMock(_security1, _security2);
     
-    UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
+    UniqueIdentifier uid1 = _security1.getUniqueId();
     Security underlyingSec = _underlyingSecuritySource.getSecurity(uid1);
     Security cachedSec = _cachingSecuritySource.getSecurity(uid1);
     assertNotNull(underlyingSec);
@@ -120,8 +120,8 @@ public class EHCachingSecuritySourceTest {
     assertEquals(1, multiSecCache.getSize());
     
     Element multiElement = multiSecCache.getQuiet(secKey);
-    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
-    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
+    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
     assertNotNull(multiElement);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);
@@ -170,7 +170,7 @@ public class EHCachingSecuritySourceTest {
     assertEquals(1, multiSecCache.getSize());
     
     Element multiElement = multiSecCache.getQuiet(secKey1);
-    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
     assertNotNull(multiElement);
     assertNotNull(sec1Element);
     for (int i = 1; i < 10; i++) {
@@ -199,7 +199,7 @@ public class EHCachingSecuritySourceTest {
   @Test
   public void refreshGetSecurity_UniqueIdentity() {
     addSecuritiesToMock(_security1, _security2);
-    UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
+    UniqueIdentifier uid1 = _security1.getUniqueId();
     _cachingSecuritySource.getSecurity(uid1);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
@@ -233,8 +233,8 @@ public class EHCachingSecuritySourceTest {
     assertEquals(2, singleSecCache.getSize());
     assertEquals(1, multiSecCache.getSize());
     
-    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
-    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
+    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
     Element multiElement = multiSecCache.getQuiet(secKey);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);
@@ -249,16 +249,16 @@ public class EHCachingSecuritySourceTest {
     _cachingSecuritySource.refresh(secKey);
     assertEquals(0, multiSecCache.getSize());
     assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
-    sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
+    sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
+    sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
     multiElement = multiSecCache.getQuiet(secKey);
     assertNull(sec1Element);
     assertNull(sec2Element);
     assertNull(multiElement);
     
     _cachingSecuritySource.getSecurities(secKey);
-    sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
-    sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
+    sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
+    sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
     multiElement = multiSecCache.getQuiet(secKey);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);

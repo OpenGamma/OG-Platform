@@ -29,23 +29,23 @@ public class LazyFunctionRepositoryCompiler extends CachingFunctionRepositoryCom
     }
 
     @Override
-    public CompiledFunctionDefinition getDefinition(final String uniqueIdentifier) {
-      FunctionDefinition function = _uncompiled.get(uniqueIdentifier);
+    public CompiledFunctionDefinition getDefinition(final String uniqueId) {
+      FunctionDefinition function = _uncompiled.get(uniqueId);
       if (function != null) {
         synchronized (this) {
-          function = _uncompiled.get(uniqueIdentifier);
+          function = _uncompiled.get(uniqueId);
           if (function != null) {
             final CompiledFunctionDefinition compiled = function.compile(getCompilationContext(), _atInstant);
             addFunction(compiled);
-            _uncompiled.remove(uniqueIdentifier);
+            _uncompiled.remove(uniqueId);
           }
         }
       }
-      return super.getDefinition(uniqueIdentifier);
+      return super.getDefinition(uniqueId);
     }
 
     public void addUncompiledFunction(final FunctionDefinition function) {
-      _uncompiled.put(function.getUniqueIdentifier(), function);
+      _uncompiled.put(function.getUniqueId(), function);
     }
 
     @Override

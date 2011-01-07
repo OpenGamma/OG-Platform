@@ -41,7 +41,7 @@ public class PositionWeightFromNAVFunction extends AbstractFunction.NonCompiledI
     if (fairValueObj != null) {
       final double fairValue = (Double) fairValueObj;
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(
-          ValueRequirementNames.WEIGHT, position), getUniqueIdentifier()), fairValue / _nav));
+          ValueRequirementNames.WEIGHT, position), getUniqueId()), fairValue / _nav));
     }
     return null;
   }
@@ -63,7 +63,7 @@ public class PositionWeightFromNAVFunction extends AbstractFunction.NonCompiledI
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.WEIGHT, target
-          .getPosition()), getUniqueIdentifier()));
+          .getPosition()), getUniqueId()));
     }
     return null;
   }

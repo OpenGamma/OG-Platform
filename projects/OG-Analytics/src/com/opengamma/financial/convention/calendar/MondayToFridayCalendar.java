@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.convention.calendar;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.LocalDate;
 
 /**
  * A working day calendar based on a Monday to Friday working week.
@@ -14,6 +14,9 @@ import javax.time.calendar.DayOfWeek;
  * Bank Holidays can be loaded into an instance using XMLCalendarLoader.
  */
 public class MondayToFridayCalendar extends ExceptionCalendar {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Creates an instance.
@@ -33,7 +36,7 @@ public class MondayToFridayCalendar extends ExceptionCalendar {
     new XMLCalendarLoader(xmlDataURI).populateCalendar(this);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   protected boolean isNormallyWorkingDay(LocalDate date) {
     final DayOfWeek day = date.getDayOfWeek();

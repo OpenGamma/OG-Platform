@@ -26,16 +26,23 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    
+    startNewTransaction();
+  }
+  
+  protected void startNewTransaction() {
     _transactionManager = new HibernateTransactionManager(getSessionFactory());
     _transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
   }
   
-  @After
-  public void tearDown() throws Exception {
+  protected void commit() {
     if (_transaction != null && !_transaction.isRollbackOnly() && !_transaction.isCompleted()) {
       _transactionManager.commit(_transaction);
-    }
+    }        
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    commit();
     super.tearDown();
   }
 

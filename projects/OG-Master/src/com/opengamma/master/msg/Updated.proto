@@ -1,0 +1,19 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.master.msg {
+
+  message Updated extends MasterChangeMessage {
+  	required com.opengamma.id.UniqueIdentifier oldItem;
+  	required com.opengamma.id.UniqueIdentifier newItem;
+  
+    binding Java {
+      body "public void accept (MasterChangeMessageVisitor visitor) {  visitor.visitUpdatedMessage (this); }";
+    }
+  
+  }
+    
+}

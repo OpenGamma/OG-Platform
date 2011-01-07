@@ -101,7 +101,7 @@ public class MasterHistoricalDataSourceTest {
     TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
     TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
     tsDoc.setTimeSeries(randomTimeSeries());
-    tsDoc.setUniqueIdentifier(UID);
+    tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
     when(_mockMaster.searchTimeSeries(request)).thenReturn(searchResult);
@@ -128,7 +128,7 @@ public class MasterHistoricalDataSourceTest {
     TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
     TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
     tsDoc.setTimeSeries(randomTimeSeries());
-    tsDoc.setUniqueIdentifier(UID);
+    tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
     TimeSeriesMetaData metaData = new TimeSeriesMetaData();
@@ -164,7 +164,7 @@ public class MasterHistoricalDataSourceTest {
     
     TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
     TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
-    tsDoc.setUniqueIdentifier(UID);
+    tsDoc.setUniqueId(UID);
     searchResult.getDocuments().add(tsDoc);
     
     for (boolean startIncluded : new boolean[]{true, false})  {
@@ -215,7 +215,7 @@ public class MasterHistoricalDataSourceTest {
     TimeSeriesSearchResult<LocalDate> searchResult = new TimeSeriesSearchResult<LocalDate>();
     TimeSeriesDocument<LocalDate> tsDoc = new TimeSeriesDocument<LocalDate>();
     tsDoc.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
-    tsDoc.setUniqueIdentifier(UID);
+    tsDoc.setUniqueId(UID);
     tsDoc.setTimeSeries(randomTimeSeries());
     searchResult.getDocuments().add(tsDoc);
     

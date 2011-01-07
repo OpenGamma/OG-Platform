@@ -103,7 +103,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
   /**
    * The meta-bean for {@code ConfigSearchResult}.
    */
-  public static class Meta<T> extends AbstractSearchResult.Meta {
+  public static class Meta<T> extends AbstractSearchResult.Meta<ConfigDocument<T>> {
     /**
      * The singleton instance of the meta-bean.
      */

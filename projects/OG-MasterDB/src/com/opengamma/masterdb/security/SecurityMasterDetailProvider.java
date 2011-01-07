@@ -27,7 +27,7 @@ public interface SecurityMasterDetailProvider {
   /**
    * Loads the security based on the supplied base.
    * <p>
-   * The caller will already have loaded the contents of {@code DefaultSecurity}
+   * The caller will already have loaded the contents of {@code ManageableSecurity}
    * but will not have created a class of the correct type. The implementation
    * must load the full detail and copy the data from the base object to the result.
    * 
@@ -39,7 +39,7 @@ public interface SecurityMasterDetailProvider {
   /**
    * Stores the specified security.
    * <p>
-   * The caller will already have stored the contents of {@code DefaultSecurity}
+   * The caller will already have stored the contents of {@code ManageableSecurity}
    * so the implementation only needs to store details of the subclass.
    * 
    * @param security  the security to store, not null

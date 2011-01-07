@@ -92,7 +92,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
     benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
     final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueIdentifier()), ratio));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueId()), ratio));
   }
 
   @Override
@@ -108,7 +108,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueId()));
     }
     return null;
   }

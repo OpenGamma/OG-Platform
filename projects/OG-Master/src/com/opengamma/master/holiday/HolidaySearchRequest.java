@@ -6,6 +6,7 @@
 package com.opengamma.master.holiday;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,7 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,11 +52,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @PropertyDefinition
   private HolidayType _type;
   /**
-   * The identifier of the data provider, null to not match on provider.
+   * The data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * A date to check to determine if it is a holiday, null to not match on type.
    */
@@ -66,21 +68,19 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @PropertyDefinition
   private Currency _currency;
   /**
-   * The region identifiers to match, null to not match on this field.
+   * The region keys to match, null to not match on region keys.
    * This will return holidays where the holiday region identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    */
   @PropertyDefinition
-  private IdentifierBundle _regionIdentifiers;
+  private IdentifierSearch _regionKeys;
   /**
-   * The exchange identifiers to match, null to not match on this field.
+   * The exchange keys to match, null to not match on exchange keys.
    * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    */
   @PropertyDefinition
-  private IdentifierBundle _exchangeIdentifiers;
+  private IdentifierSearch _exchangeKeys;
 
   /**
    * Creates an instance.
@@ -117,23 +117,113 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * The type will be used to determine if the identifiers are regions or exchanges.
    * 
    * @param type  the type of the holiday, not null
-   * @param exchangeOrRegionIds  the region or exchange identifiers to search for, not null
+   * @param exchangeOrRegionKeys  the region or exchange identifiers to search for, not null
    */
-  public HolidaySearchRequest(final HolidayType type, final IdentifierBundle exchangeOrRegionIds) {
+  public HolidaySearchRequest(final HolidayType type, final Iterable<Identifier> exchangeOrRegionKeys) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(exchangeOrRegionIds, "exchangeOrRegionIds");
+    ArgumentChecker.notNull(exchangeOrRegionKeys, "exchangeOrRegionIds");
     setType(type);
     switch (type) {
       case BANK:
-        setRegionIdentifiers(exchangeOrRegionIds);
+        setRegionKeys(new IdentifierSearch(exchangeOrRegionKeys));
         break;
       case SETTLEMENT:
       case TRADING:
-        setExchangeIdentifiers(exchangeOrRegionIds);
+        setExchangeKeys(new IdentifierSearch(exchangeOrRegionKeys));
         break;
       case CURRENCY:
       default:
         throw new IllegalArgumentException("Use currency constructor to request a currency holiday");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single region key identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKey  the region key identifier to add, not null
+   */
+  public void addRegionKey(Identifier regionKey) {
+    ArgumentChecker.notNull(regionKey, "regionKey");
+    addExchangeKeys(Arrays.asList(regionKey));
+  }
+
+  /**
+   * Adds a collection of region key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKeys  the region key identifiers to add, not null
+   */
+  public void addRegionKeys(Identifier... regionKeys) {
+    ArgumentChecker.notNull(regionKeys, "regionKeys");
+    if (getExchangeKeys() == null) {
+      setExchangeKeys(new IdentifierSearch(regionKeys));
+    } else {
+      getExchangeKeys().addIdentifiers(regionKeys);
+    }
+  }
+
+  /**
+   * Adds a collection of region key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKeys  the region key identifiers to add, not null
+   */
+  public void addRegionKeys(Iterable<Identifier> regionKeys) {
+    ArgumentChecker.notNull(regionKeys, "regionKeys");
+    if (getExchangeKeys() == null) {
+      setExchangeKeys(new IdentifierSearch(regionKeys));
+    } else {
+      getExchangeKeys().addIdentifiers(regionKeys);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single exchange key identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param exchangeKey  the exchange key identifier to add, not null
+   */
+  public void addExchangeKey(Identifier exchangeKey) {
+    ArgumentChecker.notNull(exchangeKey, "exchangeKey");
+    addExchangeKeys(Arrays.asList(exchangeKey));
+  }
+
+  /**
+   * Adds a collection of exchange key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param exchangeKeys  the exchange key identifiers to add, not null
+   */
+  public void addExchangeKeys(Identifier... exchangeKeys) {
+    ArgumentChecker.notNull(exchangeKeys, "exchangeKeys");
+    if (getExchangeKeys() == null) {
+      setExchangeKeys(new IdentifierSearch(exchangeKeys));
+    } else {
+      getExchangeKeys().addIdentifiers(exchangeKeys);
+    }
+  }
+
+  /**
+   * Adds a collection of exchange key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param exchangeKeys  the exchange key identifiers to add, not null
+   */
+  public void addExchangeKeys(Iterable<Identifier> exchangeKeys) {
+    ArgumentChecker.notNull(exchangeKeys, "exchangeKeys");
+    if (getExchangeKeys() == null) {
+      setExchangeKeys(new IdentifierSearch(exchangeKeys));
+    } else {
+      getExchangeKeys().addIdentifiers(exchangeKeys);
     }
   }
 
@@ -159,16 +249,16 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         return getName();
       case 3575610:  // type
         return getType();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case 14222271:  // dateToCheck
         return getDateToCheck();
       case 575402001:  // currency
         return getCurrency();
-      case 596396374:  // regionIdentifiers
-        return getRegionIdentifiers();
-      case -339616057:  // exchangeIdentifiers
-        return getExchangeIdentifiers();
+      case -1990775032:  // regionKeys
+        return getRegionKeys();
+      case 1429431991:  // exchangeKeys
+        return getExchangeKeys();
     }
     return super.propertyGet(propertyName);
   }
@@ -182,8 +272,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case 3575610:  // type
         setType((HolidayType) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case 14222271:  // dateToCheck
         setDateToCheck((LocalDate) newValue);
@@ -191,11 +281,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case 596396374:  // regionIdentifiers
-        setRegionIdentifiers((IdentifierBundle) newValue);
+      case -1990775032:  // regionKeys
+        setRegionKeys((IdentifierSearch) newValue);
         return;
-      case -339616057:  // exchangeIdentifiers
-        setExchangeIdentifiers((IdentifierBundle) newValue);
+      case 1429431991:  // exchangeKeys
+        setExchangeKeys((IdentifierSearch) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -253,30 +343,30 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -331,70 +421,64 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region identifiers to match, null to not match on this field.
+   * Gets the region keys to match, null to not match on region keys.
    * This will return holidays where the holiday region identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    * @return the value of the property
    */
-  public IdentifierBundle getRegionIdentifiers() {
-    return _regionIdentifiers;
+  public IdentifierSearch getRegionKeys() {
+    return _regionKeys;
   }
 
   /**
-   * Sets the region identifiers to match, null to not match on this field.
+   * Sets the region keys to match, null to not match on region keys.
    * This will return holidays where the holiday region identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
-   * @param regionIdentifiers  the new value of the property
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
+   * @param regionKeys  the new value of the property
    */
-  public void setRegionIdentifiers(IdentifierBundle regionIdentifiers) {
-    this._regionIdentifiers = regionIdentifiers;
+  public void setRegionKeys(IdentifierSearch regionKeys) {
+    this._regionKeys = regionKeys;
   }
 
   /**
-   * Gets the the {@code regionIdentifiers} property.
+   * Gets the the {@code regionKeys} property.
    * This will return holidays where the holiday region identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> regionIdentifiers() {
-    return metaBean().regionIdentifiers().createProperty(this);
+  public final Property<IdentifierSearch> regionKeys() {
+    return metaBean().regionKeys().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exchange identifiers to match, null to not match on this field.
+   * Gets the exchange keys to match, null to not match on exchange keys.
    * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    * @return the value of the property
    */
-  public IdentifierBundle getExchangeIdentifiers() {
-    return _exchangeIdentifiers;
+  public IdentifierSearch getExchangeKeys() {
+    return _exchangeKeys;
   }
 
   /**
-   * Sets the exchange identifiers to match, null to not match on this field.
+   * Sets the exchange keys to match, null to not match on exchange keys.
    * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
-   * @param exchangeIdentifiers  the new value of the property
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
+   * @param exchangeKeys  the new value of the property
    */
-  public void setExchangeIdentifiers(IdentifierBundle exchangeIdentifiers) {
-    this._exchangeIdentifiers = exchangeIdentifiers;
+  public void setExchangeKeys(IdentifierSearch exchangeKeys) {
+    this._exchangeKeys = exchangeKeys;
   }
 
   /**
-   * Gets the the {@code exchangeIdentifiers} property.
+   * Gets the the {@code exchangeKeys} property.
    * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
-   * Note that an empty bundle will not match any holidays, whereas a null bundle places
-   * no restrictions on the result.
+   * Note that only the {@link IdentifierSearchType#ANY any} search type is applicable.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> exchangeIdentifiers() {
-    return metaBean().exchangeIdentifiers().createProperty(this);
+  public final Property<IdentifierSearch> exchangeKeys() {
+    return metaBean().exchangeKeys().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -416,9 +500,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      */
     private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code dateToCheck} property.
      */
@@ -428,13 +512,13 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      */
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
     /**
-     * The meta-property for the {@code regionIdentifiers} property.
+     * The meta-property for the {@code regionKeys} property.
      */
-    private final MetaProperty<IdentifierBundle> _regionIdentifiers = DirectMetaProperty.ofReadWrite(this, "regionIdentifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(this, "regionKeys", IdentifierSearch.class);
     /**
-     * The meta-property for the {@code exchangeIdentifiers} property.
+     * The meta-property for the {@code exchangeKeys} property.
      */
-    private final MetaProperty<IdentifierBundle> _exchangeIdentifiers = DirectMetaProperty.ofReadWrite(this, "exchangeIdentifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(this, "exchangeKeys", IdentifierSearch.class);
     /**
      * The meta-properties.
      */
@@ -445,11 +529,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
       temp.put("type", _type);
-      temp.put("providerId", _providerId);
+      temp.put("providerKey", _providerKey);
       temp.put("dateToCheck", _dateToCheck);
       temp.put("currency", _currency);
-      temp.put("regionIdentifiers", _regionIdentifiers);
-      temp.put("exchangeIdentifiers", _exchangeIdentifiers);
+      temp.put("regionKeys", _regionKeys);
+      temp.put("exchangeKeys", _exchangeKeys);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -486,11 +570,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**
@@ -510,19 +594,19 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     /**
-     * The meta-property for the {@code regionIdentifiers} property.
+     * The meta-property for the {@code regionKeys} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> regionIdentifiers() {
-      return _regionIdentifiers;
+    public final MetaProperty<IdentifierSearch> regionKeys() {
+      return _regionKeys;
     }
 
     /**
-     * The meta-property for the {@code exchangeIdentifiers} property.
+     * The meta-property for the {@code exchangeKeys} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> exchangeIdentifiers() {
-      return _exchangeIdentifiers;
+    public final MetaProperty<IdentifierSearch> exchangeKeys() {
+      return _exchangeKeys;
     }
 
   }

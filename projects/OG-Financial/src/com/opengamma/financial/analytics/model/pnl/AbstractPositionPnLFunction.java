@@ -35,10 +35,10 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Trade trade : position.getTrades()) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
-          ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
+          ComputationTargetType.TRADE, trade.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -54,7 +54,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
       final Position position = target.getPosition();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Trade trade : position.getTrades()) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueIdentifier()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId()));
       }
       return requirements;
     }
@@ -64,7 +64,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueId()));
     }
     return null;
   }

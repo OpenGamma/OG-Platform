@@ -70,7 +70,7 @@ public class WebExchangeUris {
    * @return the URI
    */
   public URI exchange(final Exchange exchange) {
-    return WebExchangeResource.uri(_data, exchange.getUniqueIdentifier());
+    return WebExchangeResource.uri(_data, exchange.getUniqueId());
   }
 
   /**
@@ -95,7 +95,7 @@ public class WebExchangeUris {
    * @return the URI
    */
   public URI exchangeVersion(final Exchange exchange) {
-    return WebExchangeVersionResource.uri(_data, exchange.getUniqueIdentifier());
+    return WebExchangeVersionResource.uri(_data, exchange.getUniqueId());
   }
 
 }

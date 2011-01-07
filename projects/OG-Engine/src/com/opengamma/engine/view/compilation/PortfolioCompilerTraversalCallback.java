@@ -69,7 +69,7 @@ import com.opengamma.util.tuple.Pair;
    */
   private static Set<String> getSubNodeSecurityTypes(PortfolioNode portfolioNode) {
     SubNodeSecurityTypeAccumulator accumulator = new SubNodeSecurityTypeAccumulator();
-    new PortfolioNodeTraverser(accumulator).traverse(portfolioNode);
+    PortfolioNodeTraverser.depthFirst(accumulator).traverse(portfolioNode);
     return accumulator.getSubNodeSecurityTypes();
   }
 
@@ -104,11 +104,9 @@ import com.opengamma.util.tuple.Pair;
             requirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
           }
           // add requirements for trades as well
-          if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-            for (Trade trade : position.getTrades()) {
-              for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-                requirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
-              }
+          for (Trade trade : position.getTrades()) {
+            for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+              requirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
             }
           }
           _dependencyGraphBuilder.addTarget(requirements);
@@ -144,5 +142,5 @@ import com.opengamma.util.tuple.Pair;
       }
     }
   }
-
+  
 }

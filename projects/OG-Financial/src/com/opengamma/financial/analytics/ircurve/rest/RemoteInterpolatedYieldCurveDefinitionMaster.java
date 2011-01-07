@@ -59,7 +59,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   }
 
   private UniqueIdentifier getIdentifier(FudgeFieldContainer msg) {
-    final FudgeField uidField = msg.getByName("uniqueIdentifier");
+    final FudgeField uidField = msg.getByName("uniqueId");
     if (uidField == null) {
       return null;
     }

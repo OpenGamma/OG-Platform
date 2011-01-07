@@ -120,7 +120,7 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object to search for, not null
    * @return the matching unique identifier, not null
    */
-  public UniqueIdentifier getUniqueIdentifier(T obj) {
+  public UniqueIdentifier getUniqueId(T obj) {
     return _uniqueIdMap.inverse().get(obj);
   }
 

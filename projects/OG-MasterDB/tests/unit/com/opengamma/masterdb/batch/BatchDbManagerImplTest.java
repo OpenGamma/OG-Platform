@@ -27,6 +27,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
@@ -66,16 +67,18 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().initializeDefaults(_batchJob);
     _batchJob.setBatchDbManager(_dbManager);
     _batchJob.getParameters().setViewName("test_view");
-    _batchJob.setView(ViewTestUtils.getMockView());
+    
+    _batchJobRun = new BatchJobRun(_batchJob);
+    _batchJobRun.setView(ViewTestUtils.getMockView());
+    
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
-    doc.setValue(_batchJob.getView().getDefinition());
-    _batchJob.setViewDefinitionConfig(doc);
+    doc.setValue(_batchJobRun.getView().getDefinition());
+    _batchJobRun.setViewDefinitionConfig(doc);
     
-    _batchJobRun = new BatchJobRun(_batchJob);
     _batchJob.addRun(_batchJobRun);
   }
     
@@ -356,7 +359,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar", "1");
     
     MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _dbManager.getComputationTarget(
@@ -375,7 +378,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
     
     MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueIdentifier(uid);
+    mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _dbManager.getComputationTarget(
@@ -411,6 +414,24 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     // get
     FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
+  }
+  
+  @Test
+  public void getResults() {
+    // no results
+    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime()));
+    
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    // these two lines inserted here to resolve locking issue with HSQLDB
+    commit();
+    startNewTransaction();
+    
+    // results (but empty) 
+    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime());
+    assertNotNull(result);
+    assertTrue(result.getAllTargets().isEmpty());
   }
   
 }

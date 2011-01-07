@@ -9,10 +9,12 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.position.master.rest.RemotePortfolioMaster;
 import com.opengamma.financial.position.master.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -27,6 +29,7 @@ public class RemoteClient {
   private final String _clientId;
   private final FudgeContext _fudgeContext;
   private final RestTarget _baseTarget;
+  private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
   private SecurityMaster _securityMaster;
   private ManageableViewDefinitionRepository _viewDefinitionRepository;
@@ -40,6 +43,13 @@ public class RemoteClient {
 
   public String getClientId() {
     return _clientId;
+  }
+
+  public PortfolioMaster getPortfolioMaster() {
+    if (_portfolioMaster == null) {
+      _portfolioMaster = new RemotePortfolioMaster(_baseTarget.getURI());
+    }
+    return _portfolioMaster;
   }
 
   public PositionMaster getPositionMaster() {

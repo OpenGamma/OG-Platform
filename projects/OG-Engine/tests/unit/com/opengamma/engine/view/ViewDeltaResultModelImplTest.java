@@ -18,7 +18,7 @@ public class ViewDeltaResultModelImplTest {
   
   @Test
   public void test() {
-    ViewDeltaResultModelImpl model = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel model = new InMemoryViewDeltaResultModel();
     ViewComputationResultModelImplTest.checkModel(model);
     
     model.setPreviousResultTimestamp(Instant.ofEpochMillis(200));

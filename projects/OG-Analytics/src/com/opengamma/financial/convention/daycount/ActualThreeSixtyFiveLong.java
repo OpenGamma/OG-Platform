@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -15,15 +15,16 @@ import org.apache.commons.lang.NotImplementedException;
  */
 public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     throw new NotImplementedException("Need information on payment frequency to get day count");
   }
 
   @Override
-  public double getAccruedInterest(
-      final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate,
-      final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
     testDates(previousCouponDate, date, nextCouponDate);
     final LocalDate previous = previousCouponDate.toLocalDate();
     final LocalDate next = nextCouponDate.toLocalDate();

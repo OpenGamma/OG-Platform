@@ -502,7 +502,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       if (target.getType() != ComputationTargetType.PRIMITIVE) {
         return false;
       }
-      return ObjectUtils.equals(target.getUniqueIdentifier(), _fundingCurveSpecification.getCurrency().getUniqueIdentifier());
+      return ObjectUtils.equals(target.getUniqueId(), _fundingCurveSpecification.getCurrency().getUniqueId());
     }
 
     @Override

@@ -56,19 +56,19 @@ public class ValueRequirementTest {
 
   @Test
   public void test_constructor_TypeUniqueIdentifier_Position() {
-    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertEquals("DATA", test.getValueName());
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullValue() {
-    new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueId());
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullType() {
-    new ValueRequirement("DATA", null, POSITION.getUniqueIdentifier());
+    new ValueRequirement("DATA", null, POSITION.getUniqueId());
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -102,7 +102,7 @@ public class ValueRequirementTest {
     
     req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
     assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertFalse(req1.equals(req2));
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.equals(req2));
@@ -118,7 +118,7 @@ public class ValueRequirementTest {
     assertTrue(req1.hashCode() == req2.hashCode());
     req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
     assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertFalse(req1.hashCode() == req2.hashCode());
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.hashCode() == req2.hashCode());

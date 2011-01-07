@@ -30,7 +30,7 @@ public final class UniqueIdentifiables {
    */
   public static void setInto(Object object, UniqueIdentifier uid) {
     if (object instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) object).setUniqueIdentifier(uid);
+      ((MutableUniqueIdentifiable) object).setUniqueId(uid);
     }
   }
 

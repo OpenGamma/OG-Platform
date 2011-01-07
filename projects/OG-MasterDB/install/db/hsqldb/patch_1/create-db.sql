@@ -502,11 +502,11 @@ create table sec_swap (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-create sequence pos_master_seq
+create sequence pos_master_seq as bigint
+    start with 1000 increment by 1 no cycle;
+create sequence pos_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
-create sequence pos_idkey_seq
-	start with 1000 increment by 1 no cycle;
 
 create table pos_portfolio (
     id bigint not null,
@@ -597,8 +597,6 @@ create table pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
-
-
 
 -------------------------------------
 -- Static data

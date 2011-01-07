@@ -76,14 +76,14 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalDataSource historicalDataSource = OpenGammaExecutionContext.getHistoricalDataSource(executionContext);
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
     final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = historicalDataSource.getHistoricalData(security.getIdentifiers(), _dataSourceName, null, _fieldName,
         _startDate, true, now, false);
     if (tsPair == null) {
       throw new NullPointerException("Could not get identifier / price series pair for security " + security);
     }
     final DoubleTimeSeries<?> ts = tsPair.getSecond();
-    if (ts == null) {
+    if ((ts == null) || (ts.isEmpty())) {
       throw new NullPointerException("Could not get price series for security " + security);
     }
     final DoubleTimeSeries<?> resultTS;
@@ -110,7 +110,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity()), getUniqueId()));
     }
     return null;
   }

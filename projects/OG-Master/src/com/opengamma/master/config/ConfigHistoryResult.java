@@ -104,7 +104,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
   /**
    * The meta-bean for {@code ConfigHistoryResult}.
    */
-  public static class Meta<T> extends AbstractHistoryResult.Meta {
+  public static class Meta<T> extends AbstractHistoryResult.Meta<ConfigDocument<T>> {
     /**
      * The singleton instance of the meta-bean.
      */

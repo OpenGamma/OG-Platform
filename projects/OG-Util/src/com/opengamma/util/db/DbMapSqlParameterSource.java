@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Types;
 import java.util.Map;
 
 import javax.time.InstantProvider;
@@ -115,6 +116,8 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
   public DbMapSqlParameterSource addTimestampNullIgnored(final String name, final InstantProvider instantProvider) {
     if (instantProvider != null) {
       addTimestamp(name, instantProvider);
+    } else {
+      addValue(name, null, Types.TIMESTAMP);
     }
     return this;
   }
@@ -128,6 +131,8 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
   public DbMapSqlParameterSource addDateNullIgnored(final String name, final DateProvider dateProvider) {
     if (dateProvider != null) {
       addDate(name, dateProvider);
+    } else {
+      addValue(name, null, Types.DATE);
     }
     return this;
   }
@@ -141,6 +146,8 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
   public DbMapSqlParameterSource addTimeNullIgnored(final String name, final TimeProvider timeProvider) {
     if (timeProvider != null) {
       addTime(name, timeProvider);
+    } else {
+      addValue(name, null, Types.TIME);
     }
     return this;
   }

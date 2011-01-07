@@ -82,7 +82,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    exchange.setRegionId(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
+    exchange.setRegionKey(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);

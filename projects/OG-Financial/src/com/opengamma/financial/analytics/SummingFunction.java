@@ -19,7 +19,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,21 +40,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class SummingFunction extends PropertyPreservingFunction {
 
-  /**
-   * Constraints to preserve from output to required input.
-   */
-  private static final String[] s_preserve = new String[] {ValuePropertyNames.CURRENCY};
-
-  private static final ValueProperties s_inputConstraints = createInputConstraints(s_preserve);
-
   @Override
-  protected ValueProperties getInputConstraints() {
-    return s_inputConstraints;
-  }
-
-  @Override
-  protected ValueProperties createResultProperties() {
-    return createResultProperties(s_preserve);
+  protected String[] getPreservedProperties() {
+    return new String[] {ValuePropertyNames.CURRENCY};
   }
 
   private final String _requirementName;
@@ -78,11 +65,11 @@ public class SummingFunction extends PropertyPreservingFunction {
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
     for (final Position position : allPositions) {
-      final Object positionValue = inputs.getValue(new ValueRequirement(_requirementName,
-          ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+      final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueId());
+      final Object positionValue = inputs.getValue(requirement);
       currentSum = addValue(currentSum, positionValue);
     }
-    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.getAllValues())), currentSum);
+    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getCompositeValueProperties(inputs.getAllValues())), currentSum);
     return Collections.singleton(computedValue);
   }
 
@@ -117,7 +104,7 @@ public class SummingFunction extends PropertyPreservingFunction {
     final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final Position position : allPositions) {
-      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier(), getInputConstraint(desiredValue)));
+      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueId(), getInputConstraint(desiredValue)));
     }
     return requirements;
   }
@@ -130,8 +117,7 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
-    final ValueSpecification input = inputs.iterator().next();
-    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(input));
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getCompositeSpecificationProperties(inputs));
     return Collections.singleton(result);
   }
 

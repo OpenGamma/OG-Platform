@@ -25,16 +25,22 @@ import com.opengamma.util.ArgumentChecker;
 public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<PositionSource> implements PositionSource {
 
   /**
-   * Creates a new instance with a default source of securities.
+   * Creates an instance specifying the default delegate.
    * 
-   * @param defaultSource  the default source to fall back to, not null
+   * @param defaultSource  the source to use when no scheme matches, not null
    */
   public DelegatingPositionSource(PositionSource defaultSource) {
     super(defaultSource);
   }
 
-  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> delegates) {
-    super(defaultSource, delegates);
+  /**
+   * Creates an instance specifying the default delegate.
+   * 
+   * @param defaultSource  the source to use when no scheme matches, not null
+   * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
+   */
+  public DelegatingPositionSource(PositionSource defaultSource, Map<String, PositionSource> schemePrefixToSourceMap) {
+    super(defaultSource, schemePrefixToSourceMap);
   }
 
   //-------------------------------------------------------------------------
@@ -61,7 +67,5 @@ public class DelegatingPositionSource extends UniqueIdentifierSchemeDelegator<Po
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getTrade(uid);
   }
-  
-  
 
 }

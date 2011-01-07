@@ -126,7 +126,7 @@ public class JmsResultPublisher implements ComputationResultListener, DeltaCompu
   }
   
   private String getTopicName(ViewClient viewClient, String suffix) {
-    return _topicPrefix + "-" + viewClient.getUniqueIdentifier() + "-" + suffix;
+    return _topicPrefix + "-" + viewClient.getUniqueId() + "-" + suffix;
   }
   
 }

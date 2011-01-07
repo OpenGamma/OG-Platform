@@ -244,7 +244,7 @@ public class RegionFileReader {
           if (parent == null) {
             throw new OpenGammaRuntimeException("Cannot find parent '" + sovereignity + "'  for '" + name + "'");
           }
-          region.getParentRegionIds().add(parent.getUniqueIdentifier());
+          region.getParentRegionIds().add(parent.getUniqueId());
         }
         for (Entry<UniqueIdentifier, Set<String>> entry : subRegions.entrySet()) {
           if (entry.getValue().remove(name)) {
