@@ -62,24 +62,24 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     String definitionName = message.getString("definitionName");
     String specificationName = message.getString("specificationName");
     String interpolatorName = message.getString("interpolatorName");
-    List<FudgeField> xs_fields = message.getAllByName("xs");
+    List<FudgeField> xsFields = message.getAllByName("xs");
     List<Object> xs = new ArrayList<Object>();
     Object[] xsArray = null;
-    for (FudgeField x_field : xs_fields) {
-      Object x = context.fieldValueToObject(x_field);
+    for (FudgeField xField : xsFields) {
+      Object x = context.fieldValueToObject(xField);
       xs.add(x);
       if (xsArray == null) {
-        xsArray = (Object[])Array.newInstance(x.getClass(), 0);
+        xsArray = (Object[]) Array.newInstance(x.getClass(), 0);
       }
     }
-    List<FudgeField> ys_fields = message.getAllByName("ys");
+    List<FudgeField> ysFields = message.getAllByName("ys");
     List<Object> ys = new ArrayList<Object>();
     Object[] ysArray = null;
-    for (FudgeField y_field : ys_fields) {
-      Object y = context.fieldValueToObject(y_field);
+    for (FudgeField yField : ysFields) {
+      Object y = context.fieldValueToObject(yField);
       ys.add(y);
       if (ysArray == null) {
-        ysArray = (Object[])Array.newInstance(y.getClass(), 0);
+        ysArray = (Object[]) Array.newInstance(y.getClass(), 0);
       }
     }    
     if (xs.size() > 0 && ys.size() > 0) {

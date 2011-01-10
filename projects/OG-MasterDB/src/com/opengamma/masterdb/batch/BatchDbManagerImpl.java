@@ -824,7 +824,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     List<RiskRun> runs;
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      runs = (List<RiskRun>) getHibernateTemplate().findByCriteria(criteria);
+      runs = getHibernateTemplate().findByCriteria(criteria);
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();

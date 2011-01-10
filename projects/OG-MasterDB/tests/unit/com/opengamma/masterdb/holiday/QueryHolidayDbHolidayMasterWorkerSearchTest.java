@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;

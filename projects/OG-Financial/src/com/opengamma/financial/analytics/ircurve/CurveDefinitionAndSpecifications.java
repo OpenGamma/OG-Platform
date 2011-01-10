@@ -172,7 +172,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
     }
     if (futureStartTenor != null) {
-      for (int i=1; i <= numQuarterlyFutures; i++) {
+      for (int i = 1; i <= numQuarterlyFutures; i++) {
         strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
       }
     }
@@ -189,7 +189,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
     }
     if (futureStartTenor != null) {
-      for (int i=1; i <= numQuarterlyFutures; i++) {
+      for (int i = 1; i <= numQuarterlyFutures; i++) {
         strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, futureStartTenor, i, "DEFAULT"));
       }
     }
@@ -221,7 +221,7 @@ public class CurveDefinitionAndSpecifications {
   private static Tenor[] makeLongEnd(int firstContiguousYear, int lastContiguousYear, int[] nonContiguousYears) {
     Assert.isTrue(firstContiguousYear <= lastContiguousYear);
     List<Tenor> results = new ArrayList<Tenor>();
-    for (int i=firstContiguousYear; i <= lastContiguousYear; i++) {
+    for (int i = firstContiguousYear; i <= lastContiguousYear; i++) {
       results.add(Tenor.ofYears(i));
     }
     for (int i : nonContiguousYears) {
@@ -247,32 +247,32 @@ public class CurveDefinitionAndSpecifications {
     fundingDefinitions.put(gbp, buildFundingCurve(gbp, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
     singleDefinitions.put(gbp, buildSingleCurve(gbp, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     Currency chf = Currency.getInstance("CHF");
-    forwardDefinitions.put(chf, buildForwardCurve(chf, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(chf, buildForwardCurve(chf, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(chf, buildFundingCurve(chf, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(chf, buildSingleCurve(chf, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30, 40, 50 })));
+    singleDefinitions.put(chf, buildSingleCurve(chf, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     Currency aud = Currency.getInstance("AUD");
     forwardDefinitions.put(aud, buildForwardCurve(aud, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
     fundingDefinitions.put(aud, buildFundingCurve(aud, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(aud, buildSingleCurve(aud, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
     Currency sek = Currency.getInstance("SEK");
-    forwardDefinitions.put(sek, buildForwardCurve(sek, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30 })));
+    forwardDefinitions.put(sek, buildForwardCurve(sek, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     fundingDefinitions.put(sek, buildFundingCurve(sek, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(sek, buildSingleCurve(sek, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30 })));
+    singleDefinitions.put(sek, buildSingleCurve(sek, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     Currency nzd = Currency.getInstance("NZD");
-    forwardDefinitions.put(nzd, buildForwardCurve(nzd, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 30 })));
+    forwardDefinitions.put(nzd, buildForwardCurve(nzd, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     fundingDefinitions.put(nzd, buildFundingCurve(nzd, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20 })));
-    singleDefinitions.put(nzd, buildSingleCurve(nzd, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 30 })));
+    singleDefinitions.put(nzd, buildSingleCurve(nzd, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     Currency cad = Currency.getInstance("CAD");
     forwardDefinitions.put(cad, buildForwardCurve(cad, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(cad, buildFundingCurve(cad, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(cad, buildSingleCurve(cad, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     Currency dkk = Currency.getInstance("DKK");
     forwardDefinitions.put(dkk, buildForwardCurve(dkk, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(dkk, buildFundingCurve(dkk, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] { 20, 25, 30 })));
+    fundingDefinitions.put(dkk, buildFundingCurve(dkk, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(dkk, buildSingleCurve(dkk, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     Currency jpy = Currency.getInstance("JPY");
     forwardDefinitions.put(jpy, buildForwardCurve(jpy, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
-    fundingDefinitions.put(jpy, buildFundingCurve(jpy, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] { 20, 25, 30, 35, 40, 50 })));
+    fundingDefinitions.put(jpy, buildFundingCurve(jpy, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     singleDefinitions.put(jpy, buildSingleCurve(jpy, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     results.put("FORWARD", forwardDefinitions);
@@ -381,11 +381,11 @@ public class CurveDefinitionAndSpecifications {
     }
     
     final Object[][] depositYearTickers = new Object[][] {
-        {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
-        {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
+      {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
+      {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
     };
     
-    for (int i=0; i < maxDepositYears; i++) {
+    for (int i = 0; i < maxDepositYears; i++) {
       final Object[] tenorsTicker = depositYearTickers[i];
       final Tenor tenor = (Tenor) tenorsTicker[0];
       final String ticker = (String) tenorsTicker[1];
@@ -414,9 +414,10 @@ public class CurveDefinitionAndSpecifications {
     // SWAPS
     final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     
-    final String[] swapMonthCodes = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+    final String[] swapMonthCodes = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
     for (int i = 1; i <= swapMonthCodes.length; i++) { // i here is 1-based so Jan=1, Dec=12.
-      swapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + swapMonthCodes[i-1] + " Curncy"))); // no postfix here.
+      swapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(
+          SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + swapMonthCodes[i - 1] + " Curncy"))); // no postfix here.
     }
     for (int i = 1; i <= swapsEndContiguousYears; i++) {
       swapInstrumentProviders.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + i + swapPostfix + " Curncy")));
@@ -430,11 +431,11 @@ public class CurveDefinitionAndSpecifications {
     
     // TENOR SWAPS
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    final String[] monthCodes = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+    final String[] monthCodes = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
     for (int i : basisSwapsMonths) { // i here is 1-based so Jan=1, Dec=12.
-      tenorSwapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + monthCodes[i-1] + " Curncy")));
+      tenorSwapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + monthCodes[i - 1] + " Curncy")));
     }
-    for (int i=1 ; i <= basisSwapsEndContiguousYears; i++) {
+    for (int i = 1; i <= basisSwapsEndContiguousYears; i++) {
       tenorSwapInstrumentProviders.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + i + " Curncy")));
     }
     for (final int i : basisSwapsNonContiguousYears) {

@@ -79,4 +79,5 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   public String getShortName() {
     return "PresentValueFixedFloatSwapFunction";
   }
+
 }

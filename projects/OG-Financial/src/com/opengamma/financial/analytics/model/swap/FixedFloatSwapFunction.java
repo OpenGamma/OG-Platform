@@ -50,7 +50,9 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     this(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  public FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName, final String fundingValueRequirementName) {
+  public FixedFloatSwapFunction(
+      final String currency, final String forwardCurveName, final String forwardValueRequirementName,
+      final String fundingCurveName, final String fundingValueRequirementName) {
     this(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
   }
 
