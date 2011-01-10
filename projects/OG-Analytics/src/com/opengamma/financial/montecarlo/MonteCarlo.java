@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.montecarlo;
 
 import com.opengamma.financial.model.stochastic.StochasticProcess;
