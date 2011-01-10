@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 - 2010 by OpenGamma Inc.
+/* Copyright (C) 2009 - Present by OpenGamma Inc.
  *
  * Please see distribution for license.
  */

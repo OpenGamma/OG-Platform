@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -25,6 +25,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -50,6 +52,9 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchSearchRequest;
+import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
@@ -768,6 +773,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   @Override
   public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
+    ArgumentChecker.notNull(observationDate, "observationDate");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    
     // At the moment, we simply load all results into memory.
     // This needs to be made more scalable.
     RiskRun riskRun;
@@ -797,6 +805,39 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     for (MaterializedRiskValue value : values) {
       result.addValue(value.getCalculationConfiguration(), value.getComputedValue());
+    }
+    
+    return result;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public BatchSearchResult search(BatchSearchRequest request) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
+    if (request.getObservationDate() != null) {
+      criteria.add(Restrictions.eq("runTime.date", DbDateUtils.toSqlDate(request.getObservationDate())));
+    }
+    if (request.getObservationTime() != null) {
+      criteria.add(Restrictions.eq("runTime.observationTime.label", request.getObservationTime()));
+    }
+    
+    List<RiskRun> runs;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      runs = getHibernateTemplate().findByCriteria(criteria);
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+
+    BatchSearchResult result = new BatchSearchResult();
+
+    for (RiskRun run : runs) {
+      BatchSearchResultItem item = new BatchSearchResultItem();
+      item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
+      item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+      result.getItems().add(item);
     }
     
     return result;

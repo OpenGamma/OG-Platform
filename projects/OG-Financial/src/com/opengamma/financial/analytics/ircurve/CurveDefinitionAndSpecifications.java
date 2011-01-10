@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -257,9 +257,9 @@ public class CurveDefinitionAndSpecifications {
     
     Currency chf = Currency.getInstance("CHF");
     Identifier chfRegion = RegionUtils.countryRegionId("CH");
-    forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(chf, buildFundingCurve(chf, chfRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion,  makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30, 40, 50 })));
+    singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency aud = Currency.getInstance("AUD");
     Identifier audRegion = RegionUtils.countryRegionId("AU");
@@ -269,15 +269,15 @@ public class CurveDefinitionAndSpecifications {
     
     Currency sek = Currency.getInstance("SEK");
     Identifier sekRegion = RegionUtils.countryRegionId("SE");
-    forwardDefinitions.put(sek, buildForwardCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30 })));
+    forwardDefinitions.put(sek, buildForwardCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     fundingDefinitions.put(sek, buildFundingCurve(sek, sekRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 25, 30 })));
+    singleDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     
     Currency nzd = Currency.getInstance("NZD");
     Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
-    forwardDefinitions.put(nzd, buildForwardCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 30 })));
+    forwardDefinitions.put(nzd, buildForwardCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     fundingDefinitions.put(nzd, buildFundingCurve(nzd, nzdRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20 })));
-    singleDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] { 20, 30 })));
+    singleDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     
     Currency cad = Currency.getInstance("CAD");
     Identifier cadRegion = RegionUtils.countryRegionId("CA");
@@ -288,13 +288,13 @@ public class CurveDefinitionAndSpecifications {
     Currency dkk = Currency.getInstance("DKK");
     Identifier dkkRegion = RegionUtils.countryRegionId("DK");
     forwardDefinitions.put(dkk, buildForwardCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(dkk, buildFundingCurve(dkk, dkkRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] { 20, 25, 30 })));
+    fundingDefinitions.put(dkk, buildFundingCurve(dkk, dkkRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(dkk, buildSingleCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     Currency jpy = Currency.getInstance("JPY");
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
     forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
-    fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] { 20, 25, 30, 35, 40, 50 })));
+    fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
     
     Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
@@ -404,11 +404,11 @@ public class CurveDefinitionAndSpecifications {
     }
     
     final Object[][] depositYearTickers = new Object[][] {
-        {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
-        {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
+      {ONE_YEAR, generalPrefix + "DR1 Curncy"}, {TWO_YEARS, generalPrefix + "DR2 Curncy"}, {THREE_YEARS, generalPrefix + "DR3 Curncy"},
+      {FOUR_YEARS, generalPrefix + "DR4 Curncy"}, {FIVE_YEARS, generalPrefix + "DR5 Curncy"}
     };
     
-    for (int i=0; i < maxDepositYears; i++) {
+    for (int i = 0; i < maxDepositYears; i++) {
       final Object[] tenorsTicker = depositYearTickers[i];
       final Tenor tenor = (Tenor) tenorsTicker[0];
       final String ticker = (String) tenorsTicker[1];
@@ -437,9 +437,10 @@ public class CurveDefinitionAndSpecifications {
     // SWAPS
     final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     
-    final String[] swapMonthCodes = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+    final String[] swapMonthCodes = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
     for (int i = 1; i <= swapMonthCodes.length; i++) { // i here is 1-based so Jan=1, Dec=12.
-      swapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + swapMonthCodes[i-1] + " Curncy"))); // no postfix here.
+      swapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(
+          SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + swapMonthCodes[i - 1] + " Curncy"))); // no postfix here.
     }
     for (int i = 1; i <= swapsEndContiguousYears; i++) {
       swapInstrumentProviders.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + "SW" + i + swapPostfix + " Curncy")));
@@ -453,11 +454,11 @@ public class CurveDefinitionAndSpecifications {
     
     // TENOR SWAPS
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    final String[] monthCodes = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
+    final String[] monthCodes = new String[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K" };
     for (int i : basisSwapsMonths) { // i here is 1-based so Jan=1, Dec=12.
-      tenorSwapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + monthCodes[i-1] + " Curncy")));
+      tenorSwapInstrumentProviders.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + monthCodes[i - 1] + " Curncy")));
     }
-    for (int i=1 ; i <= basisSwapsEndContiguousYears; i++) {
+    for (int i = 1; i <= basisSwapsEndContiguousYears; i++) {
       tenorSwapInstrumentProviders.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(generalPrefix + basisSwapPostfix + i + " Curncy")));
     }
     for (final int i : basisSwapsNonContiguousYears) {

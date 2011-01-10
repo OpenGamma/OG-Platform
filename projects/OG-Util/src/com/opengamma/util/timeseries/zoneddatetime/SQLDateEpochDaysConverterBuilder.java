@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.timeseries.zoneddatetime;
 
 import java.util.TimeZone;

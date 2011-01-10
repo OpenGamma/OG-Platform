@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
 namespace com.opengamma.util.time {
 
   message Expiry;
