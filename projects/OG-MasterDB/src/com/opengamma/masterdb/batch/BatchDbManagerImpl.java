@@ -850,7 +850,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       runTimeCriteria.addOrder(Order.asc("date"));
       observationTimeCriteria.addOrder(Order.asc("label"));
 
-      List<RiskRun> runs = (List<RiskRun>) getHibernateTemplate().findByCriteria(
+      List<RiskRun> runs = getHibernateTemplate().findByCriteria(
           criteria,
           request.getPagingRequest().getFirstItemIndex(),
           request.getPagingRequest().getPagingSize());
