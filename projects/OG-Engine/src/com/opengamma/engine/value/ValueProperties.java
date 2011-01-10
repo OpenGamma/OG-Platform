@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -24,36 +24,54 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable set of constraints on the values required, or properties of the value produced.
+ * <p>
+ * This class is immutable and thread-safe.
  * 
  * @see ValuePropertyNames
  */
 @PublicAPI
 public abstract class ValueProperties implements Serializable, Comparable<ValueProperties> {
 
+  //-------------------------------------------------------------------------
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
    */
   public static final class Builder {
-
+    /**
+     * The required properties.
+     */
     private final Map<String, Set<String>> _properties;
+    /**
+     * The optional properties.
+     */
     private Set<String> _optional;
 
+    /**
+     * Creates an instance.
+     */
     private Builder() {
       _properties = new HashMap<String, Set<String>>();
     }
 
+    /**
+     * Creates an instance.
+     * 
+     * @param properties  the required properties, not null
+     * @param optional  the optional properties, not null
+     */
     private Builder(final Map<String, Set<String>> properties, final Set<String> optional) {
       _properties = new HashMap<String, Set<String>>(properties);
       _optional = (optional != null) ? new HashSet<String>(optional) : null;
     }
 
     /**
-     * Adds a property value to the builder. If the property is already a wild-card, the builder is left
-     * unchanged.
+     * Adds a property value to the builder.
+     * <p>
+     * If the property is already a wild-card, the builder is left unchanged.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @param propertyValue value, not {@code null}
-     * @return the builder instance
+     * @param propertyName  the name of the property, not null
+     * @param propertyValue  the value to add, not null
+     * @return {@code this} for chaining in the builder pattern, not null
      */
     public Builder with(String propertyName, final String propertyValue) {
       ArgumentChecker.notNull(propertyName, "propertyName");
@@ -73,12 +91,13 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     /**
-     * Adds property values to the builder. If the property is already a wild-card, the builder is left
-     * unchanged.
+     * Adds property values to the builder.
+     * <p>
+     * If the property is already a wild-card, the builder is left unchanged.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @param propertyValues values to add, not {@code null} and not containing {@code null}s.
-     * @return the builder instance
+     * @param propertyName  the name of the property, not null
+     * @param propertyValues  the values to add, not null and not containing nulls
+     * @return {@code this} for chaining in the builder pattern, not null
      */
     public Builder with(final String propertyName, final String... propertyValues) {
       ArgumentChecker.notNull(propertyValues, "propertyValues");
@@ -86,11 +105,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     /**
-     * Adds property values to the builder. If the property is already a wild-card, the builder is left
-     * unchanged.
+     * Adds property values to the builder.
+     * <p>
+     * If the property is already a wild-card, the builder is left unchanged.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @param propertyValues values to add, not {@code null} and not containing {@code null}s
+     * @param propertyName  the name of the property, not null
+     * @param propertyValues  the values to add, not null and not containing nulls
      * @return the builder instance
      */
     public Builder with(String propertyName, final Collection<String> propertyValues) {
@@ -118,27 +138,31 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     /**
-     * Adds a wild-card property value. If explicit values were previously set for the property, they
-     * are removed to leave the wild-card definition.
+     * Adds a wild-card property value.
+     * <p>
+     * If explicit values were previously set for the property, they are removed
+     * to leave the wild-card definition.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @return the builder instance
+     * @param propertyName  the name of the property, not null
+     * @return {@code this} for chaining in the builder pattern, not null
      */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String> emptySet());
+      _properties.put(propertyName.intern(), Collections.<String>emptySet());
       return this;
     }
 
     /**
-     * Declares a property as optional when used as a constraint. By default constraints are required, and
-     * can only be satisfied if the other property set defines a matching value. If a constraint is optional
-     * the other set may define a matching value, or have no definition for the property. If no explicit values
-     * for the property are set with one of the other calls, the property will have a wild-card value (i.e.
-     * as if {@link #withAny (String)} had been called.
+     * Declares a property as optional when used as a constraint.
+     * <p>
+     * By default constraints are required, and can only be satisfied if the other property
+     * set defines a matching value. If a constraint is optional the other set may define
+     * a matching value, or have no definition for the property. If no explicit values
+     * for the property are set with one of the other calls, the property will have a
+     * wild-card value (i.e. as if {@link #withAny (String)} had been called.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @return the builder instance 
+     * @param propertyName  the name of the property, not null
+     * @return {@code this} for chaining in the builder pattern, not null
      */
     public Builder withOptional(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
@@ -152,8 +176,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     /**
      * Removes a property from the builder definition.
      * 
-     * @param propertyName name of the property, not {@code null}
-     * @return the builder instance
+     * @param propertyName  the name of the property, not null
+     * @return {@code this} for chaining in the builder pattern, not null
      */
     public Builder withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
@@ -163,7 +187,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     /**
-     * Constructs and returns a {@link ValueProperties} instance based on the builder's current state.
+     * Completes the builder, creating a {@code ValueProperties} instance based
+     * on the current state of the builder.
      * 
      * @return the property set
      */
@@ -171,7 +196,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       if (_optional != null) {
         for (String optionalProperty : _optional) {
           if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String> emptySet());
+            _properties.put(optionalProperty, Collections.<String>emptySet());
           }
         }
         return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
@@ -179,17 +204,31 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
       }
     }
-
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * A value properties implementation holding a set of properties.
+   */
   private static final class ValuePropertiesImpl extends ValueProperties {
-
+    /**
+     * The properties.
+     */
     private final Map<String, Set<String>> _properties;
+    /**
+     * The optional properties.
+     */
     private final Set<String> _optional;
 
+    /**
+     * Creates an instance.
+     * 
+     * @param properties  the required properties, not null
+     * @param optional  the optional properties, not null
+     */
     private ValuePropertiesImpl(final Map<String, Set<String>> properties, final Set<String> optional) {
       _properties = properties;
       _optional = optional;
@@ -218,7 +257,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+    nextProperty:
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           if (!isOptional(property.getKey())) {
@@ -285,7 +325,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+    nextProperty:
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           // Other is not defined, so use current value
@@ -342,7 +383,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
       }
     }
 
@@ -403,13 +444,21 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Implements a nearly infinite property set.
+   * A value properties implementation representing a nearly infinite property set.
    */
   private static final class NearlyInfinitePropertiesImpl extends ValueProperties {
-
+    /**
+     * The set of properties not included.
+     */
     private final Set<String> _without;
 
+    /**
+     * Creates an instance.
+     * 
+     * @param without  the set of properties not included, not null
+     */
     private NearlyInfinitePropertiesImpl(final Set<String> without) {
       _without = without;
     }
@@ -422,7 +471,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     @Override
     public Builder copy() {
-      throw new UnsupportedOperationException("Can't copy the nearly infinite set");
+      throw new UnsupportedOperationException("Cannot copy the nearly infinite set");
     }
 
     @Override
@@ -530,13 +579,18 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       return 1;
     }
-
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Implements the infinite property set.
+   * The infinite property set.
    */
-  private static final ValueProperties INFINITE = new ValueProperties() {
+  private static final ValueProperties INFINITE = new InfinitePropertiesImpl();
+
+  /**
+   * A value properties implementation representing an infinite property set.
+   */
+  private static final class InfinitePropertiesImpl extends ValueProperties {
 
     @Override
     public ValueProperties compose(final ValueProperties properties) {
@@ -546,7 +600,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     @Override
     public Builder copy() {
-      throw new UnsupportedOperationException("Can't copy the infinite set");
+      throw new UnsupportedOperationException("Cannot copy the infinite set");
     }
 
     @Override
@@ -601,13 +655,18 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       return 1;
     }
+  }
 
-  };
+  //-------------------------------------------------------------------------
+  /**
+   * The empty set.
+   */
+  private static final ValueProperties EMPTY = new EmptyPropertiesImpl();
 
   /**
-   * Implements the empty set.
+   * A value properties implementation representing an empty property set.
    */
-  private static final ValueProperties EMPTY = new ValueProperties() {
+  private static final class EmptyPropertiesImpl extends ValueProperties {
 
     @Override
     public ValueProperties compose(ValueProperties properties) {
@@ -660,53 +719,59 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public String toString() {
       return "EMPTY";
     }
+  }
 
-  };
-
+  //-------------------------------------------------------------------------
   /**
    * Returns the empty property set, typically indicating no value constraints.
    * 
-   * @return the empty property set
+   * @return the empty property set, not null
    */
   public static ValueProperties none() {
     return EMPTY;
   }
 
   /**
-   * Returns a property set that simulates all possible properties. This should be used with caution - well written
-   * functions should build a property set explicitly stating the properties recognized.
+   * Returns a property set that simulates all possible properties.
+   * <p>
+   * This should be used with caution. Well written functions should build a
+   * property set explicitly stating the properties recognized.
    * 
-   * @return the "infinite" property set 
+   * @return the "infinite" property set, not null
    */
   public static ValueProperties all() {
     return INFINITE;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object.
+   * Creates a builder for constructing value properties.
+   * <p>
+   * {@code ValueProperties} is immutable, but the builder is mutable allowing
+   * instances to be created efficiently.
    * 
-   * @return the builder
+   * @return the builder, not null
    */
   public static Builder builder() {
     return new Builder();
   }
 
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * Creates a builder for constructing value properties with the given property defined.
    * 
-   * @param propertyName name of the property to define, not {@code null}
-   * @param propertyValue property value, not {@code null}
-   * @return the builder instance
+   * @param propertyName  the name of the property to define, not null
+   * @param propertyValue  the property value, not null
+   * @return the builder, not null
    */
   public static Builder with(final String propertyName, final String propertyValue) {
     return builder().with(propertyName, propertyValue);
   }
 
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * Creates a builder for constructing value properties with the given property defined.
    * 
-   * @param propertyName name of the property to define, not {@code null}
-   * @param propertyValues property values, not {@code null} and not containing {@code null}
+   * @param propertyName  the name of the property to define, not null
+   * @param propertyValues  the property values, not null and not containing null
    * @return the builder instance
    */
   public static Builder with(final String propertyName, final String... propertyValues) {
@@ -714,10 +779,10 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   }
 
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined.
+   * Creates a builder for constructing value properties with the given property defined.
    * 
-   * @param propertyName name of the property to define, not {@code null}
-   * @param propertyValues property values, not {@code null} and not containing {@code null}
+   * @param propertyName  the name of the property to define, not null
+   * @param propertyValues  the property values, not null and not containing null
    * @return the builder instance
    */
   public static Builder with(final String propertyName, final Collection<String> propertyValues) {
@@ -725,10 +790,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   }
 
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined
-   * as a wild-card.
+   * Creates a builder for constructing value properties with the given property defined as a wild-card.
    * 
-   * @param propertyName name of the property to define, not {@code null}
+   * @param propertyName  the name of the property to define, not null
    * @return the builder instance
    */
   public static Builder withAny(final String propertyName) {
@@ -736,10 +800,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   }
 
   /**
-   * Creates a builder for constructing a {@link ValueProperties} object with the given property defined
-   * as optional.
+   * Creates a builder for constructing value properties with the given property defined as optional.
    * 
-   * @param propertyName name of the property to define, not {@code null}
+   * @param propertyName  the name of the property to define, not null
    * @return the builder instance
    */
   public static Builder withOptional(final String propertyName) {
@@ -749,69 +812,76 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * Returns a builder pre-populated with the properties from this set.
    * 
-   * @return the builder
+   * @return the builder, not null
    */
   public abstract Builder copy();
 
   /**
-   * Returns an immutable set of defined property names.
+   * Gets an immutable set of the defined property names.
    * 
-   * @return the property names, not {@code null}
+   * @return the property names, not null
    */
   public abstract Set<String> getProperties();
 
   /**
-   * Returns an immutable set of values for a given property name. If the name is not defined,
-   * returns {@code null}. If the name has a wild-card value, the empty set is returned.
+   * Gets an immutable set of values for a given property name.
+   * <p>
+   * If the name is not defined null is returned.
+   * If the name has a wild-card value, the empty set is returned.
    * 
-   * @param propertyName the name required, not {@code null}
-   * @return the set of values, empty if wild-card, {@code null} if not defined
+   * @param propertyName  the name required, not null
+   * @return the set of values, empty if wild-card, null if not defined
    */
   public abstract Set<String> getValues(String propertyName);
 
   /**
-   * Indicates if a property may be omitted.
+   * Checks if a property may be omitted.
    * 
-   * @param propertyName the name required, not {@code null}
+   * @param propertyName  the name required, not null
    * @return {@code true} if the property is optional, {@code false} if it is not defined or required
    */
   public abstract boolean isOptional(String propertyName);
 
   /**
-   * Tests if this set of properties can be satisfied by the other set. An individual property is
-   * satisfied if:
-   * 
-   * It is a wild-card and the other property set has a definition for it; or
-   * The other property set has a wild-card definition for it; or
-   * The other property set provides at least one of the possible property values
-   * 
+   * Checks if this set of properties can be satisfied by the other set.
+   * <p>
+   * An individual property is satisfied if one of the following is true:
+   * <ul>
+   * <li>it is a wild-card and the other property set has a definition for it
+   * <li>the other property set has a wild-card definition for it
+   * <li>the other property set provides at least one of the possible property values
+   * </ul>
    * The property set is satisfied if each of the individual properties can be satisfied. 
    * 
-   * @param properties other property set to check against, not {@code null}
+   * @param properties  the other property set to check against, not null
    * @return {@code true} if this set of properties can be satisfied by the other set, {@code false} otherwise
    */
   public abstract boolean isSatisfiedBy(ValueProperties properties);
 
   /**
-   * Produces a set of properties such that for any properties defined by the other, the intersection
-   * of the property values is taken. Any properties defined in this set not but not in the other remain
-   * untouched.
+   * Composes two value properties taking the intersection.
+   * <p>
+   * This produces a set of properties such that for any properties defined by the other,
+   * the intersection of the property values is taken. Any properties defined in this set
+   * but not in the other remain untouched.
    * 
-   * @param properties other property set to compose against, not {@code null}
-   * @return the new set of properties, or this object if the composition result is equal
+   * @param properties  the other property set to compose against, not null
+   * @return the new set of properties, or this object if the composition result is equal, not null
    */
   public abstract ValueProperties compose(ValueProperties properties);
 
   /**
-   * Tests if the set of properties is strict. A property set is strict if there is only one value
-   * for each property (or the property set is empty).
+   * Checks if the set of properties is strict.
+   * <p>
+   * A property set is strict if there is only one value for each property
+   * or the property set is empty.
    * 
    * @return {@code true} if the property set is strict, {@code false} otherwise
    */
   public abstract boolean isStrict();
 
   /**
-   * Tests if the set of properties is empty.
+   * Checks if the set of properties is empty.
    * 
    * @return {@code true} if the property set is empty, {@code false} otherwise
    */
@@ -820,13 +890,21 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * Equivalent to calling {@code copy().withoutAny(propertyName).get()}.
    * 
-   * @param propertyName property name to remove
-   * @return a property set with the given property removed
+   * @param propertyName  the property name to remove, not null
+   * @return a value properties with the given property removed, not null
    */
   public ValueProperties withoutAny(final String propertyName) {
     return copy().withoutAny(propertyName).get();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Compares two sets.
+   * 
+   * @param s1  the first set, may be null
+   * @param s2  the second set, may be null
+   * @return negative if the first is less, zero if equal, positive if greater
+   */
   protected static int compareSet(final Set<String> s1, final Set<String> s2) {
     if (s1 == null) {
       if (s2 == null) {

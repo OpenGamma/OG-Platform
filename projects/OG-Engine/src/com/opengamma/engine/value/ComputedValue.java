@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,20 +14,24 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
-// NOTE kirk 2009-12-30 -- This is VERY intentionally NOT generified. Having actually
-// worked with the old version of ComputedValue with generics in the engine, the number
-// of warning suppressions necessary just to get it working wasn't matched by any
-// type of benefit in the additional type information at compile time.
-
-// REVIEW kirk 2009-12-30 -- I've intentionally not made this an interface as we
-// never actually made use of that functionality. We'll split it if and when we have
-// a compelling reason to do so.
-
 /**
  * A value computed by the engine.
+ * <p>
+ * A computed value consists of the value itself and the specification that defines it.
+ * <p>
+ * This class is immutable and thread-safe if the object is immutable.
  */
 @PublicAPI
 public class ComputedValue implements Serializable {
+  //NOTE kirk 2009-12-30 -- This is VERY intentionally NOT generified. Having actually
+  //worked with the old version of ComputedValue with generics in the engine, the number
+  //of warning suppressions necessary just to get it working wasn't matched by any
+  //type of benefit in the additional type information at compile time.
+
+  //REVIEW kirk 2009-12-30 -- I've intentionally not made this an interface as we
+  //never actually made use of that functionality. We'll split it if and when we have
+  //a compelling reason to do so.
+
   /**
    * The specification of the value.
    */
@@ -39,7 +43,10 @@ public class ComputedValue implements Serializable {
 
   /**
    * Creates a computed value.
-   * @param specification  the specification, not null
+   * <p>
+   * This combines the value and its specification.
+   * 
+   * @param specification  the specification of the value, not null
    * @param value  the value, not null
    */
   public ComputedValue(ValueSpecification specification, Object value) {
@@ -54,7 +61,8 @@ public class ComputedValue implements Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the specification.
+   * Gets the value specification.
+   * 
    * @return the specification, not null
    */
   public ValueSpecification getSpecification() {
@@ -63,6 +71,7 @@ public class ComputedValue implements Serializable {
 
   /**
    * Gets the value.
+   * 
    * @return the value, not null
    */
   public Object getValue() {
@@ -94,7 +103,7 @@ public class ComputedValue implements Serializable {
 
   @Override
   public String toString() {
-    // The fields we're interested in are somewhat deeply nested, so pick them out manually rather than reflecting
+    // carefully select useful fields for toString
     ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     StringBuffer sb = new StringBuffer();
     style.appendStart(sb, this);
@@ -110,4 +119,5 @@ public class ComputedValue implements Serializable {
     style.appendEnd(sb, this);
     return sb.toString();
   }
+
 }
