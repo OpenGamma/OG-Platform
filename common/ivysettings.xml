@@ -6,5 +6,5 @@
   <include url="ivysettings-main-chain.xml"/>
   <!--include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml"/-->
   <include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/>
-  <caches lockStrategy="artifact-lock" />
+  <!-- <caches lockStrategy="artifact-lock" /> -->
 </ivysettings>
