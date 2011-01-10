@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -16,7 +16,6 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface MutableZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeObjectTimeSeries<T>, MutableObjectTimeSeries<ZonedDateTime, T> {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,9 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
 /**
- * 
- *
- * @author jim
+ * Fudge message builder (serializer/deserializer) for SQLDateDoubleTimeSeries.
  */
 public class SQLDateDoubleTimeSeriesBuilder implements FudgeBuilder<SQLDateDoubleTimeSeries> {
 

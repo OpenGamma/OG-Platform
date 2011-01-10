@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -32,10 +32,10 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (Object x : object.getXs()) {
-      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass ()));
+      message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
     }
     for (Object y : object.getYs()) {
-      message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass ()));
+      message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
     }    
     return message; 
   }
@@ -45,16 +45,16 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     String name = message.getString("name");
     String interpolatorName = message.getString("interpolatorName");
-    List<FudgeField> xs_fields = message.getAllByName("xs");
+    List<FudgeField> xsFields = message.getAllByName("xs");
     List<Object> xs = new ArrayList<Object>();
-    for (FudgeField x_field : xs_fields) {
-      Object x = context.fieldValueToObject(x_field);
+    for (FudgeField xField : xsFields) {
+      Object x = context.fieldValueToObject(xField);
       xs.add(x);
     }
-    List<FudgeField> ys_fields = message.getAllByName("ys");
+    List<FudgeField> ysFields = message.getAllByName("ys");
     List<Object> ys = new ArrayList<Object>();
-    for (FudgeField y_field : ys_fields) {
-      Object y = context.fieldValueToObject(y_field);
+    for (FudgeField yField : ysFields) {
+      Object y = context.fieldValueToObject(yField);
       ys.add(y);
     }    
     return new VolatilitySurfaceDefinition<Object, Object>(name, currency, interpolatorName, xs.toArray(), ys.toArray());
