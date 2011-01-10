@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface MutableZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeSeries, MutableDoubleTimeSeries<ZonedDateTime> {

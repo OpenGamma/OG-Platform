@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -17,10 +17,8 @@ import com.opengamma.util.timeseries.fast.longint.object.FastListLongObjectTimeS
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
  */
-
 public class ArrayZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeObjectTimeSeries.Long<T> {
   private static final FastListLongObjectTimeSeries<?> DEFAULT_SERIES_TEMPLATE = new FastListLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();

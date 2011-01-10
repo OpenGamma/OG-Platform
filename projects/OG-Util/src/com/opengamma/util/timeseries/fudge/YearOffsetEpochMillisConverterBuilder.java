@@ -1,11 +1,9 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.util.timeseries.fudge;
-
-
 
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
@@ -20,6 +18,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 
 /**
+ * Fudge message builder (serializer/deserializer) for YearOffsetEpochMillisConverter.
  */
 @FudgeBuilderFor(YearOffsetEpochMillisConverter.class)
 public class YearOffsetEpochMillisConverterBuilder implements FudgeBuilder<YearOffsetEpochMillisConverter> {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - Present by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,9 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * 
- *
- * @author jim
+ * Fudge message builder (serializer/deserializer) for ZonedDateTimeDoubleTimeSeries.
  */
 public class ZonedDateTimeDoubleTimeSeriesBuilder implements FudgeBuilder<ZonedDateTimeDoubleTimeSeries> {
 
