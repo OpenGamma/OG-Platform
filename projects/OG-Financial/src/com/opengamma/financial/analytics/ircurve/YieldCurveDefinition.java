@@ -23,6 +23,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,16 +35,19 @@ public class YieldCurveDefinition implements Serializable {
   private final String _name;
   private final String _interpolatorName;
   private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
+  private final Identifier _region;
   
-  public YieldCurveDefinition(Currency currency, String name, String interpolatorName) {
-    this(currency, name, interpolatorName, null);
+  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName) {
+    this(currency, region, name, interpolatorName, null);
   }
   
-  public YieldCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
+  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "Currency");
+//    ArgumentChecker.notNull(region, "RegionID");
     ArgumentChecker.notNull(interpolatorName, "Interpolator name");
     // Name can be null.
     _currency = currency;
+    _region = region;
     _name = name;
     _interpolatorName = interpolatorName;
     if (strips != null) {
@@ -63,6 +67,14 @@ public class YieldCurveDefinition implements Serializable {
    */
   public Currency getCurrency() {
     return _currency;
+  }
+  
+  /**
+   * Gets the region field.
+   * @return the region
+   */
+  public Identifier getRegion() {
+    return _region;
   }
 
   /**
@@ -101,6 +113,9 @@ public class YieldCurveDefinition implements Serializable {
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
+    if (!ObjectUtils.equals(_region, other._region)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
@@ -118,6 +133,9 @@ public class YieldCurveDefinition implements Serializable {
     int prime = 37;
     int result = 1;
     result = (result * prime) + _currency.hashCode();
+    if (_region != null) {
+      result = (result * prime) + _region.hashCode();
+    }
     if (_name != null) {
       result = (result * prime) + _name.hashCode();
     }
@@ -137,6 +155,7 @@ public class YieldCurveDefinition implements Serializable {
 
   // /CSOFF
   private static String CURRENCY_KEY = "currency";
+  private static String REGION_KEY = "region";
   private static String NAME_KEY = "name";
   private static String INTERPOLATOR_NAME_KEY = "interpolatorName";
   private static String STRIP_KEY = "strip";
@@ -145,6 +164,9 @@ public class YieldCurveDefinition implements Serializable {
 
   public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     context.objectToFudgeMsgWithClassHeaders(message, CURRENCY_KEY, null, _currency, Currency.class);
+    if (getRegion() != null) {
+      context.objectToFudgeMsgWithClassHeaders(message, REGION_KEY, null, _region, Identifier.class);
+    }
     message.add(NAME_KEY, _name);
     message.add(INTERPOLATOR_NAME_KEY, _interpolatorName);
     for (FixedIncomeStrip strip : _strips) {
@@ -154,6 +176,10 @@ public class YieldCurveDefinition implements Serializable {
 
   public static YieldCurveDefinition fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final Currency currency = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY));
+    Identifier region = null;
+    if (message.hasField(REGION_KEY)) {
+      region = context.fieldValueToObject(Identifier.class, message.getByName(REGION_KEY));
+    }
     final String name = message.getString(NAME_KEY);
     final String interpolatorName = message.getString(INTERPOLATOR_NAME_KEY);
     final List<FudgeField> stripFields = message.getAllByName(STRIP_KEY);
@@ -161,7 +187,7 @@ public class YieldCurveDefinition implements Serializable {
     for (FudgeField stripField : stripFields) {
       strips.add(context.fieldValueToObject(FixedIncomeStrip.class, stripField));
     }
-    return new YieldCurveDefinition(currency, name, interpolatorName, strips);
+    return new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
   }
 
 }
