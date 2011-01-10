@@ -5,9 +5,11 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -22,6 +24,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
 
@@ -95,11 +98,28 @@ public abstract class ViewResultModelBuilder {
         targetResult.putAll(configurationEntry.getKey(), configurationEntry.getValue().getValues(targetSpec).values());
       }
     }
+    
+    final List<ViewResultEntry> allResults = new ArrayList<ViewResultEntry>();
+    for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
+      for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
+        Map<String, ComputedValue> results = configurationEntry.getValue().getValues(targetSpec);
+        for (ComputedValue value : results.values()) {
+          allResults.add(new ViewResultEntry(configurationEntry.getKey(), value));
+        }
+      }
+    }
+    
     return constructImpl(context, message, inputDataTimestamp, resultTimestamp, configurationMap,
-        (Map<ComputationTargetSpecification, ViewTargetResultModel>) (Map<ComputationTargetSpecification, ?>) targetMap, viewName);
+        (Map<ComputationTargetSpecification, ViewTargetResultModel>) (Map<ComputationTargetSpecification, ?>) targetMap, viewName, allResults);
   }
 
-  protected abstract ViewResultModel constructImpl(FudgeDeserializationContext context, FudgeFieldContainer message, Instant inputDataTimestamp, Instant resultTimestamp,
-      Map<String, ViewCalculationResultModel> configurationMap, Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, String viewName);
+  protected abstract ViewResultModel constructImpl(FudgeDeserializationContext context, 
+      FudgeFieldContainer message, 
+      Instant inputDataTimestamp, 
+      Instant resultTimestamp,
+      Map<String, ViewCalculationResultModel> configurationMap, 
+      Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, 
+      String viewName,
+      List<ViewResultEntry> allResults);
 
 }

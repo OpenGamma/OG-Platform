@@ -19,11 +19,20 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.util.db.PagingRequest;
+
 /**
  * Request for searching for batches.
  */
 @BeanDefinition
 public class BatchSearchRequest extends DirectBean {
+  
+  /**
+   * The request for paging.
+   * By default all matching items will be returned.
+   */
+  @PropertyDefinition
+  private PagingRequest _pagingRequest = PagingRequest.ALL;
   
   /**
    * The batch date.
@@ -57,6 +66,8 @@ public class BatchSearchRequest extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case -2092032669:  // pagingRequest
+        return getPagingRequest();
       case 950748666:  // observationDate
         return getObservationDate();
       case 951232793:  // observationTime
@@ -68,6 +79,9 @@ public class BatchSearchRequest extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case -2092032669:  // pagingRequest
+        setPagingRequest((PagingRequest) newValue);
+        return;
       case 950748666:  // observationDate
         setObservationDate((LocalDate) newValue);
         return;
@@ -76,6 +90,34 @@ public class BatchSearchRequest extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the request for paging.
+   * By default all matching items will be returned.
+   * @return the value of the property
+   */
+  public PagingRequest getPagingRequest() {
+    return _pagingRequest;
+  }
+
+  /**
+   * Sets the request for paging.
+   * By default all matching items will be returned.
+   * @param pagingRequest  the new value of the property
+   */
+  public void setPagingRequest(PagingRequest pagingRequest) {
+    this._pagingRequest = pagingRequest;
+  }
+
+  /**
+   * Gets the the {@code pagingRequest} property.
+   * By default all matching items will be returned.
+   * @return the property, not null
+   */
+  public final Property<PagingRequest> pagingRequest() {
+    return metaBean().pagingRequest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -139,6 +181,10 @@ public class BatchSearchRequest extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code pagingRequest} property.
+     */
+    private final MetaProperty<PagingRequest> _pagingRequest = DirectMetaProperty.ofReadWrite(this, "pagingRequest", PagingRequest.class);
+    /**
      * The meta-property for the {@code observationDate} property.
      */
     private final MetaProperty<LocalDate> _observationDate = DirectMetaProperty.ofReadWrite(this, "observationDate", LocalDate.class);
@@ -154,6 +200,7 @@ public class BatchSearchRequest extends DirectBean {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
+      temp.put("pagingRequest", _pagingRequest);
       temp.put("observationDate", _observationDate);
       temp.put("observationTime", _observationTime);
       _map = Collections.unmodifiableMap(temp);
@@ -175,6 +222,14 @@ public class BatchSearchRequest extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code pagingRequest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PagingRequest> pagingRequest() {
+      return _pagingRequest;
+    }
+
     /**
      * The meta-property for the {@code observationDate} property.
      * @return the meta-property, not null
