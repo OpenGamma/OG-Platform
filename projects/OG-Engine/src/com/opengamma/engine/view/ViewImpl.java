@@ -264,7 +264,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   public void suspend() {
     s_logger.info("Suspending view {}", getName());
     lock();
-    if (getRecalcJob() == null) {
+    if (getRecalcJob() != null) {
       s_logger.debug("Suspending calculation job");
       getRecalcJob().terminate();
       if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {

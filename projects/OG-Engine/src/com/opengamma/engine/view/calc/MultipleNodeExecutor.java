@@ -64,6 +64,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _cache = cache;
   }
 
+  protected long getFunctionInitId() {
+    return getCycle().getFunctionInitId();
+  }
+
   protected SingleComputationCycle getCycle() {
     return _cycle;
   }
