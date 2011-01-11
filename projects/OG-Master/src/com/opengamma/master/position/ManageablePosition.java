@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -46,7 +46,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   /**
    * The position unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
@@ -63,7 +63,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private BigDecimal _quantity;
   /**
-   * The identifiers specifying the security.
+   * The security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
@@ -218,7 +218,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   //-----------------------------------------------------------------------
   /**
    * Gets the position unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
   public UniqueIdentifier getUniqueId() {
@@ -227,7 +227,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   /**
    * Sets the position unique identifier.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueIdentifier uniqueId) {
@@ -236,7 +236,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   /**
    * Gets the the {@code uniqueId} property.
-   * This field should be null until added to the master.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
   public final Property<UniqueIdentifier> uniqueId() {
@@ -282,7 +282,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifiers specifying the security.
+   * Gets the security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    * @return the value of the property
    */
@@ -291,7 +291,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   }
 
   /**
-   * Sets the identifiers specifying the security.
+   * Sets the security key identifier bundle specifying the security.
    * This field must not be null for the object to be valid.
    * @param securityKey  the new value of the property
    */

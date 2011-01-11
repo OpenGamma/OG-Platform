@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -167,7 +167,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("A", "B"));
+    request.setProviderKey(Identifier.of("A", "B"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -176,7 +176,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerFound() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("COPP_CLARK", "2"));
+    request.setProviderKey(Identifier.of("COPP_CLARK", "2"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -187,7 +187,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionEmptyBundle() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionIdentifiers(IdentifierBundle.EMPTY);
+    request.setRegionKeys(new IdentifierSearch());
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -196,32 +196,32 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    request.addRegionKey(Identifier.of("A", "B"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_exchangeEmptyBundle() {
+  public void test_search_exchange_empty() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeIdentifiers(IdentifierBundle.EMPTY);
+    request.setExchangeKeys(new IdentifierSearch());
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_exchangeNoMatch() {
+  public void test_search_exchange_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    request.addExchangeKey(Identifier.of("A", "B"));
     HolidaySearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_currencyNoMatch() {
+  public void test_search_currency_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("USD"));
     HolidaySearchResult test = _worker.search(request);
@@ -230,7 +230,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   }
 
   @Test
-  public void test_search_currencyOneMatch() {
+  public void test_search_currency_oneMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("EUR"));
     HolidaySearchResult test = _worker.search(request);
@@ -240,7 +240,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   }
 
   @Test
-  public void test_search_currencyTwoMatches() {
+  public void test_search_currency_twoMatches() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("GBP"));
     HolidaySearchResult test = _worker.search(request);

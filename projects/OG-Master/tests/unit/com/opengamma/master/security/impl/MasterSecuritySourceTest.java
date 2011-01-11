@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -61,7 +61,6 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecurityHistoryRequest request = new SecurityHistoryRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
-    request.setFullDetail(true);
     ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
     SecurityHistoryResult result = new SecurityHistoryResult();
     result.getDocuments().add(new SecurityDocument(security));
@@ -81,9 +80,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addIdentifierBundle(ID1);
-    request.addIdentifierBundle(ID2);
-    request.setFullDetail(true);
+    request.addSecurityKey(ID1);
+    request.addSecurityKey(ID2);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
@@ -105,9 +103,8 @@ public class MasterSecuritySourceTest {
     Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addIdentifierBundle(ID1);
-    request.addIdentifierBundle(ID2);
-    request.setFullDetail(true);
+    request.addSecurityKey(ID1);
+    request.addSecurityKey(ID2);
     request.setVersionAsOfInstant(now.minusSeconds(2));
     request.setCorrectedToInstant(now.minusSeconds(1));
     ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);

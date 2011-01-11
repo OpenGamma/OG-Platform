@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -124,8 +124,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
   
   private CashSecurity getCash(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
-    CashSecurity sec = new CashSecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
-                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
+//    CashSecurity sec = new CashSecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
+//                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
+    CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), 
+        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
     return sec;
   }
@@ -134,8 +136,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     LocalDate curveDate = spec.getCurveDate(); // quick hack
     LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
     LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
-    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
-                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
+//    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
+//                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
+    return new FRASecurity(spec.getCurrency(), spec.getRegion(), 
+        new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
   }
   
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {

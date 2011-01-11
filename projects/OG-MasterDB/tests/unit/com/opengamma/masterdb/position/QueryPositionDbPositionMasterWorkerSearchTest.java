@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -201,18 +203,200 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_search_providerNoMatch() {
+  public void test_search_noKeys_Exact_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setProviderId(Identifier.of("A", "999"));
+    request.setSecurityKeys(new IdentifierSearch());
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
     PositionSearchResult test = _worker.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_providerFound() {
+  public void test_search_noKeys_All_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setProviderId(Identifier.of("A", "121"));
+    request.setSecurityKeys(new IdentifierSearch());
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_noKeys_Any_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setSecurityKeys(new IdentifierSearch());
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ANY);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_noKeys_None_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setSecurityKeys(new IdentifierSearch());
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(_totalPositions, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_oneKey_Any_1() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("TICKER", "S100"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_search_oneKey_Any_1_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("A", "Z"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_twoKeys_Any_2() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("TICKER", "S100"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+    assert121(test.getDocuments().get(1));
+  }
+
+  @Test
+  public void test_search_twoKeys_Any_2_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKeys(Identifier.of("E", "H"), Identifier.of("A", "D"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_oneKey_All_1() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("TICKER", "S100"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_search_oneKey_All_1_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("A", "Z"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_twoKeys_All_2() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert121(test.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_search_twoKeys_All_2_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("A", "D"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_oneKey_None() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(5, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+    assert120(test.getDocuments().get(1));
+    assert122(test.getDocuments().get(2));
+    assert123(test.getDocuments().get(3));
+    assert222(test.getDocuments().get(4));
+  }
+
+  @Test
+  public void test_search_oneKey_None_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("TICKER", "S100"));
+    request.addSecurityKey(Identifier.of("TICKER", "T130"));
+    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
+    request.addSecurityKey(Identifier.of("NASDAQ", "Micro"));
+    request.addSecurityKey(Identifier.of("TICKER", "ORCL"));
+    request.addSecurityKey(Identifier.of("TICKER", "ORCL134"));
+    request.addSecurityKey(Identifier.of("NASDAQ", "ORCL135"));
+    request.addSecurityKey(Identifier.of("TICKER", "IBMC"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_threeKeys_Exact() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
+    PositionSearchResult test = _worker.search(request);
+    
+    System.out.println(test.getDocuments());
+    assertEquals(1, test.getDocuments().size());
+    assert121(test.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_search_threeKeys_Exact_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
+    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_providerKey_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setProviderKey(Identifier.of("A", "999"));
+    PositionSearchResult test = _worker.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_providerKey_found() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setProviderKey(Identifier.of("A", "121"));
     PositionSearchResult test = _worker.search(request);
     
     assertEquals(1, test.getDocuments().size());

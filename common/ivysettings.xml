@@ -6,4 +6,6 @@
   <include url="ivysettings-main-chain.xml"/>
   <!--include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml"/-->
   <include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/>
+  <!-- <caches lockStrategy="artifact-lock" resolutionCacheDir="${user.home}/.ivy2/cache-${user.name}" /> -->
+  <caches resolutionCacheDir="${user.home}/.ivy2/cache-res-${user.name}" />
 </ivysettings>

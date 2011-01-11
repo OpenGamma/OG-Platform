@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,12 +47,12 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
 
   /**
    * The depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    */
   @PropertyDefinition
-  private boolean _fullDetail;
+  private boolean _fullDetail = true;
 
   /**
    * Creates an instance.

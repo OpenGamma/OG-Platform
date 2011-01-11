@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -31,16 +32,19 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
   private final String _name;
   private final String _interpolatorName;
   private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
+  private final Identifier _region;
   
-  public YieldCurveDefinition(Currency currency, String name, String interpolatorName) {
-    this(currency, name, interpolatorName, null);
+  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName) {
+    this(currency, region, name, interpolatorName, null);
   }
   
-  public YieldCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
+  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "Currency");
+//    ArgumentChecker.notNull(region, "RegionID");
     ArgumentChecker.notNull(interpolatorName, "Interpolator name");
     // Name can be null.
     _currency = currency;
+    _region = region;
     _name = name;
     _interpolatorName = interpolatorName;
     if (strips != null) {
@@ -60,6 +64,14 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
    */
   public Currency getCurrency() {
     return _currency;
+  }
+  
+  /**
+   * Gets the region field.
+   * @return the region
+   */
+  public Identifier getRegion() {
+    return _region;
   }
 
   /**
@@ -98,6 +110,9 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
+    if (!ObjectUtils.equals(_region, other._region)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
@@ -118,6 +133,9 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
     int prime = 37;
     int result = 1;
     result = (result * prime) + _currency.hashCode();
+    if (_region != null) {
+      result = (result * prime) + _region.hashCode();
+    }
     if (_name != null) {
       result = (result * prime) + _name.hashCode();
     }

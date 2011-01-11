@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,7 +10,7 @@ import javax.time.Instant;
 /**
  * 
  */
-public class ViewDeltaResultModelImpl extends ViewResultModelImpl implements ViewDeltaResultModel {
+public class InMemoryViewDeltaResultModel extends InMemoryViewResultModel implements ViewDeltaResultModel {
   private Instant _previousResultTimestamp;
 
   /**

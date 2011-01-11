@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,7 +13,7 @@ import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSerie
 import com.opengamma.util.timeseries.yearoffset.MapYearOffsetDoubleTimeSeries;
 
 /**
- * Fudge message encoder/decoder (builder) for MapYearOffsetDoubleTimeSeries
+ * Fudge message encoder/decoder (builder) for MapYearOffsetDoubleTimeSeries.
  */
 @FudgeBuilderFor(MapYearOffsetDoubleTimeSeries.class)
 public class MapYearOffsetDoubleTimeSeriesBuilder extends FastBackedDoubleTimeSeriesBuilder<Double, MapYearOffsetDoubleTimeSeries> {

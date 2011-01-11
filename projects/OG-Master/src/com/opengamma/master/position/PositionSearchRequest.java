@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,6 +7,7 @@ package com.opengamma.master.position;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,10 +19,13 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Request for searching for positions.
@@ -35,24 +39,29 @@ import com.opengamma.master.AbstractSearchRequest;
 public class PositionSearchRequest extends AbstractSearchRequest {
 
   /**
-   * The list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
+   * The set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
   private List<UniqueIdentifier> _positionIds;
   /**
-   * The list of trade object identifiers, null to not limit by trade object identifiers.
+   * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
   private List<UniqueIdentifier> _tradeIds;
   /**
-   * The identifier of the data provider, null to not match on provider.
+   * The security keys to match, null to not match on security keys.
+   */
+  @PropertyDefinition
+  private IdentifierSearch _securityKeys;
+  /**
+   * The data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -63,11 +72,6 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private BigDecimal _maxQuantity;
-  /**
-   * The security key to match, null to not match on security key.
-   */
-  @PropertyDefinition
-  private IdentifierBundle _securityKey;
 
   /**
    * Creates an instance.
@@ -77,10 +81,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a position id to the list.
+   * Adds a single position id to the set.
+   * 
    * @param positionId  the position id to add, not null
    */
   public void addPositionId(UniqueIdentifier positionId) {
+    ArgumentChecker.notNull(positionId, "positionId");
     if (_positionIds == null) {
       _positionIds = new ArrayList<UniqueIdentifier>();
     }
@@ -88,23 +94,27 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
-   * @param positionIds  the new value of the property
+   * Sets the set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
+   * 
+   * @param positionIds  the new position identifiers, null clears the position id search
    */
-  public void setPositionIds(List<UniqueIdentifier> positionIds) {
+  public void setPositionIds(Iterable<UniqueIdentifier> positionIds) {
     if (positionIds == null) {
       _positionIds = null;
     } else {
-      _positionIds = new ArrayList<UniqueIdentifier>(positionIds);
+      _positionIds = new ArrayList<UniqueIdentifier>();
+      Iterables.addAll(_positionIds, positionIds);
     }
   }
 
   /**
-   * Adds a trade id to the list.
+   * Adds a single trade id to the set.
+   * 
    * @param tradeId  the trade id to add, not null
    */
   public void addTradeId(UniqueIdentifier tradeId) {
+    ArgumentChecker.notNull(tradeId, "tradeId");
     if (_tradeIds == null) {
       _tradeIds = new ArrayList<UniqueIdentifier>();
     }
@@ -112,16 +122,63 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the list of trade object identifiers, null to not limit by trade object identifiers.
+   * Sets the set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
-   * Note that an empty list will return no positions.
-   * @param tradeIds  the new value of the property
+   * Note that an empty set will return no positions.
+   * 
+   * @param tradeIds  the new trade identifiers, null clears the trade id search
    */
-  public void setTradeIds(List<UniqueIdentifier> tradeIds) {
+  public void setTradeIds(Iterable<UniqueIdentifier> tradeIds) {
     if (tradeIds == null) {
       _tradeIds = null;
     } else {
-      _tradeIds = new ArrayList<UniqueIdentifier>(tradeIds);
+      _tradeIds = new ArrayList<UniqueIdentifier>();
+      Iterables.addAll(_tradeIds, tradeIds);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single security key identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKey  the security key identifier to add, not null
+   */
+  public void addSecurityKey(Identifier securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    addSecurityKeys(Arrays.asList(securityKey));
+  }
+
+  /**
+   * Adds a collection of security key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKeys  the security key identifiers to add, not null
+   */
+  public void addSecurityKeys(Identifier... securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
+    if (getSecurityKeys() == null) {
+      setSecurityKeys(new IdentifierSearch(securityKeys));
+    } else {
+      getSecurityKeys().addIdentifiers(securityKeys);
+    }
+  }
+
+  /**
+   * Adds a collection of security key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKeys  the security key identifiers to add, not null
+   */
+  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
+    if (getSecurityKeys() == null) {
+      setSecurityKeys(new IdentifierSearch(securityKeys));
+    } else {
+      getSecurityKeys().addIdentifiers(securityKeys);
     }
   }
 
@@ -147,14 +204,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return getPositionIds();
       case 1271202484:  // tradeIds
         return getTradeIds();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 807958868:  // securityKeys
+        return getSecurityKeys();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
         return getMaxQuantity();
-      case 1550083839:  // securityKey
-        return getSecurityKey();
     }
     return super.propertyGet(propertyName);
   }
@@ -169,8 +226,11 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       case 1271202484:  // tradeIds
         setTradeIds((List<UniqueIdentifier>) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 807958868:  // securityKeys
+        setSecurityKeys((IdentifierSearch) newValue);
+        return;
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -178,17 +238,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       case 747293199:  // maxQuantity
         setMaxQuantity((BigDecimal) newValue);
         return;
-      case 1550083839:  // securityKey
-        setSecurityKey((IdentifierBundle) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of position object identifiers, null to not limit by position object identifiers.
-   * Note that an empty list will return no positions.
+   * Gets the set of position object identifiers, null to not limit by position object identifiers.
+   * Note that an empty set will return no positions.
    * @return the value of the property
    */
   public List<UniqueIdentifier> getPositionIds() {
@@ -197,7 +254,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code positionIds} property.
-   * Note that an empty list will return no positions.
+   * Note that an empty set will return no positions.
    * @return the property, not null
    */
   public final Property<List<UniqueIdentifier>> positionIds() {
@@ -206,7 +263,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of trade object identifiers, null to not limit by trade object identifiers.
+   * Gets the set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    * @return the value of the property
@@ -227,30 +284,55 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the security keys to match, null to not match on security keys.
+   * @return the value of the property
+   */
+  public IdentifierSearch getSecurityKeys() {
+    return _securityKeys;
+  }
+
+  /**
+   * Sets the security keys to match, null to not match on security keys.
+   * @param securityKeys  the new value of the property
+   */
+  public void setSecurityKeys(IdentifierSearch securityKeys) {
+    this._securityKeys = securityKeys;
+  }
+
+  /**
+   * Gets the the {@code securityKeys} property.
+   * @return the property, not null
+   */
+  public final Property<IdentifierSearch> securityKeys() {
+    return metaBean().securityKeys().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -305,31 +387,6 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security key to match, null to not match on security key.
-   * @return the value of the property
-   */
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
-  }
-
-  /**
-   * Sets the security key to match, null to not match on security key.
-   * @param securityKey  the new value of the property
-   */
-  public void setSecurityKey(IdentifierBundle securityKey) {
-    this._securityKey = securityKey;
-  }
-
-  /**
-   * Gets the the {@code securityKey} property.
-   * @return the property, not null
-   */
-  public final Property<IdentifierBundle> securityKey() {
-    return metaBean().securityKey().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code PositionSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -349,9 +406,13 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code securityKeys} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
+    /**
+     * The meta-property for the {@code providerKey} property.
+     */
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
@@ -360,10 +421,6 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code maxQuantity} property.
      */
     private final MetaProperty<BigDecimal> _maxQuantity = DirectMetaProperty.ofReadWrite(this, "maxQuantity", BigDecimal.class);
-    /**
-     * The meta-property for the {@code securityKey} property.
-     */
-    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
     /**
      * The meta-properties.
      */
@@ -374,10 +431,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("positionIds", _positionIds);
       temp.put("tradeIds", _tradeIds);
-      temp.put("providerId", _providerId);
+      temp.put("securityKeys", _securityKeys);
+      temp.put("providerKey", _providerKey);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
-      temp.put("securityKey", _securityKey);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -414,11 +471,19 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code securityKeys} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<IdentifierSearch> securityKeys() {
+      return _securityKeys;
+    }
+
+    /**
+     * The meta-property for the {@code providerKey} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**
@@ -435,14 +500,6 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<BigDecimal> maxQuantity() {
       return _maxQuantity;
-    }
-
-    /**
-     * The meta-property for the {@code securityKey} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<IdentifierBundle> securityKey() {
-      return _securityKey;
     }
 
   }

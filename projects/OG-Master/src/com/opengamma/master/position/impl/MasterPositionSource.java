@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -355,7 +355,7 @@ public class MasterPositionSource implements PositionSource {
    */
   protected void convertTrade(final UniqueIdentifier nodeUid, final UniqueIdentifier posUid, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
     sourceTrade.setUniqueId(convertUid(manTrade.getUniqueId(), nodeUid));
-    sourceTrade.setPositionId(posUid);
+    sourceTrade.setParentPositionId(posUid);
     sourceTrade.setQuantity(manTrade.getQuantity());
     sourceTrade.setSecurityKey(manTrade.getSecurityKey());
     if (manTrade.getCounterpartyId() != null) {

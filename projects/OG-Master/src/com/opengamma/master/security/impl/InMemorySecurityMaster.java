@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,7 +15,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
@@ -84,16 +83,19 @@ public class InMemorySecurityMaster implements SecurityMaster {
         }
       });
     }
-    if (request.getIdentifiers().size() > 0) {
+    if (request.getSecurityIds() != null) {
       docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
         @Override
         public boolean apply(final SecurityDocument doc) {
-          for (IdentifierBundle bundle : request.getIdentifiers()) {
-            if (doc.getSecurity().getIdentifiers().containsAll(bundle)) {
-              return true;
-            }
-          }
-          return false;
+          return request.getSecurityIds().contains(doc.getUniqueId());
+        }
+      });
+    }
+    if (request.getSecurityKeys() != null) {
+      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
+        @Override
+        public boolean apply(final SecurityDocument doc) {
+          return request.getSecurityKeys().matches(doc.getSecurity().getIdentifiers());
         }
       });
     }

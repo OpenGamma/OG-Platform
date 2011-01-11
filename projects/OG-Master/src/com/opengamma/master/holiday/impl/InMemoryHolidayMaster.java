@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -75,11 +75,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request, "request");
     final HolidaySearchResult result = new HolidaySearchResult();
     Collection<HolidayDocument> docs = _holidays.values();
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return request.getProviderId().equals(doc.getProviderId());
+          return request.getProviderKey().equals(doc.getProviderKey());
         }
       });
     }
@@ -91,21 +91,21 @@ public class InMemoryHolidayMaster implements HolidayMaster {
         }
       });
     }
-    if (request.getRegionIdentifiers() != null) {
+    if (request.getRegionKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getRegionId() != null &&
-            request.getRegionIdentifiers().contains(doc.getHoliday().getRegionId());
+          return doc.getHoliday().getRegionKey() != null &&
+            request.getRegionKeys().contains(doc.getHoliday().getRegionKey());
         }
       });
     }
-    if (request.getExchangeIdentifiers() != null) {
+    if (request.getExchangeKeys() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
         public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getExchangeId() != null &&
-            request.getExchangeIdentifiers().contains(doc.getHoliday().getExchangeId());
+          return doc.getHoliday().getExchangeKey() != null &&
+            request.getExchangeKeys().contains(doc.getHoliday().getExchangeKey());
         }
       });
     }

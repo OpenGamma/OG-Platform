@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -231,7 +230,7 @@ import com.opengamma.util.monitor.OperationTimer;
       //set the children trade security as well
       for (Trade trade : position.getTrades()) {
         TradeImpl populatedTrade = new TradeImpl(trade);
-        populatedTrade.setPositionId(populatedPosition.getUniqueId());
+        populatedTrade.setParentPositionId(populatedPosition.getUniqueId());
         populatedTrade.setSecurity(security);
         populatedPosition.addTrade(populatedTrade);
       }

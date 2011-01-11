@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -149,7 +149,7 @@ public class MasterExchangeSourceTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UID);
     exchange.setName("NYSE");
-    exchange.setRegionId(IdentifierBundle.of(RegionUtils.countryRegionId("US")));
+    exchange.setRegionKey(IdentifierBundle.of(RegionUtils.countryRegionId("US")));
     return exchange;
   }
 

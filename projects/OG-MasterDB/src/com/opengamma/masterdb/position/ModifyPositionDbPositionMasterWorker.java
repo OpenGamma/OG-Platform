@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -156,8 +156,8 @@ public class ModifyPositionDbPositionMasterWorker extends DbPositionMasterWorker
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
-      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
+      .addValue("provider_scheme", (document.getProviderKey() != null ? document.getProviderKey().getScheme().getName() : null))
+      .addValue("provider_value", (document.getProviderKey() != null ? document.getProviderKey().getValue() : null))
       .addValue("quantity", document.getPosition().getQuantity());
     
     // the arguments for inserting into the idkey tables

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -95,7 +95,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     assertEquals(uid, testExchange.getUniqueId());
     assertEquals("Test", test.getName());
     assertEquals(BUNDLE, testExchange.getIdentifiers());
-    assertEquals(REGION, testExchange.getRegionId());
+    assertEquals(REGION, testExchange.getRegionKey());
     assertEquals(null, testExchange.getTimeZone());
   }
 

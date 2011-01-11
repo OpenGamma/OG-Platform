@@ -1,15 +1,16 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.master.security;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
@@ -17,8 +18,12 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,6 +39,17 @@ import com.opengamma.util.ArgumentChecker;
 public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
+   * The set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
+   */
+  @PropertyDefinition(set = "manual")
+  private List<UniqueIdentifier> _securityIds;
+  /**
+   * The security keys to match, null to not match on security keys.
+   */
+  @PropertyDefinition
+  private IdentifierSearch _securityKeys;
+  /**
    * The security name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
@@ -44,20 +60,13 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _securityType;
   /**
-   * The security identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   */
-  @PropertyDefinition(set = "setClearAddAll")
-  private final Set<IdentifierBundle> _identifiers = new HashSet<IdentifierBundle>();
-  /**
    * The depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    */
   @PropertyDefinition
-  private boolean _fullDetail;
+  private boolean _fullDetail = true;
 
   /**
    * Creates an instance.
@@ -68,40 +77,93 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param identifier  the identifier to look up, not null
+   * @param securityKey  the security key identifier to search for, not null
    */
-  public SecuritySearchRequest(Identifier identifier) {
-    addIdentifierBundle(IdentifierBundle.of(identifier));
+  public SecuritySearchRequest(Identifier securityKey) {
+    addSecurityKey(securityKey);
   }
 
   /**
    * Creates an instance using a bundle of identifiers.
    * 
-   * @param bundle  the bundle of identifiers to look up, not null
+   * @param securityKeys  the security key identifiers to search for, not null
    */
-  public SecuritySearchRequest(IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "identifiers");
-    addIdentifierBundle(bundle);
+  public SecuritySearchRequest(IdentifierBundle securityKeys) {
+    addSecurityKeys(securityKeys);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a bundle representing this identifier to the collection to search for.
+   * Adds a single security id to the set.
    * 
-   * @param identifier  the identifier to add as a bundle, not null
+   * @param securityId  the security id to add, not null
    */
-  public void addIdentifierBundle(Identifier identifier) {
-    addIdentifierBundle(IdentifierBundle.of(identifier));
+  public void addSecurityId(UniqueIdentifier securityId) {
+    ArgumentChecker.notNull(securityId, "securityId");
+    if (_securityIds == null) {
+      _securityIds = new ArrayList<UniqueIdentifier>();
+    }
+    _securityIds.add(securityId);
   }
 
   /**
-   * Adds a bundle to the collection to search for.
+   * Sets the set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
    * 
-   * @param bundle  the bundle to add, not null
+   * @param securityIds  the new security identifiers, null clears the security id search
    */
-  public void addIdentifierBundle(IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    getIdentifiers().add(bundle);
+  public void setSecurityIds(Iterable<UniqueIdentifier> securityIds) {
+    if (securityIds == null) {
+      _securityIds = null;
+    } else {
+      _securityIds = new ArrayList<UniqueIdentifier>();
+      Iterables.addAll(_securityIds, securityIds);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single security key identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKey  the security key identifier to add, not null
+   */
+  public void addSecurityKey(Identifier securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    addSecurityKeys(Arrays.asList(securityKey));
+  }
+
+  /**
+   * Adds a collection of security key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKeys  the security key identifiers to add, not null
+   */
+  public void addSecurityKeys(Identifier... securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
+    if (getSecurityKeys() == null) {
+      setSecurityKeys(new IdentifierSearch(securityKeys));
+    } else {
+      getSecurityKeys().addIdentifiers(securityKeys);
+    }
+  }
+
+  /**
+   * Adds a collection of security key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param securityKeys  the security key identifiers to add, not null
+   */
+  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
+    ArgumentChecker.notNull(securityKeys, "securityKeys");
+    if (getSecurityKeys() == null) {
+      setSecurityKeys(new IdentifierSearch(securityKeys));
+    } else {
+      getSecurityKeys().addIdentifiers(securityKeys);
+    }
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -122,12 +184,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case 1550081880:  // securityIds
+        return getSecurityIds();
+      case 807958868:  // securityKeys
+        return getSecurityKeys();
       case 3373707:  // name
         return getName();
       case 808245914:  // securityType
         return getSecurityType();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
       case -1233600576:  // fullDetail
         return isFullDetail();
     }
@@ -138,20 +202,67 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case 1550081880:  // securityIds
+        setSecurityIds((List<UniqueIdentifier>) newValue);
+        return;
+      case 807958868:  // securityKeys
+        setSecurityKeys((IdentifierSearch) newValue);
+        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
       case 808245914:  // securityType
         setSecurityType((String) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((Set<IdentifierBundle>) newValue);
-        return;
       case -1233600576:  // fullDetail
         setFullDetail((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of security object identifiers, null to not limit by security object identifiers.
+   * Note that an empty set will return no securities.
+   * @return the value of the property
+   */
+  public List<UniqueIdentifier> getSecurityIds() {
+    return _securityIds;
+  }
+
+  /**
+   * Gets the the {@code securityIds} property.
+   * Note that an empty set will return no securities.
+   * @return the property, not null
+   */
+  public final Property<List<UniqueIdentifier>> securityIds() {
+    return metaBean().securityIds().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security keys to match, null to not match on security keys.
+   * @return the value of the property
+   */
+  public IdentifierSearch getSecurityKeys() {
+    return _securityKeys;
+  }
+
+  /**
+   * Sets the security keys to match, null to not match on security keys.
+   * @param securityKeys  the new value of the property
+   */
+  public void setSecurityKeys(IdentifierSearch securityKeys) {
+    this._securityKeys = securityKeys;
+  }
+
+  /**
+   * Gets the the {@code securityKeys} property.
+   * @return the property, not null
+   */
+  public final Property<IdentifierSearch> securityKeys() {
+    return metaBean().securityKeys().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -206,38 +317,6 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @return the value of the property
-   */
-  public Set<IdentifierBundle> getIdentifiers() {
-    return _identifiers;
-  }
-
-  /**
-   * Sets the security identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @param identifiers  the new value of the property
-   */
-  public void setIdentifiers(Set<IdentifierBundle> identifiers) {
-    this._identifiers.clear();
-    this._identifiers.addAll(identifiers);
-  }
-
-  /**
-   * Gets the the {@code identifiers} property.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @return the property, not null
-   */
-  public final Property<Set<IdentifierBundle>> identifiers() {
-    return metaBean().identifiers().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the depth of security data to return.
    * False will only return the basic information held in the {@code DefaultSecurity} class.
    * True will load the full security subclass for each returned security.
@@ -281,6 +360,15 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code securityIds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<UniqueIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) List.class);
+    /**
+     * The meta-property for the {@code securityKeys} property.
+     */
+    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -288,11 +376,6 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityType} property.
      */
     private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(this, "securityType", String.class);
-    /**
-     * The meta-property for the {@code identifiers} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<IdentifierBundle>> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", (Class) Set.class);
     /**
      * The meta-property for the {@code fullDetail} property.
      */
@@ -305,9 +388,10 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("securityIds", _securityIds);
+      temp.put("securityKeys", _securityKeys);
       temp.put("name", _name);
       temp.put("securityType", _securityType);
-      temp.put("identifiers", _identifiers);
       temp.put("fullDetail", _fullDetail);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -329,6 +413,22 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code securityIds} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<UniqueIdentifier>> securityIds() {
+      return _securityIds;
+    }
+
+    /**
+     * The meta-property for the {@code securityKeys} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<IdentifierSearch> securityKeys() {
+      return _securityKeys;
+    }
+
+    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
@@ -342,14 +442,6 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> securityType() {
       return _securityType;
-    }
-
-    /**
-     * The meta-property for the {@code identifiers} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Set<IdentifierBundle>> identifiers() {
-      return _identifiers;
     }
 
     /**

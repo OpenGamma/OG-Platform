@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,7 +14,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
@@ -127,7 +126,6 @@ public class MasterSecuritySource implements SecuritySource {
       // REVIEW 2010-10-14 Andrew -- This is not a very efficient operation if we want "latest" versions at a given correction at we have to ask for all
       // versions and then pick one. Perhaps we should not use the "full detail" mode in this case depending on what comes back.
       SecurityHistoryRequest request = new SecurityHistoryRequest(uid, _versionAsOfInstant, _correctedToInstant);
-      request.setFullDetail(true);
       SecurityHistoryResult result = getSecurityMaster().history(request);
       if (result.getDocuments().isEmpty()) {
         return null;
@@ -176,12 +174,9 @@ public class MasterSecuritySource implements SecuritySource {
   public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    for (Identifier identifier : securityKey) {
-      request.addIdentifierBundle(identifier);
-    }
+    request.addSecurityKeys(securityKey);
     request.setVersionAsOfInstant(_versionAsOfInstant);
     request.setCorrectedToInstant(_correctedToInstant);
-    request.setFullDetail(true);
     return (Collection) getSecurityMaster().search(request).getSecurities();  // cast safe as supplied list will not be altered
   }
 

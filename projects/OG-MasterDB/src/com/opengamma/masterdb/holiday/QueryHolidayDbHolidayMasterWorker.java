@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,7 +26,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -138,11 +139,13 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
   @Override
   protected HolidaySearchResult search(HolidaySearchRequest request) {
     s_logger.debug("searchHolidays: {}", request);
-    IdentifierBundle regionIds = request.getRegionIdentifiers();
-    IdentifierBundle exchangeIds = request.getExchangeIdentifiers();
+    final HolidaySearchResult result = new HolidaySearchResult();
+    IdentifierSearch regionKeys = request.getRegionKeys();
+    IdentifierSearch exchangeKeys = request.getExchangeKeys();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
-    if (IdentifierBundle.EMPTY.equals(regionIds) || IdentifierBundle.EMPTY.equals(exchangeIds)) {
-      return new HolidaySearchResult();  // containsAny with empty bundle always returns nothing
+    if (IdentifierSearch.canMatch(regionKeys) == false ||
+        IdentifierSearch.canMatch(exchangeKeys) == false) {
+      return result;
     }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -151,27 +154,32 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
-    if (request.getProviderId() != null) {
-      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
-      args.addValue("provider_value", request.getProviderId().getValue());
+    if (request.getProviderKey() != null) {
+      args.addValue("provider_scheme", request.getProviderKey().getScheme().getName());
+      args.addValue("provider_value", request.getProviderKey().getValue());
     }
-    if (regionIds != null) {
+    if (regionKeys != null) {
+      if (regionKeys.getSearchType() != IdentifierSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + regionKeys.getSearchType());
+      }
       int i = 0;
-      for (Identifier idKey : regionIds.getIdentifiers()) {
+      for (Identifier idKey : regionKeys.getIdentifiers()) {
         args.addValue("region_scheme" + i, idKey.getScheme().getName());
         args.addValue("region_value" + i, idKey.getValue());
         i++;
       }
     }
-    if (exchangeIds != null) {
+    if (exchangeKeys != null) {
+      if (exchangeKeys.getSearchType() != IdentifierSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + exchangeKeys.getSearchType());
+      }
       int i = 0;
-      for (Identifier idKey : exchangeIds.getIdentifiers()) {
+      for (Identifier idKey : exchangeKeys.getIdentifiers()) {
         args.addValue("exchange_scheme" + i, idKey.getScheme().getName());
         args.addValue("exchange_value" + i, idKey.getValue());
         i++;
       }
     }
-    final HolidaySearchResult result = new HolidaySearchResult();
     searchWithPaging(request.getPagingRequest(), sqlSearchHolidays(request), args, new HolidayDocumentExtractor(), result);
     return result;
   }
@@ -190,14 +198,14 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
     if (request.getType() != null) {
       where += "AND hol_type = :hol_type ";
     }
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
-    if (request.getRegionIdentifiers() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getRegionIdentifiers(), "region") + ") ";
+    if (request.getRegionKeys() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getRegionKeys(), "region") + ") ";
     }
-    if (request.getExchangeIdentifiers() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getExchangeIdentifiers(), "exchange") + ") ";
+    if (request.getExchangeKeys() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getExchangeKeys(), "exchange") + ") ";
     }
     if (request.getCurrency() != null) {
       where += "AND currency_iso = :currency_iso ";
@@ -215,7 +223,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
    * @param type  the type to search for, not null
    * @return the SQL search and count, not null
    */
-  protected String sqlSelectIdKeys(final IdentifierBundle bundle, final String type) {
+  protected String sqlSelectIdKeys(final IdentifierSearch bundle, final String type) {
     List<String> list = new ArrayList<String>();
     for (int i = 0; i < bundle.size(); i++) {
       list.add("(" + type + "_scheme = :" + type + "_scheme" + i + " AND " + type + "_value = :" + type + "_value" + i + ") ");
@@ -344,10 +352,10 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       holiday.setUniqueId(uid);
       holiday.setType(HolidayType.valueOf(type));
       if (regionScheme != null && regionValue != null) {
-        holiday.setRegionId(Identifier.of(regionScheme, regionValue));
+        holiday.setRegionKey(Identifier.of(regionScheme, regionValue));
       }
       if (exchangeScheme != null && exchangeValue != null) {
-        holiday.setExchangeId(Identifier.of(exchangeScheme, exchangeValue));
+        holiday.setExchangeKey(Identifier.of(exchangeScheme, exchangeValue));
       }
       if (currencyISO != null) {
         holiday.setCurrency(Currency.getInstance(currencyISO));
@@ -360,7 +368,7 @@ public class QueryHolidayDbHolidayMasterWorker extends DbHolidayMasterWorker {
       doc.setUniqueId(uid);
       doc.setName(name);
       if (providerScheme != null && providerValue != null) {
-        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+        doc.setProviderKey(Identifier.of(providerScheme, providerValue));
       }
       _holiday = doc.getHoliday();
       _documents.add(doc);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -38,18 +38,18 @@ public interface Holiday extends UniqueIdentifiable {
   HolidayType getType();
 
   /**
-   * The region identifier, used when this is a holiday of type BANK.
+   * The region key identifier, used when this is a holiday of type BANK.
    * 
    * @return an identifier for the region, if this is a BANK holiday, null otherwise
    */
-  Identifier getRegionId();
+  Identifier getRegionKey();
 
   /**
-   * The exchange identifier, used when this is a holiday of type SETTLEMENT or TRADING.
+   * The exchange key identifier, used when this is a holiday of type SETTLEMENT or TRADING.
    * 
    * @return an identifier for the exchange, if this is a SETTLEMENT or TRADING holiday, null otherwise
    */
-  Identifier getExchangeId();
+  Identifier getExchangeKey();
 
   /**
    * The currency, used when this is a holiday of type CURRENCY.

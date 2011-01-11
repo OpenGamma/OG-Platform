@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,7 +24,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -127,39 +127,50 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
   @Override
   protected ExchangeSearchResult search(ExchangeSearchRequest request) {
     s_logger.debug("searchExchanges: {}", request);
+    final ExchangeSearchResult result = new ExchangeSearchResult();
+    if ((request.getExchangeIds() != null && request.getExchangeIds().size() == 0) ||
+        (IdentifierSearch.canMatch(request.getExchangeKeys()) == false)) {
+      return result;
+    }
     final Instant now = Instant.now(getTimeSource());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
-    List<IdentifierBundle> bundles = new ArrayList<IdentifierBundle>(request.getIdentifiers());  // lock order
-    int i = 0;
-    for (IdentifierBundle bundle : bundles) {
-      for (Identifier id : bundle) {
+    if (request.getExchangeKeys() != null) {
+      int i = 0;
+      for (Identifier id : request.getExchangeKeys()) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
       }
     }
-    final ExchangeSearchResult result = new ExchangeSearchResult();
-    searchWithPaging(request.getPagingRequest(), sqlSearchExchanges(request, bundles), args, new ExchangeDocumentExtractor(), result);
+    searchWithPaging(request.getPagingRequest(), sqlSearchExchanges(request), args, new ExchangeDocumentExtractor(), result);
     return result;
   }
 
   /**
    * Gets the SQL to search for exchanges.
    * @param request  the request, not null
-   * @param bundles  the ordered set of bundles, not null
    * @return the SQL search and count, not null
    */
-  protected String[] sqlSearchExchanges(final ExchangeSearchRequest request, final List<IdentifierBundle> bundles) {
+  protected String[] sqlSearchExchanges(final ExchangeSearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
-    if (request.getIdentifiers().size() > 0) {
-      where += "AND id IN (" + sqlSelectMatchingBundles(bundles) + ") ";
+    if (request.getExchangeIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getExchangeIds().size() * 10);
+      for (UniqueIdentifier uid : request.getExchangeIds()) {
+        getMaster().checkScheme(uid);
+        buf.append(extractOid(uid)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
+    }
+    if (request.getExchangeKeys() != null && request.getExchangeKeys().size() > 0) {
+      where += sqlSelectMatchingExchangeKeys(request.getExchangeKeys());
     }
     String selectFromWhereInner = "SELECT id FROM exg_exchange " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
@@ -170,27 +181,58 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
 
   /**
    * Gets the SQL to find all the ids for all bundles in the set.
-   * @param bundles  the ordered set of bundles, not null
-   * @return the SQL search and count, not null
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingBundles(final List<IdentifierBundle> bundles) {
-    String select = "";
-    int i = 0;
-    for (IdentifierBundle bundle : bundles) {
-      select += (i == 0 ? "" : "UNION ");
-      select += sqlSelectMatchingBundle(bundle, i);
-      i += bundle.size();
+  protected String sqlSelectMatchingExchangeKeys(final IdentifierSearch idSearch) {
+    switch (idSearch.getSearchType()) {
+      case EXACT:
+        return "AND id IN (" + sqlSelectMatchingExchangeKeysExact(idSearch) + ") ";
+      case ALL:
+        return "AND id IN (" + sqlSelectMatchingExchangeKeysAll(idSearch) + ") ";
+      case ANY:
+        return "AND id IN (" + sqlSelectMatchingExchangeKeysAny(idSearch) + ") ";
+      case NONE:
+        return "AND id NOT IN (" + sqlSelectMatchingExchangeKeysAny(idSearch) + ") ";
     }
+    throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
+  }
+
+  /**
+   * Gets the SQL to find all the exchanges matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingExchangeKeysExact(final IdentifierSearch idSearch) {
+    // compare size of all matched to size in total
+    // filter by dates to reduce search set
+    String a = "SELECT exchange_id AS matched_exchange_id, COUNT(exchange_id) AS matched_count " +
+      "FROM exg_exchange2idkey, exg_exchange main " +
+      "WHERE exchange_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") " +
+      "GROUP BY exchange_id " +
+      "HAVING COUNT(exchange_id) >= " + idSearch.size() + " ";
+    String b = "SELECT exchange_id AS total_exchange_id, COUNT(exchange_id) AS total_count " +
+      "FROM exg_exchange2idkey, exg_exchange main " +
+      "WHERE exchange_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "GROUP BY exchange_id ";
+    String select = "SELECT matched_exchange_id AS exchange_id " +
+      "FROM (" + a + ") AS a, (" + b + ") AS b " +
+      "WHERE matched_exchange_id = total_exchange_id " +
+        "AND matched_count = total_count ";
     return select;
   }
 
   /**
-   * Gets the SQL to find all the ids for a single bundle.
-   * @param bundle  the bundle, not null
-   * @param count  the overall count of the bundle parameters
-   * @return the SQL search and count, not null
+   * Gets the SQL to find all the exchanges matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectMatchingBundle(final IdentifierBundle bundle, final int count) {
+  protected String sqlSelectMatchingExchangeKeysAll(final IdentifierSearch idSearch) {
     // only return exchange_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT exchange_id " +
@@ -198,23 +240,39 @@ public class QueryExchangeDbExchangeMasterWorker extends DbExchangeMasterWorker 
       "WHERE exchange_id = main.id " +
       "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
       "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      "AND idkey_id IN (" + sqlSelectAllMatchingBundle(bundle, count) + ") " +
+      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") " +
       "GROUP BY exchange_id " +
-      "HAVING COUNT(exchange_id) >= " + bundle.size() + " ";
+      "HAVING COUNT(exchange_id) >= " + idSearch.size() + " ";
+    return select;
+  }
+
+  /**
+   * Gets the SQL to find all the exchanges matching any identifier.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingExchangeKeysAny(final IdentifierSearch idSearch) {
+    // optimized search for commons case of individual ORs
+    // filter by dates to reduce search set
+    String select = "SELECT DISTINCT exchange_id " +
+      "FROM exg_exchange2idkey, exg_exchange main " +
+      "WHERE exchange_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingExchangeKeysOr(idSearch) + ") ";
     return select;
   }
 
   /**
    * Gets the SQL to find all the ids for a single bundle.
-   * @param bundle  the bundle, not null
-   * @param count  the overall count of the bundle parameters
-   * @return the SQL search and count, not null
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
    */
-  protected String sqlSelectAllMatchingBundle(final IdentifierBundle bundle, final int count) {
+  protected String sqlSelectMatchingExchangeKeysOr(final IdentifierSearch idSearch) {
     String select = "SELECT id FROM exg_idkey ";
-    for (int i = 0; i < bundle.getIdentifiers().size(); i++) {
+    for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
-      select += "(key_scheme = :key_scheme" + (i + count) + " AND key_value = :key_value" + (i + count) + ") ";
+      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
     }
     return select;
   }

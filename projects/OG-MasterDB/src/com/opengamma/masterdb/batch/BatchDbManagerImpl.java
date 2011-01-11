@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,10 +21,15 @@ import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -35,8 +41,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
@@ -47,12 +55,17 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchSearchRequest;
+import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * This implementation uses Hibernate to write all static data, including LiveData snapshots.
@@ -366,19 +379,25 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return functionUniqueId;
   }
   
-  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
+  /*package*/ RiskRun getRiskRunFromDb(final LocalDate observationDate, final String observationTime) {
     RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
       public RiskRun doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("RiskRun.one.byRunTime");
-        query.setDate("runDate", DbDateUtils.toSqlDate(job.getObservationDate()));
-        query.setString("runTime", job.getObservationTime());
+        query.setDate("runDate", DbDateUtils.toSqlDate(observationDate));
+        query.setString("runTime", observationTime);
         return (RiskRun) query.uniqueResult();
       }
     });
     
     return riskRun;
+  }
+
+  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
+    return getRiskRunFromDb(
+        job.getObservationDate(),
+        job.getObservationTime());
   }
   
   /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
@@ -755,6 +774,101 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   public static Class<?>[] getHibernateMappingClasses() {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
+  }
+  
+  @Override
+  public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
+    ArgumentChecker.notNull(observationDate, "observationDate");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    
+    // At the moment, we simply load all results into memory.
+    // This needs to be made more scalable.
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      riskRun = getRiskRunFromDb(observationDate, observationTime);
+      if (riskRun == null) {
+        return null;
+      }
+
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    List<MaterializedRiskValue> values = _dbSource.getJdbcTemplate().query(
+        MaterializedRiskValue.sqlGet(), 
+        MaterializedRiskValue.ROW_MAPPER, 
+        params);
+    
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    
+    for (MaterializedRiskValue value : values) {
+      result.addValue(value.getCalculationConfiguration(), value.getComputedValue());
+    }
+    
+    return result;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public BatchSearchResult search(BatchSearchRequest request) {
+    DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
+    DetachedCriteria runTimeCriteria = criteria.createCriteria("runTime");
+    DetachedCriteria observationTimeCriteria = runTimeCriteria.createCriteria("observationTime");
+    
+    if (request.getObservationDate() != null) {
+      runTimeCriteria.add(
+          Restrictions.eq("date", DbDateUtils.toSqlDate(request.getObservationDate())));
+    }
+    
+    if (request.getObservationTime() != null) {
+      observationTimeCriteria.add(
+          Restrictions.eq("label", request.getObservationTime()))
+          .addOrder(Order.asc("label"));
+    }
+    
+    BatchSearchResult result = new BatchSearchResult();
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      if (request.getPagingRequest().equals(PagingRequest.ALL)) {
+        result.setPaging(Paging.of(result.getItems(), request.getPagingRequest()));
+      } else {
+        criteria.setProjection(Projections.rowCount());
+        Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
+        result.setPaging(new Paging(request.getPagingRequest(), totalCount.intValue()));
+        criteria.setProjection(null);
+        criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+      }
+      
+      runTimeCriteria.addOrder(Order.asc("date"));
+      observationTimeCriteria.addOrder(Order.asc("label"));
+
+      List<RiskRun> runs = getHibernateTemplate().findByCriteria(
+          criteria,
+          request.getPagingRequest().getFirstItemIndex(),
+          request.getPagingRequest().getPagingSize());
+      
+      for (RiskRun run : runs) {
+        BatchSearchResultItem item = new BatchSearchResultItem();
+        item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
+        item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+        result.getItems().add(item);
+      }
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+
+    return result;
   }
   
 }

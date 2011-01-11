@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -173,7 +173,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "100"), test.getProviderId());
+    assertEquals(Identifier.of("A", "100"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -196,7 +196,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "120"), test.getProviderId());
+    assertEquals(Identifier.of("A", "120"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -226,7 +226,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "121"), test.getProviderId());
+    assertEquals(Identifier.of("A", "121"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -256,7 +256,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "122"), test.getProviderId());
+    assertEquals(Identifier.of("A", "122"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -276,7 +276,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "123"), test.getProviderId());
+    assertEquals(Identifier.of("A", "123"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -313,7 +313,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "221"), test.getProviderId());
+    assertEquals(Identifier.of("A", "221"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());
@@ -338,7 +338,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "222"), test.getProviderId());
+    assertEquals(Identifier.of("A", "222"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uid, position.getUniqueId());

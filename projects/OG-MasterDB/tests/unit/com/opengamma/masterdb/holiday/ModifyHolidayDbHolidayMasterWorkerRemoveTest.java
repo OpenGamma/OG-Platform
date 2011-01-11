@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -85,8 +85,8 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
     assertEquals("GBP", holiday.getCurrency().getISOCode());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 1)), holiday.getHolidayDates());
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -82,7 +82,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    exchange.setRegionId(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
+    exchange.setRegionKey(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);

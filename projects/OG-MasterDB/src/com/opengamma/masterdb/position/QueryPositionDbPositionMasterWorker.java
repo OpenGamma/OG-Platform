@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -28,6 +28,7 @@ import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.position.ManageablePosition;
@@ -188,7 +189,8 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
     s_logger.debug("searchPositions: {}", request);
     final PositionSearchResult result = new PositionSearchResult();
     if ((request.getPositionIds() != null && request.getPositionIds().size() == 0) ||
-        (request.getTradeIds() != null && request.getTradeIds().size() == 0)) {
+        (request.getTradeIds() != null && request.getTradeIds().size() == 0) ||
+        (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
     final Instant now = Instant.now(getTimeSource());
@@ -197,11 +199,18 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
-    if (request.getProviderId() != null) {
-      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
-      args.addValue("provider_value", request.getProviderId().getValue());
+    if (request.getSecurityKeys() != null) {
+      int i = 0;
+      for (Identifier id : request.getSecurityKeys()) {
+        args.addValue("key_scheme" + i, id.getScheme().getName());
+        args.addValue("key_value" + i, id.getValue());
+        i++;
+      }
     }
-    // TODO: security key
+    if (request.getProviderKey() != null) {
+      args.addValue("provider_scheme", request.getProviderKey().getScheme().getName());
+      args.addValue("provider_value", request.getProviderKey().getValue());
+    }
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
   }
@@ -214,7 +223,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
   protected String[] sqlSearchPositions(final PositionSearchRequest request) {
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
-    if (request.getProviderId() != null) {
+    if (request.getProviderKey() != null) {
       where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
     if (request.getMinQuantity() != null) {
@@ -241,12 +250,113 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN (" + buf + ")) ";
     }
+    if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
+      where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
+    }
     
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY oid ", request.getPagingRequest());
     String search = SELECT + FROM + "WHERE p.id IN (" + inner + ") " + ORDER_BY;
     String count = "SELECT COUNT(*) FROM pos_position " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Gets the SQL to find all the ids for all bundles in the set.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingSecurityKeys(final IdentifierSearch idSearch) {
+    switch (idSearch.getSearchType()) {
+      case EXACT:
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysExact(idSearch) + ") ";
+      case ALL:
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysAll(idSearch) + ") ";
+      case ANY:
+        return "AND id IN (" + sqlSelectMatchingSecurityKeysAny(idSearch) + ") ";
+      case NONE:
+        return "AND id NOT IN (" + sqlSelectMatchingSecurityKeysAny(idSearch) + ") ";
+    }
+    throw new UnsupportedOperationException("Search type is not supported: " + idSearch.getSearchType());
+  }
+
+  /**
+   * Gets the SQL to find all the securities matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingSecurityKeysExact(final IdentifierSearch idSearch) {
+    // compare size of all matched to size in total
+    // filter by dates to reduce search set
+    String a = "SELECT position_id AS matched_position_id, COUNT(position_id) AS matched_count " +
+      "FROM pos_position2idkey, pos_position main " +
+      "WHERE position_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") " +
+      "GROUP BY position_id " +
+      "HAVING COUNT(position_id) >= " + idSearch.size() + " ";
+    String b = "SELECT position_id AS total_position_id, COUNT(position_id) AS total_count " +
+      "FROM pos_position2idkey, pos_position main " +
+      "WHERE position_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "GROUP BY position_id ";
+    String select = "SELECT matched_position_id AS position_id " +
+      "FROM (" + a + ") AS a, (" + b + ") AS b " +
+      "WHERE matched_position_id = total_position_id " +
+        "AND matched_count = total_count ";
+    return select;
+  }
+
+  /**
+   * Gets the SQL to find all the securities matching.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingSecurityKeysAll(final IdentifierSearch idSearch) {
+    // only return position_id when all requested ids match (having count >= size)
+    // filter by dates to reduce search set
+    String select = "SELECT position_id " +
+      "FROM pos_position2idkey, pos_position main " +
+      "WHERE position_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") " +
+      "GROUP BY position_id " +
+      "HAVING COUNT(position_id) >= " + idSearch.size() + " ";
+    return select;
+  }
+
+  /**
+   * Gets the SQL to find all the securities matching any identifier.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingSecurityKeysAny(final IdentifierSearch idSearch) {
+    // optimized search for commons case of individual ORs
+    // filter by dates to reduce search set
+    String select = "SELECT DISTINCT position_id " +
+      "FROM pos_position2idkey, pos_position main " +
+      "WHERE position_id = main.id " +
+      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+      "AND idkey_id IN (" + sqlSelectMatchingSecurityKeysOr(idSearch) + ") ";
+    return select;
+  }
+
+  /**
+   * Gets the SQL to find all the ids for a single bundle.
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectMatchingSecurityKeysOr(final IdentifierSearch idSearch) {
+    String select = "SELECT id FROM pos_idkey ";
+    for (int i = 0; i < idSearch.size(); i++) {
+      select += (i == 0 ? "WHERE " : "OR ");
+      select += "(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ";
+    }
+    return select;
   }
 
   //-------------------------------------------------------------------------
@@ -408,7 +518,7 @@ public class QueryPositionDbPositionMasterWorker extends DbPositionMasterWorker 
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
       doc.setUniqueId(createUniqueIdentifier(positionOid, positionId));
       if (providerScheme != null && providerValue != null) {
-        doc.setProviderId(Identifier.of(providerScheme, providerValue));
+        doc.setProviderKey(Identifier.of(providerScheme, providerValue));
       }
       _documents.add(doc);
     }

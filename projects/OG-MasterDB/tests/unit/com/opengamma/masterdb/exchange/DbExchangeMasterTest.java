@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -68,7 +68,7 @@ public class DbExchangeMasterTest extends DBTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
     exchange.setName("Test");
-    exchange.setRegionId(IdentifierBundle.of(Identifier.of("E", "F"), Identifier.of("G", "H")));
+    exchange.setRegionKey(IdentifierBundle.of(Identifier.of("E", "F"), Identifier.of("G", "H")));
     exchange.setTimeZone(TimeZone.of("Europe/London"));
     ExchangeDocument addDoc = new ExchangeDocument(exchange);
     ExchangeDocument added = _exgMaster.add(addDoc);

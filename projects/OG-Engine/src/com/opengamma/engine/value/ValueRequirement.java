@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -22,18 +22,22 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * An immutable requirement to obtain a value needed to perform a calculation.
- * This is a metadata-based requirement, and specifies only the minimal number of parameters
- * that are necessary to specify the user requirements.
- * 
- * The actual value which is computed is available as a {@link ValueSpecification} that is
- * capable of satisfying this requirement. A specification satisfies a requirement if its
- * properties satisfy the requirement constraints, plus the value name and target specifications
- * match.
+ * <p>
+ * This is a metadata-based requirement, and specifies only the minimal number of
+ * parameters that are necessary to specify the user requirements.
+ * <p>
+ * The actual value which is computed is available as a {@link ValueSpecification}
+ * that is capable of satisfying this requirement. A specification satisfies a requirement
+ * if its properties satisfy the requirement constraints, plus the value name and
+ * target specifications match.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class ValueRequirement implements Serializable {
+
   /**
-   * The value being requested.
+   * The name of the value being requested.
    */
   private final String _valueName;
   /**
@@ -41,35 +45,44 @@ public final class ValueRequirement implements Serializable {
    */
   private final ComputationTargetSpecification _targetSpecification;
   /**
-   * The constraints or additional parameters about the target. For example, a currency
-   * constraint.
+   * The constraints or additional parameters about the target.
+   * For example, a currency constraint.
    */
   private final ValueProperties _constraints;
 
   /**
    * Creates a requirement with no value constraints.
+   * <p>
+   * This builds a {@link ComputationTargetSpecification} from the target type and id.
+   * 
    * @param valueName  the value to load, not null
    * @param targetType  the target type, not null
-   * @param targetIdentifier  the target identifier, may be null
+   * @param targetId  the target identifier, may be null
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier) {
-    this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier));
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetId));
   }
 
   /**
    * Creates a requirement with value constraints.
-   * @param valueName the name of the value to load, not {@code null}
-   * @param targetType the target type, not {@code null}
-   * @param targetIdentifier the unique identifier of the target, not {@code null}
-   * @param constraints value constraints that must be satisfied
+   * <p>
+   * This builds a {@link ComputationTargetSpecification} from the target type and id.
+   * 
+   * @param valueName  the name of the value to load, not null
+   * @param targetType  the target type, not null
+   * @param targetId  the unique identifier of the target, not null
+   * @param constraints  the value constraints that must be satisfied
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier, ValueProperties constraints) {
-    this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier), constraints);
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId, ValueProperties constraints) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetId), constraints);
   }
 
   /**
-   * Creates a requirement from an object with no value constraints.
+   * Creates a requirement from a target object with no value constraints.
+   * <p>
+   * This builds a {@link ComputationTargetSpecification} from the target.
    * Example objects are {@link Position} and {@link Security}.
+   * 
    * @param valueName  the value to load, not null
    * @param target  the target object, may be null
    */
@@ -78,11 +91,14 @@ public final class ValueRequirement implements Serializable {
   }
 
   /**
-   * Creates a requirement from an object with value constraints.
+   * Creates a requirement from a target object with value constraints.
+   * <p>
+   * This builds a {@link ComputationTargetSpecification} from the target.
    * Example objects are {@link Position} and {@link Security}.
-   * @param valueName the name of the value to load, not {@code null}
-   * @param target the target object, may be {@code null}
-   * @param constraints value constraints that must be satisfied
+   * 
+   * @param valueName  the name of the value to load, not null
+   * @param target  the target object, may be null
+   * @param constraints  the value constraints that must be satisfied
    */
   public ValueRequirement(String valueName, Object target, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(target), constraints);
@@ -90,6 +106,7 @@ public final class ValueRequirement implements Serializable {
 
   /**
    * Creates a requirement from a target specification with no value constraints.
+   * 
    * @param valueName  the value to load, not null
    * @param targetSpecification  the target specification, not null
    */
@@ -99,9 +116,10 @@ public final class ValueRequirement implements Serializable {
 
   /**
    * Creates a requirement from a target specification with value constraints.
-   * @param valueName the name of the value to load, not {@code null}
-   * @param targetSpecification the target specification, not {@code null}
-   * @param constraints the value constraints that must be satisfied
+   * 
+   * @param valueName  the name of the value to load, not null
+   * @param targetSpecification  the target specification, not null
+   * @param constraints  the value constraints that must be satisfied
    */
   public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification, ValueProperties constraints) {
     ArgumentChecker.notNull(valueName, "Value name");
@@ -112,9 +130,10 @@ public final class ValueRequirement implements Serializable {
     _constraints = constraints;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the name of the value to load.
+   * 
    * @return the valueName, not null
    */
   public String getValueName() {
@@ -123,6 +142,7 @@ public final class ValueRequirement implements Serializable {
 
   /**
    * Gets the specification of the target that is to be loaded.
+   * 
    * @return the target specification, not null
    */
   public ComputationTargetSpecification getTargetSpecification() {
@@ -130,21 +150,23 @@ public final class ValueRequirement implements Serializable {
   }
 
   /**
-   * Returns the constraints that must be satisfied.
+   * Gets the constraints that must be satisfied.
    * 
-   * @return the constraints
+   * @return the constraints, not null
    */
   public ValueProperties getConstraints() {
     return _constraints;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a specific constraint that must be specified.
+   * Gets a specific constraint that must be specified.
+   * <p>
+   * If the constraint allows multiple specific values an arbitrary one is returned. 
    * 
-   * @param constraintName the constraint to query
-   * @return the constraint value, or {@code null} if it is not defined. If the constraint
-   * allows multiple specific values an arbitrary one is returned. 
-   * @throws IllegalArgumentException if the constraint is a wild-card definition.
+   * @param constraintName  the constraint to query
+   * @return the constraint value, or null if it is not defined 
+   * @throws IllegalArgumentException if the constraint is a wild-card definition
    */
   public String getConstraint(final String constraintName) {
     final Set<String> values = _constraints.getValues(constraintName);
@@ -157,7 +179,43 @@ public final class ValueRequirement implements Serializable {
     }
   }
 
-  // -------------------------------------------------------------------------
+  /**
+   * Creates and returns the live data specification for market data corresponding to the target.
+   * 
+   * @param securitySource  the security source to resolve securities against, not null
+   * @return the live data specification, not null
+   */
+  public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
+    return getTargetSpecification().getRequiredLiveData(securitySource);
+  }
+
+  /**
+   * Tests if this requirement can be satisfied by a given value specification.
+   * <p>
+   * A {@link ValueSpecification} can satisfy a requirement if both of the following are true:
+   * <ul>
+   * <li>it is for the same value on the same computation target
+   * <li>the properties associated with the value satisfy the constraints on the requirement
+   * </ul>
+   * 
+   * @param valueSpecification  the value specification to test, not null
+   * @return {@code true} if this requirement is satisfied by the specification, {@code false} otherwise.
+   */
+  public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
+    // value names are interned by this and specifications
+    if (getValueName() != valueSpecification.getValueName()) {
+      return false;
+    }
+    if (!getTargetSpecification().equals(getTargetSpecification())) {
+      return false;
+    }
+    if (!getConstraints().isSatisfiedBy(valueSpecification.getProperties())) {
+      return false;
+    }
+    return true;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -166,7 +224,8 @@ public final class ValueRequirement implements Serializable {
     if (obj instanceof ValueRequirement) {
       ValueRequirement other = (ValueRequirement) obj;
       return _valueName == other._valueName && // values are interned
-          _targetSpecification.equals(other._targetSpecification) && _constraints.equals(other._constraints);
+          _targetSpecification.equals(other._targetSpecification) &&
+          _constraints.equals(other._constraints);
     }
     return false;
   }
@@ -184,41 +243,6 @@ public final class ValueRequirement implements Serializable {
   @Override
   public String toString() {
     return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(", ").append(getConstraints()).append(']').toString();
-  }
-
-  /**
-   * Creates and returns the live data specification for market data corresponding to the target.
-   * 
-   * @param securitySource a security source to resolve securities against
-   * @return the live data specification
-   */
-  public LiveDataSpecification getRequiredLiveData(SecuritySource securitySource) {
-    return getTargetSpecification().getRequiredLiveData(securitySource);
-  }
-
-  /**
-   * Tests if this requirement can be satisfied by a given {@link ValueSpecification}. A value specification
-   * can satisfy a requirement if:
-   * <ul>
-   * <li>it is for the same value on the same computation target; and
-   * <li>the properties associated with the value satisfy the constraints on the requirement
-   * </ul>
-   * 
-   * @param valueSpecification the value specification to test, not {@code null}
-   * @return {@code true} if this requirement is satisfied by the specification, {@code false} otherwise.
-   */
-  public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
-    // value names are interned by this and specifications
-    if (getValueName() != valueSpecification.getValueName()) {
-      return false;
-    }
-    if (!getTargetSpecification().equals(getTargetSpecification())) {
-      return false;
-    }
-    if (!getConstraints().isSatisfiedBy(valueSpecification.getProperties())) {
-      return false;
-    }
-    return true;
   }
 
 }

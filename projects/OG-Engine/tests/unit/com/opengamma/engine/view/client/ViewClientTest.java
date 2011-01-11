@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -33,7 +33,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModelImpl;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
@@ -192,7 +192,7 @@ public class ViewClientTest {
     view.init();
     
     // Push in an empty result so that we start with something to generate deltas against
-    view.recalculationPerformed(new ViewComputationResultModelImpl());
+    view.recalculationPerformed(new InMemoryViewComputationResultModel());
     
     ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
     

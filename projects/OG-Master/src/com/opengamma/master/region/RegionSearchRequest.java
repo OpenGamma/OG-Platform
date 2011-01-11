@@ -1,16 +1,17 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.master.region;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.time.calendar.TimeZone;
 
@@ -20,11 +21,14 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -44,6 +48,17 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   private static final long serialVersionUID = 1L;
 
   /**
+   * The set of region object identifiers, null to not limit by region object identifiers.
+   * Note that an empty set will return no regions.
+   */
+  @PropertyDefinition(set = "manual")
+  private List<UniqueIdentifier> _regionIds;
+  /**
+   * The region keys to match, null to not match on region keys.
+   */
+  @PropertyDefinition
+  private IdentifierSearch _regionKeys;
+  /**
    * The region name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
@@ -54,24 +69,17 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @PropertyDefinition
   private RegionClassification _classification;
   /**
-   * The identifier of the data provider, null to not match on provider.
+   * The data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerId;
+  private Identifier _providerKey;
   /**
    * The unique identifier to get children of, null to not retrieve based on children.
    * Only the immediate children of the identifier will be matched.
    */
   @PropertyDefinition
   private UniqueIdentifier _childrenOfId;
-  /**
-   * The region identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   */
-  @PropertyDefinition(set = "setClearAddAll")
-  private final Set<IdentifierBundle> _identifiers = new HashSet<IdentifierBundle>();
 
   /**
    * Creates an instance.
@@ -82,40 +90,93 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param identifier  the identifier to look up, not null
+   * @param regionKey  the region key identifier to search for, not null
    */
-  public RegionSearchRequest(Identifier identifier) {
-    addIdentifierBundle(IdentifierBundle.of(identifier));
+  public RegionSearchRequest(Identifier regionKey) {
+    addRegionKey(regionKey);
   }
 
   /**
    * Creates an instance using a bundle of identifiers.
    * 
-   * @param bundle  the bundle of identifiers to look up, not null
+   * @param regionKeys  the region key identifiers to search for, not null
    */
-  public RegionSearchRequest(IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "identifiers");
-    addIdentifierBundle(bundle);
+  public RegionSearchRequest(IdentifierBundle regionKeys) {
+    addRegionKeys(regionKeys);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a bundle representing this identifier to the collection to search for.
+   * Adds a single region id to the set.
    * 
-   * @param identifier  the identifier to add as a bundle, not null
+   * @param regionId  the region id to add, not null
    */
-  public void addIdentifierBundle(Identifier identifier) {
-    addIdentifierBundle(IdentifierBundle.of(identifier));
+  public void addRegionId(UniqueIdentifier regionId) {
+    ArgumentChecker.notNull(regionId, "regionId");
+    if (_regionIds == null) {
+      _regionIds = new ArrayList<UniqueIdentifier>();
+    }
+    _regionIds.add(regionId);
   }
 
   /**
-   * Adds a bundle to the collection to search for.
+   * Sets the set of region object identifiers, null to not limit by region object identifiers.
+   * Note that an empty set will return no regions.
    * 
-   * @param bundle  the bundle to add, not null
+   * @param regionIds  the new region identifiers, null clears the region id search
    */
-  public void addIdentifierBundle(IdentifierBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    getIdentifiers().add(bundle);
+  public void setRegionIds(Iterable<UniqueIdentifier> regionIds) {
+    if (regionIds == null) {
+      _regionIds = null;
+    } else {
+      _regionIds = new ArrayList<UniqueIdentifier>();
+      Iterables.addAll(_regionIds, regionIds);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single region key identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKey  the region key identifier to add, not null
+   */
+  public void addRegionKey(Identifier regionKey) {
+    ArgumentChecker.notNull(regionKey, "regionKey");
+    addRegionKeys(Arrays.asList(regionKey));
+  }
+
+  /**
+   * Adds a collection of region key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKeys  the region key identifiers to add, not null
+   */
+  public void addRegionKeys(Identifier... regionKeys) {
+    ArgumentChecker.notNull(regionKeys, "regionKeys");
+    if (getRegionKeys() == null) {
+      setRegionKeys(new IdentifierSearch(regionKeys));
+    } else {
+      getRegionKeys().addIdentifiers(regionKeys);
+    }
+  }
+
+  /**
+   * Adds a collection of region key identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * 
+   * @param regionKeys  the region key identifiers to add, not null
+   */
+  public void addRegionKeys(Iterable<Identifier> regionKeys) {
+    ArgumentChecker.notNull(regionKeys, "regionKeys");
+    if (getRegionKeys() == null) {
+      setRegionKeys(new IdentifierSearch(regionKeys));
+    } else {
+      getRegionKeys().addIdentifiers(regionKeys);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -125,7 +186,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * @param countryISO  the country ISO code to search for, not null
    */
   public void addCountryISO(String countryISO) {
-    addIdentifierBundle(IdentifierBundle.of(RegionUtils.countryRegionId(countryISO)));
+    addRegionKey(RegionUtils.countryRegionId(countryISO));
   }
 
   /**
@@ -135,7 +196,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    */
   public void addCurrency(Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
-    addIdentifierBundle(IdentifierBundle.of(RegionUtils.currencyRegionId(currency)));
+    addRegionKey(RegionUtils.currencyRegionId(currency));
   }
 
   /**
@@ -143,9 +204,9 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * 
    * @param timeZone  the time-zone to search for, not null
    */
-  public void addCurrency(TimeZone timeZone) {
+  public void addTimeZone(TimeZone timeZone) {
     ArgumentChecker.notNull(timeZone, "timeZone");
-    addIdentifierBundle(IdentifierBundle.of(RegionUtils.timeZoneRegionId(timeZone)));
+    addRegionKey(RegionUtils.timeZoneRegionId(timeZone));
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -166,16 +227,18 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case 74326820:  // regionIds
+        return getRegionIds();
+      case -1990775032:  // regionKeys
+        return getRegionKeys();
       case 3373707:  // name
         return getName();
       case 382350310:  // classification
         return getClassification();
-      case 205149932:  // providerId
-        return getProviderId();
+      case 2064682670:  // providerKey
+        return getProviderKey();
       case 178436081:  // childrenOfId
         return getChildrenOfId();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
     }
     return super.propertyGet(propertyName);
   }
@@ -184,23 +247,70 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case 74326820:  // regionIds
+        setRegionIds((List<UniqueIdentifier>) newValue);
+        return;
+      case -1990775032:  // regionKeys
+        setRegionKeys((IdentifierSearch) newValue);
+        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
       case 382350310:  // classification
         setClassification((RegionClassification) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((Identifier) newValue);
+      case 2064682670:  // providerKey
+        setProviderKey((Identifier) newValue);
         return;
       case 178436081:  // childrenOfId
         setChildrenOfId((UniqueIdentifier) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((Set<IdentifierBundle>) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of region object identifiers, null to not limit by region object identifiers.
+   * Note that an empty set will return no regions.
+   * @return the value of the property
+   */
+  public List<UniqueIdentifier> getRegionIds() {
+    return _regionIds;
+  }
+
+  /**
+   * Gets the the {@code regionIds} property.
+   * Note that an empty set will return no regions.
+   * @return the property, not null
+   */
+  public final Property<List<UniqueIdentifier>> regionIds() {
+    return metaBean().regionIds().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region keys to match, null to not match on region keys.
+   * @return the value of the property
+   */
+  public IdentifierSearch getRegionKeys() {
+    return _regionKeys;
+  }
+
+  /**
+   * Sets the region keys to match, null to not match on region keys.
+   * @param regionKeys  the new value of the property
+   */
+  public void setRegionKeys(IdentifierSearch regionKeys) {
+    this._regionKeys = regionKeys;
+  }
+
+  /**
+   * Gets the the {@code regionKeys} property.
+   * @return the property, not null
+   */
+  public final Property<IdentifierSearch> regionKeys() {
+    return metaBean().regionKeys().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -255,30 +365,30 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier of the data provider, null to not match on provider.
+   * Gets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderId() {
-    return _providerId;
+  public Identifier getProviderKey() {
+    return _providerKey;
   }
 
   /**
-   * Sets the identifier of the data provider, null to not match on provider.
+   * Sets the data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
+   * @param providerKey  the new value of the property
    */
-  public void setProviderId(Identifier providerId) {
-    this._providerId = providerId;
+  public void setProviderKey(Identifier providerKey) {
+    this._providerKey = providerKey;
   }
 
   /**
-   * Gets the the {@code providerId} property.
+   * Gets the the {@code providerKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerId() {
-    return metaBean().providerId().createProperty(this);
+  public final Property<Identifier> providerKey() {
+    return metaBean().providerKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -311,38 +421,6 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @return the value of the property
-   */
-  public Set<IdentifierBundle> getIdentifiers() {
-    return _identifiers;
-  }
-
-  /**
-   * Sets the region identifier bundles to match, empty to not match on this field, not null.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @param identifiers  the new value of the property
-   */
-  public void setIdentifiers(Set<IdentifierBundle> identifiers) {
-    this._identifiers.clear();
-    this._identifiers.addAll(identifiers);
-  }
-
-  /**
-   * Gets the the {@code identifiers} property.
-   * A region matches if one of the bundles matches.
-   * Note that an empty set places no restrictions on the result.
-   * @return the property, not null
-   */
-  public final Property<Set<IdentifierBundle>> identifiers() {
-    return metaBean().identifiers().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code RegionSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -352,6 +430,15 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code regionIds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<UniqueIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) List.class);
+    /**
+     * The meta-property for the {@code regionKeys} property.
+     */
+    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(this, "regionKeys", IdentifierSearch.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -360,18 +447,13 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      */
     private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(this, "classification", RegionClassification.class);
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerId = DirectMetaProperty.ofReadWrite(this, "providerId", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
      * The meta-property for the {@code childrenOfId} property.
      */
     private final MetaProperty<UniqueIdentifier> _childrenOfId = DirectMetaProperty.ofReadWrite(this, "childrenOfId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code identifiers} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<IdentifierBundle>> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", (Class) Set.class);
     /**
      * The meta-properties.
      */
@@ -380,11 +462,12 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("regionIds", _regionIds);
+      temp.put("regionKeys", _regionKeys);
       temp.put("name", _name);
       temp.put("classification", _classification);
-      temp.put("providerId", _providerId);
+      temp.put("providerKey", _providerKey);
       temp.put("childrenOfId", _childrenOfId);
-      temp.put("identifiers", _identifiers);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -405,6 +488,22 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code regionIds} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<UniqueIdentifier>> regionIds() {
+      return _regionIds;
+    }
+
+    /**
+     * The meta-property for the {@code regionKeys} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<IdentifierSearch> regionKeys() {
+      return _regionKeys;
+    }
+
+    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
@@ -421,11 +520,11 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     }
 
     /**
-     * The meta-property for the {@code providerId} property.
+     * The meta-property for the {@code providerKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerId() {
-      return _providerId;
+    public final MetaProperty<Identifier> providerKey() {
+      return _providerKey;
     }
 
     /**
@@ -434,14 +533,6 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      */
     public final MetaProperty<UniqueIdentifier> childrenOfId() {
       return _childrenOfId;
-    }
-
-    /**
-     * The meta-property for the {@code identifiers} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Set<IdentifierBundle>> identifiers() {
-      return _identifiers;
     }
 
   }
