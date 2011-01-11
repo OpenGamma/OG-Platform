@@ -139,6 +139,9 @@ public class RemoteViewClient implements ViewClient {
   public void shutdown() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
     _client.access(uri).post();
+    
+    setResultListener(null);
+    setDeltaResultListener(null);
   }
 
   @Override
