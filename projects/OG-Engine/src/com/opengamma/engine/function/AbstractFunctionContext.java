@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -72,6 +72,16 @@ import com.opengamma.util.PublicAPI;
    */
   public Object put(String elementName, Object value) {
     return _backingMap.put(elementName, value);
+  }
+
+  /**
+   * Removes a value from the context. This should not be called directly from function code.
+   * 
+   * @param elementName name of the element to remove, not {@code null}
+   * @return the previous value set for the element or {@code null} if none was defined.
+   */
+  public Object remove(String elementName) {
+    return _backingMap.remove(elementName);
   }
 
   /**

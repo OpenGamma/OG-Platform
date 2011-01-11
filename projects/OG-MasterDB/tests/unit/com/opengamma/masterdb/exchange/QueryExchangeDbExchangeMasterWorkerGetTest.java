@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,64 +25,49 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryExchangeDbExchangeMasterWorkerGetTest.class);
 
-  private DbExchangeMasterWorker _worker;
-
   public QueryExchangeDbExchangeMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QueryExchangeDbExchangeMasterWorker();
-    _worker.init(_exgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_getExchange_nullUID() {
-    _worker.get(null);
+    _exgMaster.get(null);
   }
 
   @Test(expected = DataNotFoundException.class)
   public void test_getExchange_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
-    _worker.get(uid);
+    _exgMaster.get(uid);
   }
 
   @Test
   public void test_getExchange_versioned_oneExchangeDate() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
-    ExchangeDocument test = _worker.get(uid);
+    ExchangeDocument test = _exgMaster.get(uid);
     assert101(test);
   }
 
   @Test
   public void test_getExchange_versioned_twoExchangeDates() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "102", "0");
-    ExchangeDocument test = _worker.get(uid);
+    ExchangeDocument test = _exgMaster.get(uid);
     assert102(test);
   }
 
   @Test
   public void test_getExchange_versioned_notLatest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "0");
-    ExchangeDocument test = _worker.get(uid);
+    ExchangeDocument test = _exgMaster.get(uid);
     assert201(test);
   }
 
   @Test
   public void test_getExchange_versioned_latest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "201", "1");
-    ExchangeDocument test = _worker.get(uid);
+    ExchangeDocument test = _exgMaster.get(uid);
     assert202(test);
   }
 
@@ -92,20 +75,20 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
   @Test(expected = DataNotFoundException.class)
   public void test_getExchange_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0");
-    _worker.get(uid);
+    _exgMaster.get(uid);
   }
 
   @Test
   public void test_getExchange_unversioned() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
-    ExchangeDocument test = _worker.get(oid);
+    ExchangeDocument test = _exgMaster.get(oid);
     assert202(test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbExg]", _worker.toString());
+    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

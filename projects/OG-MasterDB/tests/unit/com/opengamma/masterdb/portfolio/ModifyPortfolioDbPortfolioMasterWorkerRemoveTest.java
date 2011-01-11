@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,36 +29,17 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerRemoveTest.class);
 
-  private ModifyPortfolioDbPortfolioMasterWorker _worker;
-  private QueryPortfolioDbPortfolioMasterWorker _queryWorker;
-
   public ModifyPortfolioDbPortfolioMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyPortfolioDbPortfolioMasterWorker();
-    _worker.init(_prtMaster);
-    _queryWorker = new QueryPortfolioDbPortfolioMasterWorker();
-    _queryWorker.init(_prtMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_remove_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0", "0");
-    _worker.remove(uid);
+    _prtMaster.remove(uid);
   }
 
   @Test
@@ -68,8 +47,8 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
     Instant now = Instant.now(_prtMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "1");
-    _worker.remove(uid);
-    PortfolioDocument test = _queryWorker.get(uid);
+    _prtMaster.remove(uid);
+    PortfolioDocument test = _prtMaster.get(uid);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
@@ -86,7 +65,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());
+    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,7 +15,7 @@ import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 
 /**
- * Fudge message encoder/decoder (builder) for MapDateDoubleTimeSeries
+ * Fudge message encoder/decoder (builder) for MapDateDoubleTimeSeries.
  */
 @FudgeBuilderFor(MapDateDoubleTimeSeries.class)
 public class MapDateDoubleTimeSeriesBuilder extends FastBackedDoubleTimeSeriesBuilder<Date, MapDateDoubleTimeSeries> {

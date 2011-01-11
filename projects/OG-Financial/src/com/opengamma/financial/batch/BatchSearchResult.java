@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,11 +19,19 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.util.db.Paging;
+
 /**
  * 
  */
 @BeanDefinition
 public class BatchSearchResult extends DirectBean {
+  
+  /**
+   * The paging information.
+   */
+  @PropertyDefinition
+  private Paging _paging;
   
   /**
    * The list of matched time-series documents.
@@ -49,6 +57,8 @@ public class BatchSearchResult extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case -995747956:  // paging
+        return getPaging();
       case 100526016:  // items
         return getItems();
     }
@@ -59,11 +69,39 @@ public class BatchSearchResult extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case -995747956:  // paging
+        setPaging((Paging) newValue);
+        return;
       case 100526016:  // items
         setItems((List<BatchSearchResultItem>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the paging information.
+   * @return the value of the property
+   */
+  public Paging getPaging() {
+    return _paging;
+  }
+
+  /**
+   * Sets the paging information.
+   * @param paging  the new value of the property
+   */
+  public void setPaging(Paging paging) {
+    this._paging = paging;
+  }
+
+  /**
+   * Gets the the {@code paging} property.
+   * @return the property, not null
+   */
+  public final Property<Paging> paging() {
+    return metaBean().paging().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -103,6 +141,10 @@ public class BatchSearchResult extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code paging} property.
+     */
+    private final MetaProperty<Paging> _paging = DirectMetaProperty.ofReadWrite(this, "paging", Paging.class);
+    /**
      * The meta-property for the {@code items} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -115,6 +157,7 @@ public class BatchSearchResult extends DirectBean {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
+      temp.put("paging", _paging);
       temp.put("items", _items);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -135,6 +178,14 @@ public class BatchSearchResult extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code paging} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Paging> paging() {
+      return _paging;
+    }
+
     /**
      * The meta-property for the {@code items} property.
      * @return the meta-property, not null

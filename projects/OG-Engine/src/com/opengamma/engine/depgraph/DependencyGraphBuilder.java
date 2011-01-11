@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -399,7 +399,7 @@ public class DependencyGraphBuilder {
   }
 
   public DependencyGraph getDependencyGraph() {
-    // _graph.dumpStructureASCII(System.out);
+    //_graph.dumpStructureASCII(System.out);
     return _graph;
   }
 

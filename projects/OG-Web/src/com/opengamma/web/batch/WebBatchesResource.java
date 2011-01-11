@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,10 +20,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.WebPaging;
 
 /**
  * RESTful resource for all batches.
@@ -45,6 +46,8 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
       @QueryParam("observationDate") String observationDate,
       @QueryParam("observationTime") String observationTime,
       @Context UriInfo uriInfo) {
@@ -59,10 +62,13 @@ public class WebBatchesResource extends AbstractWebBatchResource {
     
     observationTime = StringUtils.trimToNull(observationTime);
     searchRequest.setObservationTime(observationTime);
+    
+    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     out.put("searchRequest", searchRequest);
     
-    if (observationDate != null && observationTime != null) {
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
       BatchSearchResult searchResult = data().getBatchDbManager().search(searchRequest);
+      out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
       out.put("searchResult", searchResult);
     }
     return getFreemarker().build("batches/batches.ftl", out);
@@ -73,12 +79,9 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   public WebBatchResource findBatch(
       @PathParam("observationDate") String observationDate,
       @PathParam("observationTime") String observationTime) {
+    
     data().setObservationDate(LocalDate.parse(observationDate));
     data().setObservationTime(observationTime);
-    ViewComputationResultModel batchResults = data().getBatchDbManager().getResults(
-        data().getObservationDate(), 
-        data().getObservationTime());
-    data().setBatchResults(batchResults);
     return new WebBatchResource(this);
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Init;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -38,12 +39,14 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final IdentifierMap _identifierMap;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
   private final FunctionCosts _functionCosts;
+  private final FunctionCompilationContext _functionCompilationContext;
   private Set<Capability> _capabilitiesToAdd;
 
-  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCosts functionCosts) {
+  public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap, final FunctionCosts functionCosts, final FunctionCompilationContext functionCompilationContext) {
     _jobInvokerRegister = jobInvokerRegister;
     _identifierMap = identifierMap;
     _functionCosts = functionCosts;
+    _functionCompilationContext = functionCompilationContext;
   }
 
   /**
@@ -76,6 +79,10 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     return _functionCosts;
   }
 
+  protected FunctionCompilationContext getFunctionCompilationContext() {
+    return _functionCompilationContext;
+  }
+
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
@@ -94,8 +101,7 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
         if (_capabilitiesToAdd != null) {
           invoker.addCapabilities(_capabilitiesToAdd);
         }
-        final Init init = new Init();
-        // TODO any parameters we need to send to initialise the node
+        final Init init = new Init(getFunctionCompilationContext().getFunctionInitId());
         invoker.sendMessage(init);
         getJobInvokerRegister().registerJobInvoker(invoker);
       }

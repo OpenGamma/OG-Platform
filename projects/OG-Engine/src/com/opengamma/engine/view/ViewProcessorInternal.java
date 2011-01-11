@@ -1,9 +1,14 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -22,7 +27,7 @@ import com.opengamma.livedata.UserPrincipal;
  * Exposes engine-level access to a view processor, including access to data structures which should not be available
  * externally.
  */
-public interface ViewProcessorInternal extends ViewProcessor {
+public interface ViewProcessorInternal extends ViewProcessor, Lifecycle {
 
   /**
    * Obtains a {@link ViewInternal} instance.
@@ -109,5 +114,17 @@ public interface ViewProcessorInternal extends ViewProcessor {
    * @return the view permission provider
    */
   ViewPermissionProvider getViewPermissionProvider();
+  
+  /**
+   * Requests the view processor temporarily stop processing of any active views at the end of the currently executing
+   * cycle. This is to allow shared data such as configuration to be changed while retaining consistency for executing
+   * views. The {@link Runnable} object returned by the {@link Future} will be called to indicate when operation can
+   * resume.
+   * 
+   * @param executorService an executor for parallel shutdown of views
+   * @return a future for the caller to use to detect when processing has stopped, and can use to notify the view
+   *         processor later when processing can resume
+   */
+  Future<Runnable> suspend(ExecutorService executorService);
   
 }

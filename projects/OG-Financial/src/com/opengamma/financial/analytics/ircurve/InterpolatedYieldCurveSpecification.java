@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,6 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,17 +33,21 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final String _name;
   private final Interpolator1D<?> _interpolator;
   private final Set<FixedIncomeStripWithIdentifier> _strips = new LinkedHashSet<FixedIncomeStripWithIdentifier>();
+  private final Identifier _region;
   
-  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips) {
+  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
+      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, Identifier region) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");
     Validate.notNull(resolvedStrips, "ResolvedStrips");
+    Validate.notNull(region, "RegionID");
     // Name can be null.
     _curveDate = curveDate;
     _currency = currency;
     _name = name;
     _interpolator = interpolator;
+    _region = region;
     for (FixedIncomeStripWithIdentifier strip : resolvedStrips) {
       addStrip(strip);
     }
@@ -53,6 +58,14 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
     _strips.add(strip);
   }
   
+  /**
+   * Gets the region field.
+   * @return the region
+   */
+  public Identifier getRegion() {
+    return _region;
+  }
+
   /**
    * @return the curve date
    */
@@ -110,6 +123,9 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
       return false;
     }
     if (!ObjectUtils.equals(_strips, other._strips)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_region, other._region)) {
       return false;
     }
     return true;

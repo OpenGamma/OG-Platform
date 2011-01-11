@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -94,7 +94,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        s_logger.debug("TODO: mark as requiring re-init if {} changes", matrix.getUniqueId());
+        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId());
       }
     }
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,6 +14,7 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.VersionedSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -33,17 +34,19 @@ import com.opengamma.util.db.PagingRequest;
  * This allows the version to be set in the constructor, and applied automatically to the methods.
  * Some methods on {@code ConfigSource} specify their own version requirements, which are respected.
  */
-public class MasterConfigSource implements ConfigSource {
+public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * The config master.
    */
   private final ConfigMaster _configMaster;
+
   /**
    * The instant to search for a version at.
    * Null is treated as the latest version.
    */
-  private final Instant _versionAsOfInstant;
+  private Instant _versionAsOfInstant;
+
   /**
    * The instant to search for corrections for.
    * Null is treated as the latest correction.
@@ -107,6 +110,19 @@ public class MasterConfigSource implements ConfigSource {
    */
   public Instant getVersionAsOfInstant() {
     return _versionAsOfInstant;
+  }
+
+  /**
+   * Sets the version instant to retrieve.
+   * 
+   * @param versionAsOfInstantProvider the version instant to retrieve, null for latest version
+   */
+  public void setVersionAsOfInstant(final InstantProvider versionAsOfInstantProvider) {
+    if (versionAsOfInstantProvider != null) {
+      _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
+    } else {
+      _versionAsOfInstant = null;
+    }
   }
 
   /**
@@ -221,7 +237,7 @@ public class MasterConfigSource implements ConfigSource {
     if (_versionAsOfInstant != null) {
       str += ",versionAsOf=" + _versionAsOfInstant;
     }
-    if (_versionAsOfInstant != null) {
+    if (_correctedToInstant != null) {
       str += ",correctedTo=" + _correctedToInstant;
     }
     return str + "]";

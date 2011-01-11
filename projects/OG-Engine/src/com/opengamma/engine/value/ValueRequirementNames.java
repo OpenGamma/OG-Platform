@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,13 +9,24 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
- * A set of common names used to refer to particular computed values. These should be used by
- * {@link FunctionDefinition}s to state their required inputs and their potential outputs, in order that a common set
- * of names are used.
+ * Standard names used to refer to particular computed values.
+ * <p>
+ * These name are used as keys to define specific required values in the engine.
+ * They should be used by a {@link FunctionDefinition} to state their required inputs
+ * and their potential outputs.
+ * These are a typical common set of names, which may be extended.
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
-public interface ValueRequirementNames {
+public final class ValueRequirementNames {
+  // TODO: Add Javadoc to each name
+  // TODO: Some names have spaces, some do not - make consistent
+
+  /**
+   * Restricted constructor.
+   */
+  private ValueRequirementNames() {
+  }
 
   // CSOFF: Because they're names that should be known by industry practitioners.
   
@@ -240,5 +251,5 @@ public interface ValueRequirementNames {
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   
   //CSON
-  
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,34 +14,14 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  *  
  */
-public class MaterializedRiskValue {
+public class ViewResultEntryMapper {
   
-  private final String _calculationConfiguration;
-  private final ComputedValue _computedValue;
-  
-  public MaterializedRiskValue(String calculationConfiguration,
-      ComputedValue computedValue) {
-    ArgumentChecker.notNull(calculationConfiguration, "calculationConfiguration");
-    ArgumentChecker.notNull(computedValue, "computedValue");
-    
-    _calculationConfiguration = calculationConfiguration;
-    _computedValue = computedValue;
-  }
-  
-  public String getCalculationConfiguration() {
-    return _calculationConfiguration;
-  }
-
-  public ComputedValue getComputedValue() {
-    return _computedValue;
-  }
-
   public static String sqlGet() {
     return "select " +
       "comp_target_type, " +
@@ -59,9 +39,9 @@ public class MaterializedRiskValue {
   /**
    * Spring ParameterizedRowMapper 
    */
-  public static final RowMapper<MaterializedRiskValue> ROW_MAPPER = new RowMapper<MaterializedRiskValue>() {
+  public static final RowMapper<ViewResultEntry> ROW_MAPPER = new RowMapper<ViewResultEntry>() {
     @Override
-    public MaterializedRiskValue mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public ViewResultEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
       
       ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("comp_target_type"));
       
@@ -79,7 +59,7 @@ public class MaterializedRiskValue {
       
       ComputedValue computedValue = new ComputedValue(valueSpecification, rs.getDouble("value"));
       
-      return new MaterializedRiskValue(rs.getString("calc_conf_name"), computedValue);
+      return new ViewResultEntry(rs.getString("calc_conf_name"), computedValue);
     }
   };
 

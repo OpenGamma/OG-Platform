@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -46,7 +46,7 @@ public class CalculationJobTest {
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueRequirement> emptySet()));
 
-    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
@@ -58,6 +58,7 @@ public class CalculationJobTest {
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
+    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());
     CalculationJobItem outputItem = outputJob.getJobItems().get(0);
@@ -81,7 +82,7 @@ public class CalculationJobTest {
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
 
-    CalculationJob inputJob = new CalculationJob(spec, null, items, CacheSelectHint.allShared());
+    CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
@@ -93,6 +94,7 @@ public class CalculationJobTest {
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
+    assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
 
     assertNotNull(outputJob.getJobItems());
     assertEquals(1, outputJob.getJobItems().size());

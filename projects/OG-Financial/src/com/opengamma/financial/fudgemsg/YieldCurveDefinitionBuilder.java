@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,6 +20,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.core.common.Currency;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Builder for converting {@link YieldCurveDefinition} instances to/from Fudge messages.
@@ -31,17 +33,25 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, YieldCurveDefinition object) {
     MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
+    if (object.getRegion() != null) {
+      context.objectToFudgeMsg(message, "region", null, object.getRegion());
+    }
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (FixedIncomeStrip strip : object.getStrips()) {
       context.objectToFudgeMsg(message, "strip", null, strip);
     }
-    return message; 
+    context.objectToFudgeMsgWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueIdentifier.class);
+    return message;
   }
 
   @Override
   public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    Identifier region = null;
+    if (message.hasField("region")) {
+      region = context.fieldValueToObject(Identifier.class, message.getByName("region"));
+    }
     String name = message.getString("name");
     String interpolatorName = message.getString("interpolatorName");
     List<FudgeField> allByOrdinal = message.getAllByName("strip");
@@ -50,7 +60,11 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
       FixedIncomeStrip strip = context.fieldValueToObject(FixedIncomeStrip.class, field);
       strips.add(strip);
     }
-    YieldCurveDefinition curveDefinition = new YieldCurveDefinition(currency, name, interpolatorName, strips);
+    YieldCurveDefinition curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
+    FudgeField uniqueId = message.getByName("uniqueId");
+    if (uniqueId != null) {
+      curveDefinition.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
+    }
     return curveDefinition;
   }
 

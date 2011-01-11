@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -50,7 +50,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), null, createTestJobItems(), CacheSelectHint.allPrivate());
+    return new CalculationJob(createTestJobSpec(), 0L, null, createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {

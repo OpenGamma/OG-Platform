@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -56,9 +56,11 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    * @param compilationContext The context to provide to each function.
    */
   public void initFunctions(FunctionCompilationContext compilationContext) {
+    compilationContext.setFunctionReinitializer(new DummyFunctionReinitializer());
     for (FunctionDefinition function : _functions) {
       function.init(compilationContext);
     }
+    compilationContext.setFunctionReinitializer(null);
   }
 
 }

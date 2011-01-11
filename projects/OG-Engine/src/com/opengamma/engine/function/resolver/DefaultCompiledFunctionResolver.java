@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -23,7 +22,6 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -130,7 +128,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
         // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
         // that will detect the equality case and trigger an exception.
-        Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
+        Arrays.<Pair<ParameterizedFunction, ValueSpecification>>sort(found, s_ruleComparator);
         for (int i = 0; i < rulesFound; i++) {
           applicableRules.add(found[i]);
         }
