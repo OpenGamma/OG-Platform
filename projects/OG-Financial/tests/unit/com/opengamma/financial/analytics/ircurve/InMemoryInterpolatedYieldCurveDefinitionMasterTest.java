@@ -27,10 +27,10 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Before
   public void init() {
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "A")));
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), "1", "B")));
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "2", "C")));
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), "2", "D")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "A")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), null, "1", "B")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "2", "C")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), null, "2", "D")));
   }
 
   @Test
@@ -74,8 +74,8 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   public void testGetDefinition_versioned () {
     _master.setVersionAsOfInstant(Instant.now());
     sleep();
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), "3", "E")));
-    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "GBP_1"), new YieldCurveDefinition(Currency.getInstance("GBP"), "1", "E")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), null, "3", "E")));
+    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "GBP_1"), new YieldCurveDefinition(Currency.getInstance("GBP"), null, "1", "E")));
     // Expect original data
     YieldCurveDefinition yc = _master.getDefinition(Currency.getInstance("GBP"), "3");
     assertNull(yc);
@@ -110,13 +110,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Test(expected = IllegalArgumentException.class)
   public void testAdd_duplicate() {
-    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "E")));
+    _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
   }
   
   @Test
   public void testAddOrUpdate_add () {
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "3"));
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "3", "E")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "3", "E")));
     assertNotNull(_master.getDefinition(Currency.getInstance("USD"), "3"));
   }
   
@@ -125,7 +125,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     YieldCurveDefinition yc = _master.getDefinition(Currency.getInstance("USD"), "1");
     assertNotNull(yc);
     assertEquals("A", yc.getInterpolatorName());
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "E")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     yc = _master.getDefinition(Currency.getInstance("USD"), "1");
     assertNotNull(yc);
     assertEquals("E", yc.getInterpolatorName());
@@ -136,11 +136,11 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     Instant first = Instant.now();
     _master.setVersionAsOfInstant(first);
     sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "E")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
     _master.setVersionAsOfInstant(second);
     sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "F")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "F")));
     // This should only have kept the second one
     _master.setVersionAsOfInstant(first);
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
@@ -190,7 +190,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     Instant first = Instant.now();
     _master.setVersionAsOfInstant(first);
     sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "E")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
     _master.setVersionAsOfInstant(second);
     sleep();
@@ -206,7 +206,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Test(expected=DataNotFoundException.class)
   public void testUpdate_missing () {
-    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_3"), new YieldCurveDefinition(Currency.getInstance("USD"), "3", "E")));
+    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_3"), new YieldCurveDefinition(Currency.getInstance("USD"), null, "3", "E")));
   }
   
   @Test
@@ -214,7 +214,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     Instant first = Instant.now();
     _master.setVersionAsOfInstant(first);
     sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), "1", "E")));
+    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
     _master.setVersionAsOfInstant(second);
     sleep();
