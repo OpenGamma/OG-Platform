@@ -33,7 +33,7 @@ public final class MultipleNodeExecutor implements MultipleNodeExecutorMBean {
   }
 
   public static void registerMBeans(final MultipleNodeExecutorFactory executor, final MBeanServer server) throws JMException {
-    final ObjectName name = new ObjectName("com.opengamma.engine.view.calc:type=MultipleNodeExecutor");
+    final ObjectName name = new ObjectName("com.opengamma:type=MultipleNodeExecutor,name=" + executor.toString());
     final MultipleNodeExecutor instance = new MultipleNodeExecutor(executor);
     try {
       server.registerMBean(instance, name);
