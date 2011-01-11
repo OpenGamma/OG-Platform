@@ -7,6 +7,7 @@ package com.opengamma.web.batch;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -20,7 +21,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.batch.BatchDbManager;
 
 /**
@@ -57,7 +58,7 @@ public class WebBatchData extends DirectBean {
    * The batch data.
    */
   @PropertyDefinition
-  private ViewComputationResultModel _batchResults;
+  private List<ViewResultEntry> _batchResults;
   
   
 
@@ -93,6 +94,7 @@ public class WebBatchData extends DirectBean {
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
@@ -109,7 +111,7 @@ public class WebBatchData extends DirectBean {
         setObservationTime((String) newValue);
         return;
       case 1015367516:  // batchResults
-        setBatchResults((ViewComputationResultModel) newValue);
+        setBatchResults((List<ViewResultEntry>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -220,7 +222,7 @@ public class WebBatchData extends DirectBean {
    * Gets the batch data.
    * @return the value of the property
    */
-  public ViewComputationResultModel getBatchResults() {
+  public List<ViewResultEntry> getBatchResults() {
     return _batchResults;
   }
 
@@ -228,7 +230,7 @@ public class WebBatchData extends DirectBean {
    * Sets the batch data.
    * @param batchResults  the new value of the property
    */
-  public void setBatchResults(ViewComputationResultModel batchResults) {
+  public void setBatchResults(List<ViewResultEntry> batchResults) {
     this._batchResults = batchResults;
   }
 
@@ -236,7 +238,7 @@ public class WebBatchData extends DirectBean {
    * Gets the the {@code batchResults} property.
    * @return the property, not null
    */
-  public final Property<ViewComputationResultModel> batchResults() {
+  public final Property<List<ViewResultEntry>> batchResults() {
     return metaBean().batchResults().createProperty(this);
   }
 
@@ -269,7 +271,8 @@ public class WebBatchData extends DirectBean {
     /**
      * The meta-property for the {@code batchResults} property.
      */
-    private final MetaProperty<ViewComputationResultModel> _batchResults = DirectMetaProperty.ofReadWrite(this, "batchResults", ViewComputationResultModel.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<ViewResultEntry>> _batchResults = DirectMetaProperty.ofReadWrite(this, "batchResults", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -338,7 +341,7 @@ public class WebBatchData extends DirectBean {
      * The meta-property for the {@code batchResults} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ViewComputationResultModel> batchResults() {
+    public final MetaProperty<List<ViewResultEntry>> batchResults() {
       return _batchResults;
     }
 

@@ -41,10 +41,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
@@ -52,6 +51,8 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.SingleNodeExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.financial.batch.BatchDataSearchRequest;
+import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
@@ -63,6 +64,7 @@ import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
@@ -112,6 +114,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   public SimpleJdbcTemplate getJdbcTemplate() {
     return _dbSource.getJdbcTemplate();
+  }
+  
+  public DbHelper getDbHelper() {
+    return _dbSource.getDialect();
   }
   
   public void setDbSource(DbSource dbSource) {
@@ -777,41 +783,40 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   @Override
-  public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
-    ArgumentChecker.notNull(observationDate, "observationDate");
-    ArgumentChecker.notNull(observationTime, "observationTime");
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
+    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
     
     // At the moment, we simply load all results into memory.
     // This needs to be made more scalable.
     RiskRun riskRun;
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      
-      riskRun = getRiskRunFromDb(observationDate, observationTime);
-      if (riskRun == null) {
-        return null;
-      }
-
+      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+    
+    if (riskRun == null) {
+      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
+    }
 
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("rsk_run_id", riskRun.getId());
     
-    List<MaterializedRiskValue> values = _dbSource.getJdbcTemplate().query(
-        MaterializedRiskValue.sqlGet(), 
-        MaterializedRiskValue.ROW_MAPPER, 
+    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), "", request.getPagingRequest());
+    
+    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
+        sql, 
+        ViewResultEntryMapper.ROW_MAPPER, 
         params);
     
-    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    
-    for (MaterializedRiskValue value : values) {
-      result.addValue(value.getCalculationConfiguration(), value.getComputedValue());
-    }
-    
+    BatchDataSearchResult result = new BatchDataSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), values.size()));
+    result.setItems(values);
     return result;
   }
 

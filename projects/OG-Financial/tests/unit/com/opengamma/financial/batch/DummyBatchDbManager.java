@@ -10,10 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 
@@ -68,7 +66,7 @@ public class DummyBatchDbManager implements BatchDbManager {
   }
 
   @Override
-  public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
     return null;
   }
 
