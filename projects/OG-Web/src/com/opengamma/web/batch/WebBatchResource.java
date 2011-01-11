@@ -7,7 +7,6 @@ package com.opengamma.web.batch;
 
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
@@ -22,10 +21,10 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.financial.batch.BatchDataSearchRequest;
+import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
@@ -53,10 +52,17 @@ public class WebBatchResource extends AbstractWebBatchResource {
       @Context UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
-    ViewComputationResultModel batchResults = data().getBatchResults();
-    Paging paging = Paging.of(batchResults.getAllResults(), PagingRequest.of(page, pageSize));
+    BatchDataSearchRequest request = new BatchDataSearchRequest();
+    request.setObservationDate(data().getObservationDate());
+    request.setObservationTime(data().getObservationTime());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    
+    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+    data().setBatchResults(batchResults.getItems());
+
+    Paging paging = Paging.of(batchResults.getItems(), request.getPagingRequest());
     out.put("paging", new WebPaging(paging, data().getUriInfo()));
-    out.put("batchResult", batchResults.getAllResults().subList(paging.getFirstItemIndex(), paging.getLastItemIndex()));
+    out.put("batchResult", batchResults.getItems());
     return getFreemarker().build("batches/batch.ftl", out);
   }
   
@@ -72,21 +78,16 @@ public class WebBatchResource extends AbstractWebBatchResource {
       "Function unique id",
       "Value"
     });
-    for (String calculationConfiguration : data().getBatchResults().getCalculationConfigurationNames()) {
-      ViewCalculationResultModel result = data().getBatchResults().getCalculationResult(calculationConfiguration);
-      for (ComputationTargetSpecification spec : result.getAllTargets()) {
-        Map<String, ComputedValue> results = result.getValues(spec);
-        
-        for (ComputedValue value : results.values()) {
-          csvWriter.writeNext(new String[] {
-            calculationConfiguration,
-            spec.getUniqueId().toString(),
-            value.getSpecification().getValueName(), 
-            value.getSpecification().getFunctionUniqueId(),
-            value.getValue().toString()
-          });
-        }
-      }
+    for (ViewResultEntry entry : data().getBatchResults()) {
+      ComputedValue value = entry.getComputedValue();
+      
+      csvWriter.writeNext(new String[] {
+        entry.getCalculationConfiguration(),
+        value.getSpecification().getTargetSpecification().getUniqueId().toString(),
+        value.getSpecification().getValueName(), 
+        value.getSpecification().getFunctionUniqueId(),
+        value.getValue().toString()
+      });
     }
     return stringWriter.toString();
   }

@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
@@ -80,12 +79,9 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   public WebBatchResource findBatch(
       @PathParam("observationDate") String observationDate,
       @PathParam("observationTime") String observationTime) {
+    
     data().setObservationDate(LocalDate.parse(observationDate));
     data().setObservationTime(observationTime);
-    ViewComputationResultModel batchResults = data().getBatchDbManager().getResults(
-        data().getObservationDate(), 
-        data().getObservationTime());
-    data().setBatchResults(batchResults);
     return new WebBatchResource(this);
   }
 
