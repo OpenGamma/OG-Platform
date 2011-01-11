@@ -75,6 +75,16 @@ import com.opengamma.util.PublicAPI;
   }
 
   /**
+   * Removes a value from the context. This should not be called directly from function code.
+   * 
+   * @param elementName name of the element to remove, not {@code null}
+   * @return the previous value set for the element or {@code null} if none was defined.
+   */
+  public Object remove(String elementName) {
+    return _backingMap.remove(elementName);
+  }
+
+  /**
    * Returns all element names currently defined in the context. These can be used with {@link #get (String)} to
    * retrieve the values.
    * 

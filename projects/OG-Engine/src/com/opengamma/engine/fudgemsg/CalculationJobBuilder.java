@@ -28,11 +28,13 @@ import com.opengamma.util.FudgeFieldChecker;
 @FudgeBuilderFor(CalculationJob.class)
 public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
   private static final String REQUIRED_FIELD_NAME = "requiredJobId";
+  private static final String FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME = "functionInitId";
   private static final String ITEM_FIELD_NAME = "calculationJobItem";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, CalculationJob object) {
     MutableFudgeFieldContainer msg = context.objectToFudgeMsg(object.getSpecification());
+    msg.add(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME, object.getFunctionInitializationIdentifier());
     if (object.getRequiredJobIds() != null) {
       for (Long required : object.getRequiredJobIds()) {
         msg.add(REQUIRED_FIELD_NAME, required);
@@ -52,7 +54,7 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
   public CalculationJob buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     CalculationJobSpecification jobSpec = context.fudgeMsgToObject(CalculationJobSpecification.class, message);
     FudgeFieldChecker.notNull(jobSpec, "Fudge message is not a CalculationJob - field 'calculationJobSpecification' is not present");
-    
+    final long functionInitializationIdentifier = message.getLong(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME);
     Collection<FudgeField> fields = message.getAllByName(REQUIRED_FIELD_NAME);
     ArrayList<Long> requiredJobIds = null;
     if (!fields.isEmpty()) {
@@ -68,7 +70,7 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
       jobItems.add(jobItem);
     }
     CacheSelectHint cacheSelectFilter = context.fudgeMsgToObject(CacheSelectHint.class, message);
-    return new CalculationJob(jobSpec, requiredJobIds, jobItems, cacheSelectFilter);
+    return new CalculationJob(jobSpec, functionInitializationIdentifier, requiredJobIds, jobItems, cacheSelectFilter);
   }
 
 }

@@ -65,6 +65,11 @@ public class MultipleNodeExecutorTest {
 
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
     return new MultipleNodeExecutor(null, minimum, maximum, minimum, maximum, concurrency, new FunctionCosts(), new ExecutionPlanCache (EHCacheUtils.createCacheManager(), 0)) {
+      
+      @Override
+      protected long getFunctionInitId () {
+        return 0;
+      }
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {

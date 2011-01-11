@@ -66,6 +66,7 @@ public class ViewTestUtils {
 
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
     CompiledFunctionService functionCompilation = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    functionCompilation.initialize();
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));

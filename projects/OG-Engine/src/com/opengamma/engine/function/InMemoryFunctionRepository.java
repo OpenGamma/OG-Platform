@@ -56,9 +56,11 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    * @param compilationContext The context to provide to each function.
    */
   public void initFunctions(FunctionCompilationContext compilationContext) {
+    compilationContext.setFunctionReinitializer(new DummyFunctionReinitializer());
     for (FunctionDefinition function : _functions) {
       function.init(compilationContext);
     }
+    compilationContext.setFunctionReinitializer(null);
   }
 
 }

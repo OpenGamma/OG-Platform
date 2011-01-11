@@ -86,6 +86,6 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
     }
     Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());  
-    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities);
+    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegion());
   }  
 }

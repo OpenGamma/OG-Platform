@@ -26,7 +26,7 @@ public interface ViewProcessor {
    * @return a set of view names
    */
   Set<String> getViewNames();
-  
+
   /**
    * Obtains a {@link View} instance.
    * 
@@ -35,10 +35,5 @@ public interface ViewProcessor {
    * @return the view
    */
   View getView(String name, UserPrincipal credentials);
-  
-  /**
-   * Asynchronously reinitializes the view processor.
-   */
-  void reinitAsync();
 
 }

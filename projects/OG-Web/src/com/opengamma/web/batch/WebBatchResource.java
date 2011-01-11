@@ -13,7 +13,10 @@ import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -23,6 +26,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.rest.WebPaging;
 
 /**
  * RESTful resource for a batch.
@@ -41,8 +47,16 @@ public class WebBatchResource extends AbstractWebBatchResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String get(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @Context UriInfo uriInfo) {
     FlexiBean out = createRootData();
+    
+    ViewComputationResultModel batchResults = data().getBatchResults();
+    Paging paging = Paging.of(batchResults.getAllResults(), PagingRequest.of(page, pageSize));
+    out.put("paging", new WebPaging(paging, data().getUriInfo()));
+    out.put("batchResult", batchResults.getAllResults().subList(paging.getFirstItemIndex(), paging.getLastItemIndex()));
     return getFreemarker().build("batches/batch.ftl", out);
   }
   
@@ -84,8 +98,8 @@ public class WebBatchResource extends AbstractWebBatchResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ViewComputationResultModel batchResult = data().getBatchResults();
-    out.put("batchResult", batchResult);
+    out.put("observationDate", data().getObservationDate());
+    out.put("observationTime", data().getObservationTime());
     return out;
   }
 

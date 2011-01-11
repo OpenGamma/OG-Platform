@@ -70,6 +70,21 @@ public class DefaultTimeSeriesMetaDataResolver<T> implements TimeSeriesMetaDataR
       return null;
     }
     
+    //load rules from config datastore
+    TimeSeriesMetaDataConfiguration ruleSet = _configSource.getLatestByName(TimeSeriesMetaDataConfiguration.class, configName);
+    if (ruleSet != null) {
+      return bestMatch(extractTimeseriesMetaData(searchResult), ruleSet);
+    } else {
+      s_logger.warn("can not resolve timeseries metadata because rules set with name {} can not be loaded from config database", configName);
+      return null;
+    }
+  }
+
+  /**
+   * @param searchResult
+   * @return
+   */
+  private List<TimeSeriesMetaData> extractTimeseriesMetaData(TimeSeriesSearchResult<T> searchResult) {
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     List<TimeSeriesMetaData> metaDataList = new ArrayList<TimeSeriesMetaData>(documents.size());
     
@@ -82,14 +97,7 @@ public class DefaultTimeSeriesMetaDataResolver<T> implements TimeSeriesMetaDataR
         metaDataList.add(tsMetaData);
       }
     }
-    //load rules from config datastore
-    TimeSeriesMetaDataConfiguration ruleSet = _configSource.getLatestByName(TimeSeriesMetaDataConfiguration.class, configName);
-    if (ruleSet != null) {
-      return bestMatch(metaDataList, ruleSet);
-    } else {
-      s_logger.warn("can not resolve timeseries metadata because rules set with name {} can not be loaded from config database", configName);
-      return null;
-    }
+    return metaDataList;
   }
 
   private TimeSeriesMetaData bestMatch(List<TimeSeriesMetaData> metaDataList, TimeSeriesMetaDataRateProvider ruleSet) {

@@ -7,6 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.Instant;
@@ -21,6 +22,7 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
 
@@ -41,8 +43,14 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   }
 
   @Override
-  protected ViewResultModel constructImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message, final Instant inputDataTimestamp, final Instant resultTimestamp,
-      final Map<String, ViewCalculationResultModel> configurationMap, final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, final String viewName) {
+  protected ViewResultModel constructImpl(final FudgeDeserializationContext context,
+      final FudgeFieldContainer message, 
+      final Instant inputDataTimestamp, 
+      final Instant resultTimestamp,
+      final Map<String, ViewCalculationResultModel> configurationMap, 
+      final Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, 
+      final String viewName, 
+      final List<ViewResultEntry> allResults) {
     return new ViewComputationResultModel() {
 
       @Override
@@ -85,6 +93,11 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
         return viewName;
       }
       
+      @Override
+      public List<ViewResultEntry> getAllResults() {
+        return Collections.unmodifiableList(allResults);
+      }
+
     };
   }
 

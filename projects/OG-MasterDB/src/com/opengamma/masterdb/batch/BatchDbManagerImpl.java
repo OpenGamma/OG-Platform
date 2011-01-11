@@ -21,11 +21,14 @@ import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * This implementation uses Hibernate to write all static data, including LiveData snapshots.
@@ -814,32 +819,55 @@ public class BatchDbManagerImpl implements BatchDbManager {
   @SuppressWarnings("unchecked")
   public BatchSearchResult search(BatchSearchRequest request) {
     DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
+    DetachedCriteria runTimeCriteria = criteria.createCriteria("runTime");
+    DetachedCriteria observationTimeCriteria = runTimeCriteria.createCriteria("observationTime");
+    
     if (request.getObservationDate() != null) {
-      criteria.add(Restrictions.eq("runTime.date", DbDateUtils.toSqlDate(request.getObservationDate())));
-    }
-    if (request.getObservationTime() != null) {
-      criteria.add(Restrictions.eq("runTime.observationTime.label", request.getObservationTime()));
+      runTimeCriteria.add(
+          Restrictions.eq("date", DbDateUtils.toSqlDate(request.getObservationDate())));
     }
     
-    List<RiskRun> runs;
+    if (request.getObservationTime() != null) {
+      observationTimeCriteria.add(
+          Restrictions.eq("label", request.getObservationTime()))
+          .addOrder(Order.asc("label"));
+    }
+    
+    BatchSearchResult result = new BatchSearchResult();
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      runs = getHibernateTemplate().findByCriteria(criteria);
+      
+      if (request.getPagingRequest().equals(PagingRequest.ALL)) {
+        result.setPaging(Paging.of(result.getItems(), request.getPagingRequest()));
+      } else {
+        criteria.setProjection(Projections.rowCount());
+        Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
+        result.setPaging(new Paging(request.getPagingRequest(), totalCount.intValue()));
+        criteria.setProjection(null);
+        criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+      }
+      
+      runTimeCriteria.addOrder(Order.asc("date"));
+      observationTimeCriteria.addOrder(Order.asc("label"));
+
+      List<RiskRun> runs = getHibernateTemplate().findByCriteria(
+          criteria,
+          request.getPagingRequest().getFirstItemIndex(),
+          request.getPagingRequest().getPagingSize());
+      
+      for (RiskRun run : runs) {
+        BatchSearchResultItem item = new BatchSearchResultItem();
+        item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
+        item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+        result.getItems().add(item);
+      }
+      
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
 
-    BatchSearchResult result = new BatchSearchResult();
-
-    for (RiskRun run : runs) {
-      BatchSearchResultItem item = new BatchSearchResultItem();
-      item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
-      item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
-      result.getItems().add(item);
-    }
-    
     return result;
   }
   

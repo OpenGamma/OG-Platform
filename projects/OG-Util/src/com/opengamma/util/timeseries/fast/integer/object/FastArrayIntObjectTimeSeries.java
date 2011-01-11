@@ -499,7 +499,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @Override
   public T getValueFast(final int time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time) {
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
       return _values[binarySearch];
     } else {
       throw new NoSuchElementException();

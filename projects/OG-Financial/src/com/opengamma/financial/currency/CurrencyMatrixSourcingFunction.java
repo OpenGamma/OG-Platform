@@ -94,7 +94,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        s_logger.debug("TODO: mark as requiring re-init if {} changes", matrix.getUniqueId());
+        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId());
       }
     }
   }
