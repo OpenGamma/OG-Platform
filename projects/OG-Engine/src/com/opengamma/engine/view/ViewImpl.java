@@ -398,7 +398,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     }
     if (isPopulateResultModel()) {
       cycle.populateResultModel();
-      recalculationPerformed(cycle.getResultModel());
+      recalculationPerformedImpl(cycle.getResultModel());
     }
     cycle.releaseResources();
   }
@@ -443,29 +443,35 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _viewEvaluationModel = viewEvaluationModel;
   }
 
-  @Override
-  public void recalculationPerformed(ViewComputationResultModel result) {
-    // Caller MUST NOT hold the semaphore
-    s_logger.debug("Recalculation Performed called.");
+  private void recalculationPerformedImpl(ViewComputationResultModel result) {
+    // Caller MUST hold the semaphore
 
     // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
     // of some kind. It holds the lock and blocks the recalc thread, so a slow
     // callback implementation (or just the cost of computing the delta model) will
     // be an unnecessary burden. Have to factor in some type of win there.
+
+    // We swap these first so that in the callback the view is consistent.
+    ViewResultModel previousResult = _latestResult.get();
+    _latestResult.set(result);
+    for (ComputationResultListener resultListener : _resultListeners) {
+      resultListener.computationResultAvailable(result);
+    }
+    if (!_deltaListeners.isEmpty()) {
+      ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+      for (DeltaComputationResultListener deltaListener : _deltaListeners) {
+        deltaListener.deltaResultAvailable(deltaModel);
+      }
+    }
+  }
+
+  @Override
+  public void recalculationPerformed(ViewComputationResultModel result) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("Recalculation Performed called.");
     lock();
     try {
-      // We swap these first so that in the callback the view is consistent.
-      ViewResultModel previousResult = _latestResult.get();
-      _latestResult.set(result);
-      for (ComputationResultListener resultListener : _resultListeners) {
-        resultListener.computationResultAvailable(result);
-      }
-      if (!_deltaListeners.isEmpty()) {
-        ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
-        for (DeltaComputationResultListener deltaListener : _deltaListeners) {
-          deltaListener.deltaResultAvailable(deltaModel);
-        }
-      }
+      recalculationPerformedImpl(result);
     } finally {
       unlock();
     }
