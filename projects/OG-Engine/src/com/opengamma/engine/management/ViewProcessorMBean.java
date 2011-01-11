@@ -22,9 +22,4 @@ public interface ViewProcessorMBean {
    */
   Set<String> getViewNames();
   
-  /**
-   * Asynchronously reinitializes the view processor.
-   */
-  void reinitAsync();
-
 }

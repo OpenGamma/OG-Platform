@@ -55,11 +55,6 @@ public final class ViewProcessor implements ViewProcessorMBean {
     return _viewProcessor.getViewNames();
   }
 
-  @Override
-  public void reinitAsync() {
-    _viewProcessor.reinitAsync();
-  }
-
   /**
    * Gets the objectName field.
    * 
