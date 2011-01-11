@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +31,26 @@ public class DataViewProcessorsResource {
   
   private final Map<String, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<String, DataViewProcessorResource>();
   
+  public DataViewProcessorsResource() {
+  }
+
+  public DataViewProcessorsResource(final ViewProcessor viewProcessor, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
+    addViewProcessor(DEFAULT_VIEW_PROCESSOR_NAME, viewProcessor, connectionFactory, topicPrefix, fudgeContext);
+  }
+
+  public DataViewProcessorsResource(final Map<String, ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
+    for (Map.Entry<String, ViewProcessor> viewProcessor : viewProcessors.entrySet()) {
+      addViewProcessor(viewProcessor.getKey(), viewProcessor.getValue(), connectionFactory, topicPrefix, fudgeContext);
+    }
+  }
+
+  public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext) {
+    int i = 0;
+    for (ViewProcessor viewProcessor : viewProcessors) {
+      addViewProcessor(Integer.toString(i++), viewProcessor, connectionFactory, topicPrefix, fudgeContext);
+    }
+  }
+
   //-------------------------------------------------------------------------
   public void addViewProcessor(String name, ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String topicPrefix, FudgeContext fudgeContext) {
     _viewProcessorResourceMap.put(name, new DataViewProcessorResource(viewProcessor, connectionFactory, topicPrefix, fudgeContext));

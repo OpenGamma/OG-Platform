@@ -6,31 +6,28 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  *
  */
-public class YieldCurveDefinition implements Serializable {
+public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
+  private UniqueIdentifier _uniqueIdentifier;
   private final Currency _currency;
   private final String _name;
   private final String _interpolatorName;
@@ -125,6 +122,9 @@ public class YieldCurveDefinition implements Serializable {
     if (!ObjectUtils.equals(_strips, other._strips)) {
       return false;
     }
+    if (!ObjectUtils.equals(_uniqueIdentifier, other._uniqueIdentifier)) {
+      return false;
+    }
     return true;
   }
 
@@ -145,6 +145,10 @@ public class YieldCurveDefinition implements Serializable {
     for (FixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();
     }
+    result *= prime;
+    if (_uniqueIdentifier != null) {
+      result += _uniqueIdentifier.hashCode();
+    }
     return result;
   }
 
@@ -153,41 +157,14 @@ public class YieldCurveDefinition implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  // /CSOFF
-  private static String CURRENCY_KEY = "currency";
-  private static String REGION_KEY = "region";
-  private static String NAME_KEY = "name";
-  private static String INTERPOLATOR_NAME_KEY = "interpolatorName";
-  private static String STRIP_KEY = "strip";
-
-  // /CSON
-
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
-    context.objectToFudgeMsgWithClassHeaders(message, CURRENCY_KEY, null, _currency, Currency.class);
-    if (getRegion() != null) {
-      context.objectToFudgeMsgWithClassHeaders(message, REGION_KEY, null, _region, Identifier.class);
-    }
-    message.add(NAME_KEY, _name);
-    message.add(INTERPOLATOR_NAME_KEY, _interpolatorName);
-    for (FixedIncomeStrip strip : _strips) {
-      context.objectToFudgeMsgWithClassHeaders(message, STRIP_KEY, null, strip, FixedIncomeStrip.class);
-    }
+  @Override
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueIdentifier;
   }
 
-  public static YieldCurveDefinition fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_KEY));
-    Identifier region = null;
-    if (message.hasField(REGION_KEY)) {
-      region = context.fieldValueToObject(Identifier.class, message.getByName(REGION_KEY));
-    }
-    final String name = message.getString(NAME_KEY);
-    final String interpolatorName = message.getString(INTERPOLATOR_NAME_KEY);
-    final List<FudgeField> stripFields = message.getAllByName(STRIP_KEY);
-    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>(stripFields.size());
-    for (FudgeField stripField : stripFields) {
-      strips.add(context.fieldValueToObject(FixedIncomeStrip.class, stripField));
-    }
-    return new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
+  @Override
+  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
   }
 
 }

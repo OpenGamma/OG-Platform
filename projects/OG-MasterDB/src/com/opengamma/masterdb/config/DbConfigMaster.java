@@ -13,9 +13,10 @@ import com.opengamma.util.db.DbSource;
 /**
  * A config master implementation using a database for persistence.
  * <p>
- * Full details of the API are in {@link ConfigTypeMaster}.
- * This class uses JDBC to store the data via a set of workers.
- * The workers may be replaced by configuration to allow different SQL on different databases.
+ * This is a full implementation of the config master using an SQL database.
+ * See {@link DbConfigTypeMaster} for the main class.
+ * <p>
+ * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbConfigMaster extends DefaultConfigMaster {
 
@@ -35,6 +36,7 @@ public class DbConfigMaster extends DefaultConfigMaster {
 
   /**
    * Creates an instance.
+   * 
    * @param dbSource  the database source, not null
    */
   public DbConfigMaster(final DbSource dbSource) {
@@ -45,6 +47,7 @@ public class DbConfigMaster extends DefaultConfigMaster {
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme in use for UniqueIdentifier.
+   * 
    * @return the scheme, not null
    */
   public String getIdentifierScheme() {
@@ -53,6 +56,7 @@ public class DbConfigMaster extends DefaultConfigMaster {
 
   /**
    * Sets the scheme in use for UniqueIdentifier.
+   * 
    * @param scheme  the scheme, not null
    */
   public void setIdentifierScheme(final String scheme) {

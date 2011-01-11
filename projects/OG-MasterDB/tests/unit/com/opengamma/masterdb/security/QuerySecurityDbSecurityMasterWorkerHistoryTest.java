@@ -10,8 +10,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.masterdb.security.DbSecurityMasterWorker;
-import com.opengamma.masterdb.security.QuerySecurityDbSecurityMasterWorker;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -31,25 +27,10 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerHistoryTest.class);
 
-  private DbSecurityMasterWorker _worker;
-
   public QuerySecurityDbSecurityMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QuerySecurityDbSecurityMasterWorker();
-    _worker.init(_secMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
   }
 
   //-------------------------------------------------------------------------
@@ -57,7 +38,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   public void test_history_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -68,7 +49,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   public void test_history_documentCountWhenMultipleSecuritys() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "102");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -81,7 +62,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -98,7 +79,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -113,7 +94,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -132,7 +113,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -146,7 +127,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -160,7 +141,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -174,7 +155,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -186,7 +167,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -199,7 +180,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     UniqueIdentifier oid = UniqueIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    SecurityHistoryResult test = _worker.history(request);
+    SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -211,7 +192,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbSec]", _worker.toString());
+    assertEquals(_secMaster.getClass().getSimpleName() + "[DbSec]", _secMaster.toString());
   }
 
 }

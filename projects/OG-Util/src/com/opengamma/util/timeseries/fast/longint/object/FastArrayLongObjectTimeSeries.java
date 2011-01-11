@@ -504,7 +504,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   public ObjectList<T> valuesFast() {
     return new ObjectArrayList<T>(_values);
   }
-
+  
   @Override
   public int hashCode() {
     return Arrays.hashCode(_values);
@@ -513,7 +513,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   @Override
   public T getValueFast(final long time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time) {
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
       return _values[binarySearch];
     } else {
       throw new NoSuchElementException();

@@ -361,7 +361,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       _localPrivateValues = null;
     }
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, _cacheSelectHint);
+    final CalculationJob job = new CalculationJob(jobSpec, getFunctionInitializationTimestamp(), _requiredJobs, items, _cacheSelectHint);
     if (getTail() != null) {
       for (GraphFragment tail : getTail()) {
         tail._blockCount = null;
@@ -420,6 +420,10 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
+  }
+
+  public long getFunctionInitializationTimestamp() {
+    return getContext().getFunctionInitializationTimestamp();
   }
 
 }

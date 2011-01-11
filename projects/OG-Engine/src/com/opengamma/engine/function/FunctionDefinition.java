@@ -24,21 +24,23 @@ import com.opengamma.util.PublicSPI;
 public interface FunctionDefinition {
 
   /**
-   * Initialize the function definition with an example {@link FunctionCompilationContext}.
-   * This method will be called during the {@link ViewProcessor} startup call, and will be done
-   * exactly once per {@link ViewProcessor}'s lifetime.
+   * <p>Initialize the function definition with a {@link FunctionCompilationContext}.
+   * This method will be called during {@link ViewProcessor} startup if the JVM contains
+   * one. Otherwise it will be called by the calculation node container startup. After
+   * the initial invocation it may be called in the future if changes to the compilation
+   * context, e.g. the configuration data, has changed.</p>
    * 
-   * Because this is done on a per-processor basis rather than a per-view basis, the
+   * <p>Because this is done on a per-processor basis rather than a per-view basis, the
    * {@link FunctionCompilationContext} provided will only contain details that are generic
-   * to the processor being initialized, rather than the {@link View} being compiled.
+   * to the processor being initialized, rather than the {@link View} being compiled.</p>
    * 
-   * This should perform any one-off initialisations required. Any operations that will change
-   * over time should be performed as part of compilation, see {@link #compile}.
+   * <p>This should perform any one-off initializations required. Any operations that will change
+   * over time should be performed as part of compilation, see {@link #compile}.</p>
    * 
    * @param context The full compilation context to be provided during graph construction.
    */
   void init(FunctionCompilationContext context);
-
+  
   /**
    * Initialize the function definition for execution at the given instant. The compiled function
    * may be valid for a much greater range. It is not necessary for an implementation to cache

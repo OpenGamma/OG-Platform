@@ -11,8 +11,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,50 +31,31 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerCorrectTest.class);
 
-  private ModifyPortfolioDbPortfolioMasterWorker _worker;
-  private QueryPortfolioDbPortfolioMasterWorker _queryWorker;
-
   public ModifyPortfolioDbPortfolioMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyPortfolioDbPortfolioMasterWorker();
-    _worker.init(_prtMaster);
-    _queryWorker = new QueryPortfolioDbPortfolioMasterWorker();
-    _queryWorker.init(_prtMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correct_nullDocument() {
-    _worker.correct(null);
+    _prtMaster.correct(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correct_noPortfolioId() {
     ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioDocument doc = new PortfolioDocument();
     doc.setPortfolio(position);
-    _worker.correct(doc);
+    _prtMaster.correct(doc);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correct_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbPrt", "201", "0"));
-    _worker.correct(doc);
+    _prtMaster.correct(doc);
   }
 
   @Test(expected = DataNotFoundException.class)
@@ -85,15 +64,15 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     port.setUniqueId(UniqueIdentifier.of("DbPrt", "0", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
-    _worker.correct(doc);
+    _prtMaster.correct(doc);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void test_correct_notLatestCorrection() {
-    PortfolioDocument base = _queryWorker.get(UniqueIdentifier.of("DbPrt", "201", "0"));
-    _worker.correct(base);  // correction
-    base = _queryWorker.get(UniqueIdentifier.of("DbPrt", "201", "0"));  // get old version
-    _worker.correct(base);  // cannot update old correction
+    PortfolioDocument base = _prtMaster.get(UniqueIdentifier.of("DbPrt", "201", "0"));
+    _prtMaster.correct(base);  // correction
+    base = _prtMaster.get(UniqueIdentifier.of("DbPrt", "201", "0"));  // get old version
+    _prtMaster.correct(base);  // cannot update old correction
   }
 
   @Test
@@ -101,13 +80,13 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     Instant now = Instant.now(_prtMaster.getTimeSource());
     
     UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPrt", "201", "0");
-    PortfolioDocument base = _queryWorker.get(oldPortfolioId);
+    PortfolioDocument base = _prtMaster.get(oldPortfolioId);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
     port.setRootNode(base.getPortfolio().getRootNode());
     PortfolioDocument input = new PortfolioDocument(port);
     
-    PortfolioDocument corrected = _worker.correct(input);
+    PortfolioDocument corrected = _prtMaster.correct(input);
     assertEquals(UniqueIdentifier.of("DbPrt", "201"), corrected.getUniqueId().toLatest());
     assertEquals(false, base.getUniqueId().getVersion().equals(corrected.getUniqueId().getVersion()));
     assertEquals(_version1Instant, corrected.getVersionFromInstant());
@@ -116,7 +95,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getPortfolio(), corrected.getPortfolio());
     
-    PortfolioDocument old = _queryWorker.get(oldPortfolioId);
+    PortfolioDocument old = _prtMaster.get(oldPortfolioId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(_version1Instant, old.getVersionFromInstant());
     assertEquals(_version2Instant, old.getVersionToInstant());  // old version ended
@@ -125,7 +104,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals("TestPortfolio201", old.getPortfolio().getName());
     assertEquals("TestNode211", old.getPortfolio().getRootNode().getName());
     
-    PortfolioDocument newer = _queryWorker.get(corrected.getUniqueId());
+    PortfolioDocument newer = _prtMaster.get(corrected.getUniqueId());
     assertEquals(corrected.getUniqueId(), newer.getUniqueId());
     assertEquals(_version1Instant, newer.getVersionFromInstant());
     assertEquals(_version2Instant, newer.getVersionToInstant());
@@ -139,7 +118,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
         newer.getPortfolio().getRootNode().getUniqueId().getVersion()));
     
     PortfolioHistoryRequest search = new PortfolioHistoryRequest(base.getUniqueId(), _version1Instant.plusSeconds(5), null);
-    PortfolioHistoryResult searchResult = _queryWorker.history(search);
+    PortfolioHistoryResult searchResult = _prtMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(corrected.getUniqueId(), searchResult.getDocuments().get(0).getUniqueId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getUniqueId());
@@ -148,7 +127,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());
+    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

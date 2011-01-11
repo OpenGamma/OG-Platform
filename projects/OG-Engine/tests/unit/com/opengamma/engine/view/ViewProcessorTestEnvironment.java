@@ -99,7 +99,9 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
     assertEquals(dependencyGraphExecutorFactory, _viewProcessor.getDependencyGraphExecutorFactory());
 
-    _viewProcessor.setFunctionCompilationService(new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
+    final CompiledFunctionService compiledFunctions = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    compiledFunctions.initialize ();
+    _viewProcessor.setFunctionCompilationService(compiledFunctions);
 
     TestLiveDataClient liveDataClient = new TestLiveDataClient();
     _viewProcessor.setLiveDataClient(liveDataClient);

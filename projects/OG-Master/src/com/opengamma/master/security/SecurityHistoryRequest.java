@@ -119,9 +119,9 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @return the value of the property
    */
   public boolean isFullDetail() {
@@ -130,9 +130,9 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
 
   /**
    * Sets the depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @param fullDetail  the new value of the property
    */
   public void setFullDetail(boolean fullDetail) {
@@ -141,9 +141,9 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
 
   /**
    * Gets the the {@code fullDetail} property.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @return the property, not null
    */
   public final Property<Boolean> fullDetail() {

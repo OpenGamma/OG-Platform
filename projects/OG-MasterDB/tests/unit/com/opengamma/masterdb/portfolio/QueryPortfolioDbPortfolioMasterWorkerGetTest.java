@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,57 +25,42 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPortfolioDbPortfolioMasterWorkerGetTest.class);
 
-  private QueryPortfolioDbPortfolioMasterWorker _worker;
-
   public QueryPortfolioDbPortfolioMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QueryPortfolioDbPortfolioMasterWorker();
-    _worker.init(_prtMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_get_nullUID() {
-    _worker.get(null);
+    _prtMaster.get(null);
   }
 
   @Test(expected = DataNotFoundException.class)
   public void test_get_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0", "0");
-    _worker.get(uid);
+    _prtMaster.get(uid);
   }
 
   @Test
   public void test_get_versioned() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "101", "0");
-    PortfolioDocument test = _worker.get(uid);
+    PortfolioDocument test = _prtMaster.get(uid);
     assert101(test, 999);
   }
 
   @Test
   public void test_get_versioned_notLatest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "0");
-    PortfolioDocument test = _worker.get(uid);
+    PortfolioDocument test = _prtMaster.get(uid);
     assert201(test);
   }
 
   @Test
   public void test_get_versioned_latest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "1");
-    PortfolioDocument test = _worker.get(uid);
+    PortfolioDocument test = _prtMaster.get(uid);
     assert202(test);
   }
 
@@ -85,27 +68,27 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
   @Test(expected = DataNotFoundException.class)
   public void test_get_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0");
-    _worker.get(uid);
+    _prtMaster.get(uid);
   }
 
   @Test
   public void test_get_unversioned_latest() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
-    PortfolioDocument test = _worker.get(oid);
+    PortfolioDocument test = _prtMaster.get(oid);
     assert202(test);
   }
 
   @Test
   public void test_get_unversioned_nodesLoaded() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "101");
-    PortfolioDocument test = _worker.get(oid);
+    PortfolioDocument test = _prtMaster.get(oid);
     assert101(test, 999);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());
+    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

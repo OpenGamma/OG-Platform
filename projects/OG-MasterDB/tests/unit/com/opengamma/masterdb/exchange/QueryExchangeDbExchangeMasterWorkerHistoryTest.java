@@ -10,8 +10,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,25 +27,10 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryExchangeDbExchangeMasterWorkerHistoryTest.class);
 
-  private DbExchangeMasterWorker _worker;
-
   public QueryExchangeDbExchangeMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QueryExchangeDbExchangeMasterWorker();
-    _worker.init(_exgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
   }
 
   //-------------------------------------------------------------------------
@@ -55,7 +38,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   public void test_history_documents() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -66,7 +49,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   public void test_history_documentCountWhenMultipleExchanges() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "102");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -79,7 +62,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -96,7 +79,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -111,7 +94,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -130,7 +113,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -144,7 +127,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -158,7 +141,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -172,7 +155,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -184,7 +167,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -197,7 +180,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    ExchangeHistoryResult test = _worker.history(request);
+    ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -209,7 +192,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbExg]", _worker.toString());
+    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

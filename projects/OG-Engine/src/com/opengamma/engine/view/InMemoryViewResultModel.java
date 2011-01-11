@@ -6,9 +6,11 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.Instant;
@@ -28,6 +30,7 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
+  private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
   
   @Override
   public String getViewName() {
@@ -130,6 +133,8 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     }
     
     targetResult.addValue(calcConfigurationName, value);
+    
+    _allResults.add(new ViewResultEntry(calcConfigurationName, value));
   }
 
   @Override
@@ -147,4 +152,9 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     return _resultsByTarget.get(targetSpecification);
   }
 
+  @Override
+  public List<ViewResultEntry> getAllResults() {
+    return Collections.unmodifiableList(_allResults);
+  }
+  
 }
