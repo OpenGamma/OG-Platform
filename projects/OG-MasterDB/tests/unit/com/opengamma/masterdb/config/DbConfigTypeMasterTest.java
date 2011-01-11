@@ -58,7 +58,7 @@ public class DbConfigTypeMasterTest extends DBTest {
     assertEquals(true, _cfgMaster.getIdentifierScheme().equals("DbCfg"));
     assertNotNull(_cfgMaster.getDbSource());
     assertNotNull(_cfgMaster.getTimeSource());
-    assertNotNull(_cfgMaster.getWorkers());
+    assertEquals(Identifier.class, _cfgMaster.getReifiedType());
   }
 
   //-------------------------------------------------------------------------

@@ -68,7 +68,6 @@ public class DbSecurityMasterTest extends DBTest {
     assertEquals(true, _secMaster.getIdentifierScheme().equals("DbSec"));
     assertNotNull(_secMaster.getDbSource());
     assertNotNull(_secMaster.getTimeSource());
-    assertNotNull(_secMaster.getWorkers());
   }
 
   //-------------------------------------------------------------------------
