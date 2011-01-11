@@ -106,7 +106,8 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     IdentifierSearch regionKeys = request.getRegionKeys();
     IdentifierSearch exchangeKeys = request.getExchangeKeys();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
-    if (IdentifierSearch.canMatch(regionKeys) == false ||
+    if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
+        IdentifierSearch.canMatch(regionKeys) == false ||
         IdentifierSearch.canMatch(exchangeKeys) == false) {
       return result;
     }
@@ -173,6 +174,15 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
     if (request.getCurrency() != null) {
       where += "AND currency_iso = :currency_iso ";
+    }
+    if (request.getHolidayIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getHolidayIds().size() * 10);
+      for (UniqueIdentifier uniqueId : request.getHolidayIds()) {
+        checkScheme(uniqueId);
+        buf.append(extractOid(uniqueId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
     }
     where += sqlAdditionalWhere();
     
