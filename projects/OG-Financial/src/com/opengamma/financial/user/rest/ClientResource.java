@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
-import com.opengamma.financial.position.master.rest.DataPortfoliosResource;
-import com.opengamma.financial.position.master.rest.DataPositionsResource;
+import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
+import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
