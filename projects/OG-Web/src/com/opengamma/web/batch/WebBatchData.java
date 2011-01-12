@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.BeanDefinition;
@@ -23,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.batch.BatchDbManager;
+import com.opengamma.financial.batch.BatchSearchResultItem;
 
 /**
  * 
@@ -43,16 +43,10 @@ public class WebBatchData extends DirectBean {
   private UriInfo _uriInfo;
   
   /**
-   * The batch date.
+   * The batch
    */
   @PropertyDefinition
-  private LocalDate _observationDate;
-  
-  /**
-   * The batch time - e.g., LDN_CLOSE.
-   */
-  @PropertyDefinition
-  private String _observationTime;
+  private BatchSearchResultItem _batch;
   
   /**
    * The batch data.
@@ -84,10 +78,8 @@ public class WebBatchData extends DirectBean {
         return getBatchDbManager();
       case -173275078:  // uriInfo
         return getUriInfo();
-      case 950748666:  // observationDate
-        return getObservationDate();
-      case 951232793:  // observationTime
-        return getObservationTime();
+      case 93509434:  // batch
+        return getBatch();
       case 1015367516:  // batchResults
         return getBatchResults();
     }
@@ -104,11 +96,8 @@ public class WebBatchData extends DirectBean {
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
         return;
-      case 950748666:  // observationDate
-        setObservationDate((LocalDate) newValue);
-        return;
-      case 951232793:  // observationTime
-        setObservationTime((String) newValue);
+      case 93509434:  // batch
+        setBatch((BatchSearchResultItem) newValue);
         return;
       case 1015367516:  // batchResults
         setBatchResults((List<ViewResultEntry>) newValue);
@@ -169,52 +158,27 @@ public class WebBatchData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch date.
+   * Gets the batch
    * @return the value of the property
    */
-  public LocalDate getObservationDate() {
-    return _observationDate;
+  public BatchSearchResultItem getBatch() {
+    return _batch;
   }
 
   /**
-   * Sets the batch date.
-   * @param observationDate  the new value of the property
+   * Sets the batch
+   * @param batch  the new value of the property
    */
-  public void setObservationDate(LocalDate observationDate) {
-    this._observationDate = observationDate;
+  public void setBatch(BatchSearchResultItem batch) {
+    this._batch = batch;
   }
 
   /**
-   * Gets the the {@code observationDate} property.
+   * Gets the the {@code batch} property.
    * @return the property, not null
    */
-  public final Property<LocalDate> observationDate() {
-    return metaBean().observationDate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the batch time - e.g., LDN_CLOSE.
-   * @return the value of the property
-   */
-  public String getObservationTime() {
-    return _observationTime;
-  }
-
-  /**
-   * Sets the batch time - e.g., LDN_CLOSE.
-   * @param observationTime  the new value of the property
-   */
-  public void setObservationTime(String observationTime) {
-    this._observationTime = observationTime;
-  }
-
-  /**
-   * Gets the the {@code observationTime} property.
-   * @return the property, not null
-   */
-  public final Property<String> observationTime() {
-    return metaBean().observationTime().createProperty(this);
+  public final Property<BatchSearchResultItem> batch() {
+    return metaBean().batch().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -261,13 +225,9 @@ public class WebBatchData extends DirectBean {
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
     /**
-     * The meta-property for the {@code observationDate} property.
+     * The meta-property for the {@code batch} property.
      */
-    private final MetaProperty<LocalDate> _observationDate = DirectMetaProperty.ofReadWrite(this, "observationDate", LocalDate.class);
-    /**
-     * The meta-property for the {@code observationTime} property.
-     */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<BatchSearchResultItem> _batch = DirectMetaProperty.ofReadWrite(this, "batch", BatchSearchResultItem.class);
     /**
      * The meta-property for the {@code batchResults} property.
      */
@@ -283,8 +243,7 @@ public class WebBatchData extends DirectBean {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("batchDbManager", _batchDbManager);
       temp.put("uriInfo", _uriInfo);
-      temp.put("observationDate", _observationDate);
-      temp.put("observationTime", _observationTime);
+      temp.put("batch", _batch);
       temp.put("batchResults", _batchResults);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -322,19 +281,11 @@ public class WebBatchData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code observationDate} property.
+     * The meta-property for the {@code batch} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> observationDate() {
-      return _observationDate;
-    }
-
-    /**
-     * The meta-property for the {@code observationTime} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> observationTime() {
-      return _observationTime;
+    public final MetaProperty<BatchSearchResultItem> batch() {
+      return _batch;
     }
 
     /**
