@@ -85,10 +85,6 @@ public interface BatchDbManager {
    * Gets the results of a batch from the batch DB.
    * <p>
    * Risk failures are not included in the result. 
-   * <p>
-   * This method should not be called while the batch is still
-   * in progress. If this is done, the results may be incomplete
-   * and you may encounter database locking issues. 
    * 
    * @param request  the search request, not null
    * @return the search result, not null

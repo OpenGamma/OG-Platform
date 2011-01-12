@@ -36,6 +36,7 @@ import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
+import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -435,6 +436,15 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     BatchSearchResultItem item = result.getItems().get(0);
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.RUNNING, item.getStatus());
+    
+    _dbManager.endBatch(_batchJobRun);
+    result = _dbManager.search(request);
+    assertEquals(1, result.getItems().size());
+    item = result.getItems().get(0);
+    assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
+    assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.COMPLETE, item.getStatus());
   }
   
   @Test
@@ -453,6 +463,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     BatchSearchResultItem item = result.getItems().get(0);
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.RUNNING, item.getStatus());
   }
   
   @Test(expected=IllegalArgumentException.class)

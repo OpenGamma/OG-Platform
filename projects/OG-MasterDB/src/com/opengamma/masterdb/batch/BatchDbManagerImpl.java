@@ -59,6 +59,7 @@ import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
+import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
@@ -866,6 +867,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         BatchSearchResultItem item = new BatchSearchResultItem();
         item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
         item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+        item.setStatus(run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
         result.getItems().add(item);
       }
       
