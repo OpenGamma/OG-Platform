@@ -36,7 +36,8 @@ public class RemotePositionMaster implements PositionMaster {
   private final FudgeRestClient _client;
 
   /**
-   * Creates and instance.
+   * Creates an instance.
+   * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemotePositionMaster(final URI baseUri) {
@@ -131,7 +132,8 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Accesses the remote position master.
+   * Accesses the remote master.
+   * 
    * @param uri  the URI to call, not null
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
@@ -152,7 +154,8 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a string summary of this position master.
+   * Returns a string summary of this master.
+   * 
    * @return the string summary, not null
    */
   @Override
