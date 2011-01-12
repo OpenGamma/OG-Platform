@@ -56,8 +56,8 @@ public class WebBatchResource extends AbstractWebBatchResource {
     FlexiBean out = createRootData();
     
     BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(data().getObservationDate());
-    request.setObservationTime(data().getObservationTime());
+    request.setObservationDate(data().getBatch().getObservationDate());
+    request.setObservationTime(data().getBatch().getObservationTime());
     request.setPagingRequest(PagingRequest.of(page, pageSize));
     
     BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
@@ -91,8 +91,8 @@ public class WebBatchResource extends AbstractWebBatchResource {
         while (true) {
         
           BatchDataSearchRequest request = new BatchDataSearchRequest();
-          request.setObservationDate(data().getObservationDate());
-          request.setObservationTime(data().getObservationTime());
+          request.setObservationDate(data().getBatch().getObservationDate());
+          request.setObservationTime(data().getBatch().getObservationTime());
           request.setPagingRequest(PagingRequest.of(page, pageSize));
           
           BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
@@ -128,8 +128,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    out.put("observationDate", data().getObservationDate());
-    out.put("observationTime", data().getObservationTime());
+    out.put("batch", data().getBatch());
     return out;
   }
 
@@ -141,8 +140,8 @@ public class WebBatchResource extends AbstractWebBatchResource {
    */
   public static URI uri(final WebBatchData data) {
     return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(
-        data.getObservationDate(),
-        data.getObservationTime());
+        data.getBatch().getObservationDate(),
+        data.getBatch().getObservationTime());
   }
   
   public static URI uri(final WebBatchData data, final LocalDate date, final String observationTime) {
