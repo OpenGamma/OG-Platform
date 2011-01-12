@@ -807,7 +807,9 @@ public class BatchDbManagerImpl implements BatchDbManager {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("rsk_run_id", riskRun.getId());
     
-    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), "", request.getPagingRequest());
+    final int count = _dbSource.getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
+    
+    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getPagingRequest());
     
     List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
         sql, 
@@ -815,7 +817,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         params);
     
     BatchDataSearchResult result = new BatchDataSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), values.size()));
+    result.setPaging(new Paging(request.getPagingRequest(), count));
     result.setItems(values);
     return result;
   }

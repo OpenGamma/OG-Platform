@@ -5,7 +5,9 @@
  */
 package com.opengamma.web.batch;
 
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 
 import javax.time.calendar.LocalDate;
@@ -13,8 +15,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -25,7 +29,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
-import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 
@@ -60,36 +63,62 @@ public class WebBatchResource extends AbstractWebBatchResource {
     BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
     data().setBatchResults(batchResults.getItems());
 
-    Paging paging = Paging.of(batchResults.getItems(), request.getPagingRequest());
-    out.put("paging", new WebPaging(paging, data().getUriInfo()));
+    out.put("paging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
     out.put("batchResult", batchResults.getItems());
     return getFreemarker().build("batches/batch.ftl", out);
   }
   
   @GET
-  @Produces("text/csv")
-  public String getCsv() {
-    StringWriter stringWriter  = new StringWriter();
-    CSVWriter csvWriter = new CSVWriter(stringWriter);
-    csvWriter.writeNext(new String[] {
-      "Calculation configuration",
-      "Computation target unique id",
-      "Value name",
-      "Function unique id",
-      "Value"
-    });
-    for (ViewResultEntry entry : data().getBatchResults()) {
-      ComputedValue value = entry.getComputedValue();
+  @Produces("text/csv;charset=UTF-8")
+  public StreamingOutput getCsv() {
+    return new StreamingOutput() {
       
-      csvWriter.writeNext(new String[] {
-        entry.getCalculationConfiguration(),
-        value.getSpecification().getTargetSpecification().getUniqueId().toString(),
-        value.getSpecification().getValueName(), 
-        value.getSpecification().getFunctionUniqueId(),
-        value.getValue().toString()
-      });
-    }
-    return stringWriter.toString();
+      @Override
+      public void write(OutputStream output) throws IOException, WebApplicationException {
+        OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
+        CSVWriter csvWriter = new CSVWriter(writer);
+        csvWriter.writeNext(new String[] {
+          "Calculation configuration",
+          "Computation target unique id",
+          "Value name",
+          "Function unique id",
+          "Value"
+        });
+        
+        int page = 1;
+        int pageSize = 1000;
+        
+        while (true) {
+        
+          BatchDataSearchRequest request = new BatchDataSearchRequest();
+          request.setObservationDate(data().getObservationDate());
+          request.setObservationTime(data().getObservationTime());
+          request.setPagingRequest(PagingRequest.of(page, pageSize));
+          
+          BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+          for (ViewResultEntry entry : batchResults.getItems()) {
+            ComputedValue value = entry.getComputedValue();
+            
+            csvWriter.writeNext(new String[] {
+              entry.getCalculationConfiguration(),
+              value.getSpecification().getTargetSpecification().getUniqueId().toString(),
+              value.getSpecification().getValueName(), 
+              value.getSpecification().getFunctionUniqueId(),
+              value.getValue().toString()
+            });
+          }
+          
+          if (batchResults.getPaging().isLastPage()) {
+            break;            
+          }
+
+          page++;
+        }
+        
+        csvWriter.flush();
+        writer.flush();
+      }
+    };
   }
 
   //-------------------------------------------------------------------------

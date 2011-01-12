@@ -6,6 +6,8 @@
 package com.opengamma.util.db;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -145,6 +147,14 @@ public final class PagingTest {
     assertEquals(2, new Paging(1, 20, 39).getTotalPages());
     assertEquals(2, new Paging(1, 20, 40).getTotalPages());
     assertEquals(3, new Paging(1, 20, 41).getTotalPages());
+  }
+  
+  @Test
+  public void test_isLastPage() {
+    assertTrue(new Paging(2, 20, 39).isLastPage());
+    assertTrue(new Paging(2, 20, 40).isLastPage());
+    assertFalse(new Paging(1, 20, 39).isLastPage());
+    assertFalse(new Paging(1, 20, 40).isLastPage());
   }
 
   //-------------------------------------------------------------------------

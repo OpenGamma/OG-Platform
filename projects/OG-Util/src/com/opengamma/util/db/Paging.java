@@ -150,6 +150,13 @@ public final class Paging {
   public int getTotalPages() {
     return (_totalItems - 1) / _pagingSize + 1;
   }
+  
+  /**
+   * @return true if this is the last page, false otherwise
+   */
+  public boolean isLastPage() {
+    return getPage() == getTotalPages();
+  }
 
   //-------------------------------------------------------------------------
   @Override
