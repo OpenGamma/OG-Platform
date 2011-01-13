@@ -37,6 +37,7 @@ import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererPro
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.engine.view.permission.ViewPermission;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.LiveDataClient;
@@ -72,6 +73,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final Timer _clientResultTimer = new Timer("ViewProcessor client result timer");
   private boolean _isStarted /* = false */;
   private boolean _isSuspended /* = false */;
+  
+  /**
+   * The view processor event listener registry
+   */
+  private ViewProcessorEventListenerRegistry _viewProcessorEventListenerRegistry = new ViewProcessorEventListenerRegistry();
 
   public ViewProcessorImpl() {
   }
@@ -111,6 +117,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _lifecycleLock.unlock();
       }
       _viewsByName.put(name, view);
+      _viewProcessorEventListenerRegistry.notifyViewAdded(name);
     }
     getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
     return view;
@@ -298,6 +305,10 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
     return _graphExecutionStatistics;
   }
+  
+  public ViewProcessorEventListenerRegistry getViewProcessorEventListenerRegistry() {
+    return _viewProcessorEventListenerRegistry;
+  }
 
   @Override
   public Future<Runnable> suspend(final ExecutorService executor) {
@@ -394,6 +405,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
           s_logger.info("Terminating view {} due to lifecycle call", view.getDefinition().getName());
           view.stop();
         }
+        _viewProcessorEventListenerRegistry.notifyViewRemoved(view.getName());
       }
       _viewsByName.clear();
       s_logger.info("All views terminated.");
