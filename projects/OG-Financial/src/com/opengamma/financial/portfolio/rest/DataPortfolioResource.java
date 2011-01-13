@@ -46,6 +46,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Creates the resource.
+   * 
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
@@ -59,6 +60,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Gets the portfolios resource.
+   * 
    * @return the portfolios resource, not null
    */
   public DataPortfoliosResource getPortfoliosResource() {
@@ -67,6 +69,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Gets the portfolio identifier from the URL.
+   * 
    * @return the unique identifier, not null
    */
   public UniqueIdentifier getUrlPortfolioId() {
@@ -76,6 +79,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Gets the portfolio master.
+   * 
    * @return the portfolio master, not null
    */
   public PortfolioMaster getPortfolioMaster() {
@@ -136,6 +140,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param id  the resource identifier, not null
    * @return the URI, not null
@@ -146,6 +151,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Builds a URI for the versions of the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param id  the resource identifier, not null
    * @param searchMsg  the search message, may be null
@@ -161,6 +167,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Builds a URI for a specific version of the resource.
+   * 
    * @param baseUri  the base URI, not null
    * @param uid  the resource unique identifier, not null
    * @return the URI, not null
@@ -172,6 +179,7 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Builds a URI for a specific node.
+   * 
    * @param baseUri  the base URI, not null
    * @param nodeUid  the resource unique identifier, not null
    * @return the URI, not null

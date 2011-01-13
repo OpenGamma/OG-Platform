@@ -43,6 +43,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
 
   /**
    * Creates the resource.
+   * 
    * @param portfolioMaster  the portfolio master, not null
    */
   public DataPortfoliosResource(final PortfolioMaster portfolioMaster) {
@@ -53,6 +54,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Gets the portfolio master.
+   * 
    * @return the portfolio master, not null
    */
   public PortfolioMaster getPortfolioMaster() {
@@ -84,6 +86,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for all portfolios.
+   * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
