@@ -17,9 +17,9 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.MasterChangeListener;
-import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
