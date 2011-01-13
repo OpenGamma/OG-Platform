@@ -29,7 +29,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 public class DataPositionSourceResource extends AbstractDataResource {
 
   /**
-   * The injected position master.
+   * The injected position source.
    */
   private final PositionSource _positionSource;
 
