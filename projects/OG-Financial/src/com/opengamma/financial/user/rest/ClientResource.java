@@ -23,8 +23,6 @@ import com.opengamma.financial.user.UserPortfolioMaster;
 import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.view.rest.ViewDefinitionsResource;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.PositionMaster;
 
 /**
  * RESTful resource representing a user's client session.
@@ -62,8 +60,8 @@ public class ClientResource {
   private final String _clientName;
   private final UsersResourceContext _usersResourceContext;
   
-  private PortfolioMaster _portfolioMaster;
-  private PositionMaster _positionMaster;
+  private DataPortfoliosResource _portfolioMaster;
+  private DataPositionsResource _positionMaster;
   private SecurityMasterResource _securitiesResource;
   private ViewDefinitionsResource _viewDefinitionsResource;
   private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
@@ -119,21 +117,21 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_portfolioMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
-      _portfolioMaster = new UserPortfolioMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPortfolioMaster());
+      _portfolioMaster = new DataPortfoliosResource(new UserPortfolioMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPortfolioMaster()));
     }
-    return new DataPortfoliosResource(_portfolioMaster);
+    return _portfolioMaster;
   }
-  
+
   @Path(POSITIONS_PATH)
   public DataPositionsResource getPositions() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
-      _positionMaster = new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster());
+      _positionMaster = new DataPositionsResource(new UserPositionMaster(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext.getPositionMaster()));
     }
-    return new DataPositionsResource(_positionMaster);
+    return _positionMaster;
   }
-  
+
   @Path(SECURITIES_PATH)
   public SecurityMasterResource getSecurities() {
     _lastAccessed = System.currentTimeMillis();
@@ -144,7 +142,7 @@ public class ClientResource {
     }
     return _securitiesResource;
   }
-  
+
   @Path(VIEW_DEFINITIONS_PATH)
   public ViewDefinitionsResource getViewDefinitions() {
     _lastAccessed = System.currentTimeMillis();
@@ -156,7 +154,7 @@ public class ClientResource {
     }
     return _viewDefinitionsResource;
   }
-  
+
   @Path(INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH)
   public InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
     _lastAccessed = System.currentTimeMillis();
