@@ -152,7 +152,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         calcConfig.addSpecificRequirement(context.fieldValueToObject(ValueRequirement.class, specificRequirementField));
       }
       calcConfig.setDeltaDefinition(context.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
-      if (message.hasField(DEFAULT_PROPERTIES_FIELD)) {
+      if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
         calcConfig.setDefaultProperties(context.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
       }
       viewDefinition.addViewCalculationConfiguration(calcConfig);
