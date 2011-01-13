@@ -36,7 +36,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class ManageableExchange extends DirectBean implements Exchange {
-  // TODO: regionId should be regionKey, but it is stored in Fudge in DB
 
   /**
    * The unique identifier of the exchange.
@@ -59,8 +58,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
   /**
    * The region key identifier bundle that defines where the exchange is located.
    */
-  @PropertyDefinition(get = "manual", set = "manual")
-  private IdentifierBundle _regionId;
+  @PropertyDefinition
+  private IdentifierBundle _regionKey;
   /**
    * The time-zone of the exchange.
    */
@@ -104,42 +103,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
     cloned._uniqueId = _uniqueId;
     cloned._name = _name;
     cloned._identifiers = _identifiers;
-    cloned._regionId = _regionId;
+    cloned._regionKey = _regionKey;
     cloned._detail.addAll(_detail);
     return cloned;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the region key identifier bundle that defines where the exchange is located.
-   * @return the value of the property
-   */
-  public IdentifierBundle getRegionKey() {
-    return getRegionId();
-  }
-
-  /**
-   * Sets the region key identifier bundle that defines where the exchange is located.
-   * @param regionKey  the new value of the property
-   */
-  public void setRegionKey(IdentifierBundle regionKey) {
-    setRegionId(regionKey);
-  }
-
-  /**
-   * Gets the region key identifier bundle that defines where the exchange is located.
-   * @return the value of the property
-   */
-  private IdentifierBundle getRegionId() {
-    return _regionId;
-  }
-
-  /**
-   * Sets the region key identifier bundle that defines where the exchange is located.
-   * @param regionKey  the new value of the property
-   */
-  private void setRegionId(IdentifierBundle regionKey) {
-    this._regionId = regionKey;
   }
 
   //-------------------------------------------------------------------------
@@ -198,8 +164,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
         return getIdentifiers();
       case 3373707:  // name
         return getName();
-      case -690339025:  // regionId
-        return getRegionId();
+      case 74328779:  // regionKey
+        return getRegionKey();
       case -2077180903:  // timeZone
         return getTimeZone();
       case -1335224239:  // detail
@@ -221,8 +187,8 @@ public class ManageableExchange extends DirectBean implements Exchange {
       case 3373707:  // name
         setName((String) newValue);
         return;
-      case -690339025:  // regionId
-        setRegionId((IdentifierBundle) newValue);
+      case 74328779:  // regionKey
+        setRegionKey((IdentifierBundle) newValue);
         return;
       case -2077180903:  // timeZone
         setTimeZone((TimeZone) newValue);
@@ -320,11 +286,27 @@ public class ManageableExchange extends DirectBean implements Exchange {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the the {@code regionId} property.
+   * Gets the region key identifier bundle that defines where the exchange is located.
+   * @return the value of the property
+   */
+  public IdentifierBundle getRegionKey() {
+    return _regionKey;
+  }
+
+  /**
+   * Sets the region key identifier bundle that defines where the exchange is located.
+   * @param regionKey  the new value of the property
+   */
+  public void setRegionKey(IdentifierBundle regionKey) {
+    this._regionKey = regionKey;
+  }
+
+  /**
+   * Gets the the {@code regionKey} property.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> regionId() {
-    return metaBean().regionId().createProperty(this);
+  public final Property<IdentifierBundle> regionKey() {
+    return metaBean().regionKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -401,9 +383,9 @@ public class ManageableExchange extends DirectBean implements Exchange {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
     /**
-     * The meta-property for the {@code regionId} property.
+     * The meta-property for the {@code regionKey} property.
      */
-    private final MetaProperty<IdentifierBundle> _regionId = DirectMetaProperty.ofReadWrite(this, "regionId", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _regionKey = DirectMetaProperty.ofReadWrite(this, "regionKey", IdentifierBundle.class);
     /**
      * The meta-property for the {@code timeZone} property.
      */
@@ -424,7 +406,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
       temp.put("uniqueId", _uniqueId);
       temp.put("identifiers", _identifiers);
       temp.put("name", _name);
-      temp.put("regionId", _regionId);
+      temp.put("regionKey", _regionKey);
       temp.put("timeZone", _timeZone);
       temp.put("detail", _detail);
       _map = Collections.unmodifiableMap(temp);
@@ -471,11 +453,11 @@ public class ManageableExchange extends DirectBean implements Exchange {
     }
 
     /**
-     * The meta-property for the {@code regionId} property.
+     * The meta-property for the {@code regionKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> regionId() {
-      return _regionId;
+    public final MetaProperty<IdentifierBundle> regionKey() {
+      return _regionKey;
     }
 
     /**

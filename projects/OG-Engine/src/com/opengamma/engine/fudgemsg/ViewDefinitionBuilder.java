@@ -107,9 +107,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)), context.fieldValueToObject(UniqueIdentifier.class, message
-        .getByName(IDENTIFIER_FIELD)), context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)), context.fieldValueToObject(ResultModelDefinition.class, message
-        .getByName(RESULT_MODEL_DEFINITION_FIELD)));
+    ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
+        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
+        context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
+        context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
 
     // FudgeField currencyField = message.getByName(CURRENCY_FIELD);
     // if (currencyField != null) {
@@ -151,7 +152,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         calcConfig.addSpecificRequirement(context.fieldValueToObject(ValueRequirement.class, specificRequirementField));
       }
       calcConfig.setDeltaDefinition(context.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
-      calcConfig.setDefaultProperties(context.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
+      if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
+        calcConfig.setDefaultProperties(context.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
+      }
       viewDefinition.addViewCalculationConfiguration(calcConfig);
     }
     return viewDefinition;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.rest;
+package com.opengamma.financial.portfolio.rest;
 
 import java.net.URI;
 
