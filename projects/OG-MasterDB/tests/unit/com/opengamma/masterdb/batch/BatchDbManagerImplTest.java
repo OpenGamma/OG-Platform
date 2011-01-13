@@ -31,6 +31,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
+import com.opengamma.financial.batch.BatchErrorSearchRequest;
+import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchSearchRequest;
@@ -488,6 +490,32 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     startNewTransaction();
     
     BatchDataSearchResult result = _dbManager.getResults(request);
+    assertNotNull(result);
+    assertTrue(result.getItems().isEmpty());
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void getErrorsNonexistentBatch() {
+    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
+    request.setObservationDate(LocalDate.of(2000, 5, 5));
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    _dbManager.getErrors(request);
+  }
+
+  @Test
+  public void getErrorsExistingBatch() {
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
+    request.setObservationDate(_batchJobRun.getObservationDate());
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    commit();
+    startNewTransaction();
+    
+    BatchErrorSearchResult result = _dbManager.getErrors(request);
     assertNotNull(result);
     assertTrue(result.getItems().isEmpty());
   }
