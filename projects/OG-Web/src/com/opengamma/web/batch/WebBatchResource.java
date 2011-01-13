@@ -29,6 +29,9 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
+import com.opengamma.financial.batch.BatchError;
+import com.opengamma.financial.batch.BatchErrorSearchRequest;
+import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
 
@@ -62,15 +65,80 @@ public class WebBatchResource extends AbstractWebBatchResource {
     
     BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
     data().setBatchResults(batchResults.getItems());
+    
+    BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
+    errorRequest.setObservationDate(data().getBatch().getObservationDate());
+    errorRequest.setObservationTime(data().getBatch().getObservationTime());
+    errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    
+    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
+    data().setBatchErrors(batchErrors.getItems());
 
-    out.put("paging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
+    out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
+    out.put("errorPaging", new WebPaging(batchErrors.getPaging(), data().getUriInfo()));
     out.put("batchResult", batchResults.getItems());
+    out.put("batchErrors", batchErrors.getItems());
     return getFreemarker().build("batches/batch.ftl", out);
   }
   
   @GET
   @Produces("text/csv;charset=UTF-8")
-  public StreamingOutput getCsv() {
+  public StreamingOutput getCsv(
+      @QueryParam("export") final String export) {
+    
+    if (export.equalsIgnoreCase("errors")) {
+      return new StreamingOutput() {
+        
+        @Override
+        public void write(OutputStream output) throws IOException, WebApplicationException {
+          OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8");
+          CSVWriter csvWriter = new CSVWriter(writer);
+          csvWriter.writeNext(new String[] {
+            "Calculation configuration",
+            "Computation target unique id",
+            "Value name",
+            "Function unique id",
+            "Exception class",
+            "Exception msg",
+            "Stack trace"
+          });
+          
+          int page = 1;
+          int pageSize = 1000;
+          
+          while (true) {
+          
+            BatchErrorSearchRequest request = new BatchErrorSearchRequest();
+            request.setObservationDate(data().getBatch().getObservationDate());
+            request.setObservationTime(data().getBatch().getObservationTime());
+            request.setPagingRequest(PagingRequest.of(page, pageSize));
+            
+            BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(request);
+            for (BatchError entry : batchErrors.getItems()) {
+              csvWriter.writeNext(new String[] {
+                entry.getCalculationConfiguration(),
+                entry.getComputationTarget().getUniqueId().toString(),
+                entry.getValueName(), 
+                entry.getFunctionUniqueId(),
+                entry.getExceptionClass(),
+                entry.getExceptionMsg(),
+                entry.getStackTrace()
+              });
+            }
+            
+            if (batchErrors.getPaging().isLastPage()) {
+              break;            
+            }
+
+            page++;
+          }
+          
+          csvWriter.flush();
+          writer.flush();
+        }
+      };
+    }
+    
     return new StreamingOutput() {
       
       @Override
