@@ -27,5 +27,16 @@ public interface ViewProcessorEventListener {
    * @param viewName the name of the View the operation relates to
    */
   void notifyViewRemoved(String viewName);
+  
+  /**
+   * Called immediately after a view processor starts up
+   * 
+   */
+  void notifyViewProcessorStarted();
+  
+  /**
+   * Called immediately after a view processor stops
+   */
+  void notifyViewProcessorStopped();
 
 }

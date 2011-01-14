@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
@@ -78,16 +79,26 @@ public final class ManagementService implements ViewProcessorEventListener {
    */
   public void init() {
     try {
-      initializeViewProcessor();
-      initializeViews();
-      initializeGraphExecutionStatistics();
+      initializeAndRegisterMBeans();
       _viewProcessor.getViewProcessorEventListenerRegistry().registerListener(this);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("MBean registration error", e);
     }
   }
 
-  private void initializeGraphExecutionStatistics() throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
+  /**
+   * @throws Exception
+   * @throws InstanceAlreadyExistsException
+   * @throws MBeanRegistrationException
+   * @throws NotCompliantMBeanException
+   */
+  private void initializeAndRegisterMBeans() throws Exception {
+    initializeViewProcessor();
+    initializeViews();
+    initializeGraphExecutionStatistics();
+  }
+
+  private void initializeGraphExecutionStatistics() throws Exception {
     for (String viewName : _viewProcessor.getViewNames()) {
       View view = _viewProcessor.getView(viewName, _user);
       if (view != null) {
@@ -102,22 +113,12 @@ public final class ManagementService implements ViewProcessorEventListener {
     }
   }
 
-  /**
-   * @throws InstanceAlreadyExistsException
-   * @throws MBeanRegistrationException
-   * @throws NotCompliantMBeanException
-   */
-  private void initializeViewProcessor() throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
+  private void initializeViewProcessor() throws Exception {
     com.opengamma.engine.management.ViewProcessor viewProcessor = new com.opengamma.engine.management.ViewProcessor(_viewProcessor);
     registerViewProcessor(viewProcessor);
   }
 
-  /**
-   * @throws InstanceAlreadyExistsException
-   * @throws MBeanRegistrationException
-   * @throws NotCompliantMBeanException
-   */
-  private void initializeViews() throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
+  private void initializeViews() throws Exception {
     for (String viewName : _viewProcessor.getViewNames()) {
       com.opengamma.engine.management.View view = new com.opengamma.engine.management.View(_viewProcessor.getView(viewName, _user), _viewProcessor);
       if (view != null) {
@@ -126,17 +127,32 @@ public final class ManagementService implements ViewProcessorEventListener {
     }
   }
 
-  private void registerGraphStatistics(com.opengamma.engine.management.GraphExecutionStatistics graphStatistics) throws InstanceAlreadyExistsException, MBeanRegistrationException,
-      NotCompliantMBeanException {
-    _mBeanServer.registerMBean(graphStatistics, graphStatistics.getObjectName());
+  private void registerGraphStatistics(com.opengamma.engine.management.GraphExecutionStatistics graphStatistics) throws Exception {
+    try {
+      _mBeanServer.registerMBean(graphStatistics, graphStatistics.getObjectName());
+    } catch (InstanceAlreadyExistsException e) {
+      _mBeanServer.unregisterMBean(graphStatistics.getObjectName());
+      _mBeanServer.registerMBean(graphStatistics, graphStatistics.getObjectName());
+    }
   }
 
-  private void registerViewProcessor(com.opengamma.engine.management.ViewProcessor viewProcessor) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-    _mBeanServer.registerMBean(viewProcessor, viewProcessor.getObjectName());
+  private void registerViewProcessor(com.opengamma.engine.management.ViewProcessor viewProcessor) throws Exception {
+    try {
+      _mBeanServer.registerMBean(viewProcessor, viewProcessor.getObjectName());
+    } catch (InstanceAlreadyExistsException e) {
+      _mBeanServer.unregisterMBean(viewProcessor.getObjectName());
+      _mBeanServer.registerMBean(viewProcessor, viewProcessor.getObjectName());
+    }
+    
   }
 
-  private void registerView(com.opengamma.engine.management.View view) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
-    _mBeanServer.registerMBean(view, view.getObjectName());
+  private void registerView(com.opengamma.engine.management.View view) throws Exception {
+    try {
+      _mBeanServer.registerMBean(view, view.getObjectName());
+    } catch (InstanceAlreadyExistsException e) {
+      _mBeanServer.unregisterMBean(view.getObjectName());
+      _mBeanServer.registerMBean(view, view.getObjectName());
+    }
   }
 
   /**
@@ -195,6 +211,38 @@ public final class ManagementService implements ViewProcessorEventListener {
     }
     _calcConfigByViewName.remove(viewName);
   }
-  
 
+  @Override
+  public void notifyViewProcessorStarted() {
+    try {
+      initializeAndRegisterMBeans();
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("MBean registration error", e);
+    }
+  }
+
+  @Override
+  public void notifyViewProcessorStopped() {
+    Set<ObjectName> registeredObjectNames = null;
+
+    try {
+      // ViewProcessor MBean
+      registeredObjectNames = _mBeanServer.queryNames(ViewProcessor.createObjectName(_viewProcessor), null);
+      // Other MBeans for this ViewProcessor
+      registeredObjectNames.addAll(_mBeanServer.queryNames(new ObjectName("com.opengamma:*,ViewProcessor=" + _viewProcessor.toString()), null));
+    } catch (MalformedObjectNameException e) {
+      // this should not happen
+      s_logger.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
+    }
+    
+    for (ObjectName objectName : registeredObjectNames) {
+      try {
+        _mBeanServer.unregisterMBean(objectName);
+      } catch (Exception e) {
+        s_logger.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
+      }
+    }
+    
+  }
+  
 }

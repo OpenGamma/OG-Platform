@@ -57,4 +57,18 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
     return _listeners.remove(viewProcessorEventListener);
   }
 
+  @Override
+  public void notifyViewProcessorStarted() {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewProcessorStarted();
+    }
+  }
+
+  @Override
+  public void notifyViewProcessorStopped() {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewProcessorStopped();
+    }
+  }
+
 }

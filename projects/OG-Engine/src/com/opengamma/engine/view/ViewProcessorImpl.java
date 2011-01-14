@@ -392,6 +392,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       _lifecycleLock.unlock();
     }
     timer.finished();
+    _viewProcessorEventListenerRegistry.notifyViewProcessorStarted();
   }
 
   @Override
@@ -411,6 +412,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       s_logger.info("All views terminated.");
       _isStarted = false;
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
+      _viewProcessorEventListenerRegistry.notifyViewProcessorStopped();
     } finally {
       _lifecycleLock.unlock();
     }
