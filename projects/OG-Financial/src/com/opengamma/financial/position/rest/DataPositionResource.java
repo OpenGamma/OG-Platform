@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.master.rest;
+package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
@@ -20,25 +20,25 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for a portfolio.
+ * RESTful resource for a position.
  */
-@Path("/data/portfolios/{portfolioId}")
-public class DataPortfolioResource extends AbstractDataResource {
+@Path("/data/positions/{positionId}")
+public class DataPositionResource extends AbstractDataResource {
 
   /**
-   * The portfolios resource.
+   * The positions resource.
    */
-  private final DataPortfoliosResource _portfoliosResource;
+  private final DataPositionsResource _positionsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -46,63 +46,63 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * Creates the resource.
-   * @param portfoliosResource  the parent resource, not null
-   * @param portfolioId  the portfolio unique identifier, not null
+   * @param positionsResource  the parent resource, not null
+   * @param positionId  the position unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final UniqueIdentifier portfolioId) {
-    ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
-    ArgumentChecker.notNull(portfolioId, "portfolio");
-    _portfoliosResource = portfoliosResource;
-    _urlResourceId = portfolioId;
+  public DataPositionResource(final DataPositionsResource positionsResource, final UniqueIdentifier positionId) {
+    ArgumentChecker.notNull(positionsResource, "positionsResource");
+    ArgumentChecker.notNull(positionId, "position");
+    _positionsResource = positionsResource;
+    _urlResourceId = positionId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the portfolios resource.
-   * @return the portfolios resource, not null
+   * Gets the positions resource.
+   * @return the positions resource, not null
    */
-  public DataPortfoliosResource getPortfoliosResource() {
-    return _portfoliosResource;
+  public DataPositionsResource getPositionsResource() {
+    return _positionsResource;
   }
 
   /**
-   * Gets the portfolio identifier from the URL.
+   * Gets the position identifier from the URL.
    * @return the unique identifier, not null
    */
-  public UniqueIdentifier getUrlPortfolioId() {
+  public UniqueIdentifier getUrlPositionId() {
     return _urlResourceId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the portfolio master.
-   * @return the portfolio master, not null
+   * Gets the position master.
+   * @return the position master, not null
    */
-  public PortfolioMaster getPortfolioMaster() {
-    return getPortfoliosResource().getPortfolioMaster();
+  public PositionMaster getPositionMaster() {
+    return getPositionsResource().getPositionMaster();
   }
 
   //-------------------------------------------------------------------------
   @GET
   public Response get() {
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId());
+    PositionDocument result = getPositionMaster().get(getUrlPositionId());
     return Response.ok(result).build();
   }
 
   @PUT
   @Consumes(FudgeRest.MEDIA)
-  public Response put(PortfolioDocument request) {
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getUniqueId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URI");
+  public Response put(PositionDocument request) {
+    if (getUrlPositionId().equalsIgnoringVersion(request.getUniqueId()) == false) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
-    PortfolioDocument result = getPortfolioMaster().update(request);
+    PositionDocument result = getPositionMaster().update(request);
     return Response.ok(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
   public Response delete() {
-    getPortfolioMaster().remove(getUrlPortfolioId());
+    getPositionMaster().remove(getUrlPositionId());
     return Response.noContent().build();
   }
 
@@ -110,11 +110,11 @@ public class DataPortfolioResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioHistoryRequest request = decodeBean(PortfolioHistoryRequest.class, providers, msgBase64);
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getObjectId()) == false) {
-      throw new IllegalArgumentException("Document portfolioId does not match URI");
+    PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
+    if (getUrlPositionId().equalsIgnoringVersion(request.getObjectId()) == false) {
+      throw new IllegalArgumentException("Document objectId does not match URI");
     }
-    PortfolioHistoryResult result = getPortfolioMaster().history(request);
+    PositionHistoryResult result = getPositionMaster().history(request);
     return Response.ok(result).build();
   }
 
@@ -126,10 +126,10 @@ public class DataPortfolioResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("nodes/{nodeId}")
-  public Response getNode(@PathParam("nodeId") String idStr) {
-    UniqueIdentifier nodeId = UniqueIdentifier.parse(idStr);
-    ManageablePortfolioNode result = getPortfolioMaster().getNode(nodeId);
+  @Path("trades/{tradeId}")
+  public Response getTrade(@PathParam("tradeId") String idStr) {
+    UniqueIdentifier tradeId = UniqueIdentifier.parse(idStr);
+    ManageableTrade result = getPositionMaster().getTrade(tradeId);
     return Response.ok(result).build();
   }
 
@@ -141,7 +141,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, UniqueIdentifier id) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}").build(id.toLatest());
+    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}").build(id.toLatest());
   }
 
   /**
@@ -152,7 +152,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, UniqueIdentifier id, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -166,19 +166,19 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueIdentifier uid) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}")
+    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
       .build(uid.toLatest(), uid.getVersion());
   }
 
   /**
    * Builds a URI for a specific node.
    * @param baseUri  the base URI, not null
-   * @param nodeUid  the resource unique identifier, not null
+   * @param tradeUid  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriNode(URI baseUri, UniqueIdentifier nodeUid) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/nodes/{nodeId}")
-      .build("-", nodeUid);  // TODO: probably could do with a better URI
+  public static URI uriTrade(URI baseUri, UniqueIdentifier tradeUid) {
+    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}")
+      .build("-", tradeUid);  // TODO: probably could do with a better URI
   }
 
 }

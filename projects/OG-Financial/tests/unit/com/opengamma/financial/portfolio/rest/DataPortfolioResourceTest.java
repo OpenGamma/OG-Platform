@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.position.rest;
+package com.opengamma.financial.portfolio.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -18,8 +18,8 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.rest.DataPortfolioResource;
-import com.opengamma.financial.position.master.rest.DataPortfoliosResource;
+import com.opengamma.financial.portfolio.rest.DataPortfolioResource;
+import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;

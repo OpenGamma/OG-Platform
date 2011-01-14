@@ -10,17 +10,15 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.financial.batch.BatchError;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- *  
+ * 
  */
-public class ViewResultEntryMapper {
+public class BatchErrorMapper {
   
   public static String sqlGet() {
     return "select " +
@@ -31,23 +29,25 @@ public class ViewResultEntryMapper {
       "calc_conf_name, " +
       "name, " +
       "function_unique_id, " +
-      "value " +
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk where" +
+      "exception_class," +
+      "exception_msg," +
+      "stack_trace " +
+      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk_failure where" +
       " rsk_run_id = :rsk_run_id";
   }
   
   public static String sqlCount() {
     return "select count(*) " + 
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk where" +
+      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk_failure where" +
       " rsk_run_id = :rsk_run_id";
   }
   
   /**
    * Spring ParameterizedRowMapper 
    */
-  public static final RowMapper<ViewResultEntry> ROW_MAPPER = new RowMapper<ViewResultEntry>() {
+  public static final RowMapper<BatchError> ROW_MAPPER = new RowMapper<BatchError>() {
     @Override
-    public ViewResultEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public BatchError mapRow(ResultSet rs, int rowNum) throws SQLException {
       
       ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("comp_target_type"));
       
@@ -56,16 +56,14 @@ public class ViewResultEntryMapper {
           rs.getString("comp_target_id_value"),
           rs.getString("comp_target_id_version"));
       
-      ValueRequirement valueRequirement = new ValueRequirement(
-          rs.getString("name"), 
-          computationTargetType,
-          targetIdentifier);
-      
-      ValueSpecification valueSpecification = new ValueSpecification(valueRequirement, rs.getString("function_unique_id"));
-      
-      ComputedValue computedValue = new ComputedValue(valueSpecification, rs.getDouble("value"));
-      
-      return new ViewResultEntry(rs.getString("calc_conf_name"), computedValue);
+      return new BatchError(
+          rs.getString("calc_conf_name"),
+          new ComputationTargetSpecification(computationTargetType, targetIdentifier),
+          rs.getString("name"),
+          rs.getString("function_unique_id"),
+          rs.getString("exception_class"),
+          rs.getString("exception_msg"),
+          rs.getString("stack_trace"));
     }
   };
 

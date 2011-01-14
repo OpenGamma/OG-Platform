@@ -54,11 +54,15 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchDbManager;
+import com.opengamma.financial.batch.BatchError;
+import com.opengamma.financial.batch.BatchErrorSearchRequest;
+import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
+import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
@@ -783,44 +787,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   @Override
-  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
-    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
-    
-    // At the moment, we simply load all results into memory.
-    // This needs to be made more scalable.
-    RiskRun riskRun;
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-    
-    if (riskRun == null) {
-      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
-    }
-
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("rsk_run_id", riskRun.getId());
-    
-    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), "", request.getPagingRequest());
-    
-    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
-        sql, 
-        ViewResultEntryMapper.ROW_MAPPER, 
-        params);
-    
-    BatchDataSearchResult result = new BatchDataSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), values.size()));
-    result.setItems(values);
-    return result;
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   public BatchSearchResult search(BatchSearchRequest request) {
     DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
@@ -864,6 +830,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         BatchSearchResultItem item = new BatchSearchResultItem();
         item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
         item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+        item.setStatus(run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
         result.getItems().add(item);
       }
       
@@ -873,6 +840,82 @@ public class BatchDbManagerImpl implements BatchDbManager {
       throw e;
     }
 
+    return result;
+  }
+  
+  @Override
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
+    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
+    
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+    
+    if (riskRun == null) {
+      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    final int count = _dbSource.getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
+    
+    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getPagingRequest());
+    
+    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
+        sql, 
+        ViewResultEntryMapper.ROW_MAPPER, 
+        params);
+    
+    BatchDataSearchResult result = new BatchDataSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setItems(values);
+    return result;
+  }
+
+  @Override
+  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
+    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
+    
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+    
+    if (riskRun == null) {
+      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    final int count = _dbSource.getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
+    
+    String sql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getPagingRequest());
+    
+    List<BatchError> values = _dbSource.getJdbcTemplate().query(
+        sql, 
+        BatchErrorMapper.ROW_MAPPER, 
+        params);
+    
+    BatchErrorSearchResult result = new BatchErrorSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setItems(values);
     return result;
   }
   

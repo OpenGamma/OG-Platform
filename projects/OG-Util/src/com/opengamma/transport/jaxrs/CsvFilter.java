@@ -45,7 +45,12 @@ public class CsvFilter implements ContainerRequestFilter {
     
     // remove .csv from the URL
     try {
-      requestUri = new URI(path.substring(0, path.length() - SUFFIX.length()));
+      requestUri = new URI(
+          requestUri.getScheme(),
+          requestUri.getAuthority(),
+          path.substring(0, path.length() - SUFFIX.length()),
+          requestUri.getQuery(),
+          requestUri.getFragment());
     } catch (URISyntaxException e) {
       throw new RuntimeException("Could not build URI", e);
     }

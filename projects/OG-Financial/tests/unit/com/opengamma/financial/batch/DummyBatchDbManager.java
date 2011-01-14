@@ -64,15 +64,20 @@ public class DummyBatchDbManager implements BatchDbManager {
     }
     values.add(value);
   }
-
+  
   @Override
-  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
-    return null;
+  public BatchSearchResult search(BatchSearchRequest request) {
+    return new BatchSearchResult();
   }
 
   @Override
-  public BatchSearchResult search(BatchSearchRequest request) {
-    return null;
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    return new BatchDataSearchResult();
+  }
+
+  @Override
+  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+    return new BatchErrorSearchResult();
   }
   
 }

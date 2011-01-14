@@ -24,7 +24,7 @@ import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An implementation of {@code SecuritySource} that calls a remote data source.
+ * An implementation of {@code SecuritySource} client that calls a remote data source.
  * <p>
  * The implementation calls the remote data source in a RESTful manner using binary Fudge messages.
  */
@@ -41,6 +41,7 @@ public class RemoteSecuritySource implements SecuritySource {
 
   /**
    * Creates an instance.
+   * 
    * @param fudgeContext  the Fudge context, not null
    * @param baseTarget  the base target URI to call, not null
    */
@@ -51,9 +52,10 @@ public class RemoteSecuritySource implements SecuritySource {
     _targetBase = baseTarget;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the RESTful client.
+   * 
    * @return the client, not null
    */
   protected RestClient getRestClient() {
@@ -62,13 +64,14 @@ public class RemoteSecuritySource implements SecuritySource {
 
   /**
    * Gets the base target URI.
+   * 
    * @return the base target URI, not null
    */
   protected RestTarget getTargetBase() {
     return _targetBase;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
