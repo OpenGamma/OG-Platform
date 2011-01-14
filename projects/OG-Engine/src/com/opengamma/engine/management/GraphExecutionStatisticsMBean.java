@@ -16,39 +16,27 @@ public interface GraphExecutionStatisticsMBean {
 
   String getCalcConfigName();
 
-  long getProcessedGraphs();
+  Long getProcessedGraphs();
 
-  long getExecutedGraphs();
+  Long getExecutedGraphs();
 
-  long getExecutedNodes();
+  Long getExecutedNodes();
 
-  long getExecutionTime();
+  Long getExecutionTime();
 
-  long getActualTime();
+  Long getActualTime();
 
-  long getProcessedJobs();
+  Long getProcessedJobs();
 
-  long getProcessedJobSize();
+  Long getProcessedJobSize();
 
-  long getProcessedJobCycleCost();
+  Long getProcessedJobCycleCost();
 
-  long getProcessedJobDataCost();
+  Long getProcessedJobDataCost();
 
   String getLastProcessedTime();
 
   String getLastExecutedTime();
-
-  double getAverageGraphSize();
-
-  double getAverageExecutionTime();
-
-  double getAverageActualTime();
-
-  double getAverageJobSize();
-
-  double getAverageJobCycleCost();
-
-  double getAverageJobDataCost();
 
   void reset();
 

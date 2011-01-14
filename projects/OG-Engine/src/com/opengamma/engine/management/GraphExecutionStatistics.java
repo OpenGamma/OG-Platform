@@ -72,7 +72,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
 
   @Override
-  public long getProcessedGraphs() {
+  public Long getProcessedGraphs() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedGraphs() : 0; 
   }
@@ -89,54 +89,51 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
 
   @Override
-  public long getExecutedGraphs() {
+  public Long getExecutedGraphs() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedGraphs() : 0; 
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedGraphs() : null; 
   }
 
   @Override
-  public long getExecutedNodes() {
+  public Long getExecutedNodes() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedNodes() : 0; 
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutedNodes() : null; 
   }
 
   @Override
-  public long getExecutionTime() {
+  public Long getExecutionTime() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutionTime() : 0;  
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getExecutionTime() : null;  
   }
 
   @Override
-  public long getActualTime() {
+  public Long getActualTime() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getActualTime() : 0;  
   }
 
   @Override
-  public long getProcessedJobs() {
+  public Long getProcessedJobs() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    if (graphExecutionStatistics != null) {
-      return graphExecutionStatistics.getProcessedJobs();
-    }
-    return 0;
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobs() : null; 
   }
 
   @Override
-  public long getProcessedJobSize() {
+  public Long getProcessedJobSize() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobSize() : 0;    
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobSize() : null;    
   }
 
   @Override
-  public long getProcessedJobCycleCost() {
+  public Long getProcessedJobCycleCost() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobCycleCost() : 0;
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobCycleCost() : null;
   }
 
   @Override
-  public long getProcessedJobDataCost() {
+  public Long getProcessedJobDataCost() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobDataCost() : 0;
+    return graphExecutionStatistics != null ? graphExecutionStatistics.getProcessedJobDataCost() : null;
   }
 
   @Override
@@ -149,42 +146,6 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   public String getLastExecutedTime() {
     com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
     return graphExecutionStatistics != null ? graphExecutionStatistics.getLastExecutedTime().toString() : null;
-  }
-
-  @Override
-  public double getAverageGraphSize() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageGraphSize() : 0;
-  }
-
-  @Override
-  public double getAverageExecutionTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageExecutionTime() : 0;
-  }
-
-  @Override
-  public double getAverageActualTime() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageActualTime() : 0;
-  }
-
-  @Override
-  public double getAverageJobSize() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageJobSize() : 0;
-  }
-
-  @Override
-  public double getAverageJobCycleCost() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageJobCycleCost() : 0;
-  }
-
-  @Override
-  public double getAverageJobDataCost() {
-    com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics = getGraphExecutionStatistics();
-    return graphExecutionStatistics != null ? graphExecutionStatistics.getAverageJobDataCost() : 0;
   }
 
   @Override
