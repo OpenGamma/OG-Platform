@@ -53,6 +53,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     out.put("latestPosition", latestPositionDoc.getPosition());
     out.put("positionDoc", versionedPosition);
     out.put("position", versionedPosition.getPosition());
+    out.put("deleted", !latestPositionDoc.isLatest());
     return out;
   }
 

@@ -54,6 +54,7 @@ public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResour
     out.put("latestConfig", latestDoc.getValue());
     out.put("configDoc", versionedConfig);
     out.put("config", versionedConfig.getValue());
+    out.put("deleted", !latestDoc.isLatest());
     return out;
   }
 

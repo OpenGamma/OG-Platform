@@ -21,12 +21,15 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioHistoryRequest;
+import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.rest.WebPaging;
@@ -92,9 +95,21 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   @Path("{portfolioId}")
   public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
     data().setUriPortfolioId(idStr);
-    PortfolioDocument portfolio = data().getPortfolioMaster().get(UniqueIdentifier.parse(idStr));
-    data().setPortfolio(portfolio);
-    data().setNode(portfolio.getPortfolio().getRootNode());
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      PortfolioDocument doc = data().getPortfolioMaster().get(oid);
+      data().setPortfolio(doc);
+      data().setNode(doc.getPortfolio().getRootNode());
+    } catch (DataNotFoundException ex) {
+      PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      PortfolioHistoryResult historyResult = data().getPortfolioMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setPortfolio(historyResult.getFirstDocument());
+      data().setNode(historyResult.getFirstDocument().getPortfolio().getRootNode());
+    }
     return new WebPortfolioResource(this);
   }
 

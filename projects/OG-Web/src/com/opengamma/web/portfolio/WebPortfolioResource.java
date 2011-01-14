@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -57,6 +58,11 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(@FormParam("name") String name) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     if (name == null) {
       FlexiBean out = createRootData();
@@ -64,7 +70,6 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolio-update.ftl", out);
       return Response.ok(html).build();
     }
-    PortfolioDocument doc = data().getPortfolio();
     doc.getPortfolio().setName(name);
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
@@ -75,8 +80,12 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @DELETE
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getPortfolioMaster().remove(doc.getUniqueId());
-    URI uri = WebPortfoliosResource.uri(data());
+    URI uri = WebPortfolioResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -91,6 +100,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     out.put("portfolioDoc", doc);
     out.put("portfolio", doc.getPortfolio());
     out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

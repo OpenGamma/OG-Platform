@@ -25,11 +25,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -135,8 +138,19 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
-    PositionDocument position = data().getPositionMaster().get(UniqueIdentifier.parse(idStr));
-    data().setPosition(position);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      PositionDocument doc = data().getPositionMaster().get(oid);
+      data().setPosition(doc);
+    } catch (DataNotFoundException ex) {
+      PositionHistoryRequest historyRequest = new PositionHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      PositionHistoryResult historyResult = data().getPositionMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setPosition(historyResult.getFirstDocument());
+    }
     return new WebPositionResource(this);
   }
 

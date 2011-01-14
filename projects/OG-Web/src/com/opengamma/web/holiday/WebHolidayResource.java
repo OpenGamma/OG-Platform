@@ -52,6 +52,10 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //      @FormParam("idvalue") String idValue,
 //      @FormParam("regionscheme") String regionScheme,
 //      @FormParam("regionvalue") String regionValue) {
+//    if (data().getHoliday().isLatest() == false) {
+//      return Response.status(Status.FORBIDDEN).entity(get()).build();
+//    }
+//    
 //    name = StringUtils.trimToNull(name);
 //    idScheme = StringUtils.trimToNull(idScheme);
 //    idValue = StringUtils.trimToNull(idValue);
@@ -89,8 +93,12 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //  @DELETE
 //  public Response delete() {
 //    HolidayDocument doc = data().getHoliday();
+//    if (doc.isLatest() == false) {
+//      return Response.status(Status.FORBIDDEN).entity(get()).build();
+//    }
+//    
 //    data().getHolidayMaster().removeHoliday(doc.getHolidayId());
-//    URI uri = WebHolidaysResource.uri(data());
+//    URI uri = WebHolidayResource.uri(data());
 //    return Response.seeOther(uri).build();
 //  }
 
@@ -104,6 +112,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
     HolidayDocument doc = data().getHoliday();
     out.put("holidayDoc", doc);
     out.put("holiday", doc.getHoliday());
+    out.put("deleted", !doc.isLatest());
     List<Pair<Year, List<LocalDate>>> map = new ArrayList<Pair<Year, List<LocalDate>>>();
     List<LocalDate> dates = doc.getHoliday().getHolidayDates();
     if (dates.size() > 0) {

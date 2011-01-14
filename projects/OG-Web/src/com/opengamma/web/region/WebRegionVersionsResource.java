@@ -58,6 +58,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
     RegionDocument doc = data().getRegion();
     out.put("regionDoc", doc);
     out.put("region", doc.getRegion());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

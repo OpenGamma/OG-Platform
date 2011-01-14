@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -51,6 +52,10 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
       @FormParam("name") String name) {
+    if (data().getConfig().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     if (name == null) {
       FlexiBean out = createRootData();
@@ -74,6 +79,10 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   @DELETE
   public Response delete() {
     ConfigDocument<?> doc = data().getConfig();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getConfigTypeMaster().remove(doc.getUniqueId());
     URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
@@ -89,6 +98,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
     ConfigDocument<?> doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getValue());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 
