@@ -7,13 +7,15 @@ package com.opengamma.math.statistics.leastsquare;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.activemq.util.BitArray;
 import org.junit.Test;
 
+import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFitter;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
-import com.opengamma.math.TrigonometricFunctionUtils;
-import com.opengamma.math.function.ParameterizedFunction;
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
@@ -27,63 +29,77 @@ public class SABRFittingTest {
   private static double NU = 0.2;
   private static double RHO = -0.3;
 
-  private static DoubleMatrix1D STRIKES;
-  private static DoubleMatrix1D VOLS;
-  private static DoubleMatrix1D ERRORS;
-
-  private static final ParameterizedFunction<Double, DoubleMatrix1D, Double> SABR_FUNCTION = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
-    private final SABRFormula sabr = new SABRFormulaHagan();
-
-    @SuppressWarnings("synthetic-access")
-    @Override
-    public Double evaluate(Double x, DoubleMatrix1D transformedParameters) {
-      DoubleMatrix1D parameters = inverseTransformParameters(transformedParameters);
-      return sabr.impliedVolitility(F, parameters.getEntry(0), parameters.getEntry(1), parameters.getEntry(2), parameters.getEntry(3), x, T);
-    }
-  };
+  private static double[] STRIKES;
+  private static double[] VOLS;
+  private static double[] NOISY_VOLS;
+  private static double[] ERRORS;
+  private static SABRFormula SABR = new SABRFormulaHagan();
+  private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1, new cern.jet.random.engine.MersenneTwister(12));
 
   static {
-    STRIKES = new DoubleMatrix1D(new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07});
-    int n = STRIKES.getNumberOfElements();
-    double[] temp = new double[n];
-    double[] e = new double[n];
-    DoubleMatrix1D parms = new DoubleMatrix1D(new double[] {ALPHA, BETA, NU, RHO});
+    STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07};
+    int n = STRIKES.length;
+    VOLS = new double[n];
+    NOISY_VOLS = new double[n];
+    ERRORS = new double[n];
+
     for (int i = 0; i < n; i++) {
-      temp[i] = SABR_FUNCTION.evaluate(STRIKES.getEntry(i), transformParameters(parms));
-      e[i] = 0.001;
+
+      VOLS[i] = SABR.impliedVolitility(F, ALPHA, BETA, NU, RHO, STRIKES[i], T);
+      ERRORS[i] = 0.01;
+      NOISY_VOLS[i] = VOLS[i] + ERRORS[i] * RANDOM.nextRandom();
     }
-    VOLS = new DoubleMatrix1D(temp);
-    ERRORS = new DoubleMatrix1D(e);
   }
 
   @Test
   public void TestExactFit() {
-    NonLinearLeastSquare solver = new NonLinearLeastSquare();
-    DoubleMatrix1D startPos = new DoubleMatrix1D(new double[] {0.3, 0.9, 0.1, 0.0});
-    LeastSquareResults lsRes = solver.solve(STRIKES, VOLS, ERRORS, SABR_FUNCTION, transformParameters(startPos));
-    DoubleMatrix1D res = inverseTransformParameters(lsRes.getParameters());
-    assertEquals(ALPHA, res.getEntry(0), 1e-7);
-    assertEquals(BETA, res.getEntry(1), 1e-7);
-    assertEquals(NU, res.getEntry(2), 1e-7);
-    assertEquals(RHO, res.getEntry(3), 1e-7);
+    BitArray fixed = new BitArray();
+
+    double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
+
+    SABRFitter fitter = new SABRFitter(SABR);
+    LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed);
+    double[] res = results.getParameters().getData();
+    DoubleMatrix2D covar = results.getCovariance();
+
+    assertEquals(ALPHA, res[0], 1e-7);
+    assertEquals(BETA, res[1], 1e-7);
+    assertEquals(NU, res[2], 1e-7);
+    assertEquals(RHO, res[3], 1e-7);
+    assertEquals(0.0, results.getChiSq(), 1e-7);
   }
 
-  private static DoubleMatrix1D transformParameters(DoubleMatrix1D x) {
-    double[] y = new double[4];
-    y[0] = Math.log(x.getEntry(0));
-    y[1] = Math.log(x.getEntry(1));
-    y[2] = Math.log(x.getEntry(2));
-    y[3] = TrigonometricFunctionUtils.atanh(x.getEntry(3)).doubleValue();
-    return new DoubleMatrix1D(y);
-  }
+  @Test
+  public void TestNoisyFit() {
 
-  private static DoubleMatrix1D inverseTransformParameters(DoubleMatrix1D y) {
-    double[] x = new double[4];
-    x[0] = Math.exp(y.getEntry(0));
-    x[1] = Math.exp(y.getEntry(1));
-    x[2] = Math.exp(y.getEntry(2));
-    x[3] = TrigonometricFunctionUtils.tanh(y.getEntry(3)).doubleValue();
-    return new DoubleMatrix1D(x);
-  }
+    BitArray fixed = new BitArray();
+    // fixed.set(1, true);
+    double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
+    SABRFitter fitter = new SABRFitter(SABR);
+    LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed);
+    // assertTrue(results.getChiSq() < 3.0);
+    DoubleMatrix2D covar = results.getCovariance();
+    double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
 
+    for (int i = 0; i < STRIKES.length; i++) {
+      System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
+    }
+
+    double[] res = results.getParameters().getData();
+
+    double k, m;
+    for (int i = 0; i < 100; i++) {
+      m = -3 + i * 4.5 / 100;
+      k = F * Math.exp(m * sigmaLNRootT);
+      System.out.print(k + "\t" + SABR.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolitility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
+    }
+
+    System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
+    System.out.println(results.getChiSq());
+
+    // assertEquals(ALPHA, res[0], 1e-7);
+    // assertEquals(BETA, res[1], 1e-7);
+    // assertEquals(NU, res[2], 1e-7);
+    // assertEquals(RHO, res[3], 1e-7);
+  }
 }
