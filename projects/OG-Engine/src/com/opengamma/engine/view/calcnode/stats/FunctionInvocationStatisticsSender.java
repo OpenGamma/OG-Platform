@@ -44,7 +44,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   private double _convergenceFactor = 0.8;
   private double _serverScalingHint = 1.0;
   private volatile double _invocationTimeScale = 1.0;
-  private long _frequencyNanos = 5000000000L;  // 5_sec
+  private long _frequencyNanos = 5000000000L; // 5_sec
 
   /**
    * Creates an instance.
@@ -52,7 +52,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
   public FunctionInvocationStatisticsSender() {
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the Fudge message sender.
    * 
@@ -108,7 +108,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
     _frequencyNanos = duration.toNanosLong();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Sets the scale for the invocation time metric.
    * <p>
@@ -165,19 +165,17 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
     setInvocationTimeScale(Math.pow(_invocationTimeScale * Math.pow(invocationTimeScale, _serverScalingHint), _convergenceFactor));
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
-  public void functionInvoked(
-      final String configurationName, final String functionId, final int invocationCount,
-      final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
-    
+  public void functionInvoked(final String configurationName, final String functionId, final int invocationCount, final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
+
     final ConcurrentMap<String, PerFunction> statsMap = getConfigurationData(configurationName);
     PerFunction stats = statsMap.get(functionId);
     if (stats == null) {
       stats = new PerFunction(functionId, invocationCount, executionNanos, dataInputBytes, dataOutputBytes);
       PerFunction newStats = statsMap.putIfAbsent(functionId, stats);
       if (newStats == null) {
-        return;  // data stored in constructor of PerFunction above
+        return; // data stored in constructor of PerFunction above
       }
       stats = newStats;
     }
@@ -209,8 +207,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    * @param dataInputBytes  the mean data input, bytes per input node, or {@code NaN} if unavailable
    * @param dataOutputBytes  the mean data output, bytes per output node, or {@code NaN} if unavailable
    */
-  protected void updateStatistics(
-      final PerFunction stats, final int invocationCount, final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
+  protected void updateStatistics(final PerFunction stats, final int invocationCount, final double executionNanos, final double dataInputBytes, final double dataOutputBytes) {
     synchronized (stats) {
       stats.setInvocation(stats.getInvocation() + executionNanos * _invocationTimeScale);
       if (Double.isNaN(dataInputBytes)) {
@@ -251,17 +248,23 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    * Sends the statistics to the central location.
    */
   protected void sendStatistics() {
-    // Note the race condition in this logic; it is possible we may lose data if functionInvoked is called
-    // while we're doing this. Hopefully it won't happen often enough to be problematic.
-    // We're only gathering heuristics so as long as it isn't a rarely executing function that always gets missed we'll be okay!
     final List<PerConfiguration> configurations = new ArrayList<PerConfiguration>(_data.size());
     final Iterator<Map.Entry<String, ConcurrentMap<String, PerFunction>>> configurationIterator = _data.entrySet().iterator();
     while (configurationIterator.hasNext()) {
       final Map.Entry<String, ConcurrentMap<String, PerFunction>> configuration = configurationIterator.next();
-      if (!configuration.getValue().isEmpty()) {
-        configurations.add(new PerConfiguration(configuration.getKey(), configuration.getValue().values()));
-      }
+      // Note the race condition in this logic; it is possible we may lose data if functionInvoked is called
+      // while we're doing this. Hopefully it won't happen often enough to be problematic.
+      // We're only gathering heuristics so as long as it isn't a rarely executing function that always gets missed we'll be okay!
       configurationIterator.remove();
+      if (!configuration.getValue().isEmpty()) {
+        final List<PerFunction> functionData = new ArrayList<PerFunction>(configuration.getValue().size());
+        for (PerFunction function : configuration.getValue().values()) {
+          synchronized (function) {
+            functionData.add(function.clone());
+          }
+        }
+        configurations.add(new PerConfiguration(configuration.getKey(), functionData));
+      }
     }
     final MutableFudgeFieldContainer message = getFudgeMessageSender().getFudgeContext().newMessage();
     FudgeSerializationContext.addClassHeader(message, Invocations.class, RemoteCalcNodeMessage.class);
