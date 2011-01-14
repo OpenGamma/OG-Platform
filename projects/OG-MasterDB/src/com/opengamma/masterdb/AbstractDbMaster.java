@@ -159,7 +159,7 @@ public abstract class AbstractDbMaster {
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
    */
-  protected long extractRowId(final UniqueIdentifier id) {
+  public long extractRowId(final UniqueIdentifier id) {
     try {
       return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
     } catch (NumberFormatException ex) {
@@ -173,7 +173,7 @@ public abstract class AbstractDbMaster {
    * @param id  the identifier to extract from, not null
    * @return the extracted oid
    */
-  protected long extractOid(final UniqueIdentifier id) {
+  public long extractOid(final UniqueIdentifier id) {
     try {
       return Long.parseLong(id.getValue());
     } catch (NumberFormatException ex) {
@@ -188,7 +188,7 @@ public abstract class AbstractDbMaster {
    * @param oid  the object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createObjectIdentifier(final long oid) {
+  public UniqueIdentifier createObjectIdentifier(final long oid) {
     return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
   }
 
@@ -199,7 +199,7 @@ public abstract class AbstractDbMaster {
    * @param rowId  the node unique row identifier, null if object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
+  public UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
     return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 
