@@ -11,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
@@ -102,12 +103,13 @@ public class ViewDefinitionsResource {
 
   // -------------------------------------------------------------------------
   /**
-   * Builds a URI for view definitions.
-   * @param uriInfo  the URI information, not null
+   * Builds a URI for all view definitions.
+   * 
+   * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo) {
-    return uriInfo.getBaseUriBuilder().path(ViewDefinitionsResource.class).build();
+  public static URI uri(URI baseUri) {
+    return UriBuilder.fromUri(baseUri).path("viewDefinitions").build();
   }
 
 }

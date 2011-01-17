@@ -36,11 +36,18 @@ public interface ViewMBean {
   void init();
   
   /**
-   * Gets string representation of the portfolio
+   * Gets the portfolio name
    * 
-   * @return the portfolioID
+   * @return the portfolio name
    */
-  String getPortfolio();
+  String getPortfolioName();
+  
+  /**
+   * Gets the portfolio Identifier
+   * 
+   * @return the portfolio identifier
+   */
+  String getPortfolioIdentifier();
   
   /**
    * Gets a set of all security types present in the view's dependency graph; that is, all security types on which
@@ -62,24 +69,6 @@ public interface ViewMBean {
   Set<String> getRequiredLiveData();
   
   /**
-   * Synchronously runs a single computation cycle using live data.
-   * 
-   * @throws IllegalStateException  if the view has not been initialized
-   */
-  void runOneCycle();
-  
-  /**
-   * Synchronously runs a single computation cycle using data snapshotted at the given time. This cannot be used while
-   * live computation is running.
-   * 
-   * @param valuationTime  the time of an existing snapshot of live data, which should be used during the computation
-   *                       cycle
-   *                       
-   * @throws IllegalStateException  if the view has not been initialized
-   */
-  void runOneCycle(long valuationTime);
-  
-  /**
    * Indicates whether the view is computing live results automatically. A view in this state will perform a
    * computation cycle whenever changes to its inputs have occurred since the last computation cycle.
    * <p>
@@ -88,4 +77,16 @@ public interface ViewMBean {
    * @return <code>true</code> if the view has been started, <code>false</code> otherwise
    */
   boolean isLiveComputationRunning();
+  
+  /**
+   * Suspends all operations on the view, blocking until everything is in a suspendable state. While suspended,
+   * any operations which would alter the state of the view will block until {@link #resume} is called.
+   */
+  void suspend();
+
+  /**
+   * Resumes operations on the view suspended by {@link #suspend}.
+   */
+  void resume();
+  
 }

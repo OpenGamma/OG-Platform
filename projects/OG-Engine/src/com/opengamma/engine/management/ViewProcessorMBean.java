@@ -22,4 +22,21 @@ public interface ViewProcessorMBean {
    */
   Set<String> getViewNames();
   
+  /**
+   * Start this ViewProcessor
+   */
+  void start();
+
+  /**
+   * Stop this ViewProcessor.
+   * 
+   */
+  void stop();
+
+  /**
+   * Check whether this ViewProcessor is currently running.
+   * @return whether the component is currently running
+   */
+  boolean isRunning();
+  
 }
