@@ -11,6 +11,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,7 +23,7 @@ public final class ViewProcessor implements ViewProcessorMBean {
   /**
    * A ViewProcessor backing instance
    */
-  private final com.opengamma.engine.view.ViewProcessor _viewProcessor;
+  private final ViewProcessorInternal _viewProcessor;
   
   private final ObjectName _objectName;
   
@@ -31,7 +32,7 @@ public final class ViewProcessor implements ViewProcessorMBean {
    * 
    * @param viewProcessor the underlying ViewProcessor
    */
-  public ViewProcessor(com.opengamma.engine.view.ViewProcessor viewProcessor) {
+  public ViewProcessor(ViewProcessorInternal viewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     _viewProcessor = viewProcessor;
     _objectName = createObjectName(viewProcessor);
@@ -62,6 +63,21 @@ public final class ViewProcessor implements ViewProcessorMBean {
    */
   public ObjectName getObjectName() {
     return _objectName;
+  }
+
+  @Override
+  public void start() {
+    _viewProcessor.start();
+  }
+
+  @Override
+  public void stop() {
+    _viewProcessor.stop();
+  }
+
+  @Override
+  public boolean isRunning() {
+    return _viewProcessor.isRunning();
   }
   
 }

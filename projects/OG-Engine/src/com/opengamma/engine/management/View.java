@@ -14,6 +14,7 @@ import net.sf.ehcache.CacheException;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +26,7 @@ public class View implements ViewMBean {
   /**
    * A View backing instance
    */
-  private final com.opengamma.engine.view.View _view;
+  private final ViewInternal _view;
 
   private final ObjectName _objectName;
 
@@ -35,7 +36,7 @@ public class View implements ViewMBean {
    * @param view the underlying View
    * @param viewProcessor the viewProcessor processing the view
    */
-  public View(com.opengamma.engine.view.View view, com.opengamma.engine.view.ViewProcessor viewProcessor) {
+  public View(ViewInternal view, com.opengamma.engine.view.ViewProcessor viewProcessor) {
     ArgumentChecker.notNull(view, "View");
     ArgumentChecker.notNull(viewProcessor, "ViewProcessor");
     _view = view;
@@ -66,8 +67,13 @@ public class View implements ViewMBean {
   }
 
   @Override
-  public String getPortfolio() {
+  public String getPortfolioName() {
     return _view.getPortfolio().getName();
+  }
+  
+  @Override
+  public String getPortfolioIdentifier() {
+    return _view.getPortfolio().getUniqueId().toString();
   }
 
   @Override
@@ -83,17 +89,18 @@ public class View implements ViewMBean {
     }
     return result;
   }
-
+  
   @Override
-  public void runOneCycle() {
-    _view.runOneCycle();
+  public void suspend() {
+    _view.suspend();
   }
 
   @Override
-  public void runOneCycle(long valuationTime) {
-    _view.runOneCycle(valuationTime);
+  public void resume() {
+    _view.resume();
   }
 
+  
   @Override
   public boolean isLiveComputationRunning() {
     return _view.isLiveComputationRunning();
