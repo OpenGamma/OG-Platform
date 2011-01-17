@@ -148,8 +148,8 @@ public class ClientResource {
     _lastAccessed = System.currentTimeMillis();
     if (_viewDefinitionsResource == null) {
       s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
-      _viewDefinitionsResource = new ViewDefinitionsResource(new UserManageableViewDefinitionRepository(getUserName(), getClientName(), _usersResourceContext.getDataTracker(), _usersResourceContext
-          .getViewDefinitionRepository()),
+      _viewDefinitionsResource = new ViewDefinitionsResource(getUriInfo(), new UserManageableViewDefinitionRepository(getUserName(), getClientName(), _usersResourceContext.getDataTracker(),
+          _usersResourceContext.getViewDefinitionRepository()),
           getFudgeContext());
     }
     return _viewDefinitionsResource;

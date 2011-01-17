@@ -68,7 +68,7 @@ public class RemoteClient {
 
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     if (_viewDefinitionRepository == null) {
-      _viewDefinitionRepository = new RemoteManagableViewDefinitionRepository(_fudgeContext, _baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH));
+      _viewDefinitionRepository = new RemoteManagableViewDefinitionRepository(_baseTarget.getURI());
     }
     return _viewDefinitionRepository;
   }
