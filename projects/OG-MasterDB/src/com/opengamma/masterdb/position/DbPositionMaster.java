@@ -31,6 +31,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
@@ -167,18 +168,18 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     }
     if (request.getPositionIds() != null) {
       StringBuilder buf = new StringBuilder(request.getPositionIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getPositionIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier obectId : request.getPositionIds()) {
+        checkScheme(obectId);
+        buf.append(extractOid(obectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
     if (request.getTradeIds() != null) {
       StringBuilder buf = new StringBuilder(request.getTradeIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getTradeIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier obejctId : request.getTradeIds()) {
+        checkScheme(obejctId);
+        buf.append(extractOid(obejctId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN (" + buf + ")) ";

@@ -184,7 +184,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    final ConfigDocument<T> doc = get(request.getObjectId());
+    final ConfigDocument<T> doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

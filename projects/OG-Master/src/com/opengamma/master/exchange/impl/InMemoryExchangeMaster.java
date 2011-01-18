@@ -175,7 +175,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ExchangeHistoryResult result = new ExchangeHistoryResult();
-    final ExchangeDocument doc = get(request.getObjectId());
+    final ExchangeDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

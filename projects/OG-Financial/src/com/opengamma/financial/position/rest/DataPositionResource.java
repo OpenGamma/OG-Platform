@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -92,7 +93,7 @@ public class DataPositionResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PositionDocument request) {
-    if (getUrlPositionId().equalsIgnoringVersion(request.getUniqueId()) == false) {
+    if (getUrlPositionId().equalObjectIdentifier(request.getUniqueId()) == false) {
       throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
     PositionDocument result = getPositionMaster().update(request);
@@ -111,7 +112,7 @@ public class DataPositionResource extends AbstractDataResource {
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
-    if (getUrlPositionId().equalsIgnoringVersion(request.getObjectId()) == false) {
+    if (getUrlPositionId().getObjectId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PositionHistoryResult result = getPositionMaster().history(request);
@@ -137,48 +138,48 @@ public class DataPositionResource extends AbstractDataResource {
   /**
    * Builds a URI for the resource.
    * @param baseUri  the base URI, not null
-   * @param id  the resource identifier, not null
+   * @param objectId  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, UniqueIdentifier id) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}").build(id.toLatest());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId) {
+    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}").build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the versions of the resource.
    * @param baseUri  the base URI, not null
-   * @param id  the resource identifier, not null
+   * @param objectId  the resource identifier, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, UniqueIdentifier id, String searchMsg) {
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
-    return bld.build(id.toLatest());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for a specific version of the resource.
    * @param baseUri  the base URI, not null
-   * @param uid  the resource unique identifier, not null
+   * @param uniqueId  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriVersion(URI baseUri, UniqueIdentifier uid) {
+  public static URI uriVersion(URI baseUri, UniqueIdentifier uniqueId) {
     return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
-      .build(uid.toLatest(), uid.getVersion());
+      .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
   /**
    * Builds a URI for a specific node.
    * @param baseUri  the base URI, not null
-   * @param tradeUid  the resource unique identifier, not null
+   * @param tradeId  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriTrade(URI baseUri, UniqueIdentifier tradeUid) {
+  public static URI uriTrade(URI baseUri, UniqueIdentifier tradeId) {
     return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}")
-      .build("-", tradeUid);  // TODO: probably could do with a better URI
+      .build("-", tradeId);  // TODO: probably could do with a better URI
   }
 
 }

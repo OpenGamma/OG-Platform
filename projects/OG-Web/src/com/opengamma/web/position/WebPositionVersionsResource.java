@@ -38,8 +38,7 @@ public class WebPositionVersionsResource extends AbstractWebPositionResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    PositionHistoryRequest request = new PositionHistoryRequest();
-    request.setObjectId(data().getPosition().getUniqueId().toLatest());
+    PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getUniqueId());
     PositionHistoryResult result = data().getPositionMaster().history(request);
     
     FlexiBean out = createRootData();

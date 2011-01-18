@@ -203,7 +203,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final HolidayHistoryResult result = new HolidayHistoryResult();
-    final HolidayDocument doc = get(request.getObjectId());
+    final HolidayDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

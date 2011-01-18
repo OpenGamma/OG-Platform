@@ -38,8 +38,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    RegionHistoryRequest request = new RegionHistoryRequest();
-    request.setObjectId(data().getRegion().getUniqueId());
+    RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();

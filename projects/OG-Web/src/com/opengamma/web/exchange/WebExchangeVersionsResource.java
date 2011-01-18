@@ -38,8 +38,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ExchangeHistoryRequest request = new ExchangeHistoryRequest();
-    request.setObjectId(data().getExchange().getUniqueId());
+    ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();
