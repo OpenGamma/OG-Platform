@@ -299,7 +299,7 @@
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
 
-	<target name="dist" depends="clean,jar">
+	<target name="dist" depends="clean,publish-local">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
