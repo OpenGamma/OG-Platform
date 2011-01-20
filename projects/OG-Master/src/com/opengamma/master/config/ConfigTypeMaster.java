@@ -6,8 +6,8 @@
 package com.opengamma.master.config;
 
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.MasterChangeListener;
-import com.opengamma.master.NotifyingMaster;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 
 /**
  * A general-purpose configuration master.

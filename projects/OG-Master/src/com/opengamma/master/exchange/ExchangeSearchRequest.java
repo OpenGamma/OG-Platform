@@ -18,12 +18,12 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +43,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _exchangeIds;
+  private List<ObjectIdentifier> _exchangeIds;
   /**
    * The exchange keys to match, null to not match on exchange keys.
    */
@@ -81,16 +81,16 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single exchange id to the set.
+   * Adds a single exchange object identifier to the set.
    * 
-   * @param exchangeId  the exchange id to add, not null
+   * @param exchangeId  the exchange object identifier to add, not null
    */
-  public void addExchangeId(UniqueIdentifier exchangeId) {
+  public void addExchangeId(ObjectIdentifiable exchangeId) {
     ArgumentChecker.notNull(exchangeId, "exchangeId");
     if (_exchangeIds == null) {
-      _exchangeIds = new ArrayList<UniqueIdentifier>();
+      _exchangeIds = new ArrayList<ObjectIdentifier>();
     }
-    _exchangeIds.add(exchangeId);
+    _exchangeIds.add(exchangeId.getObjectId());
   }
 
   /**
@@ -99,12 +99,14 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * 
    * @param exchangeIds  the new exchange identifiers, null clears the exchange id search
    */
-  public void setExchangeIds(Iterable<UniqueIdentifier> exchangeIds) {
+  public void setExchangeIds(Iterable<? extends ObjectIdentifiable> exchangeIds) {
     if (exchangeIds == null) {
       _exchangeIds = null;
     } else {
-      _exchangeIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_exchangeIds, exchangeIds);
+      _exchangeIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable exchangeId : exchangeIds) {
+        _exchangeIds.add(exchangeId.getObjectId());
+      }
     }
   }
 
@@ -186,7 +188,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -1755006571:  // exchangeIds
-        setExchangeIds((List<UniqueIdentifier>) newValue);
+        setExchangeIds((List<ObjectIdentifier>) newValue);
         return;
       case 1429431991:  // exchangeKeys
         setExchangeKeys((IdentifierSearch) newValue);
@@ -204,7 +206,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getExchangeIds() {
+  public List<ObjectIdentifier> getExchangeIds() {
     return _exchangeIds;
   }
 
@@ -213,7 +215,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> exchangeIds() {
+  public final Property<List<ObjectIdentifier>> exchangeIds() {
     return metaBean().exchangeIds().createProperty(this);
   }
 
@@ -281,7 +283,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(this, "exchangeIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(this, "exchangeIds", (Class) List.class);
     /**
      * The meta-property for the {@code exchangeKeys} property.
      */
@@ -324,7 +326,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> exchangeIds() {
+    public final MetaProperty<List<ObjectIdentifier>> exchangeIds() {
       return _exchangeIds;
     }
 

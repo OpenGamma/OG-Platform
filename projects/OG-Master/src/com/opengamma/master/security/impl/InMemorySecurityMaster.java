@@ -183,7 +183,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final SecurityHistoryResult result = new SecurityHistoryResult();
-    final SecurityDocument doc = get(request.getObjectId());
+    final SecurityDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

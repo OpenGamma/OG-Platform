@@ -56,14 +56,14 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioDocument get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public PortfolioDocument get(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (uid.isVersioned()) {
-      URI uri = DataPortfolioResource.uriVersion(_baseUri, uid);
+    if (uniqueId.isVersioned()) {
+      URI uri = DataPortfolioResource.uriVersion(_baseUri, uniqueId);
       return accessRemote(uri).get(PortfolioDocument.class);
     } else {
-      URI uri = DataPortfolioResource.uri(_baseUri, uid);
+      URI uri = DataPortfolioResource.uri(_baseUri, uniqueId);
       return accessRemote(uri).get(PortfolioDocument.class);
     }
   }
@@ -92,10 +92,10 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPortfolioResource.uri(_baseUri, uid);
+    URI uri = DataPortfolioResource.uri(_baseUri, uniqueId);
     accessRemote(uri).delete();
   }
 
@@ -123,10 +123,10 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageablePortfolioNode getNode(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public ManageablePortfolioNode getNode(final UniqueIdentifier nodeId) {
+    ArgumentChecker.notNull(nodeId, "nodeId");
     
-    URI uri = DataPortfolioResource.uriNode(_baseUri, uid);
+    URI uri = DataPortfolioResource.uriNode(_baseUri, nodeId);
     return accessRemote(uri).get(ManageablePortfolioNode.class);
   }
 

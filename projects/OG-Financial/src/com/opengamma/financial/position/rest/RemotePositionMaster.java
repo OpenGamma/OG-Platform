@@ -57,14 +57,14 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public PositionDocument get(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (uid.isVersioned()) {
-      URI uri = DataPositionResource.uriVersion(_baseUri, uid);
+    if (uniqueId.isVersioned()) {
+      URI uri = DataPositionResource.uriVersion(_baseUri, uniqueId);
       return accessRemote(uri).get(PositionDocument.class);
     } else {
-      URI uri = DataPositionResource.uri(_baseUri, uid);
+      URI uri = DataPositionResource.uri(_baseUri, uniqueId);
       return accessRemote(uri).get(PositionDocument.class);
     }
   }
@@ -92,10 +92,10 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPositionResource.uri(_baseUri, uid);
+    URI uri = DataPositionResource.uri(_baseUri, uniqueId);
     accessRemote(uri).delete();
   }
 
@@ -123,10 +123,10 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableTrade getTrade(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public ManageableTrade getTrade(final UniqueIdentifier tradeId) {
+    ArgumentChecker.notNull(tradeId, "tradeId");
     
-    URI uri = DataPositionResource.uriTrade(_baseUri, uid);
+    URI uri = DataPositionResource.uriTrade(_baseUri, tradeId);
     return accessRemote(uri).get(ManageableTrade.class);
   }
 

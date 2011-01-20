@@ -6,10 +6,17 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -19,163 +26,221 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Encapsulates view-level configuration to describe the types of values required in the calculation results. This
- * configuration could lead to fewer calculations taking place by allowing the dependency graphs to be trimmed,
- * although values will still be calculated if they are required as inputs for other calculations.
+ * Encapsulates view-level configuration to describe the types of values required in the calculation results.
+ * This configuration could lead to fewer calculations taking place by allowing the dependency graphs to be
+ * trimmed, although values will still be calculated if they are required as inputs for other calculations.
  * <p>
  * This configuration acts as a filter on the outputs that have been requested through
  * {@link ViewCalculationConfiguration}. In a sense, it is a view-view.
+ * <p>
+ * This class is a mutable bean.
  */
 @PublicAPI
-public class ResultModelDefinition implements Serializable {
-  
-  private ResultOutputMode _aggregatePositionOutputMode;
-  private ResultOutputMode _positionOutputMode;
-  private ResultOutputMode _securityOutputMode;
-  private ResultOutputMode _primitiveOutputMode;
-  private ResultOutputMode _tradeOutputMode;
+@BeanDefinition
+public class ResultModelDefinition extends DirectBean implements Serializable {
 
   /**
-   * Constructs an instance using the default output mode for each computation target type.
+   * The aggregate position output mode (portfolio nodes).
+   * <p>
+   * For example, the referenced portfolio could have a deep structure with many nodes at which
+   * aggregate portfolio outputs would be calculated. If these are not required then disabling
+   * them could speed up the computation cycle significantly.
+   */
+  @PropertyDefinition
+  private ResultOutputMode _aggregatePositionOutputMode;
+  /**
+   * The individual position output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual positions through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual position outputs will still hide them from the user even though they
+   * will be calculated.
+   */
+  @PropertyDefinition
+  private ResultOutputMode _positionOutputMode;
+  /**
+   * The trade output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual trades through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual trade outputs will still hide them from the user even though they
+   * will be calculated.
+   */
+  @PropertyDefinition
+  private ResultOutputMode _tradeOutputMode;
+  /**
+   * The security output mode.
+   * <p>
+   * These are values which relate generally to a security and apply to every position in that security.
+   * For example, market data on a security would be a security output.
+   */
+  @PropertyDefinition
+  private ResultOutputMode _securityOutputMode;
+  /**
+   * The primitive output mode.
+   * <p>
+   * These are values which may be used in calculations for many securities.
+   * For example, the USD discount curve would be a primitive.
+   */
+  @PropertyDefinition
+  private ResultOutputMode _primitiveOutputMode;
+
+  /**
+   * Creates an instance using the default output mode for each computation target type.
+   * <p>
+   * The {@link ResultOutputMode#TERMINAL_OUTPUTS} mode is used for all target types.
    */
   public ResultModelDefinition() {
     this(ResultOutputMode.TERMINAL_OUTPUTS);
   }
-  
+
   /**
-   * Constructs an instance using the specified output mode for every computation target type.
+   * Creates an instance using the specified output mode for every computation target type.
    *  
-   * @param defaultMode  the default result output mode
+   * @param defaultMode  the default result output mode, not null
    */
   public ResultModelDefinition(ResultOutputMode defaultMode) {
     this(defaultMode, defaultMode, defaultMode, defaultMode, defaultMode);
   }
-  
+
   /**
-   * Constructs an instance using the specified output modes for each computation target type.
+   * Creates an instance using the specified output modes for each computation target type.
    * 
-   * @param primitiveOutputMode  the result output mode for primitive targets
-   * @param securityOutputMode  the result output mode for security targets
-   * @param positionOutputMode  the result output mode for position targets
-   * @param tradeOutputMode  the result output mode for trade targets
-   * @param aggregatePositionOutputMode  the result output mode for aggregate position targets
+   * @param aggregatePositionOutputMode  the result output mode for aggregate position targets, not null
+   * @param positionOutputMode  the result output mode for individual position targets, not null
+   * @param tradeOutputMode  the result output mode for trade targets, not null
+   * @param securityOutputMode  the result output mode for security targets, not null
+   * @param primitiveOutputMode  the result output mode for primitive targets, not null
    */
-  public ResultModelDefinition(ResultOutputMode primitiveOutputMode, ResultOutputMode securityOutputMode, ResultOutputMode positionOutputMode, 
-      ResultOutputMode tradeOutputMode, ResultOutputMode aggregatePositionOutputMode) {
-    _primitiveOutputMode = primitiveOutputMode;
-    _securityOutputMode = securityOutputMode;
+  public ResultModelDefinition(
+      ResultOutputMode aggregatePositionOutputMode, ResultOutputMode positionOutputMode, ResultOutputMode tradeOutputMode, 
+      ResultOutputMode securityOutputMode, ResultOutputMode primitiveOutputMode) {
+    ArgumentChecker.notNull(aggregatePositionOutputMode, "aggregatePositionOutputMode");
+    ArgumentChecker.notNull(positionOutputMode, "positionOutputMode");
+    ArgumentChecker.notNull(tradeOutputMode, "tradeOutputMode");
+    ArgumentChecker.notNull(securityOutputMode, "securityOutputMode");
+    ArgumentChecker.notNull(primitiveOutputMode, "primitiveOutputMode");
+    _aggregatePositionOutputMode = aggregatePositionOutputMode;
     _positionOutputMode = positionOutputMode;
     _tradeOutputMode = tradeOutputMode;
-    _aggregatePositionOutputMode = aggregatePositionOutputMode;
-  }
-  
-  /**
-   * Gets the output mode that applies to aggregate position values. This is independent of individual position outputs.
-   * 
-   * @return  the output mode that applies to aggregate position values
-   */
-  public ResultOutputMode getAggregatePositionOutputMode() {
-    return _aggregatePositionOutputMode;
-  }
-
-  /**
-   * Sets the output mode that applies to aggregate position outputs. For example, the referenced portfolio could have
-   * a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not
-   * required then disabling them could speed up the computation cycle significantly.
-   * 
-   * @param aggregatePositionOutputMode  the output mode to apply to aggregate position values
-   */
-  public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
-    _aggregatePositionOutputMode = aggregatePositionOutputMode;
-  }
-
-  /**
-   * Gets the output mode that applies to individual position values. This is independent of aggregate position
-   * outputs. 
-   * 
-   * @return  the output mode that applies to position values
-   */
-  public ResultOutputMode getPositionOutputMode() {
-    return _positionOutputMode;
-  }
-  
-  /**
-   * Sets the output mode that applies to individual trade outputs. If only aggregate position calculations are
-   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
-   * trades through this method could speed up the computation cycle significantly. This is beneficial for
-   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
-   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
-   * although disabling the individual trade outputs will still hide them from the user even though they will be
-   * calculated.
-   * 
-   * @param tradeOutputMode  the output mode to apply to trade values
-   */
-  public void setTradeOutputMode(ResultOutputMode tradeOutputMode) {
-    _tradeOutputMode = tradeOutputMode;
-  }
-
-  /**
-   * Gets the output mode that applies to individual trade values. 
-   * 
-   * @return  the output mode that applies to trade values
-   */
-  public ResultOutputMode getTradeOutputMode() {
-    return _tradeOutputMode;
-  }
-
-  /**
-   * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
-   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
-   * positions through this method could speed up the computation cycle significantly. This is beneficial for
-   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
-   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
-   * although disabling the individual position outputs will still hide them from the user even though they will be
-   * calculated.
-   * 
-   * @param positionOutputMode  the output mode to apply to position values
-   */
-  public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
-    _positionOutputMode = positionOutputMode;
-  }
-  
-  /**
-   * Gets the output mode that applies to security values.
-   * 
-   * @return  the output mode that applies to security values
-   */
-  public ResultOutputMode getSecurityOutputMode() {
-    return _securityOutputMode;
-  }
-  
-  /**
-   * Sets the output mode to apply to security values. These are values which relate generally to a security and apply
-   *  to every position in that security. For example, market data on a security would be a security output.
-   * 
-   * @param securityOutputMode  the output mode to apply to security values
-   */
-  public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
     _securityOutputMode = securityOutputMode;
-  }
-  
-  /**
-   * Gets the output mode that applies to primitive outputs.
-   * 
-   * @return  the output mode that applies to primitive values
-   */
-  public ResultOutputMode getPrimitiveOutputMode() {
-    return _primitiveOutputMode;
-  }
-  
-  /**
-   * Sets the output mode that applies to primitive outputs. These are values which may be used in calculations for
-   * many securities. For example, the USD discount curve would be a primitive.
-   * 
-   * @param primitiveOutputMode  the output mode to apply to primitive values
-   */
-  public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
     _primitiveOutputMode = primitiveOutputMode;
   }
-  
+
+  //-------------------------------------------------------------------------
+//  /**
+//   * Gets the output mode that applies to aggregate position values. This is independent of individual position outputs.
+//   * 
+//   * @return  the output mode that applies to aggregate position values
+//   */
+//  public ResultOutputMode getAggregatePositionOutputMode() {
+//    return _aggregatePositionOutputMode;
+//  }
+//
+//  /**
+//   * Sets the output mode that applies to aggregate position outputs. For example, the referenced portfolio could have
+//   * a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not
+//   * required then disabling them could speed up the computation cycle significantly.
+//   * 
+//   * @param aggregatePositionOutputMode  the output mode to apply to aggregate position values
+//   */
+//  public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
+//    _aggregatePositionOutputMode = aggregatePositionOutputMode;
+//  }
+//
+//  /**
+//   * Gets the output mode that applies to individual position values. This is independent of aggregate position
+//   * outputs. 
+//   * 
+//   * @return  the output mode that applies to position values
+//   */
+//  public ResultOutputMode getPositionOutputMode() {
+//    return _positionOutputMode;
+//  }
+//  
+//  /**
+//   * Sets the output mode that applies to individual position outputs. If only aggregate position calculations are
+//   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
+//   * positions through this method could speed up the computation cycle significantly. This is beneficial for
+//   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
+//   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
+//   * although disabling the individual position outputs will still hide them from the user even though they will be
+//   * calculated.
+//   * 
+//   * @param positionOutputMode  the output mode to apply to position values
+//   */
+//  public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
+//    _positionOutputMode = positionOutputMode;
+//  }
+//  
+//  /**
+//   * Sets the output mode that applies to individual trade outputs. If only aggregate position calculations are
+//   * required, with respect to the hierarchy of the reference portfolio, then disabling outputs for individual
+//   * trades through this method could speed up the computation cycle significantly. This is beneficial for
+//   * calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of
+//   * the same calculation on its children. Aggregate calculations where this is not the case will be unaffected,
+//   * although disabling the individual trade outputs will still hide them from the user even though they will be
+//   * calculated.
+//   * 
+//   * @param tradeOutputMode  the output mode to apply to trade values
+//   */
+//  public void setTradeOutputMode(ResultOutputMode tradeOutputMode) {
+//    _tradeOutputMode = tradeOutputMode;
+//  }
+//
+//  /**
+//   * Gets the output mode that applies to individual trade values. 
+//   * 
+//   * @return  the output mode that applies to trade values
+//   */
+//  public ResultOutputMode getTradeOutputMode() {
+//    return _tradeOutputMode;
+//  }
+//
+//  /**
+//   * Gets the output mode that applies to security values.
+//   * 
+//   * @return  the output mode that applies to security values
+//   */
+//  public ResultOutputMode getSecurityOutputMode() {
+//    return _securityOutputMode;
+//  }
+//  
+//  /**
+//   * Sets the output mode to apply to security values. These are values which relate generally to a security and apply
+//   *  to every position in that security. For example, market data on a security would be a security output.
+//   * 
+//   * @param securityOutputMode  the output mode to apply to security values
+//   */
+//  public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
+//    _securityOutputMode = securityOutputMode;
+//  }
+//  
+//  /**
+//   * Gets the output mode that applies to primitive outputs.
+//   * 
+//   * @return  the output mode that applies to primitive values
+//   */
+//  public ResultOutputMode getPrimitiveOutputMode() {
+//    return _primitiveOutputMode;
+//  }
+//  
+//  /**
+//   * Sets the output mode that applies to primitive outputs. These are values which may be used in calculations for
+//   * many securities. For example, the USD discount curve would be a primitive.
+//   * 
+//   * @param primitiveOutputMode  the output mode to apply to primitive values
+//   */
+//  public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
+//    _primitiveOutputMode = primitiveOutputMode;
+//  }
+
   /**
    * Gets the output mode that applies to values of the given computation target type.
    * 
@@ -199,13 +264,13 @@ public class ResultModelDefinition implements Serializable {
         throw new IllegalArgumentException("Unknown target type " + computationTargetType);
     }
   }
-  
+
   /**
    * Indicates whether an output with the given specification should be included in the results.
    * 
    * @param outputSpecification  the specification of the output value, not null
    * @param dependencyGraph  the dependency graph to which the output value belongs, not null
-   * @return  <code>true</code> if the output value should be included in the results, <code>false</code> otherwise.
+   * @return true if the output value should be included in the results
    */
   public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(outputSpecification, "outputSpecification");
@@ -213,32 +278,379 @@ public class ResultModelDefinition implements Serializable {
     ComputationTargetType targetType = outputSpecification.getTargetSpecification().getType();
     return getOutputMode(targetType).shouldOutputResult(outputSpecification, dependencyGraph);
   }
-  
+
   /**
    * Indicates whether a dependency node produces any outputs that should be included in the results.
    * 
    * @param dependencyNode  the dependency node, not null
-   * @return  <code>true</code> if any outputs are produces that should be included in the results, <code>false</code>
-   *          otherwise. 
+   * @return true if any outputs are produces that should be included in the results
    */
   public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
     ComputationTargetType targetType = dependencyNode.getComputationTarget().getType();
     return getOutputMode(targetType).shouldOutputFromNode(dependencyNode);
   }
-  
-  @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code ResultModelDefinition}.
+   * @return the meta-bean, not null
+   */
+  public static ResultModelDefinition.Meta meta() {
+    return ResultModelDefinition.Meta.INSTANCE;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
-  }
-  
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+  public ResultModelDefinition.Meta metaBean() {
+    return ResultModelDefinition.Meta.INSTANCE;
   }
 
+  @Override
+  protected Object propertyGet(String propertyName) {
+    switch (propertyName.hashCode()) {
+      case 1633131628:  // aggregatePositionOutputMode
+        return getAggregatePositionOutputMode();
+      case -798411699:  // positionOutputMode
+        return getPositionOutputMode();
+      case -1772765496:  // tradeOutputMode
+        return getTradeOutputMode();
+      case -583556700:  // securityOutputMode
+        return getSecurityOutputMode();
+      case 545428107:  // primitiveOutputMode
+        return getPrimitiveOutputMode();
+    }
+    return super.propertyGet(propertyName);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue) {
+    switch (propertyName.hashCode()) {
+      case 1633131628:  // aggregatePositionOutputMode
+        setAggregatePositionOutputMode((ResultOutputMode) newValue);
+        return;
+      case -798411699:  // positionOutputMode
+        setPositionOutputMode((ResultOutputMode) newValue);
+        return;
+      case -1772765496:  // tradeOutputMode
+        setTradeOutputMode((ResultOutputMode) newValue);
+        return;
+      case -583556700:  // securityOutputMode
+        setSecurityOutputMode((ResultOutputMode) newValue);
+        return;
+      case 545428107:  // primitiveOutputMode
+        setPrimitiveOutputMode((ResultOutputMode) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the aggregate position output mode (portfolio nodes).
+   * <p>
+   * For example, the referenced portfolio could have a deep structure with many nodes at which
+   * aggregate portfolio outputs would be calculated. If these are not required then disabling
+   * them could speed up the computation cycle significantly.
+   * @return the value of the property
+   */
+  public ResultOutputMode getAggregatePositionOutputMode() {
+    return _aggregatePositionOutputMode;
+  }
+
+  /**
+   * Sets the aggregate position output mode (portfolio nodes).
+   * <p>
+   * For example, the referenced portfolio could have a deep structure with many nodes at which
+   * aggregate portfolio outputs would be calculated. If these are not required then disabling
+   * them could speed up the computation cycle significantly.
+   * @param aggregatePositionOutputMode  the new value of the property
+   */
+  public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
+    this._aggregatePositionOutputMode = aggregatePositionOutputMode;
+  }
+
+  /**
+   * Gets the the {@code aggregatePositionOutputMode} property.
+   * <p>
+   * For example, the referenced portfolio could have a deep structure with many nodes at which
+   * aggregate portfolio outputs would be calculated. If these are not required then disabling
+   * them could speed up the computation cycle significantly.
+   * @return the property, not null
+   */
+  public final Property<ResultOutputMode> aggregatePositionOutputMode() {
+    return metaBean().aggregatePositionOutputMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the individual position output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual positions through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual position outputs will still hide them from the user even though they
+   * will be calculated.
+   * @return the value of the property
+   */
+  public ResultOutputMode getPositionOutputMode() {
+    return _positionOutputMode;
+  }
+
+  /**
+   * Sets the individual position output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual positions through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual position outputs will still hide them from the user even though they
+   * will be calculated.
+   * @param positionOutputMode  the new value of the property
+   */
+  public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
+    this._positionOutputMode = positionOutputMode;
+  }
+
+  /**
+   * Gets the the {@code positionOutputMode} property.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual positions through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual position outputs will still hide them from the user even though they
+   * will be calculated.
+   * @return the property, not null
+   */
+  public final Property<ResultOutputMode> positionOutputMode() {
+    return metaBean().positionOutputMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the trade output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual trades through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual trade outputs will still hide them from the user even though they
+   * will be calculated.
+   * @return the value of the property
+   */
+  public ResultOutputMode getTradeOutputMode() {
+    return _tradeOutputMode;
+  }
+
+  /**
+   * Sets the trade output mode.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual trades through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual trade outputs will still hide them from the user even though they
+   * will be calculated.
+   * @param tradeOutputMode  the new value of the property
+   */
+  public void setTradeOutputMode(ResultOutputMode tradeOutputMode) {
+    this._tradeOutputMode = tradeOutputMode;
+  }
+
+  /**
+   * Gets the the {@code tradeOutputMode} property.
+   * <p>
+   * If only aggregate position calculations are required, with respect to the hierarchy of the
+   * reference portfolio, then disabling outputs for individual trades through this method could speed
+   * up the computation cycle significantly. This is beneficial for calculations, such as VaR, which can
+   * be performed at the aggregate level without requiring the complete result of the same calculation
+   * on its children. Aggregate calculations where this is not the case will be unaffected, although
+   * disabling the individual trade outputs will still hide them from the user even though they
+   * will be calculated.
+   * @return the property, not null
+   */
+  public final Property<ResultOutputMode> tradeOutputMode() {
+    return metaBean().tradeOutputMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security output mode.
+   * <p>
+   * These are values which relate generally to a security and apply to every position in that security.
+   * For example, market data on a security would be a security output.
+   * @return the value of the property
+   */
+  public ResultOutputMode getSecurityOutputMode() {
+    return _securityOutputMode;
+  }
+
+  /**
+   * Sets the security output mode.
+   * <p>
+   * These are values which relate generally to a security and apply to every position in that security.
+   * For example, market data on a security would be a security output.
+   * @param securityOutputMode  the new value of the property
+   */
+  public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
+    this._securityOutputMode = securityOutputMode;
+  }
+
+  /**
+   * Gets the the {@code securityOutputMode} property.
+   * <p>
+   * These are values which relate generally to a security and apply to every position in that security.
+   * For example, market data on a security would be a security output.
+   * @return the property, not null
+   */
+  public final Property<ResultOutputMode> securityOutputMode() {
+    return metaBean().securityOutputMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the primitive output mode.
+   * <p>
+   * These are values which may be used in calculations for many securities.
+   * For example, the USD discount curve would be a primitive.
+   * @return the value of the property
+   */
+  public ResultOutputMode getPrimitiveOutputMode() {
+    return _primitiveOutputMode;
+  }
+
+  /**
+   * Sets the primitive output mode.
+   * <p>
+   * These are values which may be used in calculations for many securities.
+   * For example, the USD discount curve would be a primitive.
+   * @param primitiveOutputMode  the new value of the property
+   */
+  public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
+    this._primitiveOutputMode = primitiveOutputMode;
+  }
+
+  /**
+   * Gets the the {@code primitiveOutputMode} property.
+   * <p>
+   * These are values which may be used in calculations for many securities.
+   * For example, the USD discount curve would be a primitive.
+   * @return the property, not null
+   */
+  public final Property<ResultOutputMode> primitiveOutputMode() {
+    return metaBean().primitiveOutputMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code ResultModelDefinition}.
+   */
+  public static class Meta extends BasicMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code aggregatePositionOutputMode} property.
+     */
+    private final MetaProperty<ResultOutputMode> _aggregatePositionOutputMode = DirectMetaProperty.ofReadWrite(this, "aggregatePositionOutputMode", ResultOutputMode.class);
+    /**
+     * The meta-property for the {@code positionOutputMode} property.
+     */
+    private final MetaProperty<ResultOutputMode> _positionOutputMode = DirectMetaProperty.ofReadWrite(this, "positionOutputMode", ResultOutputMode.class);
+    /**
+     * The meta-property for the {@code tradeOutputMode} property.
+     */
+    private final MetaProperty<ResultOutputMode> _tradeOutputMode = DirectMetaProperty.ofReadWrite(this, "tradeOutputMode", ResultOutputMode.class);
+    /**
+     * The meta-property for the {@code securityOutputMode} property.
+     */
+    private final MetaProperty<ResultOutputMode> _securityOutputMode = DirectMetaProperty.ofReadWrite(this, "securityOutputMode", ResultOutputMode.class);
+    /**
+     * The meta-property for the {@code primitiveOutputMode} property.
+     */
+    private final MetaProperty<ResultOutputMode> _primitiveOutputMode = DirectMetaProperty.ofReadWrite(this, "primitiveOutputMode", ResultOutputMode.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map;
+
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    protected Meta() {
+      LinkedHashMap temp = new LinkedHashMap();
+      temp.put("aggregatePositionOutputMode", _aggregatePositionOutputMode);
+      temp.put("positionOutputMode", _positionOutputMode);
+      temp.put("tradeOutputMode", _tradeOutputMode);
+      temp.put("securityOutputMode", _securityOutputMode);
+      temp.put("primitiveOutputMode", _primitiveOutputMode);
+      _map = Collections.unmodifiableMap(temp);
+    }
+
+    @Override
+    public ResultModelDefinition createBean() {
+      return new ResultModelDefinition();
+    }
+
+    @Override
+    public Class<? extends ResultModelDefinition> beanType() {
+      return ResultModelDefinition.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code aggregatePositionOutputMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ResultOutputMode> aggregatePositionOutputMode() {
+      return _aggregatePositionOutputMode;
+    }
+
+    /**
+     * The meta-property for the {@code positionOutputMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ResultOutputMode> positionOutputMode() {
+      return _positionOutputMode;
+    }
+
+    /**
+     * The meta-property for the {@code tradeOutputMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ResultOutputMode> tradeOutputMode() {
+      return _tradeOutputMode;
+    }
+
+    /**
+     * The meta-property for the {@code securityOutputMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ResultOutputMode> securityOutputMode() {
+      return _securityOutputMode;
+    }
+
+    /**
+     * The meta-property for the {@code primitiveOutputMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ResultOutputMode> primitiveOutputMode() {
+      return _primitiveOutputMode;
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

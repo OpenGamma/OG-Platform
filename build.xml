@@ -147,6 +147,11 @@
 		<og-subant target="fudge-proto" buildpathref="build-path" />
 	</target>
 
+    <target name="joda-bean" depends="buildlist"
+    	description="builds the Joda-Bean files">
+        <og-subant target="joda-bean" buildpathref="build-path" />
+    </target>
+
 	<target name="clean" depends="clean-all, load-ivy"
 		description="delete repository, clean ivy cache, and clean all projects">
 		<delete dir="${repository.dir}" />

@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.util.db.PagingRequest;
@@ -36,7 +36,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     ExchangeHistoryResult test = _exgMaster.history(request);
     
@@ -47,7 +47,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_documentCountWhenMultipleExchanges() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "102");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "102");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     ExchangeHistoryResult test = _exgMaster.history(request);
     
@@ -60,7 +60,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     ExchangeHistoryResult test = _exgMaster.history(request);
     
@@ -76,7 +76,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -91,7 +91,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -110,7 +110,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -124,7 +124,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -138,7 +138,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -152,7 +152,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -164,7 +164,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);
@@ -177,7 +177,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbExg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     ExchangeHistoryResult test = _exgMaster.history(request);

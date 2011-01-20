@@ -21,13 +21,13 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,7 +50,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Note that an empty set will return no holidays.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _holidayIds;
+  private List<ObjectIdentifier> _holidayIds;
   /**
    * The holiday name, wildcards allowed, null to not match on name.
    */
@@ -153,12 +153,12 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * 
    * @param holidayId  the holiday id to add, not null
    */
-  public void addHolidayId(UniqueIdentifier holidayId) {
+  public void addHolidayId(ObjectIdentifiable holidayId) {
     ArgumentChecker.notNull(holidayId, "holidayId");
     if (_holidayIds == null) {
-      _holidayIds = new ArrayList<UniqueIdentifier>();
+      _holidayIds = new ArrayList<ObjectIdentifier>();
     }
-    _holidayIds.add(holidayId);
+    _holidayIds.add(holidayId.getObjectId());
   }
 
   /**
@@ -167,12 +167,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * 
    * @param holidayIds  the new holiday identifiers, null clears the holiday id search
    */
-  public void setHolidayIds(Iterable<UniqueIdentifier> holidayIds) {
+  public void setHolidayIds(Iterable<? extends ObjectIdentifiable> holidayIds) {
     if (holidayIds == null) {
       _holidayIds = null;
     } else {
-      _holidayIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_holidayIds, holidayIds);
+      _holidayIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable holidayId : holidayIds) {
+        _holidayIds.add(holidayId.getObjectId());
+      }
     }
   }
 
@@ -309,7 +311,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -1121781952:  // holidayIds
-        setHolidayIds((List<UniqueIdentifier>) newValue);
+        setHolidayIds((List<ObjectIdentifier>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -342,7 +344,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Note that an empty set will return no holidays.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getHolidayIds() {
+  public List<ObjectIdentifier> getHolidayIds() {
     return _holidayIds;
   }
 
@@ -351,7 +353,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Note that an empty set will return no holidays.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> holidayIds() {
+  public final Property<List<ObjectIdentifier>> holidayIds() {
     return metaBean().holidayIds().createProperty(this);
   }
 
@@ -559,7 +561,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      * The meta-property for the {@code holidayIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _holidayIds = DirectMetaProperty.ofReadWrite(this, "holidayIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _holidayIds = DirectMetaProperty.ofReadWrite(this, "holidayIds", (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -627,7 +629,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      * The meta-property for the {@code holidayIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> holidayIds() {
+    public final MetaProperty<List<ObjectIdentifier>> holidayIds() {
       return _holidayIds;
     }
 

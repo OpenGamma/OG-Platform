@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -101,7 +101,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionIds_none() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPositionIds(new ArrayList<UniqueIdentifier>());
+    request.setPositionIds(new ArrayList<ObjectIdentifier>());
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -110,9 +110,9 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionIds() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(UniqueIdentifier.of("DbPos", "120"));
-    request.addPositionId(UniqueIdentifier.of("DbPos", "221"));
-    request.addPositionId(UniqueIdentifier.of("DbPos", "9999"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "120"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "221"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "9999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -123,14 +123,14 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test(expected = IllegalArgumentException.class)
   public void test_search_positionIds_badSchemeValidOid() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(UniqueIdentifier.of("Rubbish", "120"));
+    request.addPositionId(ObjectIdentifier.of("Rubbish", "120"));
     _posMaster.search(request);
   }
 
   @Test
   public void test_search_tradeIds_none() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setTradeIds(new ArrayList<UniqueIdentifier>());
+    request.setTradeIds(new ArrayList<ObjectIdentifier>());
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -139,10 +139,10 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_tradeIds() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addTradeId(UniqueIdentifier.of("DbPos", "402"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "403"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "407"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "9999"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "402"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "403"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "407"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "9999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -153,18 +153,18 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test(expected = IllegalArgumentException.class)
   public void test_search_tradeIds_badSchemeValidOid() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addTradeId(UniqueIdentifier.of("Rubbish", "402"));
+    request.addTradeId(ObjectIdentifier.of("Rubbish", "402"));
     _posMaster.search(request);
   }
 
   @Test
   public void test_search_positionAndTradeIds_matchSome() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(UniqueIdentifier.of("DbPos", "120"));
-    request.addPositionId(UniqueIdentifier.of("DbPos", "122"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "402"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "403"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "407"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "120"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "122"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "402"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "403"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "407"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -174,11 +174,11 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionAndTradeIds_matchNone() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(UniqueIdentifier.of("DbPos", "120"));
-    request.addPositionId(UniqueIdentifier.of("DbPos", "121"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "402"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "403"));
-    request.addTradeId(UniqueIdentifier.of("DbPos", "407"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "120"));
+    request.addPositionId(ObjectIdentifier.of("DbPos", "121"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "402"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "403"));
+    request.addTradeId(ObjectIdentifier.of("DbPos", "407"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

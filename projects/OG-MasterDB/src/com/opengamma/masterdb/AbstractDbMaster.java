@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
@@ -144,11 +145,11 @@ public abstract class AbstractDbMaster {
   /**
    * Checks the unique identifier scheme is valid.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param objectId  the object identifier, not null
    */
-  public void checkScheme(final UniqueIdentifier uniqueId) {
-    if (getIdentifierScheme().equals(uniqueId.getScheme()) == false) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + getIdentifierScheme() + "): " + uniqueId);
+  public void checkScheme(final ObjectIdentifiable objectId) {
+    if (getIdentifierScheme().equals(objectId.getObjectId().getScheme()) == false) {
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + getIdentifierScheme() + "): " + objectId);
     }
   }
 
@@ -159,7 +160,7 @@ public abstract class AbstractDbMaster {
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
    */
-  protected long extractRowId(final UniqueIdentifier id) {
+  public long extractRowId(final UniqueIdentifier id) {
     try {
       return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
     } catch (NumberFormatException ex) {
@@ -170,14 +171,14 @@ public abstract class AbstractDbMaster {
   /**
    * Extracts the object identifier.
    * 
-   * @param id  the identifier to extract from, not null
+   * @param objectId  the identifier to extract from, not null
    * @return the extracted oid
    */
-  protected long extractOid(final UniqueIdentifier id) {
+  public long extractOid(final ObjectIdentifiable objectId) {
     try {
-      return Long.parseLong(id.getValue());
+      return Long.parseLong(objectId.getObjectId().getValue());
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric object id): " + id, ex);
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (non-numeric object id): " + objectId, ex);
     }
   }
 
@@ -188,7 +189,7 @@ public abstract class AbstractDbMaster {
    * @param oid  the object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createObjectIdentifier(final long oid) {
+  public UniqueIdentifier createObjectIdentifier(final long oid) {
     return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid));
   }
 
@@ -199,7 +200,7 @@ public abstract class AbstractDbMaster {
    * @param rowId  the node unique row identifier, null if object identifier
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
+  public UniqueIdentifier createUniqueIdentifier(final long oid, final long rowId) {
     return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 

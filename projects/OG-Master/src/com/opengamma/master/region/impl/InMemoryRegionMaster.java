@@ -205,7 +205,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final RegionHistoryResult result = new RegionHistoryResult();
-    final RegionDocument doc = get(request.getObjectId());
+    final RegionDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

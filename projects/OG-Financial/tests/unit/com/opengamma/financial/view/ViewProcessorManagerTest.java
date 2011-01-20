@@ -42,9 +42,9 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.MasterChangeListener;
-import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.test.Timeout;
 
 /**

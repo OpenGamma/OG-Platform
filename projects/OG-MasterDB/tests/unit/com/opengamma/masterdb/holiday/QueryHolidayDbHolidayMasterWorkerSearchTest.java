@@ -18,7 +18,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -239,7 +239,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_holidayIds_none() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setHolidayIds(new ArrayList<UniqueIdentifier>());
+    request.setHolidayIds(new ArrayList<ObjectIdentifier>());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -248,9 +248,9 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_holidayIds() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addHolidayId(UniqueIdentifier.of("DbHol", "101"));
-    request.addHolidayId(UniqueIdentifier.of("DbHol", "201"));
-    request.addHolidayId(UniqueIdentifier.of("DbHol", "9999"));
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "101"));
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "201"));
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "9999"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -261,7 +261,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test(expected = IllegalArgumentException.class)
   public void test_search_holidayIds_badSchemeValidOid() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addHolidayId(UniqueIdentifier.of("Rubbish", "120"));
+    request.addHolidayId(ObjectIdentifier.of("Rubbish", "120"));
     _holMaster.search(request);
   }
 

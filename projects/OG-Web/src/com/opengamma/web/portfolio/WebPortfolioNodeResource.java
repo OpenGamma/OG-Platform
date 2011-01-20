@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -81,6 +82,11 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(@FormParam("name") String name) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     if (name == null) {
       FlexiBean out = createRootData();
@@ -88,7 +94,6 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolionode-update.ftl", out);
       return Response.ok(html).build();
     }
-    PortfolioDocument doc = data().getPortfolio();
     ManageablePortfolioNode node = data().getNode();
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
     if (Objects.equal(node.getName(), name) == false) {
@@ -101,10 +106,14 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
 
   @DELETE
   public Response delete() {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     if (data().getParentNode() == null) {
       throw new IllegalArgumentException("Root node cannot be deleted");
     }
-    PortfolioDocument doc = data().getPortfolio();
     if (data().getParentNode().removeNode(data().getNode().getUniqueId()) == false) {
       throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
     }
@@ -134,6 +143,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     out.put("parentNode", data().getParentNode());
     out.put("node", node);
     out.put("childNodes", node.getChildNodes());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

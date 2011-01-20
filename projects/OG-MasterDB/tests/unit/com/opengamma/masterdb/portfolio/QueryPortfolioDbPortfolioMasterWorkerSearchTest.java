@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -110,7 +110,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_portfolioIds_none() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setPortfolioIds(new ArrayList<UniqueIdentifier>());
+    request.setPortfolioIds(new ArrayList<ObjectIdentifier>());
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -119,8 +119,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_portfolioIds_one() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "201"));
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "9999"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "201"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "9999"));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -130,8 +130,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_portfolioIds_two() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "101"));
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "201"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "101"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "201"));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -142,14 +142,14 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test(expected = IllegalArgumentException.class)
   public void test_search_portfolioIds_badSchemeValidOid() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("Rubbish", "201"));
+    request.addPortfolioId(ObjectIdentifier.of("Rubbish", "201"));
     _prtMaster.search(request);
   }
 
   @Test
   public void test_search_nodeIds_none() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setNodeIds(new ArrayList<UniqueIdentifier>());
+    request.setNodeIds(new ArrayList<ObjectIdentifier>());
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -158,8 +158,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_nodeIds() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
-    request.addNodeId(UniqueIdentifier.of("DbPrt", "9999"));
+    request.addNodeId(ObjectIdentifier.of("DbPrt", "211"));
+    request.addNodeId(ObjectIdentifier.of("DbPrt", "9999"));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -169,15 +169,15 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test(expected = IllegalArgumentException.class)
   public void test_search_nodeIds_badSchemeValidOid() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("Rubbish", "211"));
+    request.addPortfolioId(ObjectIdentifier.of("Rubbish", "211"));
     _prtMaster.search(request);
   }
 
   @Test
   public void test_search_portfolioAndNodeIds_matchSome() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "201"));
-    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "201"));
+    request.addNodeId(ObjectIdentifier.of("DbPrt", "211"));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -187,8 +187,8 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_portfolioAndNodeIds_matchNone() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.addPortfolioId(UniqueIdentifier.of("DbPrt", "101"));
-    request.addNodeId(UniqueIdentifier.of("DbPrt", "211"));
+    request.addPortfolioId(ObjectIdentifier.of("DbPrt", "101"));
+    request.addNodeId(ObjectIdentifier.of("DbPrt", "211"));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

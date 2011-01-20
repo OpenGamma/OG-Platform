@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -131,18 +132,18 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     if (request.getPortfolioIds() != null) {
       StringBuilder buf = new StringBuilder(request.getPortfolioIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getPortfolioIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier objectId : request.getPortfolioIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
     if (request.getNodeIds() != null) {
       StringBuilder buf = new StringBuilder(request.getNodeIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getNodeIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier objectId : request.getNodeIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN (" + buf + ")) ";
@@ -273,11 +274,11 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     argsList.add(treeArgs);
     
     // store position links
-    for (UniqueIdentifier uniqueId : node.getPositionIds()) {
+    for (ObjectIdentifier positionId : node.getPositionIds()) {
       final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
         .addValue("node_id", nodeId)
-        .addValue("key_scheme", uniqueId.getScheme())
-        .addValue("key_value", uniqueId.getValue());
+        .addValue("key_scheme", positionId.getScheme())
+        .addValue("key_value", positionId.getValue());
       posList.add(posArgs);
     }
     

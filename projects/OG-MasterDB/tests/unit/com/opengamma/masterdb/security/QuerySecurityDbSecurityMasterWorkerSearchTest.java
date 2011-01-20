@@ -18,6 +18,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -156,7 +157,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_securityIds_none() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setSecurityIds(new ArrayList<UniqueIdentifier>());
+    request.setSecurityIds(new ArrayList<ObjectIdentifier>());
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -165,9 +166,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_securityIds() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityId(UniqueIdentifier.of("DbSec", "101"));
-    request.addSecurityId(UniqueIdentifier.of("DbSec", "201"));
-    request.addSecurityId(UniqueIdentifier.of("DbSec", "9999"));
+    request.addSecurityId(ObjectIdentifier.of("DbSec", "101"));
+    request.addSecurityId(ObjectIdentifier.of("DbSec", "201"));
+    request.addSecurityId(ObjectIdentifier.of("DbSec", "9999"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -178,7 +179,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test(expected = IllegalArgumentException.class)
   public void test_search_securityIds_badSchemeValidOid() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityId(UniqueIdentifier.of("Rubbish", "120"));
+    request.addSecurityId(ObjectIdentifier.of("Rubbish", "120"));
     _secMaster.search(request);
   }
 

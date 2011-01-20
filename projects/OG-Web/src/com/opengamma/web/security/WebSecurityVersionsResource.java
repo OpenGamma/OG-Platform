@@ -38,8 +38,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    SecurityHistoryRequest request = new SecurityHistoryRequest();
-    request.setObjectId(data().getSecurity().getUniqueId().toLatest());
+    SecurityHistoryRequest request = new SecurityHistoryRequest(data().getSecurity().getUniqueId());
     SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -58,6 +57,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
     SecurityDocument doc = data().getSecurity();
     out.put("securityDoc", doc);
     out.put("security", doc.getSecurity());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 
