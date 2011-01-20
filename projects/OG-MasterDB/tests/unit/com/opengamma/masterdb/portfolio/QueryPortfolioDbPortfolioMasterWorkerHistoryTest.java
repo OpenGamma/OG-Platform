@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,8 +10,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,25 +27,10 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPortfolioDbPortfolioMasterWorkerHistoryTest.class);
 
-  private QueryPortfolioDbPortfolioMasterWorker _worker;
-
   public QueryPortfolioDbPortfolioMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QueryPortfolioDbPortfolioMasterWorker();
-    _worker.init(_prtMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
   }
 
   //-------------------------------------------------------------------------
@@ -55,7 +38,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   public void test_history_documents_noInstants_node_depthZero() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -67,7 +50,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "101");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setDepth(1);
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     assert101(test.getDocuments().get(0), 1);
   }
 
@@ -76,7 +59,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "101");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setDepth(-1);
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     assert101(test.getDocuments().get(0), 999);
   }
 
@@ -85,7 +68,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   public void test_history_noInstants() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -102,7 +85,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(1, test.getPaging().getPagingSize());
@@ -117,7 +100,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
@@ -136,7 +119,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -150,7 +133,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -164,7 +147,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -178,7 +161,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(0, test.getPaging().getTotalItems());
     
@@ -190,7 +173,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
     
@@ -203,7 +186,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
-    PortfolioHistoryResult test = _worker.history(request);
+    PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -215,7 +198,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());
+    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

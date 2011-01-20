@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -338,6 +338,7 @@ public class ViewCalculationConfiguration implements Serializable {
     result = prime * result + ObjectUtils.hashCode(getAllPortfolioRequirements());
     result = prime * result + ObjectUtils.hashCode(getAllTradeRequirements());
     result = prime * result + ObjectUtils.hashCode(getSpecificRequirements());
+    result = prime * result + ObjectUtils.hashCode(getDefaultProperties());
     return result;
   }
 
@@ -370,6 +371,9 @@ public class ViewCalculationConfiguration implements Serializable {
       if (!ObjectUtils.equals(securityTypeRequirements.getValue(), otherRequirements)) {
         return false;
       }
+    }
+    if (!ObjectUtils.equals(getDefaultProperties(), other.getDefaultProperties())) {
+      return false;
     }
     return true;
   }

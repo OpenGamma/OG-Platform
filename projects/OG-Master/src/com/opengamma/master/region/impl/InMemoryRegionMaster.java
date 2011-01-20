@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -205,7 +205,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final RegionHistoryResult result = new RegionHistoryResult();
-    final RegionDocument doc = get(request.getObjectId());
+    final RegionDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

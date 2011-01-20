@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -38,8 +38,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    RegionHistoryRequest request = new RegionHistoryRequest();
-    request.setObjectId(data().getRegion().getUniqueId());
+    RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -58,6 +57,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
     RegionDocument doc = data().getRegion();
     out.put("regionDoc", doc);
     out.put("region", doc.getRegion());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

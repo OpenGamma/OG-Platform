@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -58,12 +58,6 @@ public class RemoteViewProcessor implements ViewProcessor {
   public Set<String> getViewNames() {
     URI uri = getUri(_baseUri, DataViewProcessorResource.PATH_VIEW_NAMES);
     return _client.access(uri).get(Set.class);
-  }
-  
-  @Override
-  public void reinitAsync() {
-    URI uri = getUri(_baseUri, DataViewProcessorResource.PATH_REINIT_ASYNC);
-    _client.access(uri).post();
   }
   
   //-------------------------------------------------------------------------

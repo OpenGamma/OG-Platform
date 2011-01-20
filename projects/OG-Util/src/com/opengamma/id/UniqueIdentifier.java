@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,30 +19,34 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
 
 /**
- * An immutable unique identifier for an item.
+ * An immutable unique identifier for an item within the OpenGamma instance.
  * <p>
  * This identifier is used as a handle within the system to refer to an item uniquely.
- * Many external identifiers, represented by {@link Identifier}, are not truly unique.
- * This identifier is deemed to be unique for at least the duration of a calculation.
+ * All versions of the same object share an {@link ObjectIdentifier} with the
+ * {@code UniqueIdentifier} referring to a single version.
  * <p>
- * The identifier is formed from three parts, the scheme, value and version.
+ * Many external identifiers, represented by {@link Identifier}, are not truly unique.
+ * This {@code ObjectIdentifier} and {@code UniqueIdentifier} are unique within the OpenGamma instance.
+ * <p>
+ * The unique identifier is formed from three parts, the scheme, value and version.
  * The scheme defines a single way of identifying items, while the value is an identifier
  * within that scheme. A value from one scheme may refer to a completely different
  * real-world item than the same value from a different scheme.
- * <p>
  * The version allows the object being identifier to change over time.
  * If the version is null then the identifier refers to the latest version of the object.
  * Note that some data providers may not support versioning.
  * <p>
  * Real-world examples of {@code UniqueIdentifier} include instances of:
  * <ul>
- *   <li>Database key - SecurityDB::123456::1</li>
+ * <li>Database key - DbSec::123456::1</li>
+ * <li>In memory key - MemSec::123456::234</li>
  * </ul>
  * <p>
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Serializable, UniqueIdentifiable {
+public final class UniqueIdentifier
+    implements Comparable<UniqueIdentifier>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
 
   /**
    * Fudge message key for the scheme.
@@ -79,11 +83,11 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    * @return the identifier, not null
    */
   public static UniqueIdentifier of(String scheme, String value) {
-    return new UniqueIdentifier(scheme, value, null);
+    return of(scheme, value, null);
   }
 
   /**
-   * Obtains an identifier from a scheme and value.
+   * Obtains an identifier from a scheme, value and version.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
@@ -92,6 +96,17 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    */
   public static UniqueIdentifier of(String scheme, String value, String version) {
     return new UniqueIdentifier(scheme, value, version);
+  }
+
+  /**
+   * Obtains an identifier from an {@code ObjectIdentifier} and a version.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param version  the version of the identifier, empty treated as null, null treated as latest version
+   * @return the identifier, not null
+   */
+  public static UniqueIdentifier of(ObjectIdentifier objectId, String version) {
+    return new UniqueIdentifier(objectId.getScheme(), objectId.getValue(), version);
   }
 
   /**
@@ -109,9 +124,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uidStr, "::");
     switch (split.length) {
       case 2:
-        return new UniqueIdentifier(split[0], split[1], null);
+        return UniqueIdentifier.of(split[0], split[1], null);
       case 3:
-        return new UniqueIdentifier(split[0], split[1], split[2]);
+        return UniqueIdentifier.of(split[0], split[1], split[2]);
     }
     throw new IllegalArgumentException("Invalid identifier format: " + uidStr);
   }
@@ -135,6 +150,7 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   /**
    * Gets the scheme of the identifier.
    * <p>
+   * This is extracted from the object identifier.
    * This is not expected to be the same as {@code IdentificationScheme}.
    * 
    * @return the scheme, not empty, not null
@@ -145,6 +161,8 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
 
   /**
    * Gets the value of the identifier.
+   * <p>
+   * This is extracted from the object identifier.
    * 
    * @return the value, not empty, not null
    */
@@ -161,6 +179,27 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     return _version;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this identifier with the specified scheme.
+   * 
+   * @param scheme  the new scheme of the identifier, not empty, not null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, never null
+   */
+  public UniqueIdentifier withScheme(final String scheme) {
+    return UniqueIdentifier.of(scheme, _value, _version);
+  }
+
+  /**
+   * Returns a copy of this identifier with the specified value.
+   * 
+   * @param value  the new value of the identifier, not empty, not null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, never null
+   */
+  public UniqueIdentifier withValue(final String value) {
+    return UniqueIdentifier.of(_scheme, value, _version);
+  }
+
   /**
    * Returns a copy of this identifier with the specified version.
    * 
@@ -175,11 +214,31 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the object identifier.
+   * <p>
+   * All versions of the same object share the same object identifier.
+   * 
+   * @return the scheme, not empty, not null
+   */
+  @Override
+  public ObjectIdentifier getObjectId() {
+    return ObjectIdentifier.of(_scheme, _value);
+  }
+
+  /**
+   * Gets the unique identifier.
+   * <p>
+   * This method trivially returns {@code this}.
+   * 
+   * @return {@code this}, not null
+   */
   @Override
   public UniqueIdentifier getUniqueId() {
     return this;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the scheme as an {@code IdentificationScheme}.
    * 
@@ -240,20 +299,20 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Compares this identifier to another based on the scheme and value, ignoring the version.
+   * Compares this identifier to another based on the object identifier, ignoring the version.
+   * <p>
+   * This checks to see if two unique identifiers represent the same underlying object.
    * 
    * @param other  the other identifier, null returns false
-   * @return true if equal ignoring the version
+   * @return true if the object identifier are equal, ignoring the version
    */
-  public boolean equalsIgnoringVersion(UniqueIdentifier other) {
-    if (this == other) {
-      return true;
-    }
+  public boolean equalObjectIdentifier(ObjectIdentifiable other) {
     if (other == null) {
       return false;
     }
-    return _scheme.equals(other._scheme) &&
-            _value.equals(other._value);
+    ObjectIdentifier objectId = other.getObjectId();
+    return _scheme.equals(objectId.getScheme()) &&
+            _value.equals(objectId.getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -294,7 +353,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * Returns the identifier in the form {@code <SCHEME>::<VALUE>::<VERSION>}.
+   * <p>
+   * If the version is null, the identifier will omit the colons and version.
    * 
    * @return the identifier, not null
    */
@@ -309,10 +370,10 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   //-------------------------------------------------------------------------
-
   /**
-   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
-   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * Serializes this unique identifier to a Fudge message.
+   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
+   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory a message creator, not {@code null}
    * @param msg the message to serialize into, not {@code null}
@@ -330,8 +391,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Serializes this unique identifier to a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
-   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * Serializes this unique identifier to a Fudge message.
+   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
+   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
@@ -341,8 +403,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   /**
-   * Deserializes an unique identifier from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
-   * code to allow unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * Deserializes a unique identifier from a Fudge message.
+   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
+   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param msg the Fudge message, not {@code null}
    * @return the unique identifier

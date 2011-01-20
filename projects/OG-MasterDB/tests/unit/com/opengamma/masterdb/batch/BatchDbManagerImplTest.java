@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.junit.Before;
@@ -27,10 +28,17 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.batch.BatchDataSearchRequest;
+import com.opengamma.financial.batch.BatchDataSearchResult;
+import com.opengamma.financial.batch.BatchErrorSearchRequest;
+import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchSearchRequest;
+import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.financial.batch.BatchSearchResultItem;
+import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -417,21 +425,99 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   }
   
   @Test
-  public void getResults() {
-    // no results
-    assertNull(_dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime()));
-    
+  public void searchAllBatches() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _dbManager.startBatch(_batchJobRun);
     
-    // these two lines inserted here to resolve locking issue with HSQLDB
+    BatchSearchRequest request = new BatchSearchRequest();
+    
+    BatchSearchResult result = _dbManager.search(request);
+    assertNotNull(result);
+    
+    assertEquals(1, result.getItems().size());
+    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
+    assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.RUNNING, item.getStatus());
+    
+    _dbManager.endBatch(_batchJobRun);
+    result = _dbManager.search(request);
+    assertEquals(1, result.getItems().size());
+    item = result.getItems().get(0);
+    assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
+    assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.COMPLETE, item.getStatus());
+  }
+  
+  @Test
+  public void searchOneBatch() {
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    BatchSearchRequest request = new BatchSearchRequest();
+    request.setObservationDate(_batchJobRun.getObservationDate());
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    BatchSearchResult result = _dbManager.search(request);
+    assertNotNull(result);
+    
+    assertEquals(1, result.getItems().size());
+    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
+    assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
+    assertEquals(BatchStatus.RUNNING, item.getStatus());
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void getResultsNonexistentBatch() {
+    BatchDataSearchRequest request = new BatchDataSearchRequest();
+    request.setObservationDate(LocalDate.of(2000, 5, 5));
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    _dbManager.getResults(request);
+  }
+
+  @Test
+  public void getResultsExistingBatch() {
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    BatchDataSearchRequest request = new BatchDataSearchRequest();
+    request.setObservationDate(_batchJobRun.getObservationDate());
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
     commit();
     startNewTransaction();
     
-    // results (but empty) 
-    ViewComputationResultModel result = _dbManager.getResults(_batchJobRun.getObservationDate(), _batchJobRun.getObservationTime());
+    BatchDataSearchResult result = _dbManager.getResults(request);
     assertNotNull(result);
-    assertTrue(result.getAllTargets().isEmpty());
+    assertTrue(result.getItems().isEmpty());
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void getErrorsNonexistentBatch() {
+    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
+    request.setObservationDate(LocalDate.of(2000, 5, 5));
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    _dbManager.getErrors(request);
+  }
+
+  @Test
+  public void getErrorsExistingBatch() {
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
+    request.setObservationDate(_batchJobRun.getObservationDate());
+    request.setObservationTime(_batchJobRun.getObservationTime());
+    
+    commit();
+    startNewTransaction();
+    
+    BatchErrorSearchResult result = _dbManager.getErrors(request);
+    assertNotNull(result);
+    assertTrue(result.getItems().isEmpty());
   }
   
 }

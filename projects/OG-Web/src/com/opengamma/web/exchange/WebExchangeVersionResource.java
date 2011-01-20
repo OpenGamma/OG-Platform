@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -53,6 +53,7 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
     out.put("latestExchange", latestDoc.getExchange());
     out.put("exchangeDoc", versionedExchange);
     out.put("exchange", versionedExchange.getExchange());
+    out.put("deleted", !latestDoc.isLatest());
     return out;
   }
 

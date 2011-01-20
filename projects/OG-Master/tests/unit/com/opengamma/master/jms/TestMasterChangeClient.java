@@ -1,10 +1,15 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.master.jms;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.MasterChangeListener;
+import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.util.tuple.Pair;
 
 /**

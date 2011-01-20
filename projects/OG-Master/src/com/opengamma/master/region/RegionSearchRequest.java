@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -21,7 +21,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
@@ -29,6 +28,8 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -52,7 +53,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _regionIds;
+  private List<ObjectIdentifier> _regionIds;
   /**
    * The region keys to match, null to not match on region keys.
    */
@@ -107,16 +108,16 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single region id to the set.
+   * Adds a single region object identifier to the set.
    * 
-   * @param regionId  the region id to add, not null
+   * @param regionId  the region object identifier to add, not null
    */
-  public void addRegionId(UniqueIdentifier regionId) {
+  public void addRegionId(ObjectIdentifiable regionId) {
     ArgumentChecker.notNull(regionId, "regionId");
     if (_regionIds == null) {
-      _regionIds = new ArrayList<UniqueIdentifier>();
+      _regionIds = new ArrayList<ObjectIdentifier>();
     }
-    _regionIds.add(regionId);
+    _regionIds.add(regionId.getObjectId());
   }
 
   /**
@@ -125,12 +126,14 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * 
    * @param regionIds  the new region identifiers, null clears the region id search
    */
-  public void setRegionIds(Iterable<UniqueIdentifier> regionIds) {
+  public void setRegionIds(Iterable<? extends ObjectIdentifiable> regionIds) {
     if (regionIds == null) {
       _regionIds = null;
     } else {
-      _regionIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_regionIds, regionIds);
+      _regionIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable regionId : regionIds) {
+        _regionIds.add(regionId.getObjectId());
+      }
     }
   }
 
@@ -248,7 +251,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 74326820:  // regionIds
-        setRegionIds((List<UniqueIdentifier>) newValue);
+        setRegionIds((List<ObjectIdentifier>) newValue);
         return;
       case -1990775032:  // regionKeys
         setRegionKeys((IdentifierSearch) newValue);
@@ -275,7 +278,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getRegionIds() {
+  public List<ObjectIdentifier> getRegionIds() {
     return _regionIds;
   }
 
@@ -284,7 +287,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * Note that an empty set will return no regions.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> regionIds() {
+  public final Property<List<ObjectIdentifier>> regionIds() {
     return metaBean().regionIds().createProperty(this);
   }
 
@@ -433,7 +436,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) List.class);
     /**
      * The meta-property for the {@code regionKeys} property.
      */
@@ -491,7 +494,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> regionIds() {
+    public final MetaProperty<List<ObjectIdentifier>> regionIds() {
       return _regionIds;
     }
 

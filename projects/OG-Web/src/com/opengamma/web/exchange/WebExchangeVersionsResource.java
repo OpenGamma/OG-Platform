@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -38,8 +38,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ExchangeHistoryRequest request = new ExchangeHistoryRequest();
-    request.setObjectId(data().getExchange().getUniqueId());
+    ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -58,6 +57,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
     ExchangeDocument doc = data().getExchange();
     out.put("exchangeDoc", doc);
     out.put("exchange", doc.getExchange());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

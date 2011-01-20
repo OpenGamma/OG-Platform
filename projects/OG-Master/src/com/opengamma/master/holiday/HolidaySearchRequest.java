@@ -1,14 +1,16 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.master.holiday;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -24,6 +26,8 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -41,6 +45,12 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The set of holiday object identifiers, null to not limit by holiday object identifiers.
+   * Note that an empty set will return no holidays.
+   */
+  @PropertyDefinition(set = "manual")
+  private List<ObjectIdentifier> _holidayIds;
   /**
    * The holiday name, wildcards allowed, null to not match on name.
    */
@@ -134,6 +144,37 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       case CURRENCY:
       default:
         throw new IllegalArgumentException("Use currency constructor to request a currency holiday");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single holiday id to the set.
+   * 
+   * @param holidayId  the holiday id to add, not null
+   */
+  public void addHolidayId(ObjectIdentifiable holidayId) {
+    ArgumentChecker.notNull(holidayId, "holidayId");
+    if (_holidayIds == null) {
+      _holidayIds = new ArrayList<ObjectIdentifier>();
+    }
+    _holidayIds.add(holidayId.getObjectId());
+  }
+
+  /**
+   * Sets the set of holiday object identifiers, null to not limit by holiday object identifiers.
+   * Note that an empty set will return no holidays.
+   * 
+   * @param holidayIds  the new holiday identifiers, null clears the holiday id search
+   */
+  public void setHolidayIds(Iterable<? extends ObjectIdentifiable> holidayIds) {
+    if (holidayIds == null) {
+      _holidayIds = null;
+    } else {
+      _holidayIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable holidayId : holidayIds) {
+        _holidayIds.add(holidayId.getObjectId());
+      }
     }
   }
 
@@ -245,6 +286,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case -1121781952:  // holidayIds
+        return getHolidayIds();
       case 3373707:  // name
         return getName();
       case 3575610:  // type
@@ -263,9 +306,13 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case -1121781952:  // holidayIds
+        setHolidayIds((List<ObjectIdentifier>) newValue);
+        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
@@ -289,6 +336,25 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of holiday object identifiers, null to not limit by holiday object identifiers.
+   * Note that an empty set will return no holidays.
+   * @return the value of the property
+   */
+  public List<ObjectIdentifier> getHolidayIds() {
+    return _holidayIds;
+  }
+
+  /**
+   * Gets the the {@code holidayIds} property.
+   * Note that an empty set will return no holidays.
+   * @return the property, not null
+   */
+  public final Property<List<ObjectIdentifier>> holidayIds() {
+    return metaBean().holidayIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -492,6 +558,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code holidayIds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<ObjectIdentifier>> _holidayIds = DirectMetaProperty.ofReadWrite(this, "holidayIds", (Class) List.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -527,6 +598,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("holidayIds", _holidayIds);
       temp.put("name", _name);
       temp.put("type", _type);
       temp.put("providerKey", _providerKey);
@@ -553,6 +625,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code holidayIds} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<ObjectIdentifier>> holidayIds() {
+      return _holidayIds;
+    }
+
     /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null

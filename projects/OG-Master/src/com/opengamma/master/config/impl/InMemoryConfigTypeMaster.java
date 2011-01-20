@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,13 +20,13 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
-import com.opengamma.master.MasterChangeListener;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
@@ -184,7 +184,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    final ConfigDocument<T> doc = get(request.getObjectId());
+    final ConfigDocument<T> doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

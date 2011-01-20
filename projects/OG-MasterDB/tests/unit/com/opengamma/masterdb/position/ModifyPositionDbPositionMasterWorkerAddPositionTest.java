@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -17,8 +17,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,41 +36,22 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerAddPositionTest.class);
 
-  private ModifyPositionDbPositionMasterWorker _worker;
-  private DbPositionMasterWorker _queryWorker;
-
   public ModifyPositionDbPositionMasterWorkerAddPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyPositionDbPositionMasterWorker();
-    _worker.init(_posMaster);
-    _queryWorker = new QueryPositionDbPositionMasterWorker();
-    _queryWorker.init(_posMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_nullDocument() {
-    _worker.add(null);
+    _posMaster.add(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noPosition() {
     PositionDocument doc = new PositionDocument();
-    _worker.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test
@@ -82,7 +61,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument test = _worker.add(doc);
+    PositionDocument test = _posMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -115,7 +94,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument test = _worker.add(doc);
+    PositionDocument test = _posMaster.add(doc);
     
     Instant now = Instant.now(_posMaster.getTimeSource());
     UniqueIdentifier uid = test.getUniqueId();
@@ -160,7 +139,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument test = _worker.add(doc);
+    PositionDocument test = _posMaster.add(doc);
     
     UniqueIdentifier positionUid = test.getUniqueId();
     assertNotNull(positionUid);
@@ -200,9 +179,9 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument added = _worker.add(doc);
+    PositionDocument added = _posMaster.add(doc);
     
-    PositionDocument test = _queryWorker.get(added.getUniqueId());
+    PositionDocument test = _posMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
@@ -217,9 +196,9 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument added = _worker.add(doc);
+    PositionDocument added = _posMaster.add(doc);
     
-    PositionDocument test = _queryWorker.get(added.getUniqueId());
+    PositionDocument test = _posMaster.get(added.getUniqueId());
         
     assertEquals(added, test);
   }
@@ -235,16 +214,16 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
-    PositionDocument added = _worker.add(doc);
+    PositionDocument added = _posMaster.add(doc);
     
-    PositionDocument test = _queryWorker.get(added.getUniqueId());
+    PositionDocument test = _posMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPos]", _worker.toString());
+    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

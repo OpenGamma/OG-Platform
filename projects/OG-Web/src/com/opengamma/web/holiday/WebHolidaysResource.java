@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,13 +22,15 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
@@ -138,8 +140,19 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   @Path("{holidayId}")
   public WebHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
     data().setUriHolidayId(idStr);
-    HolidayDocument holidayDoc = data().getHolidayMaster().get(UniqueIdentifier.parse(idStr));
-    data().setHoliday(holidayDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      HolidayDocument doc = data().getHolidayMaster().get(oid);
+      data().setHoliday(doc);
+    } catch (DataNotFoundException ex) {
+      HolidayHistoryRequest historyRequest = new HolidayHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      HolidayHistoryResult historyResult = data().getHolidayMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setHoliday(historyResult.getFirstDocument());
+    }
     return new WebHolidayResource(this);
   }
 

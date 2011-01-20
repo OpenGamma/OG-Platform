@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,11 @@ package com.opengamma.engine.fudgemsg;
 import org.junit.Test;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -31,9 +35,18 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
   }
 
   private ViewDefinition getTestViewDefinition() {
-    ViewDefinition test =  new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_ID, TEST_USER, new ResultModelDefinition());
-    test.setDefaultCurrency(Currency.getInstance("USD"));
-    return test;
+    final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_ID, TEST_USER, new ResultModelDefinition());
+    final ViewCalculationConfiguration calcConfig1 = new ViewCalculationConfiguration (viewDefinition, "1");
+    calcConfig1.addSpecificRequirement(new ValueRequirement ("Value1", UniqueIdentifier.of ("Test", "Foo")));
+    calcConfig1.addSpecificRequirement(new ValueRequirement ("Value1", UniqueIdentifier.of ("Test", "Bar")));
+    calcConfig1.setDefaultProperties (ValueProperties.with(ValuePropertyNames.CURRENCY, "GBP").get ());
+    final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration (viewDefinition, "2");
+    calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Foo")));
+    calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Bar")));
+    viewDefinition.setDefaultCurrency(Currency.getInstance("USD"));
+    viewDefinition.addViewCalculationConfiguration(calcConfig1);
+    viewDefinition.addViewCalculationConfiguration(calcConfig2);
+    return viewDefinition;
   }
 
 }

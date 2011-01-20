@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,12 +18,12 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +43,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _securityIds;
+  private List<ObjectIdentifier> _securityIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -94,16 +94,16 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single security id to the set.
+   * Adds a single security object identifier to the set.
    * 
-   * @param securityId  the security id to add, not null
+   * @param securityId  the security object identifier to add, not null
    */
-  public void addSecurityId(UniqueIdentifier securityId) {
+  public void addSecurityId(ObjectIdentifiable securityId) {
     ArgumentChecker.notNull(securityId, "securityId");
     if (_securityIds == null) {
-      _securityIds = new ArrayList<UniqueIdentifier>();
+      _securityIds = new ArrayList<ObjectIdentifier>();
     }
-    _securityIds.add(securityId);
+    _securityIds.add(securityId.getObjectId());
   }
 
   /**
@@ -112,12 +112,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * 
    * @param securityIds  the new security identifiers, null clears the security id search
    */
-  public void setSecurityIds(Iterable<UniqueIdentifier> securityIds) {
+  public void setSecurityIds(Iterable<? extends ObjectIdentifiable> securityIds) {
     if (securityIds == null) {
       _securityIds = null;
     } else {
-      _securityIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_securityIds, securityIds);
+      _securityIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable securityId : securityIds) {
+        _securityIds.add(securityId.getObjectId());
+      }
     }
   }
 
@@ -203,7 +205,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 1550081880:  // securityIds
-        setSecurityIds((List<UniqueIdentifier>) newValue);
+        setSecurityIds((List<ObjectIdentifier>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -227,7 +229,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getSecurityIds() {
+  public List<ObjectIdentifier> getSecurityIds() {
     return _securityIds;
   }
 
@@ -236,7 +238,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no securities.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> securityIds() {
+  public final Property<List<ObjectIdentifier>> securityIds() {
     return metaBean().securityIds().createProperty(this);
   }
 
@@ -318,9 +320,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @return the value of the property
    */
   public boolean isFullDetail() {
@@ -329,9 +331,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
    * Sets the depth of security data to return.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @param fullDetail  the new value of the property
    */
   public void setFullDetail(boolean fullDetail) {
@@ -340,9 +342,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code fullDetail} property.
-   * False will only return the basic information held in the {@code DefaultSecurity} class.
+   * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
-   * By default this is false to save space in the response.
+   * By default this is true returning all the data.
    * @return the property, not null
    */
   public final Property<Boolean> fullDetail() {
@@ -363,7 +365,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
@@ -416,7 +418,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> securityIds() {
+    public final MetaProperty<List<ObjectIdentifier>> securityIds() {
       return _securityIds;
     }
 

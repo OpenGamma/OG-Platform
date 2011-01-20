@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -33,10 +33,6 @@ public class MockViewProcessor implements ViewProcessor {
   @Override
   public Set<String> getViewNames() {
     return Collections.unmodifiableSet(_viewsByName.keySet());
-  }
-
-  @Override
-  public void reinitAsync() {
   }
 
 }

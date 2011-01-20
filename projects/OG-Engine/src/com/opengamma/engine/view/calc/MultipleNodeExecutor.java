@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -62,6 +62,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     _maxConcurrency = maximumConcurrency;
     _functionCosts = functionCosts;
     _cache = cache;
+  }
+
+  protected long getFunctionInitId() {
+    return getCycle().getFunctionInitId();
   }
 
   protected SingleComputationCycle getCycle() {
@@ -174,14 +178,18 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     final RootGraphFragment execution = _cache.getCachedExecutionPlan(graph);
     if (execution != null) {
-      final Set<GraphFragment> visited = new HashSet<GraphFragment>();
-      if (execution.reset(this, visited)) {
-        s_logger.info("Using cached execution plan for {}", graph);
-        visited.clear();
-        executeLeafNodes(execution, visited);
-        return execution;
+      if (execution.getFunctionInitializationTimestamp() != getCycle().getFunctionInitId()) {
+        s_logger.warn("Invalid cached execution plan for {} due to re-initialization", graph);
       } else {
-        s_logger.warn("Invalid cached execution plan for {}", graph);
+        final Set<GraphFragment> visited = new HashSet<GraphFragment>();
+        if (execution.reset(this, visited)) {
+          s_logger.info("Using cached execution plan for {}", graph);
+          visited.clear();
+          executeLeafNodes(execution, visited);
+          return execution;
+        } else {
+          s_logger.warn("Invalid cached execution plan for {}", graph);
+        }
       }
     }
     return createExecutionPlan(graph, statistics);

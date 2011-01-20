@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -140,7 +141,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getParentNodeId());
     assertEquals(portfolioUid, node.getPortfolioId());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(UniqueIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
     if (depth == 1) {
       assertEquals(0, node.getChildNodes().size());
       return;
@@ -157,8 +158,8 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(portfolioUid, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(2, node.getPositionIds().size());
-    assertEquals(true, node.getPositionIds().contains(UniqueIdentifier.of("DbPos", "501")));
-    assertEquals(true, node.getPositionIds().contains(UniqueIdentifier.of("DbPos", "502")));
+    assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "501")));
+    assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "502")));
   }
 
   protected void assert201(final PortfolioDocument test) {
@@ -183,7 +184,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(portfolioUid, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(UniqueIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
   }
 
   protected void assert202(final PortfolioDocument test) {
@@ -208,7 +209,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     assertEquals(portfolioUid, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(UniqueIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
   }
 
 }

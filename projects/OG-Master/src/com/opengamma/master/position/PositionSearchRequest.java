@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,11 +19,11 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,14 +43,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _positionIds;
+  private List<ObjectIdentifier> _positionIds;
   /**
    * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _tradeIds;
+  private List<ObjectIdentifier> _tradeIds;
   /**
    * The security keys to match, null to not match on security keys.
    */
@@ -81,16 +81,16 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single position id to the set.
+   * Adds a single position object identifier to the set.
    * 
-   * @param positionId  the position id to add, not null
+   * @param positionId  the position object identifier to add, not null
    */
-  public void addPositionId(UniqueIdentifier positionId) {
+  public void addPositionId(ObjectIdentifiable positionId) {
     ArgumentChecker.notNull(positionId, "positionId");
     if (_positionIds == null) {
-      _positionIds = new ArrayList<UniqueIdentifier>();
+      _positionIds = new ArrayList<ObjectIdentifier>();
     }
-    _positionIds.add(positionId);
+    _positionIds.add(positionId.getObjectId());
   }
 
   /**
@@ -99,26 +99,28 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param positionIds  the new position identifiers, null clears the position id search
    */
-  public void setPositionIds(Iterable<UniqueIdentifier> positionIds) {
+  public void setPositionIds(Iterable<? extends ObjectIdentifiable> positionIds) {
     if (positionIds == null) {
       _positionIds = null;
     } else {
-      _positionIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_positionIds, positionIds);
+      _positionIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable positionId : positionIds) {
+        _positionIds.add(positionId.getObjectId());
+      }
     }
   }
 
   /**
-   * Adds a single trade id to the set.
+   * Adds a single trade object identifier to the set.
    * 
-   * @param tradeId  the trade id to add, not null
+   * @param tradeId  the trade object identifier to add, not null
    */
-  public void addTradeId(UniqueIdentifier tradeId) {
+  public void addTradeId(ObjectIdentifiable tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     if (_tradeIds == null) {
-      _tradeIds = new ArrayList<UniqueIdentifier>();
+      _tradeIds = new ArrayList<ObjectIdentifier>();
     }
-    _tradeIds.add(tradeId);
+    _tradeIds.add(tradeId.getObjectId());
   }
 
   /**
@@ -128,12 +130,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param tradeIds  the new trade identifiers, null clears the trade id search
    */
-  public void setTradeIds(Iterable<UniqueIdentifier> tradeIds) {
+  public void setTradeIds(Iterable<? extends ObjectIdentifiable> tradeIds) {
     if (tradeIds == null) {
       _tradeIds = null;
     } else {
-      _tradeIds = new ArrayList<UniqueIdentifier>();
-      Iterables.addAll(_tradeIds, tradeIds);
+      _tradeIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable tradeId : tradeIds) {
+        _tradeIds.add(tradeId.getObjectId());
+      }
     }
   }
 
@@ -221,10 +225,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -137459505:  // positionIds
-        setPositionIds((List<UniqueIdentifier>) newValue);
+        setPositionIds((List<ObjectIdentifier>) newValue);
         return;
       case 1271202484:  // tradeIds
-        setTradeIds((List<UniqueIdentifier>) newValue);
+        setTradeIds((List<ObjectIdentifier>) newValue);
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
@@ -248,7 +252,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getPositionIds() {
+  public List<ObjectIdentifier> getPositionIds() {
     return _positionIds;
   }
 
@@ -257,7 +261,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> positionIds() {
+  public final Property<List<ObjectIdentifier>> positionIds() {
     return metaBean().positionIds().createProperty(this);
   }
 
@@ -268,7 +272,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getTradeIds() {
+  public List<ObjectIdentifier> getTradeIds() {
     return _tradeIds;
   }
 
@@ -278,7 +282,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> tradeIds() {
+  public final Property<List<ObjectIdentifier>> tradeIds() {
     return metaBean().tradeIds().createProperty(this);
   }
 
@@ -399,12 +403,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(this, "positionIds", (Class) List.class);
     /**
      * The meta-property for the {@code tradeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(this, "tradeIds", (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
@@ -458,7 +462,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> positionIds() {
+    public final MetaProperty<List<ObjectIdentifier>> positionIds() {
       return _positionIds;
     }
 
@@ -466,7 +470,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code tradeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> tradeIds() {
+    public final MetaProperty<List<ObjectIdentifier>> tradeIds() {
       return _tradeIds;
     }
 

@@ -1,20 +1,25 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -32,6 +37,7 @@ import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererPro
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.engine.view.permission.ViewPermission;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.livedata.LiveDataClient;
@@ -43,7 +49,7 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * Default implementation of {@link ViewProcessor}.
  */
-public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
+public class ViewProcessorImpl implements ViewProcessorInternal {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
   // Injected Inputs:
   private ViewDefinitionRepository _viewDefinitionRepository;
@@ -66,6 +72,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final Timer _clientResultTimer = new Timer("ViewProcessor client result timer");
   private boolean _isStarted /* = false */;
+  private boolean _isSuspended /* = false */;
+  
+  /**
+   * The view processor event listener registry
+   */
+  private ViewProcessorEventListenerRegistry _viewProcessorEventListenerRegistry = new ViewProcessorEventListenerRegistry();
 
   public ViewProcessorImpl() {
   }
@@ -95,26 +107,20 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
 
       ViewProcessingContext viewProcessingContext = createViewProcessingContext();
       view = new ViewImpl(definition, viewProcessingContext, _clientResultTimer);
+      // The view must be created in a locked state if this view processor is suspended
+      _lifecycleLock.lock();
+      try {
+        if (_isSuspended) {
+          view.suspend();
+        }
+      } finally {
+        _lifecycleLock.unlock();
+      }
       _viewsByName.put(name, view);
+      _viewProcessorEventListenerRegistry.notifyViewAdded(name);
     }
     getViewPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, view);
     return view;
-  }
-  
-  @Override
-  public void reinitAsync() {
-    // A hack to add support for reinitialisation - really it needs more design and thought
-    new Thread(new Runnable() {
-
-      @Override
-      public void run() {
-        getFunctionCompilationService().reinit();
-        //for (ViewInternal view : _viewsByName.values()) {
-        //  view.reinit();
-        //}
-      }
-      
-    }).start();
   }
 
   /**
@@ -299,6 +305,65 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
   public GraphExecutorStatisticsGathererProvider getGraphExecutionStatistics() {
     return _graphExecutionStatistics;
   }
+  
+  public ViewProcessorEventListenerRegistry getViewProcessorEventListenerRegistry() {
+    return _viewProcessorEventListenerRegistry;
+  }
+
+  @Override
+  public Future<Runnable> suspend(final ExecutorService executor) {
+    _lifecycleLock.lock();
+    try {
+      s_logger.info("Suspending running views.");
+      if (_isSuspended) {
+        throw new IllegalStateException("Already suspended");
+      }
+      _isSuspended = true;
+      final List<Future<?>> suspends = new ArrayList<Future<?>>(_viewsByName.size());
+      // Request all the views suspend
+      for (final ViewInternal view : _viewsByName.values()) {
+        suspends.add(executor.submit(new Runnable() {
+          @Override
+          public void run() {
+            view.suspend();
+          }
+        }, null));
+      }
+      return executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          // Wait for all of the suspend operations to complete
+          while (!suspends.isEmpty()) {
+            Future<?> suspend = suspends.remove(suspends.size() - 1);
+            try {
+              suspend.get(3000, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException t) {
+              s_logger.debug("Timeout waiting for view to suspend", t);
+              suspends.add(suspend);
+            } catch (Throwable t) {
+              s_logger.warn("Couldn't suspend view", t);
+            }
+          }
+        }
+      }, (Runnable) new Runnable() {
+        @Override
+        public void run() {
+          // Resume all of the views
+          _lifecycleLock.lock();
+          try {
+            _isSuspended = false;
+            for (ViewInternal view : _viewsByName.values()) {
+              view.resume();
+            }
+          } finally {
+            _lifecycleLock.unlock();
+          }
+        }
+      });
+    } finally {
+      _lifecycleLock.unlock();
+    }
+  }
 
   // --------------------------------------------------------------------------
   // LIFECYCLE METHODS
@@ -321,14 +386,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
     try {
       s_logger.info("Starting on lifecycle call.");
       checkInjectedInputs();
-      getFunctionCompilationService().initialize();
-      // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
-      // where we'd do it.
+      // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is where we'd do it.
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
     }
     timer.finished();
+    _viewProcessorEventListenerRegistry.notifyViewProcessorStarted();
   }
 
   @Override
@@ -342,11 +406,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal, Lifecycle {
           s_logger.info("Terminating view {} due to lifecycle call", view.getDefinition().getName());
           view.stop();
         }
+        _viewProcessorEventListenerRegistry.notifyViewRemoved(view.getName());
       }
       _viewsByName.clear();
       s_logger.info("All views terminated.");
       _isStarted = false;
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
+      _viewProcessorEventListenerRegistry.notifyViewProcessorStopped();
     } finally {
       _lifecycleLock.unlock();
     }

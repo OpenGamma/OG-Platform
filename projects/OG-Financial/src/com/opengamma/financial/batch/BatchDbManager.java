@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,10 +7,8 @@ package com.opengamma.financial.batch;
 
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
@@ -84,19 +82,34 @@ public interface BatchDbManager {
   DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
   
   /**
+   * Searches for batches matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchSearchResult search(BatchSearchRequest request);
+
+  /**
    * Gets the results of a batch from the batch DB.
    * <p>
    * Risk failures are not included in the result. 
-   * <p>
-   * This method should not be called while the batch is still
-   * in progress. If this is done, the results may be incomplete
-   * and you may encounter database locking issues. 
    * 
-   * @param observationDate Date of the batch
-   * @param observationTime Time of the batch, for example, LDN_CLOSE
-   * @return The results of the batch. {@code null} if there is no batch 
-   * for the given date and time. 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  ViewComputationResultModel getResults(LocalDate observationDate, String observationTime);
+  BatchDataSearchResult getResults(BatchDataSearchRequest request);
+  
+  /**
+   * Gets the results of a batch from the batch DB.
+   * <p>
+   * Risk failures are not included in the result. 
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchErrorSearchResult getErrors(BatchErrorSearchRequest request);
   
 }

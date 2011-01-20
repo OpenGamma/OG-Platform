@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,7 +26,7 @@ public interface ViewCalculationResultModel {
   Collection<ComputationTargetSpecification> getAllTargets();
 
   /**
-   * Returns the computed values for a given target. The values are returned as a map of configuration names to {@link ComputedValue}s.
+   * Returns the computed values for a given target. The values are returned as a map of value names to {@link ComputedValue}s.
    * 
    * @param target the target to search for, not {@code null}
    * @return the computed values for each configuration, or {@code null} if the target does not exist in the view results

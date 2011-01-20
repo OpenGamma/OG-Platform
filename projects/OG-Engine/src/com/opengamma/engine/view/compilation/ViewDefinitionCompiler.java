@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -56,10 +56,18 @@ public final class ViewDefinitionCompiler {
     OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
     ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, Instant.of(atInstant));
 
+    long t = -System.nanoTime();
     Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext);
+    t += System.nanoTime();
+    s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
+    t -= System.nanoTime();
     SpecificRequirementsCompiler.execute(viewCompilationContext);
-
+    t += System.nanoTime();
+    s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
+    t -= System.nanoTime();
     Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
+    t += System.nanoTime();
+    s_logger.debug("Processed dependency graphs after {}ms", (double) t / 1e6);
     timer.finished();
 
     if (OUTPUT_DEPENDENCY_GRAPHS) {

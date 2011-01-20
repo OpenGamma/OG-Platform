@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,6 +24,8 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -147,14 +149,14 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   /**
    * Gets a trade from the list by object identifier.
    * 
-   * @param tradeOid  the trade object identifier, not null
+   * @param tradeObjectId  the trade object identifier, not null
    * @return the trade with the identifier, null if not found
    */
-  public ManageableTrade getTrade(final UniqueIdentifier tradeOid) {
-    ArgumentChecker.notNull(tradeOid, "tradeOid");
+  public ManageableTrade getTrade(final ObjectIdentifiable tradeObjectId) {
+    ArgumentChecker.notNull(tradeObjectId, "tradeObjectId");
+    ObjectIdentifier objectId = tradeObjectId.getObjectId();
     for (ManageableTrade trade : getTrades()) {
-      if (getUniqueId().getScheme().equals(tradeOid.getScheme()) &&
-          getUniqueId().getValue().equals(tradeOid.getValue())) {
+      if (getUniqueId().equalObjectIdentifier(objectId)) {
         return trade;
       }
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -87,4 +87,15 @@ public interface ViewInternal extends View {
    */
   ViewPermissionProvider getPermissionProvider();
 
+  /**
+   * Suspends all operations on the view, blocking until everything is in a suspendable state. While suspended,
+   * any operations which would alter the state of the view will block until {@link #resume} is called.
+   */
+  void suspend();
+
+  /**
+   * Resumes operations on the view suspended by {@link #suspend}.
+   */
+  void resume();
+  
 }

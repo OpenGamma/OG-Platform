@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -139,6 +139,9 @@ public class RemoteViewClient implements ViewClient {
   public void shutdown() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
     _client.access(uri).post();
+    
+    setResultListener(null);
+    setDeltaResultListener(null);
   }
 
   @Override

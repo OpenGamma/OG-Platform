@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -149,6 +149,13 @@ public final class Paging {
    */
   public int getTotalPages() {
     return (_totalItems - 1) / _pagingSize + 1;
+  }
+  
+  /**
+   * @return true if this is the last page, false otherwise
+   */
+  public boolean isLastPage() {
+    return getPage() == getTotalPages();
   }
 
   //-------------------------------------------------------------------------

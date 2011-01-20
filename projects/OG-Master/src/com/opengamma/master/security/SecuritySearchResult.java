@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -16,7 +16,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.AbstractSearchResult;
 
 /**
  * Result from searching for securities.
@@ -25,7 +25,7 @@ import com.opengamma.master.AbstractHistoryResult;
  * See {@link SecuritySearchRequest} for more details.
  */
 @BeanDefinition
-public class SecuritySearchResult extends AbstractHistoryResult<SecurityDocument> {
+public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument> {
 
   /**
    * Creates an instance.
@@ -118,7 +118,7 @@ public class SecuritySearchResult extends AbstractHistoryResult<SecurityDocument
   /**
    * The meta-bean for {@code SecuritySearchResult}.
    */
-  public static class Meta extends AbstractHistoryResult.Meta<SecurityDocument> {
+  public static class Meta extends AbstractSearchResult.Meta<SecurityDocument> {
     /**
      * The singleton instance of the meta-bean.
      */

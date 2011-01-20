@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -59,22 +59,22 @@ public class UniqueIdentifierTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_nullScheme() {
-    UniqueIdentifier.of((String) null, "value");
+    UniqueIdentifier.of((String) null, "value", "version");
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_emptyScheme() {
-    UniqueIdentifier.of("", "value");
+    UniqueIdentifier.of("", "value", "version");
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_nullValue() {
-    UniqueIdentifier.of("Scheme", (String) null);
+    UniqueIdentifier.of("Scheme", (String) null, "version");
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void test_factory_String_String_String_emptyValue() {
-    UniqueIdentifier.of("Scheme", "");
+    UniqueIdentifier.of("Scheme", "", "version");
   }
 
   @Test
@@ -155,11 +155,19 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_getObjectId() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "version");
+    assertEquals(ObjectIdentifier.of("id1", "value1"), test.getObjectId());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_getUniqueId() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
     assertSame(test, test.getUniqueId());
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_getSchemeAsObject() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
@@ -204,37 +212,37 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_equalsIgnoringVersion_noVersion() {
+  public void test_equalObjectIdentifier_noVersion() {
     UniqueIdentifier d1a = UniqueIdentifier.of("Scheme", "d1");
     UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
     UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2");
     
-    assertEquals(true, d1a.equalsIgnoringVersion(d1a));
-    assertEquals(true, d1a.equalsIgnoringVersion(d1b));
-    assertEquals(false, d1a.equalsIgnoringVersion(d2));
+    assertEquals(true, d1a.equalObjectIdentifier(d1a));
+    assertEquals(true, d1a.equalObjectIdentifier(d1b));
+    assertEquals(false, d1a.equalObjectIdentifier(d2));
     
-    assertEquals(true, d1b.equalsIgnoringVersion(d1a));
-    assertEquals(true, d1b.equalsIgnoringVersion(d1b));
-    assertEquals(false, d1b.equalsIgnoringVersion(d2));
+    assertEquals(true, d1b.equalObjectIdentifier(d1a));
+    assertEquals(true, d1b.equalObjectIdentifier(d1b));
+    assertEquals(false, d1b.equalObjectIdentifier(d2));
     
-    assertEquals(false, d2.equalsIgnoringVersion(d1a));
-    assertEquals(false, d2.equalsIgnoringVersion(d1b));
-    assertEquals(true, d2.equalsIgnoringVersion(d2));
+    assertEquals(false, d2.equalObjectIdentifier(d1a));
+    assertEquals(false, d2.equalObjectIdentifier(d1b));
+    assertEquals(true, d2.equalObjectIdentifier(d2));
   }
 
   @Test
-  public void test_equalsIgnoringVersion_version() {
+  public void test_equalObjectIdentifier_version() {
     UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
     UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d1", "2");
     
-    assertEquals(true, d1.equalsIgnoringVersion(d2));
+    assertEquals(true, d1.equalObjectIdentifier(d2));
   }
 
   @Test
-  public void test_equalsIgnoringVersion_null() {
+  public void test_equalObjectIdentifier_null() {
     UniqueIdentifier d1 = UniqueIdentifier.of("Scheme", "d1", "1");
     
-    assertEquals(false, d1.equalsIgnoringVersion(null));
+    assertEquals(false, d1.equalObjectIdentifier(null));
   }
 
   //-------------------------------------------------------------------------

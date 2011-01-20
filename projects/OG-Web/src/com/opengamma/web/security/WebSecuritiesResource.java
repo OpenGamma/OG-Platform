@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -33,11 +33,14 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityHistoryRequest;
+import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -139,10 +142,21 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   //-------------------------------------------------------------------------
   @Path("{securityId}")
-  public WebSecurityResource findPortfolio(@PathParam("securityId") String idStr) {
+  public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
-    SecurityDocument securityDoc = data().getSecurityMaster().get(UniqueIdentifier.parse(idStr));
-    data().setSecurity(securityDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      SecurityDocument doc = data().getSecurityMaster().get(oid);
+      data().setSecurity(doc);
+    } catch (DataNotFoundException ex) {
+      SecurityHistoryRequest historyRequest = new SecurityHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      SecurityHistoryResult historyResult = data().getSecurityMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setSecurity(historyResult.getFirstDocument());
+    }
     return new WebSecurityResource(this);
   }
 

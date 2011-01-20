@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,10 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 
@@ -66,10 +64,20 @@ public class DummyBatchDbManager implements BatchDbManager {
     }
     values.add(value);
   }
-
+  
   @Override
-  public ViewComputationResultModel getResults(LocalDate observationDate, String observationTime) {
-    return null;
+  public BatchSearchResult search(BatchSearchRequest request) {
+    return new BatchSearchResult();
   }
 
+  @Override
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    return new BatchDataSearchResult();
+  }
+
+  @Override
+  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+    return new BatchErrorSearchResult();
+  }
+  
 }

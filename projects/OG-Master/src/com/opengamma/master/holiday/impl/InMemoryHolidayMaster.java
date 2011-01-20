@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -203,7 +203,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final HolidayHistoryResult result = new HolidayHistoryResult();
-    final HolidayDocument doc = get(request.getObjectId());
+    final HolidayDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

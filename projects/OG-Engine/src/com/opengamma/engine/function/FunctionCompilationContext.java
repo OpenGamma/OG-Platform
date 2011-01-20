@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -30,6 +30,16 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which the view calculation configuration should be bound.
    */
   public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
+
+  /**
+   * The name under which the initialization reference of the functions should be bound.
+   */
+  public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
+
+  /**
+   * The name under which a re-initialization hook should be bound.
+   */
+  public static final String FUNCTION_REINITIALIZER_NAME = "functionReinitializer";
 
   /**
    * Creates an empty function compilation context.
@@ -93,6 +103,46 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setViewCalculationConfiguration(final ViewCalculationConfiguration viewCalculationConfiguration) {
     put(VIEW_CALCULATION_CONFIGURATION_NAME, viewCalculationConfiguration);
+  }
+
+  /**
+   * Sets the function initialization identifier.
+   * 
+   * @param id the identifier
+   */
+  public void setFunctionInitId(final long id) {
+    put(FUNCTION_INIT_ID_NAME, id);
+  }
+
+  /**
+   * Gets the function initialization identifier.
+   * 
+   * @return the identifier
+   */
+  public Long getFunctionInitId() {
+    return (Long) get(FUNCTION_INIT_ID_NAME);
+  }
+
+  /**
+   * Sets the function re-initialization hook.
+   * 
+   * @param reinitializer the re-initialization hook
+   */
+  public void setFunctionReinitializer(final FunctionReinitializer reinitializer) {
+    if (reinitializer == null) {
+      remove(FUNCTION_REINITIALIZER_NAME);
+    } else {
+      put(FUNCTION_REINITIALIZER_NAME, reinitializer);
+    }
+  }
+
+  /**
+   * Gets the function re-initialization hook.
+   * 
+   * @return the re-initialization hook
+   */
+  public FunctionReinitializer getFunctionReinitializer() {
+    return (FunctionReinitializer) get(FUNCTION_REINITIALIZER_NAME);
   }
 
   /**

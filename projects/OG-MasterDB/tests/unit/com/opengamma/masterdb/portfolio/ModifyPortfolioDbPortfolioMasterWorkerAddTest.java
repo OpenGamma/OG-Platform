@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,12 +15,11 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -34,50 +33,31 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerAddTest.class);
 
-  private ModifyPortfolioDbPortfolioMasterWorker _worker;
-  private QueryPortfolioDbPortfolioMasterWorker _queryWorker;
-
   public ModifyPortfolioDbPortfolioMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyPortfolioDbPortfolioMasterWorker();
-    _worker.init(_prtMaster);
-    _queryWorker = new QueryPortfolioDbPortfolioMasterWorker();
-    _queryWorker.init(_prtMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_nullDocument() {
-    _worker.add(null);
+    _prtMaster.add(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
-    _worker.add(doc);
+    _prtMaster.add(doc);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noRootNode() {
     ManageablePortfolio mockPortfolio = mock(ManageablePortfolio.class);
     when(mockPortfolio.getName()).thenReturn("Test");
     PortfolioDocument doc = new PortfolioDocument();
     doc.setPortfolio(mockPortfolio);
-    _worker.add(doc);
+    _prtMaster.add(doc);
   }
 
   @Test
@@ -92,7 +72,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     portfolio.setRootNode(rootNode);
     PortfolioDocument doc = new PortfolioDocument();
     doc.setPortfolio(portfolio);
-    PortfolioDocument test = _worker.add(doc);
+    PortfolioDocument test = _prtMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -121,7 +101,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(uid, testChildNode.getPortfolioId());
     assertEquals(0, testChildNode.getChildNodes().size());
     assertEquals(1, testChildNode.getPositionIds().size());
-    assertEquals(UniqueIdentifier.of("TestPos", "1234"), testChildNode.getPositionIds().get(0));
+    assertEquals(ObjectIdentifier.of("TestPos", "1234"), testChildNode.getPositionIds().get(0));
   }
 
   @Test
@@ -133,16 +113,16 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     portfolio.setRootNode(rootNode);
     PortfolioDocument doc = new PortfolioDocument();
     doc.setPortfolio(portfolio);
-    PortfolioDocument added = _worker.add(doc);
+    PortfolioDocument added = _prtMaster.add(doc);
     
-    PortfolioDocument test = _queryWorker.get(added.getUniqueId());
+    PortfolioDocument test = _prtMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbPrt]", _worker.toString());
+    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

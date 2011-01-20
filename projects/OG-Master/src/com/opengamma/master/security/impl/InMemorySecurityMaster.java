@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -183,7 +183,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final SecurityHistoryResult result = new SecurityHistoryResult();
-    final SecurityDocument doc = get(request.getObjectId());
+    final SecurityDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

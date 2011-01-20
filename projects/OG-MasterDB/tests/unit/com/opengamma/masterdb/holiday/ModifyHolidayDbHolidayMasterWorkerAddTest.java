@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,8 +15,6 @@ import java.util.TimeZone;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,41 +34,22 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerAddTest.class);
 
-  private ModifyHolidayDbHolidayMasterWorker _worker;
-  private DbHolidayMasterWorker _queryWorker;
-
   public ModifyHolidayDbHolidayMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyHolidayDbHolidayMasterWorker();
-    _worker.init(_holMaster);
-    _queryWorker = new QueryHolidayDbHolidayMasterWorker();
-    _queryWorker.init(_holMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_addHoliday_nullDocument() {
-    _worker.add(null);
+    _holMaster.add(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
-    _worker.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test
@@ -80,7 +59,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
-    HolidayDocument test = _worker.add(doc);
+    HolidayDocument test = _holMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -110,7 +89,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.BANK, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
-    HolidayDocument test = _worker.add(doc);
+    HolidayDocument test = _holMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -140,7 +119,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.SETTLEMENT, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
-    HolidayDocument test = _worker.add(doc);
+    HolidayDocument test = _holMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -170,7 +149,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.TRADING, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
-    HolidayDocument test = _worker.add(doc);
+    HolidayDocument test = _holMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -197,16 +176,16 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_addThenGet() {
     ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
-    HolidayDocument added = _worker.add(doc);
+    HolidayDocument added = _holMaster.add(doc);
     
-    HolidayDocument test = _queryWorker.get(added.getUniqueId());
+    HolidayDocument test = _holMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbHol]", _worker.toString());
+    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

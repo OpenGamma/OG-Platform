@@ -1,11 +1,12 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.time.Instant;
 
@@ -72,5 +73,12 @@ public interface ViewResultModel {
    * @return the calculation results, or {@code null} if the target was not found
    */
   ViewTargetResultModel getTargetResult(ComputationTargetSpecification targetSpecification);
+  
+  /**
+   * Returns an iterator for iterating over all result entries. 
+   * 
+   * @return an iterator for iterating over all result entries
+   */
+  List<ViewResultEntry> getAllResults();
 
 }

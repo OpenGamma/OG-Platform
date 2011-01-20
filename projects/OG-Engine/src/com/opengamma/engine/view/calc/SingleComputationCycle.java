@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -122,6 +122,10 @@ public class SingleComputationCycle {
 
   public Instant getValuationTime() {
     return _valuationTime;
+  }
+
+  public long getFunctionInitId() {
+    return getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
   }
 
   /**
