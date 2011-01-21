@@ -37,12 +37,15 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  * Outputs JSON representation of security object
  */
 public class JSONOutputter {
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(JSONOutputter.class);
   
   private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "name");
   private static final String DATA_FIELDS_KEY = "dataFields";
   private static final String HEADER_KEY = "header";
   private static final String DATA_KEY = "data";
+  private static final String TEMPLATE_DATA_KEY = "templateData";
+  private static final String IDENTIFIERS_KEY = "identifiers";
   
   private static final Map<String, List<String>> s_dataFieldsMap = new HashMap<String, List<String>>();
   static {
@@ -72,25 +75,24 @@ public class JSONOutputter {
   public String buildSecuity(ManageableSecurity security) {
     ArgumentChecker.notNull(security, "ManageableSecurity");
     
+    Map<String, Object> jsonMap = new HashMap<String, Object>();
+    
     FudgeFieldContainer fudgeMsg = security.toFudgeMsg(_fudgeContext);
     
-    s_logger.debug("converting message to JSON: {}", security.toString());
-    String result = null;
     final CharArrayWriter caw = new CharArrayWriter();
     final FudgeMsgWriter fmw = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, caw));
     
     fmw.writeMessage(removeIdentifiersField(fudgeMsg));
-    
+    String result = null;
     try {
-      JSONObject templatedata = new JSONObject(caw.toString());
-      JSONObject identifiers = convertIdentierToJSON(fudgeMsg);
+      jsonMap.put(TEMPLATE_DATA_KEY, new JSONObject(caw.toString()));
+      jsonMap.put(IDENTIFIERS_KEY, convertIdentierToJSON(fudgeMsg));
+      result = new JSONObject(jsonMap).toString();
       
-      JSONObject jsonObject = new JSONObject().put("templateData", templatedata);
-      jsonObject.put("identifiers", identifiers);
-      result = jsonObject.toString();
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Error creating JSON from FudgeMessage", ex);
     }
+
     return result;
     
   }
