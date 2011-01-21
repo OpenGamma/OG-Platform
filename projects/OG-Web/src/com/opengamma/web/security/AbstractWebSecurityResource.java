@@ -25,6 +25,11 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebSecuritiesData _data;
+  
+  /**
+   * JSON output formatter for securities service
+   */
+  private final JSONOutputter _jsonOutputter = new JSONOutputter();
 
   /**
    * Creates the resource.
@@ -78,6 +83,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    */
   protected WebSecuritiesData data() {
     return _data;
+  }
+  
+  /**
+   * Gets the JSON security outputter
+   * @return the json out putter, not null
+   */
+  protected JSONOutputter getJSONOutputter() {
+    return _jsonOutputter;
   }
 
 }

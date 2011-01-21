@@ -75,6 +75,24 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
+    FlexiBean out = getSecuritySearchResultData(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("securities/securities.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = getSecuritySearchResultData(page, pageSize, name, type, uriInfo);
+    SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
+    return getJSONOutputter().buildSecuritySearchResult(securitySearchResult);
+  }
+
+  private FlexiBean getSecuritySearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
@@ -93,7 +111,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("securities/securities.ftl", out);
+    return out;
   }
 
 //-------------------------------------------------------------------------

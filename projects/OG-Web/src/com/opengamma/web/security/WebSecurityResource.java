@@ -29,7 +29,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.web.util.JSONOutputter;
 
 /**
  * RESTful resource for a security.
@@ -37,8 +36,6 @@ import com.opengamma.web.util.JSONOutputter;
 @Path("/securities/{securityId}")
 public class WebSecurityResource extends AbstractWebSecurityResource {
   
-  private final JSONOutputter _jsonSecurityOutputter = new JSONOutputter();
-
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -52,7 +49,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSONSecurity() {
     SecurityDocument doc = data().getSecurity();
-    return _jsonSecurityOutputter.buildSecuity(doc.getSecurity());
+    return getJSONOutputter().buildSecuity(doc.getSecurity());
   }
   
   //-------------------------------------------------------------------------
