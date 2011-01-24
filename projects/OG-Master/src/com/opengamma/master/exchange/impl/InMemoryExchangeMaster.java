@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,7 +15,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -75,16 +74,19 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(request, "request");
     final ExchangeSearchResult result = new ExchangeSearchResult();
     Collection<ExchangeDocument> docs = _exchanges.values();
-    if (request.getIdentifiers().size() > 0) {
+    if (request.getExchangeIds() != null) {
       docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
         @Override
         public boolean apply(final ExchangeDocument doc) {
-          for (IdentifierBundle bundle : request.getIdentifiers()) {
-            if (doc.getExchange().getIdentifiers().containsAll(bundle)) {
-              return true;
-            }
-          }
-          return false;
+          return request.getExchangeIds().contains(doc.getUniqueId());
+        }
+      });
+    }
+    if (request.getExchangeKeys() != null) {
+      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
+        @Override
+        public boolean apply(final ExchangeDocument doc) {
+          return request.getExchangeKeys().matches(doc.getExchange().getIdentifiers());
         }
       });
     }
@@ -121,7 +123,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     
     final UniqueIdentifier uid = _uidSupplier.get();
     final ManageableExchange exchange = document.getExchange().clone();
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     document.setUniqueId(uid);
     final Instant now = Instant.now();
     final ExchangeDocument doc = new ExchangeDocument();
@@ -173,7 +175,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ExchangeHistoryResult result = new ExchangeHistoryResult();
-    final ExchangeDocument doc = get(request.getObjectId());
+    final ExchangeDocument doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -36,7 +36,7 @@ public class BondDirtyPriceFunction extends BondFunction {
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final BondDefinition bondDefinition, final Object value, final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueId());
     final Bond bond = bondDefinition.toDerivative(now, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
@@ -45,7 +45,7 @@ public class BondDirtyPriceFunction extends BondFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, target.getPosition()), getUniqueId()));
     }
     return null;
   }

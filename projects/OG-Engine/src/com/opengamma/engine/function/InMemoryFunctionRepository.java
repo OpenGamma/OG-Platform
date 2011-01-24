@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -28,8 +28,8 @@ public class InMemoryFunctionRepository implements FunctionRepository {
 
   public synchronized void addFunction(AbstractFunction function) {
     ArgumentChecker.notNull(function, "Function definition");
-    if (function.getUniqueIdentifier() == null) {
-      function.setUniqueIdentifier(Integer.toString(_functions.size() + 1) + " (" + function.getClass().getSimpleName() + ")");
+    if (function.getUniqueId() == null) {
+      function.setUniqueId(Integer.toString(_functions.size() + 1) + " (" + function.getClass().getSimpleName() + ")");
     }
     _functions.add(function);
   }
@@ -38,8 +38,8 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     ArgumentChecker.notNull(searchFor, "searchFor");
     ArgumentChecker.notNull(replaceWith, "replaceWith");
     _functions.remove(searchFor);
-    if (replaceWith.getUniqueIdentifier() == null) {
-      replaceWith.setUniqueIdentifier(searchFor.getUniqueIdentifier());
+    if (replaceWith.getUniqueId() == null) {
+      replaceWith.setUniqueId(searchFor.getUniqueId());
     }
     _functions.add(replaceWith);
   }
@@ -56,9 +56,11 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    * @param compilationContext The context to provide to each function.
    */
   public void initFunctions(FunctionCompilationContext compilationContext) {
+    compilationContext.setFunctionReinitializer(new DummyFunctionReinitializer());
     for (FunctionDefinition function : _functions) {
       function.init(compilationContext);
     }
+    compilationContext.setFunctionReinitializer(null);
   }
 
 }

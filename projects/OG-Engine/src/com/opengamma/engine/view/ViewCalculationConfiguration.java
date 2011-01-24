@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -37,7 +37,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * every position and aggregate position in the reference portfolio.
    */
   private final Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType = new TreeMap<String, Set<Pair<String, ValueProperties>>>();
-  
+
   /**
    * Contains the required trade outputs for each security type. These are the outputs produced at the trade level, 
    * with respect to the reference portfolio. 
@@ -55,6 +55,11 @@ public class ViewCalculationConfiguration implements Serializable {
    * required for the view configuration.
    */
   private DeltaDefinition _deltaDefinition = new DeltaDefinition();
+
+  /**
+   * A set of default properties for functions to configure themselves from.
+   */
+  private ValueProperties _defaultProperties = ValueProperties.none();
 
   /**
    * Constructs an instance.
@@ -96,6 +101,29 @@ public class ViewCalculationConfiguration implements Serializable {
   }
 
   /**
+   * Returns the default value properties for the view. Functions that expect a property constraint on values
+   * they are asked to produce should refer to the defaults if the constraint is absent, or use the default
+   * to construct the input requirements.
+   * 
+   * @return the default property set
+   */
+  public ValueProperties getDefaultProperties() {
+    return _defaultProperties;
+  }
+
+  /**
+   * Sets the default value properties for the view. Functions that expect a property constraint on values
+   * they are asked to produce should refer to the defaults if the constraint is absent, or use the default
+   * to construct the input requirements.
+   * 
+   * @param defaultProperties the default properties
+   */
+  public void setDefaultProperties(final ValueProperties defaultProperties) {
+    ArgumentChecker.notNull(defaultProperties, "defaultProperties");
+    _defaultProperties = defaultProperties;
+  }
+
+  /**
    * Gets the required portfolio outputs by security type. These are the outputs produced at the position and
    * aggregate position level, with respect to the reference portfolio.
    * 
@@ -104,7 +132,7 @@ public class ViewCalculationConfiguration implements Serializable {
   public Map<String, Set<Pair<String, ValueProperties>>> getPortfolioRequirementsBySecurityType() {
     return Collections.unmodifiableMap(_portfolioRequirementsBySecurityType);
   }
-  
+
   /**
    * Gets the required trade outputs by security type. These are the outputs produced at the trade level, 
    * with respect to the reference portfolio.
@@ -129,7 +157,7 @@ public class ViewCalculationConfiguration implements Serializable {
     }
     return requirements;
   }
-  
+
   /**
    * Gets a set containing every trade output that is required, regardless of the security type(s) on which the
    * output is required. These are outputs produced at the trade level, with respect to the
@@ -162,7 +190,7 @@ public class ViewCalculationConfiguration implements Serializable {
     }
     secTypeRequirements.addAll(requiredOutputs);
   }
-  
+
   /**
    * Adds a set of required trade outputs for the given security type. These are outputs produced at the trade level, 
    * with respect to the reference portfolio.
@@ -196,7 +224,7 @@ public class ViewCalculationConfiguration implements Serializable {
       addPortfolioRequirementName(securityType, requiredOutput);
     }
   }
-  
+
   /**
    * Adds a set of required trade outputs for the given security type with no value constraints. This is
    * equivilant to calling {@link #addTradeRequirements (String, Set)} with
@@ -227,7 +255,7 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(constraints, "constraints");
     addPortfolioRequirements(securityType, Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput, constraints)));
   }
-  
+
   /**
    * Adds a required trade output for the given security type. This is an output produced at the trade level, 
    * with respect to the reference portfolio.
@@ -253,7 +281,7 @@ public class ViewCalculationConfiguration implements Serializable {
   public void addPortfolioRequirementName(final String securityType, final String requiredOutput) {
     addPortfolioRequirement(securityType, requiredOutput, ValueProperties.none());
   }
-  
+
   /**
    * Adds a required trade output for the given security type with no value constraints. This is equivilant
    * to calling {@link #addTradeRequirement (String, String, ValueProperties)} with {@code ValueProperties.none ()}.
@@ -310,6 +338,7 @@ public class ViewCalculationConfiguration implements Serializable {
     result = prime * result + ObjectUtils.hashCode(getAllPortfolioRequirements());
     result = prime * result + ObjectUtils.hashCode(getAllTradeRequirements());
     result = prime * result + ObjectUtils.hashCode(getSpecificRequirements());
+    result = prime * result + ObjectUtils.hashCode(getDefaultProperties());
     return result;
   }
 
@@ -342,6 +371,9 @@ public class ViewCalculationConfiguration implements Serializable {
       if (!ObjectUtils.equals(securityTypeRequirements.getValue(), otherRequirements)) {
         return false;
       }
+    }
+    if (!ObjectUtils.equals(getDefaultProperties(), other.getDefaultProperties())) {
+      return false;
     }
     return true;
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -33,7 +33,7 @@ public final class MultipleNodeExecutor implements MultipleNodeExecutorMBean {
   }
 
   public static void registerMBeans(final MultipleNodeExecutorFactory executor, final MBeanServer server) throws JMException {
-    final ObjectName name = new ObjectName("com.opengamma.engine.view.calc:type=MultipleNodeExecutor");
+    final ObjectName name = new ObjectName("com.opengamma:type=MultipleNodeExecutor,name=" + executor.toString());
     final MultipleNodeExecutor instance = new MultipleNodeExecutor(executor);
     try {
       server.registerMBean(instance, name);

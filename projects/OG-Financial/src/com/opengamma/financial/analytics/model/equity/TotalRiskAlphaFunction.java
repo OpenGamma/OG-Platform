@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -109,7 +109,7 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
     marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
     final double tra = _totalRiskAlpha.evaluate(assetReturnTS, riskFreeReturnTS, marketReturnTS);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueIdentifier()), tra));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueId()), tra));
   }
 
   @Override
@@ -125,7 +125,7 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueId()));
     }
     return null;
   }

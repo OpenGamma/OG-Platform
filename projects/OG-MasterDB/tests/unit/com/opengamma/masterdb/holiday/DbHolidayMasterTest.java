@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -61,7 +61,6 @@ public class DbHolidayMasterTest extends DBTest {
     assertEquals(true, _holMaster.getIdentifierScheme().equals("DbHol"));
     assertNotNull(_holMaster.getDbSource());
     assertNotNull(_holMaster.getTimeSource());
-    assertNotNull(_holMaster.getWorkers());
   }
 
   //-------------------------------------------------------------------------

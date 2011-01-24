@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -45,7 +45,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final UniqueIdentifier uid = option.getUniqueIdentifier();
+    final UniqueIdentifier uid = option.getUniqueId();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
@@ -55,9 +55,9 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
     final double pearson = KURTOSIS_CALCULATOR.evaluate(volatility, t);
     final double fisher = pearson - 3;
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), pearson));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()), fisher));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()), skew));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()), pearson));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()), fisher));
     return results;
   }
 
@@ -83,17 +83,17 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final OptionSecurity option) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, option.getUniqueIdentifier());
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, option.getUniqueId());
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
+      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
       return results;
     }
     return null;

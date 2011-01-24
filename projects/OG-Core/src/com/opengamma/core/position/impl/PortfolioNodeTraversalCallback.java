@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,6 +12,7 @@ import com.opengamma.core.position.Position;
  * Callback interface allowing the tree of portfolio nodes to be traversed.
  * <p>
  * This interface is used during tree traversal to receive events from each node and position.
+ * See {@link AbstractPortfolioNodeTraversalCallback} for a convenient adaptor class.
  */
 public interface PortfolioNodeTraversalCallback {
 

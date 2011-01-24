@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -18,7 +18,7 @@ public interface CurrencyMatrixValueVisitor<T> {
 
   T visitFixed(CurrencyMatrixFixed fixedValue);
 
-  T visitValueRequirement(CurrencyMatrixValueRequirement uniqueIdentifier);
+  T visitValueRequirement(CurrencyMatrixValueRequirement uniqueId);
 
   T visitCross(CurrencyMatrixCross cross);
 

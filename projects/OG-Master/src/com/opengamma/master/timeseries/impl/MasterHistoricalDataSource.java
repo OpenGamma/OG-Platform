@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -103,7 +103,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       }
       TimeSeriesDocument<LocalDate> timeSeriesDocument = documents.get(0);
       timeseries = timeSeriesDocument.getTimeSeries().toLocalDateDoubleTimeSeries();
-      uid = timeSeriesDocument.getUniqueIdentifier();
+      uid = timeSeriesDocument.getUniqueId();
     }
     return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeseries);
   }

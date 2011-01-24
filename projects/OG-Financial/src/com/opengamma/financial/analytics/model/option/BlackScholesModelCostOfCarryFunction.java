@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -36,7 +36,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getSnapshotClock().zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueIdentifier()));
+    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueId()));
     if (curveObject == null) {
       throw new NullPointerException("Could not get yield curve for option");
     }
@@ -44,7 +44,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = curve.getInterestRate(t);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, option), getUniqueIdentifier()), b));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, option), getUniqueId()), b));
   }
 
   @Override
@@ -59,7 +59,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getCurrency().getUniqueId()));
     }
     return null;
   }
@@ -68,7 +68,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Security security = target.getSecurity();
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, security), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, security), getUniqueId()));
     }
     return null;
   }

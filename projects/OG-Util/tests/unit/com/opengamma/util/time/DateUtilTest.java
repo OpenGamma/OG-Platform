@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -167,6 +167,19 @@ public class DateUtilTest {
     } catch (final IllegalArgumentException e) {
       //Expected
     }
+  }
+  
+  @Test
+  public void testPrintMMDD() {
+    LocalDate test = LocalDate.of(2010, 1, 1);
+    assertEquals("01-01", DateUtil.printMMDD(test));
+    try {
+      DateUtil.printMMDD(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      //Expected
+    }
+    
   }
   
   @Test

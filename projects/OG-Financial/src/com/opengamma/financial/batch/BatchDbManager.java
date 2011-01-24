@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -80,5 +80,36 @@ public interface BatchDbManager {
    * and write results into the database.
    */
   DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
+  
+  /**
+   * Searches for batches matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchSearchResult search(BatchSearchRequest request);
+
+  /**
+   * Gets the results of a batch from the batch DB.
+   * <p>
+   * Risk failures are not included in the result. 
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchDataSearchResult getResults(BatchDataSearchRequest request);
+  
+  /**
+   * Gets the results of a batch from the batch DB.
+   * <p>
+   * Risk failures are not included in the result. 
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  BatchErrorSearchResult getErrors(BatchErrorSearchRequest request);
   
 }

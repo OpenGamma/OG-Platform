@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -32,7 +32,7 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
     final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueIdentifier());
+    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
     message.add(FIELD_NAME, portfolio.getName());
     context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode());
     return message;
@@ -47,7 +47,7 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
     
     PortfolioImpl portfolio = new PortfolioImpl(name);
     if (id != null) {
-      portfolio.setUniqueIdentifier(id);
+      portfolio.setUniqueId(id);
     }
     portfolio.setRootNode((PortfolioNodeImpl) node);
     return portfolio;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -76,7 +76,7 @@ public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalD
       
       TimeSeriesDocument<LocalDate> searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), null, null);
       assertNotNull(searchDoc);
-      assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+      assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
       assertEquals(timeSeries, searchDoc.getTimeSeries());
       
       // test end dates
@@ -85,7 +85,7 @@ public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalD
       
       searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), earliestDate, latestDate);
       assertNotNull(searchDoc);
-      assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+      assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
       assertEquals(timeSeries, searchDoc.getTimeSeries());
 
       // test subSeries
@@ -94,7 +94,7 @@ public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalD
       if (start.isBefore(end) || start.equals(end)) {
         searchDoc = getHistoricalTimeSeries(tsDoc.getIdentifiers(),  tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField(), start, end);
         assertNotNull(searchDoc);
-        assertEquals(tsDoc.getUniqueIdentifier(), searchDoc.getUniqueIdentifier());
+        assertEquals(tsDoc.getUniqueId(), searchDoc.getUniqueId());
         assertEquals(start, searchDoc.getTimeSeries().getEarliestTime());
         assertEquals(end, searchDoc.getTimeSeries().getLatestTime());
       }

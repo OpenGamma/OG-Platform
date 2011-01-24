@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -77,7 +77,7 @@ public class ViewEvaluationModelTest {
           }
 
           @Override
-          public String getUniqueIdentifier() {
+          public String getUniqueId() {
             return null;
           }
 

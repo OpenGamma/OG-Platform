@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,8 +24,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -98,8 +101,19 @@ public class WebConfigTypesResource<T> extends AbstractWebConfigTypeResource<T> 
   @Path("{configId}")
   public WebConfigTypeResource<T> findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
-    ConfigDocument<T> configDoc = data().getConfigTypeMaster().get(UniqueIdentifier.parse(idStr));
-    data().setConfig(configDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      ConfigDocument<T> doc = data().getConfigTypeMaster().get(oid);
+      data().setConfig(doc);
+    } catch (DataNotFoundException ex) {
+      ConfigHistoryRequest historyRequest = new ConfigHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      ConfigHistoryResult<T> historyResult = data().getConfigTypeMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setConfig(historyResult.getFirstDocument());
+    }
     return new WebConfigTypeResource<T>(this);
   }
 

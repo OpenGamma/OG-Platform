@@ -1,38 +1,32 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.view.rest;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Provides access to a remote {@link ManageableViewDefinitionRepository}.
  */
 public class RemoteManagableViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
-  private final FudgeContext _fudgeContext;
-  private final RestClient _restClient;
-  private final RestTarget _baseTarget;
+  private final URI _baseUri;
+  private final FudgeRestClient _client;
   
-  public RemoteManagableViewDefinitionRepository(FudgeContext fudgeContext, RestTarget baseTarget) {
-    _fudgeContext = fudgeContext;
-    _baseTarget = baseTarget;
-    _restClient = RestClient.getInstance(fudgeContext, null);
+  public RemoteManagableViewDefinitionRepository(URI baseUri) {
+    _baseUri = baseUri;
+    _client = FudgeRestClient.create();
   }
   
   //-------------------------------------------------------------------------
@@ -56,14 +50,14 @@ public class RemoteManagableViewDefinitionRepository implements ManageableViewDe
   
   @Override
   public void addViewDefinition(AddViewDefinitionRequest request) {
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(_fudgeContext);
-    MutableFudgeFieldContainer msg = serializationContext.objectToFudgeMsg(request);
-    _restClient.post(_baseTarget, new FudgeMsgEnvelope(msg));
+    URI uri = ViewDefinitionsResource.uri(_baseUri);
+    _client.access(uri).post(request);
   }
   
   @Override
   public void updateViewDefinition(UpdateViewDefinitionRequest request) {
-    throw new NotImplementedException();
+    URI uri = ViewDefinitionResource.uri(_baseUri, request.getName());
+    _client.access(uri).put(request.getViewDefinition());
   }
 
   @Override

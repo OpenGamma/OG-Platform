@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -33,8 +33,8 @@ public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoke
 
   public LiveDataSourcingFunction(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "Value Requirement");
-    setUniqueIdentifier(UNIQUE_ID);
-    _value = Pair.of(requirement, new ValueSpecification(requirement, getUniqueIdentifier()));
+    setUniqueId(UNIQUE_ID);
+    _value = Pair.of(requirement, new ValueSpecification(requirement, getUniqueId()));
   }
 
   // [ENG-216] Constructor to allow sub-classing for when the getRequiredLiveData method is removed
@@ -42,7 +42,7 @@ public class LiveDataSourcingFunction extends AbstractFunction.NonCompiledInvoke
     ArgumentChecker.notNull(requirement, "Value requirement");
     ArgumentChecker.notNull(specification, "Value specification");
     assert requirement.isSatisfiedBy(specification);
-    setUniqueIdentifier(uniqueId);
+    setUniqueId(uniqueId);
     _value = Pair.of(requirement, specification);
   }
 

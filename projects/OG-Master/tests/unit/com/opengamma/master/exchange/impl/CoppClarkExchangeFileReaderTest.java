@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,9 +47,9 @@ public class CoppClarkExchangeFileReaderTest {
     assertEquals("MemExg", doc.getUniqueId().getScheme());
     assertNotNull(doc.getVersionFromInstant());
     assertNotNull(doc.getCorrectionFromInstant());
-    assertEquals(doc.getUniqueId(), doc.getExchange().getUniqueIdentifier());
+    assertEquals(doc.getUniqueId(), doc.getExchange().getUniqueId());
     assertEquals(NAME, doc.getExchange().getName());
-    assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionId());
+    assertEquals(IdentifierBundle.of(RegionUtils.countryRegionId("GB")), doc.getExchange().getRegionKey());
     assertEquals(IdentifierBundle.of(ID_LIFFE_MIC), doc.getExchange().getIdentifiers());
   }
 

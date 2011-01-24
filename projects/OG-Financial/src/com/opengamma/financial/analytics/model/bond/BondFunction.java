@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -30,7 +30,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
 import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
@@ -57,7 +56,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId());
     final Object value = inputs.getValue(requirement);
     if (value == null) {
       throw new NullPointerException("Could not get " + requirement);
@@ -70,7 +69,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
     }
     return null;
   }

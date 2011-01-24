@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A position and a trade are related concepts and this interface provides common access.
@@ -22,6 +23,13 @@ import com.opengamma.id.UniqueIdentifiable;
  * However, this can become resolved, setting the security field with the full data.
  */
 public interface PositionOrTrade extends UniqueIdentifiable {
+
+  /**
+   * Gets the unique identifier.
+   * 
+   * @return the unique identifier, not null
+   */
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the amount of the position held in terms of the security.

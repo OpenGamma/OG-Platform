@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,7 @@ package com.opengamma.master.config.impl;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
 import javax.time.Instant;
@@ -25,6 +26,7 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
@@ -49,6 +51,8 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    * The supplied of identifiers.
    */
   private final Supplier<UniqueIdentifier> _uidSupplier;
+  
+  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 
   /**
    * Creates an instance.
@@ -115,7 +119,28 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     doc.setUniqueId(uid);
     doc.setVersionFromInstant(now);
     _configs.put(uid, doc);  // unique identifier should be unique
+    
+    //notify listeners
+    notifyDocumentAdded(doc);
     return doc;
+  }
+
+  private void notifyDocumentAdded(ConfigDocument<T> added) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.added(added.getUniqueId());
+    }
+  }
+  
+  private void notifyDocumentRemoved(UniqueIdentifier uid) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.removed(uid);
+    }
+  }
+  
+  private void notifyDocumentUpdated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.updated(oldItem, newItem);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -136,6 +161,8 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     if (_configs.replace(uid, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
+    
+    notifyDocumentUpdated(uid, document.getUniqueId());
     return document;
   }
 
@@ -147,6 +174,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     if (_configs.remove(uid) == null) {
       throw new DataNotFoundException("Config not found: " + uid);
     }
+    notifyDocumentRemoved(uid);
   }
 
   //-------------------------------------------------------------------------
@@ -156,7 +184,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    final ConfigDocument<T> doc = get(request.getObjectId());
+    final ConfigDocument<T> doc = get(request.getObjectId().atLatestVersion());
     if (doc != null) {
       result.getDocuments().add(doc);
     }
@@ -167,7 +195,29 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   //-------------------------------------------------------------------------
   @Override
   public ConfigDocument<T> correct(final ConfigDocument<T> document) {
-    return update(document);
+    final UniqueIdentifier oldItem = document.getUniqueId();
+    ConfigDocument<T> corrected = update(document);
+    UniqueIdentifier newItem = corrected.getUniqueId();
+    notifyDocumentCorrected(oldItem, newItem);
+    return corrected;
+  }
+  
+  private void notifyDocumentCorrected(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
+    for (MasterChangeListener listener : _listeners) {
+      listener.corrected(oldItem, newItem);
+    }
+  }
+
+  @Override
+  public void addChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.add(listener);
+  }
+
+  @Override
+  public void removeChangeListener(MasterChangeListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.remove(listener);
   }
 
 }

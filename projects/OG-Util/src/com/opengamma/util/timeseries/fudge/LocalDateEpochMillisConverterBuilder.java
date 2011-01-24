@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.timeseries.fudge;
 
 import java.util.TimeZone;
@@ -6,9 +11,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 
 import com.opengamma.util.timeseries.localdate.LocalDateEpochDaysConverter;
 
-
 /**
- * Fudge message builder (serializer/deserializer) for LocalDateEpochMillisConverter
+ * Fudge message builder (serializer/deserializer) for LocalDateEpochMillisConverter.
  */
 @FudgeBuilderFor(LocalDateEpochDaysConverter.class)
 public class LocalDateEpochMillisConverterBuilder extends DateTimeConverterBuilder<LocalDateEpochDaysConverter> {

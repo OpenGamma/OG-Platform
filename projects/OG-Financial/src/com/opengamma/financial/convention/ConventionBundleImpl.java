@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,7 +20,7 @@ import com.opengamma.id.UniqueIdentifier;
  * unique ids to it retrospectively, and to be able to update the bundle.
  */
 public class ConventionBundleImpl implements ConventionBundle {
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   private IdentifierBundle _bundle;
   private final String _name;
   private DayCount _dayCount;
@@ -213,12 +213,12 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
-  public void setUniqueIdentifier(final UniqueIdentifier uniqueIdentifier) {
-    _uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(final UniqueIdentifier uniqueId) {
+    _uniqueId = uniqueId;
   }
 
   /**

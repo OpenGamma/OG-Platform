@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -244,7 +244,7 @@ public class RegionFileReader {
           if (parent == null) {
             throw new OpenGammaRuntimeException("Cannot find parent '" + sovereignity + "'  for '" + name + "'");
           }
-          region.getParentRegionIds().add(parent.getUniqueIdentifier());
+          region.getParentRegionIds().add(parent.getUniqueId());
         }
         for (Entry<UniqueIdentifier, Set<String>> entry : subRegions.entrySet()) {
           if (entry.getValue().remove(name)) {

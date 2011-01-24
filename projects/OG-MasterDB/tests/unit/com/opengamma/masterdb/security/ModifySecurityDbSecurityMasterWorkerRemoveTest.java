@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +22,6 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.masterdb.security.DbSecurityMasterWorker;
-import com.opengamma.masterdb.security.ModifySecurityDbSecurityMasterWorker;
-import com.opengamma.masterdb.security.QuerySecurityDbSecurityMasterWorker;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -36,36 +31,17 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerRemoveTest.class);
 
-  private ModifySecurityDbSecurityMasterWorker _worker;
-  private DbSecurityMasterWorker _queryWorker;
-
   public ModifySecurityDbSecurityMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifySecurityDbSecurityMasterWorker();
-    _worker.init(_secMaster);
-    _queryWorker = new QuerySecurityDbSecurityMasterWorker();
-    _queryWorker.init(_secMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_removeSecurity_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    _worker.remove(uid);
+    _secMaster.remove(uid);
   }
 
   @Test
@@ -73,8 +49,8 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     Instant now = Instant.now(_secMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    _worker.remove(uid);
-    SecurityDocument test = _queryWorker.get(uid);
+    _secMaster.remove(uid);
+    SecurityDocument test = _secMaster.get(uid);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -83,7 +59,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
@@ -92,7 +68,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbSec]", _worker.toString());
+    assertEquals(_secMaster.getClass().getSimpleName() + "[DbSec]", _secMaster.toString());
   }
 
 }

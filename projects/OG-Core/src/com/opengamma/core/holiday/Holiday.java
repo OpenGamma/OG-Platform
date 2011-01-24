@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -11,6 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -20,14 +21,14 @@ import com.opengamma.id.UniqueIdentifier;
  * These can form part of algorithms and contracts.
  * Instances of this interface represent all known holiday dates for a single type of business.
  */
-public interface Holiday {
+public interface Holiday extends UniqueIdentifiable {
 
   /**
    * The unique identifier of the holiday.
    * 
    * @return the unique identifier for this holiday entry, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * The type of the holiday.
@@ -37,18 +38,18 @@ public interface Holiday {
   HolidayType getType();
 
   /**
-   * The region identifier, used when this is a holiday of type BANK.
+   * The region key identifier, used when this is a holiday of type BANK.
    * 
    * @return an identifier for the region, if this is a BANK holiday, null otherwise
    */
-  Identifier getRegionId();
+  Identifier getRegionKey();
 
   /**
-   * The exchange identifier, used when this is a holiday of type SETTLEMENT or TRADING.
+   * The exchange key identifier, used when this is a holiday of type SETTLEMENT or TRADING.
    * 
    * @return an identifier for the exchange, if this is a SETTLEMENT or TRADING holiday, null otherwise
    */
-  Identifier getExchangeId();
+  Identifier getExchangeKey();
 
   /**
    * The currency, used when this is a holiday of type CURRENCY.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -28,7 +28,7 @@ public final class HistoricalDataSourceServiceNames {
   /**
   *
   */
-  public static final String HISTORICALDATASOURCE_UNIQUEIDENTIFIER = "uniqueIdentifier";
+  public static final String HISTORICALDATASOURCE_UNIQUEID = "uniqueId";
   /**
   *
   */

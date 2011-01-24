@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -35,7 +35,7 @@ import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewComputationResultModelImpl;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
@@ -95,7 +95,7 @@ public class SingleComputationCycle {
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
 
   // Outputs:
-  private final ViewComputationResultModelImpl _resultModel;
+  private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(ViewInternal view, long valuationTime) {
     ArgumentChecker.notNull(view, "view");
@@ -103,7 +103,7 @@ public class SingleComputationCycle {
     _view = view;
     _valuationTime = Instant.ofEpochMillis(valuationTime);
 
-    _resultModel = new ViewComputationResultModelImpl();
+    _resultModel = new InMemoryViewComputationResultModel();
     _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet());
 
     if (getViewEvaluationModel().getPortfolio() != null) {
@@ -122,6 +122,10 @@ public class SingleComputationCycle {
 
   public Instant getValuationTime() {
     return _valuationTime;
+  }
+
+  public long getFunctionInitId() {
+    return getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
   }
 
   /**
@@ -162,7 +166,7 @@ public class SingleComputationCycle {
   /**
    * @return the resultModel
    */
-  public ViewComputationResultModelImpl getResultModel() {
+  public InMemoryViewComputationResultModel getResultModel() {
     return _resultModel;
   }
 

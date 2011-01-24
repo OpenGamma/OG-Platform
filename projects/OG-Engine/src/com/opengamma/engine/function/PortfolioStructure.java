@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -43,7 +43,7 @@ public class PortfolioStructure {
   }
 
   private PortfolioNode getParentNodeImpl(final PortfolioNode node) {
-    final UniqueIdentifier parent = node.getParentNode();
+    final UniqueIdentifier parent = node.getParentNodeId();
     if (parent != null) {
       return getPositionSource().getPortfolioNode(parent);
     } else {
@@ -72,7 +72,7 @@ public class PortfolioStructure {
    */
   public PortfolioNode getParentNode(final Position position) {
     ArgumentChecker.notNull(position, "position");
-    final UniqueIdentifier parent = position.getPortfolioNode();
+    final UniqueIdentifier parent = position.getParentNodeId();
     if (parent != null) {
       return getPositionSource().getPortfolioNode(parent);
     } else {
@@ -81,14 +81,14 @@ public class PortfolioStructure {
   }
 
   private PortfolioNode getRootPortfolioNodeImpl(PortfolioNode node) {
-    UniqueIdentifier parent = node.getParentNode();
+    UniqueIdentifier parent = node.getParentNodeId();
     while (parent != null) {
       node = getPositionSource().getPortfolioNode(parent);
       if (node == null) {
         // Position source is broken
         return null;
       }
-      parent = node.getParentNode();
+      parent = node.getParentNodeId();
     }
     return node;
   }

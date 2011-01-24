@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -23,14 +23,16 @@ import com.opengamma.util.PublicSPI;
 public interface Position extends PositionOrTrade {
 
   /**
-   * Gets the unique identifier of the node within the portfolio this position is immediately under.
+   * Gets the unique identifier of the parent node.
+   * <p>
+   * Positions are held within a portfolio by a node.
    * 
-   * @return the unique identifier
+   * @return the unique identifier, null if not attached to a node
    */
-  UniqueIdentifier getPortfolioNode();
+  UniqueIdentifier getParentNodeId();
 
   /**
-   * Gets the trades immediate children of this position.
+   * Gets the trades that are immediate children of this position.
    * <p>
    * The set of trades is optional and if present may be incomplete.
    * 

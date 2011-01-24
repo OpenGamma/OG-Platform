@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -60,6 +60,17 @@ public class DateUtil {
           .appendValue(ISOChronology.monthOfYearRule(), 2)
           .appendValue(ISOChronology.dayOfMonthRule(), 2)
           .toFormatter();
+  }
+  /**
+   * A formatter for MM-dd
+   */
+  private static final DateTimeFormatter MM_DD_LOCAL_DATE;
+  static {
+    MM_DD_LOCAL_DATE = new DateTimeFormatterBuilder()
+        .appendValue(ISOChronology.monthOfYearRule(), 2)
+        .appendLiteral("-")
+        .appendValue(ISOChronology.dayOfMonthRule(), 2)
+        .toFormatter();
   }
 
   /**
@@ -295,6 +306,19 @@ public class DateUtil {
       throw new IllegalArgumentException("date was null");
     }
     return YYYYMMDD_LOCAL_DATE.print(date);
+  }
+  
+  /**
+   * Prints the date in MM-dd format.
+   * @param date  the date, not null
+   * @return the date as a string, not null
+   * @throws IllegalArgumentException if the date is null
+   */
+  public static String printMMDD(Calendrical date) {
+    if (date == null) {
+      throw new IllegalArgumentException("date was null");
+    }
+    return MM_DD_LOCAL_DATE.print(date);
   }
 
   /**

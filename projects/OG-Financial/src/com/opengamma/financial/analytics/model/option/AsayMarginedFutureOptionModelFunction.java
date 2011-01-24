@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -38,7 +38,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
-    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
     }
@@ -66,7 +66,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       final SecuritySource secMaster = context.getSecuritySource();
       final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
       return requirements;
     }
@@ -79,7 +79,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       final OptionSecurity security = (OptionSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
+        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));
       }
       return results;
     }

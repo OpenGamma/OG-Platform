@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -173,10 +173,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "100"), test.getProviderId());
+    assertEquals(Identifier.of("A", "100"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(100.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -196,10 +196,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "120"), test.getProviderId());
+    assertEquals(Identifier.of("A", "120"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(120.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -209,7 +209,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(1, trades.size());
     ManageableTrade trade = trades.get(0);
     assertNotNull(trade);
-    assertEquals(UniqueIdentifier.of("DbPos", "400", "0"), trade.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "400", "0"), trade.getUniqueId());
     assertEquals(uid, trade.getPositionId());
     assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterpartyId());
     assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
@@ -226,10 +226,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "121"), test.getProviderId());
+    assertEquals(Identifier.of("A", "121"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -240,7 +240,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(1, trades.size());
     ManageableTrade trade = trades.get(0);
     assertNotNull(trade);
-    assertEquals(UniqueIdentifier.of("DbPos", "401", "0"), trade.getUniqueIdentifier());
+    assertEquals(UniqueIdentifier.of("DbPos", "401", "0"), trade.getUniqueId());
     assertEquals(uid, trade.getPositionId());
     assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterpartyId());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
@@ -256,10 +256,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "122"), test.getProviderId());
+    assertEquals(Identifier.of("A", "122"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -276,10 +276,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "123"), test.getProviderId());
+    assertEquals(Identifier.of("A", "123"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(123.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -291,17 +291,17 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     
     ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), Identifier.of("CPARTY", "C104"));
     trade.setPositionId(uid);
-    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "404", "0"));
+    trade.setUniqueId(UniqueIdentifier.of("DbPos", "404", "0"));
     assertTrue(trades.contains(trade));
     
     trade = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), Identifier.of("CPARTY", "C105"));
     trade.setPositionId(uid);
-    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "405", "0"));
+    trade.setUniqueId(UniqueIdentifier.of("DbPos", "405", "0"));
     assertTrue(trades.contains(trade));
     
     trade = new ManageableTrade(BigDecimal.valueOf(300.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(406),Identifier.of("CPARTY", "C106"));
     trade.setPositionId(uid);
-    trade.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "406", "0"));
+    trade.setUniqueId(UniqueIdentifier.of("DbPos", "406", "0"));
     assertTrue(trades.contains(trade));
   }
 
@@ -313,10 +313,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "221"), test.getProviderId());
+    assertEquals(Identifier.of("A", "221"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -326,7 +326,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(1, trades.size());
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
     expected.setPositionId(uid);
-    expected.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "407", "0"));
+    expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "0"));
     assertTrue(trades.contains(expected));
   }
 
@@ -338,10 +338,10 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "222"), test.getProviderId());
+    assertEquals(Identifier.of("A", "222"), test.getProviderKey());
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
-    assertEquals(uid, position.getUniqueIdentifier());
+    assertEquals(uid, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
     IdentifierBundle secKey = position.getSecurityKey();
     assertNotNull(secKey);
@@ -351,7 +351,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertEquals(1, trades.size());
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setPositionId(uid);
-    expected.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "407", "1"));
+    expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "1"));
     assertTrue(trades.contains(expected));
   }
 

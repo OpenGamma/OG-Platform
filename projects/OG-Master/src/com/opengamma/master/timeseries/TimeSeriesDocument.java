@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,8 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -27,13 +29,13 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * @param <T> the type of time-series 
  */
 @BeanDefinition
-public class TimeSeriesDocument<T> extends DirectBean {
+public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /**
    * The time-series unique identifier.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * Identifiers with valid dates if available.
    */
@@ -102,8 +104,8 @@ public class TimeSeriesDocument<T> extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 1368189162:  // identifiers
         return getIdentifiers();
       case 1272470629:  // dataSource
@@ -128,8 +130,8 @@ public class TimeSeriesDocument<T> extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 1368189162:  // identifiers
         setIdentifiers((IdentifierBundleWithDates) newValue);
@@ -164,24 +166,24 @@ public class TimeSeriesDocument<T> extends DirectBean {
    * Gets the time-series unique identifier.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the time-series unique identifier.
-   * @param uniqueIdentifier  the new value of the property
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -396,9 +398,9 @@ public class TimeSeriesDocument<T> extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
@@ -442,7 +444,7 @@ public class TimeSeriesDocument<T> extends DirectBean {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("identifiers", _identifiers);
       temp.put("dataSource", _dataSource);
       temp.put("dataProvider", _dataProvider);
@@ -472,11 +474,11 @@ public class TimeSeriesDocument<T> extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**

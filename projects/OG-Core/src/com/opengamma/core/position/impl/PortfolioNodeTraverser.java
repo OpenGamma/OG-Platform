@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,10 +22,10 @@ public class PortfolioNodeTraverser {
    * Enumeration of traversal styles.
    */
   public enum TraversalStyle {
-    /** Depth first. */
-    DFS,
-    /** Breadth first. */
-    BFS,
+    /** Traverse the nodes depth-first. */
+    DEPTH_FIRST,
+    /** Traverse the nodes breadth-first. */
+    BREADTH_FIRST,
   };
 
   /**
@@ -38,21 +38,36 @@ public class PortfolioNodeTraverser {
   private final PortfolioNodeTraversalCallback _callback;
 
   /**
-   * Creates a traverser.
+   * Creates a traverser using depth-first searching.
+   * If you don't know whether to use depth-first or breadth-first, then use depth-first.
+   * 
    * @param callback  the callback to invoke, not null
+   * @return the traverser, not null
    */
-  public PortfolioNodeTraverser(PortfolioNodeTraversalCallback callback) {
-    this(TraversalStyle.DFS, callback);
+  public static PortfolioNodeTraverser depthFirst(PortfolioNodeTraversalCallback callback) {
+    return new PortfolioNodeTraverser(TraversalStyle.DEPTH_FIRST, callback);
+  }
+
+  /**
+   * Creates a traverser using breadth-first searching.
+   * If you don't know whether to use depth-first or breadth-first, then use depth-first.
+   * 
+   * @param callback  the callback to invoke, not null
+   * @return the traverser, not null
+   */
+  public static PortfolioNodeTraverser breadthFirst(PortfolioNodeTraversalCallback callback) {
+    return new PortfolioNodeTraverser(TraversalStyle.BREADTH_FIRST, callback);
   }
 
   /**
    * Creates a traverser.
+   * 
    * @param traversalStyle  the style of traversal, not null
    * @param callback  the callback to invoke, not null
    */
   public PortfolioNodeTraverser(TraversalStyle traversalStyle, PortfolioNodeTraversalCallback callback) {
-    ArgumentChecker.notNull(traversalStyle, "Traversal Style");
-    ArgumentChecker.notNull(callback, "Traversal Callback");
+    ArgumentChecker.notNull(traversalStyle, "traversalStyle");
+    ArgumentChecker.notNull(callback, "callback");
     _traversalStyle = traversalStyle;
     _callback = callback;
   }
@@ -60,6 +75,7 @@ public class PortfolioNodeTraverser {
   //-------------------------------------------------------------------------
   /**
    * Gets the traversal style to be used.
+   * 
    * @return the traversal style, not null
    */
   public TraversalStyle getTraversalStyle() {
@@ -68,6 +84,7 @@ public class PortfolioNodeTraverser {
 
   /**
    * Gets the callback to be used.
+   * 
    * @return the callback, not null
    */
   public PortfolioNodeTraversalCallback getCallback() {
@@ -76,7 +93,8 @@ public class PortfolioNodeTraverser {
 
   //-------------------------------------------------------------------------
   /**
-   * Traverse the nodes.
+   * Traverse the nodes notifying using the callback.
+   * 
    * @param portfolioNode  the node to start from, null does nothing
    */
   public void traverse(PortfolioNode portfolioNode) {
@@ -88,6 +106,7 @@ public class PortfolioNodeTraverser {
 
   /**
    * Traverse the nodes.
+   * 
    * @param portfolioNode  the node to start from, not null
    * @param firstPass  true if first pass
    */
@@ -100,13 +119,13 @@ public class PortfolioNodeTraverser {
     }
     
     switch (getTraversalStyle()) {
-      case DFS:
+      case DEPTH_FIRST:
         assert firstPass == true;
         for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
           traverse(subNode, true);
         }
         break;
-      case BFS:
+      case BREADTH_FIRST:
         if (!firstPass) {
           for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
             traverse(subNode, true);
@@ -117,7 +136,7 @@ public class PortfolioNodeTraverser {
         }
         break;
       default:
-        throw new IllegalStateException("Only BFS and DFS currently supported");
+        throw new IllegalStateException("Only DEPTH_FIRST and BREADTH_FIRST currently supported");
     }
     
     if (firstPass) {
@@ -127,4 +146,5 @@ public class PortfolioNodeTraverser {
       getCallback().postOrderOperation(portfolioNode);
     }
   }
+
 }

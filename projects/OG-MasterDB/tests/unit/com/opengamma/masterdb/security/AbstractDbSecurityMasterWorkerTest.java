@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -132,7 +132,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
@@ -148,7 +148,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")), security.getIdentifiers());
@@ -164,7 +164,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity201", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
@@ -180,7 +180,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueIdentifier());
+    assertEquals(uid, security.getUniqueId());
     assertEquals("TestSecurity202", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
     assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());

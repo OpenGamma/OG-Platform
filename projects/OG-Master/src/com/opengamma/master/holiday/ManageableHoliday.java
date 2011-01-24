@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,26 +43,28 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   /**
    * The unique identifier of the holiday.
+   * This must be null when adding to a master and not null when retrieved from a master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   /**
    * The type of the holiday.
+   * This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private HolidayType _type;
   /**
-   * The region identifier, used when this is a holiday of type BANK.
+   * The region key identifier bundle, used when this is a holiday of type BANK.
    * This must be null if the type is not BANK.
    */
   @PropertyDefinition
-  private Identifier _regionId;
+  private Identifier _regionKey;
   /**
-   * The exchange identifier, used when this is a holiday of type SETTLEMENT or TRADING.
+   * The exchange key identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
    * This must be null if the type is not SETTLEMENT or TRADING.
    */
   @PropertyDefinition
-  private Identifier _exchangeId;
+  private Identifier _exchangeKey;
   /**
    * The currency, used when this is a holiday of type CURRENCY.
    * This must be null if the type is not CURRENCY.
@@ -70,7 +72,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @PropertyDefinition
   private Currency _currency;
   /**
-   * The list of dates that the target (currency/region/exchange) is on holiday.
+   * The list of dates that the target (currency/region/exchange) is on holiday, not null.
    */
   @PropertyDefinition
   private final List<LocalDate> _holidayDates = new ArrayList<LocalDate>();
@@ -90,10 +92,10 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    */
   public ManageableHoliday(final Holiday holiday) {
     ArgumentChecker.notNull(holiday, "holiday");
-    setUniqueIdentifier(holiday.getUniqueIdentifier());
+    setUniqueId(holiday.getUniqueId());
     setType(holiday.getType());
-    setRegionId(holiday.getRegionId());
-    setExchangeId(holiday.getExchangeId());
+    setRegionKey(holiday.getRegionKey());
+    setExchangeKey(holiday.getExchangeKey());
     setCurrency(holiday.getCurrency());
     setHolidayDates(holiday.getHolidayDates());
   }
@@ -101,10 +103,10 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   /**
    * Create a CURRENCY holiday from a collection of holiday dates.
    * <p>
-   * The unique identifier is managed separately using {@link #setUniqueIdentifier}.
+   * The unique identifier is managed separately using {@link #setUniqueId}.
    * 
-   * @param currency the currency of this CURRENCY holiday schedule, not null
-   * @param holidaySeries the dates on which holidays fall, not null
+   * @param currency  the currency of this CURRENCY holiday schedule, not null
+   * @param holidaySeries  the dates on which holidays fall, not null
    */
   public ManageableHoliday(Currency currency, Collection<LocalDate> holidaySeries) {
     ArgumentChecker.notNull(currency, "currency");
@@ -117,23 +119,23 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   /**
    * Create a BANK, SETTLEMENT or TRADING holiday from a collection of holiday dates.
    * <p>
-   * The unique identifier is managed separately using {@link #setUniqueIdentifier}.
+   * The unique identifier is managed separately using {@link #setUniqueId}.
    * 
    * @param holidayType  the type of the holiday, not null
-   * @param regionOrExchangeId  the Identifier for either a region (for a BANK holiday) or an exchange (for a SETTLEMENT or TRADING holiday), not null
+   * @param regionOrExchangeKey  the identifier for either a region (for a BANK holiday) or an exchange (for a SETTLEMENT or TRADING holiday), not null
    * @param holidaySeries  a collection of dates on which holidays fall, not null
    */
-  public ManageableHoliday(HolidayType holidayType, Identifier regionOrExchangeId, Collection<LocalDate> holidaySeries) {
+  public ManageableHoliday(HolidayType holidayType, Identifier regionOrExchangeKey, Collection<LocalDate> holidaySeries) {
     ArgumentChecker.notNull(holidayType, "holidayType");
-    ArgumentChecker.notNull(regionOrExchangeId, "regionOrExchangeId");
+    ArgumentChecker.notNull(regionOrExchangeKey, "regionOrExchangeId");
     ArgumentChecker.notNull(holidaySeries, "holidaySeries");
     switch (holidayType) {
       case BANK:
-        setRegionId(regionOrExchangeId);
+        setRegionKey(regionOrExchangeKey);
         break;
       case SETTLEMENT:
       case TRADING:
-        setExchangeId(regionOrExchangeId);
+        setExchangeKey(regionOrExchangeKey);
         break;
       case CURRENCY:
       default:
@@ -161,14 +163,14 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        return getUniqueIdentifier();
+      case -294460212:  // uniqueId
+        return getUniqueId();
       case 3575610:  // type
         return getType();
-      case -690339025:  // regionId
-        return getRegionId();
-      case 913218206:  // exchangeId
-        return getExchangeId();
+      case 74328779:  // regionKey
+        return getRegionKey();
+      case -1755004612:  // exchangeKey
+        return getExchangeKey();
       case 575402001:  // currency
         return getCurrency();
       case -367347:  // holidayDates
@@ -181,17 +183,17 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
-      case -125484198:  // uniqueIdentifier
-        setUniqueIdentifier((UniqueIdentifier) newValue);
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueIdentifier) newValue);
         return;
       case 3575610:  // type
         setType((HolidayType) newValue);
         return;
-      case -690339025:  // regionId
-        setRegionId((Identifier) newValue);
+      case 74328779:  // regionKey
+        setRegionKey((Identifier) newValue);
         return;
-      case 913218206:  // exchangeId
-        setExchangeId((Identifier) newValue);
+      case -1755004612:  // exchangeKey
+        setExchangeKey((Identifier) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -206,31 +208,35 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the holiday.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   /**
    * Sets the unique identifier of the holiday.
-   * @param uniqueIdentifier  the new value of the property
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
    */
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    this._uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    this._uniqueId = uniqueId;
   }
 
   /**
-   * Gets the the {@code uniqueIdentifier} property.
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueIdentifier() {
-    return metaBean().uniqueIdentifier().createProperty(this);
+  public final Property<UniqueIdentifier> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the type of the holiday.
+   * This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public HolidayType getType() {
@@ -239,6 +245,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   /**
    * Sets the type of the holiday.
+   * This field must not be null for the object to be valid.
    * @param type  the new value of the property
    */
   public void setType(HolidayType type) {
@@ -247,6 +254,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   /**
    * Gets the the {@code type} property.
+   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<HolidayType> type() {
@@ -255,58 +263,58 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region identifier, used when this is a holiday of type BANK.
+   * Gets the region key identifier bundle, used when this is a holiday of type BANK.
    * This must be null if the type is not BANK.
    * @return the value of the property
    */
-  public Identifier getRegionId() {
-    return _regionId;
+  public Identifier getRegionKey() {
+    return _regionKey;
   }
 
   /**
-   * Sets the region identifier, used when this is a holiday of type BANK.
+   * Sets the region key identifier bundle, used when this is a holiday of type BANK.
    * This must be null if the type is not BANK.
-   * @param regionId  the new value of the property
+   * @param regionKey  the new value of the property
    */
-  public void setRegionId(Identifier regionId) {
-    this._regionId = regionId;
+  public void setRegionKey(Identifier regionKey) {
+    this._regionKey = regionKey;
   }
 
   /**
-   * Gets the the {@code regionId} property.
+   * Gets the the {@code regionKey} property.
    * This must be null if the type is not BANK.
    * @return the property, not null
    */
-  public final Property<Identifier> regionId() {
-    return metaBean().regionId().createProperty(this);
+  public final Property<Identifier> regionKey() {
+    return metaBean().regionKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exchange identifier, used when this is a holiday of type SETTLEMENT or TRADING.
+   * Gets the exchange key identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
    * This must be null if the type is not SETTLEMENT or TRADING.
    * @return the value of the property
    */
-  public Identifier getExchangeId() {
-    return _exchangeId;
+  public Identifier getExchangeKey() {
+    return _exchangeKey;
   }
 
   /**
-   * Sets the exchange identifier, used when this is a holiday of type SETTLEMENT or TRADING.
+   * Sets the exchange key identifier bundle, used when this is a holiday of type SETTLEMENT or TRADING.
    * This must be null if the type is not SETTLEMENT or TRADING.
-   * @param exchangeId  the new value of the property
+   * @param exchangeKey  the new value of the property
    */
-  public void setExchangeId(Identifier exchangeId) {
-    this._exchangeId = exchangeId;
+  public void setExchangeKey(Identifier exchangeKey) {
+    this._exchangeKey = exchangeKey;
   }
 
   /**
-   * Gets the the {@code exchangeId} property.
+   * Gets the the {@code exchangeKey} property.
    * This must be null if the type is not SETTLEMENT or TRADING.
    * @return the property, not null
    */
-  public final Property<Identifier> exchangeId() {
-    return metaBean().exchangeId().createProperty(this);
+  public final Property<Identifier> exchangeKey() {
+    return metaBean().exchangeKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -339,7 +347,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of dates that the target (currency/region/exchange) is on holiday.
+   * Gets the list of dates that the target (currency/region/exchange) is on holiday, not null.
    * @return the value of the property
    */
   public List<LocalDate> getHolidayDates() {
@@ -347,7 +355,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   }
 
   /**
-   * Sets the list of dates that the target (currency/region/exchange) is on holiday.
+   * Sets the list of dates that the target (currency/region/exchange) is on holiday, not null.
    * @param holidayDates  the new value of the property
    */
   public void setHolidayDates(List<LocalDate> holidayDates) {
@@ -374,21 +382,21 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueIdentifier = DirectMetaProperty.ofReadWrite(this, "uniqueIdentifier", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
     /**
      * The meta-property for the {@code type} property.
      */
     private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
     /**
-     * The meta-property for the {@code regionId} property.
+     * The meta-property for the {@code regionKey} property.
      */
-    private final MetaProperty<Identifier> _regionId = DirectMetaProperty.ofReadWrite(this, "regionId", Identifier.class);
+    private final MetaProperty<Identifier> _regionKey = DirectMetaProperty.ofReadWrite(this, "regionKey", Identifier.class);
     /**
-     * The meta-property for the {@code exchangeId} property.
+     * The meta-property for the {@code exchangeKey} property.
      */
-    private final MetaProperty<Identifier> _exchangeId = DirectMetaProperty.ofReadWrite(this, "exchangeId", Identifier.class);
+    private final MetaProperty<Identifier> _exchangeKey = DirectMetaProperty.ofReadWrite(this, "exchangeKey", Identifier.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -406,10 +414,10 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueIdentifier", _uniqueIdentifier);
+      temp.put("uniqueId", _uniqueId);
       temp.put("type", _type);
-      temp.put("regionId", _regionId);
-      temp.put("exchangeId", _exchangeId);
+      temp.put("regionKey", _regionKey);
+      temp.put("exchangeKey", _exchangeKey);
       temp.put("currency", _currency);
       temp.put("holidayDates", _holidayDates);
       _map = Collections.unmodifiableMap(temp);
@@ -432,11 +440,11 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code uniqueIdentifier} property.
+     * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueIdentifier() {
-      return _uniqueIdentifier;
+    public final MetaProperty<UniqueIdentifier> uniqueId() {
+      return _uniqueId;
     }
 
     /**
@@ -448,19 +456,19 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     }
 
     /**
-     * The meta-property for the {@code regionId} property.
+     * The meta-property for the {@code regionKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> regionId() {
-      return _regionId;
+    public final MetaProperty<Identifier> regionKey() {
+      return _regionKey;
     }
 
     /**
-     * The meta-property for the {@code exchangeId} property.
+     * The meta-property for the {@code exchangeKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> exchangeId() {
-      return _exchangeId;
+    public final MetaProperty<Identifier> exchangeKey() {
+      return _exchangeKey;
     }
 
     /**

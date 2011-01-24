@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -32,11 +32,11 @@ public class ViewComputationResultModelImplTest {
   
   @Test
   public void test() {
-    ViewComputationResultModelImpl model = new ViewComputationResultModelImpl();
+    InMemoryViewComputationResultModel model = new InMemoryViewComputationResultModel();
     checkModel(model);
   }
 
-  public static void checkModel(ViewResultModelImpl model) {
+  public static void checkModel(InMemoryViewResultModel model) {
     model.setValuationTime(Instant.ofEpochMillis(400));
     assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
     model.setResultTimestamp(Instant.ofEpochMillis(500));

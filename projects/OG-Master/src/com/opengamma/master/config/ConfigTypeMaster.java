@@ -1,11 +1,13 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.master.config;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 
 /**
  * A general-purpose configuration master.
@@ -19,7 +21,7 @@ import com.opengamma.master.AbstractMaster;
  * 
  * @param <T>  the configuration element type
  */
-public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
+public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>>, NotifyingMaster {
 
   /**
    * Searches for configuration documents matching the specified search criteria.
@@ -40,5 +42,21 @@ public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>> {
    * @throws IllegalArgumentException if the request is invalid
    */
   ConfigHistoryResult<T> history(ConfigHistoryRequest request);
-
+  
+  /**
+   * Add MasterChangeListener
+   * 
+   * @param listener the listener to add
+   */
+  @Override
+  void addChangeListener(MasterChangeListener listener);
+  
+  /**
+   * Remove MasterChangeListener
+   * 
+   * @param listener the listener to remove
+   */
+  @Override
+  void removeChangeListener(MasterChangeListener listener);
+  
 }

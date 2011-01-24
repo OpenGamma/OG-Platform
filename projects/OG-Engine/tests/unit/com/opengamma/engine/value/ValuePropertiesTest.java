@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -171,6 +171,67 @@ public class ValuePropertiesTest {
     assertSame (requirement.getValues ("B"), props.getValues ("B"));
     assertSame (requirement.getValues ("C"), props.getValues ("C"));
     assertSame (offering.getValues ("E"), props.getValues ("E"));
+  }
+  
+  @Test
+  public void testEquals () {
+    final ValueProperties requirement1 = ValueProperties.with ("A", "1").with ("B", "2", "3").get ();
+    final ValueProperties requirement2 = ValueProperties.with ("A", "1").with ("B", "3").get ();
+    final ValueProperties requirement3 = ValueProperties.with ("B", "2", "3").get ();
+    final ValueProperties requirement4 = ValueProperties.withOptional("A").with ("A", "1").with ("B", "2", "3").get ();
+    final ValueProperties requirement5 = requirement1.copy().get ();
+    final ValueProperties requirement6 = requirement2.copy().with ("B", "2").get ();
+    final ValueProperties requirement7 = requirement1.copy ().withOptional ("A").get ();
+    assertTrue (requirement1.equals (requirement1));
+    assertFalse (requirement1.equals (requirement2));
+    assertFalse (requirement1.equals (requirement3));
+    assertFalse (requirement1.equals (requirement4));
+    assertTrue (requirement1.equals (requirement5));
+    assertTrue (requirement1.equals (requirement6));
+    assertFalse (requirement1.equals (requirement7));
+    assertTrue (requirement1.equals (requirement1));
+    assertFalse (requirement2.equals (requirement1));
+    assertFalse (requirement3.equals (requirement1));
+    assertFalse (requirement4.equals (requirement1));
+    assertTrue (requirement5.equals (requirement1));
+    assertTrue (requirement6.equals (requirement1));
+    assertFalse (requirement7.equals (requirement1));
+    assertFalse (requirement2.equals (requirement6));
+    assertFalse (requirement6.equals (requirement2));
+    assertTrue (requirement4.equals (requirement7));
+    assertTrue (requirement7.equals (requirement4));
+  }
+  
+  private static void compare (final ValueProperties lesser, final ValueProperties greater) {
+    assertEquals (-1, lesser.compareTo (greater));
+    assertEquals (1, greater.compareTo (lesser));
+  }
+  
+  @Test
+  public void testCompareTo () {
+    final ValueProperties empty = ValueProperties.none ();
+    final ValueProperties all = ValueProperties.all ();
+    final ValueProperties allBarFoo = all.withoutAny("Foo");
+    final ValueProperties allBarBar = all.withoutAny("Bar");
+    final ValueProperties allBarFooBar = allBarFoo.withoutAny ("Bar");
+    final ValueProperties oneFoo = ValueProperties.with("Foo", "1").get ();
+    final ValueProperties oneBar = ValueProperties.with("Bar", "1").get ();
+    final ValueProperties oneFooAnyBar = ValueProperties.with("Foo", "1").withAny ("Bar").get ();
+    final ValueProperties oneBarAnyFoo = ValueProperties.with("Bar", "1").withAny ("Foo").get ();
+    compare (empty, all);
+    compare (allBarFoo, all);
+    compare (allBarBar, all);
+    compare (allBarBar, allBarFoo);
+    compare (allBarFoo, allBarFooBar);
+    compare (allBarBar, allBarFooBar);
+    compare (oneFoo, allBarBar);
+    compare (oneFoo, all);
+    compare (oneBar, oneFoo);
+    compare (oneFoo, oneFooAnyBar);
+    compare (oneBar, oneFooAnyBar);
+    compare (oneFoo, oneBarAnyFoo);
+    compare (oneBar, oneBarAnyFoo);
+    compare (oneBarAnyFoo, oneFooAnyBar);
   }
 
 }

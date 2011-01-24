@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,7 +19,13 @@ import com.opengamma.util.ArgumentChecker;
 public class PositionAccumulator {
 
   /**
+   * The set of positions.
+   */
+  private final Set<Position> _positions = new HashSet<Position>();
+
+  /**
    * Gets all the positions beneath the starting node.
+   * 
    * @param startNode  the starting node, not null
    * @return All positions accumulated during execution
    */
@@ -29,21 +35,18 @@ public class PositionAccumulator {
 
   //-------------------------------------------------------------------------
   /**
-   * The set of positions.
-   */
-  private final Set<Position> _positions = new HashSet<Position>();
-
-  /**
    * Creates an accumulator starting from the specified node.
+   * 
    * @param startNode  the starting node, not null
    */
   public PositionAccumulator(PortfolioNode startNode) {
     ArgumentChecker.notNull(startNode, "Portfolio Node");
-    new PortfolioNodeTraverser(new Callback()).traverse(startNode);
+    PortfolioNodeTraverser.depthFirst(new Callback()).traverse(startNode);
   }
 
   /**
    * Gets the positions that were found.
+   * 
    * @return the positions, not null
    */
   public Set<Position> getPositions() {

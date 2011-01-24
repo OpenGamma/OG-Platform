@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -50,7 +50,7 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
     final DoubleTimeSeries<?> pnlSeries = (DoubleTimeSeries<?>) pnlSeriesObj;
     if (!pnlSeries.isEmpty()) {
       final double var = _varCalculator.evaluate(pnlSeries);
-      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()), var));
+      return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueId()), var));
     }
     return null;
   }
@@ -71,7 +71,7 @@ public class PositionHistoricalVaRCalculatorFunction extends AbstractFunction.No
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.HISTORICAL_VAR, target.getPosition()), getUniqueId()));
     }
     return null;
   }

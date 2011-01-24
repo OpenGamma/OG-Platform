@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -56,8 +56,8 @@ public class ViewProcessorTestEnvironment {
 
   public static final UserPrincipal TEST_USER = UserPrincipal.getLocalUser();
 
-  private static final String TEST_VIEW_DEFINITION_NAME = "Test View";
-  private static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
+  public static final String TEST_VIEW_DEFINITION_NAME = "Test View";
+  public static final String TEST_CALC_CONFIG_NAME = "Test Calc Config";
 
   // Settings
   private LiveDataSnapshotProvider _userSnapshotProvider;
@@ -71,6 +71,7 @@ public class ViewProcessorTestEnvironment {
   private ViewCalculationConfiguration _calcConfig;
   private final ValueRequirement _primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
   private final ValueRequirement _primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
+  private MapViewDefinitionRepository _viewDefinitionRepository;
 
   public void init() {
     _testDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_USER);
@@ -99,7 +100,9 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
     assertEquals(dependencyGraphExecutorFactory, _viewProcessor.getDependencyGraphExecutorFactory());
 
-    _viewProcessor.setFunctionCompilationService(new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
+    final CompiledFunctionService compiledFunctions = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    compiledFunctions.initialize ();
+    _viewProcessor.setFunctionCompilationService(compiledFunctions);
 
     TestLiveDataClient liveDataClient = new TestLiveDataClient();
     _viewProcessor.setLiveDataClient(liveDataClient);
@@ -121,6 +124,7 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor.setComputationTargetResolver(new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()));
     _viewProcessor.setViewDefinitionRepository(viewDefinitionRepository);
     _viewProcessor.setViewPermissionProvider(new DefaultViewPermissionProvider());
+    _viewDefinitionRepository = viewDefinitionRepository;
 
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();
     FudgeRequestDispatcher calcNodeQueryRequestDispatcher = new FudgeRequestDispatcher(calcNodeQueryReceiver);
@@ -192,5 +196,9 @@ public class ViewProcessorTestEnvironment {
 
   public ViewCalculationResultModel getCalculationResult(ViewResultModel result) {
     return result.getCalculationResult(TEST_CALC_CONFIG_NAME);
+  }
+  
+  public MapViewDefinitionRepository getViewDefinitionRepository() {
+    return _viewDefinitionRepository;
   }
 }

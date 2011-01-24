@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -49,8 +49,8 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final SecuritySource securityMaster = executionContext.getSecuritySource();
     final Security underlying = securityMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
-    final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueIdentifier());
-    final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
+    final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueId());
+    final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueId());
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
     final double spotPrice = (Double) inputs.getValue(underlyingPriceRequirement);
     final Expiry expiry = option.getExpiry();
@@ -88,8 +88,8 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
       final SecuritySource securityMaster = context.getSecuritySource();
       final Security underlying = securityMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
-      optionRequirements.add(getPriceRequirement(underlying.getUniqueIdentifier()));
-      optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+      optionRequirements.add(getPriceRequirement(underlying.getUniqueId()));
+      optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueId()));
       // TODO: add the other stuff
       return optionRequirements;
     }
@@ -116,8 +116,8 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
   }
 
   private ValueSpecification createResultSpecification(final Security security) {
-    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueIdentifier());
+    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId());
+    final ValueSpecification resultSpec = new ValueSpecification(resultRequirement, getUniqueId());
     return resultSpec;
   }
 

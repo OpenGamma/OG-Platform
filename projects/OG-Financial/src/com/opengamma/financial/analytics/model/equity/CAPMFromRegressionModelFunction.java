@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -86,31 +86,31 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
       final double alphaStdError = regression.getStandardErrorOfBetas()[0];
       final Set<ComputedValue> result = new HashSet<ComputedValue>();
       //TODO need to find some way of getting {beta-label, beta-value} into the computed value and displayed
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode), getUniqueId()),
           regression.getAdjustedRSquared()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode), getUniqueIdentifier()), alpha));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode), getUniqueIdentifier()), regression
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode), getUniqueId()), alpha));
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode), getUniqueId()), regression
           .getBetas()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode), getUniqueId()),
           regression.getMeanSquareError()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode), getUniqueId()),
           alphaPValue));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode), getUniqueId()),
           regression.getPValues()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode), getUniqueIdentifier()), regression
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode), getUniqueId()), regression
           .getRSquared()));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode), getUniqueId()),
           alphaResidual));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode), getUniqueId()),
           regression.getResiduals()[1]));
       result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, positionOrNode),
-          getUniqueIdentifier()), alphaStdError));
+          getUniqueId()), alphaStdError));
       result.add(new ComputedValue(
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode), getUniqueIdentifier()), regression
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode), getUniqueId()), regression
               .getStandardErrorOfBetas()[1]));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode), getUniqueId()),
           alphaTStat));
-      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode), getUniqueIdentifier()),
+      result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode), getUniqueId()),
           regression.getTStatistics()[1]));
       return result;
     }
@@ -134,19 +134,19 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       final Object positionOrNode = getTarget(target);
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode), getUniqueIdentifier()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode), getUniqueId()));
+      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode), getUniqueId()));
       return results;
     }
     return null;

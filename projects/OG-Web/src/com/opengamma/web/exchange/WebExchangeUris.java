@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -70,7 +70,7 @@ public class WebExchangeUris {
    * @return the URI
    */
   public URI exchange(final Exchange exchange) {
-    return WebExchangeResource.uri(_data, exchange.getUniqueIdentifier());
+    return WebExchangeResource.uri(_data, exchange.getUniqueId());
   }
 
   /**
@@ -95,7 +95,7 @@ public class WebExchangeUris {
    * @return the URI
    */
   public URI exchangeVersion(final Exchange exchange) {
-    return WebExchangeVersionResource.uri(_data, exchange.getUniqueIdentifier());
+    return WebExchangeVersionResource.uri(_data, exchange.getUniqueId());
   }
 
 }

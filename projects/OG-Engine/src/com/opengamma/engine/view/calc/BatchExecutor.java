@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -100,21 +100,21 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
           Map<UniqueIdentifier, Collection<DependencyNode>> target2SecurityAndPositionNodes = 
             passNumber2Target2SecurityAndPositionNodes.get(passNumber);
           
-          UniqueIdentifier uniqueIdentifier;
+          UniqueIdentifier uniqueId;
           if (node.getComputationTarget().getType() == ComputationTargetType.SECURITY) {
-            uniqueIdentifier = node.getComputationTarget().getUniqueIdentifier(); 
+            uniqueId = node.getComputationTarget().getUniqueId(); 
           } else if (node.getComputationTarget().getType() == ComputationTargetType.POSITION) {
             // execute positions with underlying securities
             DependencyNode securityNode = getSecurityNode(node); 
-            uniqueIdentifier = securityNode.getComputationTarget().getUniqueIdentifier();
+            uniqueId = securityNode.getComputationTarget().getUniqueId();
           } else {
             throw new RuntimeException("Should not get here");
           }
           
-          Collection<DependencyNode> nodeCollection = target2SecurityAndPositionNodes.get(uniqueIdentifier);
+          Collection<DependencyNode> nodeCollection = target2SecurityAndPositionNodes.get(uniqueId);
           if (nodeCollection == null) {
             nodeCollection = new HashSet<DependencyNode>();
-            target2SecurityAndPositionNodes.put(uniqueIdentifier, nodeCollection);
+            target2SecurityAndPositionNodes.put(uniqueId, nodeCollection);
           }
           nodeCollection.add(node);
           break;

@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.frequency;
@@ -60,9 +60,8 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * A continuous frequency, with a period of zero.
    */
-  public static final Map<PeriodFrequency, PeriodFrequency> s_cache = ImmutableMap.<PeriodFrequency, PeriodFrequency>builder()
-    .put(ANNUAL, ANNUAL).put(SEMI_ANNUAL, SEMI_ANNUAL).put(QUARTERLY, QUARTERLY).put(BIMONTHLY, BIMONTHLY)
-    .put(MONTHLY, MONTHLY).put(BIWEEKLY, BIWEEKLY).put(WEEKLY, WEEKLY).put(DAILY, DAILY).put(CONTINUOUS, CONTINUOUS).build();
+  public static final Map<PeriodFrequency, PeriodFrequency> s_cache = ImmutableMap.<PeriodFrequency, PeriodFrequency> builder().put(ANNUAL, ANNUAL).put(SEMI_ANNUAL, SEMI_ANNUAL).put(QUARTERLY,
+      QUARTERLY).put(BIMONTHLY, BIMONTHLY).put(MONTHLY, MONTHLY).put(BIWEEKLY, BIWEEKLY).put(WEEKLY, WEEKLY).put(DAILY, DAILY).put(CONTINUOUS, CONTINUOUS).build();
 
   /**
    * The name of the convention.
@@ -94,14 +93,14 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * @param name  the name of the convention, not null
    * @param period  length of the period, not null
    */
-  /* package */ PeriodFrequency(final String name, final Period period) {
+  /* package */PeriodFrequency(final String name, final Period period) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(period, "period");
     _name = name;
     _period = period;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;
@@ -116,7 +115,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return _period;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -139,40 +138,40 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return "Frequency[" + "name =  " + _name + " period = " + _period + "]";
   }
 
-  //-------------------------------------------------------------------------
-//REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 
-  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely 
+  // -------------------------------------------------------------------------
+  // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency,
+  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely
   /**
    * Converts this to a simple frequency.
    * 
    * @return the simple frequency, not null
    */
   public SimpleFrequency toSimpleFrequency() {
-    if (_name == ANNUAL_NAME) {
+    if (_name.equals(ANNUAL_NAME)) {
       return SimpleFrequency.ANNUAL;
     }
-    if (_name == BIMONTHLY_NAME) {
+    if (_name.equals(BIMONTHLY_NAME)) {
       return SimpleFrequency.BIMONTHLY;
     }
-    if (_name == BIWEEKLY_NAME) {
+    if (_name.equals(BIWEEKLY_NAME)) {
       return SimpleFrequency.BIWEEKLY;
     }
-    if (_name == CONTINUOUS_NAME) {
+    if (_name.equals(CONTINUOUS_NAME)) {
       return SimpleFrequency.CONTINUOUS;
     }
-    if (_name == DAILY_NAME) {
+    if (_name.equals(DAILY_NAME)) {
       return SimpleFrequency.DAILY;
     }
-    if (_name == MONTHLY_NAME) {
+    if (_name.equals(MONTHLY_NAME)) {
       return SimpleFrequency.MONTHLY;
     }
-    if (_name == QUARTERLY_NAME) {
+    if (_name.equals(QUARTERLY_NAME)) {
       return SimpleFrequency.QUARTERLY;
     }
-    if (_name == SEMI_ANNUAL_NAME) {
+    if (_name.equals(SEMI_ANNUAL_NAME)) {
       return SimpleFrequency.SEMI_ANNUAL;
     }
-    if (_name == WEEKLY_NAME) {
+    if (_name.equals(WEEKLY_NAME)) {
       return SimpleFrequency.WEEKLY;
     }
     throw new IllegalArgumentException("Cannot get a simple frequency for " + toString());

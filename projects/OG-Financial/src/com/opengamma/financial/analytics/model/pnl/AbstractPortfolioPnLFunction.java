@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -44,10 +44,10 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
     BigDecimal currentSum = BigDecimal.ZERO;
     for (final Position position : allPositions) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
-          ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+          ComputationTargetType.POSITION, position.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueIdentifier());
+    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node), getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
     return Sets.newHashSet(result);
   }
@@ -59,7 +59,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Position position : allPositions) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.POSITION, position.getUniqueId()));
       }
       return requirements;
     }
@@ -70,7 +70,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPortfolioNode()),
-        getUniqueIdentifier()));
+        getUniqueId()));
     }
     return null;
   }

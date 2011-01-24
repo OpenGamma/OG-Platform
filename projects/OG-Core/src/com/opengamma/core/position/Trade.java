@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,14 +20,14 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface Trade extends PositionOrTrade {
-  
+
   /**
-   * Gets the unique identifier of the position within the portfolio this trade belongs.
+   * Gets the unique identifier of the parent position.
    * 
-   * @return the unique identifier
+   * @return the unique identifier of the parent position, null if not attached to a position
    */
-  UniqueIdentifier getPositionId();
-  
+  UniqueIdentifier getParentPositionId();
+
   /**
    * Gets the counterparty associated with the trade.
    * 
@@ -38,14 +38,16 @@ public interface Trade extends PositionOrTrade {
   /**
    * Gets the trade date.
    * 
-   * @return the trade date, not  null
+   * @return the trade date, not null
    */
   LocalDate getTradeDate();
-  
+
   /**
-   * Gets the trade time with offset
+   * Gets the trade time with offset.
+   * <p>
+   * The offset time and local date can be combined to find the instant of the trade.
    * 
-   * @return the trade time with offset if available
+   * @return the trade time with offset, null if unknown
    */
   OffsetTime getTradeTime();
 

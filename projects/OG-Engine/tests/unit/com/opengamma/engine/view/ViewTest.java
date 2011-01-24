@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -91,8 +91,8 @@ public class ViewTest {
     ViewClientImpl client = (ViewClientImpl) view.createClient(ViewProcessorTestEnvironment.TEST_USER);
     assertEquals(ViewClientState.STOPPED, client.getState());
     
-    assertNotNull(client.getUniqueIdentifier());
-    assertEquals(client, view.getClient(client.getUniqueIdentifier()));
+    assertNotNull(client.getUniqueId());
+    assertEquals(client, view.getClient(client.getUniqueId()));
     
     view.stop();
     

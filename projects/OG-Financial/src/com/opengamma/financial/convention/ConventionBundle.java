@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,44 +11,48 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * Interface for all Reference Rates e.g. LIBOR, EURIBOR, STIBOR etc.
+ * A complete defined set of conventions, such as for LIBOR, EURIBOR and STIBOR.
  */
-public interface ConventionBundle {
-  /**
-   * Get the unique id for this reference rate
-   * @return the unique id
-   */
-  UniqueIdentifier getUniqueIdentifier();
+public interface ConventionBundle extends UniqueIdentifiable {
 
   /**
-   * Get the identifier bundle for this reference rate
+   * Gets the unique identifier of the convention bundle.
+   * @return the unique identifier for these conventions, not null
+   */
+  @Override
+  UniqueIdentifier getUniqueId();
+
+  /**
+   * Get the identifier bundle for this reference rate.
    * @return the identifier bundle
    */
   IdentifierBundle getIdentifiers();
 
   /**
-   * Get the display name for the reference rate - this should not be used for anything except display
+   * Get the display name for the reference rate.
+   * This should not be used for anything except display.
    * @return the display name
    */
   String getName();
 
   /**
-   * Get the day count associated with this reference rate or NoDayCount if one isn't available
+   * Get the day count associated with this reference rate or NoDayCount if one isn't available.
    * @return the day count
    */
   DayCount getDayCount();
 
   /**
-   * Get the business day convention (date adjust) for this reference rate
+   * Get the business day convention (date adjust) for this reference rate.
    * @return the business day convention
    */
   BusinessDayConvention getBusinessDayConvention();
 
   /**
-   * Get the frequency
+   * Get the frequency.
    * @return the frequency
    */
   Frequency getFrequency();
@@ -60,7 +64,7 @@ public interface ConventionBundle {
   int getSettlementDays();
 
   /**
-   * Future point value, if applicable
+   * Future point value, if applicable.
    * @return The future point value
    */
   Double getFutureYearFraction();
@@ -84,13 +88,13 @@ public interface ConventionBundle {
   Frequency getSwapFixedLegFrequency();
 
   /**
-   * Gets the swapFixedLegSettlementDays field
+   * Gets the swapFixedLegSettlementDays field.
    * @return the swapFixedLegSettlementDays
    */
   Integer getSwapFixedLegSettlementDays();
 
   /**
-   * Gets the region identifier for the fixed leg
+   * Gets the region identifier for the fixed leg.
    * @return the region identifier for the fixed leg
    */
   Identifier getSwapFixedLegRegion();
@@ -126,19 +130,19 @@ public interface ConventionBundle {
   Identifier getSwapFloatingLegInitialRate();
 
   /**
-   * Gets the region identifier for the floating leg
+   * Gets the region identifier for the floating leg.
    * @return the region identifier for the floating leg
    */
   Identifier getSwapFloatingLegRegion();
 
   /**
-   * Gets the name of the risk free rate for CAPM
+   * Gets the name of the risk free rate for CAPM.
    * @return the name
    */
   String getCAPMRiskFreeRateName();
 
   /**
-   * Gets the name of the market for CAPM
+   * Gets the name of the market for CAPM.
    * @return the name
    */
   String getCAPMMarketName();
@@ -174,7 +178,7 @@ public interface ConventionBundle {
   Identifier getBasisSwapPayFloatingLegInitialRate();
 
   /**
-   * Gets the region identifier for the pay floating leg of the basis swap
+   * Gets the region identifier for the pay floating leg of the basis swap.
    * @return the region identifier for the fixed leg
    */
   Identifier getBasisSwapPayFloatingLegRegion();
@@ -210,25 +214,26 @@ public interface ConventionBundle {
   Identifier getBasisSwapReceiveFloatingLegInitialRate();
 
   /**
-   * Gets the region identifier for the receive floating leg of the basis swap
+   * Gets the region identifier for the receive floating leg of the basis swap.
    * @return the region identifier for the fixed leg
    */
   Identifier getBasisSwapReceiveFloatingLegRegion();
 
   /**
-   * Whether or not the convention for payments is end-of-month or not (i.e. if the maturity is on the last day of a month, are all other payments)
+   * Whether or not the convention for payments is end-of-month or not.
+   * In other words, if the maturity is on the last day of a month, are all other payments.
    * @return if the convention is EOM
    */
   boolean isEOMConvention();
 
   /**
-   * Whether to calculate the payment schedule from maturity (i.e. backwards) or forward from the first coupon
+   * Whether to calculate the payment schedule from maturity (i.e. backwards) or forward from the first coupon.
    * @return how to calculate the schedule
    */
   boolean calculateScheduleFromMaturity();
 
   /**
-   * Gets the number of days that a bond is ex-dividend
+   * Gets the number of days that a bond is ex-dividend.
    * @return the number of ex-dividend days
    */
   int getExDividendDays();

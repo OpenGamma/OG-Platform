@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -58,7 +58,7 @@ public class CurrencyMatrixSourcingFunctionTest {
       }
     });
     _function = new CurrencyMatrixSourcingFunction("Foo");
-    _function.setUniqueIdentifier("currencyMatrixSourcing");
+    _function.setUniqueId("currencyMatrixSourcing");
     _function.init(_functionCompilationContext);
   }
 

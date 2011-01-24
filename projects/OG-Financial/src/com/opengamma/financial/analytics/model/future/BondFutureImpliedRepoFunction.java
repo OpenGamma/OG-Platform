@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -52,9 +52,6 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
-import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -83,8 +80,8 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     //final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"); //TODO this needs to be pulled from a convention
     //final double deliveryDate = dayCount.getDayCountFraction(now, firstDeliveryDate);
-    ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
-    Object priceObject = inputs.getValue(priceRequirement);
+    ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
+    final Object priceObject = inputs.getValue(priceRequirement);
     if (priceObject == null) {
       throw new NullPointerException("Could not get " + priceRequirement);
     }
@@ -116,7 +113,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
             convention.getExDividendDays(), SimpleYieldConvention.US_TREASURY_EQUIVALANT);
         final BondDefinition bondDefinition = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(bondSec, true);
         final Bond bond = bondDefinition.toDerivative(now.toLocalDate(), "dummy");
-        priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, bondSec.getUniqueIdentifier());
+        priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, bondSec.getUniqueId());
         priceObject = inputs.getValue(priceRequirement);
         if (priceObject == null) {
           s_logger.warn("Cannot get clean price for {} in basket of {}.", bondDefinition, security);
@@ -137,7 +134,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     }
     final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(cleanPrices, repoRates);
     final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors), basketData, futurePrice / 100);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueId());
     values.add(new ComputedValue(specification, impliedRepos));
     return values;
   }
@@ -155,7 +152,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final HashSet<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity()
-          .getUniqueIdentifier()));
+          .getUniqueId()));
       final SecuritySource secSource = context.getSecuritySource();
       final Position position = target.getPosition();
       final BondFutureSecurity security = (BondFutureSecurity) position.getSecurity();
@@ -164,7 +161,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
         final IdentifierBundle ids = del.getIdentifiers();
         final Security deliverableBond = secSource.getSecurity(ids);
         if (deliverableBond != null) {
-          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, deliverableBond.getUniqueIdentifier()));
+          requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, deliverableBond.getUniqueId()));
           ;
         } else {
           s_logger.warn("bond {} in deliverable basket of {} has empty IdentifierBundle, skipping", del, security);
@@ -180,7 +177,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, target.getPosition()), getUniqueId()));
 
     }
     return null;

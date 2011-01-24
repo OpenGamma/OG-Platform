@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -120,7 +120,7 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object to search for, not null
    * @return the matching unique identifier, not null
    */
-  public UniqueIdentifier getUniqueIdentifier(T obj) {
+  public UniqueIdentifier getUniqueId(T obj) {
     return _uniqueIdMap.inverse().get(obj);
   }
 

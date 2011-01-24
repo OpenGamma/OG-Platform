@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,7 +14,7 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewDeltaResultModelImpl;
+import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 
 /**
@@ -31,7 +31,7 @@ public class ViewDeltaResultCalculator {
    * @return  the delta between the two results, not null
    */
   public static ViewDeltaResultModel computeDeltaModel(ViewDefinition viewDefinition, ViewResultModel previousResult, ViewResultModel result) {
-    ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
+    InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     if (previousResult != null) {
@@ -45,7 +45,7 @@ public class ViewDeltaResultCalculator {
     return deltaModel;
   }
   
-  private static void computeDeltaModel(ViewDefinition viewDefinition, ViewDeltaResultModelImpl deltaModel, ComputationTargetSpecification targetSpec,
+  private static void computeDeltaModel(ViewDefinition viewDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
       ViewResultModel previousResult, ViewResultModel result) {
     for (String calcConfigName : result.getCalculationConfigurationNames()) {
       DeltaDefinition deltaDefinition = viewDefinition.getCalculationConfiguration(calcConfigName).getDeltaDefinition();
@@ -55,7 +55,7 @@ public class ViewDeltaResultCalculator {
     }
   }
 
-  private static void computeDeltaModel(DeltaDefinition deltaDefinition, ViewDeltaResultModelImpl deltaModel, ComputationTargetSpecification targetSpec,
+  private static void computeDeltaModel(DeltaDefinition deltaDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
       String calcConfigName, ViewCalculationResultModel previousCalcModel, ViewCalculationResultModel resultCalcModel) {
     if (previousCalcModel == null) {
       // Everything is new/delta because this is a new calculation context.

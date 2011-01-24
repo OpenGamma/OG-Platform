@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,8 +14,6 @@ import java.util.TimeZone;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,36 +32,17 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerRemoveTest.class);
 
-  private ModifyHolidayDbHolidayMasterWorker _worker;
-  private DbHolidayMasterWorker _queryWorker;
-
   public ModifyHolidayDbHolidayMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyHolidayDbHolidayMasterWorker();
-    _worker.init(_holMaster);
-    _queryWorker = new QueryHolidayDbHolidayMasterWorker();
-    _queryWorker.init(_holMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_removeHoliday_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
-    _worker.remove(uid);
+    _holMaster.remove(uid);
   }
 
   @Test
@@ -71,8 +50,8 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
     Instant now = Instant.now(_holMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
-    _worker.remove(uid);
-    HolidayDocument test = _queryWorker.get(uid);
+    _holMaster.remove(uid);
+    HolidayDocument test = _holMaster.get(uid);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -81,19 +60,19 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueIdentifier());
+    assertEquals(uid, holiday.getUniqueId());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
     assertEquals("GBP", holiday.getCurrency().getISOCode());
-    assertEquals(null, holiday.getRegionId());
-    assertEquals(null, holiday.getExchangeId());
+    assertEquals(null, holiday.getRegionKey());
+    assertEquals(null, holiday.getExchangeKey());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 1)), holiday.getHolidayDates());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbHol]", _worker.toString());
+    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

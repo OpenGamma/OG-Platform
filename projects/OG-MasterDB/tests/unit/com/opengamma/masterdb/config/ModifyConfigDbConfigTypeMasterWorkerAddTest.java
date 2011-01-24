@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,8 +13,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.masterdb.config.DbConfigTypeMasterWorker;
-import com.opengamma.masterdb.config.ModifyConfigDbConfigTypeMasterWorker;
-import com.opengamma.masterdb.config.QueryConfigDbConfigTypeMasterWorker;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -34,41 +29,22 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerAddTest.class);
 
-  private ModifyConfigDbConfigTypeMasterWorker<Identifier> _worker;
-  private DbConfigTypeMasterWorker<Identifier> _queryWorker;
-
   public ModifyConfigDbConfigTypeMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyConfigDbConfigTypeMasterWorker<Identifier>();
-    _worker.init(_cfgMaster);
-    _queryWorker = new QueryConfigDbConfigTypeMasterWorker<Identifier>();
-    _queryWorker.init(_cfgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_addConfig_nullDocument() {
-    _worker.add(null);
+    _cfgMaster.add(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noConfig() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
-    _worker.add(doc);
+    _cfgMaster.add(doc);
   }
 
   @Test
@@ -78,7 +54,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("TestConfig");
     doc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> test = _worker.add(doc);
+    ConfigDocument<Identifier> test = _cfgMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -99,16 +75,16 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("TestConfig");
     doc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> added = _worker.add(doc);
+    ConfigDocument<Identifier> added = _cfgMaster.add(doc);
     
-    ConfigDocument<Identifier> test = _queryWorker.get(added.getUniqueId());
+    ConfigDocument<Identifier> test = _cfgMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbCfg]", _worker.toString());
+    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }

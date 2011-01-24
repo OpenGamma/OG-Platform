@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -25,6 +25,11 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebSecuritiesData _data;
+  
+  /**
+   * JSON output formatter for securities service
+   */
+  private final JSONOutputter _jsonOutputter = new JSONOutputter();
 
   /**
    * Creates the resource.
@@ -78,6 +83,14 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    */
   protected WebSecuritiesData data() {
     return _data;
+  }
+  
+  /**
+   * Gets the JSON security outputter
+   * @return the json out putter, not null
+   */
+  protected JSONOutputter getJSONOutputter() {
+    return _jsonOutputter;
   }
 
 }

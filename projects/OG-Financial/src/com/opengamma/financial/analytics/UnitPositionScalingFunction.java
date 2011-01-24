@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -36,7 +36,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, inputs.getValue(_requirementName)));
   }
 
@@ -49,13 +49,13 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
     final Security security = position.getSecurity();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId());
     return Collections.singleton(requirement);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueIdentifier()));
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), getUniqueId()));
   }
 
   @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,11 +22,14 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionHistoryRequest;
+import com.opengamma.master.region.RegionHistoryResult;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
@@ -67,7 +70,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addIdentifierBundle(id);
+      searchRequest.addRegionKey(id);
     }
     out.put("searchRequest", searchRequest);
     
@@ -83,8 +86,19 @@ public class WebRegionsResource extends AbstractWebRegionResource {
   @Path("{regionId}")
   public WebRegionResource findRegion(@PathParam("regionId") String idStr) {
     data().setUriRegionId(idStr);
-    RegionDocument regionDoc = data().getRegionMaster().get(UniqueIdentifier.parse(idStr));
-    data().setRegion(regionDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      RegionDocument doc = data().getRegionMaster().get(oid);
+      data().setRegion(doc);
+    } catch (DataNotFoundException ex) {
+      RegionHistoryRequest historyRequest = new RegionHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      RegionHistoryResult historyResult = data().getRegionMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setRegion(historyResult.getFirstDocument());
+    }
     return new WebRegionResource(this);
   }
 

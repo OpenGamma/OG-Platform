@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -59,7 +59,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   }
 
   private UniqueIdentifier getIdentifier(FudgeFieldContainer msg) {
-    final FudgeField uidField = msg.getByName("uniqueIdentifier");
+    final FudgeField uidField = msg.getByName("uniqueId");
     if (uidField == null) {
       return null;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -13,12 +13,12 @@ import com.opengamma.master.AbstractDocument;
  */
 public class YieldCurveDefinitionDocument extends AbstractDocument {
 
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
 
   private YieldCurveDefinition _yieldCurveDefinition;
 
-  public YieldCurveDefinitionDocument(final UniqueIdentifier uniqueIdentifier, final YieldCurveDefinition yieldCurveDefinition) {
-    setUniqueId(uniqueIdentifier);
+  public YieldCurveDefinitionDocument(final UniqueIdentifier uniqueId, final YieldCurveDefinition yieldCurveDefinition) {
+    setUniqueId(uniqueId);
     setYieldCurveDefinition(yieldCurveDefinition);
   }
 
@@ -39,12 +39,12 @@ public class YieldCurveDefinitionDocument extends AbstractDocument {
 
   @Override
   public UniqueIdentifier getUniqueId() {
-    return _uniqueIdentifier;
+    return _uniqueId;
   }
 
   @Override
-  public void setUniqueId(UniqueIdentifier uniqueIdentifier) {
-    _uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    _uniqueId = uniqueId;
   }
 
 }

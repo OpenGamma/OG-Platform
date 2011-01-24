@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,8 +13,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,41 +33,22 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
   private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
 
-  private ModifyExchangeDbExchangeMasterWorker _worker;
-  private DbExchangeMasterWorker _queryWorker;
-
   public ModifyExchangeDbExchangeMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyExchangeDbExchangeMasterWorker();
-    _worker.init(_exgMaster);
-    _queryWorker = new QueryExchangeDbExchangeMasterWorker();
-    _queryWorker.init(_exgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_addExchange_nullDocument() {
-    _worker.add(null);
+    _exgMaster.add(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_add_noExchange() {
     ExchangeDocument doc = new ExchangeDocument();
-    _worker.add(doc);
+    _exgMaster.add(doc);
   }
 
   @Test
@@ -78,7 +57,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument test = _worker.add(doc);
+    ExchangeDocument test = _exgMaster.add(doc);
     
     UniqueIdentifier uid = test.getUniqueId();
     assertNotNull(uid);
@@ -92,10 +71,10 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange testExchange = test.getExchange();
     assertNotNull(testExchange);
-    assertEquals(uid, testExchange.getUniqueIdentifier());
+    assertEquals(uid, testExchange.getUniqueId());
     assertEquals("Test", test.getName());
     assertEquals(BUNDLE, testExchange.getIdentifiers());
-    assertEquals(REGION, testExchange.getRegionId());
+    assertEquals(REGION, testExchange.getRegionKey());
     assertEquals(null, testExchange.getTimeZone());
   }
 
@@ -103,16 +82,16 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
   public void test_add_addThenGet() {
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument added = _worker.add(doc);
+    ExchangeDocument added = _exgMaster.add(doc);
     
-    ExchangeDocument test = _queryWorker.get(added.getUniqueId());
+    ExchangeDocument test = _exgMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbExg]", _worker.toString());
+    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

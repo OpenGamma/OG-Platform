@@ -7,7 +7,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import com.opengamma.util.timeseries.sqldate.SQLDateEpochDaysConverter;
 
 /**
- * Fudge message builder (serializer/deserializer) for SQLDateEpochDaysConverter
+ * Fudge message builder (serializer/deserializer) for SQLDateEpochDaysConverter.
  */
 @FudgeBuilderFor(SQLDateEpochDaysConverter.class)
 public class SQLDateEpochDaysConverterBuilder extends DateTimeConverterBuilder<SQLDateEpochDaysConverter> {

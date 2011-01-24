@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CounterpartyImpl implements Counterparty, Serializable {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -56,7 +56,7 @@ public class CounterpartyImpl implements Counterparty, Serializable {
     }
     if (obj instanceof CounterpartyImpl) {
       CounterpartyImpl other = (CounterpartyImpl) obj;
-      return ObjectUtils.equals(_identifier, other._identifier);
+      return ObjectUtils.equals(getIdentifier(), other.getIdentifier());
     }
     return false;
   }
@@ -64,7 +64,7 @@ public class CounterpartyImpl implements Counterparty, Serializable {
   @Override
   public int hashCode() {
     int hashCode = 65;
-    hashCode += _identifier.hashCode();
+    hashCode += getIdentifier().hashCode();
     return hashCode;
   }
 

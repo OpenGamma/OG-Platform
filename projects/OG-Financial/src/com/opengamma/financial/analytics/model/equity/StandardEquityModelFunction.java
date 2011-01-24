@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -34,13 +34,13 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
         new ValueRequirement(
             MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.SECURITY,
-            equity.getUniqueIdentifier()));
+            equity.getUniqueId()));
     // TODO this needs to annotate the result value with the currency of the value. 
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
-                getUniqueIdentifier()),
+                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
+                getUniqueId()),
                 price));
   }
 
@@ -60,7 +60,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()));
       return requirements;
     }
     return null;
@@ -72,8 +72,8 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(
-              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()),
-          getUniqueIdentifier()));
+              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
+          getUniqueId()));
     }
     return null;
   }

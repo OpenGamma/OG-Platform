@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -38,7 +38,7 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     final PortfolioNode node = target.getPortfolioNode();
     result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node),
-        getUniqueIdentifier()), _value));
+        getUniqueId()), _value));
     return result;
   }
 
@@ -57,7 +57,7 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
     if (canApplyTo(context, target)) {
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       final PortfolioNode node = target.getPortfolioNode();
-      results.add(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueIdentifier()));
+      results.add(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueId()));
       return results;
     }
     return null;

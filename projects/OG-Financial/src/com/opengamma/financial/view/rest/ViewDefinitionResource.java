@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,6 +11,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.engine.view.ViewDefinition;
@@ -83,7 +84,7 @@ public class ViewDefinitionResource {
     request.setName(getDefinitionName());
     request.checkValid();
     getViewDefinitionRepository().updateViewDefinition(request);
-    URI uri = ViewDefinitionResource.uri(getUriInfo(), getDefinitionName());
+    URI uri = ViewDefinitionResource.uri(getUriInfo().getBaseUri(), getDefinitionName());
     return Response.ok().location(uri).build();
   }
   
@@ -96,12 +97,12 @@ public class ViewDefinitionResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for a security.
-   * @param uriInfo  the URI information, not null
+   * @param baseUri  the base URI, not null
    * @param definitionName  the name of the view definition, not null
    * @return the URI, not null
    */
-  public static URI uri(UriInfo uriInfo, String definitionName) {
-    return uriInfo.getBaseUriBuilder().path(ViewDefinitionResource.class).build(definitionName);
+  public static URI uri(URI baseUri, String definitionName) {
+    return UriBuilder.fromUri(baseUri).path("viewDefinitions").segment(definitionName).build();
   }
   
 }

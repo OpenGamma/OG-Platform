@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -21,7 +21,7 @@ public interface ConventionBundleMaster {
 
   ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest searchRequest);
 
-  ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueIdentifier);
+  ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueId);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
 

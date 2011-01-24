@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,10 +26,13 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeHistoryRequest;
+import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
@@ -69,7 +72,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addIdentifierBundle(id);
+      searchRequest.addExchangeKey(id);
     }
     out.put("searchRequest", searchRequest);
     
@@ -128,8 +131,19 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @Path("{exchangeId}")
   public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
-    ExchangeDocument exchangeDoc = data().getExchangeMaster().get(UniqueIdentifier.parse(idStr));
-    data().setExchange(exchangeDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      ExchangeDocument doc = data().getExchangeMaster().get(oid);
+      data().setExchange(doc);
+    } catch (DataNotFoundException ex) {
+      ExchangeHistoryRequest historyRequest = new ExchangeHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      ExchangeHistoryResult historyResult = data().getExchangeMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setExchange(historyResult.getFirstDocument());
+    }
     return new WebExchangeResource(this);
   }
 

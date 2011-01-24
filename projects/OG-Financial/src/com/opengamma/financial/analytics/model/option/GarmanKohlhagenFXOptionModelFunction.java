@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -39,15 +39,15 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final FXOptionSecurity fxOption = (FXOptionSecurity) option;
     final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier())); //TODO make sure spot FX rate is right way up
-    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
     //TODO check call / put are actually the right way around
-    final YieldAndDiscountCurve domesticCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getCallCurrency().getUniqueIdentifier()));
-    final YieldAndDiscountCurve foreignCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getPutCurrency().getUniqueIdentifier()));
+    final YieldAndDiscountCurve domesticCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getCallCurrency().getUniqueId()));
+    final YieldAndDiscountCurve foreignCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(fxOption.getPutCurrency().getUniqueId()));
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = foreignCurve.getInterestRate(t); //TODO not great but needs an analytics refactor
@@ -69,10 +69,10 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
       final SecuritySource secMaster = context.getSecuritySource();
       final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
-      requirements.add(getYieldCurveMarketDataRequirement(option.getCallCurrency().getUniqueIdentifier()));
-      requirements.add(getYieldCurveMarketDataRequirement(option.getPutCurrency().getUniqueIdentifier()));
+      requirements.add(getYieldCurveMarketDataRequirement(option.getCallCurrency().getUniqueId()));
+      requirements.add(getYieldCurveMarketDataRequirement(option.getPutCurrency().getUniqueId()));
       return requirements;
     }
     return null;
@@ -84,7 +84,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
       final OptionSecurity security = (OptionSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueIdentifier()));
+        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));
       }
       return results;
     }

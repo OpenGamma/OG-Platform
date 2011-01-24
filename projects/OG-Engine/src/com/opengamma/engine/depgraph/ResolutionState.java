@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -108,8 +108,12 @@ import com.opengamma.util.tuple.Pair;
 
   public void addExistingNodes(final Collection<Pair<DependencyNode, ValueSpecification>> nodes) {
     for (Pair<DependencyNode, ValueSpecification> node : nodes) {
-      _nodes.add(new Node(node.getSecond(), node.getFirst()));
+      addExistingNode(node.getFirst(), node.getSecond());
     }
+  }
+
+  public void addExistingNode(final DependencyNode node, final ValueSpecification resolvedOutput) {
+    _nodes.add(new Node(resolvedOutput, node));
   }
 
   public void addFunction(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final DependencyNode node) {

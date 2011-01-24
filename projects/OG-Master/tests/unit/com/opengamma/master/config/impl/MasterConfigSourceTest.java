@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,6 +24,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.master.listener.MasterChangeListener;
 
 /**
  * Test MasterConfigSource.
@@ -75,6 +76,14 @@ public class MasterConfigSourceTest {
         }
         @Override
         public ConfigDocument<Identifier> correct(ConfigDocument<Identifier> document) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public void addChangeListener(MasterChangeListener listener) {
+          throw new UnsupportedOperationException();
+        }
+        @Override
+        public void removeChangeListener(MasterChangeListener listener) {
           throw new UnsupportedOperationException();
         }
       };

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -144,7 +144,7 @@ public class ViewDefinitionCompilerTest {
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Fibble"));
-    assertTargets(vem, pn.getUniqueIdentifier());
+    assertTargets(vem, pn.getUniqueId());
   }
 
   @Test
@@ -204,7 +204,7 @@ public class ViewDefinitionCompilerTest {
 
     // Expect the node and the security, since we've turned off position-level outputs and not actually provided a
     // function that can produce them
-    assertTargets(vem, sec2.getUniqueIdentifier(), pn.getUniqueIdentifier());
+    assertTargets(vem, sec2.getUniqueId(), pn.getUniqueId());
   }
 
   @Test
@@ -276,12 +276,12 @@ public class ViewDefinitionCompilerTest {
     assertTrue(vem.getAllLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Config1"));
-    assertTargets(vem, sec1.getUniqueIdentifier(), t1);
+    assertTargets(vem, sec1.getUniqueId(), t1);
 
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
     vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTargets(vem, sec1.getUniqueIdentifier(), t1);
+    assertTargets(vem, sec1.getUniqueId(), t1);
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
@@ -296,7 +296,7 @@ public class ViewDefinitionCompilerTest {
     Set<ComputationTarget> actualTargets = vem.getAllComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
     for (ComputationTarget actualTarget : actualTargets) {
-      assertTrue(expectedTargets.contains(actualTarget.getUniqueIdentifier()));
+      assertTrue(expectedTargets.contains(actualTarget.getUniqueId()));
     }
   }
 

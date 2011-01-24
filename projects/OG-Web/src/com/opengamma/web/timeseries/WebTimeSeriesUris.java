@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -50,7 +50,7 @@ public class WebTimeSeriesUris {
    * @return the URI
    */
   public URI oneTimeSeries(final TimeSeriesDocument<?> timeSeries) {
-    return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueIdentifier());
+    return WebOneTimeSeriesResource.uri(_data, timeSeries.getUniqueId());
   }
 
 }

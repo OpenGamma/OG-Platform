@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,8 +20,8 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.rest.DataPositionResource;
-import com.opengamma.financial.position.master.rest.DataPositionsResource;
+import com.opengamma.financial.position.rest.DataPositionResource;
+import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -72,7 +72,6 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
     FudgeField fudgeField = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
     FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
     FunctionParameters functionParameters = context.fieldValueToObject(FunctionParameters.class, fudgeField);
-
 
     final long[] inputIdentifiers = (long[]) message.getByName(INPUT_FIELD_NAME).getValue();
 

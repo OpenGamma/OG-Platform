@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,15 +19,17 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class MockSecurity implements Security, MutableUniqueIdentifiable, Serializable {
 
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
   private String _securityType;
   private String _name;
   private IdentifierBundle _identifiers;
 
   /**
    * Creates an instance.
+   * 
    * @param securityType  the security type
    */
   public MockSecurity(String securityType) {
@@ -35,12 +37,12 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _identifiers = IdentifierBundle.EMPTY;
   }
 
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
-  public void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
-    _uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(UniqueIdentifier uniqueId) {
+    _uniqueId = uniqueId;
   }
 
   public String getName() {
@@ -79,7 +81,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     }
     if (obj instanceof MockSecurity) {
       MockSecurity other = (MockSecurity) obj;
-      return Objects.equal(_uniqueIdentifier, other._uniqueIdentifier) &&
+      return Objects.equal(_uniqueId, other._uniqueId) &&
         Objects.equal(_securityType, other._securityType) &&
         Objects.equal(_name, other._name) &&
         Objects.equal(_identifiers, other._identifiers);
@@ -94,7 +96,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     result = prime * result + ((_identifiers == null) ? 0 : _identifiers.hashCode());
     result = prime * result + ((_name == null) ? 0 : _name.hashCode());
     result = prime * result + ((_securityType == null) ? 0 : _securityType.hashCode());
-    result = prime * result + ((_uniqueIdentifier == null) ? 0 : _uniqueIdentifier.hashCode());
+    result = prime * result + ((_uniqueId == null) ? 0 : _uniqueId.hashCode());
     return result;
   }
 

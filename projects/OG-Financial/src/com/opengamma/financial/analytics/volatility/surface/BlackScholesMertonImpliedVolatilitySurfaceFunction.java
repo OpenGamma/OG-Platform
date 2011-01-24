@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -81,9 +81,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
     SecuritySource securityMaster = context.getSecuritySource();
     Security underlying = securityMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
-    final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueIdentifier());
-    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
+    final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
+    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
+    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId());
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
     optionRequirements.add(optionMarketDataReq);
@@ -109,9 +109,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     Security underlying = secMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:
-    final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueIdentifier());
-    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
+    final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());
+    final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueId());
+    final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId());
 
     final Double optionPrice = (Double) inputs.getValue(optionPriceReq);
     final Double underlyingPrice = (Double) inputs.getValue(underlyingPriceReq);

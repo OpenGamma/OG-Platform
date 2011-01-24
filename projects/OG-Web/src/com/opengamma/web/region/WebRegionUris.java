@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -85,7 +85,7 @@ public class WebRegionUris {
    * @return the URI
    */
   public URI region(final Region region) {
-    return WebRegionResource.uri(_data, region.getUniqueIdentifier());
+    return WebRegionResource.uri(_data, region.getUniqueId());
   }
 
   /**
@@ -110,7 +110,7 @@ public class WebRegionUris {
    * @return the URI
    */
   public URI regionVersion(final Region region) {
-    return WebRegionVersionResource.uri(_data, region.getUniqueIdentifier());
+    return WebRegionVersionResource.uri(_data, region.getUniqueId());
   }
 
 }

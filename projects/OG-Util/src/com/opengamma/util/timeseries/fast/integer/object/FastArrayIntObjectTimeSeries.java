@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -499,7 +499,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   @Override
   public T getValueFast(final int time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time) {
+    if (binarySearch >= 0 && _times[binarySearch] == time) {
       return _values[binarySearch];
     } else {
       throw new NoSuchElementException();

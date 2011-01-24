@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -31,16 +31,15 @@ public class UnderlyingTypeToValueRequirementMapper {
       Security optionUnderlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       switch (underlying) {
         case SPOT_PRICE:
-          return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueIdentifier());
+          return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueId());
         case SPOT_VOLATILITY:
-          throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueIdentifier());
+          throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueId());
         case IMPLIED_VOLATILITY:
-          throw new NotImplementedException("Don't know how to get implied volatility for " + option.getUniqueIdentifier());
+          throw new NotImplementedException("Don't know how to get implied volatility for " + option.getUniqueId());
         case INTEREST_RATE:
-          return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option
-              .getUniqueIdentifier());
+          return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getUniqueId());
         case COST_OF_CARRY:
-          throw new NotImplementedException("Don't know how to get cost of carry for " + option.getUniqueIdentifier());
+          throw new NotImplementedException("Don't know how to get cost of carry for " + option.getUniqueId());
         default:
           throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }

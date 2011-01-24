@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -64,5 +64,20 @@ public class DummyBatchDbManager implements BatchDbManager {
     }
     values.add(value);
   }
+  
+  @Override
+  public BatchSearchResult search(BatchSearchRequest request) {
+    return new BatchSearchResult();
+  }
 
+  @Override
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    return new BatchDataSearchResult();
+  }
+
+  @Override
+  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+    return new BatchErrorSearchResult();
+  }
+  
 }

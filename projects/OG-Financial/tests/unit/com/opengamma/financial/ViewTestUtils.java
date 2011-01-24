@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -66,6 +66,7 @@ public class ViewTestUtils {
 
     FunctionExecutionContext executionContext = new FunctionExecutionContext();
     CompiledFunctionService functionCompilation = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    functionCompilation.initialize();
 
     ViewProcessorQueryReceiver viewProcessorQueryReceiver = new ViewProcessorQueryReceiver();
     ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));

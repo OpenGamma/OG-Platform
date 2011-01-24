@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,8 +11,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,61 +34,42 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
   private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
 
-  private ModifyExchangeDbExchangeMasterWorker _worker;
-  private DbExchangeMasterWorker _queryWorker;
-
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyExchangeDbExchangeMasterWorker();
-    _worker.init(_exgMaster);
-    _queryWorker = new QueryExchangeDbExchangeMasterWorker();
-    _queryWorker.init(_exgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correctExchange_nullDocument() {
-    _worker.correct(null);
+    _exgMaster.correct(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correct_noExchangeId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc.setUniqueId(null);
-    _worker.correct(doc);
+    _exgMaster.correct(doc);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_correct_noExchange() {
     ExchangeDocument doc = new ExchangeDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbExg", "101", "0"));
-    _worker.correct(doc);
+    _exgMaster.correct(doc);
   }
 
   @Test(expected = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument doc = new ExchangeDocument(exchange);
-    _worker.correct(doc);
+    _exgMaster.correct(doc);
   }
 
 //  @Test(expected = IllegalArgumentException.class)
@@ -106,12 +85,12 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     Instant now = Instant.now(_exgMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
-    ExchangeDocument base = _queryWorker.get(uid);
+    ExchangeDocument base = _exgMaster.get(uid);
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
-    exchange.setUniqueIdentifier(uid);
+    exchange.setUniqueId(uid);
     ExchangeDocument input = new ExchangeDocument(exchange);
     
-    ExchangeDocument corrected = _worker.correct(input);
+    ExchangeDocument corrected = _exgMaster.correct(input);
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
@@ -119,7 +98,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getExchange(), corrected.getExchange());
     
-    ExchangeDocument old = _queryWorker.get(UniqueIdentifier.of("DbExg", "101", "0"));
+    ExchangeDocument old = _exgMaster.get(UniqueIdentifier.of("DbExg", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
@@ -128,14 +107,14 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(base.getExchange(), old.getExchange());
     
     ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), now, null);
-    ExchangeHistoryResult searchResult = _queryWorker.history(search);
+    ExchangeHistoryResult searchResult = _exgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbExg]", _worker.toString());
+    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

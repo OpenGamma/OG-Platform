@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -30,7 +30,7 @@ public final class UniqueIdentifiables {
    */
   public static void setInto(Object object, UniqueIdentifier uid) {
     if (object instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) object).setUniqueIdentifier(uid);
+      ((MutableUniqueIdentifiable) object).setUniqueId(uid);
     }
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -101,7 +101,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
   }
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final OptionSecurity security) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueIdentifier(), ValueProperties.with(ValuePropertyNames.CURRENCY,
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY,
         security.getCurrency().getISOCode()).get());
   }
 

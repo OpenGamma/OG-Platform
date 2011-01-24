@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -55,8 +55,8 @@ public class RESTMethodTest {
     sec2.setIdentifiers (IdentifierBundle.of(secId2));
     securitySource.addSecurity(sec2);
     getSecuritySourceService().setUnderlying(securitySource);
-    _uid1 = sec1.getUniqueIdentifier();
-    // _uid2 = sec2.getUniqueIdentifier();
+    _uid1 = sec1.getUniqueId();
+    // _uid2 = sec2.getUniqueId();
   }
 
   @Test

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -58,7 +58,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
       return null;
     }
     final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
-    resp.add("uniqueIdentifier", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -73,7 +73,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
       return null;
     }
     final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
-    resp.add("uniqueIdentifier", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -85,7 +85,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
       final MutableFudgeFieldContainer resp = sctx.newMessage();
-      resp.add("uniqueIdentifier", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
       sctx.objectToFudgeMsgWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -56,6 +57,10 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       @FormParam("idvalue") String idValue,
       @FormParam("regionscheme") String regionScheme,
       @FormParam("regionvalue") String regionValue) {
+    if (data().getExchange().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     idScheme = StringUtils.trimToNull(idScheme);
     idValue = StringUtils.trimToNull(idValue);
@@ -82,7 +87,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    exchange.setRegionId(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
+    exchange.setRegionKey(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);
@@ -93,8 +98,12 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   @DELETE
   public Response delete() {
     ExchangeDocument doc = data().getExchange();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getExchangeMaster().remove(doc.getUniqueId());
-    URI uri = WebExchangesResource.uri(data());
+    URI uri = WebExchangeResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -108,6 +117,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     ExchangeDocument doc = data().getExchange();
     out.put("exchangeDoc", doc);
     out.put("exchange", doc.getExchange());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

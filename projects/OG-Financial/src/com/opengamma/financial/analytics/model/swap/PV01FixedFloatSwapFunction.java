@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swap;
@@ -16,6 +16,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -56,7 +58,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
     }
     for (final Map.Entry<String, Double> entry : pv01ForCurve.entrySet()) {
       final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + entry.getKey() + "_" + getCurrency().getISOCode(), security),
-          getUniqueIdentifier());
+          createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(security).getISOCode()).get());
       result.add(new ComputedValue(specification, entry.getValue()));
     }
     return result;
@@ -66,10 +68,10 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       if (getForwardCurveName().equals(getFundingCurveName())) {
-        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
+        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
       }
-      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()),
-          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()), new ValueRequirement(
+          getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
     }
     return null;
   }
@@ -77,14 +79,12 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
+      ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getISOCode()).get();
       if (getForwardCurveName().equals(getFundingCurveName())) {
-        return Sets.newHashSet(new ValueSpecification(
-            new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), getUniqueIdentifier()));
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), props));
       }
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
-          getUniqueIdentifier()),
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getFundingCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()),
-              getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), props),
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getFundingCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), props));
     }
     return null;
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -36,11 +36,11 @@ public class PortfolioAggregator {
   }
   
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    String aggPortfolioId = buildPortfolioName(inputPortfolio.getUniqueIdentifier().getValue());
+    String aggPortfolioId = buildPortfolioName(inputPortfolio.getUniqueId().getValue());
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
-    UniqueIdentifier aggId = UniqueIdentifier.of(inputPortfolio.getUniqueIdentifier().getScheme(), aggPortfolioId);
+    UniqueIdentifier aggId = UniqueIdentifier.of(inputPortfolio.getUniqueId().getScheme(), aggPortfolioId);
     PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName);
     aggregate((PortfolioNodeImpl) aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;

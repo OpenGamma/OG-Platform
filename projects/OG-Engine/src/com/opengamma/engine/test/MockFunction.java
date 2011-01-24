@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -41,15 +41,15 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   private final Set<ValueSpecification> _requiredLiveData = new HashSet<ValueSpecification>();
 
   /**
-   * @param uniqueIdentifier identifier of the function
+   * @param uniqueId identifier of the function
    * @param target Target mock function applies to
    * @param output What the mock function outputs
    * @return A mock function with one input and one output
    */
-  public static MockFunction getMockFunction(String uniqueIdentifier, ComputationTarget target, Object output) {
+  public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output) {
     ValueRequirement outputReq = getOutputRequirement(target);
 
-    MockFunction fn = new MockFunction(uniqueIdentifier, target);
+    MockFunction fn = new MockFunction(uniqueId, target);
     fn.addResult(outputReq, output);
     return fn;
   }
@@ -63,15 +63,15 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return outputReq;
   }
 
-  public static MockFunction getMockFunction(String uniqueIdentifier, ComputationTarget target, Object output, ValueRequirement input) {
-    MockFunction fn = getMockFunction(uniqueIdentifier, target, output);
+  public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output, ValueRequirement input) {
+    MockFunction fn = getMockFunction(uniqueId, target, output);
 
     fn.addRequirement(input);
     return fn;
   }
 
-  public static MockFunction getMockFunction(String uniqueIdentifier, ComputationTarget target, Object output, MockFunction inputFunction) {
-    MockFunction fn = getMockFunction(uniqueIdentifier, target, output);
+  public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output, MockFunction inputFunction) {
+    MockFunction fn = getMockFunction(uniqueId, target, output);
 
     for (ValueSpecification resultSpec : inputFunction.getResultSpecs()) {
       fn.addRequirement(resultSpec.toRequirementSpecification());
@@ -79,9 +79,9 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return fn;
   }
 
-  public MockFunction(String uniqueIdentifier, ComputationTarget target) {
+  public MockFunction(String uniqueId, ComputationTarget target) {
     _target = target;
-    setUniqueIdentifier(uniqueIdentifier);
+    setUniqueId(uniqueId);
   }
 
   public MockFunction(ComputationTarget target) {
@@ -105,7 +105,7 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   public ValueSpecification toValueSpecification(ValueRequirement requirement) {
-    return new ValueSpecification(requirement, getUniqueIdentifier());
+    return new ValueSpecification(requirement, getUniqueId());
   }
 
   public ComputedValue getResult(ValueSpecification spec, Object result) {

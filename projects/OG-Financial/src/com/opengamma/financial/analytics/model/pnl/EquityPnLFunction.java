@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -39,12 +39,12 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final Object fairValueObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, position.getSecurity().getUniqueIdentifier()));
-    final Object priceSeriesObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, position.getSecurity().getUniqueIdentifier()));
+    final Object fairValueObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, position.getSecurity().getUniqueId()));
+    final Object priceSeriesObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, position.getSecurity().getUniqueId()));
     if (fairValueObj != null && priceSeriesObj != null) {
       final Double fairValue = (Double) fairValueObj;
       final DoubleTimeSeries<?> returnSeries = _returnCalculator.evaluate((DoubleTimeSeries<?>) priceSeriesObj);
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueIdentifier());
+      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position), getUniqueId());
       //TODO how do we get dividend data for an equity?
       final ComputedValue result = new ComputedValue(valueSpecification, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue()));
       return Sets.newHashSet(result);
@@ -63,8 +63,8 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
       final Position position = target.getPosition();
       final EquitySecurity equity = (EquitySecurity) position.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
-      requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
+      requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()));
+      requirements.add(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, equity.getUniqueId()));
       // TODO need to consider fx here?
       return requirements;
     }
@@ -74,7 +74,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition()), getUniqueId()));
     }
     return null;
   }

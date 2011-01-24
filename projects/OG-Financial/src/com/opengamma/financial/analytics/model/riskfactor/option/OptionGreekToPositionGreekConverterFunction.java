@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -66,7 +66,7 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
     for (final ValueRequirement dV : desiredValues) {
       positionGreek = AvailablePositionGreeks.getPositionGreekForValueRequirementName(dV.getValueName());
       positionGreekResult = positionGreeks.get(positionGreek);
-      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()), getUniqueIdentifier());
+      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()), getUniqueId());
       resultValue = new ComputedValue(resultSpecification, positionGreekResult);
       results.add(resultValue);
     }
@@ -97,7 +97,7 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
       for (final String valueName : AvailablePositionGreeks.getAllPositionGreekNames()) {
         results.add(new ValueSpecification(
             new ValueRequirement(valueName, target.getSecurity()),
-            getUniqueIdentifier()));
+            getUniqueId()));
       }
     }
     return null;

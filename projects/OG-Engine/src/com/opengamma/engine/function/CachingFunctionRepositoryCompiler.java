@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -29,6 +29,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>();
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
   private int _cacheSize = 16;
+  private long _functionInitId;
 
   public synchronized void setCacheSize(final int cacheSize) {
     _cacheSize = cacheSize;
@@ -52,7 +53,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   protected boolean addFunctionFromCachedRepository(final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final InMemoryCompiledFunctionRepository compiled,
       final FunctionDefinition function, final Instant atInstant) {
     if (before != null) {
-      final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = before.findDefinition(function.getUniqueId());
       if (compiledFunction.getLatestInvocationTime() == null) {
         // previous one always valid
         compiled.addFunction(compiledFunction);
@@ -67,7 +68,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       }
     }
     if (after != null) {
-      final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueIdentifier());
+      final CompiledFunctionDefinition compiledFunction = after.findDefinition(function.getUniqueId());
       if (compiledFunction.getEarliestInvocationTime() == null) {
         // next one always valid
         compiled.addFunction(compiledFunction);
@@ -150,6 +151,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
 
   @Override
   public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final InstantProvider atInstantProvider) {
+    clearInvalidCache(context.getFunctionInitId());
     final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation
@@ -184,9 +186,12 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
     cacheCompilation(key, compiled);
     return compiled;
   }
-  
-  public synchronized void invalidateCache() {
-    getCompilationCache().clear();
+
+  protected synchronized void clearInvalidCache(final Long initId) {
+    if ((initId != null) && (_functionInitId != initId)) {
+      getCompilationCache().clear();
+      _functionInitId = initId;
+    }
   }
 
 }

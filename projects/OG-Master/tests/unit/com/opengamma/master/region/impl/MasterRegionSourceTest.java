@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -147,7 +147,7 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   protected ManageableRegion uk() {
     ManageableRegion region = new ManageableRegion();
-    region.setUniqueIdentifier(UID);
+    region.setUniqueId(UID);
     region.setName("United Kingdom");
     region.setCurrency(GBP);
     region.setCountryISO("GB");

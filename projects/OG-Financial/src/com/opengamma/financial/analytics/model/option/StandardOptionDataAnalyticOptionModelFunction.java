@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -38,15 +38,15 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
-    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     if (spotAsObject == null) {
       s_logger.warn("Didn't have market value for {}", option.getUnderlyingIdentifier());
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueId()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option));
-    final double b = (Double) inputs.getValue(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
+    final double b = (Double) inputs.getValue(getCostOfCarryMarketDataRequirement(option.getUniqueId()));
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 
@@ -57,10 +57,10 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
       final SecuritySource secMaster = context.getSecuritySource();
       final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
-      requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
+      requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueId()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option));
-      requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getCostOfCarryMarketDataRequirement(option.getUniqueId()));
       return requirements;
     }
     return null;

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -47,13 +47,13 @@ public class CoppClarkHolidayFileReaderTest {
     MasterExchangeSource exchangeSource = CoppClarkExchangeFileReader.createPopulated().getExchangeSource();
     ManageableExchange euronextLiffe = exchangeSource.getSingleExchange(EURONEXT_LIFFE);
     Assert.assertNotNull(euronextLiffe);
-    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.BANK, euronextLiffe.getRegionId()));
-    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.BANK, euronextLiffe.getRegionId()));
+    Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), HolidayType.BANK, euronextLiffe.getRegionKey()));
+    Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.BANK, euronextLiffe.getRegionKey()));
     
     InMemoryRegionMaster regionMaster = new InMemoryRegionMaster();
     RegionFileReader.populate(regionMaster);
     RegionSource regionSource = new MasterRegionSource(regionMaster);
-    Currency currency = regionSource.getHighestLevelRegion(euronextLiffe.getRegionId()).getCurrency();
+    Currency currency = regionSource.getHighestLevelRegion(euronextLiffe.getRegionKey()).getCurrency();
     Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), currency));
     Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), currency));
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,6 @@ import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +25,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.masterdb.security.DbSecurityMasterWorker;
-import com.opengamma.masterdb.security.ModifySecurityDbSecurityMasterWorker;
-import com.opengamma.masterdb.security.QuerySecurityDbSecurityMasterWorker;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -39,51 +34,32 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerUpdateTest.class);
 
-  private ModifySecurityDbSecurityMasterWorker _worker;
-  private DbSecurityMasterWorker _queryWorker;
-
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifySecurityDbSecurityMasterWorker();
-    _worker.init(_secMaster);
-    _queryWorker = new QuerySecurityDbSecurityMasterWorker();
-    _queryWorker.init(_secMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_updateSecurity_nullDocument() {
-    _worker.update(null);
+    _secMaster.update(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_update_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
-    _worker.update(doc);
+    _secMaster.update(doc);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_update_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
-    _worker.update(doc);
+    _secMaster.update(doc);
   }
 
   @Test(expected = DataNotFoundException.class)
@@ -91,7 +67,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument doc = new SecurityDocument(security);
-    _worker.update(doc);
+    _secMaster.update(doc);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -99,7 +75,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument doc = new SecurityDocument(security);
-    _worker.update(doc);
+    _secMaster.update(doc);
   }
 
   @Test
@@ -107,11 +83,11 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     Instant now = Instant.now(_secMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    SecurityDocument base = _queryWorker.get(uid);
+    SecurityDocument base = _secMaster.get(uid);
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument input = new SecurityDocument(security);
     
-    SecurityDocument updated = _worker.update(input);
+    SecurityDocument updated = _secMaster.update(input);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
@@ -119,7 +95,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getSecurity(), updated.getSecurity());
     
-    SecurityDocument old = _queryWorker.get(uid);
+    SecurityDocument old = _secMaster.get(uid);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
@@ -128,20 +104,21 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     assertEquals(base.getSecurity(), old.getSecurity());
     
     SecurityHistoryRequest search = new SecurityHistoryRequest(base.getUniqueId(), null, now);
-    SecurityHistoryResult searchResult = _queryWorker.history(search);
+    search.setFullDetail(false);
+    SecurityHistoryResult searchResult = _secMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 
   @Test
   public void test_update_rollback() {
-    ModifySecurityDbSecurityMasterWorker w = new ModifySecurityDbSecurityMasterWorker() {
+    DbSecurityMaster w = new DbSecurityMaster(_secMaster.getDbSource()) {
       @Override
       protected String sqlInsertSecurityIdKey() {
         return "INSERT";  // bad sql
-      };
+      }
     };
-    w.init(_secMaster);
-    final SecurityDocument base = _queryWorker.get(UniqueIdentifier.of("DbSec", "101", "0"));
+    w.setDetailProvider(null);
+    final SecurityDocument base = _secMaster.get(UniqueIdentifier.of("DbSec", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
     SecurityDocument input = new SecurityDocument(security);
@@ -151,7 +128,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final SecurityDocument test = _queryWorker.get(UniqueIdentifier.of("DbSec", "101", "0"));
+    final SecurityDocument test = _secMaster.get(UniqueIdentifier.of("DbSec", "101", "0"));
     
     assertEquals(base, test);
   }
@@ -159,7 +136,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbSec]", _worker.toString());
+    assertEquals(_secMaster.getClass().getSimpleName() + "[DbSec]", _secMaster.toString());
   }
 
 }

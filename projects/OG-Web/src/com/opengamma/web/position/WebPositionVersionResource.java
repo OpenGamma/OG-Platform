@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -53,6 +53,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     out.put("latestPosition", latestPositionDoc.getPosition());
     out.put("positionDoc", versionedPosition);
     out.put("position", versionedPosition.getPosition());
+    out.put("deleted", !latestPositionDoc.isLatest());
     return out;
   }
 

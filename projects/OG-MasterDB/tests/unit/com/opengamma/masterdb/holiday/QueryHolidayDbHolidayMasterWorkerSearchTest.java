@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,10 +7,9 @@ package com.opengamma.masterdb.holiday;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -31,32 +31,17 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerSearchTest.class);
 
-  private DbHolidayMasterWorker _worker;
-
   public QueryHolidayDbHolidayMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new QueryHolidayDbHolidayMasterWorker();
-    _worker.init(_holMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-  }
-
   //-------------------------------------------------------------------------
   @Test
   public void test_searchHolidays_documents() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
@@ -73,7 +58,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_pageOne() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setPagingRequest(new PagingRequest(1, 2));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(2, test.getPaging().getPagingSize());
@@ -88,7 +73,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_pageTwo() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setPagingRequest(new PagingRequest(2, 2));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());
     assertEquals(2, test.getPaging().getPagingSize());
@@ -103,7 +88,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_name_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setName("FooBar");
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
@@ -112,7 +97,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_name() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setName("TestHoliday102");
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -122,7 +107,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_name_case() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setName("TESTHoliday102");
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -132,7 +117,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_name_wildcard() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setName("TestHoliday1*");
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -143,7 +128,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_name_wildcardCase() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setName("TESTHoliday1*");
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -155,7 +140,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_type() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setType(HolidayType.CURRENCY);
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -167,8 +152,8 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("A", "B"));
-    HolidaySearchResult test = _worker.search(request);
+    request.setProviderKey(Identifier.of("A", "B"));
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
@@ -176,8 +161,8 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerFound() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderId(Identifier.of("COPP_CLARK", "2"));
-    HolidaySearchResult test = _worker.search(request);
+    request.setProviderKey(Identifier.of("COPP_CLARK", "2"));
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -187,8 +172,8 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionEmptyBundle() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionIdentifiers(IdentifierBundle.EMPTY);
-    HolidaySearchResult test = _worker.search(request);
+    request.setRegionKeys(new IdentifierSearch());
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
@@ -196,54 +181,54 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
-    HolidaySearchResult test = _worker.search(request);
+    request.addRegionKey(Identifier.of("A", "B"));
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_exchangeEmptyBundle() {
+  public void test_search_exchange_empty() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeIdentifiers(IdentifierBundle.EMPTY);
-    HolidaySearchResult test = _worker.search(request);
+    request.setExchangeKeys(new IdentifierSearch());
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_exchangeNoMatch() {
+  public void test_search_exchange_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
-    HolidaySearchResult test = _worker.search(request);
+    request.addExchangeKey(Identifier.of("A", "B"));
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_currencyNoMatch() {
+  public void test_search_currency_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("USD"));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_currencyOneMatch() {
+  public void test_search_currency_oneMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("EUR"));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
   }
 
   @Test
-  public void test_search_currencyTwoMatches() {
+  public void test_search_currency_twoMatches() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setCurrency(Currency.getInstance("GBP"));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -252,10 +237,40 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_search_holidayIds_none() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.setHolidayIds(new ArrayList<ObjectIdentifier>());
+    HolidaySearchResult test = _holMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_holidayIds() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "101"));
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "201"));
+    request.addHolidayId(ObjectIdentifier.of("DbHol", "9999"));
+    HolidaySearchResult test = _holMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert202(test.getDocuments().get(1));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_search_holidayIds_badSchemeValidOid() {
+    HolidaySearchRequest request = new HolidaySearchRequest();
+    request.addHolidayId(ObjectIdentifier.of("Rubbish", "120"));
+    _holMaster.search(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_search_versionAsOf_below() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
@@ -264,7 +279,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_versionAsOf_mid() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -276,7 +291,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   public void test_search_versionAsOf_above() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
-    HolidaySearchResult test = _worker.search(request);
+    HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -287,7 +302,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbHol]", _worker.toString());
+    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

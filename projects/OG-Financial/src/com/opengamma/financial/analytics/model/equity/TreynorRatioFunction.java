@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -93,7 +93,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
     riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
     final double ratio = _treynorRatio.evaluate(assetReturnTS, riskFreeReturnTS, beta);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueIdentifier()), ratio));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueId()), ratio));
   }
 
   @Override
@@ -113,7 +113,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueId()));
     }
     return null;
   }

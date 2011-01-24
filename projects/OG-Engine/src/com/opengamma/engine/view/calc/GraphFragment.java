@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -301,7 +301,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     final Map<CalculationJobItem, DependencyNode> item2Node = getContext().getItem2Node();
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
+      CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(), node
           .getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
@@ -361,7 +361,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       _localPrivateValues = null;
     }
     getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, _requiredJobs, items, _cacheSelectHint);
+    final CalculationJob job = new CalculationJob(jobSpec, getFunctionInitializationTimestamp(), _requiredJobs, items, _cacheSelectHint);
     if (getTail() != null) {
       for (GraphFragment tail : getTail()) {
         tail._blockCount = null;
@@ -420,6 +420,10 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     for (GraphFragment dependent : getOutputFragments()) {
       dependent.inputCompleted();
     }
+  }
+
+  public long getFunctionInitializationTimestamp() {
+    return getContext().getFunctionInitializationTimestamp();
   }
 
 }

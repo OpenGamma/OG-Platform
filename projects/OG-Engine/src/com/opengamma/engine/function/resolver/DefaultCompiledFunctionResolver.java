@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -23,7 +22,6 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -92,46 +90,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    */
   private static final Comparator<Pair<ParameterizedFunction, ValueSpecification>> s_ruleComparator = new Comparator<Pair<ParameterizedFunction, ValueSpecification>>() {
 
-    private int compare(final Set<String> s1, final Set<String> s2) {
-      if (s1.size() < s2.size()) {
-        return -1;
-      } else if (s1.size() > s2.size()) {
-        return 1;
-      }
-      for (String s : s1) {
-        if (!s2.contains(s)) {
-          return -1;
-        }
-      }
-      for (String s : s2) {
-        if (!s1.contains(s)) {
-          return 1;
-        }
-      }
-      return 0;
-    }
-
-    private int compare(final ValueProperties p1, final ValueProperties p2) {
-      final Set<String> s1 = p1.getProperties();
-      final Set<String> s2 = p2.getProperties();
-      int c = compare(s1, s2);
-      if (c != 0) {
-        return c;
-      }
-      final List<String> sorted = new ArrayList<String>(s1);
-      Collections.sort(sorted);
-      for (String property : sorted) {
-        c = compare(p1.getValues(property), p2.getValues(property));
-        if (c != 0) {
-          return c;
-        }
-      }
-      return 0;
-    }
-
     @Override
     public int compare(Pair<ParameterizedFunction, ValueSpecification> o1, Pair<ParameterizedFunction, ValueSpecification> o2) {
-      final int c = compare(o1.getSecond().getProperties(), o2.getSecond().getProperties());
+      final int c = o1.getSecond().getProperties().compareTo(o2.getSecond().getProperties());
       if (c != 0) {
         return 0;
       }

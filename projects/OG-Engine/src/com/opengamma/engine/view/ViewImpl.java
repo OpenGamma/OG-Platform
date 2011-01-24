@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -13,9 +13,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -38,6 +38,7 @@ import com.opengamma.engine.view.calc.ViewRecalculationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
+import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.ViewPermission;
@@ -73,10 +74,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private final String _uidScheme;
   private final AtomicLong _uidCount = new AtomicLong();
 
-  // REVIEW jonathan 2010-09-11 -- All the evidence seems to point to ReentrantLock being quite a bit more performant
-  // than synchronized, and I don't like synchronized(this), so I've moved to a ReentrantLock, despite the verbose
-  // blocks of code it requires.
-  private final ReentrantLock _viewLock = new ReentrantLock();
+  private final Semaphore _viewLock = new Semaphore(1);
 
   // REVIEW jonathan 2010-09-11 -- using ConcurrentHashMap so that getClient doesn't need to acquire the lock. This
   // will be a frequent call for remote processes where the only reference to the client is its ID. No harm in
@@ -88,6 +86,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewEvaluationModel _viewEvaluationModel;
+  private long _functionInitId;
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
 
@@ -117,15 +116,29 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _uidScheme = "View-" + definition.getName();
   }
 
+  private void lock() {
+    try {
+      _viewLock.acquire();
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
+  }
+
+  private void unlock() {
+    _viewLock.release();
+  }
+
   // -------------------------------------------------------------------------
   @Override
   public void init() {
+    // Caller MUST NOT hold the semaphore
     init(Instant.now());
   }
 
   @Override
   public void init(final InstantProvider initializationInstant) {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       if (getCalculationState() != ViewCalculationState.NOT_INITIALIZED) {
         // Ignore the repeated call because users of the view might attempt initialization first, just in case it
@@ -139,8 +152,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       setCalculationState(ViewCalculationState.STOPPED);
 
       OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-      
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
+
+      final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
+      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -148,50 +163,55 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       // Reset the state
       setCalculationState(ViewCalculationState.NOT_INITIALIZED);
       setViewEvaluationModel(null);
+      s_logger.warn("The view failed to initialise", t);
       throw new OpenGammaRuntimeException("The view failed to initialize", t);
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
-  
+
   @Override
   public void reinit() {
+    // Caller MUST NOT hold the semaphore
     reinit(Instant.now());
   }
-  
+
   @Override
   public void reinit(final InstantProvider initializationInstant) {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       ViewCalculationState calculationState = getCalculationState();
       if (calculationState == ViewCalculationState.NOT_INITIALIZED) {
         s_logger.debug("Skipping reinitialization of view '{}' since it has not been initialized", getName());
         return;
       }
-      
+
       OperationTimer timer = new OperationTimer(s_logger, "Reinitializing view {}", getDefinition().getName());
-      
+
       if (calculationState == ViewCalculationState.RUNNING) {
         terminateCalculationJob();
         // Connected clients (and they do exist because we're running) will not receive any further results until a new
         // calculation job is started. This may cause a delay, but the clients will remain connected.
       }
-      
+
       // Recompile the view definition, replacing old live data subscriptions with new ones (perhaps the functions are
       // now configured different so that different live data is required).
       removeLiveDataSubscriptions();
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), initializationInstant));
+      final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
+      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
-      
+
       if (calculationState == ViewCalculationState.RUNNING) {
         // Start the calcluation job again so that results continue without interruption.
         startCalculationJob();
       }
-      
+
       timer.finished();
-      
+
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
 
@@ -209,13 +229,21 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    */
   @Override
   public void stop() {
-    // Lifecycle method - shut down all clients.
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    final Set<ViewClient> currentClients;
+    lock();
     try {
-      Set<ViewClient> currentClients = new HashSet<ViewClient>(_clientMap.values());
-      for (ViewClient client : currentClients) {
-        client.shutdown();
-      }
+      currentClients = new HashSet<ViewClient>(_clientMap.values());
+      _clientMap.clear();
+    } finally {
+      unlock();
+    }
+    // Don't hold semaphore while calling out
+    for (ViewClient client : currentClients) {
+      client.shutdown();
+    }
+    lock();
+    try {
       // Shutting down every client should have removed all live computation clients and stopped live computation
       setCalculationState(ViewCalculationState.TERMINATED);
       if (getViewEvaluationModel() != null) {
@@ -223,13 +251,45 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         setViewEvaluationModel(null);
       }
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
 
   @Override
   public boolean isRunning() {
     return getCalculationState() != ViewCalculationState.TERMINATED;
+  }
+
+  @Override
+  public void suspend() {
+    s_logger.info("Suspending view {}", getName());
+    lock();
+    if (getRecalcJob() != null) {
+      s_logger.debug("Suspending calculation job");
+      getRecalcJob().terminate();
+      if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
+        // In this case it might be waiting on a recalculation pass. Interrupt it.
+        s_logger.debug("Interrupting calculation job thread");
+        getRecalcThread().interrupt();
+      }
+      setRecalcJob(null);
+      try {
+        s_logger.debug("Waiting for calculation thread to finish");
+        getRecalcThread().wait();
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted waiting for calculation thread");
+        throw new OpenGammaRuntimeException("Couldn't suspend view", e);
+      } finally {
+        setRecalcThread(null);
+      }
+    }
+    s_logger.info("View {} suspended", getName());
+  }
+
+  @Override
+  public void resume() {
+    s_logger.info("Resuming view {}", getName());
+    unlock();
   }
 
   // View
@@ -256,16 +316,10 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     ArgumentChecker.notNull(credentials, "credentials");
     assertInitialized();
     getProcessingContext().getPermissionProvider().assertPermission(ViewPermission.ACCESS, credentials, this);
-
-    _viewLock.lock();
-    try {
-      UniqueIdentifier id = generateClientIdentifier();
-      ViewClient client = new ViewClientImpl(id, this, credentials, _clientResultTimer);
-      _clientMap.put(id, client);
-      return client;
-    } finally {
-      _viewLock.unlock();
-    }
+    UniqueIdentifier id = generateClientIdentifier();
+    ViewClient client = new ViewClientImpl(id, this, credentials, _clientResultTimer);
+    _clientMap.put(id, client);
+    return client;
   }
 
   @Override
@@ -320,40 +374,44 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   @Override
   public void runOneCycle() {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       assertInitialized();
       long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-      runOneCycle(snapshotTime);
+      runOneCycleImpl(snapshotTime);
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
+  }
+
+  private void runOneCycleImpl(long valuationTime) {
+    // Caller MUST hold the semaphore
+    SingleComputationCycle cycle = createCycleImpl(valuationTime);
+    cycle.prepareInputs();
+    try {
+      cycle.executePlans();
+    } catch (InterruptedException e) {
+      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+      cycle.releaseResources();
+      return;
+    }
+    if (isPopulateResultModel()) {
+      cycle.populateResultModel();
+      recalculationPerformedImpl(cycle.getResultModel());
+    }
+    cycle.releaseResources();
   }
 
   @Override
   public void runOneCycle(long valuationTime) {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       assertInitialized();
-      SingleComputationCycle cycle = createCycle(valuationTime);
-      cycle.prepareInputs();
-
-      try {
-        cycle.executePlans();
-      } catch (InterruptedException e) {
-        s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
-        cycle.releaseResources();
-        return;
-      }
-
-      if (isPopulateResultModel()) {
-        cycle.populateResultModel();
-        recalculationPerformed(cycle.getResultModel());
-      }
-
-      cycle.releaseResources();
+      runOneCycleImpl(valuationTime);
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
 
@@ -385,53 +443,78 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     _viewEvaluationModel = viewEvaluationModel;
   }
 
-  @Override
-  public void recalculationPerformed(ViewComputationResultModel result) {
-    s_logger.debug("Recalculation Performed called.");
+  private void recalculationPerformedImpl(ViewComputationResultModel result) {
+    // Caller MUST hold the semaphore
 
     // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
     // of some kind. It holds the lock and blocks the recalc thread, so a slow
     // callback implementation (or just the cost of computing the delta model) will
     // be an unnecessary burden. Have to factor in some type of win there.
-    _viewLock.lock();
-    try {
-      // We swap these first so that in the callback the view is consistent.
-      ViewResultModel previousResult = _latestResult.get();
-      _latestResult.set(result);
-      for (ComputationResultListener resultListener : _resultListeners) {
-        resultListener.computationResultAvailable(result);
+
+    // We swap these first so that in the callback the view is consistent.
+    ViewResultModel previousResult = _latestResult.get();
+    _latestResult.set(result);
+    for (ComputationResultListener resultListener : _resultListeners) {
+      resultListener.computationResultAvailable(result);
+    }
+    if (!_deltaListeners.isEmpty()) {
+      ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+      for (DeltaComputationResultListener deltaListener : _deltaListeners) {
+        deltaListener.deltaResultAvailable(deltaModel);
       }
-      if (!_deltaListeners.isEmpty()) {
-        ViewDeltaResultModel deltaModel = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
-        for (DeltaComputationResultListener deltaListener : _deltaListeners) {
-          deltaListener.deltaResultAvailable(deltaModel);
-        }
-      }
-    } finally {
-      _viewLock.unlock();
     }
   }
 
   @Override
-  public SingleComputationCycle createCycle(long valuationTime) {
-    _viewLock.lock();
+  public void recalculationPerformed(ViewComputationResultModel result) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("Recalculation Performed called.");
+    lock();
     try {
-      if (!getViewEvaluationModel().isValidFor(valuationTime)) {
-        final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
-        // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
-        // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
-        final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
-        setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime)));
-        updateLiveDataSubscriptions(previousRequirement);
-        timer.finished();
-      } else {
-        s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
-      }
+      recalculationPerformedImpl(result);
     } finally {
-      _viewLock.unlock();
+      unlock();
+    }
+  }
+
+  private SingleComputationCycle createCycleImpl(final long valuationTime) {
+    // Caller MUST hold the semaphore
+    boolean recompile = false;
+    long functionInitId = getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+    if (functionInitId == _functionInitId) {
+      if (getViewEvaluationModel().isValidFor(valuationTime)) {
+        s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+        recompile = false;
+      } else {
+        recompile = true;
+      }
+    } else {
+      _functionInitId = functionInitId;
+      recompile = true;
+    }
+    if (recompile) {
+      final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+      // TODO for "expired" also read "re-initialized"
+      // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
+      // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
+      final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
+      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime)));
+      updateLiveDataSubscriptions(previousRequirement);
+      timer.finished();
     }
     SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
     return cycle;
+  }
+
+  @Override
+  public SingleComputationCycle createCycle(long valuationTime) {
+    // Caller MUST NOT hold the semaphore
+    lock();
+    try {
+      return createCycleImpl(valuationTime);
+    } finally {
+      unlock();
+    }
   }
 
   @Override
@@ -518,8 +601,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   /**
    * Part of shutdown. Removes live data subscriptions for the view.
    */
+  // final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
   private void removeLiveDataSubscriptions() {
-    // final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
     // [ENG-251] TODO snapshotProvider.removeListener(this);
     removeLiveDataSubscriptions(getRequiredLiveData());
   }
@@ -543,6 +626,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   }
 
   private void addLiveDataSubscriptions(final Set<ValueRequirement> requiredLiveData) {
+    // Caller MAY hold the semaphore
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", requiredLiveData.size(), getDefinition().getPortfolioId());
     getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
     timer.finished();
@@ -596,12 +680,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * @return the current calculation state
    */
   private ViewCalculationState getCalculationState() {
-    _viewLock.lock();
-    try {
-      return _calculationState;
-    } finally {
-      _viewLock.unlock();
-    }
+    return _calculationState;
   }
 
   /**
@@ -610,12 +689,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * @param calculationState  the new calculation state
    */
   private void setCalculationState(ViewCalculationState calculationState) {
-    _viewLock.lock();
-    try {
-      _calculationState = calculationState;
-    } finally {
-      _viewLock.unlock();
-    }
+    _calculationState = calculationState;
   }
 
   /**
@@ -664,7 +738,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * @param client  the client expecting to receive live computation results
    */
   public void addLiveComputationClient(ViewClient client) {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       assertInitialized();
       if (_liveComputationClients.size() == 0) {
@@ -672,7 +747,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       }
       _liveComputationClients.add(client);
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
 
@@ -685,14 +760,15 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * @param client  the client no longer expecting live computation results 
    */
   public void removeLiveComputationClient(ViewClient client) {
-    _viewLock.lock();
+    // Caller MUST NOT hold the semaphore
+    lock();
     try {
       assertInitialized();
       if (_liveComputationClients.remove(client) && _liveComputationClients.size() == 0) {
         stopLiveComputation();
       }
     } finally {
-      _viewLock.unlock();
+      unlock();
     }
   }
 
@@ -702,26 +778,20 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * run continuously.
    */
   private void startLiveComputation() {
+    // Caller MUST hold the semaphore
     s_logger.info("Starting live computation on view {}...", this);
-
-    _viewLock.lock();
-    try {
-      switch (getCalculationState()) {
-        case STOPPED:
-          // Normal state of play. Continue as normal.
-          break;
-        case NOT_INITIALIZED:
-          throw new IllegalStateException("Must call init() before starting.");
-        case RUNNING:
-          throw new IllegalStateException("Already running.");
-        case TERMINATED:
-          throw new IllegalStateException("A terminated view cannot be used.");
-      }
-      startCalculationJob();
-    } finally {
-      _viewLock.unlock();
+    switch (getCalculationState()) {
+      case STOPPED:
+        // Normal state of play. Continue as normal.
+        break;
+      case NOT_INITIALIZED:
+        throw new IllegalStateException("Must call init() before starting.");
+      case RUNNING:
+        throw new IllegalStateException("Already running.");
+      case TERMINATED:
+        throw new IllegalStateException("A terminated view cannot be used.");
     }
-
+    startCalculationJob();
     s_logger.info("Started.");
   }
 
@@ -730,19 +800,13 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * but any outstanding result will be discarded. Live computation may be started again immediately.
    */
   private void stopLiveComputation() {
+    // Caller MUST hold the semaphore
     s_logger.info("Stopping live computation on view {}...", this);
-
-    _viewLock.lock();
-    try {
-      if (getCalculationState() != ViewCalculationState.RUNNING) {
-        throw new IllegalStateException("Cannot stop a view that is not running. Currently in state: " + getCalculationState());
-      }
-      terminateCalculationJob();
-      setCalculationState(ViewCalculationState.STOPPED);
-    } finally {
-      _viewLock.unlock();
+    if (getCalculationState() != ViewCalculationState.RUNNING) {
+      throw new IllegalStateException("Cannot stop a view that is not running. Currently in state: " + getCalculationState());
     }
-
+    terminateCalculationJob();
+    setCalculationState(ViewCalculationState.STOPPED);
     s_logger.info("Stopped.");
   }
 
@@ -767,7 +831,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private UniqueIdentifier generateClientIdentifier() {
     return UniqueIdentifier.of(_uidScheme, CLIENT_UID_PREFIX + "-" + _uidCount.getAndIncrement());
   }
-  
+
   private void startCalculationJob() {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
@@ -782,7 +846,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     if (getRecalcJob() == null) {
       return;
     }
-    
+
     getRecalcJob().terminate();
     if (getRecalcThread().getState() == Thread.State.TIMED_WAITING) {
       // In this case it might be waiting on a recalculation pass. Interrupt it.

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -32,6 +32,7 @@ import com.opengamma.util.Cancellable;
   private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
 
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
+  private final long _functionInitializationTimestamp;
   private final AtomicLong _executionTime = new AtomicLong();
   private MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
@@ -52,6 +53,7 @@ import com.opengamma.util.Cancellable;
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
     _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalcConfName());
+    _functionInitializationTimestamp = executor.getFunctionInitId();
   }
 
   /**
@@ -121,7 +123,7 @@ import com.opengamma.util.Cancellable;
   }
 
   public FunctionInvocationStatistics getFunctionStatistics(final CompiledFunctionDefinition function) {
-    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueIdentifier());
+    return _functionCost.getStatistics(function.getFunctionDefinition().getUniqueId());
   }
 
   @Override
@@ -168,6 +170,10 @@ import com.opengamma.util.Cancellable;
     for (Cancellable cancel : _cancels.values()) {
       cancel.cancel(mayInterrupt);
     }
+  }
+
+  public long getFunctionInitializationTimestamp() {
+    return _functionInitializationTimestamp;
   }
 
 }

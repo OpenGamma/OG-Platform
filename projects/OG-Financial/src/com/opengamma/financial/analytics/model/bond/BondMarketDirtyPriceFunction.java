@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -31,14 +31,14 @@ public class BondMarketDirtyPriceFunction extends BondFunction {
 
   @Override
   protected Set<ComputedValue> getComputedValues(final Position position, final BondDefinition bond, final Object value, final LocalDate now, final String yieldCurveName) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, target.getPosition()), getUniqueId()));
     }
     return null;
   }

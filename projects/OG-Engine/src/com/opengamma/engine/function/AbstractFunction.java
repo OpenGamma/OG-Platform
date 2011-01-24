@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -139,34 +139,36 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
   }
 
-  private String _uniqueIdentifier;
-
+  //-------------------------------------------------------------------------
   /**
-   * @return the unique identifier set by {@link #setUniqueIdentifier (String)}
+   * The unique identifier of the function.
    */
-  public String getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  private String _uniqueId;
+
+  @Override
+  public String getUniqueId() {
+    return _uniqueId;
   }
 
   /**
-   * @return the short name
+   * Sets the unique identifier for the function.
+   * Once set, the identifier cannot be changed.
+   * 
+   * @param uniqueId  the unique identifier to set
    */
+  public void setUniqueId(String uniqueId) {
+    if (_uniqueId != null) {
+      throw new IllegalStateException("Function unique ID already set");
+    }
+    _uniqueId = uniqueId;
+  }
+
+  @Override
   public String getShortName() {
     return getClass().getSimpleName();
   }
 
-  /**
-   * Sets the unique identifier for the function. Once set, the identifier cannot be changed.
-   * 
-   * @param uniqueIdentifier the unique identifier to set
-   */
-  public void setUniqueIdentifier(String uniqueIdentifier) {
-    if (_uniqueIdentifier != null) {
-      throw new IllegalStateException("Function unique ID already set");
-    }
-    _uniqueIdentifier = uniqueIdentifier;
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Default implementation performs no initialization action.
    * @param context the function compilation context
@@ -204,7 +206,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
    * @return the builder
    */
   protected ValueProperties.Builder createValueProperties() {
-    return ValueProperties.with(ValuePropertyNames.FUNCTION, getUniqueIdentifier());
+    return ValueProperties.with(ValuePropertyNames.FUNCTION, getUniqueId());
   }
 
   /**

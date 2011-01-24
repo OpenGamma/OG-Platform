@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -254,7 +254,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
         doc.setIdentifiers(tsDocument.getIdentifiers());
         doc.setLatest(tsDocument.getLatest());
         doc.setObservationTime(tsDocument.getObservationTime());
-        doc.setUniqueIdentifier(tsDocument.getUniqueIdentifier());
+        doc.setUniqueId(tsDocument.getUniqueId());
         noSeries.add(doc);
       }
       docs = noSeries;
@@ -271,7 +271,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
         doc.setIdentifiers(tsDocument.getIdentifiers());
         doc.setLatest(tsDocument.getLatest());
         doc.setObservationTime(tsDocument.getObservationTime());
-        doc.setUniqueIdentifier(tsDocument.getUniqueIdentifier());
+        doc.setUniqueId(tsDocument.getUniqueId());
         DoubleTimeSeries<LocalDate> subseries = tsDocument.getTimeSeries().subSeries(request.getStart(), true, request.getEnd(), false);
         doc.setTimeSeries(subseries);
         subseriesList.add(doc);
@@ -313,7 +313,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     if (!contains(document)) {
       final UniqueIdentifier uid = _uidSupplier.get();
       final TimeSeriesDocument<LocalDate> doc = new TimeSeriesDocument<LocalDate>();
-      doc.setUniqueIdentifier(uid);
+      doc.setUniqueId(uid);
       doc.setDataField(document.getDataField());
       doc.setDataProvider(document.getDataProvider());
       doc.setDataSource(document.getDataSource());
@@ -321,7 +321,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       doc.setObservationTime(document.getObservationTime());
       doc.setTimeSeries(document.getTimeSeries());
       _timeseriesDb.put(uid, doc);  // unique identifier should be unique
-      document.setUniqueIdentifier(uid);
+      document.setUniqueId(uid);
       return document;
     } else {
       throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
@@ -365,9 +365,9 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getDataProvider(), "document.dataProvider");
     ArgumentChecker.notNull(document.getDataSource(), "document.dataSource");
     ArgumentChecker.notNull(document.getObservationTime(), "document.observationTime");
-    ArgumentChecker.notNull(document.getUniqueIdentifier(), "document.uid");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uid");
     
-    final UniqueIdentifier uid = document.getUniqueIdentifier();
+    final UniqueIdentifier uid = document.getUniqueId();
     final TimeSeriesDocument<LocalDate> storedDocument = _timeseriesDb.get(uid);
     if (storedDocument == null) {
       throw new DataNotFoundException("Timeseries not found: " + uid);
@@ -507,8 +507,8 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getDataProvider(), "dataProvider");
     ArgumentChecker.notNull(document.getDataField(), "dataField");
     
-    validateUId(document.getUniqueIdentifier());
-    UniqueIdentifier uid = document.getUniqueIdentifier();
+    validateUId(document.getUniqueId());
+    UniqueIdentifier uid = document.getUniqueId();
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(uid);
     DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries());
     storedDoc.setTimeSeries(mergedTS);

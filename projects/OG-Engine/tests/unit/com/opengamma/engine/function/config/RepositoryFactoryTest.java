@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -142,11 +142,11 @@ public class RepositoryFactoryTest {
     assertEquals(1, definitions.size());
     FunctionDefinition definition = definitions.iterator().next();
     assertTrue(definition instanceof MockEmptyFunction);
-    assertNotNull(definition.getUniqueIdentifier());
+    assertNotNull(definition.getUniqueId());
 
     final CompiledFunctionRepository compiledRepo = new CompiledFunctionService (repo, new CachingFunctionRepositoryCompiler (), new FunctionCompilationContext ()).compileFunctionRepository(System.currentTimeMillis ());
-    assertNotNull(compiledRepo.getDefinition(definition.getUniqueIdentifier()));
-    FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueIdentifier());
+    assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
+    FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
     assertNotNull(invoker);
     assertTrue(invoker instanceof MockEmptyFunction);
     assertSame(definition, invoker);

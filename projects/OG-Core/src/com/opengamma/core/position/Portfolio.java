@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,13 +22,15 @@ public interface Portfolio extends UniqueIdentifiable {
 
   /**
    * Gets the unique identifier of the portfolio.
-   * @return the identifier, not null
+   * 
+   * @return the unique identifier, not null
    */
-  UniqueIdentifier getUniqueIdentifier();
+  UniqueIdentifier getUniqueId();
 
   /**
    * Gets the name of the portfolio intended for display purposes.
-   * @return the name, not null
+   * 
+   * @return the display name, not null
    */
   String getName();
 
@@ -37,6 +39,7 @@ public interface Portfolio extends UniqueIdentifiable {
    * <p>
    * The positions stored in a portfolios are held in a tree structure.
    * This method accesses the root of the tree structure.
+   * 
    * @return the root node of the tree structure, not null
    */
   PortfolioNode getRootNode();

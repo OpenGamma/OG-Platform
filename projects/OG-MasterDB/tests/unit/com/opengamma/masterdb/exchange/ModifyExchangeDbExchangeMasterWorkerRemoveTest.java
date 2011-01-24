@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,8 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import javax.time.Instant;
 import javax.time.calendar.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,36 +30,17 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerRemoveTest.class);
 
-  private ModifyExchangeDbExchangeMasterWorker _worker;
-  private DbExchangeMasterWorker _queryWorker;
-
   public ModifyExchangeDbExchangeMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-    _worker = new ModifyExchangeDbExchangeMasterWorker();
-    _worker.init(_exgMaster);
-    _queryWorker = new QueryExchangeDbExchangeMasterWorker();
-    _queryWorker.init(_exgMaster);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    _worker = null;
-    _queryWorker = null;
-  }
-
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_removeExchange_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
-    _worker.remove(uid);
+    _exgMaster.remove(uid);
   }
 
   @Test
@@ -69,8 +48,8 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     Instant now = Instant.now(_exgMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101", "0");
-    _worker.remove(uid);
-    ExchangeDocument test = _queryWorker.get(uid);
+    _exgMaster.remove(uid);
+    ExchangeDocument test = _exgMaster.get(uid);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
@@ -79,7 +58,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     assertEquals(null, test.getCorrectionToInstant());
     ManageableExchange exchange = test.getExchange();
     assertNotNull(exchange);
-    assertEquals(uid, exchange.getUniqueIdentifier());
+    assertEquals(uid, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
     assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
@@ -88,7 +67,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
-    assertEquals(_worker.getClass().getSimpleName() + "[DbExg]", _worker.toString());
+    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

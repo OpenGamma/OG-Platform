@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -20,6 +20,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.security.SecurityUtils;
@@ -58,6 +60,8 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpleInterpolatedYieldAndDiscountCurveFunction.class);
 
   /**
    * Resultant value specification property for the curve result. Note these should be moved into either the ValuePropertyNames class
@@ -108,6 +112,11 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _result = new ValueSpecification(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, new ComputationTargetSpecification(_definition.getCurrency()),
         createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _curveName).get());
     _results = Collections.singleton(_result);
+    if (_definition.getUniqueId() != null) {
+      context.getFunctionReinitializer().reinitializeFunction(this, _definition.getUniqueId());
+    } else {
+      s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _curveCurrency);
+    }
   }
 
   @Override
@@ -181,7 +190,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
           return false;
         }
         // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueIdentifier(), specification.getCurrency().getUniqueIdentifier());
+        return ObjectUtils.equals(target.getUniqueId(), specification.getCurrency().getUniqueId());
       }
 
       @Override

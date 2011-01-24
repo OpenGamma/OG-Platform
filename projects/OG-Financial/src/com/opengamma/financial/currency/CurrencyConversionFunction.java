@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -27,6 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,6 +51,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
   private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
+  private String _defaultCurrencyValueName = DefaultCurrencyInjectionFunction.createValueName(DEFAULT_LOOKUP_VALUE_NAME);
   private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
 
   public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
@@ -69,10 +71,19 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public void setRateLookupValueName(final String rateLookupValueName) {
     ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
     _rateLookupValueName = rateLookupValueName;
+    setDefaultCurrencyValueName(DefaultCurrencyInjectionFunction.createValueName(rateLookupValueName));
   }
 
   public String getRateLookupValueName() {
     return _rateLookupValueName;
+  }
+
+  private void setDefaultCurrencyValueName(final String valueName) {
+    _defaultCurrencyValueName = valueName;
+  }
+
+  public String getDefaultCurrencyValueName() {
+    return _defaultCurrencyValueName;
   }
 
   public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
@@ -90,6 +101,10 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue) {
     return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withAny(ValuePropertyNames.CURRENCY).get());
+  }
+
+  private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue, final String forceCurrency) {
+    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().with(ValuePropertyNames.CURRENCY, forceCurrency).get());
   }
 
   /**
@@ -117,20 +132,24 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   desiredValueLoop:
     for (ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement inputRequirement = getInputValueRequirement(desiredValue);
+      final String outputCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
       for (ComputedValue inputValue : inputValues) {
         if (inputRequirement.isSatisfiedBy(inputValue.getSpecification())) {
           final String inputCurrency = inputValue.getSpecification().getProperty(ValuePropertyNames.CURRENCY);
-          final String outputCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
-          s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
-          final ValueRequirement rateRequirement = getCurrencyConversion(inputCurrency, outputCurrency);
-          final Object rate = inputs.getValue(rateRequirement);
-          if (!(rate instanceof Double)) {
-            s_logger.warn("Invalid rate {} for {}", rate, rateRequirement);
-            continue desiredValueLoop;
-          }
-          final Object converted = convertValue(inputValue, desiredValue, (Double) rate);
-          if (converted != null) {
-            results.add(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
+          if (outputCurrency.equals(inputCurrency)) {
+            results.add(inputValue);
+          } else {
+            s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
+            final ValueRequirement rateRequirement = getCurrencyConversion(inputCurrency, outputCurrency);
+            final Object rate = inputs.getValue(rateRequirement);
+            if (!(rate instanceof Double)) {
+              s_logger.warn("Invalid rate {} for {}", rate, rateRequirement);
+              continue desiredValueLoop;
+            }
+            final Object converted = convertValue(inputValue, desiredValue, (Double) rate);
+            if (converted != null) {
+              results.add(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
+            }
           }
           continue desiredValueLoop;
         }
@@ -150,11 +169,21 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       return null;
     }
     final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
-    if ((possibleCurrencies == null) || possibleCurrencies.isEmpty()) {
-      throw new IllegalArgumentException("Cannot satisfy a wild-card or unspecified currency constraint " + desiredValue);
+    if (possibleCurrencies == null) {
+      // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
+      String defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
+      s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
+      final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
+      req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));
+      // Eject this requirement as a hack to force the final result to be correct
+      req.add(new ValueRequirement(getDefaultCurrencyValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, target.getUniqueId())));
+      return req;
+    } else if (possibleCurrencies.isEmpty()) {
+      throw new IllegalArgumentException("Cannot satisfy a wild-card currency constraint " + desiredValue);
+    } else {
+      // Actual input requirement is desired requirement with the currency wild-carded
+      return Collections.singleton(getInputValueRequirement(desiredValue));
     }
-    // Actual input requirement is desired requirement with the currency wild-carded
-    return Collections.singleton(getInputValueRequirement(desiredValue));
   }
 
   @Override
@@ -176,9 +205,24 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
     // Resolved outputs are the inputs with the currency wild-carded - even the function ID will be preserved
     final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
+    String currency = null;
     for (ValueSpecification input : inputs) {
-      s_logger.debug("Currency wild-card for {}", input);
-      result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
+      if (getDefaultCurrencyValueName().equals(input.getValueName())) {
+        currency = input.getProperty(ValuePropertyNames.CURRENCY);
+      }
+    }
+    for (ValueSpecification input : inputs) {
+      if (!getDefaultCurrencyValueName().equals(input.getValueName())) {
+        final Builder vpb = input.getProperties().copy();
+        if (currency != null) {
+          s_logger.debug("Force default {} currency for {}", currency, input);
+          vpb.with(ValuePropertyNames.CURRENCY, currency);
+        } else {
+          s_logger.debug("Currency wild-card for {}", input);
+          vpb.withAny(ValuePropertyNames.CURRENCY);
+        }
+        result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), vpb.get()));
+      }
     }
     return result;
   }
@@ -201,9 +245,15 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       final Set<ValueSpecification> outputs) {
     s_logger.debug("FX requirements for {} -> {}", inputs, outputs);
     final Set<String> inputCurrencies = getCurrencies(inputs);
-    final Set<String> outputCurrencies = getCurrencies(outputs);
+    Set<String> outputCurrencies = getCurrencies(outputs);
     if ((inputCurrencies.size() == 1) && (outputCurrencies.size() == 1)) {
-      return Collections.singleton(getCurrencyConversion(inputCurrencies.iterator().next(), outputCurrencies.iterator().next()));
+      final String input = inputCurrencies.iterator().next();
+      final String output = outputCurrencies.iterator().next();
+      if (input.equals(output)) {
+        return Collections.emptySet();
+      } else {
+        return Collections.singleton(getCurrencyConversion(input, output));
+      }
     } else {
       // NOTE 2010-10-27 Andrew -- The cross product is not optimal for all input/output possibilities (e.g. IN={A1,B2}, OUT={A3,B4} gives the unused 1->4 and 2->3) but the current graph typically
       // won't produce such complex nodes

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -96,13 +96,12 @@ public class FudgeRestClient {
    * @param bean  the bean to encode, not null
    * @return the encoded version of the bean, not null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public String encodeBean(final Bean bean) {
     Class cls = bean.getClass();
     Providers providers = getClient().getProviders();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    MessageBodyWriter mbw = providers.getMessageBodyWriter(
-        cls, cls, null, FudgeRest.MEDIA_TYPE);
+    MessageBodyWriter mbw = providers.getMessageBodyWriter(cls, cls, null, FudgeRest.MEDIA_TYPE);
     try {
       mbw.writeTo(bean, cls, cls, null, FudgeRest.MEDIA_TYPE, null, out);
     } catch (IOException ex) {

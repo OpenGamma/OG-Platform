@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -24,20 +24,20 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
   private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();
   private final ConcurrentHashMap<Currency, AtomicInteger> _targets = new ConcurrentHashMap<Currency, AtomicInteger>();
 
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueIdentifier _uniqueId;
 
   // MutableUniqueIdentifiable
 
   @Override
-  public void setUniqueIdentifier(final UniqueIdentifier uniqueIdentifier) {
-    _uniqueIdentifier = uniqueIdentifier;
+  public void setUniqueId(final UniqueIdentifier uniqueId) {
+    _uniqueId = uniqueId;
   }
 
   // UniqueIdentifiable
 
   @Override
-  public UniqueIdentifier getUniqueIdentifier() {
-    return _uniqueIdentifier;
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueId;
   }
 
   // CurrencyMatrix

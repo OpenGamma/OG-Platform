@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -96,7 +96,7 @@ public class FixedIncomeStripWithSecurity {
     if (result != 0) {
       return result;
     }
-    result = getSecurity().getUniqueIdentifier().getValue().compareTo(o.getSecurity().getUniqueIdentifier().getValue());
+    result = getSecurity().getUniqueId().getValue().compareTo(o.getSecurity().getUniqueId().getValue());
     return result;
   }
 }

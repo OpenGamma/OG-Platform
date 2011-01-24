@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,7 +11,7 @@ namespace com.opengamma.master.security {
    */
   message ManageableSecurity {
   
-    optional com.opengamma.id.UniqueIdentifier uniqueIdentifier;
+    optional com.opengamma.id.UniqueIdentifier uniqueId;
     required string name [default=""];
     required string securityType;
     required com.opengamma.id.IdentifierBundle identifiers [default=()];
@@ -29,7 +29,7 @@ namespace com.opengamma.master.security {
          * @return a default display name
          */
         protected String buildDefaultDisplayName() {
-          final com.opengamma.id.UniqueIdentifier identifier = getUniqueIdentifier(); // assign for thread-safety
+          final com.opengamma.id.UniqueIdentifier identifier = getUniqueId(); // assign for thread-safety
           if (identifier != null) {
             return identifier.toString();
           }

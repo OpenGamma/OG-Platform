@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.frequency;
@@ -52,7 +52,7 @@ public final class SimpleFrequency implements Frequency, Serializable {
   /**
    * A continuous frequency.
    */
-  //TODO where converting to/from say continuously compounded interest rates, can't use Double.MAX_VALUE, but need different formula 
+  // TODO where converting to/from say continuously compounded interest rates, can't use Double.MAX_VALUE, but need different formula
   public static final SimpleFrequency CONTINUOUS = new SimpleFrequency(CONTINUOUS_NAME, Double.MAX_VALUE);
 
   /**
@@ -72,14 +72,14 @@ public final class SimpleFrequency implements Frequency, Serializable {
    * @throws IllegalArgumentException if the name is null
    * @throws IllegalArgumentException if the frequency is zero or negative
    */
-  /* package */ SimpleFrequency(final String name, final double periodsPerYear) {
+  /* package */SimpleFrequency(final String name, final double periodsPerYear) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
     _name = name;
     _periodsPerYear = periodsPerYear;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;
@@ -94,7 +94,7 @@ public final class SimpleFrequency implements Frequency, Serializable {
     return _periodsPerYear;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -117,40 +117,40 @@ public final class SimpleFrequency implements Frequency, Serializable {
     return "Frequency[" + "name = " + _name + " pa = " + _periodsPerYear + "]";
   }
 
-  //-------------------------------------------------------------------------
-  // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 
-  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely 
+  // -------------------------------------------------------------------------
+  // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency,
+  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely
   /**
    * Converts this to a period frequency.
    * 
    * @return the period frequency, not null
    */
   public PeriodFrequency toPeriodFrequency() {
-    if (_name == ANNUAL_NAME) {
+    if (_name.equals(ANNUAL_NAME)) {
       return PeriodFrequency.ANNUAL;
     }
-    if (_name == BIMONTHLY_NAME) {
+    if (_name.equals(BIMONTHLY_NAME)) {
       return PeriodFrequency.BIMONTHLY;
     }
-    if (_name == BIWEEKLY_NAME) {
+    if (_name.equals(BIWEEKLY_NAME)) {
       return PeriodFrequency.BIWEEKLY;
     }
-    if (_name == CONTINUOUS_NAME) {
+    if (_name.equals(CONTINUOUS_NAME)) {
       return PeriodFrequency.CONTINUOUS;
     }
-    if (_name == DAILY_NAME) {
+    if (_name.equals(DAILY_NAME)) {
       return PeriodFrequency.DAILY;
     }
-    if (_name == MONTHLY_NAME) {
+    if (_name.equals(MONTHLY_NAME)) {
       return PeriodFrequency.MONTHLY;
     }
-    if (_name == QUARTERLY_NAME) {
+    if (_name.equals(QUARTERLY_NAME)) {
       return PeriodFrequency.QUARTERLY;
     }
-    if (_name == SEMI_ANNUAL_NAME) {
+    if (_name.equals(SEMI_ANNUAL_NAME)) {
       return PeriodFrequency.SEMI_ANNUAL;
     }
-    if (_name == WEEKLY_NAME) {
+    if (_name.equals(WEEKLY_NAME)) {
       return PeriodFrequency.WEEKLY;
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());

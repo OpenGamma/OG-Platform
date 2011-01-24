@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -45,7 +45,12 @@ public class CsvFilter implements ContainerRequestFilter {
     
     // remove .csv from the URL
     try {
-      requestUri = new URI(path.substring(0, path.length() - SUFFIX.length()));
+      requestUri = new URI(
+          requestUri.getScheme(),
+          requestUri.getAuthority(),
+          path.substring(0, path.length() - SUFFIX.length()),
+          requestUri.getQuery(),
+          requestUri.getFragment());
     } catch (URISyntaxException e) {
       throw new RuntimeException("Could not build URI", e);
     }

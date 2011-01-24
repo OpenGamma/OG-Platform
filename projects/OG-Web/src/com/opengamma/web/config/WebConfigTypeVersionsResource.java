@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -39,8 +39,7 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ConfigHistoryRequest request = new ConfigHistoryRequest();
-    request.setObjectId(data().getConfig().getUniqueId());
+    ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId());
     ConfigHistoryResult<T> result = data().getConfigTypeMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -59,6 +58,7 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
     ConfigDocument<T> doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getValue());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

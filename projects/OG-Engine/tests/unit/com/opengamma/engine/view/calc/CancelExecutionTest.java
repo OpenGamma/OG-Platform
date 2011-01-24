@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -140,6 +140,7 @@ public class CancelExecutionTest {
     functionRepository.addFunction(mockFunction);
     final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     final CompiledFunctionService compilationService = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), compilationContext);
+    compilationService.initialize ();
     final FunctionResolver functionResolver = new DefaultFunctionResolver(compilationService);
     final MockSecuritySource securitySource = new MockSecuritySource();
     final MockPositionSource positionSource = new MockPositionSource();

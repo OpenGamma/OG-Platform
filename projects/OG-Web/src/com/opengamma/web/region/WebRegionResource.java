@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -73,6 +74,10 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
+    if (data().getRegion().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     fullName = StringUtils.trimToNull(fullName);
     countryISO = StringUtils.trimToNull(countryISO);
@@ -115,6 +120,10 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
+    if (data().getRegion().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     name = StringUtils.trimToNull(name);
     fullName = StringUtils.trimToNull(fullName);
     countryISO = StringUtils.trimToNull(countryISO);
@@ -135,7 +144,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       fullName = name;
     }
     ManageableRegion region = new ManageableRegion();
-    region.setUniqueIdentifier(data().getRegion().getUniqueId());
+    region.setUniqueId(data().getRegion().getUniqueId());
     region.setParentRegionIds(data().getRegion().getRegion().getParentRegionIds());
     region.setName(name);
     region.setFullName(fullName);
@@ -153,8 +162,12 @@ public class WebRegionResource extends AbstractWebRegionResource {
   @DELETE
   public Response delete() {
     RegionDocument doc = data().getRegion();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getRegionMaster().remove(doc.getUniqueId());
-    URI uri = WebRegionsResource.uri(data());
+    URI uri = WebRegionResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -168,6 +181,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     RegionDocument doc = data().getRegion();
     out.put("regionDoc", doc);
     out.put("region", doc.getRegion());
+    out.put("deleted", !doc.isLatest());
     out.put("regionParents", data().getRegionParents());
     out.put("regionChildren", data().getRegionChildren());
     return out;

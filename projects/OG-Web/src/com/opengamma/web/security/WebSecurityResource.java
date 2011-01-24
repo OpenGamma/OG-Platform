@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -34,7 +35,7 @@ import com.opengamma.master.security.SecurityDocument;
  */
 @Path("/securities/{securityId}")
 public class WebSecurityResource extends AbstractWebSecurityResource {
-
+  
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -42,7 +43,15 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   public WebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
   }
-
+  
+  //Return the security as JSON document
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSONSecurity() {
+    SecurityDocument doc = data().getSecurity();
+    return getJSONOutputter().buildSecuity(doc.getSecurity());
+  }
+  
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
@@ -57,8 +66,10 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
-    
     SecurityDocument doc = data().getSecurity();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
     
     IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
@@ -71,8 +82,12 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @DELETE
   public Response delete() {
     SecurityDocument doc = data().getSecurity();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getSecurityMaster().remove(doc.getUniqueId());
-    URI uri = WebSecuritiesResource.uri(data());
+    URI uri = WebSecurityResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -86,6 +101,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     SecurityDocument doc = data().getSecurity();
     out.put("securityDoc", doc);
     out.put("security", doc.getSecurity());
+    out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
     return out;
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -46,7 +46,7 @@ public class CSVPositionSourceTest {
     Position position = CSVPositionSource.parseLine(new String[] {"98.4", "KIRK", "MY-ID"}, UID);
     assertNotNull(position);
     
-    assertEquals(UID, position.getUniqueIdentifier());
+    assertEquals(UID, position.getUniqueId());
     
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
@@ -133,12 +133,12 @@ public class CSVPositionSourceTest {
     assertNull(unknownPort);
     
     // Retrieval by root node
-    PortfolioNode rootNode1 = pm.getPortfolioNode(port1.getRootNode().getUniqueIdentifier());
+    PortfolioNode rootNode1 = pm.getPortfolioNode(port1.getRootNode().getUniqueId());
     assertEquals(6, rootNode1.getPositions().size());
     
     // Retrieval by position
     Position port1Pos0 = rootNode1.getPositions().get(0);
-    assertEquals(port1Pos0, pm.getPosition(port1Pos0.getUniqueIdentifier()));
+    assertEquals(port1Pos0, pm.getPosition(port1Pos0.getUniqueId()));
     
     cleanUpTestPortfolios(portfolioDirName);
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -70,7 +70,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueIdentifier(), node.getFunction().getParameters(), node
+      final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(), node
           .getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       item2Node.put(jobItem, node);
@@ -115,7 +115,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
     _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher().dispatchJob(new CalculationJob(jobSpec, null, items, cacheHint), this);
+    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher()
+        .dispatchJob(new CalculationJob(jobSpec, _cycle.getFunctionInitId(), null, items, cacheHint), this);
     future.setCancel(cancel);
 
     return future;

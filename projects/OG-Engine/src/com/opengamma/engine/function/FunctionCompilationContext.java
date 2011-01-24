@@ -1,11 +1,12 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -24,7 +25,22 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
-  
+
+  /**
+   * The name under which the view calculation configuration should be bound.
+   */
+  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
+
+  /**
+   * The name under which the initialization reference of the functions should be bound.
+   */
+  public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
+
+  /**
+   * The name under which a re-initialization hook should be bound.
+   */
+  public static final String FUNCTION_REINITIALIZER_NAME = "functionReinitializer";
+
   /**
    * Creates an empty function compilation context.
    */
@@ -72,6 +88,67 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
   }
 
+  /**
+   * Gets the view calculation configuration information. This may only be valid during dependency graph construction
+   * and not during function initialization or compilation.
+   * @return the view configuration
+   */
+  public ViewCalculationConfiguration getViewCalculationConfiguration() {
+    return (ViewCalculationConfiguration) get(VIEW_CALCULATION_CONFIGURATION_NAME);
+  }
+
+  /**
+   * Sets the view calculation configuration information. This should be set prior to dependency graph construction.
+   * @param viewCalculationConfiguration the configuration
+   */
+  public void setViewCalculationConfiguration(final ViewCalculationConfiguration viewCalculationConfiguration) {
+    put(VIEW_CALCULATION_CONFIGURATION_NAME, viewCalculationConfiguration);
+  }
+
+  /**
+   * Sets the function initialization identifier.
+   * 
+   * @param id the identifier
+   */
+  public void setFunctionInitId(final long id) {
+    put(FUNCTION_INIT_ID_NAME, id);
+  }
+
+  /**
+   * Gets the function initialization identifier.
+   * 
+   * @return the identifier
+   */
+  public Long getFunctionInitId() {
+    return (Long) get(FUNCTION_INIT_ID_NAME);
+  }
+
+  /**
+   * Sets the function re-initialization hook.
+   * 
+   * @param reinitializer the re-initialization hook
+   */
+  public void setFunctionReinitializer(final FunctionReinitializer reinitializer) {
+    if (reinitializer == null) {
+      remove(FUNCTION_REINITIALIZER_NAME);
+    } else {
+      put(FUNCTION_REINITIALIZER_NAME, reinitializer);
+    }
+  }
+
+  /**
+   * Gets the function re-initialization hook.
+   * 
+   * @return the re-initialization hook
+   */
+  public FunctionReinitializer getFunctionReinitializer() {
+    return (FunctionReinitializer) get(FUNCTION_REINITIALIZER_NAME);
+  }
+
+  /**
+   * Produces a copy of the context.
+   * @return the copy
+   */
   @Override
   public FunctionCompilationContext clone() {
     return new FunctionCompilationContext(this);

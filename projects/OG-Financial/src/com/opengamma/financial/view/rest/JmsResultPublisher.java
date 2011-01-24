@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -126,7 +126,7 @@ public class JmsResultPublisher implements ComputationResultListener, DeltaCompu
   }
   
   private String getTopicName(ViewClient viewClient, String suffix) {
-    return _topicPrefix + "-" + viewClient.getUniqueIdentifier() + "-" + suffix;
+    return _topicPrefix + "-" + viewClient.getUniqueId() + "-" + suffix;
   }
   
 }

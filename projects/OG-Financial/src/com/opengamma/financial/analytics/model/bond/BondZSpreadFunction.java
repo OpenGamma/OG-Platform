@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -36,7 +36,6 @@ import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.BondZSpreadCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -63,7 +62,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final BondSecurity security = (BondSecurity) position.getSecurity();
-    final ValueRequirement curveRequirement = new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier());
+    final ValueRequirement curveRequirement = new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId());
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
       throw new NullPointerException("Could not get " + curveRequirement);
@@ -79,7 +78,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {_curveName}, new YieldAndDiscountCurve[] {curve});
 
-    final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
+    final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
     final Object priceObject = inputs.getValue(priceRequirement);
     if (priceObject == null) {
       throw new NullPointerException("Could not get " + priceRequirement);
@@ -88,7 +87,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
 
     final Double zSpread = new BondZSpreadCalculator().calculate(bond, bundle, dirtyPrice);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, zSpread * 10000)); //report z-spread in BPS
   }
 
@@ -104,8 +103,8 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueIdentifier()), new ValueRequirement(
-          MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()), new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+          ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
     }
     return null;
   }
@@ -113,7 +112,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, target.getPosition()), getUniqueId()));
     }
     return null;
   }

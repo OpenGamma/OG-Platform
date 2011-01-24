@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -227,7 +227,7 @@ public class CoppClarkExchangeFileReader {
         // update from existing data
         ExchangeDocument existing = result.getFirstDocument();
         doc.setUniqueId(existing.getUniqueId());
-        doc.getExchange().setUniqueIdentifier(existing.getUniqueId());
+        doc.getExchange().setUniqueId(existing.getUniqueId());
         // only update if changed
         doc.setVersionFromInstant(null);
         doc.setVersionToInstant(null);

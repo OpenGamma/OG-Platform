@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -21,6 +21,6 @@ public interface MutableUniqueIdentifiable {
    * 
    * @param uid  the unique identifier to set, not null
    */
-  void setUniqueIdentifier(UniqueIdentifier uid);
+  void setUniqueId(UniqueIdentifier uid);
 
 }

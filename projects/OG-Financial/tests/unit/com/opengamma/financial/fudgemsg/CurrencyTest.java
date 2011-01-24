@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -31,7 +31,7 @@ public class CurrencyTest extends FinancialTestBase {
   @Test
   public void testFromUniqueIdentifier() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getUniqueIdentifier().toString(), null, null)));
+        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getUniqueId().toString(), null, null)));
   }
 
 }

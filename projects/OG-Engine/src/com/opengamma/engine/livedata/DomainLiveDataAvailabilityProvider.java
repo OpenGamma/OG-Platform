@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -62,7 +62,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
         if (security != null) {
           for (Identifier identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {

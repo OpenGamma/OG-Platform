@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -70,7 +70,7 @@ public class WebSecuritiesUris {
    * @return the URI
    */
   public URI security(final Security security) {
-    return WebSecurityResource.uri(_data, security.getUniqueIdentifier());
+    return WebSecurityResource.uri(_data, security.getUniqueId());
   }
 
   /**
@@ -95,7 +95,7 @@ public class WebSecuritiesUris {
    * @return the URI
    */
   public URI securityVersion(final Security security) {
-    return WebSecurityVersionResource.uri(_data, security.getUniqueIdentifier());
+    return WebSecurityVersionResource.uri(_data, security.getUniqueId());
   }
 
 }

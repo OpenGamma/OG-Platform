@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -53,7 +53,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
    */
   public SecurityDocument(final ManageableSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    setUniqueId(security.getUniqueIdentifier());
+    setUniqueId(security.getUniqueId());
     setSecurity(security);
   }
 

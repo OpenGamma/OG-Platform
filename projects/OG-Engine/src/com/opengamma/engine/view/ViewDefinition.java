@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -16,7 +16,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.core.common.Currency;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -41,6 +43,7 @@ public class ViewDefinition implements Serializable {
 
   private Long _minFullCalculationPeriod;
   private Long _maxFullCalculationPeriod;
+  private Currency _defaultCurrency;
 
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName = new TreeMap<String, ViewCalculationConfiguration>();
 
@@ -173,6 +176,24 @@ public class ViewDefinition implements Serializable {
   }
 
   /**
+   * Gets the default currency defined for this view
+   * 
+   * @return the currency
+   */
+  public Currency getDefaultCurrency() {
+    return _defaultCurrency;
+  }
+
+  /**
+   * Sets the default currency to use 
+   * 
+   * @param currency The default currency
+   */
+  public void setDefaultCurrency(Currency currency) {
+    _defaultCurrency = currency;
+  }
+
+  /**
    * Returns the calculation configurations.
    * 
    * @return the configurations
@@ -219,6 +240,11 @@ public class ViewDefinition implements Serializable {
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
+    if (getDefaultCurrency() != null) {
+      if (calcConfig.getDefaultProperties().getValues(ValuePropertyNames.CURRENCY) == null) {
+        calcConfig.setDefaultProperties(calcConfig.getDefaultProperties().copy().with(ValuePropertyNames.CURRENCY, getDefaultCurrency().getISOCode()).get());
+      }
+    }
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
 
@@ -418,7 +444,8 @@ public class ViewDefinition implements Serializable {
         && ObjectUtils.equals(getResultModelDefinition(), other.getResultModelDefinition()) && ObjectUtils.equals(getLiveDataUser(), other.getLiveDataUser())
         && ObjectUtils.equals(_minDeltaCalculationPeriod, other._minDeltaCalculationPeriod) && ObjectUtils.equals(_maxDeltaCalculationPeriod, other._maxDeltaCalculationPeriod)
         && ObjectUtils.equals(_minFullCalculationPeriod, other._minFullCalculationPeriod) && ObjectUtils.equals(_maxFullCalculationPeriod, other._maxFullCalculationPeriod)
-        && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk) && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames());
+        && ObjectUtils.equals(_dumpComputationCacheToDisk, other._dumpComputationCacheToDisk) && ObjectUtils.equals(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames())
+        && ObjectUtils.equals(_defaultCurrency, other._defaultCurrency);
     if (!basicPropertiesEqual) {
       return false;
     }

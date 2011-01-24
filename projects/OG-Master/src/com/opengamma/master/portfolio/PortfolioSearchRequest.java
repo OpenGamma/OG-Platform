@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -17,8 +17,10 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Request for searching for portfolios.
@@ -32,17 +34,18 @@ import com.opengamma.master.AbstractSearchRequest;
 public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   /**
-   * The list of portfolio object identifiers, null to not limit by portfolio object identifiers.
-   * Note that an empty list will return no portfolios.
+   * The set of portfolio object identifiers, null to not limit by portfolio object identifiers.
+   * Note that an empty set will return no portfolios.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _portfolioIds;
+  private List<ObjectIdentifier> _portfolioIds;
   /**
-   * The list of node object identifiers, null to not limit by node object identifiers.
-   * Note that an empty list will return no portfolios.
+   * The set of node object identifiers, null to not limit by node object identifiers.
+   * Each returned portfolio will contain at least one of these nodes.
+   * Note that an empty list will return no portfolio.
    */
   @PropertyDefinition(set = "manual")
-  private List<UniqueIdentifier> _nodeIds;
+  private List<ObjectIdentifier> _nodeIds;
   /**
    * The portfolio name, wildcards allowed, null to not match on name.
    */
@@ -65,50 +68,63 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a portfolio id to the list.
-   * @param portfolioId  the portfolio id to add, not null
+   * Adds a single portfolio object identifier to the set.
+   * 
+   * @param portfolioId  the portfolio object identifier to add, not null
    */
-  public void addPortfolioId(UniqueIdentifier portfolioId) {
+  public void addPortfolioId(ObjectIdentifiable portfolioId) {
+    ArgumentChecker.notNull(portfolioId, "portfolioId");
     if (_portfolioIds == null) {
-      _portfolioIds = new ArrayList<UniqueIdentifier>();
+      _portfolioIds = new ArrayList<ObjectIdentifier>();
     }
-    _portfolioIds.add(portfolioId);
+    _portfolioIds.add(portfolioId.getObjectId());
   }
 
   /**
-   * The list of portfolio object identifiers, null to not limit by portfolio object identifiers.
-   * Note that an empty list will return no portfolios.
-   * @param portfolioIds  the new value of the property
+   * Sets the set of portfolio object identifiers, null to not limit by portfolio object identifiers.
+   * Note that an empty set will return no portfolios.
+   * 
+   * @param portfolioIds  the new portfolio identifiers, null clears the position id search
    */
-  public void setPortfolioIds(List<UniqueIdentifier> portfolioIds) {
+  public void setPortfolioIds(Iterable<? extends ObjectIdentifiable> portfolioIds) {
     if (portfolioIds == null) {
       _portfolioIds = null;
     } else {
-      _portfolioIds = new ArrayList<UniqueIdentifier>(portfolioIds);
+      _portfolioIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable portfolioId : portfolioIds) {
+        _portfolioIds.add(portfolioId.getObjectId());
+      }
     }
   }
 
   /**
-   * Adds a node id to the list.
-   * @param nodeId  the node id to add, not null
+   * Adds a single node object identifier to the set.
+   * 
+   * @param nodeId  the node object identifier to add, not null
    */
-  public void addNodeId(UniqueIdentifier nodeId) {
+  public void addNodeId(ObjectIdentifiable nodeId) {
+    ArgumentChecker.notNull(nodeId, "nodeId");
     if (_nodeIds == null) {
-      _nodeIds = new ArrayList<UniqueIdentifier>();
+      _nodeIds = new ArrayList<ObjectIdentifier>();
     }
-    _nodeIds.add(nodeId);
+    _nodeIds.add(nodeId.getObjectId());
   }
 
   /**
-   * The list of node object identifiers, null to not limit by node object identifiers.
-   * Note that an empty list will return no portfolios.
-   * @param nodeIds  the new value of the property
+   * Sets the set of node object identifiers, null to not limit by node object identifiers.
+   * Each returned portfolio will contain at least one of these nodes.
+   * Note that an empty set will return no portfolios.
+   * 
+   * @param nodeIds  the new node identifiers, null clears the position id search
    */
-  public void setNodeIds(List<UniqueIdentifier> nodeIds) {
+  public void setNodeIds(Iterable<? extends ObjectIdentifiable> nodeIds) {
     if (nodeIds == null) {
       _nodeIds = null;
     } else {
-      _nodeIds = new ArrayList<UniqueIdentifier>(nodeIds);
+      _nodeIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable nodeId : nodeIds) {
+        _nodeIds.add(nodeId.getObjectId());
+      }
     }
   }
 
@@ -147,10 +163,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case -160779184:  // portfolioIds
-        setPortfolioIds((List<UniqueIdentifier>) newValue);
+        setPortfolioIds((List<ObjectIdentifier>) newValue);
         return;
       case 2114427222:  // nodeIds
-        setNodeIds((List<UniqueIdentifier>) newValue);
+        setNodeIds((List<ObjectIdentifier>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -164,39 +180,41 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of portfolio object identifiers, null to not limit by portfolio object identifiers.
-   * Note that an empty list will return no portfolios.
+   * Gets the set of portfolio object identifiers, null to not limit by portfolio object identifiers.
+   * Note that an empty set will return no portfolios.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getPortfolioIds() {
+  public List<ObjectIdentifier> getPortfolioIds() {
     return _portfolioIds;
   }
 
   /**
    * Gets the the {@code portfolioIds} property.
-   * Note that an empty list will return no portfolios.
+   * Note that an empty set will return no portfolios.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> portfolioIds() {
+  public final Property<List<ObjectIdentifier>> portfolioIds() {
     return metaBean().portfolioIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of node object identifiers, null to not limit by node object identifiers.
-   * Note that an empty list will return no portfolios.
+   * Gets the set of node object identifiers, null to not limit by node object identifiers.
+   * Each returned portfolio will contain at least one of these nodes.
+   * Note that an empty list will return no portfolio.
    * @return the value of the property
    */
-  public List<UniqueIdentifier> getNodeIds() {
+  public List<ObjectIdentifier> getNodeIds() {
     return _nodeIds;
   }
 
   /**
    * Gets the the {@code nodeIds} property.
-   * Note that an empty list will return no portfolios.
+   * Each returned portfolio will contain at least one of these nodes.
+   * Note that an empty list will return no portfolio.
    * @return the property, not null
    */
-  public final Property<List<UniqueIdentifier>> nodeIds() {
+  public final Property<List<ObjectIdentifier>> nodeIds() {
     return metaBean().nodeIds().createProperty(this);
   }
 
@@ -273,12 +291,12 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _portfolioIds = DirectMetaProperty.ofReadWrite(this, "portfolioIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _portfolioIds = DirectMetaProperty.ofReadWrite(this, "portfolioIds", (Class) List.class);
     /**
      * The meta-property for the {@code nodeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<UniqueIdentifier>> _nodeIds = DirectMetaProperty.ofReadWrite(this, "nodeIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _nodeIds = DirectMetaProperty.ofReadWrite(this, "nodeIds", (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -322,7 +340,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code portfolioIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> portfolioIds() {
+    public final MetaProperty<List<ObjectIdentifier>> portfolioIds() {
       return _portfolioIds;
     }
 
@@ -330,7 +348,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code nodeIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<UniqueIdentifier>> nodeIds() {
+    public final MetaProperty<List<ObjectIdentifier>> nodeIds() {
       return _nodeIds;
     }
 
