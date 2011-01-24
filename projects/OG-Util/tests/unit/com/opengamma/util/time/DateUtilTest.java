@@ -170,6 +170,19 @@ public class DateUtilTest {
   }
   
   @Test
+  public void testPrintMMDD() {
+    LocalDate test = LocalDate.of(2010, 1, 1);
+    assertEquals("01-01", DateUtil.printMMDD(test));
+    try {
+      DateUtil.printMMDD(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      //Expected
+    }
+    
+  }
+  
+  @Test
   public void testPreviousWeekDay() {
     LocalDate sun = LocalDate.of(2009, 11, 8);
     LocalDate sat = LocalDate.of(2009, 11, 7);
