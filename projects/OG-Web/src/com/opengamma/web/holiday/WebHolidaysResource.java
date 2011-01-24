@@ -6,7 +6,6 @@
 package com.opengamma.web.holiday;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,22 +83,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @Context UriInfo uriInfo) {
     FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
     HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, formatOutput(searchResult));
-  }
-
-  private List<String> formatOutput(HolidaySearchResult searchResult) {
-    List<String> result = new ArrayList<String>();
-    for (HolidayDocument item : searchResult.getDocuments()) {
-      String name = item.getName();
-      String id = item.getUniqueId().getValue();
-      String type = item.getHoliday().getType().name();
-      StringBuilder buf = new StringBuilder();
-      buf.append(id).append(DELIMITER);
-      buf.append(type).append(DELIMITER);
-      buf.append(name);
-      result.add(buf.toString());
-    }
-    return result;
+    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {

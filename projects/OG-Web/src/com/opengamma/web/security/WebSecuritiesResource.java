@@ -94,7 +94,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @Context UriInfo uriInfo) {
     FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
     SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, formatOutput(securitySearchResult));
+    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, securitySearchResult);
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {
@@ -119,16 +119,6 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return out;
   }
   
-  private List<String> formatOutput(final SecuritySearchResult searchResult) {
-    List<String> dataList = new ArrayList<String>();
-    for (SecurityDocument securityDocument : searchResult.getDocuments()) {
-      String name = securityDocument.getSecurity().getName();
-      String uniqueId = securityDocument.getUniqueId().getValue();
-      dataList.add(uniqueId + DELIMITER + name);
-    }
-    return dataList;
-  }
-
 //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

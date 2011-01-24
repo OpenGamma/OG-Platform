@@ -17,7 +17,6 @@ import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
-import com.opengamma.web.util.JSONOutputter;
 
 /**
  * Abstract base class for RESTful position resources.
@@ -28,11 +27,6 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebPositionsData _data;
-
-  /**
-   * JSON output formatter
-   */
-  private JSONOutputter _jsonOutputter = new JSONOutputter();
 
   /**
    * Creates the resource.
@@ -90,12 +84,4 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
     return _data;
   }
   
-  /**
-   * Gets the JSON security outputter
-   * @return the json out putter, not null
-   */
-  protected JSONOutputter getJSONOutputter() {
-    return _jsonOutputter;
-  }
-
 }

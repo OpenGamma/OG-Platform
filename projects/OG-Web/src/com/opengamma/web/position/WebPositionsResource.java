@@ -7,7 +7,6 @@ package com.opengamma.web.position;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,24 +85,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
     PositionSearchResult positionSearchResult = (PositionSearchResult) out.get("searchResult");
     
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, formatOutput(positionSearchResult));
-  }
-
-  private List<String> formatOutput(PositionSearchResult positionSearchResult) {
-    List<String> result = new ArrayList<String>();
-    for (PositionDocument item : positionSearchResult.getDocuments()) {
-      String id = item.getPosition().getUniqueId().getValue();
-      String name = item.getPosition().getName();
-      BigDecimal quantity = item.getPosition().getQuantity();
-      int tradeSize = item.getPosition().getTrades().size();
-      StringBuilder buf = new StringBuilder();
-      buf.append(id).append(DELIMITER);
-      buf.append(name).append(DELIMITER);
-      buf.append(quantity.toString()).append(DELIMITER);
-      buf.append(String.valueOf(tradeSize));
-      result.add(buf.toString());
-    }
-    return result;
+    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, positionSearchResult);
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String minQuantityStr, String maxQuantityStr) {

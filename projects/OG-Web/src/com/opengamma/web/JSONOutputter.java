@@ -3,9 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.util;
+package com.opengamma.web;
 
 import java.io.CharArrayWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -36,6 +44,11 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class JSONOutputter {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(JSONOutputter.class);
+  
+  /**
+   * Search Result Data Delimiter
+   */
+  private static final String DELIMITER = "|";
   
   private static final String TYPE_KEY = "type";
   private static final String DATA_FIELDS_KEY = "dataFields";
@@ -156,6 +169,81 @@ public class JSONOutputter {
     result.put(TYPE_KEY, type);
     result.put(DATA_FIELDS_KEY, dataFields);
     return result;
+  }
+
+  /**
+   * @param type the web resource type
+   * @param dataFields list of dataFields
+   * @param securitySearchResult the search result
+   * @return JSON document for security search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, SecuritySearchResult securitySearchResult) {
+    List<String> formatOutput = formatOutput(securitySearchResult);
+    return buildJSONSearchResult(type, dataFields, formatOutput);
+  }
+  
+  private List<String> formatOutput(final SecuritySearchResult searchResult) {
+    List<String> dataList = new ArrayList<String>();
+    for (SecurityDocument securityDocument : searchResult.getDocuments()) {
+      String name = securityDocument.getSecurity().getName();
+      String uniqueId = securityDocument.getUniqueId().getValue();
+      dataList.add(uniqueId + DELIMITER + name);
+    }
+    return dataList;
+  }
+  
+  private List<String> formatOutput(PositionSearchResult positionSearchResult) {
+    List<String> result = new ArrayList<String>();
+    for (PositionDocument item : positionSearchResult.getDocuments()) {
+      String id = item.getPosition().getUniqueId().getValue();
+      String name = item.getPosition().getName();
+      BigDecimal quantity = item.getPosition().getQuantity();
+      int tradeSize = item.getPosition().getTrades().size();
+      StringBuilder buf = new StringBuilder();
+      buf.append(id).append(DELIMITER);
+      buf.append(name).append(DELIMITER);
+      buf.append(quantity.toString()).append(DELIMITER);
+      buf.append(String.valueOf(tradeSize));
+      result.add(buf.toString());
+    }
+    return result;
+  }
+
+  /**
+   * @param type the web resource type
+   * @param dataFields list of dataFields
+   * @param positionSearchResult the position search result
+   * @return JSON document for position search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, PositionSearchResult positionSearchResult) {
+    List<String> formatOutput = formatOutput(positionSearchResult);
+    return buildJSONSearchResult(type, dataFields, formatOutput);
+  }
+  
+  private List<String> formatOutput(HolidaySearchResult searchResult) {
+    List<String> result = new ArrayList<String>();
+    for (HolidayDocument item : searchResult.getDocuments()) {
+      String name = item.getName();
+      String id = item.getUniqueId().getValue();
+      String type = item.getHoliday().getType().name();
+      StringBuilder buf = new StringBuilder();
+      buf.append(id).append(DELIMITER);
+      buf.append(type).append(DELIMITER);
+      buf.append(name);
+      result.add(buf.toString());
+    }
+    return result;
+  }
+
+  /**
+   * @param type the web resource type
+   * @param dataFields list of dataFields
+   * @param searchResult the holidat search result
+   * @return JSON document for holiday search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, HolidaySearchResult searchResult) {
+    List<String> formatOutput = formatOutput(searchResult);
+    return buildJSONSearchResult(type, dataFields, formatOutput);
   }
 
 }

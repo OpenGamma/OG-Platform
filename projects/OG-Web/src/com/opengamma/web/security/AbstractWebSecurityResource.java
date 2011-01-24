@@ -15,7 +15,6 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
-import com.opengamma.web.util.JSONOutputter;
 
 /**
  * Abstract base class for RESTful security resources.
@@ -27,11 +26,6 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    */
   private final WebSecuritiesData _data;
   
-  /**
-   * JSON output formatter
-   */
-  private final JSONOutputter _jsonOutputter = new JSONOutputter();
-
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
@@ -86,12 +80,4 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return _data;
   }
   
-  /**
-   * Gets the JSON security outputter
-   * @return the json out putter, not null
-   */
-  protected JSONOutputter getJSONOutputter() {
-    return _jsonOutputter;
-  }
-
 }
