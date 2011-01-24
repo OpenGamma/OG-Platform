@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.rest;
+package com.opengamma.web;
 
 import java.net.URI;
 import java.util.ArrayList;

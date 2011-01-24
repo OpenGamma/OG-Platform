@@ -12,7 +12,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractWebResource;
+import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
