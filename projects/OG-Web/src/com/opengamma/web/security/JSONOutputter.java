@@ -15,6 +15,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgWriter;
+import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.json.FudgeJSONStreamWriter;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -78,23 +79,21 @@ public class JSONOutputter {
     Map<String, Object> jsonMap = new HashMap<String, Object>();
     
     FudgeFieldContainer fudgeMsg = security.toFudgeMsg(_fudgeContext);
-    
+    System.err.println("fudgeMsg:" + fudgeMsg);
     final CharArrayWriter caw = new CharArrayWriter();
     final FudgeMsgWriter fmw = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, caw));
-    
-    fmw.writeMessage(removeIdentifiersField(fudgeMsg));
+    FudgeFieldContainer processedMsg = removeClassHeaders(removeIdentifiersField(fudgeMsg));
+    System.err.println("processed:" + processedMsg);
+    fmw.writeMessage(processedMsg);
     String result = null;
     try {
       jsonMap.put(TEMPLATE_DATA_KEY, new JSONObject(caw.toString()));
       jsonMap.put(IDENTIFIERS_KEY, convertIdentierToJSON(fudgeMsg));
       result = new JSONObject(jsonMap).toString();
-      
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Error creating JSON from FudgeMessage", ex);
     }
-
-    return result;
-    
+    return result;  
   }
   
   public String buildSecuritySearchResult(SecuritySearchResult searchResult) {
@@ -137,6 +136,24 @@ public class JSONOutputter {
     for (FudgeField fudgeField : allFields) {
       if (!fudgeField.getName().equals(ManageableSecurity.IDENTIFIERS_KEY)) {
         result.add(fudgeField);
+      }
+    }
+    return result;
+  }
+  
+  private FudgeFieldContainer removeClassHeaders(FudgeFieldContainer fudgeMsg) {
+    //remove fields with ordinal zero
+    MutableFudgeFieldContainer result = _fudgeContext.newMessage();
+    for (FudgeField fudgeField : fudgeMsg.getAllFields()) {
+      if (fudgeField.getType().getTypeId() == FudgeTypeDictionary.FUDGE_MSG_TYPE_ID) {
+        if (fudgeField.getValue() != null) {
+          FudgeFieldContainer withoutClassHeaders = removeClassHeaders((FudgeFieldContainer) fudgeField.getValue());
+          result.add(fudgeField.getName(), withoutClassHeaders);
+        }
+      } else {
+        if (fudgeField.getOrdinal() == null || fudgeField.getOrdinal() != 0) {
+          result.add(fudgeField);
+        }
       }
     }
     return result;
