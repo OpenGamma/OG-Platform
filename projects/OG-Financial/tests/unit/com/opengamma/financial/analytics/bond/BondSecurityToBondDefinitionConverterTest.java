@@ -43,7 +43,7 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
   private static final BondSecurityToBondDefinitionConverter CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
   private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtil.getUTCDate(2007, 9, 30);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2007, 10, 3);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2007, 10, 2);
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2008, 3, 31);
   private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2008, 9, 30);
   private static final double COUPON = 4.0;
@@ -86,7 +86,7 @@ public class BondSecurityToBondDefinitionConverterTest {
   public void test() {
     final BondDefinition definition = CONVERTER.getBond(BOND, true);
     assertArrayEquals(definition.getNominalDates(), new LocalDate[] {FIRST_ACCRUAL_DATE.toLocalDate(), FIRST_COUPON_DATE.toLocalDate(), LAST_TRADE_DATE.toLocalDate()});
-    assertEquals(definition.getSettlementDates()[0], SETTLEMENT_DATE);
+    assertEquals(definition.getSettlementDates()[0], SETTLEMENT_DATE.toLocalDate());
   }
 
   private static class MyHolidaySource implements HolidaySource {

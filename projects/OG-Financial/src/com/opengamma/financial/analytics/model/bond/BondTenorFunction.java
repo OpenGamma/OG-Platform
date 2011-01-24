@@ -64,7 +64,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
     final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
     final LocalDate[] nominalDates = bond.getNominalDates();
     final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, position), getUniqueIdentifier());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, t));
   }
 
@@ -76,7 +76,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getPosition()), getUniqueIdentifier()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getPosition()), getUniqueId()));
     }
     return null;
   }

@@ -55,7 +55,9 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureDelivera
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
 /**
  * 
  */
@@ -81,7 +83,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     //final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"); //TODO this needs to be pulled from a convention
     //final double deliveryDate = dayCount.getDayCountFraction(now, firstDeliveryDate);
     ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
-    final Object priceObject = inputs.getValue(priceRequirement);
+    Object priceObject = inputs.getValue(priceRequirement);
     if (priceObject == null) {
       throw new NullPointerException("Could not get " + priceRequirement);
     }
