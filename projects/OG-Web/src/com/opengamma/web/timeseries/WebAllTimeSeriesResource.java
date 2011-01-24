@@ -42,7 +42,7 @@ import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all time series.

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.rest;
+package com.opengamma.web;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;

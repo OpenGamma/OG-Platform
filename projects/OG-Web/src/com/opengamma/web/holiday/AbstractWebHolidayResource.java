@@ -12,7 +12,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractWebResource;
+import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
