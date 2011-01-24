@@ -18,6 +18,7 @@ import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
 import com.opengamma.web.region.WebRegionData;
 import com.opengamma.web.region.WebRegionUris;
+import com.opengamma.web.util.JSONOutputter;
 
 /**
  * Abstract base class for RESTful holiday resources.
@@ -28,6 +29,11 @@ public abstract class AbstractWebHolidayResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebHolidayData _data;
+  
+  /**
+   * JSON output formatter
+   */
+  private JSONOutputter _jsonOutputter = new JSONOutputter();
 
   /**
    * Creates the resource.
@@ -82,6 +88,14 @@ public abstract class AbstractWebHolidayResource extends AbstractWebResource {
    */
   protected WebHolidayData data() {
     return _data;
+  }
+  
+  /**
+   * Gets the JSON security outputter
+   * @return the json out putter, not null
+   */
+  protected JSONOutputter getJSONOutputter() {
+    return _jsonOutputter;
   }
 
 }

@@ -6,7 +6,9 @@
 package com.opengamma.web.holiday;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
@@ -44,6 +47,9 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/holidays")
 public class WebHolidaysResource extends AbstractWebHolidayResource {
+  
+  private static final String TYPE = "Holidays";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "code", "name");
 
   /**
    * Creates the resource.
@@ -63,6 +69,40 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    return getFreemarker().build("holidays/holidays.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @QueryParam("currency") String currencyISO,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
+    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, formatOutput(searchResult));
+  }
+
+  private List<String> formatOutput(HolidaySearchResult searchResult) {
+    List<String> result = new ArrayList<String>();
+    for (HolidayDocument item : searchResult.getDocuments()) {
+      String name = item.getName();
+      String id = item.getUniqueId().getValue();
+      String type = item.getHoliday().getType().name();
+      StringBuilder buf = new StringBuilder();
+      buf.append(id).append(DELIMITER);
+      buf.append(type).append(DELIMITER);
+      buf.append(name);
+      result.add(buf.toString());
+    }
+    return result;
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
@@ -90,7 +130,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("holidays/holidays.ftl", out);
+    return out;
   }
 
 //  //-------------------------------------------------------------------------
