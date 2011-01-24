@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.security;
+package com.opengamma.web.util;
 
 import java.io.CharArrayWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +23,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -41,18 +37,13 @@ public class JSONOutputter {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(JSONOutputter.class);
   
-  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "name");
+  private static final String TYPE_KEY = "type";
   private static final String DATA_FIELDS_KEY = "dataFields";
   private static final String HEADER_KEY = "header";
   private static final String DATA_KEY = "data";
   private static final String TEMPLATE_DATA_KEY = "templateData";
   private static final String IDENTIFIERS_KEY = "identifiers";
-  
-  private static final Map<String, List<String>> s_dataFieldsMap = new HashMap<String, List<String>>();
-  static {
-    s_dataFieldsMap.put(DATA_FIELDS_KEY, DATA_FIELDS);
-  }
-  
+    
   private final FudgeContext _fudgeContext;
  
   /**
@@ -79,11 +70,9 @@ public class JSONOutputter {
     Map<String, Object> jsonMap = new HashMap<String, Object>();
     
     FudgeFieldContainer fudgeMsg = security.toFudgeMsg(_fudgeContext);
-    System.err.println("fudgeMsg:" + fudgeMsg);
     final CharArrayWriter caw = new CharArrayWriter();
     final FudgeMsgWriter fmw = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, caw));
     FudgeFieldContainer processedMsg = removeClassHeaders(removeIdentifiersField(fudgeMsg));
-    System.err.println("processed:" + processedMsg);
     fmw.writeMessage(processedMsg);
     String result = null;
     try {
@@ -96,19 +85,22 @@ public class JSONOutputter {
     return result;  
   }
   
-  public String buildSecuritySearchResult(SecuritySearchResult searchResult) {
-    Map<String, Object> jsonMap = new HashMap<String, Object>();
+  /**
+   * Build JSON document for the search result page
+   * 
+   * @param type the web resource type
+   * @param dataFields the list of datafields headers
+   * @param data the formatted list of search results
+   * @return the build JSON result from search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, List<String> data) {
     
-    List<String> dataList = new ArrayList<String>();
-    for (SecurityDocument securityDocument : searchResult.getDocuments()) {
-      String name = securityDocument.getSecurity().getName();
-      String uniqueId = securityDocument.getUniqueId().getValue();
-      dataList.add(uniqueId + "|" + name);
-    }
+    Map<String, Object> searchResultMap = new HashMap<String, Object>();
+    searchResultMap.put(HEADER_KEY, createHeaderMap(type, dataFields));
     
-    jsonMap.put(HEADER_KEY, s_dataFieldsMap);
-    jsonMap.put(DATA_KEY, dataList);
-    return new JSONObject(jsonMap).toString();
+    searchResultMap.put(DATA_KEY, data);
+    
+    return new JSONObject(searchResultMap).toString();
   }
   
   private JSONObject convertIdentierToJSON(FudgeFieldContainer fudgeMsg) {
@@ -158,4 +150,12 @@ public class JSONOutputter {
     }
     return result;
   }
+  
+  private Map<String, Object> createHeaderMap(String type, List<String> dataFields) {
+    Map<String, Object> result = new HashMap<String, Object>();
+    result.put(TYPE_KEY, type);
+    result.put(DATA_FIELDS_KEY, dataFields);
+    return result;
+  }
+
 }
