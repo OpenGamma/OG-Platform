@@ -7,7 +7,10 @@ package com.opengamma.web.holiday;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Year;
@@ -17,9 +20,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.json.JSONObject;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -27,6 +32,11 @@ import com.opengamma.util.tuple.Pair;
  */
 @Path("/holidays/{holidayId}")
 public class WebHolidayResource extends AbstractWebHolidayResource {
+  
+  private static final String TEMPLATE_DATA_KEY = "templateData";
+  private static final String COUNTRY_NAME_KEY = "COUNTRY_NAME";
+  private static final String DATES_KEY = "dates";
+  
 
   /**
    * Creates the resource.
@@ -42,6 +52,53 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
   public String get() {
     FlexiBean out = createRootData();
     return getFreemarker().build("holidays/holiday.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return buildJSONOutput(out);
+  }
+
+  private String buildJSONOutput(FlexiBean out) {
+    Map<String, Object> jsonMap = new HashMap<String, Object>();
+    HolidayDocument doc = (HolidayDocument) out.get("holidayDoc");
+    @SuppressWarnings("unchecked")
+    List<Pair<Year, List<LocalDate>>> holidayDatesByYear = (List<Pair<Year, List<LocalDate>>>) out.get("holidayDatesByYear");
+    
+    jsonMap.put(TEMPLATE_DATA_KEY, createTemplateData(doc));
+    jsonMap.put(DATES_KEY, createDatesData(holidayDatesByYear));
+    
+    return new JSONObject(jsonMap).toString();
+  }
+
+  private Map<Integer, List<String>> createDatesData(List<Pair<Year, List<LocalDate>>> holidayDatesByYear) {
+    Map<Integer, List<String>> datesData = new TreeMap<Integer, List<String>>();
+    for (Pair<Year, List<LocalDate>> item : holidayDatesByYear) {
+      Year year = item.getFirst();
+      List<LocalDate> dates = item.getSecond();
+      datesData.put(year.getValue(), convertDates(dates));
+    }
+    return datesData;
+  }
+
+  private List<String> convertDates(List<LocalDate> dates) {
+    List<String> results = new ArrayList<String>();
+    for (LocalDate date : dates) {
+      results.add(formatDate(date));
+    }
+    return results;
+  }
+
+  private String formatDate(LocalDate date) {
+    return DateUtil.printMMDD(date);
+  }
+
+  private Map<String, String> createTemplateData(HolidayDocument doc) {
+    Map<String, String> templateData = new HashMap<String, String>();
+    templateData.put(COUNTRY_NAME_KEY, doc.getName());
+    return templateData;
   }
 
 //  @PUT
