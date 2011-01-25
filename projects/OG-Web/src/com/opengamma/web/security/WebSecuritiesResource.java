@@ -33,6 +33,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -46,7 +47,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all securities.
@@ -57,6 +58,10 @@ import com.opengamma.util.rest.WebPaging;
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(WebSecuritiesResource.class);
+  
+  private static final String TYPE = "Securities";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "name");
+  
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
@@ -75,7 +80,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
-    FlexiBean out = getSecuritySearchResultData(page, pageSize, name, type, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
   
@@ -87,12 +92,16 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
-    FlexiBean out = getSecuritySearchResultData(page, pageSize, name, type, uriInfo);
-    SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
-    return getJSONOutputter().buildSecuritySearchResult(securitySearchResult);
+    String result = null;
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, securitySearchResult);
+    }
+    return result;
   }
 
-  private FlexiBean getSecuritySearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
@@ -113,7 +122,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }
     return out;
   }
-
+  
 //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

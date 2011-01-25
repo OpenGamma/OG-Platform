@@ -9,8 +9,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -82,6 +84,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
+  public T visitBondForward(final BondForward bondForward, final S data) {
+    throw new UnsupportedOperationException("This visitor does not support visitBondForward()");
+  }
+
+  @Override
+  public T visitBondFuture(final BondFuture bondFuture, final S data) {
+    throw new UnsupportedOperationException("This visitor does not support visitBondFuture()");
+  }
+
+  @Override
   public T visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final S data) {
     throw new UnsupportedOperationException("This visitor does not support visitGenericAnnuity()");
   }
@@ -139,6 +151,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitBond(final Bond bond) {
     throw new UnsupportedOperationException("This visitor does not support visitBond()");
+  }
+
+  @Override
+  public T visitBondForward(final BondForward bondForward) {
+    throw new UnsupportedOperationException("This visitor does not support visitBondForward()");
+  }
+
+  @Override
+  public T visitBondFuture(final BondFuture bondFuture) {
+    throw new UnsupportedOperationException("This visitor does not support visitBondFuture()");
   }
 
   @Override

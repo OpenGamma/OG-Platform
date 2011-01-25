@@ -43,8 +43,7 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
     return getYears(d1, d2, m1, m2, y1, y2);
   }
 
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
-      final boolean isEOMConvention) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final double coupon, final boolean isEOMConvention) {
     return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
   }
 

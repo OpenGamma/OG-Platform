@@ -39,7 +39,7 @@ public class ActualActualAFB extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     return coupon * getDayCountFraction(previousCouponDate, date);
   }
 

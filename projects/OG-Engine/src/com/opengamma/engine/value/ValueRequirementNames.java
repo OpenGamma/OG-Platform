@@ -250,6 +250,7 @@ public final class ValueRequirementNames {
   public static final String JENSENS_ALPHA = "Jensen's Alpha";
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   
+  public static final String BOND_TENOR = "Bond Tenor";
   //CSON
 
 }

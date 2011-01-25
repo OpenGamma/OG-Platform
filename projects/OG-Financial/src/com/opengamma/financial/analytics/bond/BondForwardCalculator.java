@@ -103,10 +103,7 @@ public class BondForwardCalculator {
     final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate(); // was maturity / delivery...
     Validate.isTrue(today.isBefore(lastTradeDate), "The bond has expired");
-    Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before last trade date");  // changed from delivery.
-
-    Validate.isTrue(cleanPrice > 10, "please input clean price on price (i.e around 100) bases");
-    Validate.isTrue(repoRate < 1, "please input repo rate as fraction");
+    Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before last trade date"); // changed from delivery.
 
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
@@ -146,7 +143,6 @@ public class BondForwardCalculator {
         valueOfExpiredCoupons += coupon * timeBetweenPeriods * (1 + repoRate * period);
       }
     }
-
     return dirtyPrice * (1 + repoPeriod * repoRate) - valueOfExpiredCoupons;
   }
 
