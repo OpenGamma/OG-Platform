@@ -37,12 +37,10 @@ import com.opengamma.financial.security.bond.BondSecurity;
 public abstract class BondFunction extends NonCompiledInvoker {
   private final String _bondCurveName = "BondCurve";
   private final String _requirementName;
-  private final String _fieldName;
 
   public BondFunction(final String requirementName, final String fieldName) {
     Validate.notNull(requirementName, "requirementName");
     _requirementName = requirementName;
-    _fieldName = fieldName;
   }
 
   public String getRequirementName() {
@@ -63,7 +61,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
     }
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
-    return getComputedValues(position, bond, value, now.toLocalDate(), _bondCurveName);
+    return getComputedValues(executionContext, security.getCurrency(), position, bond, value, now.toLocalDate(), _bondCurveName);
   }
 
   @Override
@@ -93,6 +91,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return bond.getCurrency();
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(Position position, BondDefinition bond, Object value, LocalDate now, String yieldCurveName);
-
+  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, Position position, BondDefinition bond, Object value, 
+      LocalDate now, String yieldCurveName);
+  
 }
