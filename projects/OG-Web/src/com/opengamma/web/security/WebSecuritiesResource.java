@@ -92,9 +92,13 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
+    String result = null;
     FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
-    SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, securitySearchResult);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, securitySearchResult);
+    }
+    return result;
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {

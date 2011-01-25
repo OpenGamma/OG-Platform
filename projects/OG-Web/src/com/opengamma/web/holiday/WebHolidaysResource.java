@@ -48,7 +48,7 @@ import com.opengamma.web.WebPaging;
 public class WebHolidaysResource extends AbstractWebHolidayResource {
   
   private static final String TYPE = "Holidays";
-  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "code", "name");
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "name");
 
   /**
    * Creates the resource.
@@ -81,9 +81,13 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @Context UriInfo uriInfo) {
+    String result = null;
     FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
-    HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
+    } 
+    return result;
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {

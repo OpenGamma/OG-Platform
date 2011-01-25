@@ -82,10 +82,13 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr) {
+    String result = null;
     FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
-    PositionSearchResult positionSearchResult = (PositionSearchResult) out.get("searchResult");
-    
-    return getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, positionSearchResult);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      PositionSearchResult positionSearchResult = (PositionSearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, positionSearchResult);
+    }
+    return result;
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String minQuantityStr, String maxQuantityStr) {

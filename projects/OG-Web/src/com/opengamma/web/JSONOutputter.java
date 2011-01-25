@@ -32,9 +32,13 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -107,12 +111,9 @@ public class JSONOutputter {
    * @return the build JSON result from search result
    */
   public String buildJSONSearchResult(String type, List<String> dataFields, List<String> data) {
-    
     Map<String, Object> searchResultMap = new HashMap<String, Object>();
     searchResultMap.put(HEADER_KEY, createHeaderMap(type, dataFields));
-    
     searchResultMap.put(DATA_KEY, data);
-    
     return new JSONObject(searchResultMap).toString();
   }
   
@@ -238,12 +239,79 @@ public class JSONOutputter {
   /**
    * @param type the web resource type
    * @param dataFields list of dataFields
-   * @param searchResult the holidat search result
+   * @param searchResult the holiday search result
    * @return JSON document for holiday search result
    */
   public String buildJSONSearchResult(String type, List<String> dataFields, HolidaySearchResult searchResult) {
     List<String> formatOutput = formatOutput(searchResult);
     return buildJSONSearchResult(type, dataFields, formatOutput);
+  }
+
+  /**
+   * @param type the web resource type
+   * @param dataFields list of data fields
+   * @param searchResult the region search result
+   * @return JSON document for regions search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, RegionSearchResult searchResult) {
+    List<String> formatOutput = formatOutput(searchResult);
+    return buildJSONSearchResult(type, dataFields, formatOutput);
+  }
+
+  private List<String> formatOutput(RegionSearchResult searchResult) {
+    List<String> result = new ArrayList<String>();
+    for (RegionDocument item : searchResult.getDocuments()) {
+      String name = item.getRegion().getName();
+      String id = item.getUniqueId().getValue();
+      StringBuilder buf = new StringBuilder();
+      buf.append(id).append(DELIMITER);
+      buf.append(name);
+      result.add(buf.toString());
+    }
+    return result;
+  }
+
+  /**
+   * @param type the web resource type
+   * @param dataFields the list of data fields
+   * @param searchResult the timeseries search result
+   * @return JSON document for time series search result
+   */
+  public String buildJSONSearchResult(String type, List<String> dataFields, TimeSeriesSearchResult<?> searchResult) {
+    List<String> formatOutput = formatOutput(searchResult);
+    return buildJSONSearchResult(type, dataFields, formatOutput);
+  }
+
+  private List<String> formatOutput(TimeSeriesSearchResult<?> searchResult) {
+    List<String> result = new ArrayList<String>();
+    for (TimeSeriesDocument<?> item : searchResult.getDocuments()) {
+      String id = item.getUniqueId().getValue();
+      String identifiers = formatIdentifiers(item.getIdentifiers().asIdentifierBundle());
+      String dataSource = item.getDataSource();
+      String dataProvider = item.getDataProvider();
+      String observationTime = item.getObservationTime();
+      StringBuilder buf = new StringBuilder();
+      buf.append(id).append(DELIMITER);
+      buf.append(identifiers).append(DELIMITER);
+      buf.append(dataSource).append(DELIMITER);
+      buf.append(dataProvider).append(DELIMITER);
+      buf.append(observationTime).append(DELIMITER);
+      result.add(buf.toString());
+    }
+    return result;
+  }
+
+  private String formatIdentifiers(IdentifierBundle identifierBundle) {
+    StringBuilder buf = new StringBuilder();
+    int size = identifierBundle.size();
+    int counter = 0;
+    for (Identifier identifier : identifierBundle) {
+      buf.append(identifier.toString());
+      if (++counter != size) {
+        buf.append("&");
+      }
+    }
+    return buf.toString();
   }
 
 }
