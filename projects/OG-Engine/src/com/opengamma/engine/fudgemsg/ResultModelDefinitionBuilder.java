@@ -45,7 +45,8 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
     ResultModelDefinition result = new ResultModelDefinition();
     result.setAggregatePositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
     result.setPositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(POSITION_OUTPUT_MODE_FIELD)));
-    result.setTradeOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(TRADE_OUTPUT_MODE_FIELD)));
+    ResultOutputMode tradeMode = message.getFieldValue(ResultOutputMode.class, message.getByName(TRADE_OUTPUT_MODE_FIELD)); // added later, so handle null
+    result.setTradeOutputMode(tradeMode == null ? ResultOutputMode.TERMINAL_OUTPUTS : tradeMode);
     result.setSecurityOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(SECURITY_OUTPUT_MODE_FIELD)));
     result.setPrimitiveOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(PRIMITIVE_OUTPUT_MODE_FIELD)));
     return result;

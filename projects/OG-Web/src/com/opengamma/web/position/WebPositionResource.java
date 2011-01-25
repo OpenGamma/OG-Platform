@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -53,6 +54,11 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(
       @FormParam("quantity") String quantityStr) {
+    PositionDocument doc = data().getPosition();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
     if (quantityStr == null) {
@@ -66,7 +72,6 @@ public class WebPositionResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
-    PositionDocument doc = data().getPosition();
     ManageablePosition position = doc.getPosition();
     if (Objects.equal(position.getQuantity(), quantity) == false) {
       position.setQuantity(quantity);
@@ -80,8 +85,12 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @DELETE
   public Response delete() {
     PositionDocument doc = data().getPosition();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
     data().getPositionMaster().remove(doc.getUniqueId());
-    URI uri = WebPositionsResource.uri(data());
+    URI uri = WebPositionResource.uri(data());
     return Response.seeOther(uri).build();
   }
 
@@ -95,6 +104,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     PositionDocument doc = data().getPosition();
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

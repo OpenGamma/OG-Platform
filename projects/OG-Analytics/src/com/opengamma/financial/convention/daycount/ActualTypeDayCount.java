@@ -16,6 +16,6 @@ public abstract class ActualTypeDayCount extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public abstract double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear);
+  public abstract double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear);
 
 }

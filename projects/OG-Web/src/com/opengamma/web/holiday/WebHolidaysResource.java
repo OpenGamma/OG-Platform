@@ -7,6 +7,7 @@ package com.opengamma.web.holiday;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,18 +23,21 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Lists;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayHistoryRequest;
+import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all holidays.
@@ -42,6 +46,9 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/holidays")
 public class WebHolidaysResource extends AbstractWebHolidayResource {
+  
+  private static final String TYPE = "Holidays";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "name");
 
   /**
    * Creates the resource.
@@ -61,6 +68,29 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    return getFreemarker().build("holidays/holidays.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @QueryParam("currency") String currencyISO,
+      @Context UriInfo uriInfo) {
+    String result = null;
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
+    } 
+    return result;
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
@@ -88,7 +118,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("holidays/holidays.ftl", out);
+    return out;
   }
 
 //  //-------------------------------------------------------------------------
@@ -138,8 +168,19 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   @Path("{holidayId}")
   public WebHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
     data().setUriHolidayId(idStr);
-    HolidayDocument holidayDoc = data().getHolidayMaster().get(UniqueIdentifier.parse(idStr));
-    data().setHoliday(holidayDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      HolidayDocument doc = data().getHolidayMaster().get(oid);
+      data().setHoliday(doc);
+    } catch (DataNotFoundException ex) {
+      HolidayHistoryRequest historyRequest = new HolidayHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      HolidayHistoryResult historyResult = data().getHolidayMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setHoliday(historyResult.getFirstDocument());
+    }
     return new WebHolidayResource(this);
   }
 

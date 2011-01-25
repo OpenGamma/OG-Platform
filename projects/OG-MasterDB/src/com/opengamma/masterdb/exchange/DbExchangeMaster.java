@@ -28,6 +28,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.google.common.base.Objects;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -137,9 +138,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     }
     if (request.getExchangeIds() != null) {
       StringBuilder buf = new StringBuilder(request.getExchangeIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getExchangeIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier objectId : request.getExchangeIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";

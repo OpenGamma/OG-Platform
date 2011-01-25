@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -165,9 +166,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
     if (request.getSecurityIds() != null) {
       StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getSecurityIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier objectId : request.getSecurityIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";

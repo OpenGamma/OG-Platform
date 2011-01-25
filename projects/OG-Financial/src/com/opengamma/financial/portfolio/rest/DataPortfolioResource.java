@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -96,7 +97,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PortfolioDocument request) {
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getUniqueId()) == false) {
+    if (getUrlPortfolioId().equalObjectIdentifier(request.getUniqueId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioDocument result = getPortfolioMaster().update(request);
@@ -115,7 +116,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PortfolioHistoryRequest request = decodeBean(PortfolioHistoryRequest.class, providers, msgBase64);
-    if (getUrlPortfolioId().equalsIgnoringVersion(request.getObjectId()) == false) {
+    if (getUrlPortfolioId().getObjectId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioHistoryResult result = getPortfolioMaster().history(request);
@@ -142,51 +143,51 @@ public class DataPortfolioResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param id  the resource identifier, not null
+   * @param objectId  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, UniqueIdentifier id) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}").build(id.toLatest());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId) {
+    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}").build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the versions of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param id  the resource identifier, not null
+   * @param objectId  the resource identifier, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, UniqueIdentifier id, String searchMsg) {
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
-    return bld.build(id.toLatest());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for a specific version of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param uid  the resource unique identifier, not null
+   * @param uniqueId  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriVersion(URI baseUri, UniqueIdentifier uid) {
+  public static URI uriVersion(URI baseUri, UniqueIdentifier uniqueId) {
     return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}")
-      .build(uid.toLatest(), uid.getVersion());
+      .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
   /**
    * Builds a URI for a specific node.
    * 
    * @param baseUri  the base URI, not null
-   * @param nodeUid  the resource unique identifier, not null
+   * @param nodeId  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriNode(URI baseUri, UniqueIdentifier nodeUid) {
+  public static URI uriNode(URI baseUri, UniqueIdentifier nodeId) {
     return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/nodes/{nodeId}")
-      .build("-", nodeUid);  // TODO: probably could do with a better URI
+      .build("-", nodeId);  // TODO: probably could do with a better URI
   }
 
 }

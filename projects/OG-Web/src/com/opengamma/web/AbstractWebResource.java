@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.rest;
+package com.opengamma.web;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
@@ -26,6 +26,11 @@ public abstract class AbstractWebResource {
    * The Freemarker outputter.
    */
   private FreemarkerOutputter _freemarker;
+  
+  /**
+   * JSON output formatter
+   */
+  private JSONOutputter _jsonOutputter = new JSONOutputter();
 
   /**
    * Creates the resource, used by the root resource.
@@ -72,6 +77,14 @@ public abstract class AbstractWebResource {
    */
   public FreemarkerOutputter getFreemarker() {
     return _freemarker;
+  }
+  
+  /**
+   * Gets the JSON security outputter
+   * @return the json out putter, not null
+   */
+  protected JSONOutputter getJSONOutputter() {
+    return _jsonOutputter;
   }
 
 }

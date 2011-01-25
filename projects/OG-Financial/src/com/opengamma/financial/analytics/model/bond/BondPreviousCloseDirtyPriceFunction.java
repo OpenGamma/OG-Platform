@@ -7,14 +7,25 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+
 import com.google.common.collect.Sets;
+import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.bond.BondDefinition;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.interestrate.bond.BondCalculator;
 import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -23,17 +34,23 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 /**
  * 
  */
-public class BondDirtyPriceFunction extends BondFunction {
+public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
+  private static final BusinessDayConvention PREVIOUS = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
-  public BondDirtyPriceFunction() {
+  public BondPreviousCloseDirtyPriceFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Position position, final Bond bond, final Object value) {
+  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition bondDefinition, 
+      final Object value, final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueId());
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
+    LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
+    final Bond bond = bondDefinition.toDerivative(previousClose, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
   }

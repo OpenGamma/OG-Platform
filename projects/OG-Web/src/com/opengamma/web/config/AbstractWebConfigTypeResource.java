@@ -7,7 +7,7 @@ package com.opengamma.web.config;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.util.rest.AbstractWebResource;
+import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**

@@ -16,7 +16,7 @@ public abstract class ThirtyThreeSixtyTypeDayCount extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     return coupon * getDayCountFraction(previousCouponDate, date);
   }
 

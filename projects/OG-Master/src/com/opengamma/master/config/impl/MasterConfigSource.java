@@ -187,7 +187,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uid, "uid");
     if (_versionAsOfInstant != null) {
-      ConfigHistoryRequest request = new ConfigHistoryRequest(uid, _versionAsOfInstant, _correctedToInstant);
+      ConfigHistoryRequest request = new ConfigHistoryRequest(uid.getObjectId(), _versionAsOfInstant, _correctedToInstant);
       ConfigHistoryResult<T> result = _configMaster.typed(clazz).history(request);
       if (result.getDocuments().isEmpty()) {
         return null;

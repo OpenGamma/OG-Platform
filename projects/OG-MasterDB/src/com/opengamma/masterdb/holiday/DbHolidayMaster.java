@@ -26,6 +26,7 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -177,9 +178,9 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
     if (request.getHolidayIds() != null) {
       StringBuilder buf = new StringBuilder(request.getHolidayIds().size() * 10);
-      for (UniqueIdentifier uniqueId : request.getHolidayIds()) {
-        checkScheme(uniqueId);
-        buf.append(extractOid(uniqueId)).append(", ");
+      for (ObjectIdentifier objectId : request.getHolidayIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";

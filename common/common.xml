@@ -72,6 +72,19 @@
 		description="--> compile any Fudge .proto files">
 	</target>
 
+    <target name="joda-bean-present">
+        <available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
+    </target>
+
+    <target name="joda-bean" depends="joda-bean-present" if="joda.bean.present">
+    	<java classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" fork="true" failonerror="true">
+    		<arg value="-R" />
+            <arg value="-indent=2" />
+            <arg value="-prefix=_" />
+    		<arg value="${src.dir}" />
+    	</java>
+    </target>
+
 	<target name="compile-src" depends="fudge-proto"
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
@@ -286,7 +299,7 @@
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
 
-	<target name="dist" depends="clean,jar">
+	<target name="dist" depends="clean,publish-local">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
