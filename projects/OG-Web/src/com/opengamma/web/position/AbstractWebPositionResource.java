@@ -22,7 +22,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful position resources.
  */
 public abstract class AbstractWebPositionResource extends AbstractWebResource {
-
+  
   /**
    * The backing bean.
    */
@@ -83,5 +83,5 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   protected WebPositionsData data() {
     return _data;
   }
-
+  
 }
