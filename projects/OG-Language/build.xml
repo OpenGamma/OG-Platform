@@ -1,0 +1,90 @@
+<project name="og-language" default="compile">
+
+	<property environment="env" />
+	<property file="${user.home}/.OG-Build-common.properties" />
+	<property file="${basedir}/build.properties" />
+	<property file="${basedir}/../../common/build.properties" />
+
+	<path id="build.path">
+		<pathelement path="${basedir}/Connector" />
+		<pathelement path="${basedir}/ConnectorTest" />
+		<pathelement path="${basedir}/Client" />
+		<pathelement path="${basedir}/Service" />
+		<pathelement path="${basedir}/ServiceTest" />
+		<pathelement path="${basedir}/Util" />
+		<pathelement path="${basedir}/UtilTest" />
+	</path>
+
+	<target name="compile" description="--> Compile all components">
+
+		<!-- Java stuff -->
+		<subant target="deploy" buildpath="${basedir}/Client" />
+
+		<!-- C++ projects (in build order) -->
+		<subant target="compile" buildpath="${basedir}/Util" />
+		<subant target="compile" buildpath="${basedir}/Service" />
+		<subant target="compile" buildpath="${basedir}/Connector" />
+
+	</target>
+
+	<target name="tests" description="--> Compile and run unit tests">
+
+		<!-- Test compilation pre-requisite -->
+		<subant target="deploy" buildpath="${basedir}/Client" />
+
+		<!-- C++ tests -->
+		<subant target="tests" buildpath="${basedir}/UtilTest" />
+		<subant target="tests" buildpath="${basedir}/ServiceTest" />
+		<subant target="tests" buildpath="${basedir}/ConnectorTest" />
+
+		<!-- Java tests -->
+		<subant target="tests" buildpath="${basedir}/Client" />
+
+	</target>
+
+        <target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated">
+		<!-- Java targets -->
+		<subant target="tests-with-clover" buildpath="${basedir}/Client" />
+	</target>
+
+	<target name="publish" depends="compile">
+		<!-- TODO -->
+	</target>
+	<target name="publish-local" depends="compile">
+		<!-- TODO -->
+	</target>
+	<target name="tarball" depends="compile">
+		<!-- TODO -->
+	</target>
+
+	<target name="zipfile" depends="compile">
+		<!-- TODO -->
+	</target>
+
+	<target name="clean" description="--> Clean the project">
+		<subant target="clean" buildpathref="build.path" />
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
+	</target>
+
+	<target name="clean-lib" description="--> Clean the library path">
+		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
+	</target>
+
+	<target name="clean-src" description="--> Clean the auto-generated source code files">
+		<subant target="clean-src" buildpathref="build.path" />
+	</target>
+
+	<target name="fudge-proto" description="--> Autogenerate files from Fudge .proto definitions">
+		<subant target="fudge-proto" buildpath="${basedir}/Client" />
+		<subant target="proto-c" buildpath="${basedir}/Client" />
+	</target>
+
+	<target name="joda-bean">
+		<!-- TODO -->
+	</target>
+
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<import file="${basedir}/../../common/common-ivy.xml" />
+
+</project>
