@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.time.Instant;
 
 import com.opengamma.util.ArgumentChecker;
@@ -17,13 +15,6 @@ import com.opengamma.util.ArgumentChecker;
  * This is run centrally to aggregate statistics.
  * The statistics recorded include the number of successful and unsuccessful jobs.
  * Old data is decayed to be less relevant.
- * <p>
- * This class exhibits complex behavior in a multi-threaded environment.
- * Each piece of state should be considered to be an independent value.
- * This class effectively provides a convenient holder for multiple values.
- * Taking two values and using them together in any way is inadvisable.
- * (The average method do exactly that, but are intended for debugging).
- * In general, the values returned are estimates, and should be treated as such.
  */
 public class CalculationNodeStatistics {
 
@@ -34,27 +25,27 @@ public class CalculationNodeStatistics {
   /**
    * The number of successful jobs.
    */
-  private final AtomicLong _successfulJobs = new AtomicLong();
+  private long _successfulJobs;
   /**
    * The number of unsuccessful jobs.
    */
-  private final AtomicLong _unsuccessfulJobs = new AtomicLong();
+  private long _unsuccessfulJobs;
   /**
    * The number of job items.
    */
-  private final AtomicLong _jobItems = new AtomicLong();
+  private long _jobItems;
   /**
    * The execution time in nanoseconds.
    */
-  private final AtomicLong _executionNanos = new AtomicLong();
+  private long _executionNanos;
   /**
    * The non-execution time in nanoseconds.
    */
-  private final AtomicLong _nonExecutionNanos = new AtomicLong();
+  private long _nonExecutionNanos;
   /**
    * The last instant that a job was sent.
    */
-  private volatile Instant _lastJobInstant;
+  private Instant _lastJobInstant;
 
   /**
    * Creates an instance for a specific node.
@@ -66,7 +57,17 @@ public class CalculationNodeStatistics {
     _nodeId = nodeId;
   }
 
-  //-------------------------------------------------------------------------
+  private CalculationNodeStatistics(final CalculationNodeStatistics other) {
+    _nodeId = other.getNodeId();
+    // the caller already holds the lock on the other object
+    _successfulJobs = other._successfulJobs;
+    _unsuccessfulJobs = other._unsuccessfulJobs;
+    _executionNanos = other._executionNanos;
+    _nonExecutionNanos = other._nonExecutionNanos;
+    _lastJobInstant = other._lastJobInstant;
+  }
+
+  // -------------------------------------------------------------------------
   /**
    * Gets the node id.
    * 
@@ -79,46 +80,50 @@ public class CalculationNodeStatistics {
   /**
    * Gets the number of job items.
    * 
-   * @return the number of job items, not null
+   * @return the number of job items
    */
-  public long getJobItems() {
-    return _jobItems.get();
+  public synchronized long getJobItems() {
+    return _jobItems;
   }
 
   /**
    * Gets the number of successful jobs.
    * 
-   * @return the number of successful jobs, not null
+   * @return the number of successful jobs
    */
-  public long getSuccessfulJobs() {
-    return _successfulJobs.get();
+  public synchronized long getSuccessfulJobs() {
+    return _successfulJobs;
   }
 
   /**
    * Gets the number of unsuccessful jobs.
    * 
-   * @return the number of unsuccessful jobs, not null
+   * @return the number of unsuccessful jobs
    */
-  public long getUnsuccessfulJobs() {
-    return _unsuccessfulJobs.get();
+  public synchronized long getUnsuccessfulJobs() {
+    return _unsuccessfulJobs;
   }
 
   /**
    * Gets the execution time in nanoseconds.
    * 
-   * @return the execution time, not null
+   * @return the execution time
    */
-  public long getExecutionTime() {
-    return _executionNanos.get();
+  public synchronized long getExecutionTime() {
+    return _executionNanos;
   }
 
   /**
-   * Gets the non-execution time in nanoseconds.
+   * Gets the non-execution time in nanoseconds. Non-execution time is the time from job dispatch to job completion
+   * less the time the node reported as spent working on the job. It is a measure of overhead. A high non-execution
+   * to execution ratio could indicate the jobs being dispatched are too small. High non-execution time could also
+   * mean a large number of failed jobs; the entire duration of which is considered overhead as the job must be
+   * repeated.
    * 
-   * @return the non-execution time, not null
+   * @return the non-execution time
    */
-  public long getNonExecutionTime() {
-    return _nonExecutionNanos.get();
+  public synchronized long getNonExecutionTime() {
+    return _nonExecutionNanos;
   }
 
   /**
@@ -126,20 +131,20 @@ public class CalculationNodeStatistics {
    * 
    * @return the last job instant, null if no job has run
    */
-  public Instant getLastJobTime() {
+  public synchronized Instant getLastJobTime() {
     return _lastJobInstant;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the average execution time in seconds.
    * <p>
-   * This method calls two state methods internally without synchonization,
-   * thus the calculated result should probably only be used for debugging.
+   * This method is for debugging only. A snapshot should be taken and then
+   * analysis on the values and their relationships to each other be used.
    * 
    * @return the average execution time
    */
-  public double getAverageExecutionTime() {
+  public synchronized double getAverageExecutionTime() {
     final long jobs = getSuccessfulJobs();
     if (jobs > 0) {
       return (double) getExecutionTime() / (double) jobs / 1e9;
@@ -151,12 +156,12 @@ public class CalculationNodeStatistics {
   /**
    * Gets the average non-execution time in seconds.
    * <p>
-   * This method calls two state methods internally without synchonization,
-   * thus the calculated result should probably only be used for debugging.
+   * This method is for debugging only. A snapshot should be taken and then
+   * analysis on the values and their relationships to each other be used.
    * 
    * @return the average non-execution time
    */
-  public double getAverageNonExecutionTime() {
+  public synchronized double getAverageNonExecutionTime() {
     final long jobs = getSuccessfulJobs();
     if (jobs > 0) {
       return (double) getNonExecutionTime() / (double) jobs / 1e9;
@@ -168,12 +173,12 @@ public class CalculationNodeStatistics {
   /**
    * Gets the average number of job items.
    * <p>
-   * This method calls two state methods internally without synchonization,
-   * thus the calculated result should probably only be used for debugging.
+   * This method is for debugging only. A snapshot should be taken and then
+   * analysis on the values and their relationships to each other be used.
    * 
    * @return the average number of job items
    */
-  public double getAverageJobItems() {
+  public synchronized double getAverageJobItems() {
     final long jobs = getSuccessfulJobs();
     if (jobs > 0) {
       return (double) getJobItems() / (double) jobs;
@@ -182,7 +187,7 @@ public class CalculationNodeStatistics {
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Records a successful job.
    * 
@@ -190,11 +195,11 @@ public class CalculationNodeStatistics {
    * @param executionNanos  the execution time in nanoseconds
    * @param durationNanos  the duration in nanoseconds
    */
-  public void recordSuccessfulJob(final int jobItems, final long executionNanos, final long durationNanos) {
-    _successfulJobs.incrementAndGet();
-    _jobItems.addAndGet(jobItems);
-    _executionNanos.addAndGet(executionNanos);
-    _nonExecutionNanos.addAndGet(durationNanos - executionNanos);
+  public synchronized void recordSuccessfulJob(final int jobItems, final long executionNanos, final long durationNanos) {
+    _successfulJobs++;
+    _jobItems += jobItems;
+    _executionNanos += executionNanos;
+    _nonExecutionNanos += (durationNanos - executionNanos);
     _lastJobInstant = Instant.now();
   }
 
@@ -203,22 +208,22 @@ public class CalculationNodeStatistics {
    * 
    * @param durationNanos  the duration in nanoseconds
    */
-  public void recordUnsuccessfulJob(final long durationNanos) {
-    _unsuccessfulJobs.incrementAndGet();
-    _nonExecutionNanos.addAndGet(durationNanos);
+  public synchronized void recordUnsuccessfulJob(final long durationNanos) {
+    _unsuccessfulJobs++;
+    _nonExecutionNanos += durationNanos;
     _lastJobInstant = Instant.now();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Resets the counters to zero.
    */
-  public void reset() {
-    _successfulJobs.set(0);
-    _unsuccessfulJobs.set(0);
-    _jobItems.set(0);
-    _executionNanos.set(0);
-    _nonExecutionNanos.set(0);
+  public synchronized void reset() {
+    _successfulJobs = 0;
+    _unsuccessfulJobs = 0;
+    _jobItems = 0;
+    _executionNanos = 0;
+    _nonExecutionNanos = 0;
   }
 
   /**
@@ -226,16 +231,12 @@ public class CalculationNodeStatistics {
    * 
    * @param factor  the factor to decay by
    */
-  public void decay(final double factor) {
-    decay(_successfulJobs, factor);
-    decay(_unsuccessfulJobs, factor);
-    decay(_jobItems, factor);
-    decay(_executionNanos, factor);
-    decay(_nonExecutionNanos, factor);
-  }
-
-  private static void decay(final AtomicLong value, final double factor) {
-    value.addAndGet(-(long) ((double) value.get() * factor));
+  public synchronized void decay(final double factor) {
+    _successfulJobs -= ((double) _successfulJobs * factor);
+    _unsuccessfulJobs -= ((double) _unsuccessfulJobs * factor);
+    _jobItems -= ((double) _jobItems * factor);
+    _executionNanos -= ((double) _executionNanos * factor);
+    _nonExecutionNanos -= ((double) _nonExecutionNanos * factor);
   }
 
   /**
@@ -243,31 +244,8 @@ public class CalculationNodeStatistics {
    * 
    * @return a snapshot, not null
    */
-  public CalculationNodeStatistics snapshot() {
-    final CalculationNodeStatistics stats = new CalculationNodeStatistics(getNodeId());
-    stats.snapshot(this);
-    return stats;
-  }
-
-  private void snapshot(final CalculationNodeStatistics other) {
-    _successfulJobs.set(other.getSuccessfulJobs());
-    _unsuccessfulJobs.set(other.getUnsuccessfulJobs());
-    _jobItems.set(other.getJobItems());
-    _executionNanos.set(other.getExecutionTime());
-    _nonExecutionNanos.set(other.getNonExecutionTime());
-  }
-
-  /**
-   * Converts this instance into a delta to another instance.
-   * 
-   * @param future  the later instance
-   */
-  public void delta(final CalculationNodeStatistics future) {
-    _successfulJobs.set(future.getSuccessfulJobs() - getSuccessfulJobs());
-    _unsuccessfulJobs.set(future.getUnsuccessfulJobs() - getUnsuccessfulJobs());
-    _jobItems.set(future.getJobItems() - getJobItems());
-    _executionNanos.set(future.getExecutionTime() - getExecutionTime());
-    _nonExecutionNanos.set(future.getNonExecutionTime() - getNonExecutionTime());
+  public synchronized CalculationNodeStatistics snapshot() {
+    return new CalculationNodeStatistics(this);
   }
 
 }
