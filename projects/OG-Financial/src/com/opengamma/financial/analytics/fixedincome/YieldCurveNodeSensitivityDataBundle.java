@@ -71,4 +71,15 @@ public class YieldCurveNodeSensitivityDataBundle {
     return ObjectUtils.equals(_labelledMatrix, other._labelledMatrix);
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("\t" + _currency.getISOCode() + ", " + _yieldCurveName);
+    final Object[] labels = _labelledMatrix.getLabels();
+    final double[] values = _labelledMatrix.getValues();
+    final int n = labels.length;
+    for (int i = 0; i < n; i++) {
+      sb.append(labels[i] + "\t" + values[i]);
+    }
+    return sb.toString();
+  }
 }
