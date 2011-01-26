@@ -14,6 +14,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * 
  */
+//TODO inputs need to be sorted
 public class DoubleLabelledMatrix1D extends LabelledMatrix1D<Double> {
   private static final double EPS = 1e-15;
 
