@@ -37,8 +37,8 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>> {
     Validate.notNull(values, "values");
     Validate.isTrue(keys.length > 0, "labels array must not be empty");
     final int n = keys.length;
-    Validate.isTrue(n == labels.length, "length of labels array must match length of label names array");
-    Validate.isTrue(n == values.length, "length of labels array must match length of values array");
+    Validate.isTrue(n == labels.length, "length of keys array (" + n + ") must match length of label names array (" + labels.length + ")");
+    Validate.isTrue(n == values.length, "length of keys array (" + n + ") must match length of values array (" + values.length + ")");
     _keys = Arrays.copyOf(keys, n);
     _labels = Arrays.copyOf(labels, n);
     _values = Arrays.copyOf(values, n);

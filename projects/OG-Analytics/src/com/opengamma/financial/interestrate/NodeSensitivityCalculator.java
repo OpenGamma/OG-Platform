@@ -39,30 +39,23 @@ public class NodeSensitivityCalculator {
 
   public DoubleMatrix1D calculate(final InterestRateDerivative ird, final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> calculator,
       final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
-
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");
     Validate.notNull(interpolatedCurves, "interpolated curves");
-
     final YieldCurveBundle allCurves = new YieldCurveBundle(interpolatedCurves);
-
     if (fixedCurves != null) {
       for (final String name : interpolatedCurves.keySet()) {
-        Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also is interpolated curves");
+        Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also in interpolated curves");
       }
       allCurves.addAll(fixedCurves);
     }
-
     final Map<String, List<DoublesPair>> senseMap = calculator.visit(ird, allCurves);
-
     return curveToNodeSensitivities(senseMap, interpolatedCurves);
-
   }
 
   @SuppressWarnings("unchecked")
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSenitivities, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
-
-    final List<Double> res = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.keySet()) { // loop over all curves (by name)
       final YieldAndDiscountCurve curve = interpolatedCurves.get(name);
       if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
@@ -83,28 +76,26 @@ public class NodeSensitivityCalculator {
         final String interpolatorName = Interpolator1DFactory.getInterpolatorName(interpolator);
         sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
       }
-      final List<DoublesPair> senseList = curveSenitivities.get(name);
-      final double[][] sensitivity = new double[senseList.size()][];
+      final List<DoublesPair> sensitivityList = curveSenitivities.get(name);
+      final double[][] sensitivity = new double[sensitivityList.size()][];
       int k = 0;
-      for (final DoublesPair timeAndDF : senseList) {
+      for (final DoublesPair timeAndDF : sensitivityList) {
         sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
       }
       for (int j = 0; j < sensitivity[0].length; j++) {
         double temp = 0.0;
         k = 0;
-        for (final DoublesPair timeAndDF : senseList) {
+        for (final DoublesPair timeAndDF : sensitivityList) {
           temp += timeAndDF.getSecond() * sensitivity[k++][j];
         }
-        res.add(temp);
+        result.add(temp);
       }
     }
-
-    return new DoubleMatrix1D(res.toArray(new Double[0]));
-
+    return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
 
   @SuppressWarnings("unchecked")
-  public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSenitivities, final YieldAndDiscountCurve yieldCurve) {
+  public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve yieldCurve) {
     if (!(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
     }
@@ -124,16 +115,15 @@ public class NodeSensitivityCalculator {
       final String interpolatorName = Interpolator1DFactory.getInterpolatorName(interpolator);
       sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
     }
-
-    final double[][] sensitivity = new double[curveSenitivities.size()][];
+    final double[][] sensitivity = new double[curveSensitivities.size()][];
     int k = 0;
-    for (final DoublesPair timeAndDF : curveSenitivities) {
+    for (final DoublesPair timeAndDF : curveSensitivities) {
       sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
     }
     for (int j = 0; j < sensitivity[0].length; j++) {
       double temp = 0.0;
       k = 0;
-      for (final DoublesPair timeAndDF : curveSenitivities) {
+      for (final DoublesPair timeAndDF : curveSensitivities) {
         temp += timeAndDF.getSecond() * sensitivity[k++][j];
       }
       res[j] = temp;

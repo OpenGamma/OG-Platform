@@ -26,16 +26,16 @@ public class YieldCurveNodeSensitivityDataBundleBuilder extends FudgeBuilderBase
 
   @Override
   public YieldCurveNodeSensitivityDataBundle buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final DoubleLabelledMatrix1D labelledMatrix = context.fieldValueToObject(DoubleLabelledMatrix1D.class, message.getByName(MATRIX_NAME));
     final Currency ccy = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_NAME));
+    final DoubleLabelledMatrix1D labelledMatrix = context.fieldValueToObject(DoubleLabelledMatrix1D.class, message.getByName(MATRIX_NAME));
     final String curveName = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME));
-    return new YieldCurveNodeSensitivityDataBundle(labelledMatrix, ccy, curveName);
+    return new YieldCurveNodeSensitivityDataBundle(ccy, labelledMatrix, curveName);
   }
 
   @Override
   protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final YieldCurveNodeSensitivityDataBundle object) {
-    context.objectToFudgeMsg(message, MATRIX_NAME, null, object.getLabelledMatrix());
     context.objectToFudgeMsg(message, CURRENCY_NAME, null, object.getCurrency());
+    context.objectToFudgeMsg(message, MATRIX_NAME, null, object.getLabelledMatrix());
     context.objectToFudgeMsg(message, CURVE_NAME, null, object.getYieldCurveName());
   }
 

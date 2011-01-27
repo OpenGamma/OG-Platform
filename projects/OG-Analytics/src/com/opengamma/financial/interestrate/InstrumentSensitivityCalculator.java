@@ -18,12 +18,19 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class InstrumentSensitivityCalculator {
-
+public final class InstrumentSensitivityCalculator {
   private final MatrixAlgebra _ma = new CommonsMatrixAlgebra();
+  private static final InstrumentSensitivityCalculator INSTANCE = new InstrumentSensitivityCalculator();
+
+  private InstrumentSensitivityCalculator() {
+  }
+
+  public static InstrumentSensitivityCalculator getInstance() {
+    return INSTANCE;
+  }
 
   /**
-   *Calculates the sensitivity of the present value (PV) of an instrument to changes in the par-rates of the instruments used to build the curve (i.e. bucked delta)
+   * Calculates the sensitivity of the present value (PV) of an instrument to changes in the par-rates of the instruments used to build the curve (i.e. bucketed delta)
    * @param ird The instrument of interest
    * @param fixedCurves any fixed curves (can be null)
    * @param interpolatedCurves The set of interpolatedCurves 
@@ -55,7 +62,7 @@ public class InstrumentSensitivityCalculator {
   }
 
   /**
-   *Calculates the sensitivity of the present value (PV) of an instrument to changes in the par-rates of the instruments used to build the curve (i.e. bucked delta)
+   * Calculates the sensitivity of the present value (PV) of an instrument to changes in the par-rates of the instruments used to build the curve (i.e. bucketed delta)
    * @param ird The instrument of interest
    * @param fixedCurves any fixed curves (can be null)
    * @param interpolatedCurves The set of interpolatedCurves
@@ -66,11 +73,11 @@ public class InstrumentSensitivityCalculator {
   public DoubleMatrix1D calculateFromParRate(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
       final DoubleMatrix2D parRateJacobian) {
     final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
-    final DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
-    final int n = nodeSense.getNumberOfElements();
+    final DoubleMatrix1D nodeSensitivities = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
+    final int n = nodeSensitivities.getNumberOfElements();
 
-    Validate.isTrue(n == parRateJacobian.getNumberOfColumns());
-    Validate.isTrue(n == parRateJacobian.getNumberOfRows());
+    Validate.isTrue(n == parRateJacobian.getNumberOfColumns(), "Have " + n + " node sensitivities but " + parRateJacobian.getNumberOfColumns() + " columns in Jacobian");
+    Validate.isTrue(n == parRateJacobian.getNumberOfRows(), "Have " + n + " node sensitivities but " + parRateJacobian.getNumberOfRows() + " rows in Jacobian");
 
     final DoubleMatrix2D invJac = _ma.getInverse(parRateJacobian);
 
@@ -78,7 +85,7 @@ public class InstrumentSensitivityCalculator {
     for (int i = 0; i < n; i++) {
       double sum = 0;
       for (int j = 0; j < n; j++) {
-        sum += invJac.getEntry(j, i) * nodeSense.getEntry(j);
+        sum += invJac.getEntry(j, i) * nodeSensitivities.getEntry(j);
       }
       res[i] = sum;
     }

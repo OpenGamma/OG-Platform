@@ -13,6 +13,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,7 +48,7 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
+  protected Set<ComputedValue> getComputedValues(final FunctionInputs inputs, final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
     final Double presentValue = CALCULATOR.visit(swap, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), createValueProperties().with(ValuePropertyNames.CURRENCY,
         getCurrencyForTarget(security).getISOCode()).get());
