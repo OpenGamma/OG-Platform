@@ -27,6 +27,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
+import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.swap.FixedFloatSwapFunction;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -105,13 +106,28 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier ccy = getCurrencyForTarget(target).getUniqueId();
+      final Currency ccy = getCurrencyForTarget(target);
+      final UniqueIdentifier id = ccy.getUniqueId();
       if (getForwardCurveName().equals(getFundingCurveName())) {
-        return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, ccy), new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-            ComputationTargetType.PRIMITIVE, ccy));
+        final String curveName = getForwardCurveName();
+        return Sets.newHashSet(
+            new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, id),
+            new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, id, ValueProperties
+                .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FUNDING_CURVE_VALUE_NAME, ValueRequirementNames.YIELD_CURVE)
+                .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FUNDING_CURVE_DEFINITION_NAME, curveName)
+                .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FORWARD_CURVE_VALUE_NAME, ValueRequirementNames.YIELD_CURVE)
+                .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FORWARD_CURVE_DEFINITION_NAME, curveName).get()));
       }
-      return Sets.newHashSet(new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()), new ValueRequirement(
-          getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, getCurrencyForTarget(target).getUniqueId()));
+      final String forwardCurveName = getForwardCurveName();
+      final String fundingCurveName = getFundingCurveName();
+      return Sets.newHashSet(
+          new ValueRequirement(getForwardValueRequirementName(), ComputationTargetType.PRIMITIVE, id),
+          new ValueRequirement(getFundingValueRequirementName(), ComputationTargetType.PRIMITIVE, id),
+          new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, id, ValueProperties
+              .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FUNDING_CURVE_VALUE_NAME, ValueRequirementNames.YIELD_CURVE)
+              .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FUNDING_CURVE_DEFINITION_NAME, fundingCurveName)
+              .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FORWARD_CURVE_VALUE_NAME, ValueRequirementNames.YIELD_CURVE)
+              .with(MarketInstrumentImpliedYieldCurveFunction.PROPERTY_FORWARD_CURVE_DEFINITION_NAME, forwardCurveName).get()));
     }
     return null;
   }
