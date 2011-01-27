@@ -15,10 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.Criteria;
@@ -56,7 +54,6 @@ import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
-import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
@@ -133,7 +130,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   
   // --------------------------------------------------------------------------
   
-  /*package*/ OpenGammaVersion getOpenGammaVersion(final BatchJob job) {
+  /*package*/ OpenGammaVersion getOpenGammaVersion(final BatchJobRun job) {
     OpenGammaVersion version = getHibernateTemplate().execute(new HibernateCallback<OpenGammaVersion>() {
       @Override
       public OpenGammaVersion doInHibernate(Session session) throws HibernateException,
@@ -411,21 +408,21 @@ public class BatchDbManagerImpl implements BatchDbManager {
   }
   
   /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
-    ZonedDateTime now = job.getCreationTime();
+    Instant now = job.getCreationTime();
     
     LiveDataSnapshot snapshot = getLiveDataSnapshot(job);
     
     RiskRun riskRun = new RiskRun();
-    riskRun.setOpenGammaVersion(getOpenGammaVersion(job.getJob()));
+    riskRun.setOpenGammaVersion(getOpenGammaVersion(job));
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setRunTime(getObservationDateTime(job));
     riskRun.setLiveDataSnapshot(snapshot);
-    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp((InstantProvider) now));
-    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp((InstantProvider) now));
+    riskRun.setCreateInstant(DbDateUtils.toSqlTimestamp(now));
+    riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     
-    for (Map.Entry<String, String> parameter : job.getParameters().entrySet()) {
+    for (Map.Entry<String, String> parameter : job.getParametersMap().entrySet()) {
       riskRun.addProperty(parameter.getKey(), parameter.getValue());      
     }
     
@@ -445,7 +442,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
     Instant now = Instant.now();
     
-    riskRun.setOpenGammaVersion(getOpenGammaVersion(batch.getJob()));
+    riskRun.setOpenGammaVersion(getOpenGammaVersion(batch));
     riskRun.setMasterProcessHost(getLocalComputeHost());
     riskRun.setStartInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
@@ -666,7 +663,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
           if (run != null) {
             // also check parameter equality
             Map<String, String> existingProperties = run.getPropertiesMap();
-            Map<String, String> newProperties = batch.getParameters();
+            Map<String, String> newProperties = batch.getParametersMap();
             
             if (!existingProperties.equals(newProperties)) {
               Set<Map.Entry<String, String>> symmetricDiff = 
