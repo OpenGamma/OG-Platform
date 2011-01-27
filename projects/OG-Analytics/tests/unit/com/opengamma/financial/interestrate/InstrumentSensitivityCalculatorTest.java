@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.financial.interestrate;
 
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
@@ -19,15 +19,6 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueCouponSensitivityCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
@@ -39,6 +30,8 @@ import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapol
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.YieldCurveFittingSetup;
+import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
@@ -83,16 +76,16 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
       allCurves.addAll(data.getKnownCurves());
     }
 
-    final InstrumentSensitivityCalculator isc = new InstrumentSensitivityCalculator();
+    final InstrumentSensitivityCalculator isc = InstrumentSensitivityCalculator.getInstance();
     for (int i = 0; i < data.getNumInstruments(); i++) {
-      final DoubleMatrix1D bunkedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
+      final DoubleMatrix1D bucketedDelta = isc.calculateFromParRate(data.getDerivative(i), data.getKnownCurves(), curves, jacobian);
       final double sense = PresentValueCouponSensitivityCalculator.getInstance().visit(data.getDerivative(i), allCurves);
       // PresentValueCouponSensitivityCalculator is sensitivity to change in the coupon rate for that instrument - what we calculate here is the (hypothetical) change of PV of the
       // instrument with a fixed coupon when its par-rate change - this is exactly the negative of the coupon sensitivity
-      assertEquals(-sense, bunkedDelta.getEntry(i), 1e-8);
+      assertEquals(-sense, bucketedDelta.getEntry(i), 1e-8);
       for (int j = 0; j < data.getNumInstruments(); j++) {
         if (j != i) {
-          assertEquals(0.0, bunkedDelta.getEntry(j), 1e-7);
+          assertEquals(0.0, bucketedDelta.getEntry(j), 1e-7);
         }
       }
     }

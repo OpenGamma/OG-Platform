@@ -15,6 +15,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -50,7 +51,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
+  protected Set<ComputedValue> getComputedValues(final FunctionInputs inputs, final Security security, final Swap<?, ?> swap, final YieldCurveBundle bundle) {
     final Map<String, Double> pv01ForCurve = CALCULATOR.visit(swap, bundle);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     if (!(pv01ForCurve.containsKey(getForwardCurveName()) && pv01ForCurve.containsKey(getFundingCurveName()))) {
@@ -79,7 +80,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getISOCode()).get();
+      final ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getISOCode()).get();
       if (getForwardCurveName().equals(getFundingCurveName())) {
         return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01 + "_" + getForwardCurveName() + "_" + getCurrency().getISOCode(), target.getSecurity()), props));
       }

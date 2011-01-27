@@ -14,26 +14,27 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 /**
  * 
  */
+//TODO is this needed?
 public class YieldCurveNodeSensitivityDataBundle {
   private final DoubleLabelledMatrix1D _labelledMatrix;
   private final Currency _currency;
   private final String _yieldCurveName;
 
-  public YieldCurveNodeSensitivityDataBundle(final DoubleLabelledMatrix1D labelledMatrix, final Currency currency, final String yieldCurveName) {
-    Validate.notNull(labelledMatrix, "labelled matrix");
+  public YieldCurveNodeSensitivityDataBundle(final Currency currency, final DoubleLabelledMatrix1D labelledMatrix, final String yieldCurveName) {
+    Validate.notNull(labelledMatrix, "labelled matrix array");
     Validate.notNull(currency, "currency");
-    Validate.notNull(yieldCurveName, "yield curve name");
+    Validate.notNull(yieldCurveName, "yield curve name array");
     _labelledMatrix = labelledMatrix;
     _currency = currency;
     _yieldCurveName = yieldCurveName;
   }
 
-  public DoubleLabelledMatrix1D getLabelledMatrix() {
-    return _labelledMatrix;
-  }
-
   public Currency getCurrency() {
     return _currency;
+  }
+
+  public DoubleLabelledMatrix1D getLabelledMatrix() {
+    return _labelledMatrix;
   }
 
   public String getYieldCurveName() {
@@ -62,13 +63,13 @@ public class YieldCurveNodeSensitivityDataBundle {
       return false;
     }
     final YieldCurveNodeSensitivityDataBundle other = (YieldCurveNodeSensitivityDataBundle) obj;
-    if (!ObjectUtils.equals(_currency, other._currency)) {
+    if (!ObjectUtils.equals(_labelledMatrix, other._labelledMatrix)) {
       return false;
     }
     if (!ObjectUtils.equals(_yieldCurveName, other._yieldCurveName)) {
       return false;
     }
-    return ObjectUtils.equals(_labelledMatrix, other._labelledMatrix);
+    return ObjectUtils.equals(_currency, other._currency);
   }
 
   @Override
@@ -78,7 +79,7 @@ public class YieldCurveNodeSensitivityDataBundle {
     final double[] values = _labelledMatrix.getValues();
     final int n = labels.length;
     for (int i = 0; i < n; i++) {
-      sb.append(labels[i] + "\t" + values[i]);
+      sb.append(labels[i] + "\t" + values[i] + "\n");
     }
     return sb.toString();
   }
