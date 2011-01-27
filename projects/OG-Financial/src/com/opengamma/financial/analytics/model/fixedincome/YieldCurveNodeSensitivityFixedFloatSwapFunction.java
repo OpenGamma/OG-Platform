@@ -91,9 +91,9 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
     final Double[] keys = curve.getCurve().getXData();
     final Object[] labels = YieldCurveLabelGenerator.getLabels(_definitionSource, getCurrency(), getForwardCurveName());
     final double[] values = new double[n];
-    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, values);
+    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
     for (i = 0; i < n; i++) {
-      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.addIgnoringLabel(keys[i], labels, sensitivitiesForCurves.getEntry(i));
+      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurves.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(getCurrency(), labelledMatrix, getForwardCurveName());
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES + "_" + getForwardCurveName() + "_"

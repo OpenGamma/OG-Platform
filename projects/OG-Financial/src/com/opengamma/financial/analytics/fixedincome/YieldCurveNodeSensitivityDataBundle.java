@@ -74,7 +74,7 @@ public class YieldCurveNodeSensitivityDataBundle {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("\t" + _currency.getISOCode() + ", " + _yieldCurveName);
+    final StringBuilder sb = new StringBuilder("\t" + _currency.getISOCode() + ", " + _yieldCurveName + "\n");
     final Object[] labels = _labelledMatrix.getLabels();
     final double[] values = _labelledMatrix.getValues();
     final int n = labels.length;
