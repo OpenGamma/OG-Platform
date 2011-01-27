@@ -5,6 +5,13 @@
  */
 package com.opengamma.core.security;
 
+import javax.time.CalendricalException;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.format.DateTimeFormatters;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
@@ -13,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * Utilities and constants for securities.
  */
 public class SecurityUtils {
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
 
   /**
    * Identification scheme for the ISIN code.
@@ -34,6 +42,10 @@ public class SecurityUtils {
    * Identification scheme for Bloomberg tickers.
    */
   public static final IdentificationScheme BLOOMBERG_TICKER = IdentificationScheme.of("BLOOMBERG_TICKER");
+  /**
+   * Identification scheme for Bloomberg tickers.
+   */
+  public static final IdentificationScheme BLOOMBERG_TCM = IdentificationScheme.of("BLOOMBERG_TCM");
   /**
    * Identification scheme for Reuters RICs.
    */
@@ -146,6 +158,49 @@ public class SecurityUtils {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
     return Identifier.of(BLOOMBERG_TICKER, ticker);
+  }
+  
+  /**
+   * Creates a Bloomberg ticker coupon maturity identifier.
+   * <p>
+   * This is the ticker combined with a coupon and a maturity supplied by Bloomberg.
+   * An examples might be {@code T 4.75 15/08/43 Govt}.
+   * 
+   * @param ticker  the Bloomberg ticker, not null
+   * @return the security identifier, not null
+   */
+  public static Identifier bloombergTCMSecurityId(final String tickerWithoutSector, final String coupon, final String maturity, final String marketSector) {
+    ArgumentChecker.notNull(tickerWithoutSector, "tickerWithoutSector");
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(maturity, "maturity");
+    ArgumentChecker.notNull(marketSector, "marketSector");
+    if (tickerWithoutSector.length() == 0) {
+      throw new IllegalArgumentException("Ticker (without sector) is empty string");
+    }
+    if (coupon.length() == 0) {
+      throw new IllegalArgumentException("Coupon is empty string.  ticker = " + tickerWithoutSector);
+    }
+    if (maturity.length() == 0) {
+      throw new IllegalArgumentException("Maturity is empty string.  ticker = " + tickerWithoutSector + ", coupon = " + coupon);
+    }
+    if (marketSector.length() == 0) {
+      throw new IllegalArgumentException("Market sector is empty string.  ticker = " + tickerWithoutSector + ", coupon = " + coupon + ", maturity = " + maturity);
+    }
+    try {
+      Double couponDbl = Double.parseDouble(coupon);
+      if (s_logger.isDebugEnabled()) {
+    	try {
+    	  LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
+        } catch (UnsupportedOperationException uoe) {
+          s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
+        } catch (CalendricalException ce) {
+          s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
+        }  
+      }
+      return Identifier.of(BLOOMBERG_TICKER, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
+    } catch (NumberFormatException nfe) {
+      throw new IllegalArgumentException("Invalid coupon " + coupon + " couldn't be parsed into double. ticker=" + tickerWithoutSector + ", coupon=" + coupon, nfe);
+    }
   }
 
   /**
