@@ -15,7 +15,87 @@
 		<pathelement path="${basedir}/UtilTest" />
 	</path>
 
-	<target name="compile" description="--> Compile all components">
+	<macrodef name="unpack-include">
+		<attribute name="org" />
+		<attribute name="name" />
+		<sequential>
+			<unzip dest="${lib.dir}/include" overwrite="false">
+				<fileset dir="${lib.dir}/include/@{org}/@{name}">
+					<include name="*.zip" />
+				</fileset>
+			</unzip>
+		</sequential>
+	</macrodef>
+	<macrodef name="unpack-dll">
+		<attribute name="org" />
+		<attribute name="name" />
+		<attribute name="file" />
+		<attribute name="debug" default="" />
+		<attribute name="release" default="" />
+		<attribute name="win32" default="" />
+		<attribute name="x64" default="" />
+		<sequential>
+			<copy tofile="${lib.dir}/DebugWin32/@{file}@{win32}@{debug}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-DebugWin32-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/ReleaseWin32/@{file}@{win32}@{release}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-ReleaseWin32-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Debugx64/@{file}@{x64}@{debug}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-Debugx64-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Releasex64/@{file}@{x64}@{release}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-Releasex64-*.dll" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+	<macrodef name="unpack-lib">
+		<attribute name="org" />
+		<attribute name="name" />
+		<attribute name="file" />
+		<sequential>
+			<copy tofile="${lib.dir}/DebugWin32/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-DebugWin32-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/ReleaseWin32/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-ReleaseWin32-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Debugx64/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-Debugx64-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Releasex64/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-Releasex64-*.lib" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+	<target name="unpack-resolve" depends="resolve" description="--> Unpacks include files and Windows binaries">
+		<unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
+		<unpack-include org="org.fudgemsg" name="fudge-c" />
+		<unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />
+		<unpack-dll org="org.apache" name="log4cxx" file="log4cxx" />
+		<unpack-include org="org.apache" name="log4cxx" />
+		<unpack-lib org="org.apache" name="log4cxx" file="log4cxx" />
+		<unpack-dll org="org.apache" name="apr" file="apr" />
+		<unpack-dll org="org.apache" name="apr-util" file="aprutil" />
+	</target>
+
+	<target name="compile" depends="unpack-resolve" description="--> Compile all components">
 
 		<!-- Java stuff -->
 		<subant target="deploy" buildpath="${basedir}/Client" />
@@ -27,10 +107,15 @@
 
 	</target>
 
-	<target name="tests" description="--> Compile and run unit tests">
+	<target name="tests" depends="unpack-resolve" description="--> Compile and run unit tests">
 
 		<!-- Test compilation pre-requisite -->
 		<subant target="deploy" buildpath="${basedir}/Client" />
+
+		<!-- C++ pre-requisites -->
+		<subant target="compile" buildpath="${basedir}/Util" />
+		<subant target="compile" buildpath="${basedir}/Service" />
+		<subant target="compile" buildpath="${basedir}/Connector" />
 
 		<!-- C++ tests -->
 		<subant target="tests" buildpath="${basedir}/UtilTest" />
@@ -42,7 +127,7 @@
 
 	</target>
 
-        <target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated">
+	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated">
 		<!-- Java targets -->
 		<subant target="tests-with-clover" buildpath="${basedir}/Client" />
 	</target>

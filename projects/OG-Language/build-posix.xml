@@ -1,0 +1,9 @@
+<project name="build-posix">
+
+	<target name="clean" depends="clean-src" description="--> Clean the output folders">
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
+	</target>
+
+	<!-- TODO -->
+
+</project>

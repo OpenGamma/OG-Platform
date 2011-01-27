@@ -1,0 +1,97 @@
+<project name="build-msvc">
+
+	<property environment="env" />
+
+	<target name="find-msvc">
+		<exec executable="msbuild" outputproperty="msvc.present" failifexecutionfails="false">
+			<arg value="/?" />
+		</exec>
+	</target>
+
+	<target name="run-msbuild">
+		<exec executable="msbuild" failonerror="true">
+			<arg value="${basedir}\${ant.project.name}.vcxproj" />
+			<arg value="/p:SolutionDir=${basedir}\..\" />
+			<arg value="/p:Configuration=${msbuild.config}" />
+			<arg value="/p:Platform=${msbuild.platform}" />
+		</exec>
+	</target>
+	<target name="compile-msvc-win32" if="msvc.win32">
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+	</target>
+	<target name="compile-msvc-x64" if="msvc.x64">
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+	</target>
+	<target name="compile-msvc" if="msvc.present">
+		<antcall target="compile-msvc-win32" />
+		<antcall target="compile-msvc-x64" />
+	</target>
+	<target name="compile-nomsvc" unless="msvc.present">
+		<echo>Microsoft Visual Studio not available; not compiling project</echo>
+	</target>
+	<target name="compile" depends="find-msvc,compile-msvc,compile-nomsvc" description="--> Compile project" />
+
+	<property name="tests.vs.dir" value="${tests.dir}\VSResults" />
+	<target name="run-mstest">
+		<mkdir dir="${tests.vs.dir}" />
+		<delete file="${tests.vs.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}-test.trx" failonerror="false" />
+		<exec executable="mstest" failonerror="false">
+			<arg value="/testcontainer:${build.dir}\${msbuild.config}${msbuild.platform}\${ant.project.name}.dll" />
+			<arg value="/resultsfile:${tests.vs.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}-test.trx" />
+			<arg value="/detail:stdout" />
+			<arg value="/detail:stderr" />
+			<env key="WORKING_DIRECTORY" value="${build.dir}\${msbuild.config}${msbuild.platform}" />
+			<env key="Path" value="${env.Path}" />
+		</exec>
+	</target>
+	<target name="tests-msvc-win32" depends="compile-msvc-win32" if="msvc.win32">
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+	</target>
+	<target name="tests-msvc-x64" depends="compile-msvc-x64" if="msvc.x64">
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+	</target>
+	<target name="tests-msvc" if="msvc.present">
+		<antcall target="tests-msvc-win32" />
+		<antcall target="tests-msvc-x64" />
+	</target>
+	<target name="tests-nomsvc" unless="msvc.present">
+		<echo>Microsoft Visual Studio not available; not running unit tests</echo>
+	</target>
+	<target name="tests" depends="find-msvc,tests-msvc,tests-nomsvc" description="--> Run unit tests" />
+
+	<target name="clean" depends="clean-src" description="--> Clean the output folders">
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}/DebugWin32" />
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}/Debugx64" />
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}/ReleaseWin32" />
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}/Releasex64" />
+	</target>
+
+</project>
