@@ -40,7 +40,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -59,6 +58,7 @@ import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
@@ -731,7 +731,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
-  public BatchResultWriter createTestResultWriter(BatchJobRun batch) {
+  public BatchResultWriterImpl createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();    
   }
@@ -747,30 +747,42 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     @Override
     public BatchExecutor createExecutor(SingleComputationCycle cycle) {
-      DependencyGraphExecutor<CalculationJobResult> delegate =
-        new SingleNodeExecutor(cycle);
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriter resultWriter = new BatchResultWriter(
+      BatchResultWriterImpl writer = new BatchResultWriterImpl(
           _dbSource,
-          delegate,
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
           getDbHandle(_batch)._computationTargets,
           getRiskRunFromHandle(_batch),
           getDbHandle(_batch)._riskValueNames);
       
-      return new BatchExecutor(resultWriter);
+      // Ultimate executor of the tasks
+      DependencyGraphExecutor<CalculationJobResult> level3Executor =
+        new SingleNodeExecutor(cycle);
+      
+      // 'Wrapper' executor that will write
+      // results from the underlying executor 
+      // to batch DB as soon as they are received
+      // and pass the result back to level 1 executor
+      BatchResultWriterExecutor level2Executor =
+        new BatchResultWriterExecutor(
+            writer,
+            level3Executor);
+      
+      // This executor is needed to guarantee that
+      // BatchResultWriterImpl.write() is called once
+      // and once only for each computation target
+      BatchExecutor level1Executor =
+        new BatchExecutor(level2Executor);
+      
+      return level1Executor;
     }
     
-    public BatchResultWriter createTestWriter() {
-      DependencyGraphExecutor<CalculationJobResult> delegate = 
-        new TestDependencyGraphExecutor<CalculationJobResult>(null);
-      
-      BatchResultWriter resultWriter = new BatchResultWriter(
+    public BatchResultWriterImpl createTestWriter() {
+      BatchResultWriterImpl resultWriter = new BatchResultWriterImpl(
           _dbSource,
-          delegate,
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
           getDbHandle(_batch)._computationTargets,
