@@ -15,7 +15,7 @@ import com.opengamma.util.CompareUtils;
 public class SABRFormulaJohnson implements SABRFormula {
   private static final double EPS = 1e-15;
 
-  public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
+  public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     if (beta > 0) {
       double sigmaDD = alpha * beta * Math.pow(f, beta - 1);

@@ -21,5 +21,5 @@ public interface SABRFormula {
    * @param t the time to maturity
    * @return The (Black) implied volatility 
    */
-  double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t);
+  double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t);
 }

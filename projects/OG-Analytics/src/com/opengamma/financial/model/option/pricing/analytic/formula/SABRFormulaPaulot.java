@@ -18,7 +18,7 @@ public class SABRFormulaPaulot implements SABRFormula {
 
   private static final double EPS = 1e-15;
 
-  public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
+  public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     double sigma0, sigma1;
 
@@ -29,7 +29,7 @@ public class SABRFormulaPaulot implements SABRFormula {
     // the formula behaves very badly close to ATM
     if (CompareUtils.closeEquals(x, 0.0, 1e-3)) {
       double delta = 1.01e-3;
-      double a0 = (new SABRFormulaHagan()).impliedVolitility(f, alpha, beta, nu, rho, f, t);
+      double a0 = (new SABRFormulaHagan()).impliedVolatility(f, alpha, beta, nu, rho, f, t);
       double kPlus, kMinus;
       kPlus = f * Math.exp(delta);
       kMinus = f * Math.exp(-delta);
@@ -40,8 +40,8 @@ public class SABRFormulaPaulot implements SABRFormula {
       // kPlus = Math.pow(delta * beta1 + Math.pow(f, beta1), 1 / beta1);
       // kMinus = Math.pow(-delta * beta1 + Math.pow(f, beta1), 1 / beta1);
       // }
-      double yPlus = impliedVolitility(f, alpha, beta, nu, rho, kPlus, t);
-      double yMinus = impliedVolitility(f, alpha, beta, nu, rho, kMinus, t);
+      double yPlus = impliedVolatility(f, alpha, beta, nu, rho, kPlus, t);
+      double yMinus = impliedVolatility(f, alpha, beta, nu, rho, kMinus, t);
       double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
       double a1 = (yPlus - yMinus) / 2 / delta;
 

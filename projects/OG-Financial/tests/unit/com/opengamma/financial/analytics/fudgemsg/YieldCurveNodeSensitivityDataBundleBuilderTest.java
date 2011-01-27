@@ -26,7 +26,7 @@ public class YieldCurveNodeSensitivityDataBundleBuilderTest extends AnalyticsTes
     final DoubleLabelledMatrix1D m = new DoubleLabelledMatrix1D(keys, labels, values);
     final Currency ccy = Currency.getInstance("USD");
     final String curveName = "S";
-    final YieldCurveNodeSensitivityDataBundle d1 = new YieldCurveNodeSensitivityDataBundle(m, ccy, curveName);
+    final YieldCurveNodeSensitivityDataBundle d1 = new YieldCurveNodeSensitivityDataBundle(ccy, m, curveName);
     final YieldCurveNodeSensitivityDataBundle d2 = cycleObject(YieldCurveNodeSensitivityDataBundle.class, d1);
     assertEquals(d1, d2);
   }

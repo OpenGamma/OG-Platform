@@ -24,7 +24,7 @@ public class InterpolatorNDDataBundle {
     _data = data;
   }
 
-  List<Pair<double[], Double>> getData() {
+  public List<Pair<double[], Double>> getData() {
     return _data;
   }
 
