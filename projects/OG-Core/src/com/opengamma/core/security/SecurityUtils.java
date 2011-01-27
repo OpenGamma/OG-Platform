@@ -197,7 +197,7 @@ public class SecurityUtils {
           s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
         }  
       }
-      return Identifier.of(BLOOMBERG_TICKER, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
+      return Identifier.of(BLOOMBERG_TCM, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
     } catch (NumberFormatException nfe) {
       throw new IllegalArgumentException("Invalid coupon " + coupon + " couldn't be parsed into double. ticker=" + tickerWithoutSector + ", coupon=" + coupon, nfe);
     }
