@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.MasterChangeListener;
+import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.master.msg.Added;
 import com.opengamma.master.msg.Corrected;
 import com.opengamma.master.msg.MasterChangeMessage;

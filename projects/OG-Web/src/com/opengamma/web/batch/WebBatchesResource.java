@@ -24,7 +24,7 @@ import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all batches.
@@ -80,8 +80,16 @@ public class WebBatchesResource extends AbstractWebBatchResource {
       @PathParam("observationDate") String observationDate,
       @PathParam("observationTime") String observationTime) {
     
-    data().setObservationDate(LocalDate.parse(observationDate));
-    data().setObservationTime(observationTime);
+    BatchSearchRequest request = new BatchSearchRequest();
+    request.setObservationDate(LocalDate.parse(observationDate));
+    request.setObservationTime(observationTime);
+    
+    BatchSearchResult batchResults = data().getBatchDbManager().search(request);
+    if (batchResults.getItems().size() != 1) {
+      throw new RuntimeException("Expected 1 result, got " + batchResults.getItems().size());
+    }
+    data().setBatch(batchResults.getItems().get(0));
+    
     return new WebBatchResource(this);
   }
 

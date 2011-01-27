@@ -182,7 +182,9 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public Builder withoutAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       _properties.remove(propertyName);
-      _optional.remove(propertyName);
+      if (_optional != null) {
+        _optional.remove(propertyName);
+      }
       return this;
     }
 

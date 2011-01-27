@@ -196,7 +196,7 @@ public class MasterPositionSource implements PositionSource {
     if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
       // use defined instants
       PortfolioSearchRequest portfolioSearch = new PortfolioSearchRequest();
-      portfolioSearch.getNodeIds().add(uid.toLatest());
+      portfolioSearch.addNodeId(uid);
       portfolioSearch.setVersionAsOfInstant(versionAsOf);
       portfolioSearch.setCorrectedToInstant(correctedTo);
       PortfolioSearchResult portfolios = getPortfolioMaster().search(portfolioSearch);
@@ -227,12 +227,12 @@ public class MasterPositionSource implements PositionSource {
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uid);
     }
-    UniqueIdentifier nodeUid = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
-    UniqueIdentifier posUid = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    UniqueIdentifier nodeId = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
+    UniqueIdentifier posId = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
     ManageablePosition manPos;
     if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
       // use defined instants
-      PositionHistoryRequest positionSearch = new PositionHistoryRequest(posUid.toLatest(), getVersionAsOfInstant(), getCorrectedToInstant());
+      PositionHistoryRequest positionSearch = new PositionHistoryRequest(posId.toLatest(), getVersionAsOfInstant(), getCorrectedToInstant());
       PositionHistoryResult positions = getPositionMaster().history(positionSearch);
       if (positions.getDocuments().size() != 1) {
         return null;
@@ -241,14 +241,14 @@ public class MasterPositionSource implements PositionSource {
     } else {
       // match by uid
       try {
-        PositionDocument posDoc = getPositionMaster().get(posUid);
+        PositionDocument posDoc = getPositionMaster().get(posId);
         manPos = posDoc.getPosition();
       } catch (DataNotFoundException ex) {
         return null;
       }
     }
     PositionImpl pos = new PositionImpl();
-    convertPosition(nodeUid, manPos, pos);
+    convertPosition(nodeId, manPos, pos);
     return pos;
   }
 
@@ -261,13 +261,13 @@ public class MasterPositionSource implements PositionSource {
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uid);
     }
-    UniqueIdentifier nodeUid = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[0], values[0]) : UniqueIdentifier.of(schemes[0], values[0], versions[0]);
-    UniqueIdentifier tradeUid = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[1], values[1]) : UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    UniqueIdentifier nodeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[0], values[0]) : UniqueIdentifier.of(schemes[0], values[0], versions[0]);
+    UniqueIdentifier tradeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[1], values[1]) : UniqueIdentifier.of(schemes[1], values[1], versions[1]);
     ManageableTrade manTrade;
     if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
       // use defined instants
       PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.getTradeIds().add(tradeUid.toLatest());
+      positionSearch.addTradeId(tradeId);
       positionSearch.setVersionAsOfInstant(getVersionAsOfInstant());
       positionSearch.setCorrectedToInstant(getCorrectedToInstant());
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
@@ -275,17 +275,17 @@ public class MasterPositionSource implements PositionSource {
         return null;
       }
       ManageablePosition manPos = positions.getFirstPosition();
-      manTrade = manPos.getTrade(tradeUid);
+      manTrade = manPos.getTrade(tradeId);
     } else {
       // match by uid
       try {
-        manTrade = getPositionMaster().getTrade(tradeUid);
+        manTrade = getPositionMaster().getTrade(tradeId);
       } catch (DataNotFoundException ex) {
         return null;
       }
     }
     TradeImpl node = new TradeImpl();
-    convertTrade(nodeUid, convertUid(manTrade.getPositionId(), nodeUid), manTrade, node);
+    convertTrade(nodeId, convertId(manTrade.getPositionId(), nodeId), manTrade, node);
     return node;
   }
 
@@ -299,8 +299,8 @@ public class MasterPositionSource implements PositionSource {
    * @param sourceNode  the source node, not null
    */
   protected void convertNode(final Instant versionAsOf, final Instant correctedTo, final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
-    UniqueIdentifier nodeUid = manNode.getUniqueId();
-    sourceNode.setUniqueId(nodeUid);
+    UniqueIdentifier nodeId = manNode.getUniqueId();
+    sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
     
@@ -313,7 +313,7 @@ public class MasterPositionSource implements PositionSource {
       for (PositionDocument posDoc : positions.getDocuments()) {
         ManageablePosition manPos = posDoc.getPosition();
         PositionImpl pos = new PositionImpl();
-        convertPosition(nodeUid, manPos, pos);
+        convertPosition(nodeId, manPos, pos);
         sourceNode.addPosition(pos);
       }
     }
@@ -328,19 +328,19 @@ public class MasterPositionSource implements PositionSource {
   /**
    * Converts a manageable node to a source node.
    * 
-   * @param nodeUid  the parent node unique identifier, null if root
+   * @param nodeId  the parent node unique identifier, null if root
    * @param manPos  the manageable position, not null
    * @param sourcePosition  the source position, not null
    */
-  protected void convertPosition(final UniqueIdentifier nodeUid, final ManageablePosition manPos, final PositionImpl sourcePosition) {
-    UniqueIdentifier posUid = convertUid(manPos.getUniqueId(), nodeUid);
+  protected void convertPosition(final UniqueIdentifier nodeId, final ManageablePosition manPos, final PositionImpl sourcePosition) {
+    UniqueIdentifier posUid = convertId(manPos.getUniqueId(), nodeId);
     sourcePosition.setUniqueId(posUid);
-    sourcePosition.setParentNodeId(nodeUid);
+    sourcePosition.setParentNodeId(nodeId);
     sourcePosition.setQuantity(manPos.getQuantity());
     sourcePosition.setSecurityKey(manPos.getSecurityKey());
     for (ManageableTrade manTrade : manPos.getTrades()) {
       TradeImpl sourceTrade = new TradeImpl();
-      convertTrade(nodeUid, posUid, manTrade, sourceTrade);
+      convertTrade(nodeId, posUid, manTrade, sourceTrade);
       sourcePosition.addTrade(sourceTrade);
     }
   }
@@ -348,14 +348,14 @@ public class MasterPositionSource implements PositionSource {
   /**
    * Converts a manageable trade to a source trade.
    * 
-   * @param nodeUid  the parent node unique identifier, null if root
-   * @param posUid  the converted position unique identifier, not null
+   * @param nodeId  the parent node unique identifier, null if root
+   * @param posId  the converted position unique identifier, not null
    * @param manTrade  the manageable trade, not null
    * @param sourceTrade  the source trade, not null
    */
-  protected void convertTrade(final UniqueIdentifier nodeUid, final UniqueIdentifier posUid, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
-    sourceTrade.setUniqueId(convertUid(manTrade.getUniqueId(), nodeUid));
-    sourceTrade.setParentPositionId(posUid);
+  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade, final TradeImpl sourceTrade) {
+    sourceTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
+    sourceTrade.setParentPositionId(posId);
     sourceTrade.setQuantity(manTrade.getQuantity());
     sourceTrade.setSecurityKey(manTrade.getSecurityKey());
     if (manTrade.getCounterpartyId() != null) {
@@ -368,15 +368,15 @@ public class MasterPositionSource implements PositionSource {
   /**
    * Converts a position/trade unique identifier to one unique to the node.
    * 
-   * @param positionOrTradeUid  the unique identifier to convert, not null
-   * @param nodeUid  the node unique identifier, not null
+   * @param positionOrTradeId  the unique identifier to convert, not null
+   * @param nodeId  the node unique identifier, not null
    * @return the combined unique identifier, not null
    */
-  protected UniqueIdentifier convertUid(final UniqueIdentifier positionOrTradeUid, final UniqueIdentifier nodeUid) {
+  protected UniqueIdentifier convertId(final UniqueIdentifier positionOrTradeId, final UniqueIdentifier nodeId) {
     return UniqueIdentifier.of(
-        nodeUid.getScheme() + '-' + positionOrTradeUid.getScheme(),
-        nodeUid.getValue() + '-' + positionOrTradeUid.getValue(),
-        StringUtils.defaultString(nodeUid.getVersion()) + '-' + StringUtils.defaultString(positionOrTradeUid.getVersion()));
+        nodeId.getScheme() + '-' + positionOrTradeId.getScheme(),
+        nodeId.getValue() + '-' + positionOrTradeId.getValue(),
+        StringUtils.defaultString(nodeId.getVersion()) + '-' + StringUtils.defaultString(positionOrTradeId.getVersion()));
   }
 
   //-------------------------------------------------------------------------

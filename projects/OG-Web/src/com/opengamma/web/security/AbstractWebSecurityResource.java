@@ -13,7 +13,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractWebResource;
+import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
@@ -25,7 +25,7 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebSecuritiesData _data;
-
+  
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
@@ -79,5 +79,5 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   protected WebSecuritiesData data() {
     return _data;
   }
-
+  
 }

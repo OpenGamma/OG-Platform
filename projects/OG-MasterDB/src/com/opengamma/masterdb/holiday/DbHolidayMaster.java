@@ -26,6 +26,7 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -106,7 +107,8 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     IdentifierSearch regionKeys = request.getRegionKeys();
     IdentifierSearch exchangeKeys = request.getExchangeKeys();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
-    if (IdentifierSearch.canMatch(regionKeys) == false ||
+    if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
+        IdentifierSearch.canMatch(regionKeys) == false ||
         IdentifierSearch.canMatch(exchangeKeys) == false) {
       return result;
     }
@@ -173,6 +175,15 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
     if (request.getCurrency() != null) {
       where += "AND currency_iso = :currency_iso ";
+    }
+    if (request.getHolidayIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getHolidayIds().size() * 10);
+      for (ObjectIdentifier objectId : request.getHolidayIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
     }
     where += sqlAdditionalWhere();
     

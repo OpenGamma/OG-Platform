@@ -18,6 +18,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -173,7 +174,7 @@ public class ViewDefinition implements Serializable {
   public UserPrincipal getLiveDataUser() {
     return _liveDataUser;
   }
-  
+
   /**
    * Gets the default currency defined for this view
    * 
@@ -182,7 +183,7 @@ public class ViewDefinition implements Serializable {
   public Currency getDefaultCurrency() {
     return _defaultCurrency;
   }
-  
+
   /**
    * Sets the default currency to use 
    * 
@@ -239,6 +240,11 @@ public class ViewDefinition implements Serializable {
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
+    if (getDefaultCurrency() != null) {
+      if (calcConfig.getDefaultProperties().getValues(ValuePropertyNames.CURRENCY) == null) {
+        calcConfig.setDefaultProperties(calcConfig.getDefaultProperties().copy().with(ValuePropertyNames.CURRENCY, getDefaultCurrency().getISOCode()).get());
+      }
+    }
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
 

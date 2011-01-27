@@ -53,6 +53,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
     out.put("latestSecurity", latestSecDoc.getSecurity());
     out.put("securityDoc", versionedSecurity);
     out.put("security", versionedSecurity.getSecurity());
+    out.put("deleted", !latestSecDoc.isLatest());
     return out;
   }
 

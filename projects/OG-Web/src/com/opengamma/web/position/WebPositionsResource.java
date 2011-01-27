@@ -8,6 +8,7 @@ package com.opengamma.web.position;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -25,18 +26,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Lists;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionHistoryRequest;
+import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all positions.
@@ -45,7 +50,10 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/positions")
 public class WebPositionsResource extends AbstractWebPositionResource {
-
+  
+  private static final String TYPE = "Positions";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "name", "quantity", "trades");
+  
   /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
@@ -63,6 +71,27 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr) {
+    FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
+    return getFreemarker().build("positions/positions.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("minquantity") String minQuantityStr,
+      @QueryParam("maxquantity") String maxQuantityStr) {
+    String result = null;
+    FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      PositionSearchResult positionSearchResult = (PositionSearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, positionSearchResult);
+    }
+    return result;
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String minQuantityStr, String maxQuantityStr) {
     minQuantityStr = StringUtils.defaultString(minQuantityStr).replace(",", "");
     maxQuantityStr = StringUtils.defaultString(maxQuantityStr).replace(",", "");
     FlexiBean out = createRootData();
@@ -82,7 +111,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
-    return getFreemarker().build("positions/positions.ftl", out);
+    return out;
   }
 
   //-------------------------------------------------------------------------
@@ -135,8 +164,19 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
-    PositionDocument position = data().getPositionMaster().get(UniqueIdentifier.parse(idStr));
-    data().setPosition(position);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      PositionDocument doc = data().getPositionMaster().get(oid);
+      data().setPosition(doc);
+    } catch (DataNotFoundException ex) {
+      PositionHistoryRequest historyRequest = new PositionHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      PositionHistoryResult historyResult = data().getPositionMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setPosition(historyResult.getFirstDocument());
+    }
     return new WebPositionResource(this);
   }
 

@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -100,7 +101,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
     assertEquals(uid, testChildNode.getPortfolioId());
     assertEquals(0, testChildNode.getChildNodes().size());
     assertEquals(1, testChildNode.getPositionIds().size());
-    assertEquals(UniqueIdentifier.of("TestPos", "1234"), testChildNode.getPositionIds().get(0));
+    assertEquals(ObjectIdentifier.of("TestPos", "1234"), testChildNode.getPositionIds().get(0));
   }
 
   @Test

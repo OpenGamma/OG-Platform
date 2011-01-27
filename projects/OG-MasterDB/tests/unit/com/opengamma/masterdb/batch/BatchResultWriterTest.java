@@ -32,7 +32,6 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.test.CalculationNodeUtils;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.TestCalculationNode;
-import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -46,21 +45,6 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.masterdb.batch.BatchDbManagerImpl;
-import com.opengamma.masterdb.batch.BatchResultWriter;
-import com.opengamma.masterdb.batch.CalculationConfiguration;
-import com.opengamma.masterdb.batch.ComputeFailure;
-import com.opengamma.masterdb.batch.ComputeFailureKey;
-import com.opengamma.masterdb.batch.ComputeHost;
-import com.opengamma.masterdb.batch.ComputeNode;
-import com.opengamma.masterdb.batch.LiveDataSnapshot;
-import com.opengamma.masterdb.batch.ObservationDateTime;
-import com.opengamma.masterdb.batch.ObservationTime;
-import com.opengamma.masterdb.batch.OpenGammaVersion;
-import com.opengamma.masterdb.batch.RiskRun;
-import com.opengamma.masterdb.batch.RiskValue;
-import com.opengamma.masterdb.batch.RiskValueName;
-import com.opengamma.masterdb.batch.StatusEntry;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.HibernateTest;
@@ -186,7 +170,7 @@ public class BatchResultWriterTest extends HibernateTest {
   // --------------------------------------------------------------------------
   
   
-  private BatchResultWriter getSuccessResultWriter() {
+  private BatchResultWriterImpl getSuccessResultWriter() {
     CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
     CalculationJobResult result = new CalculationJobResult(
         _calcJob.getSpecification(),
@@ -197,7 +181,7 @@ public class BatchResultWriterTest extends HibernateTest {
     return getResultWriter(result);
   }
   
-  private BatchResultWriter getResultWriter(CalculationJobResult result) {
+  private BatchResultWriterImpl getResultWriter(CalculationJobResult result) {
     
     Map<String, ViewComputationCache> cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
     cachesByCalculationConfiguration.put(CalculationNodeUtils.CALC_CONF_NAME, getCache());
@@ -207,9 +191,8 @@ public class BatchResultWriterTest extends HibernateTest {
     resultModelDefinition.setPositionOutputMode(ResultOutputMode.ALL);
     resultModelDefinition.setSecurityOutputMode(ResultOutputMode.NONE);
     resultModelDefinition.setPrimitiveOutputMode(ResultOutputMode.NONE);
-    BatchResultWriter resultWriter = new BatchResultWriter(
+    BatchResultWriterImpl resultWriter = new BatchResultWriterImpl(
         getDbSource(),
-        new TestDependencyGraphExecutor<CalculationJobResult>(result),
         resultModelDefinition,
         cachesByCalculationConfiguration,
         _dbComputationTargets,
@@ -245,7 +228,7 @@ public class BatchResultWriterTest extends HibernateTest {
     return graph;
   }
   
-  private void setIsRestart(BatchResultWriter resultWriter) {
+  private void setIsRestart(BatchResultWriterImpl resultWriter) {
     _riskRun.setNumRestarts(1);
     resultWriter.setRestart(true);
   }
@@ -255,7 +238,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   @Test
   public void getComputeFailureFromDb() {
-    BatchResultWriter resultWriter1 = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter1 = getSuccessResultWriter();
     
     StringBuffer longString = new StringBuffer();
     for (int i = 0; i < 2000; i++) {
@@ -275,7 +258,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter1.closeSession();
     
     // writer with no in-memory cache
-    BatchResultWriter resultWriter2 = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter2 = getSuccessResultWriter();
     
     resultWriter2.openSession();
     assertNotNull(resultWriter2.getComputeFailureFromDb(item));
@@ -285,7 +268,7 @@ public class BatchResultWriterTest extends HibernateTest {
   
   @Test
   public void getComputeFailureFromDbNullMessage() {
-    BatchResultWriter resultWriter1 = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter1 = getSuccessResultWriter();
     resultWriter1.initialize();
     
     CalculationJobResultItem item = new CalculationJobResultItem(
@@ -301,7 +284,7 @@ public class BatchResultWriterTest extends HibernateTest {
     resultWriter1.closeSession();
     
     // writer with no in-memory cache
-    BatchResultWriter resultWriter2 = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter2 = getSuccessResultWriter();
     resultWriter2.initialize();
     
     resultWriter2.openSession();
@@ -314,7 +297,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void notARestart() {
     // should execute
 
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     DependencyGraph originalGraph = getPositionDepGraph();
     DependencyGraph graphToExecute = resultWriter.getGraphToExecute(originalGraph);
     assertEquals(originalGraph.getSize(), graphToExecute.getSize());
@@ -324,7 +307,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartButNoStatusEntryInDb() {
     // should re-execute
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
 
     DependencyGraph originalGraph = getPositionDepGraph();
@@ -336,7 +319,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartSuccessButOutputsNotInCache() {
     // should re-execute, but not write results into DB.
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     resultWriter.openSession();
@@ -357,7 +340,7 @@ public class BatchResultWriterTest extends HibernateTest {
     
     putOutputToCache();
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     resultWriter.openSession();
@@ -376,7 +359,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartFailed() {
     // should re-execute
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     resultWriter.openSession();
@@ -396,7 +379,7 @@ public class BatchResultWriterTest extends HibernateTest {
     // should re-execute (assumption being that the previous batch attempt
     // was hard-killed while it was running and is no longer really running)
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     resultWriter.openSession();
@@ -415,7 +398,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartNotRunning() {
     // should re-execute
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     resultWriter.openSession();
@@ -434,7 +417,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartPrimitiveSuccess() {
     // should re-execute
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     DependencyGraph originalGraph = getPrimitiveDepGraph();
@@ -446,7 +429,7 @@ public class BatchResultWriterTest extends HibernateTest {
   public void restartPrimitiveSuccessOutputsInCache() {
     // should not re-execute
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     setIsRestart(resultWriter);
     
     DependencyGraph originalGraph = getPrimitiveDepGraph();
@@ -469,8 +452,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.<CalculationJobResultItem>emptyList(),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(0, resultWriter.getNumRiskFailureRows());
@@ -489,8 +472,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(1, resultWriter.getNumRiskRows());
     RiskValue value = getValueFromDb(resultWriter);
@@ -516,8 +499,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(3, resultWriter.getNumRiskRows());
 
@@ -559,8 +542,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -580,8 +563,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -601,8 +584,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -624,7 +607,7 @@ public class BatchResultWriterTest extends HibernateTest {
         item.getExceptionMsg(),
         item.getStackTrace());
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
     
     resultWriter.openSession();
     ComputeFailure inputFailure = resultWriter.saveComputeFailure(inputFailureKey);
@@ -635,7 +618,7 @@ public class BatchResultWriterTest extends HibernateTest {
     assertEquals(0, resultWriter.getNumRiskFailureReasonRows());
     assertEquals(1, resultWriter.getNumRiskComputeFailureRows());
     
-    BatchResultWriter.BatchResultWriterFailure cachedInputFailure = new BatchResultWriter.BatchResultWriterFailure();
+    BatchResultWriterImpl.BatchResultWriterFailure cachedInputFailure = new BatchResultWriterImpl.BatchResultWriterFailure();
     cachedInputFailure.addComputeFailureId(inputFailure.getId());
     ComputedValue cachedInputFailureValue = new ComputedValue(item.getItem().getInputs().iterator().next(), cachedInputFailure);
     putValue(cachedInputFailureValue);
@@ -646,7 +629,7 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    resultWriter.jobExecuted(result, null);
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -668,8 +651,8 @@ public class BatchResultWriterTest extends HibernateTest {
         Collections.singletonList(item),
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     assertEquals(0, resultWriter.getNumRiskRows());
     assertEquals(1, resultWriter.getNumRiskFailureRows());
@@ -704,8 +687,8 @@ public class BatchResultWriterTest extends HibernateTest {
         items,
         "localhost");
     
-    BatchResultWriter resultWriter = getSuccessResultWriter();
-    resultWriter.jobExecuted(result, null);
+    BatchResultWriterImpl resultWriter = getSuccessResultWriter();
+    resultWriter.write(result, null);
     
     // note - success row not written
     assertEquals(0, resultWriter.getNumRiskRows());
@@ -725,7 +708,7 @@ public class BatchResultWriterTest extends HibernateTest {
     return BatchDbManagerImpl.getHibernateMappingClasses();
   }
   
-  private RiskValue getValueFromDb(BatchResultWriter resultWriter) {
+  private RiskValue getValueFromDb(BatchResultWriterImpl resultWriter) {
     return resultWriter.getValue(
         CalculationNodeUtils.CALC_CONF_NAME, 
  _mockFunction.getResultSpec().getValueName(),

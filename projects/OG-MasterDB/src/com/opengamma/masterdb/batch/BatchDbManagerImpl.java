@@ -40,7 +40,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -54,11 +53,16 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchDbManager;
+import com.opengamma.financial.batch.BatchError;
+import com.opengamma.financial.batch.BatchErrorSearchRequest;
+import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchJob;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
+import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.util.ArgumentChecker;
@@ -727,7 +731,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
-  public BatchResultWriter createTestResultWriter(BatchJobRun batch) {
+  public BatchResultWriterImpl createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();    
   }
@@ -743,30 +747,42 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     @Override
     public BatchExecutor createExecutor(SingleComputationCycle cycle) {
-      DependencyGraphExecutor<CalculationJobResult> delegate =
-        new SingleNodeExecutor(cycle);
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriter resultWriter = new BatchResultWriter(
+      BatchResultWriterImpl writer = new BatchResultWriterImpl(
           _dbSource,
-          delegate,
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
           getDbHandle(_batch)._computationTargets,
           getRiskRunFromHandle(_batch),
           getDbHandle(_batch)._riskValueNames);
       
-      return new BatchExecutor(resultWriter);
+      // Ultimate executor of the tasks
+      DependencyGraphExecutor<CalculationJobResult> level3Executor =
+        new SingleNodeExecutor(cycle);
+      
+      // 'Wrapper' executor that will write
+      // results from the underlying executor 
+      // to batch DB as soon as they are received
+      // and pass the result back to level 1 executor
+      BatchResultWriterExecutor level2Executor =
+        new BatchResultWriterExecutor(
+            writer,
+            level3Executor);
+      
+      // This executor is needed to guarantee that
+      // BatchResultWriterImpl.write() is called once
+      // and once only for each computation target
+      BatchExecutor level1Executor =
+        new BatchExecutor(level2Executor);
+      
+      return level1Executor;
     }
     
-    public BatchResultWriter createTestWriter() {
-      DependencyGraphExecutor<CalculationJobResult> delegate = 
-        new TestDependencyGraphExecutor<CalculationJobResult>(null);
-      
-      BatchResultWriter resultWriter = new BatchResultWriter(
+    public BatchResultWriterImpl createTestWriter() {
+      BatchResultWriterImpl resultWriter = new BatchResultWriterImpl(
           _dbSource,
-          delegate,
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
           getDbHandle(_batch)._computationTargets,
@@ -782,44 +798,6 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
   
-  @Override
-  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
-    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
-    
-    // At the moment, we simply load all results into memory.
-    // This needs to be made more scalable.
-    RiskRun riskRun;
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-    
-    if (riskRun == null) {
-      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
-    }
-
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("rsk_run_id", riskRun.getId());
-    
-    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), "", request.getPagingRequest());
-    
-    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
-        sql, 
-        ViewResultEntryMapper.ROW_MAPPER, 
-        params);
-    
-    BatchDataSearchResult result = new BatchDataSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), values.size()));
-    result.setItems(values);
-    return result;
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   public BatchSearchResult search(BatchSearchRequest request) {
@@ -864,6 +842,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
         BatchSearchResultItem item = new BatchSearchResultItem();
         item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
         item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
+        item.setStatus(run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
         result.getItems().add(item);
       }
       
@@ -873,6 +852,82 @@ public class BatchDbManagerImpl implements BatchDbManager {
       throw e;
     }
 
+    return result;
+  }
+  
+  @Override
+  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
+    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
+    
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+    
+    if (riskRun == null) {
+      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    final int count = _dbSource.getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
+    
+    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getPagingRequest());
+    
+    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
+        sql, 
+        ViewResultEntryMapper.ROW_MAPPER, 
+        params);
+    
+    BatchDataSearchResult result = new BatchDataSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setItems(values);
+    return result;
+  }
+
+  @Override
+  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
+    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
+    
+    RiskRun riskRun;
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+    
+    if (riskRun == null) {
+      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
+    }
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("rsk_run_id", riskRun.getId());
+    
+    final int count = _dbSource.getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
+    
+    String sql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getPagingRequest());
+    
+    List<BatchError> values = _dbSource.getJdbcTemplate().query(
+        sql, 
+        BatchErrorMapper.ROW_MAPPER, 
+        params);
+    
+    BatchErrorSearchResult result = new BatchErrorSearchResult();
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setItems(values);
     return result;
   }
   

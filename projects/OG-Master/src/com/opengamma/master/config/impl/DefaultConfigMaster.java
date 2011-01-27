@@ -12,10 +12,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.ComputationException;
 import com.google.common.collect.MapMaker;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.MasterChangeListener;
-import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**

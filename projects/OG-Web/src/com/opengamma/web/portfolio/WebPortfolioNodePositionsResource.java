@@ -14,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -42,6 +43,11 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
       @FormParam("positionurl") String positionUrlStr) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).get()).build();
+    }
+    
     positionUrlStr = StringUtils.trimToNull(positionUrlStr);
     if (positionUrlStr == null) {
       FlexiBean out = createRootData();
@@ -61,7 +67,6 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
-    PortfolioDocument doc = data().getPortfolio();
     ManageablePortfolioNode node = data().getNode();
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
     if (node.getPositionIds().contains(posUid) == false) {
@@ -86,6 +91,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     out.put("parentNode", data().getParentNode());
     out.put("node", node);
     out.put("childNodes", node.getChildNodes());
+    out.put("deleted", !doc.isLatest());
     return out;
   }
 

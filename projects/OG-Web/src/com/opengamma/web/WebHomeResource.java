@@ -16,7 +16,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.util.rest.AbstractWebResource;
 import com.opengamma.web.batch.WebBatchData;
 import com.opengamma.web.batch.WebBatchUris;
 import com.opengamma.web.config.WebConfigData;

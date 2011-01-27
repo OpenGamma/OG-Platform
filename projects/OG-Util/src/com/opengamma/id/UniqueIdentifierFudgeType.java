@@ -10,9 +10,9 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.types.StringFieldType;
 
 /**
- * Defines a UniqueIdentifier as a Fudge type using a String.
+ * Defines a {@code UniqueIdentifier} as a Fudge type using a String.
  * <p>
- * A UniqueIdentifier is typically encoded as a sub-message in Fudge with three separate strings.
+ * A {@code UniqueIdentifier} is typically encoded as a sub-message in Fudge with three separate strings.
  * This class allows the objects to be sent as a single formatted string using
  * {@link UniqueIdentifier#toString()} and {@link UniqueIdentifier#parse(String)}.
  * <p>
@@ -35,8 +35,8 @@ public final class UniqueIdentifierFudgeType extends SecondaryFieldType<UniqueId
 
   //-------------------------------------------------------------------------
   @Override
-  public String secondaryToPrimary(final UniqueIdentifier identifier) {
-    return identifier.toString();
+  public String secondaryToPrimary(final UniqueIdentifier uniqueId) {
+    return uniqueId.toString();
   }
 
   @Override

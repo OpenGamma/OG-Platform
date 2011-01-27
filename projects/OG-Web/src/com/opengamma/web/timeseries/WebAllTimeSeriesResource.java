@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -42,7 +44,7 @@ import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all time series.
@@ -51,6 +53,9 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/timeseries")
 public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
+  
+  private static final String TYPE = "TimeSeries";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "identifiers", "datasource", "dataprovider", "datafield",  "observationtime");
 
   /**
    * Creates the resource.
@@ -73,6 +78,31 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
       @QueryParam("dataField") String dataField,
       @QueryParam("observationTime") String observationTime,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, uriInfo);
+    return getFreemarker().build("timeseries/alltimeseries.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("identifier") String identifier,
+      @QueryParam("dataSource") String dataSource,
+      @QueryParam("dataProvider") String dataProvider,
+      @QueryParam("dataField") String dataField,
+      @QueryParam("observationTime") String observationTime,
+      @Context UriInfo uriInfo) {
+    String result = null;
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, uriInfo);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      TimeSeriesSearchResult<?> searchResult = (TimeSeriesSearchResult<?>) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
+    }
+    return result;
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     TimeSeriesSearchRequest searchRequest = new TimeSeriesSearchRequest();
@@ -94,7 +124,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
-    return getFreemarker().build("timeseries/alltimeseries.ftl", out);
+    return out;
   }
   
 //-------------------------------------------------------------------------

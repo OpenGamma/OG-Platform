@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.db.PagingRequest;
@@ -37,7 +37,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -49,7 +49,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -65,7 +65,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -80,7 +80,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -99,7 +99,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -113,7 +113,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -125,7 +125,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -137,7 +137,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -149,7 +149,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
@@ -160,7 +160,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
+    ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
     ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);

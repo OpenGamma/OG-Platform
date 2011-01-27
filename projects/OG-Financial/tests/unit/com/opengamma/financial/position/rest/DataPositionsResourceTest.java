@@ -20,8 +20,8 @@ import javax.ws.rs.core.UriInfo;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.master.rest.DataPositionResource;
-import com.opengamma.financial.position.master.rest.DataPositionsResource;
+import com.opengamma.financial.position.rest.DataPositionResource;
+import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;

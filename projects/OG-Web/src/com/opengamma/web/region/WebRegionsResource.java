@@ -7,6 +7,7 @@ package com.opengamma.web.region;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,16 +23,20 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.google.common.collect.Lists;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionHistoryRequest;
+import com.opengamma.master.region.RegionHistoryResult;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all regions.
@@ -40,6 +45,9 @@ import com.opengamma.util.rest.WebPaging;
  */
 @Path("/regions")
 public class WebRegionsResource extends AbstractWebRegionResource {
+  
+  private static final String TYPE = "Regions";
+  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "name");
 
   /**
    * Creates the resource.
@@ -58,6 +66,28 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       @QueryParam("name") String name,
       @QueryParam("classification") RegionClassification classification,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, classification, uriInfo);
+    return getFreemarker().build("regions/regions.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("classification") RegionClassification classification,
+      @Context UriInfo uriInfo) {
+    String result = null;
+    FlexiBean out = createSearchResultData(page, pageSize, name, classification, uriInfo);
+    if (data().getUriInfo().getQueryParameters().size() > 0) {
+      RegionSearchResult searchResult = (RegionSearchResult) out.get("searchResult");
+      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
+    }
+    return result;
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, RegionClassification classification, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     RegionSearchRequest searchRequest = new RegionSearchRequest();
@@ -76,15 +106,26 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("regions/regions.ftl", out);
+    return out;
   }
 
   //-------------------------------------------------------------------------
   @Path("{regionId}")
   public WebRegionResource findRegion(@PathParam("regionId") String idStr) {
     data().setUriRegionId(idStr);
-    RegionDocument regionDoc = data().getRegionMaster().get(UniqueIdentifier.parse(idStr));
-    data().setRegion(regionDoc);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      RegionDocument doc = data().getRegionMaster().get(oid);
+      data().setRegion(doc);
+    } catch (DataNotFoundException ex) {
+      RegionHistoryRequest historyRequest = new RegionHistoryRequest(oid);
+      historyRequest.setPagingRequest(PagingRequest.ONE);
+      RegionHistoryResult historyResult = data().getRegionMaster().history(historyRequest);
+      if (historyResult.getDocuments().size() == 0) {
+        return null;
+      }
+      data().setRegion(historyResult.getFirstDocument());
+    }
     return new WebRegionResource(this);
   }
 

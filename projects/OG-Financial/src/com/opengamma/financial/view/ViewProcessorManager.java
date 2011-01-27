@@ -29,9 +29,9 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.master.MasterChangeListener;
-import com.opengamma.master.NotifyingMaster;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.backport.java.util.Collections;
