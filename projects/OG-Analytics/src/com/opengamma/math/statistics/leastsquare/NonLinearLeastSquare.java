@@ -7,7 +7,6 @@ package com.opengamma.math.statistics.leastsquare;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
@@ -188,7 +187,7 @@ public class NonLinearLeastSquare {
         decmp = _decomposition.evaluate(alpha);
         deltaTheta = decmp.solve(beta);
       } catch (Exception e) {
-        return new LeastSquareResults(oldChiSqr, theta, alpha);
+        return new LeastSquareResults(oldChiSqr, theta, new DoubleMatrix2D(new double[theta.getNumberOfElements()][theta.getNumberOfElements()]));
       }
 
       final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
@@ -216,7 +215,8 @@ public class NonLinearLeastSquare {
         lambda *= 10;
       }
     }
-    throw new MathException("failed to converge");
+    return new LeastSquareResults(oldChiSqr, theta, new DoubleMatrix2D(new double[theta.getNumberOfElements()][theta.getNumberOfElements()]));
+    // throw new MathException("failed to converge");
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {

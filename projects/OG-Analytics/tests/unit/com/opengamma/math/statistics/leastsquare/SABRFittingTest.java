@@ -45,7 +45,7 @@ public class SABRFittingTest {
 
     for (int i = 0; i < n; i++) {
 
-      VOLS[i] = SABR.impliedVolitility(F, ALPHA, BETA, NU, RHO, STRIKES[i], T);
+      VOLS[i] = SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, STRIKES[i], T);
       ERRORS[i] = 0.01;
       NOISY_VOLS[i] = VOLS[i] + ERRORS[i] * RANDOM.nextRandom();
     }
@@ -58,7 +58,7 @@ public class SABRFittingTest {
     double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
     SABRFitter fitter = new SABRFitter(SABR);
-    LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed);
+    LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
     double[] res = results.getParameters().getData();
     DoubleMatrix2D covar = results.getCovariance();
 
@@ -76,7 +76,7 @@ public class SABRFittingTest {
     // fixed.set(1, true);
     double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
     SABRFitter fitter = new SABRFitter(SABR);
-    LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed);
+    LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed, 0, false);
     // assertTrue(results.getChiSq() < 3.0);
     DoubleMatrix2D covar = results.getCovariance();
     double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
@@ -91,7 +91,7 @@ public class SABRFittingTest {
     for (int i = 0; i < 100; i++) {
       m = -3 + i * 4.5 / 100;
       k = F * Math.exp(m * sigmaLNRootT);
-      System.out.print(k + "\t" + SABR.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolitility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
+      System.out.print(k + "\t" + SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolatility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
     }
 
     System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
@@ -101,5 +101,42 @@ public class SABRFittingTest {
     // assertEquals(BETA, res[1], 1e-7);
     // assertEquals(NU, res[2], 1e-7);
     // assertEquals(RHO, res[3], 1e-7);
+  }
+
+  @Test
+  public void sanityCheck() {
+
+    double alpha = 0.022218760837654682;
+    double beta = 0.2;// 0.991886529;
+    double nu = 0.20960993229450917;// 1.353913643;
+    double rho = 0.999999;
+    double t = 1.0;
+
+    double f = 0.039757;
+
+    double sigmaLNRootT = alpha * Math.pow(f, beta - 1) * Math.sqrt(t);
+    double k, m;
+    for (int i = 0; i < 100; i++) {
+      m = -3 + i * 4.5 / 100;
+      k = f * Math.exp(m * sigmaLNRootT);
+      System.out.print(k + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, k, t) + "\n");
+    }
+  }
+
+  @Test
+  public void sanityCheck2() {
+    double volATM = 1.5;
+    double f = 0.046744;
+    double beta = 0.5;// 0.991886529;
+    double alpha = volATM * Math.pow(f, 1 - beta);
+    double nu = 2.0;// 1.353913643;
+    // double rho = -0.9;
+    double t = 2.0;
+
+    double rho0 = SABR.impliedVolatility(f, alpha, beta, nu, 0.0, f, t);
+    for (int i = 0; i < 100; i++) {
+      double rho = -1 + i / 49.5;
+      System.out.print(rho + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, f, t) / rho0 + "\n");
+    }
   }
 }

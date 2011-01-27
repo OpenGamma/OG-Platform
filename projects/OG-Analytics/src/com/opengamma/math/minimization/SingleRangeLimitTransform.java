@@ -68,7 +68,7 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
       return 1.0;
     }
     double temp = Math.exp(r);
-    return temp / (temp - 1);
+    return _sign * temp / (temp - 1);
   }
 
 }

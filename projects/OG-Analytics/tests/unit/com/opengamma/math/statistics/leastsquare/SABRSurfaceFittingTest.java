@@ -79,7 +79,7 @@ public class SABRSurfaceFittingTest {
       System.out.print("\n");
       System.out.print("\t\t\t\t");
       for (int j = 0; j < m; j++) {
-        double sabrVol = sabr.impliedVolitility(forwards[i], alpha[i], beta[i], nu[i], rho[i], strikes[j], maturities[i]);
+        double sabrVol = sabr.impliedVolatility(forwards[i], alpha[i], beta[i], nu[i], rho[i], strikes[j], maturities[i]);
         System.out.print("\t" + sabrVol);
       }
       System.out.print("\n");
@@ -97,7 +97,7 @@ public class SABRSurfaceFittingTest {
       @Override
       public Double evaluate(Double x, DoubleMatrix1D transformedParameters) {
         DoubleMatrix1D parameters = inverseTransformParameters(transformedParameters);
-        return sabr.impliedVolitility(forward, parameters.getEntry(0), parameters.getEntry(1), parameters.getEntry(2), parameters.getEntry(3), x, t);
+        return sabr.impliedVolatility(forward, parameters.getEntry(0), parameters.getEntry(1), parameters.getEntry(2), parameters.getEntry(3), x, t);
       }
     };
 

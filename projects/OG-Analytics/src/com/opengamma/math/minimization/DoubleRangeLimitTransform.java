@@ -47,7 +47,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
 
   @Override
   public double transform(double x) {
-    Validate.isTrue(x <= _upper && x >= _lower, "paramter out of range");
+    Validate.isTrue(x <= _upper && x >= _lower, "parameter out of range");
     if (x == _upper) {
       return TANH_MAX;
     } else if (x == _lower) {
@@ -61,7 +61,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    return _scale * (1 - UtilFunctions.square(TrigonometricFunctionUtils.atanh(y).doubleValue()));
+    return _scale * (1 - UtilFunctions.square(TrigonometricFunctionUtils.tanh(y).doubleValue()));
   }
 
   @Override
