@@ -33,12 +33,12 @@ import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
-import com.opengamma.financial.batch.BatchJob;
-import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
+import com.opengamma.financial.batch.CommandLineBatchJob;
+import com.opengamma.financial.batch.CommandLineBatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -52,8 +52,8 @@ import com.opengamma.util.test.TransactionalHibernateTest;
 public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
   private BatchDbManagerImpl _dbManager;
-  private BatchJob _batchJob;
-  private BatchJobRun _batchJobRun;
+  private CommandLineBatchJob _batchJob;
+  private CommandLineBatchJobRun _batchJobRun;
   
   public BatchDbManagerImplTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -71,12 +71,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _dbManager = new BatchDbManagerImpl();
     _dbManager.setDbSource(getDbSource());
     
-    _batchJob = new BatchJob();
+    _batchJob = new CommandLineBatchJob();
     _batchJob.getParameters().initializeDefaults(_batchJob);
     _batchJob.setBatchDbManager(_dbManager);
     _batchJob.getParameters().setViewName("test_view");
     
-    _batchJobRun = new BatchJobRun(_batchJob);
+    _batchJobRun = new CommandLineBatchJobRun(_batchJob);
     _batchJobRun.setView(ViewTestUtils.getMockView());
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
@@ -93,12 +93,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void getVersion() {
     // create
-    OpenGammaVersion version1 = _dbManager.getOpenGammaVersion(_batchJob);
+    OpenGammaVersion version1 = _dbManager.getOpenGammaVersion(_batchJobRun);
     assertNotNull(version1);
     assertEquals(_batchJob.getOpenGammaVersion(), version1.getVersion());
     
     // get
-    OpenGammaVersion version2 = _dbManager.getOpenGammaVersion(_batchJob);
+    OpenGammaVersion version2 = _dbManager.getOpenGammaVersion(_batchJobRun);
     assertEquals(version1, version2);
   }
   
@@ -265,7 +265,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertTrue(run.getCalculationConfigurations().isEmpty());
     assertNotNull(run.getLiveDataSnapshot());
     assertEquals(_dbManager.getLocalComputeHost(), run.getMasterProcessHost());
-    assertEquals(_dbManager.getOpenGammaVersion(_batchJob), run.getOpenGammaVersion());
+    assertEquals(_dbManager.getOpenGammaVersion(_batchJobRun), run.getOpenGammaVersion());
     
     Map<String, String> props = run.getPropertiesMap();
     assertEquals(10, props.size());

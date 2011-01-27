@@ -47,7 +47,7 @@ public class BatchJobRunner {
     CommandLine line = null;
     try {
       CommandLineParser parser = new PosixParser();
-      line = parser.parse(BatchJob.getOptions(), args);
+      line = parser.parse(CommandLineBatchJob.getOptions(), args);
     } catch (ParseException e) {
       usage();
       System.exit(-1);
@@ -115,7 +115,7 @@ public class BatchJobRunner {
     }
 
     ApplicationContext context = new FileSystemXmlApplicationContext(springContextFile);
-    BatchJob job = (BatchJob) context.getBean("batchJob");
+    CommandLineBatchJob job = (CommandLineBatchJob) context.getBean("batchJob");
     
     job.setConfigSource(new MasterConfigSource(configMaster));
 
@@ -163,7 +163,7 @@ public class BatchJobRunner {
 
   public static void usage() {
     HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJobRunner [options] {name of config}", BatchJob.getOptions());
+    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJobRunner [options] {name of config}", CommandLineBatchJob.getOptions());
   }
 
 }

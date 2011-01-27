@@ -100,7 +100,18 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         scaled[i] = values[i] * quantity;
       }
       scaledValue = new ComputedValue(specification, new YieldCurveNodeSensitivityDataBundle(ccy, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled), name));
+    } else if (value instanceof DoubleLabelledMatrix1D) {
+      final DoubleLabelledMatrix1D m = (DoubleLabelledMatrix1D) value;
+      final double quantity = target.getPosition().getQuantity().doubleValue();
+      final double[] values = m.getValues();
+      final int n = values.length;
+      final double[] scaled = new double[n];
+      for (int i = 0; i < n; i++) {
+        scaled[i] = values[i] * quantity;
+      }
+      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else {
+      //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);
     }
     return Collections.singleton(scaledValue);

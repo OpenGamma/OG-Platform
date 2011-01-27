@@ -93,6 +93,7 @@ public class SingleComputationCycle {
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
+  private Set<ComputedValue> _allLiveData;
 
   // Outputs:
   private final InMemoryViewComputationResultModel _resultModel;
@@ -221,6 +222,7 @@ public class SingleComputationCycle {
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
 
+    _allLiveData = new HashSet<ComputedValue>();
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
     for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
@@ -235,6 +237,7 @@ public class SingleComputationCycle {
       } else {
         ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
         addToAllCaches(dataAsValue);
+        _allLiveData.add(dataAsValue);
       }
     }
     if (!missingLiveData.isEmpty()) {
@@ -255,6 +258,13 @@ public class SingleComputationCycle {
       sb.append(":").append(spec.getTargetSpecification().getIdentifier().getValue()).append("] ");
     }
     return sb.toString();
+  }
+  
+  public Set<ComputedValue> getAllLiveData() {
+    if (_allLiveData == null) {
+      throw new IllegalStateException("Call prepareInputs() before calling this method");
+    }
+    return Collections.unmodifiableSet(_allLiveData);
   }
 
   /**
