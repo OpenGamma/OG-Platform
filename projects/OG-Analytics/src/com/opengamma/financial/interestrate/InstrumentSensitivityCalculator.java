@@ -34,17 +34,17 @@ public final class InstrumentSensitivityCalculator {
    * @param ird The instrument of interest
    * @param fixedCurves any fixed curves (can be null)
    * @param interpolatedCurves The set of interpolatedCurves 
-   * @param dollarDurations The sensitivity of the PV of the instruments used to build the curve(s) to their par-rates
+   * @param couponSensitivity The sensitivity of the PV of the instruments used to build the curve(s) to their coupon rate (with the curve fixed)
    * @param pvJacobian Matrix of sensitivity of the PV of the instruments used to build the curve(s) to the yields - 
    * the i,j element is dx_i/dy_j where x_i is the PV of the ith instrument and y_j is the jth yield 
    * @return bucked delta
    */
   public DoubleMatrix1D calculateFromPresentValue(final InterestRateDerivative ird, final YieldCurveBundle fixedCurves, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves,
-      final DoubleMatrix1D dollarDurations, final DoubleMatrix2D pvJacobian) {
+      final DoubleMatrix1D couponSensitivity, final DoubleMatrix2D pvJacobian) {
     final NodeSensitivityCalculator nsc = new NodeSensitivityCalculator();
     final DoubleMatrix1D nodeSense = nsc.presentValueCalculate(ird, fixedCurves, interpolatedCurves);
     final int n = nodeSense.getNumberOfElements();
-    Validate.isTrue(n == dollarDurations.getNumberOfElements());
+    Validate.isTrue(n == couponSensitivity.getNumberOfElements());
     Validate.isTrue(n == pvJacobian.getNumberOfColumns());
     Validate.isTrue(n == pvJacobian.getNumberOfRows());
 
@@ -54,7 +54,7 @@ public final class InstrumentSensitivityCalculator {
     for (int i = 0; i < n; i++) {
       double sum = 0;
       for (int j = 0; j < n; j++) {
-        sum += dollarDurations.getEntry(i) * invJac.getEntry(j, i) * nodeSense.getEntry(j);
+        sum += -couponSensitivity.getEntry(i) * invJac.getEntry(j, i) * nodeSense.getEntry(j);
       }
       res[i] = sum;
     }
