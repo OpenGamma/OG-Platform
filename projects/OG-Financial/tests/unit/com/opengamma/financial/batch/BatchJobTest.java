@@ -18,18 +18,19 @@ import org.apache.commons.cli.PosixParser;
 import org.junit.Test;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
-import com.opengamma.master.holiday.impl.CoppClarkHolidayFileReader;
-import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 
 /**
  * Test batchJob.
@@ -149,7 +150,24 @@ public class BatchJobTest {
   
   @Test
   public void dateRangeCommandLineHolidayMaster() throws Exception {
-    HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster());
+    HolidaySource holidaySource = new HolidaySource() {
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, Identifier regionOrExchangeId) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, IdentifierBundle regionOrExchangeIds) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public Holiday getHoliday(UniqueIdentifier uid) {
+        throw new UnsupportedOperationException();
+      }
+    };
     
     BatchJob job = new BatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());
