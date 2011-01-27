@@ -102,9 +102,7 @@ public interface BatchDbManager {
   BatchDataSearchResult getResults(BatchDataSearchRequest request);
   
   /**
-   * Gets the results of a batch from the batch DB.
-   * <p>
-   * Risk failures are not included in the result. 
+   * Gets the risk failures of a batch from the batch DB.
    * 
    * @param request  the search request, not null
    * @return the search result, not null

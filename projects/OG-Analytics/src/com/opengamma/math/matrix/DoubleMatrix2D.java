@@ -7,8 +7,6 @@ package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
-
 /**
  * A minimal implementation of a 2D matrix of doubles 
  * 
@@ -29,8 +27,8 @@ public class DoubleMatrix2D implements Matrix<Double> {
    * @param columns Number of columns
    */
   public DoubleMatrix2D(final int rows, final int columns) {
-    ArgumentChecker.notNegativeOrZero(rows, "rows");
-    ArgumentChecker.notNegativeOrZero(columns, "columns");
+    Validate.isTrue(rows > 0, "row number cannot be negative or zero");
+    Validate.isTrue(columns > 0, "column number cannot be negative or zero");
     _rows = rows;
     _columns = columns;
     _data = new double[_rows][_columns];

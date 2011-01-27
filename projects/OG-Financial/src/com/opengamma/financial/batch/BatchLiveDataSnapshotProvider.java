@@ -76,7 +76,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     }
     
     Double value = (Double) valueInTimeSeriesDb;
-    LiveDataValue liveDataValue = new LiveDataValue(requirement.getTargetSpecification(), requirement.getValueName(), value);
+    LiveDataValue liveDataValue = new LiveDataValue(requirement, value);
     Set<LiveDataValue> liveDataValues = Collections.singleton(liveDataValue);
     _batchDbManager.addValuesToSnapshot(_run.getSnapshotId(), liveDataValues);
     

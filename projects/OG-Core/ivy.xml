@@ -15,7 +15,6 @@
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
         
         <dependency org="javax.mail" name="javamail" rev="1.4.3"/>
-        <dependency org="com.opengamma" name="worlddata" rev="20101116"/>
         
         <exclude org="org.apache.log4j" module="log4j" />
     </dependencies>

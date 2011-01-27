@@ -14,7 +14,7 @@ import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.id.Identifier;
 
-public class CurveInsturmentProviderTest extends FinancialTestBase {
+public class CurveInstrumentProviderTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
