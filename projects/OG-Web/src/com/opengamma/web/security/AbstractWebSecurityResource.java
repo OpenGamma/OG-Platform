@@ -27,11 +27,6 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   private final WebSecuritiesData _data;
   
   /**
-   * JSON output formatter for securities service
-   */
-  private final JSONOutputter _jsonOutputter = new JSONOutputter();
-
-  /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
@@ -85,12 +80,4 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     return _data;
   }
   
-  /**
-   * Gets the JSON security outputter
-   * @return the json out putter, not null
-   */
-  protected JSONOutputter getJSONOutputter() {
-    return _jsonOutputter;
-  }
-
 }

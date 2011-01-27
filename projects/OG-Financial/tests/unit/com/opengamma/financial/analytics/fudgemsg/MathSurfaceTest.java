@@ -20,6 +20,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class MathSurfaceTest extends AnalyticsTestBase {
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testConstantSurface() {
     Surface<Double, Double, Double> s1 = ConstantDoublesSurface.from(4.);
@@ -30,6 +31,7 @@ public class MathSurfaceTest extends AnalyticsTestBase {
     assertEquals(s1, s2);
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testInterpolatedSurface() {
     final LinearInterpolator1D linear = new LinearInterpolator1D();

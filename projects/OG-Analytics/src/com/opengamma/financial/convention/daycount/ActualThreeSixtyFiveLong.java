@@ -24,7 +24,7 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     testDates(previousCouponDate, date, nextCouponDate);
     final LocalDate previous = previousCouponDate.toLocalDate();
     final LocalDate next = nextCouponDate.toLocalDate();

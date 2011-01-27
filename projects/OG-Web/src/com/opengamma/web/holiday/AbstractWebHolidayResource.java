@@ -28,7 +28,7 @@ public abstract class AbstractWebHolidayResource extends AbstractWebResource {
    * The backing bean.
    */
   private final WebHolidayData _data;
-
+  
   /**
    * Creates the resource.
    * @param holidayMaster  the holiday master, not null
@@ -83,5 +83,5 @@ public abstract class AbstractWebHolidayResource extends AbstractWebResource {
   protected WebHolidayData data() {
     return _data;
   }
-
+  
 }

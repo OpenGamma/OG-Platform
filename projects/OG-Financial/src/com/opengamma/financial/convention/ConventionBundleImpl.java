@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -62,10 +63,11 @@ public class ConventionBundleImpl implements ConventionBundle {
   private boolean _isEOMConvention;
   private boolean _calculateScheduleFromMaturity;
   private int _exDividendDays;
+  private YieldConvention _yieldConvention;
 
   // cash/general
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final Frequency frequency, final int settlementDays) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
+      final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -75,8 +77,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // futures
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final Frequency frequency, final int settlementDays, final double yearFraction) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
+      final int settlementDays, final double yearFraction) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -87,10 +89,10 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // swaps
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
-      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion,
-      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency,
-      final Integer swapFloatingLegSettlementDays, final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
+      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
+      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -111,11 +113,11 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // basis swaps
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name,
-      final DayCount basisSwapPayFloatingLegDayCount, final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency,
-      final Integer basisSwapPayFloatingLegSettlementDays, final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion,
-      final DayCount basisSwapReceiveFloatingLegDayCount, final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency,
-      final Integer basisSwapReceiveFloatingLegSettlementDays, final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
+      final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
+      final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
+      final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
+      final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -156,6 +158,24 @@ public class ConventionBundleImpl implements ConventionBundle {
     _calculateScheduleFromMaturity = calculateScheduleFromMaturity;
     _exDividendDays = exDividendDays;
     _settlementDays = settlementDays;
+  }
+
+  //Bond future deliverables
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays,
+      final DayCount dayCount, final BusinessDayConvention businessDayConvention, final YieldConvention yieldConvention) {
+    Validate.notNull(name, "name");
+    Validate.isTrue(exDividendDays >= 0);
+    Validate.isTrue(settlementDays >= 0);
+    Validate.notNull(dayCount, "day count");
+    Validate.notNull(businessDayConvention, "business day convention");
+    _name = name;
+    _isEOMConvention = isEOMConvention;
+    _calculateScheduleFromMaturity = calculateScheduleFromMaturity;
+    _exDividendDays = exDividendDays;
+    _settlementDays = settlementDays;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _yieldConvention = yieldConvention;
   }
 
   @Override
@@ -400,5 +420,10 @@ public class ConventionBundleImpl implements ConventionBundle {
   @Override
   public int getExDividendDays() {
     return _exDividendDays;
+  }
+
+  @Override
+  public YieldConvention getYieldConvention() {
+    return _yieldConvention;
   }
 }
