@@ -24,7 +24,7 @@ import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all batches.

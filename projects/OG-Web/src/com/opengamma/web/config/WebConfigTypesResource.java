@@ -32,7 +32,7 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all configuration documents.

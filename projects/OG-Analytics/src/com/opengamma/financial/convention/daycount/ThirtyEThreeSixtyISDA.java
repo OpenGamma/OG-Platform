@@ -23,12 +23,11 @@ public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
     throw new NotImplementedException("Need to know whether the second date is the maturity");
   }
 
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final int paymentsPerYear,
-      final boolean isMaturity) {
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final double coupon, final boolean isMaturity) {
     return coupon * getDayCountFraction(previousCouponDate, date, isMaturity);
   }
 

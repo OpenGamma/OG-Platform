@@ -13,7 +13,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractWebResource;
+import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
@@ -22,7 +22,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
  * Abstract base class for RESTful position resources.
  */
 public abstract class AbstractWebPositionResource extends AbstractWebResource {
-
+  
   /**
    * The backing bean.
    */
@@ -83,5 +83,5 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   protected WebPositionsData data() {
     return _data;
   }
-
+  
 }

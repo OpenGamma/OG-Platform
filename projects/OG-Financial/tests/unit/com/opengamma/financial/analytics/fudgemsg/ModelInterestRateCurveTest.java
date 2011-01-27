@@ -31,7 +31,6 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testInterpolatedDiscountCurve() {
     final Map<Double, Double> map = new HashMap<Double, Double>();
     map.put(1., 0.03);
@@ -42,7 +41,6 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     assertEquals(dc1, dc2);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testInterpolatedYieldCurve() {
     final Map<Double, Double> map = new HashMap<Double, Double>();

@@ -7,8 +7,10 @@ package com.opengamma.financial.interestrate;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -46,6 +48,10 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBond(Bond bond, S data);
 
+  T visitBondForward(BondForward bondForward, S data);
+
+  T visitBondFuture(BondFuture bondFuture, S data);
+
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity, S data);
 
   T visitFixedPayment(FixedPayment payment, S data);
@@ -69,6 +75,10 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFloatingRateNote(FloatingRateNote frn);
 
   T visitBond(Bond bond);
+
+  T visitBondForward(BondForward bondForward);
+
+  T visitBondFuture(BondFuture bondFuture);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> annuity);
 

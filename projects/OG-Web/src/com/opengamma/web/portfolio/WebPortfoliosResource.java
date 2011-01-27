@@ -32,7 +32,7 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.rest.WebPaging;
+import com.opengamma.web.WebPaging;
 
 /**
  * RESTful resource for all portfolios.

@@ -113,7 +113,7 @@ public class DayCountAccruedInterestTest {
     assertEquals(ACT_365L.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (62. / 366), EPS);
     assertEquals(U30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (60. / 360), EPS);
     assertEquals(E30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (60. / 360), EPS);
-    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear, true), coupon * (60. / 360), EPS);
+    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, coupon, true), coupon * (60. / 360), EPS);
     assertEquals(E_PLUS_30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (60. / 360), EPS);
   }
 
@@ -128,7 +128,7 @@ public class DayCountAccruedInterestTest {
     assertEquals(ACT_365L.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (63. / 366), EPS);
     assertEquals(U30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (61. / 360), EPS);
     assertEquals(E30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (61. / 360), EPS);
-    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear, true), coupon * (61. / 360), EPS);
+    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, coupon, true), coupon * (61. / 360), EPS);
     assertEquals(E_PLUS_30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (61. / 360), EPS);
   }
 
@@ -143,7 +143,7 @@ public class DayCountAccruedInterestTest {
     assertEquals(ACT_365L.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (396. / 366), EPS);
     assertEquals(U30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (390. / 360), EPS);
     assertEquals(E30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (390. / 360), EPS);
-    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear, true), coupon * (390. / 360), EPS);
+    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, coupon, true), coupon * (390. / 360), EPS);
     assertEquals(E_PLUS_30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (390. / 360), EPS);
   }
 
@@ -158,7 +158,7 @@ public class DayCountAccruedInterestTest {
     assertEquals(ACT_365L.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (485. / 365), EPS);
     assertEquals(U30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (480. / 360), EPS);
     assertEquals(E30_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (479. / 360), EPS);
-    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear, true), coupon * (480. / 360), EPS);
+    assertEquals(E30_360_ISDA.getAccruedInterest(d1, d2, coupon, true), coupon * (480. / 360), EPS);
     assertEquals(E_PLUS_30_360_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (480. / 360), EPS);
   }
 }
