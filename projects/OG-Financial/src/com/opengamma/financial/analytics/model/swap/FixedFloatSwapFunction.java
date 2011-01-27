@@ -50,9 +50,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     this(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
   }
 
-  public FixedFloatSwapFunction(
-      final String currency, final String forwardCurveName, final String forwardValueRequirementName,
-      final String fundingCurveName, final String fundingValueRequirementName) {
+  public FixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName, final String fundingValueRequirementName) {
     this(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
   }
 
@@ -111,14 +109,14 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
           initialFloatingRate, now);
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) forwardCurveObject;
       final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName}, new YieldAndDiscountCurve[] {curve});
-      return getComputedValues(security, swap, bundle);
+      return getComputedValues(inputs, security, swap, bundle);
     }
     final Swap<?, ?> swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _fundingCurveName, _forwardCurveName, fixedRate,
         initialFloatingRate, now);
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
-    return getComputedValues(security, swap, bundle);
+    return getComputedValues(inputs, security, swap, bundle);
   }
 
   @Override
@@ -145,7 +143,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     return ComputationTargetType.SECURITY;
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(Security security, Swap<?, ?> swap, YieldCurveBundle bundle);
+  protected abstract Set<ComputedValue> getComputedValues(FunctionInputs inputs, Security security, Swap<?, ?> swap, YieldCurveBundle bundle);
 
   protected String getForwardCurveName() {
     return _forwardCurveName;

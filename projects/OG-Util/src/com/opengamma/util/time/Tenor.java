@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 /**
  * A tenor.
  */
-public class Tenor {
+public class Tenor implements Comparable<Tenor>{
 
   /**
    * An overnight tenor.
@@ -204,4 +204,17 @@ public class Tenor {
     sb.append("]");
     return sb.toString(); 
   }
+
+  //TODO [PLAT-1013] not the best way to do this
+  @Override
+  public int compareTo(Tenor other) {
+    long nanos = _period.getNanos();
+    long otherNanos = other._period.getNanos();
+    if (nanos < otherNanos) {
+      return -1;
+    } else if (nanos > otherNanos) {
+      return 1;
+    }
+    return 0;
+  }  
 }
