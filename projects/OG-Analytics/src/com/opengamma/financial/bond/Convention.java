@@ -20,10 +20,9 @@ public class Convention {
   private final DayCount _dayCount;
   private final BusinessDayConvention _businessDayConvention;
   private final Calendar _workingDayCalendar;
-  private final boolean _isEOM;
   private final String _name;
 
-  public Convention(final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar, final boolean isEOM, final String name) {
+  public Convention(final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar, final String name) {
     Validate.isTrue(settlementDays >= 0);
     Validate.notNull(dayCount);
     Validate.notNull(businessDayConvention);
@@ -33,7 +32,6 @@ public class Convention {
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _workingDayCalendar = workingDayCalendar;
-    _isEOM = isEOM;
     _name = name;
   }
 
@@ -53,10 +51,6 @@ public class Convention {
     return _workingDayCalendar;
   }
 
-  public boolean isEOM() {
-    return _isEOM;
-  }
-
   public String getName() {
     return _name;
   }
@@ -67,7 +61,6 @@ public class Convention {
     int result = 1;
     result = prime * result + _businessDayConvention.hashCode();
     result = prime * result + _dayCount.hashCode();
-    result = prime * result + (_isEOM ? 1231 : 1237);
     result = prime * result + _settlementDays;
     result = prime * result + _workingDayCalendar.hashCode();
     result = prime * result + _name.hashCode();
@@ -93,9 +86,6 @@ public class Convention {
       return false;
     }
     if (_settlementDays != other._settlementDays) {
-      return false;
-    }
-    if (_isEOM != other._isEOM) {
       return false;
     }
     if (!ObjectUtils.equals(_name, other._name)) {

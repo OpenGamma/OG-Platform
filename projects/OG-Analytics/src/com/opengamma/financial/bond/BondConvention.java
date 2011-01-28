@@ -19,14 +19,20 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 public class BondConvention extends Convention {
   private final int _exDividendDays;
   private final YieldConvention _yieldConvention;
+  private final boolean _isEOM;
 
   public BondConvention(final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar, final boolean isEOM,
       final String name, final int exDividendDays, final YieldConvention yieldConvention) {
-    super(settlementDays, dayCount, businessDayConvention, workingDayCalendar, isEOM, name);
+    super(settlementDays, dayCount, businessDayConvention, workingDayCalendar, name);
     Validate.isTrue(exDividendDays >= 0);
     Validate.notNull(yieldConvention, "yield convention");
     _exDividendDays = exDividendDays;
+    _isEOM = isEOM;
     _yieldConvention = yieldConvention;
+  }
+
+  public boolean isEOM() {
+    return _isEOM;
   }
 
   public int getExDividendDays() {
@@ -42,6 +48,7 @@ public class BondConvention extends Convention {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _exDividendDays;
+    result = prime * result + (_isEOM ? 1231 : 1237);
     result = prime * result + _yieldConvention.hashCode();
     return result;
   }
@@ -59,6 +66,9 @@ public class BondConvention extends Convention {
     }
     final BondConvention other = (BondConvention) obj;
     if (_exDividendDays != other._exDividendDays) {
+      return false;
+    }
+    if (_isEOM != other._isEOM) {
       return false;
     }
     return ObjectUtils.equals(_yieldConvention, other._yieldConvention);

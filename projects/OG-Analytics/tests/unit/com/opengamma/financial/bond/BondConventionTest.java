@@ -79,6 +79,7 @@ public class BondConventionTest {
     assertEquals(CONVENTION.getSettlementDays(), SETTLEMENT_DAYS);
     assertEquals(CONVENTION.getWorkingDayCalendar(), CALENDAR);
     assertEquals(CONVENTION.getYieldConvention(), YIELD_CONVENTION);
+    assertEquals(CONVENTION.isEOM(), IS_EOM);
   }
 
   @Test

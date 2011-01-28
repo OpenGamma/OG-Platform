@@ -29,31 +29,31 @@ public class ConventionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final boolean IS_EOM = true;
   private static final String NAME = "CONVENTION";
-  private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+  private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeSettlementDays() {
-    new Convention(-SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+    new Convention(-SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDayCount() {
-    new Convention(SETTLEMENT_DAYS, null, BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+    new Convention(SETTLEMENT_DAYS, null, BUSINESS_DAY, CALENDAR, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBusinessDayConvention() {
-    new Convention(SETTLEMENT_DAYS, DAY_COUNT, null, CALENDAR, IS_EOM, NAME);
+    new Convention(SETTLEMENT_DAYS, DAY_COUNT, null, CALENDAR, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalendar() {
-    new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, null, IS_EOM, NAME);
+    new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, null, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullName() {
-    new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, null);
+    new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, null);
   }
 
   @Test
@@ -63,19 +63,18 @@ public class ConventionTest {
     assertEquals(CONVENTION.getName(), NAME);
     assertEquals(CONVENTION.getSettlementDays(), SETTLEMENT_DAYS);
     assertEquals(CONVENTION.getWorkingDayCalendar(), CALENDAR);
-    assertEquals(CONVENTION.isEOM(), IS_EOM);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    Convention other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+    Convention other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
     assertEquals(CONVENTION, other);
     assertEquals(CONVENTION.hashCode(), other.hashCode());
-    other = new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+    other = new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BUSINESS_DAY, CALENDAR, IS_EOM, NAME);
+    other = new Convention(SETTLEMENT_DAYS, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BUSINESS_DAY, CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), CALENDAR, IS_EOM, NAME);
+    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
     other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, new Calendar() {
 
@@ -89,11 +88,9 @@ public class ConventionTest {
         return null;
       }
 
-    }, IS_EOM, NAME);
+    }, NAME);
     assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, !IS_EOM, NAME);
-    assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME + ")");
+    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME + ")");
     assertFalse(CONVENTION.equals(other));
   }
 
