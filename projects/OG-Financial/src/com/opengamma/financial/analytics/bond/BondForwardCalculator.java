@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -24,6 +23,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.schedule.ScheduleFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.Identifier;
 
