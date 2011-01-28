@@ -22,7 +22,7 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
- * 
+ * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
  */
 public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
 

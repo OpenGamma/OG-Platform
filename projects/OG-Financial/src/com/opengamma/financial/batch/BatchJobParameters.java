@@ -256,7 +256,7 @@ public class BatchJobParameters {
   
   // --------------------------------------------------------------------------
   
-  public void initializeDefaults(BatchJob batchJob) {
+  public void initializeDefaults(CommandLineBatchJob batchJob) {
     _reason = "Manual run started on " + 
         batchJob.getCreationTime() + " by " + 
         batchJob.getUser().getUserName();                   

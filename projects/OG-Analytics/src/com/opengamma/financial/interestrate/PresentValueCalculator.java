@@ -23,7 +23,7 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
- * 
+ * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
  */
 public final class PresentValueCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator s_instance = new PresentValueCalculator();

@@ -36,7 +36,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -46,7 +46,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -56,7 +56,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -66,7 +66,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -76,7 +76,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 

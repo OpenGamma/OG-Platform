@@ -26,33 +26,33 @@ public class YieldCurveNodeSensitivityDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullMatrix() {
-    new YieldCurveNodeSensitivityDataBundle(null, CCY, NAME);
+    new YieldCurveNodeSensitivityDataBundle(CCY, null, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new YieldCurveNodeSensitivityDataBundle(M, null, NAME);
+    new YieldCurveNodeSensitivityDataBundle(null, M, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullName() {
-    new YieldCurveNodeSensitivityDataBundle(M, CCY, null);
+    new YieldCurveNodeSensitivityDataBundle(CCY, M, null);
   }
 
   @Test
   public void test() {
-    final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(M, CCY, NAME);
-    YieldCurveNodeSensitivityDataBundle other = new YieldCurveNodeSensitivityDataBundle(M, CCY, NAME);
+    final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(CCY, M, NAME);
+    YieldCurveNodeSensitivityDataBundle other = new YieldCurveNodeSensitivityDataBundle(CCY, M, NAME);
     assertEquals(data, other);
     assertEquals(data.hashCode(), other.hashCode());
     assertEquals(data.getCurrency(), CCY);
     assertEquals(data.getLabelledMatrix(), M);
     assertEquals(data.getYieldCurveName(), NAME);
-    other = new YieldCurveNodeSensitivityDataBundle(new DoubleLabelledMatrix1D(T, LABELS, X), CCY, NAME);
+    other = new YieldCurveNodeSensitivityDataBundle(CCY, new DoubleLabelledMatrix1D(T, LABELS, X), NAME);
     assertFalse(other.equals(data));
-    other = new YieldCurveNodeSensitivityDataBundle(M, Currency.getInstance("GBP"), NAME);
+    other = new YieldCurveNodeSensitivityDataBundle(Currency.getInstance("GBP"), M, NAME);
     assertFalse(other.equals(data));
-    other = new YieldCurveNodeSensitivityDataBundle(M, CCY, "PPP");
+    other = new YieldCurveNodeSensitivityDataBundle(CCY, M, "PPP");
     assertFalse(other.equals(data));
   }
 }
