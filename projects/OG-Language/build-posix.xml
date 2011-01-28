@@ -1,9 +1,44 @@
 <project name="build-posix">
 
-	<target name="clean" depends="clean-src" description="--> Clean the output folders">
-		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
+	<target name="clean" depends="clean-src" description="--> clean the output folders">
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
 	</target>
 
-	<!-- TODO -->
+	<target name="compile-impl">
+		<mkdir dir="${basedir}/${cc.configuration}" />
+		<mkdir dir="${build.dir}/${cc.configuration}" />
+		<taskdef resource="cpptasks.tasks" />
+		<cc	debug="${cc.debug}"
+			incremental="${cc.incremental}"
+			multithreaded="true"
+			objdir="${basedir}/${cc.configuration}"
+			optimize="${cc.optimization}"
+			outtype="${cc.outtype}"
+			warnings="diagnostic"
+			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
+			<fileset dir="${basedir}">
+				<include name="*.c" />
+				<include name="*.cpp" />
+			</fileset>
+		</cc>
+	</target>
+	<target name="compile-debug">
+		<antcall target="compile-impl">
+			<param name="cc.debug" value="true" />
+			<param name="cc.incremental" value="true" />
+			<param name="cc.configuration" value="Debug" />
+			<param name="cc.optimization" value="none" />
+		</antcall>
+	</target>
+	<target name="compile-release">
+		<antcall target="compile-impl">
+			<param name="cc.debug" value="false" />
+			<param name="cc.incremental" value="false" />
+			<param name="cc.configuration" value="Release" />
+			<param name="cc.optimization" value="speed" />
+		</antcall>
+	</target>
+	<target name="compile" depends="compile-debug,compile-release" description="--> compile project" />
 
 </project>

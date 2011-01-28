@@ -1,3 +1,4 @@
 <project name="Util">
+	<property file="build.properties" />
 	<import file="${basedir}/../build-cpp.xml" />
 </project>

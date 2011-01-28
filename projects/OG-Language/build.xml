@@ -84,7 +84,7 @@
 			</copy>
 		</sequential>
 	</macrodef>
-	<target name="unpack-resolve" depends="resolve" description="--> Unpacks include files and Windows binaries">
+	<target name="unpack-resolve" depends="resolve" description="--> unpacks include files and Windows binaries">
 		<unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
 		<unpack-include org="org.fudgemsg" name="fudge-c" />
 		<unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />
@@ -95,7 +95,7 @@
 		<unpack-dll org="org.apache" name="apr-util" file="aprutil" />
 	</target>
 
-	<target name="compile" depends="unpack-resolve" description="--> Compile all components">
+	<target name="compile" depends="unpack-resolve" description="--> compile all components">
 
 		<!-- Java stuff -->
 		<subant target="deploy" buildpath="${basedir}/Client" />
@@ -107,7 +107,7 @@
 
 	</target>
 
-	<target name="tests" depends="unpack-resolve" description="--> Compile and run unit tests">
+	<target name="tests" depends="unpack-resolve" description="--> compile and run unit tests">
 
 		<!-- Test compilation pre-requisite -->
 		<subant target="deploy" buildpath="${basedir}/Client" />
@@ -127,7 +127,7 @@
 
 	</target>
 
-	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated">
+	<target name="tests-with-clover" description="--> build and run all tests with local Clover reports generated">
 		<!-- Java targets -->
 		<subant target="tests-with-clover" buildpath="${basedir}/Client" />
 	</target>
@@ -146,20 +146,20 @@
 		<!-- TODO -->
 	</target>
 
-	<target name="clean" description="--> Clean the project">
+	<target name="clean" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
 		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
 	</target>
 
-	<target name="clean-lib" description="--> Clean the library path">
+	<target name="clean-lib" description="--> clean the library path">
 		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-src" description="--> Clean the auto-generated source code files">
+	<target name="clean-src" description="--> clean the auto-generated source code files">
 		<subant target="clean-src" buildpathref="build.path" />
 	</target>
 
-	<target name="fudge-proto" description="--> Autogenerate files from Fudge .proto definitions">
+	<target name="fudge-proto" description="--> autogenerate files from Fudge .proto definitions">
 		<subant target="fudge-proto" buildpath="${basedir}/Client" />
 		<subant target="proto-c" buildpath="${basedir}/Client" />
 	</target>

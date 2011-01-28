@@ -1,7 +1,11 @@
 <project name="build-cpp">
 
-	<condition property="cpp.environment" value="msvc"><os family="windows" /></condition>
-	<condition property="cpp.environment" value="posix"><os family="unix" /></condition>
+	<property environment="env" />
+
+	<!-- Use Visual Studio if it's available -->
+	<available property="cpp.environment" value="msvc" file="msbuild.exe" filepath="${env.Path}" />
+	<!-- Default to POSIX-style tools and Ant's built in tasks -->
+	<property name="cpp.environment" value="posix" />
 
 	<import file="build-${cpp.environment}.xml" />
 
