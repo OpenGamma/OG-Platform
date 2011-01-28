@@ -103,7 +103,7 @@ public class ParallelArrayBinarySort {
     swap(keys, values, pivot, right);
     int storeIndex = left;
     for (int i = left; i < right; i++) {
-      if (keys[i].compareTo(pivotValue) != 1) {
+      if (keys[i].compareTo(pivotValue) < 1) {
         swap(keys, values, i, storeIndex);
         storeIndex++;
       }

@@ -49,51 +49,10 @@ public class DoubleLabelledMatrix1DTest {
   private static final DoubleLabelledMatrix1D M6 = new DoubleLabelledMatrix1D(TIMES6, LABELS4, VALUES6);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithNullKey() {
-    M1.addIgnoringLabel(null, "N", 2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithNullLabel() {
-    M1.addIgnoringLabel(2., null, 2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddSingleValueWrongLabel1() {
-    M1.add(1., "12M", 0.1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddSingleValueWrongLabel2() {
-    M1.add(1. + HIGH_TOLERANCE / 2, "12M", 0.1, HIGH_TOLERANCE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddNullMatrix1() {
-    M1.addIgnoringLabel(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddNullMatrix2() {
-    M1.add(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithWrongLabel() {
-    final int n = TIMES1.length;
-    final Double[] times = Arrays.copyOf(TIMES1, n);
-    final Object[] labels = Arrays.copyOf(LABELS1, n);
-    labels[3] = "7D";
-    final double[] values = Arrays.copyOf(VALUES1, n);
-    final LabelledMatrix1D<Double> m = new DoubleLabelledMatrix1D(times, labels, values);
-    M1.add(m);
-  }
-
   @Test
   public void testAddSingleValueAlreadyPresent() {
     final double x = 0.4;
-    LabelledMatrix1D<Double> m = M1.add(1., "1Y", x);
+    LabelledMatrix1D<Double, Double> m = M1.add(1., "1Y", x);
     Double[] newTimes = m.getKeys();
     Object[] newLabels = m.getLabels();
     double[] newValues = m.getValues();
@@ -128,7 +87,7 @@ public class DoubleLabelledMatrix1DTest {
   @Test
   public void testAddSingleValueNotPresent() {
     final double x = 0.4;
-    LabelledMatrix1D<Double> m = M1.add(2.5, "30M", x);
+    LabelledMatrix1D<Double, Double> m = M1.add(2.5, "30M", x);
     Double[] newTimes = m.getKeys();
     Object[] newLabels = m.getLabels();
     double[] newValues = m.getValues();
@@ -175,7 +134,7 @@ public class DoubleLabelledMatrix1DTest {
   @Test
   public void testAddSingleValueAlreadyPresentWithError() {
     final double x = 0.4;
-    final LabelledMatrix1D<Double> m1 = M1.add(1. + HIGH_TOLERANCE / 2, "1Y", x, HIGH_TOLERANCE);
+    final LabelledMatrix1D<Double, Double> m1 = M1.add(1. + HIGH_TOLERANCE / 2, "1Y", x, HIGH_TOLERANCE);
     final Double[] newTimes1 = m1.getKeys();
     final Object[] newLabels1 = m1.getLabels();
     final double[] newValues1 = m1.getValues();
@@ -194,7 +153,7 @@ public class DoubleLabelledMatrix1DTest {
 
   @Test
   public void testAddSameTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M2);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M2);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
@@ -218,7 +177,7 @@ public class DoubleLabelledMatrix1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddSameTimesNoTolerance() {
-    final LabelledMatrix1D<Double> sum = M1.addIgnoringLabel(M5);
+    final LabelledMatrix1D<Double, Double> sum = M1.addIgnoringLabel(M5);
     final Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     final int n = TIMES1.length;
@@ -231,7 +190,7 @@ public class DoubleLabelledMatrix1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddNewTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M3);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M3);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
@@ -280,7 +239,7 @@ public class DoubleLabelledMatrix1DTest {
 
   @Test
   public void testSomeIdenticalTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M4);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M4);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
