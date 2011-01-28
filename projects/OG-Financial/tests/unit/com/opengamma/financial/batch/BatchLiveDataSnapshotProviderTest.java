@@ -33,9 +33,9 @@ public class BatchLiveDataSnapshotProviderTest {
         new LocalDate[] { date },
         new double[] { 11.12 });
     
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     job.getParameters().initializeDefaults(job);
-    BatchJobRun run = new BatchJobRun(job,
+    CommandLineBatchJobRun run = new CommandLineBatchJobRun(job,
         date,
         date,
         date,

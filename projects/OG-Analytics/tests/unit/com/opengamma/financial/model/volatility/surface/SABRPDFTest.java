@@ -43,7 +43,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -53,7 +53,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -63,7 +63,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -73,7 +73,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -83,7 +83,7 @@ public class SABRPDFTest {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
-      return sabr.impliedVolitility(F, ALPHA, BETA, NU, RHO, k, T);
+      return sabr.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T);
     }
   };
 
@@ -105,7 +105,7 @@ public class SABRPDFTest {
     // double sigmaRootT = ATM_VOL * Math.sqrt(T);
     // double sigmaRootT = ALPHA * Math.sqrt(T);
     final double step = 20.0 / (n);
-    //System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
+    // System.out.println("Strike \t SABR Vol \t Hagan Vol \t Berestycki vol \t Paulot vol \t Johnson vol \t SABR PDF \t Hagan PDF \t Berestycki PDF \t Paulot PDF \t Johnson");
     for (int i = 0; i < n; i++) {
       // double z = (i - 3 * n) * step;
       // double k = F * Math.exp(sigmaRootT * z) * 1.2;
@@ -122,8 +122,8 @@ public class SABRPDFTest {
       pdf3[i] = pdf(k, SABR_BERESTYCKI);
       pdf4[i] = pdf(k, SABR_PAULOT);
       pdf5[i] = pdf(k, SABR_JOHNSON);
-      //System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
-      //    + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
+      // System.out.println(strike[i] + "\t" + impliedVol[i] + "\t" + impliedVol2[i] + "\t" + impliedVol3[i] + "\t" + impliedVol4[i] + "\t" + impliedVol5[i] + "\t" + pdf1[i] + "\t" + pdf2[i] + "\t"
+      // + pdf3[i] + "\t" + pdf4[i] + "\t" + pdf5[i]);
     }
   }
 

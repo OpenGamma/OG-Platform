@@ -14,11 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.SessionFactoryImplementor;
@@ -45,13 +40,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.cache.ViewComputationCache;
-import com.opengamma.engine.view.calc.DependencyGraphExecutor;
-import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
+import com.opengamma.financial.batch.BatchResultWriter;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
@@ -61,25 +55,45 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Writes risk into the OpenGamma batch risk database.
  * <p>
- * This result writer MUST be configured together with a dependency graph executor
- * that partitions the dependency graph by computation target and sends all
- * nodes related to a single target down to the grid in a single batch.
- * <p> 
- * For the database structure and tables, see create-db-batch.sql.   
+ * For the database structure and tables, see {@code create-db-batch.sql}.
+ * <p>
+ * This writer keeps track of calculation success/failure at a computation target 
+ * level. For example, if trade XYZ produces 1,000 risk figures, and 999 succeed
+ * and 1 fails, then trade XYZ fails. See table {@code rsk_run_status} in the database.
+ * <p>
+ * Because of this, clients of this writer MUST collect
+ * all results pertaining to a single computation target together and then call 
+ * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)}
+ * with the entire set of results for that computation target.
+ * <p>
+ * A call to
+ * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)} 
+ * can include results for multiple computation targets, as long as it
+ * is still true that results for the <i>same</i> target are not scattered across
+ * multiple calls. 
+ * <p>
+ * {@link BatchDbManagerImpl#createDependencyGraphExecutorFactory(com.opengamma.financial.batch.BatchJobRun)} 
+ * shows how to guarantee this in practice by using {@link com.opengamma.engine.view.calc.BatchExecutor}.
+ *  
  */
-public class BatchResultWriter implements DependencyGraphExecutor<Object> {
+public class BatchResultWriterImpl implements BatchResultWriter {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriter.class);
-  
-  private final DependencyGraphExecutor<CalculationJobResult> _delegate;
-  private final ExecutorService _executor;
-  private final ResultModelDefinition _resultModelDefinition;
-  private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration;
+  private static final Logger s_logger = LoggerFactory.getLogger(BatchResultWriterImpl.class);
   
   /**
    * DB configuration
    */
   private final DbSource _dbSource;
+  
+  /**
+   * Used to decide what risk to write into DB
+   */
+  private final ResultModelDefinition _resultModelDefinition;
+  
+  /**
+   * Caches
+   */
+  private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration;
   
   /**
    * References rsk_run(id)
@@ -171,16 +185,13 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
    */
   private transient boolean _initialized; // = false;
   
-  public BatchResultWriter(DbSource dbSource,
-      DependencyGraphExecutor<CalculationJobResult> delegate,
+  public BatchResultWriterImpl(DbSource dbSource,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
       RiskRun riskRun,
       Set<RiskValueName> valueNames) {
     this(dbSource,
-        delegate, 
-        Executors.newSingleThreadExecutor(), 
         resultModelDefinition,
         cachesByCalculationConfiguration,
         computationTargets,
@@ -189,10 +200,8 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
         new ResultConverterCache());
   }
   
-  public BatchResultWriter(
+  public BatchResultWriterImpl(
       DbSource dbSource,
-      DependencyGraphExecutor<CalculationJobResult> delegate, 
-      ExecutorService executor,
       ResultModelDefinition resultModelDefinition,
       Map<String, ViewComputationCache> cachesByCalculationConfiguration,
       Set<ComputationTarget> computationTargets,
@@ -200,8 +209,6 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       Set<RiskValueName> valueNames,
       ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(dbSource, "dbSource");
-    ArgumentChecker.notNull(delegate, "Dep graph executor");
-    ArgumentChecker.notNull(executor, "Task executor");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
     ArgumentChecker.notNull(cachesByCalculationConfiguration, "Caches by calculation configuration");
     ArgumentChecker.notNull(computationTargets, "Computation targets");
@@ -210,11 +217,9 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     
     _dbSource = dbSource;
-    _delegate = delegate;
-    _executor = executor;
     _resultModelDefinition = resultModelDefinition;
-    _cachesByCalculationConfiguration = cachesByCalculationConfiguration;
     _resultConverterCache = resultConverterCache;
+    _cachesByCalculationConfiguration = cachesByCalculationConfiguration;
     
     for (ComputationTarget target : computationTargets) {
       int id = target.getId();
@@ -438,32 +443,84 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
   }
 
   // --------------------------------------------------------------------------
+  
+  @Override
+  public DependencyGraph getGraphToExecute(final DependencyGraph graph) {
+    if (!isRestart()) {
+      // First time around, always execute everything.
+      return graph;      
+    }
 
-  public void jobExecuted(CalculationJobResult result, DependencyGraph depGraph) {
-    ArgumentChecker.notNull(result, "The result to write");
+    // The batch has been restarted. Figure out from the status table and the computation
+    // cache what needs to be recomputed.
     
+    DependencyGraph subGraph = graph.subGraph(new DependencyNodeFilter() {
+      @Override
+      public boolean accept(DependencyNode node) {
+        return shouldExecute(graph, node);
+      }
+    });
+    return subGraph;
+  }
+  
+  private boolean shouldExecute(DependencyGraph graph, DependencyNode node) {
+    
+    ViewComputationCache cache = getCache(graph.getCalcConfName());
+     
+    if (_resultModelDefinition.shouldOutputFromNode(node)) {
+      // e.g., POSITIONS and PORTFOLIOS
+      StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
+      switch (status) {
+        case SUCCESS:
+          if (allOutputsInCache(node, cache)) {
+            return false;
+          } else {
+            return true;
+          }
+
+        case NOT_RUNNING:
+        case RUNNING:
+        case FAILURE:
+          return true;
+        
+        default:
+          throw new RuntimeException("Unexpected status " + status);
+      }
+    } else {
+      // e.g., PRIMITIVES. If the computation cache has been re-started along with the 
+      // batch, it is necessary to re-evaluate the item, but not otherwise.
+      if (allOutputsInCache(node, cache)) {
+        return false; 
+      } else {
+        return true;
+      }
+    }
+  }
+  
+  // --------------------------------------------------------------------------
+
+  @Override
+  public synchronized void write(CalculationJobResult result, DependencyGraph depGraph) {
     if (result.getResultItems().isEmpty()) {
       s_logger.info("{}: Nothing to insert into DB", result);
       return;
     }
     
-    synchronized (this) {
-      if (!isInitialized()) {
-        initialize();
-      }
+    if (!isInitialized()) {
+      initialize();
     }
     
     ViewComputationCache cache = getCache(result);
-
+    
     openSession();
     try {
-      write(cache, result, depGraph);
+      writeImpl(cache, result, depGraph);
     } finally {
       closeSession();
     }
   }
   
-  private void write(ViewComputationCache cache, CalculationJobResult result, DependencyGraph depGraph) {
+  private void writeImpl(ViewComputationCache cache, CalculationJobResult result, DependencyGraph depGraph) {
     
     // STAGE 1. Populate error information in the shared computation cache.
     // This is done for all items and will populate table rsk_compute_failure. 
@@ -900,119 +957,7 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
     }
   }
   
-  public ViewComputationCache getCache(String calcConf) {
-    ViewComputationCache cache = _cachesByCalculationConfiguration.get(calcConf);
-    if (cache == null) {
-      throw new IllegalArgumentException("There is no cache for calc conf " + calcConf);
-    }
-    return cache;
-  }
-  
-  public ViewComputationCache getCache(CalculationJobResult result) {
-    return getCache(result.getSpecification().getCalcConfigName());
-  }
 
-  @Override
-  public Future<Object> execute(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-    BatchResultWriterCallable runnable = new BatchResultWriterCallable(graph, statistics);
-    return _executor.submit(runnable);
-  }
-  
-  public boolean shouldExecute(DependencyGraph graph, DependencyNode node) {
-    if (!isRestart()) {
-      // First time around, always execute everything.
-      return true;      
-    }
-    
-    // The batch has been restarted. Figure out from the status table and the computation
-    // cache what needs to be recomputed.
-    
-    ViewComputationCache cache = getCache(graph.getCalcConfName());
-     
-    if (_resultModelDefinition.shouldOutputFromNode(node)) {
-      // e.g., POSITIONS and PORTFOLIOS
-      StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
-      switch (status) {
-        case SUCCESS:
-          if (allOutputsInCache(node, cache)) {
-            return false;
-          } else {
-            return true;
-          }
-
-        case NOT_RUNNING:
-        case RUNNING:
-        case FAILURE:
-          return true;
-        
-        default:
-          throw new RuntimeException("Unexpected status " + status);
-      }
-    } else {
-      // e.g., PRIMITIVES. If the computation cache has been re-started along with the 
-      // batch, it is necessary to re-evaluate the item, but not otherwise.
-      if (allOutputsInCache(node, cache)) {
-        return false; 
-      } else {
-        return true;
-      }
-    }
-  }
-  
-  private class BatchResultWriterCallable implements Callable<Object> {
-    private final DependencyGraph _graph;
-    private final GraphExecutorStatisticsGatherer _statistics;
-    
-    public BatchResultWriterCallable(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
-      ArgumentChecker.notNull(graph, "Graph");
-      _graph = graph;
-      _statistics = statistics;
-    }
-
-    @Override
-    public Object call() {
-      DependencyGraph subGraph = getGraphToExecute(_graph);
-      
-      Future<CalculationJobResult> future = _delegate.execute(subGraph, _statistics);
-      
-      CalculationJobResult result;
-      try {
-        result = future.get();
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-        throw new RuntimeException("Should not have been interrupted");
-      } catch (ExecutionException e) {
-        throw new RuntimeException("Execution of dependent job failed", e);
-      }
-
-      jobExecuted(result, subGraph);
-      return null;
-    }
-  }
-  
-  DependencyGraph getGraphToExecute(final DependencyGraph graph) {
-    DependencyGraph subGraph = graph.subGraph(new DependencyNodeFilter() {
-      @Override
-      public boolean accept(DependencyNode node) {
-        return shouldExecute(graph, node);
-      }
-    });
-    return subGraph;
-  }
-
-  private boolean allOutputsInCache(DependencyNode node, ViewComputationCache cache) {
-    boolean allOutputsInCache = true;
-    
-    for (ValueSpecification output : node.getOutputValues()) {
-      if (cache.getValue(output) == null) {
-        allOutputsInCache = false;
-        break;
-      }
-    }
-    
-    return allOutputsInCache;
-  }
-  
   private StatusEntry.Status getStatus(String calcConfName, ComputationTargetSpecification ct) {
     Integer calcConfId = getCalculationConfigurationId(calcConfName);
     Integer computationTargetId = getComputationTargetId(ct);
@@ -1113,5 +1058,34 @@ public class BatchResultWriter implements DependencyGraphExecutor<Object> {
       return null;
     }
   }
+  
+  public ViewComputationCache getCache(String calcConf) {
+    ViewComputationCache cache = _cachesByCalculationConfiguration.get(calcConf);
+    if (cache == null) {
+      throw new IllegalArgumentException("There is no cache for calc conf " + calcConf);
+    }
+    return cache;
+  }
+  
+  public ViewComputationCache getCache(CalculationJobResult result) {
+    return getCache(result.getSpecification().getCalcConfigName());
+  }
+  
+  private boolean allOutputsInCache(DependencyNode node, ViewComputationCache cache) {
+    boolean allOutputsInCache = true;
+    
+    for (ValueSpecification output : node.getOutputValues()) {
+      if (cache.getValue(output) == null) {
+        allOutputsInCache = false;
+        break;
+      }
+    }
+    
+    return allOutputsInCache;
+  }
+  
+
+  
+
   
 }

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
  * @param <S> The type of the labels
  */
 //TODO need to test for uniqueness of keys and labels
-public abstract class LabelledMatrix1D<S> {
+public abstract class LabelledMatrix1D<S extends Comparable<S>> {
   private final S[] _keys;
   private final Object[] _labels;
   private final double[] _values;
@@ -23,10 +23,12 @@ public abstract class LabelledMatrix1D<S> {
     Validate.notNull(keys, "labels");
     Validate.notNull(values, "values");
     Validate.isTrue(keys.length > 0, "keys array must not be empty");
-    Validate.isTrue(keys.length == values.length, "length of keys array must match length of values array");
-    _keys = keys;
+    final int n = keys.length;
+    Validate.isTrue(n == values.length, "length of keys array must match length of values array");
+    _keys = Arrays.copyOf(keys, n);
+    _values = Arrays.copyOf(values, n);
+    sort(_keys, null, _values);
     _labels = keys;
-    _values = values;
   }
 
   public LabelledMatrix1D(final S[] keys, final Object[] labels, final double[] values) {
@@ -34,11 +36,13 @@ public abstract class LabelledMatrix1D<S> {
     Validate.notNull(labels, "label names");
     Validate.notNull(values, "values");
     Validate.isTrue(keys.length > 0, "labels array must not be empty");
-    Validate.isTrue(keys.length == labels.length, "length of labels array must match length of label names array");
-    Validate.isTrue(keys.length == values.length, "length of labels array must match length of values array");
-    _keys = keys;
-    _labels = labels;
-    _values = values;
+    final int n = keys.length;
+    Validate.isTrue(n == labels.length, "length of keys array (" + n + ") must match length of label names array (" + labels.length + ")");
+    Validate.isTrue(n == values.length, "length of keys array (" + n + ") must match length of values array (" + values.length + ")");
+    _keys = Arrays.copyOf(keys, n);
+    _labels = Arrays.copyOf(labels, n);
+    _values = Arrays.copyOf(values, n);
+    sort(_keys, _labels, _values);
   }
 
   public S[] getKeys() {
@@ -102,6 +106,48 @@ public abstract class LabelledMatrix1D<S> {
    * @return The sum of the matrices
    */
   public abstract LabelledMatrix1D<S> add(S key, Object label, double value);
+
+  protected void sort(final S[] keys, final Object[] labels, final double[] values) {
+    final int n = keys.length;
+    tripleArrayQuickSort(keys, labels, values, 0, n - 1);
+  }
+
+  private void tripleArrayQuickSort(final S[] keys, final Object[] labels, final double[] values, final int left, final int right) {
+    if (right > left) {
+      final int pivot = (left + right) >> 1;
+      final int pivotNewIndex = partition(keys, labels, values, left, right, pivot);
+      tripleArrayQuickSort(keys, labels, values, left, pivotNewIndex - 1);
+      tripleArrayQuickSort(keys, labels, values, pivotNewIndex + 1, right);
+    }
+  }
+
+  private int partition(final S[] keys, final Object[] labels, final double[] values, final int left, final int right, final int pivot) {
+    final S pivotValue = keys[pivot];
+    swap(keys, labels, values, pivot, right);
+    int storeIndex = left;
+    for (int i = left; i < right; i++) {
+      if (keys[i].compareTo(pivotValue) != 1) {
+        swap(keys, labels, values, i, storeIndex);
+        storeIndex++;
+      }
+    }
+    swap(keys, labels, values, storeIndex, right);
+    return storeIndex;
+  }
+
+  private void swap(final S[] keys, final Object[] labels, final double[] values, final int first, final int second) {
+    final S x = keys[first];
+    keys[first] = keys[second];
+    keys[second] = x;
+    if (labels != null) {
+      final Object y = labels[first];
+      labels[first] = labels[second];
+      labels[second] = y;
+    }
+    final double z = values[first];
+    values[first] = values[second];
+    values[second] = z;
+  }
 
   @Override
   public int hashCode() {

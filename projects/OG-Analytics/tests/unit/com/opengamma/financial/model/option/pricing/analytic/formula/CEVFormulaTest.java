@@ -38,7 +38,7 @@ public class CEVFormulaTest {
       } catch (Exception e) {
         vol = 0.0;
       }
-      double sabrVol = sabr.impliedVolitility(f, sigma, beta, 0.0, 0.0, k, t);
+      double sabrVol = sabr.impliedVolatility(f, sigma, beta, 0.0, 0.0, k, t);
       assertEquals(sabrVol, vol, 1e-5);
     }
   }
@@ -63,7 +63,7 @@ public class CEVFormulaTest {
       } catch (Exception e) {
         vol = 0.0;
       }
-      double sabrVol = sabr.impliedVolitility(f, sigma, beta, 0.0, 0.0, k, t);
+      double sabrVol = sabr.impliedVolatility(f, sigma, beta, 0.0, 0.0, k, t);
       assertEquals(sabrVol, vol, 1e-4);
     }
   }
@@ -91,7 +91,7 @@ public class CEVFormulaTest {
         } catch (Exception e) {
           vol = 0.0;
         }
-        double sabrVol = sabr.impliedVolitility(f, sigma, beta, 0.0, 0.0, k, t);
+        double sabrVol = sabr.impliedVolatility(f, sigma, beta, 0.0, 0.0, k, t);
         // System.out.println(beta + "\t" + k + "\t" + vol + "\t" + sabrVol);
         assertEquals(sabrVol, vol, 1e-5);
       }

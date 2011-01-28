@@ -46,6 +46,13 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   }
   
   @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("timeseries/jsononetimeseries.ftl", out);
+  }
+  
+  @GET
   @Produces("text/csv")
   public String getCsv() {
     StringWriter stringWriter  = new StringWriter();

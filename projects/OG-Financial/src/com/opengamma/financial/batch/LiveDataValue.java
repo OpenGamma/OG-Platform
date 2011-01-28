@@ -10,6 +10,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,6 +34,41 @@ public class LiveDataValue {
    * For example, 55.02
    */
   private double _value;
+  
+  public LiveDataValue(
+      ComputedValue value) {
+    ArgumentChecker.notNull(value, "Value");
+    
+    _computationTargetSpecification = value.getSpecification().getTargetSpecification();
+    _fieldName = value.getSpecification().getValueName();
+    
+    if (!(value.getValue() instanceof Double)) {
+      throw new IllegalArgumentException("Value must be a Double, was " + value.getValue().getClass());      
+    }
+    _value = (Double) value.getValue();
+  }
+  
+  public LiveDataValue(
+      ValueSpecification specification,
+      Double value) {
+    ArgumentChecker.notNull(specification, "Value specification");
+    ArgumentChecker.notNull(value, "Value");
+    
+    _computationTargetSpecification = specification.getTargetSpecification();
+    _fieldName = specification.getValueName();
+    _value = (Double) value;
+  }
+  
+  public LiveDataValue(
+      ValueRequirement requirement,
+      Double value) {
+    ArgumentChecker.notNull(requirement, "Value requirement");
+    ArgumentChecker.notNull(value, "Value");
+    
+    _computationTargetSpecification = requirement.getTargetSpecification();
+    _fieldName = requirement.getValueName();
+    _value = (Double) value;
+  }
   
   public LiveDataValue(ComputationTargetSpecification computationTargetSpecification,
       String fieldName,

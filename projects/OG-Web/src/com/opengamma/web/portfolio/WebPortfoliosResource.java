@@ -41,7 +41,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/portfolios")
 public class WebPortfoliosResource extends AbstractWebPortfolioResource {
-
+  
   /**
    * Creates the resource.
    * @param portfolioMaster  the portfolio master, not null
@@ -58,6 +58,21 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name) {
+    FlexiBean out = createSearchResultData(page, pageSize, name);
+    return getFreemarker().build("portfolios/portfolios.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name) {
+    FlexiBean out = createSearchResultData(page, pageSize, name);
+    return getFreemarker().build("portfolios/jsonportfolios.ftl", out);
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String name) {
     FlexiBean out = createRootData();
     
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
@@ -70,7 +85,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }
-    return getFreemarker().build("portfolios/portfolios.ftl", out);
+    return out;
   }
 
   //-------------------------------------------------------------------------

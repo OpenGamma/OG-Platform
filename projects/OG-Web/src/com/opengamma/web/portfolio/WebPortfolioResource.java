@@ -44,6 +44,18 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get() {
+    FlexiBean out = createPortfolioData();
+    return getFreemarker().build("portfolios/portfolio.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createPortfolioData();
+    return getFreemarker().build("portfolios/jsonportfolio.ftl", out);
+  }
+
+  private FlexiBean createPortfolioData() {
     PortfolioDocument doc = data().getPortfolio();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setPositionIds(doc.getPortfolio().getRootNode().getPositionIds());
@@ -52,7 +64,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     FlexiBean out = createRootData();
     out.put("positionsResult", positionsResult);
     out.put("positions", positionsResult.getPositions());
-    return getFreemarker().build("portfolios/portfolio.ftl", out);
+    return out;
   }
 
   @PUT

@@ -23,6 +23,7 @@ public class SecurityUtilsTest {
     assertEquals("SEDOL1", SecurityUtils.SEDOL1.getName());
     assertEquals("BLOOMBERG_BUID", SecurityUtils.BLOOMBERG_BUID.getName());
     assertEquals("BLOOMBERG_TICKER", SecurityUtils.BLOOMBERG_TICKER.getName());
+    assertEquals("BLOOMBERG_TCM", SecurityUtils.BLOOMBERG_TCM.getName());
     assertEquals("RIC", SecurityUtils.RIC.getName());
   }
 
@@ -33,6 +34,7 @@ public class SecurityUtilsTest {
     assertEquals(Identifier.of("SEDOL1", "A"), SecurityUtils.sedol1SecurityId("A"));
     assertEquals(Identifier.of("BLOOMBERG_BUID", "A"), SecurityUtils.bloombergBuidSecurityId("A"));
     assertEquals(Identifier.of("BLOOMBERG_TICKER", "A"), SecurityUtils.bloombergTickerSecurityId("A"));
+    assertEquals(Identifier.of("BLOOMBERG_TCM", "T 4.75 15/08/43 Govt"), SecurityUtils.bloombergTCMSecurityId("T", "4.75", "15/08/43", "Govt"));
     assertEquals(Identifier.of("RIC", "A"), SecurityUtils.ricSecurityId("A"));
   }
 
@@ -59,6 +61,11 @@ public class SecurityUtilsTest {
   @Test(expected = IllegalArgumentException.class)
   public void test_bloombergTicker_null() {
     SecurityUtils.bloombergTickerSecurityId(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void test_bloombergTCM_null() {
+    SecurityUtils.bloombergTCMSecurityId(null, null, null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

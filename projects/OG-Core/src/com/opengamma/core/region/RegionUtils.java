@@ -26,6 +26,10 @@ public class RegionUtils {
    */
   public static final IdentificationScheme ISO_CURRENCY_ALPHA3 = IdentificationScheme.of("ISO_CURRENCY_ALPHA3");
   /**
+   * Identification scheme for the UN/LOCODE code standard, formatted without spaces.
+   */
+  public static final IdentificationScheme UN_LOCODE = IdentificationScheme.of("UN_LOCODE");
+  /**
    * Identification scheme for the tz database time-zone standard.
    */
   public static final IdentificationScheme TZDB_TIME_ZONE = IdentificationScheme.of("TZDB_TIME_ZONE");
@@ -69,6 +73,22 @@ public class RegionUtils {
   public static Identifier currencyRegionId(Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
     return Identifier.of(ISO_CURRENCY_ALPHA3, currency.getISOCode());
+  }
+
+  /**
+   * Creates a UN/LOCODE code, formatted without spaces.
+   * <p>
+   * Examples might be {@code GBHOH} or {@code AEDXB}.
+   * 
+   * @param locode  the UN/LOCODE, not null
+   * @return the region identifier, not null
+   */
+  public static Identifier unlocodeRegionId(String locode) {
+    ArgumentChecker.notNull(locode, "locode");
+    if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
+      throw new IllegalArgumentException("UN/LOCODE must be 5 is invalid: " + locode);
+    }
+    return Identifier.of(UN_LOCODE, locode);
   }
 
   /**

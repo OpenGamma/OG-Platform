@@ -14,7 +14,7 @@ import com.opengamma.util.CompareUtils;
 public class SABRFormulaHagan2 implements SABRFormula {
   private static final double EPS = 1e-15;
 
-  public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
+  public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     double i0;
     final double beta1 = 1 - beta;

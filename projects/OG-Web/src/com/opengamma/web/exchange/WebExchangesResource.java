@@ -64,6 +64,22 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, uriInfo);
+    return getFreemarker().build("exchanges/exchanges.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, uriInfo);
+    return getFreemarker().build("exchanges/jsonexchanges.ftl", out);
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
@@ -81,7 +97,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("exchanges/exchanges.ftl", out);
+    return out;
   }
 
   //-------------------------------------------------------------------------
