@@ -7,12 +7,9 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.junit.Test;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
 /**
  * 
@@ -32,23 +29,6 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     assertEquals(m3, m4);
     final DoubleLabelledMatrix1D m5 = new DoubleLabelledMatrix1D(keys, keys, values);
     final DoubleLabelledMatrix1D m6 = cycleObject(DoubleLabelledMatrix1D.class, m5);
-    assertEquals(m5, m6);
-    assertEquals(m3, m6);
-  }
-
-  @Test
-  public void testLocalDate() {
-    final LocalDate[] keys = new LocalDate[] {LocalDate.of(2012, 1, 1), LocalDate.of(2013, 1, 1), LocalDate.of(2014, 1, 1), LocalDate.of(2015, 1, 1), LocalDate.of(2016, 1, 1)};
-    final Object[] labels = new Object[] {"1y", "2y", "3y", "4y", "5y"};
-    final double[] values = new double[] {0.1, 0.2, 0.3, 0.4, 0.5};
-    final LocalDateLabelledMatrix1D m1 = new LocalDateLabelledMatrix1D(keys, labels, values);
-    final LocalDateLabelledMatrix1D m2 = cycleObject(LocalDateLabelledMatrix1D.class, m1);
-    assertEquals(m1, m2);
-    final LocalDateLabelledMatrix1D m3 = new LocalDateLabelledMatrix1D(keys, values);
-    final LocalDateLabelledMatrix1D m4 = cycleObject(LocalDateLabelledMatrix1D.class, m3);
-    assertEquals(m3, m4);
-    final LocalDateLabelledMatrix1D m5 = new LocalDateLabelledMatrix1D(keys, keys, values);
-    final LocalDateLabelledMatrix1D m6 = cycleObject(LocalDateLabelledMatrix1D.class, m5);
     assertEquals(m5, m6);
     assertEquals(m3, m6);
   }
