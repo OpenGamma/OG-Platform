@@ -305,11 +305,9 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
     final S x = keys[first];
     keys[first] = keys[second];
     keys[second] = x;
-    if (labels != null) {
-      final Object y = labels[first];
-      labels[first] = labels[second];
-      labels[second] = y;
-    }
+    final Object y = labels[first];
+    labels[first] = labels[second];
+    labels[second] = y;
     final double z = values[first];
     values[first] = values[second];
     values[second] = z;
