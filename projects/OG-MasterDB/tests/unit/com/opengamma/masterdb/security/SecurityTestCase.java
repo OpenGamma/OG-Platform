@@ -182,7 +182,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   private static RegionSource s_regionSource;
   static {
     final RegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populate(regionMaster);
+    RegionFileReader.createPopulated(regionMaster);
     s_regionSource = new MasterRegionSource(regionMaster);
   }
 

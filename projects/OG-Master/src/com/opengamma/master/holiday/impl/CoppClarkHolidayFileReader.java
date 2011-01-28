@@ -368,7 +368,7 @@ public class CoppClarkHolidayFileReader {
         String ccId = row[ccIdx].trim();
         String countryISO = row[isoCountryIdx].trim();
         String unlocodePart = row[unlocodeIdx].trim();
-        Identifier regionId = RegionUtils.unlocodeRegionId(countryISO + unlocodePart);
+        Identifier regionId = RegionUtils.coppClarkRegionId(countryISO + unlocodePart);
         String eventDateStr = row[eventDateIdx];
         LocalDate eventDate =  LocalDate.parse(eventDateStr, DATE_FORMAT);
         HolidayDocument doc = fileMap.get(ccId);

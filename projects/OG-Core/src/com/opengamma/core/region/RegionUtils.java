@@ -26,9 +26,13 @@ public class RegionUtils {
    */
   public static final IdentificationScheme ISO_CURRENCY_ALPHA3 = IdentificationScheme.of("ISO_CURRENCY_ALPHA3");
   /**
-   * Identification scheme for the UN/LOCODE code standard, formatted without spaces.
+   * Identification scheme for the Copp Clark version of UN/LOCODE , formatted without spaces.
    */
-  public static final IdentificationScheme UN_LOCODE = IdentificationScheme.of("UN_LOCODE");
+  public static final IdentificationScheme COPP_CLARK_LOCODE = IdentificationScheme.of("COPP_CLARK_LOCODE");
+  /**
+   * Identification scheme for the UN/LOCODE 2010-2 code standard, formatted without spaces.
+   */
+  public static final IdentificationScheme UN_LOCODE_2010_2 = IdentificationScheme.of("UN_LOCODE_2010_2");
   /**
    * Identification scheme for the tz database time-zone standard.
    */
@@ -76,19 +80,36 @@ public class RegionUtils {
   }
 
   /**
-   * Creates a UN/LOCODE code, formatted without spaces.
+   * Creates a UN/LOCODE 2010-2 code, formatted without spaces.
    * <p>
    * Examples might be {@code GBHOH} or {@code AEDXB}.
    * 
    * @param locode  the UN/LOCODE, not null
    * @return the region identifier, not null
    */
-  public static Identifier unlocodeRegionId(String locode) {
+  public static Identifier unLocode20102RegionId(String locode) {
     ArgumentChecker.notNull(locode, "locode");
     if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
-      throw new IllegalArgumentException("UN/LOCODE must be 5 is invalid: " + locode);
+      throw new IllegalArgumentException("UN/LOCODE is invalid: " + locode);
     }
-    return Identifier.of(UN_LOCODE, locode);
+    return Identifier.of(UN_LOCODE_2010_2, locode);
+  }
+
+  /**
+   * Creates a Copp Clark location code, formatted without spaces.
+   * This is based on UN/LOCODE.
+   * <p>
+   * Examples might be {@code GBHOH} or {@code AEDXB}.
+   * 
+   * @param locode  the Copp Clark LOCODE, not null
+   * @return the region identifier, not null
+   */
+  public static Identifier coppClarkRegionId(String locode) {
+    ArgumentChecker.notNull(locode, "locode");
+    if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
+      throw new IllegalArgumentException("Copp Clark LOCODE is invalid: " + locode);
+    }
+    return Identifier.of(COPP_CLARK_LOCODE, locode);
   }
 
   /**

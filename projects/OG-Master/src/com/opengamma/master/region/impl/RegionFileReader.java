@@ -6,9 +6,6 @@
 package com.opengamma.master.region.impl;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -46,7 +43,6 @@ public class RegionFileReader {
   /**
    * Path to the default regions file
    */
-  //public static final String REGIONS_FILE_PATH = WORLD_DATA_DIR_PATH + File.separator + "regions" + File.separator + "regions.csv";
   private static final String REGIONS_RESOURCE = "/com/opengamma/region/regions.csv";
   /**
    * The name column header.
@@ -87,52 +83,43 @@ public class RegionFileReader {
    * <p>
    * The values can be extracted using the accessor methods.
    * 
-   * @return the exchange reader, not null
+   * @return the region reader, not null
    */
   public static RegionFileReader createPopulated() {
-    RegionFileReader fileReader = new RegionFileReader(new InMemoryRegionMaster());
-    InputStream regionsStream = fileReader.getClass().getResourceAsStream(REGIONS_RESOURCE);
-    fileReader.parse(regionsStream);
+    return createPopulated0(new InMemoryRegionMaster());
+  }
+
+  /**
+   * Populates a region master.
+   * 
+   * @param regionMaster  the region master to populate, not null
+   * @return the master, not null
+   */
+  public static RegionMaster createPopulated(RegionMaster regionMaster) {
+    return createPopulated0(regionMaster).getRegionMaster();
+  }
+
+  /**
+   * Creates a populated file reader.
+   * <p>
+   * The values can be extracted using the accessor methods.
+   * 
+   * @param regionMaster  the region master to populate, not null
+   * @return the region reader, not null
+   */
+  private static RegionFileReader createPopulated0(RegionMaster regionMaster) {
+    RegionFileReader fileReader = new RegionFileReader(regionMaster);
+    InputStream stream = regionMaster.getClass().getResourceAsStream(REGIONS_RESOURCE);
+    try {
+      fileReader.parse(stream);
+    } finally {
+      IOUtils.closeQuietly(stream);
+    }
+    UnLocodeRegionFileReader.populate(regionMaster);
     return fileReader;
   }
 
-  /**
-   * Populates a region master.
-   * 
-   * @param regionMaster  the region master to populate, not null
-   * @return the master, not null
-   */
-  public static RegionMaster populate(RegionMaster regionMaster) {
-    populate(regionMaster, regionMaster.getClass().getResourceAsStream(REGIONS_RESOURCE));
-    return regionMaster;
-  }
-
-  /**
-   * Populates a region master.
-   * 
-   * @param regionMaster  the region master to populate, not null
-   * @param file  the CSV file to read from, not null
-   * @return the master, not null
-   */
-  public static RegionMaster populate(RegionMaster regionMaster, File file) {
-    RegionFileReader reader = new RegionFileReader(regionMaster);
-    reader.parse(file);
-    return regionMaster;
-  }
-
-  /**
-   * Populates a region master.
-   *
-   * @param regionMaster  the region master to populate, not null
-   * @param regionStream  the CSV stream to read from, not null
-   * @return the master, not null
-   */
-  public static RegionMaster populate(RegionMaster regionMaster, InputStream regionStream) {
-    RegionFileReader reader = new RegionFileReader(regionMaster);
-    reader.parse(regionStream);
-    return regionMaster;
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance with a master to populate.
    * 
@@ -161,20 +148,6 @@ public class RegionFileReader {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Parses the specified file to populate the master.
-   * 
-   * @param file  the file to read, not null
-   */
-  public void parse(File file) {
-    ArgumentChecker.notNull(file, "file");
-    try {
-      parse(new FileReader(file));
-    } catch (FileNotFoundException ex) {
-      throw new OpenGammaRuntimeException("Region file not found", ex);
-    }
-  }
-
   /**
    * Parses the specified file to populate the master.
    * 

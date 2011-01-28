@@ -51,7 +51,7 @@ public class CoppClarkHolidayFileReaderTest {
     Assert.assertFalse(holidaySource.isHoliday(LocalDate.of(2012, 06, 06), HolidayType.BANK, euronextLiffe.getRegionKey()));
     
     InMemoryRegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populate(regionMaster);
+    RegionFileReader.createPopulated(regionMaster);
     RegionSource regionSource = new MasterRegionSource(regionMaster);
     Currency currency = regionSource.getHighestLevelRegion(euronextLiffe.getRegionKey()).getCurrency();
     Assert.assertTrue(holidaySource.isHoliday(LocalDate.of(2012, 06, 05), currency));
