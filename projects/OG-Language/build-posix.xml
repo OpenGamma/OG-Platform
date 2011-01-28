@@ -1,5 +1,7 @@
 <project name="build-posix">
 
+	<property file="${project.dir}/build.properties" />
+
 	<target name="clean" depends="clean-src" description="--> clean the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
@@ -11,11 +13,11 @@
 		<taskdef resource="cpptasks.tasks" />
 		<cc	debug="${cc.debug}"
 			incremental="${cc.incremental}"
-			multithreaded="true"
+			multithreaded="${posix.multithreaded}"
 			objdir="${basedir}/${cc.configuration}"
 			optimize="${cc.optimization}"
 			outtype="${cc.outtype}"
-			warnings="diagnostic"
+			warnings="${posix.warnings}"
 			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
 			<fileset dir="${basedir}">
 				<include name="*.c" />

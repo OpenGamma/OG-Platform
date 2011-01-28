@@ -98,7 +98,7 @@
 	<target name="compile" depends="unpack-resolve" description="--> compile all components">
 
 		<!-- Java stuff -->
-		<subant target="deploy" buildpath="${basedir}/Client" />
+		<subant target="deploy" buildpath="${basedir}/Client" antfile="build.parent-invoked.xml" />
 
 		<!-- C++ projects (in build order) -->
 		<subant target="compile" buildpath="${basedir}/Util" />
@@ -110,7 +110,7 @@
 	<target name="tests" depends="unpack-resolve" description="--> compile and run unit tests">
 
 		<!-- Test compilation pre-requisite -->
-		<subant target="deploy" buildpath="${basedir}/Client" />
+		<subant target="deploy" buildpath="${basedir}/Client" antfile="build.parent-invoked.xml" />
 
 		<!-- C++ pre-requisites -->
 		<subant target="compile" buildpath="${basedir}/Util" />
@@ -123,7 +123,7 @@
 		<subant target="tests" buildpath="${basedir}/ConnectorTest" />
 
 		<!-- Java tests -->
-		<subant target="tests" buildpath="${basedir}/Client" />
+		<subant target="tests" buildpath="${basedir}/Client" antfile="build.parent-invoked.xml" />
 
 	</target>
 
@@ -151,7 +151,7 @@
 		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
 	</target>
 
-	<target name="clean-lib" description="--> clean the library path">
+	<target name="clean-lib" description="--> clean the library path" unless="clean.lib.disabled">
 		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
 	</target>
 

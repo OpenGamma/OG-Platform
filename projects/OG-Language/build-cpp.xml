@@ -1,5 +1,6 @@
 <project name="build-cpp">
 
+	<property file="${basedir}/build.properties" />
 	<property environment="env" />
 
 	<!-- Use Visual Studio if it's available -->

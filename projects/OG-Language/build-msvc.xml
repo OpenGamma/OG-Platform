@@ -1,6 +1,9 @@
 <project name="build-msvc">
 
+	<property file="${solution.dir}/build.properties" />
+
 	<target name="run-msbuild">
+		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
 		<exec executable="msbuild" failonerror="true">
 			<arg value="${basedir}\${ant.project.name}.vcxproj" />
 			<arg value="/p:SolutionDir=${basedir}\..\" />
@@ -35,20 +38,20 @@
 
 	<property name="log4cxx.configuration" value="${env.LOG4CXX_CONFIGURATION}" />
 	<property name="log4cxx.logfile" value="${log4cxx.configuration}.log" />
-	<property name="tests.vs.dir" value="${tests.dir}\VSResults" />
+	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
 	<target name="run-mstest">
-		<mkdir dir="${tests.vs.dir}" />
-		<delete file="${tests.vs.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
+		<mkdir dir="${tests.results.dir}" />
+		<delete file="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
 		<exec executable="mstest" failonerror="false">
 			<arg value="/testcontainer:${build.dir}\${msbuild.config}${msbuild.platform}\${ant.project.name}.dll" />
-			<arg value="/resultsfile:${tests.vs.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
+			<arg value="/resultsfile:${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
 			<arg value="/detail:stdout" />
 			<arg value="/detail:stderr" />
-			<arg key="LOG4CXX_CONFIGURATION" value="${log4cxx.cofiguration}" />
+			<env key="LOG4CXX_CONFIGURATION" value="${log4cxx.cofiguration}" />
 			<env key="WORKING_DIRECTORY" value="${build.dir}\${msbuild.config}${msbuild.platform}" />
 		</exec>
-		<copy file="${log4cxx.logfile}" tofile="${tests.vs.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.log" />
-		<delete file="${log4cxx.logfile}" />
+		<copy file="${log4cxx.logfile}" tofile="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.log" failonerror="false" />
+		<delete file="${log4cxx.logfile}" failonerror="false" />
 	</target>
 	<target name="tests-win32" depends="compile-win32" if="msvc.win32">
 		<antcall target="run-mstest">
