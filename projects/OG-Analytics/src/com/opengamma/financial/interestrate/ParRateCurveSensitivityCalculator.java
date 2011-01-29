@@ -80,7 +80,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final String curveName = fra.getLiborCurveName();
+    final String curveName = fra.getIndexCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = fra.getFixingDate();
     final double tb = fra.getMaturity();

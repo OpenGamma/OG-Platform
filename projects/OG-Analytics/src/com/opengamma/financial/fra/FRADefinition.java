@@ -1,24 +1,33 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.fra;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.bond.Convention;
 import com.opengamma.financial.bond.InterestRateDerivativeProvider;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 
 /**
  * 
  */
 public class FRADefinition implements InterestRateDerivativeProvider<ForwardRateAgreement> {
+  private static final Logger s_logger = LoggerFactory.getLogger(FRADefinition.class);
   private final ZonedDateTime _startDate;
   private final ZonedDateTime _maturityDate;
   private final Convention _convention;
@@ -92,9 +101,35 @@ public class FRADefinition implements InterestRateDerivativeProvider<ForwardRate
   public ForwardRateAgreement toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0);
+    Validate.isTrue(yieldCurveNames.length > 1);
     Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
-    return null;
+    s_logger.info("Assuming first yield curve name is the funding curve and the second is the index curve");
+    DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    Calendar calendar = _convention.getWorkingDayCalendar();
+    String fundingCurveName = yieldCurveNames[0];
+    String indexCurveName = yieldCurveNames[1];
+    BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final ZonedDateTime settlementDate = ZonedDateTime.of(LocalDateTime.ofMidnight(getSettlementDate(_startDate.toLocalDate(), calendar, businessDayConvention, _convention.getSettlementDays())),
+        TimeZone.UTC);
+    final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, _startDate);
+    final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, _maturityDate);
+    double settlementTime = actAct.getDayCountFraction(zonedDate, settlementDate);
+    double maturityTime = actAct.getDayCountFraction(zonedDate, maturityDate);
+    double fixingTime = actAct.getDayCountFraction(zonedDate, fixingDate);
+    DayCount dayCount = _convention.getDayCount();
+    final double forwardYearFraction = dayCount.getDayCountFraction(fixingDate, _maturityDate);
+    final double discountingYearFraction = dayCount.getDayCountFraction(settlementDate, _maturityDate);
+    return new ForwardRateAgreement(settlementTime, maturityTime, fixingTime, forwardYearFraction, discountingYearFraction, _rate, fundingCurveName, indexCurveName);
   }
 
+  // TODO this only works for following
+  // TODO this code needs to be extracted out - it will be used in many FI definitions
+  private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
+    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
+    for (int i = 0; i < settlementDays; i++) {
+      date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
+    }
+    return date;
+  }
 }

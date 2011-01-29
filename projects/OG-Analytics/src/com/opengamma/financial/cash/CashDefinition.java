@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.cash;
@@ -90,23 +90,23 @@ public class CashDefinition implements InterestRateDerivativeProvider<Cash> {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
+    Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
     if (yieldCurveNames.length > 1) {
       s_logger.warn("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
     }
-    Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
-    final LocalDate startDate = getSettlementDate(date, _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
+    final LocalDate settlementDate = getSettlementDate(date, _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(startDate), TimeZone.UTC);
+    final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final DayCount dayCount = _convention.getDayCount();
-    final double tradeTime = dayCount.getDayCountFraction(zonedDate, ZonedDateTime.of(LocalDateTime.ofMidnight(startDate), TimeZone.UTC));
+    final double tradeTime = dayCount.getDayCountFraction(zonedDate, ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC));
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double paymentTime = actAct.getDayCountFraction(zonedDate, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
     return new Cash(paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
   }
 
-  //TODO this only works for following 
-  //TODO this code needs to be extracted out - it will be used in many FI definitions
+  // TODO this only works for following
+  // TODO this code needs to be extracted out - it will be used in many FI definitions
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
     LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
     for (int i = 0; i < settlementDays; i++) {

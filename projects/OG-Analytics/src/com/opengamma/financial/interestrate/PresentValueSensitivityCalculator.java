@@ -65,7 +65,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final String fundingCurveName = fra.getFundingCurveName();
-    final String liborCurveName = fra.getLiborCurveName();
+    final String liborCurveName = fra.getIndexCurveName();
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fundingCurveName);
     final YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
     final double fwdAlpha = fra.getForwardYearFraction();

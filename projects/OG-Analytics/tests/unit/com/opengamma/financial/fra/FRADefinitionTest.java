@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.fra;
@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -87,4 +88,18 @@ public class FRADefinitionTest {
     assertFalse(other.equals(DEFINITION));
   }
 
+  @Test
+  public void testConversion() {
+    String fundingCurveName = "A";
+    String indexCurveName = "B";
+    ForwardRateAgreement fra = DEFINITION.toDerivative(DATE, fundingCurveName, indexCurveName);
+    assertEquals(fra.getFixingDate(), 90. / 365, 0);
+    assertEquals(fra.getSettlementDate(), 93. / 365, 0);
+    assertEquals(fra.getMaturity(), 181. / 365, 0);
+    assertEquals(fra.getDiscountingYearFraction(), 88. / 360, 0);
+    assertEquals(fra.getForwardYearFraction(), 91. / 360, 0);
+    assertEquals(fra.getFundingCurveName(), fundingCurveName);
+    assertEquals(fra.getIndexCurveName(), indexCurveName);
+    assertEquals(fra.getStrike(), RATE, 0);
+  }
 }

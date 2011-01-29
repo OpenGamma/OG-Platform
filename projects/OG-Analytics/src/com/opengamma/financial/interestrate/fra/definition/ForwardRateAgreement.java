@@ -91,7 +91,7 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
     return _maturity;
   }
 
-  public String getLiborCurveName() {
+  public String getIndexCurveName() {
     return _liborCurveName;
   }
 
@@ -185,7 +185,7 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
 
   @Override
   public ForwardRateAgreement withRate(final double rate) {
-    return new ForwardRateAgreement(getSettlementDate(), getMaturity(), getFixingDate(), getForwardYearFraction(), getDiscountingYearFraction(), rate, getFundingCurveName(), getLiborCurveName());
+    return new ForwardRateAgreement(getSettlementDate(), getMaturity(), getFixingDate(), getForwardYearFraction(), getDiscountingYearFraction(), rate, getFundingCurveName(), getIndexCurveName());
   }
 
 }

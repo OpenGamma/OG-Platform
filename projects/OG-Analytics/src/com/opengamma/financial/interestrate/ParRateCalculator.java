@@ -65,7 +65,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
 
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final YieldAndDiscountCurve curve = curves.getCurve(fra.getLiborCurveName());
+    final YieldAndDiscountCurve curve = curves.getCurve(fra.getIndexCurveName());
     final double ta = fra.getFixingDate();
     final double tb = fra.getMaturity();
     final double yearFrac = fra.getForwardYearFraction();

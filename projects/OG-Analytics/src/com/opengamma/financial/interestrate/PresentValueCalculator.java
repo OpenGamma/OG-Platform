@@ -57,7 +57,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(curves);
     Validate.notNull(fra);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getLiborCurveName());
+    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
     final double fwdAlpha = fra.getForwardYearFraction();
     final double discountAlpha = fra.getDiscountingYearFraction();
     final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
