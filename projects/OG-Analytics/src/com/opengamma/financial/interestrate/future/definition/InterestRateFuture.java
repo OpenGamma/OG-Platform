@@ -35,15 +35,16 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
     this(settlement, settlement, maturity, yearFraction, yearFraction, price, indexCurveName);
   }
 
+  //TODO rename valueYearFraction
   /**
    * Setup for a general interest rate future. This follows the Eurodollar futures system of having a quoted price of 100(1-r)  where r is the rate for a hypothetical loan on a some
-   * index rate (normal a Libor rate)
+   * index rate (normally a Libor rate)
    * @param settlement The date-time (in years as a double) at which the future is cash settled (for Eurodollars this is two days before the fixing date, unless that is a bank holiday)
    * @param fixingTime The data-time (in years as a double) when the reference rate is set (normally the third Wednesday of March, June, September & December for 3m contracts,
    * but any positive value is allowed)
    * @param maturity The maturity of the reference rate (in years as a double)
    * @param indexYearFraction The year fraction to used for calculating the reference rate
-   * @param valueYearFraction The change in value (per unit notional) for a unit charge in reference rate (this is 0.25 for a Eurodollar future, i.e. $25 for a 1bp change on a $1M notional)
+   * @param valueYearFraction The change in value (per unit notional) for a unit change in reference rate (this is 0.25 for a Eurodollar future, i.e. $25 for a 1bp change on a $1M notional)
    * @param price  The quoted price of the future, price = 100*(1-r), where r is the implied futures rate as a fraction 
    * @param indexCurveName The name of the curve used to calculate the reference rate 
    */
