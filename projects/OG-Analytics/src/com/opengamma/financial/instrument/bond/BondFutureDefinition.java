@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.bond;
+package com.opengamma.financial.instrument.bond;
 
 import java.util.Arrays;
 
@@ -12,6 +12,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 

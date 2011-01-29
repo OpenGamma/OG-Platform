@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.cash;
+package com.opengamma.financial.instrument.cash;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -15,12 +15,12 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.bond.Convention;
-import com.opengamma.financial.bond.InterestRateDerivativeProvider;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.Convention;
+import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 
 /**

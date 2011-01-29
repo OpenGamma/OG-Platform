@@ -28,8 +28,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
-import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 /**
  * 

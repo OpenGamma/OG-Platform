@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.bond;
+package com.opengamma.financial.instrument;
 
 import javax.time.calendar.LocalDate;
 

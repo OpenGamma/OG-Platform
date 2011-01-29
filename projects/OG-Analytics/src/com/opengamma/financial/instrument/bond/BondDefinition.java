@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.bond;
+package com.opengamma.financial.instrument.bond;
 
 import java.util.Arrays;
 
@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.CompareUtils;
 

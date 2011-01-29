@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
