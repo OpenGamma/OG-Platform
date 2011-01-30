@@ -8,13 +8,13 @@ package com.opengamma.financial.interestrate.fra.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 
 /**
  * 
  */
-public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
+public class ForwardRateAgreement implements InterestRateDerivative {
   private final double _settlement;
   private final double _maturity;
   private final double _strike;
@@ -181,11 +181,6 @@ public class ForwardRateAgreement implements InterestRateDerivativeWithRate {
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
     return visitor.visitForwardRateAgreement(this);
-  }
-
-  @Override
-  public ForwardRateAgreement withRate(final double rate) {
-    return new ForwardRateAgreement(getSettlementDate(), getMaturity(), getFixingDate(), getForwardYearFraction(), getDiscountingYearFraction(), rate, getFundingCurveName(), getIndexCurveName());
   }
 
 }

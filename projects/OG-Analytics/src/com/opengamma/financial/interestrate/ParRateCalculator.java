@@ -17,6 +17,7 @@ import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverag
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -28,6 +29,7 @@ import com.opengamma.util.CompareUtils;
  */
 public final class ParRateCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final ParRateCalculator s_instance = new ParRateCalculator();
 
   public static ParRateCalculator getInstance() {
@@ -94,7 +96,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final double pvRecieve = PVC.visit(swap.getReceiveLeg(), curves);
-    final double pvFixed = PVC.visit(swap.getFixedLeg().withRate(1.0), curves);
+    final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
     return pvRecieve / pvFixed;
   }
 
@@ -159,4 +161,8 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return (indexCurve.getInterestRate(tb) * tb - indexCurve.getInterestRate(ta) * ta) / payment.getRateYearFraction();
   }
 
+  @Override
+  public Double visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle data) {
+    return visitFixedCouponSwap(swap, data);
+  }
 }

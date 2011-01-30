@@ -7,12 +7,12 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 
 /**
  * 
  */
-public class FixedCouponPayment extends FixedPayment implements InterestRateDerivativeWithRate {
+public class FixedCouponPayment extends FixedPayment {
   private final double _yearFraction;
   private final double _coupon;
   private final double _notional;
@@ -49,13 +49,8 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
     return _notional;
   }
 
-  @Override
-  public FixedCouponPayment withRate(final double rate) {
-    return new FixedCouponPayment(getPaymentTime(), getNotional(), getYearFraction(), rate, getFundingCurveName());
-  }
-
   public FixedCouponPayment withUnitCoupon() {
-    return withRate(1.0);
+    return new FixedCouponPayment(getPaymentTime(), getNotional(), getYearFraction(), 1, getFundingCurveName());
   }
 
   @Override
@@ -96,5 +91,15 @@ public class FixedCouponPayment extends FixedPayment implements InterestRateDeri
       return false;
     }
     return Double.doubleToLongBits(_yearFraction) == Double.doubleToLongBits(other._yearFraction);
+  }
+
+  @Override
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitFixedCouponPayment(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitFixedCouponPayment(this);
   }
 }

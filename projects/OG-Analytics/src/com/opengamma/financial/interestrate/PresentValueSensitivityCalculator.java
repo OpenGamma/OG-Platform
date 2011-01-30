@@ -10,16 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -266,4 +270,23 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     return result;
   }
 
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedCouponAnnuity(FixedCouponAnnuity annuity, final YieldCurveBundle data) {
+    return visitGenericAnnuity(annuity, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedCouponPayment(FixedCouponPayment payment, final YieldCurveBundle data) {
+    return visitFixedPayment(payment, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitForwardLiborAnnuity(ForwardLiborAnnuity annuity, final YieldCurveBundle data) {
+    return visitGenericAnnuity(annuity, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedFloatSwap(FixedFloatSwap swap, final YieldCurveBundle data) {
+    return visitFixedCouponSwap(swap, data);
+  }
 }

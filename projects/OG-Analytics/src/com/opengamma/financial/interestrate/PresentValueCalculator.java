@@ -7,16 +7,20 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -154,4 +158,23 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     return fundingCurve.getDiscountFactor(payment.getPaymentTime()) * (avRate + payment.getSpread()) * payment.getPaymentYearFraction() * payment.getNotional();
   }
 
+  @Override
+  public Double visitForwardLiborAnnuity(ForwardLiborAnnuity annuity, YieldCurveBundle curves) {
+    return visitGenericAnnuity(annuity, curves);
+  }
+
+  @Override
+  public Double visitFixedCouponPayment(FixedCouponPayment payment, YieldCurveBundle curves) {
+    return visitFixedPayment(payment, curves);
+  }
+
+  @Override
+  public Double visitFixedCouponAnnuity(FixedCouponAnnuity annuity, YieldCurveBundle curves) {
+    return visitGenericAnnuity(annuity, curves);
+  }
+
+  @Override
+  public Double visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+    return visitFixedCouponSwap(swap, curves);
+  }
 }

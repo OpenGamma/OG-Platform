@@ -8,13 +8,13 @@ package com.opengamma.financial.interestrate.future.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 
 /**
  * 
  */
-public class InterestRateFuture implements InterestRateDerivativeWithRate {
+public class InterestRateFuture implements InterestRateDerivative {
   private final double _settlement;
   private final double _fixingDate;
   private final double _maturity;
@@ -35,7 +35,7 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
     this(settlement, settlement, maturity, yearFraction, yearFraction, price, indexCurveName);
   }
 
-  //TODO rename valueYearFraction
+  // TODO rename valueYearFraction
   /**
    * Setup for a general interest rate future. This follows the Eurodollar futures system of having a quoted price of 100(1-r)  where r is the rate for a hypothetical loan on a some
    * index rate (normally a Libor rate)
@@ -182,11 +182,6 @@ public class InterestRateFuture implements InterestRateDerivativeWithRate {
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitInterestRateFuture(this, data);
-  }
-
-  @Override
-  public InterestRateFuture withRate(final double rate) {
-    return new InterestRateFuture(getSettlementDate(), getFixingDate(), getMaturity(), getIndexYearFraction(), getValueYearFraction(), 100 * (1 - rate), getCurveName());
   }
 
   @Override

@@ -24,6 +24,7 @@ import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -37,8 +38,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
 public final class ParRateCurveSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
-  private final PresentValueCalculator _pvCalculator = PresentValueCalculator.getInstance();
-  private final PresentValueSensitivityCalculator _pvSenseCalculator = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
+  private static final PresentValueSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
+  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final ParRateCurveSensitivityCalculator s_instance = new ParRateCurveSensitivityCalculator();
 
   public static ParRateCurveSensitivityCalculator getInstance() {
@@ -115,13 +117,13 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    final FixedCouponAnnuity unitCouponAnnuity = swap.getFixedLeg().withRate(1.0);
+    final FixedCouponAnnuity unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
     final GenericAnnuity<?> recieveAnnuity = swap.getReceiveLeg();
-    final double a = _pvCalculator.visit(unitCouponAnnuity, curves);
-    final double b = _pvCalculator.visit(recieveAnnuity, curves);
+    final double a = PV_CALCULATOR.visit(unitCouponAnnuity, curves);
+    final double b = PV_CALCULATOR.visit(recieveAnnuity, curves);
     final double bOveraSq = b / a / a;
-    final Map<String, List<DoublesPair>> senseA = _pvSenseCalculator.visit(unitCouponAnnuity, curves);
-    final Map<String, List<DoublesPair>> senseB = _pvSenseCalculator.visit(recieveAnnuity, curves);
+    final Map<String, List<DoublesPair>> senseA = SENSITIVITY_CALCULATOR.visit(unitCouponAnnuity, curves);
+    final Map<String, List<DoublesPair>> senseB = SENSITIVITY_CALCULATOR.visit(recieveAnnuity, curves);
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : curves.getAllNames()) {
@@ -163,13 +165,13 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     final ForwardLiborAnnuity receiveLeg = ((ForwardLiborAnnuity) swap.getReceiveLeg()).withZeroSpread();
     final FixedCouponAnnuity spreadLeg = receiveLeg.withUnitCoupons();
 
-    final double a = _pvCalculator.visit(receiveLeg, curves);
-    final double b = _pvCalculator.visit(payLeg, curves);
-    final double c = _pvCalculator.visit(spreadLeg, curves);
+    final double a = PV_CALCULATOR.visit(receiveLeg, curves);
+    final double b = PV_CALCULATOR.visit(payLeg, curves);
+    final double c = PV_CALCULATOR.visit(spreadLeg, curves);
 
-    final Map<String, List<DoublesPair>> senseA = _pvSenseCalculator.visit(receiveLeg, curves);
-    final Map<String, List<DoublesPair>> senseB = _pvSenseCalculator.visit(payLeg, curves);
-    final Map<String, List<DoublesPair>> senseC = _pvSenseCalculator.visit(spreadLeg, curves);
+    final Map<String, List<DoublesPair>> senseA = SENSITIVITY_CALCULATOR.visit(receiveLeg, curves);
+    final Map<String, List<DoublesPair>> senseB = SENSITIVITY_CALCULATOR.visit(payLeg, curves);
+    final Map<String, List<DoublesPair>> senseC = SENSITIVITY_CALCULATOR.visit(spreadLeg, curves);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
 
     final double factor = -(b - a) / c / c;
@@ -210,12 +212,12 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {
     final GenericAnnuity<FixedCouponPayment> coupons = bond.getUnitCouponAnnuity();
-    final double a = _pvCalculator.visit(coupons, curves);
-    final Map<String, List<DoublesPair>> senseA = _pvSenseCalculator.visit(coupons, curves);
+    final double a = PV_CALCULATOR.visit(coupons, curves);
+    final Map<String, List<DoublesPair>> senseA = SENSITIVITY_CALCULATOR.visit(coupons, curves);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
 
     final FixedPayment principlePaymemt = bond.getPrinciplePayment();
-    final double df = _pvCalculator.visit(principlePaymemt, curves);
+    final double df = PV_CALCULATOR.visit(principlePaymemt, curves);
     final double factor = -(1 - df) / a / a;
 
     for (final String name : curves.getAllNames()) {
@@ -268,4 +270,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     return result;
   }
 
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
+    return visitFixedCouponSwap(swap, data);
+  }
 }
