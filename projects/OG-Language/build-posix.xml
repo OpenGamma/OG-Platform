@@ -1,46 +1,83 @@
 <project name="build-posix">
 
-	<property file="${project.dir}/build.properties" />
+	<property file="${basedir}/build.properties" />
+	<property file="${solution.dir}/build.properties" />
 
 	<target name="clean" depends="clean-src" description="--> clean the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
 	</target>
 
+	<target name="cpptask">
+		<taskdef resource="cpptasks.tasks" />
+		<cc	objdir="${build.dir}"
+			outfile="${build.dir}/stdafx"
+			outtype="static"
+			outputfileproperty="cpptask.ok"
+			failonerror="false">
+			<includepath path="${solution.dir}" />
+			<fileset dir="${basedir}">
+				<include name="stdafx.cpp" />
+			</fileset>
+		</cc>
+	</target>
+	<target name="cpptask-none" unless="cpptask.ok">
+		<echo>Can't build ${ant.project.name} - required header files and libraries missing</echo>
+	</target>
+
 	<target name="compile-impl">
 		<mkdir dir="${basedir}/${cc.configuration}" />
 		<mkdir dir="${build.dir}/${cc.configuration}" />
-		<taskdef resource="cpptasks.tasks" />
 		<cc	debug="${cc.debug}"
-			incremental="${cc.incremental}"
-			multithreaded="${posix.multithreaded}"
+			multithreaded="${cc.multithreaded}"
 			objdir="${basedir}/${cc.configuration}"
 			optimize="${cc.optimization}"
 			outtype="${cc.outtype}"
-			warnings="${posix.warnings}"
+			warnings="${cc.warnings}"
+			runtime="${cc.runtime}"
+			subsystem="${cc.subsystem}"
 			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
+			<includepath path="${solution.dir}" />
 			<fileset dir="${basedir}">
 				<include name="*.c" />
 				<include name="*.cpp" />
 			</fileset>
+			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libSet}" if="cc.libSet" />
 		</cc>
 	</target>
-	<target name="compile-debug">
+	<target name="compile-debug" if="cpptask.ok">
 		<antcall target="compile-impl">
 			<param name="cc.debug" value="true" />
-			<param name="cc.incremental" value="true" />
 			<param name="cc.configuration" value="Debug" />
 			<param name="cc.optimization" value="none" />
 		</antcall>
 	</target>
-	<target name="compile-release">
+	<target name="compile-release" if="cpptask.ok">
 		<antcall target="compile-impl">
 			<param name="cc.debug" value="false" />
-			<param name="cc.incremental" value="false" />
 			<param name="cc.configuration" value="Release" />
 			<param name="cc.optimization" value="speed" />
 		</antcall>
 	</target>
-	<target name="compile" depends="compile-debug,compile-release" description="--> compile project" />
+	<target name="compile" depends="cpptask,cpptask-none,compile-debug,compile-release" description="--> compile project" />
+
+	<target name="tests-impl">
+		<mkdir	dir="${solution.dir}/TestResults" />
+		<exec	executable="./${ant.project.name}"
+			dir="${build.dir}/${cc.configuration}"
+			failonerror="true"
+			output="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log" />
+	</target>
+	<target name="tests-debug" depends="compile-debug" if="cpptask.ok">
+		<antcall target="tests-impl">
+			<param name="cc.configuration" value="Debug" />
+		</antcall>
+	</target>
+	<target name="tests-release" depends="compile-release" if="cpptask.ok">
+		<antcall target="tests-impl">
+			<param name="cc.configuration" value="Release" />
+		</antcall>
+	</target>
+	<target name="tests" depends="cpptask,cpptask-none,tests-debug,tests-release" description="--> run tests in the project" />
 
 </project>

@@ -55,9 +55,9 @@ void CAbstractTest::Fail () {
 }
 
 void CAbstractTest::InitialiseLogs () {
-	static bool bFirst = TRUE;
+	static bool bFirst = true;
 	if (bFirst) {
-		bFirst = FALSE;
+		bFirst = false;
 	} else {
 		return;
 	}

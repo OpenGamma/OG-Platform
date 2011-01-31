@@ -8,6 +8,7 @@
 
 // Fetches version information from the current (or another) DLL
 
+#define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
 

@@ -12,8 +12,12 @@
 #include "Unicode.h"
 
 #ifndef _WIN32
+#ifdef DLLVERSION_NO_ERRORS
+#define DllVersion_FileDescription	TEXT ("")
+#define DllVersion_OriginalFilename	TEXT ("")
+#endif /* ifdef DLLVERSION_NO_ERRORS */
 #include "DllVersionInfo.h"
-#endif /* ifndef _Win32 */
+#endif /* ifndef _WIN32 */
 
 class CDllVersion {
 private:

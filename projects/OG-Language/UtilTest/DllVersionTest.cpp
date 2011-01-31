@@ -8,6 +8,7 @@
 
 // Test the functions and objects in Util/DllVersion.cpp
 
+#include "DllVersionInfo.h"
 #include "Util/DllVersion.h"
 
 LOGGING (com.opengamma.language.util.DllVersionTest);

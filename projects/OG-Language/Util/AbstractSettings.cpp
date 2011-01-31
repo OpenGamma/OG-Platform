@@ -9,15 +9,17 @@
 // Runtime configuration options
 
 #include "AbstractSettings.h"
+#define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
 
 LOGGING(com.opengamma.language.util.AbstractSettings);
 
 CAbstractSettings::CAbstractSettings () {
+	m_pCache = NULL;
+#ifdef _WIN32
 	m_hkeyGlobal = NULL;
 	m_hkeyLocal = NULL;
-	m_pCache = NULL;
 	HKEY hkey;
 	TCHAR szRegistryConfigurationString[MAX_PATH];
 	LOGDEBUG ("Opening registry keys");
@@ -42,9 +44,11 @@ CAbstractSettings::CAbstractSettings () {
 	} else {
 		LOGWARN ("Couldn't find local registry configuration string, error " << GetLastError ());
 	}
+#endif /* ifdef _WIN32 */
 }
 
 CAbstractSettings::~CAbstractSettings () {
+#ifdef _WIN32
 	LOGDEBUG ("Closing registry keys");
 	if (m_hkeyGlobal != NULL) {
 		RegCloseKey (m_hkeyGlobal);
@@ -54,6 +58,7 @@ CAbstractSettings::~CAbstractSettings () {
 		RegCloseKey (m_hkeyLocal);
 		m_hkeyLocal = NULL;
 	}
+#endif /* ifdef _WIN32 */
 	LOGDEBUG ("Deleting cache");
 	while (m_pCache != NULL) {
 		delete m_pCache->pszKey;
@@ -132,7 +137,7 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
 	return pszValue;
 }
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, PCTSTR pszDefault) {
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefault) {
 	const TCHAR *pszValue = Get (pszKey);
 	return pszValue ? pszValue : pszDefault;
 }
@@ -144,8 +149,8 @@ int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) {
 
 bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferLen) {
 	CDllVersion version;
-	PCTSTR pszCompanyName = version.GetCompanyName ();
-	PCTSTR pszProductName = version.GetProductName ();
+	const TCHAR *pszCompanyName = version.GetCompanyName ();
+	const TCHAR *pszProductName = version.GetProductName ();
 #ifndef _WIN32
 	// TODO: pull the path prefix from a macro to allow user to change during ./configure & build
 	if (cbBufferLen > sizeof (TCHAR) * 5) {

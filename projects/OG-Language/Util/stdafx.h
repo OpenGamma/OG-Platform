@@ -20,6 +20,7 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 #endif
 
 #include <fudge/fudge.h>

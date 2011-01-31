@@ -13,7 +13,7 @@
 LOGGING (com.opengamma.language.util.AbstractSettingsTest);
 
 static void Location () {
-	TCHAR szBuffer[MAX_PATH];
+	TCHAR szBuffer[256];
 	ASSERT (CAbstractSettings::GetSettingsLocation (szBuffer, sizeof (szBuffer)));
 	LOGINFO (TEXT ("Settings location = ") << szBuffer);
 }
