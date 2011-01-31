@@ -37,7 +37,9 @@ private:
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	unsigned long GetIdleTimeout (unsigned long dwDefault) { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
+#ifdef _WIN32
 	const TCHAR *GetServiceSDDL (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_SDDL, pszDefault); }
+#endif
 public:
 	CSettings ();
 	~CSettings ();

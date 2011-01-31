@@ -19,6 +19,7 @@
 #define _tcsdup		wcsdup
 #define _tcsicmp	wcscasecmp
 #define _tcslen		wcslen
+#define _tcsrchr	wcsrchr
 #define _tstoi		?
 #else
 #include <string.h>
@@ -28,6 +29,7 @@
 #define _tcsdup		strdup
 #define _tcsicmp	strcasecmp
 #define _tcslen		strlen
+#define _tcsrchr	strrchr
 #define _tstoi		atoi
 #endif /* ifdef _UNICODE */
 #define _TCHAR_DEFINED

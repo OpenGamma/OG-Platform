@@ -22,6 +22,9 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <pthread.h>
+#include <errno.h>
+#include <dlfcn.h>
+#include <dirent.h>
 #endif
 
 #include <jni.h>
@@ -30,5 +33,6 @@
 #include <Util/Concurrent.h>
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
+#include <Util/String.h>
 
 #endif /* ifndef __inc_og_language_service_stdafx_h */

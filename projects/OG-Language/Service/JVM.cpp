@@ -15,18 +15,23 @@
 LOGGING(com.opengamma.svc.JVM);
 
 //#define DESTROY_JVM /* If there are rogue threads, the JVM won't terminate gracefully so comment this line out */
-#define MAIN_CLASS		"com/opengamma/excel/connector/Main"
+#define MAIN_CLASS		"com/opengamma/language/connector/Main"
+#ifdef _WIN32
+#define PATH_CHAR		"\\"
+#else
+#define PATH_CHAR		"/"
+#endif
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppEnv, JavaVMInitArgs *pArgs);
 
-CJVM::CJVM (HMODULE hModule, JavaVM *pJVM, JNIEnv *pEnv) {
+CJVM::CJVM (LIBRARY_HANDLE hModule, JavaVM *pJVM, JNIEnv *pEnv) {
 	LOGINFO (TEXT ("JVM created"));
 	InitializeCriticalSection (&m_cs);
 	m_hModule = hModule;
 	m_pJVM = pJVM;
 	m_pEnv = pEnv;
 	m_hBusyTask = NULL;
-	m_bRunning = FALSE;
+	m_bRunning = false;
 }
 
 CJVM::~CJVM () {
@@ -40,11 +45,12 @@ CJVM::~CJVM () {
 	FreeLibrary (m_hModule);
 	DeleteCriticalSection (&m_cs);
 	if (m_hBusyTask) {
-		CloseHandle (m_hBusyTask);
+		DetachThread (m_hBusyTask);
 		m_hBusyTask = NULL;
 	}
 }
 
+#ifdef _WIN32
 static void _SetAlternateDirectory (PCTSTR pszDLL) {
 	PTSTR psz = _tcsdup (pszDLL);
 	if (!psz) {
@@ -64,25 +70,26 @@ static void _SetAlternateDirectory (PCTSTR pszDLL) {
 	}
 	free (psz);
 }
+#endif /* ifdef _WIN32 */
 
-static PSTR _OptionFudgeAnnotationCache (CSettings *pSettings) {
-	PCTSTR pszCache = pSettings->GetAnnotationCache ();
+static char *_OptionFudgeAnnotationCache (CSettings *pSettings) {
+	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
 	if (!pszCache) {
 		LOGWARN (TEXT ("No path for Fudge annotation cache"));
 		return NULL;
 	}
 	size_t cch = 34 + _tcslen (pszCache);
-	PSTR pszOption = new CHAR[cch];
+	char *pszOption = new char[cch];
 	if (!pszOption) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
-	StringCchPrintfA (pszOption, cch, "-Dfudgemsg.annotationCachePath=%ws", pszCache);
+	StringCbPrintfA (pszOption, cch, "-Dfudgemsg.annotationCachePath=%ws", pszCache);
 	LOGDEBUG ("Using " << pszOption);
 	return pszOption;
 }
 
-static PSTR _BuildClasspath (PSTR pszBuffer, size_t *pcchUsed, size_t *pcchTotal, PCTSTR pszPath, PCTSTR pszFile) {
+static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTotal, const TCHAR *pszPath, const TCHAR *pszFile) {
 	LOGDEBUG (TEXT ("Appending ") << pszFile << TEXT (" to classpath"));
 	size_t cchExtra = _tcslen (pszPath) + _tcslen (pszFile) + 2;
 	if (*pcchUsed + cchExtra >= *pcchTotal) {
@@ -95,7 +102,7 @@ static PSTR _BuildClasspath (PSTR pszBuffer, size_t *pcchUsed, size_t *pcchTotal
 			*pcchTotal += *pcchTotal >> 3;
 		}
 		LOGDEBUG (TEXT ("Reallocating classpath buffer to ") << (*pcchTotal) << TEXT (" chars"));
-		PSTR pszNewBuffer = new CHAR[*pcchTotal];
+		char *pszNewBuffer = new char[*pcchTotal];
 		if (!pszNewBuffer) {
 			LOGFATAL (TEXT ("Out of memory"));
 			return pszBuffer;
@@ -104,29 +111,32 @@ static PSTR _BuildClasspath (PSTR pszBuffer, size_t *pcchUsed, size_t *pcchTotal
 		free (pszBuffer);
 		pszBuffer = pszNewBuffer;
 	}
-	StringCchPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, ";%ws\\%ws", pszPath, pszFile);
+	StringCbPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, ";%ws" PATH_CHAR "%ws", pszPath, pszFile);
 	*pcchUsed += cchExtra;
 	return pszBuffer;
 }
 
-static PSTR _OptionClassPath (CSettings *pSettings) {
-	PCTSTR pszPath = pSettings->GetJarPath ();
+static char *_OptionClassPath (CSettings *pSettings) {
+	const TCHAR *pszPath = pSettings->GetJarPath ();
 	if (!pszPath) {
 		LOGWARN (TEXT ("No JAR folder available"));
 		return NULL;
 	}
+#ifdef _WIN32
 	if (!_tcsncmp (pszPath, TEXT ("\\\\?\\"), 4)) {
 		LOGDEBUG (TEXT ("Skipping \\\\?\\ prefix on JAR path"));
 		pszPath += 4;
 	}
+#endif /* ifdef _WIN32 */
 	size_t cchUsed = 19 + _tcslen (pszPath);
 	size_t cch = 32 * _tcslen (pszPath);
-	PSTR pszOption = new CHAR[cch];
+	char *pszOption = new char[cch];
 	if (!pszOption) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
-	StringCchPrintfA (pszOption, cch, "-Djava.class.path=%ws\\", pszPath);
+	StringCbPrintfA (pszOption, cch, "-Djava.class.path=%ws" PATH_CHAR, pszPath);
+#ifdef _WIN32
 	WIN32_FIND_DATA wfd;
 	PTSTR pszSearch = new TCHAR[cchUsed];
 	if (!pszSearch) {
@@ -134,29 +144,43 @@ static PSTR _OptionClassPath (CSettings *pSettings) {
 		delete pszOption;
 		return NULL;
 	}
-	StringCchPrintf (pszSearch, cchUsed, TEXT ("%s\\*.*"), pszPath);
+	StringCchPrintf (pszSearch, cchUsed, TEXT ("%s") TEXT (PATH_CHAR) TEXT ("*.*"), pszPath);
 	HANDLE hFind = FindFirstFile (pszSearch, &wfd);
 	delete pszSearch;
 	if (hFind != NULL) {
 		do {
-			if (wfd.cFileName[0] == '.') {
+#define __filename	wfd.cFileName
+#else
+	DIR *dir = opendir (pszPath);
+	if (dir) {
+		struct dirent *dp;
+		while ((dp = readdir (dir)) != NULL) {
+#define __filename	dp->d_name
+#endif
+			if (__filename[0] == '.') {
 				continue;
 			}
-			PCTSTR psz = _tcsrchr (wfd.cFileName, '.');
+			const TCHAR *psz = _tcsrchr (__filename, '.');
 			if (!psz) {
-				LOGDEBUG (TEXT ("Ignoring extensionless file ") << wfd.cFileName);
+				LOGDEBUG (TEXT ("Ignoring extensionless file ") << __filename);
 				continue;
 			}
 			if (_tcsicmp (psz, TEXT (".ear"))
 			 && _tcsicmp (psz, TEXT (".jar"))
 			 && _tcsicmp (psz, TEXT (".war"))
 			 && _tcsicmp (psz, TEXT (".zip"))) {
-				 LOGDEBUG (TEXT ("Ignoring non-JAR ") << wfd.cFileName);
+				 LOGDEBUG (TEXT ("Ignoring non-JAR ") << __filename);
 				 continue;
 			}
-			pszOption = _BuildClasspath (pszOption, &cchUsed, &cch, pszPath, wfd.cFileName);
+			pszOption = _BuildClasspath (pszOption, &cchUsed, &cch, pszPath, __filename);
+#undef __filename
+#ifdef _WIN32
 		} while (FindNextFile (hFind, &wfd));
 		FindClose (hFind);
+#else
+		}
+		closedir (dir);
+#endif
 	} else {
 		LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
 	}
@@ -164,33 +188,33 @@ static PSTR _OptionClassPath (CSettings *pSettings) {
 	return pszOption;
 }
 
-#pragma managed (push, off)
 extern "C" {
-JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyStop (JNIEnv *pEnv, jclass cls) {
-	LOGINFO (TEXT ("STOP called from JVM"));
-	ServiceStop (false);
-}
-}
-#pragma managed (pop)
 
-#pragma managed (push, off)
-extern "C" {
-JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyPause (JNIEnv *pEnv, jclass cls) {
-	LOGINFO (TEXT ("PAUSE called from JVM"));
-	ServiceSuspend ();
+	JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyStop (JNIEnv *pEnv, jclass cls) {
+		LOGINFO (TEXT ("STOP called from JVM"));
+		ServiceStop (false);
+	}
+
+	JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyPause (JNIEnv *pEnv, jclass cls) {
+		LOGINFO (TEXT ("PAUSE called from JVM"));
+		ServiceSuspend ();
+	}
+
 }
-}
-#pragma managed (pop)
 
 CJVM *CJVM::Create () {
 	CSettings settings;
-	PCTSTR pszDLL = settings.GetJvmLibrary ();
-	LOGDEBUG (TEXT ("Loading library ") << pszDLL << TEXT (" and creating JVM"));
-	_SetAlternateDirectory (pszDLL);
-	HMODULE hModule = LoadLibraryEx (pszDLL, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+	const TCHAR *pszLibrary = settings.GetJvmLibrary ();
+	LOGDEBUG (TEXT ("Loading library ") << pszLibrary << TEXT (" and creating JVM"));
+#ifdef _WIN32
+	_SetAlternateDirectory (pszLibrary);
+	LIBRARY_HANDLE hModule = LoadLibraryEx (pszLibrary, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	SetDllDirectory (NULL);
+#else
+	LIBRARY_HANDLE hModule = dlopen (pszLibrary, RTLD_LAZY);
+#endif
 	if (!hModule) {
-		LOGWARN (TEXT ("Couldn't load ") << pszDLL << TEXT (", error ") << GetLastError ());
+		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << GetLastError ());
 		return NULL;
 	}
 	JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)GetProcAddress (hModule, "JNI_CreateJavaVM");
@@ -202,12 +226,12 @@ CJVM *CJVM::Create () {
 	JavaVM *pJVM;
 	JNIEnv *pEnv;
 	JavaVMOption option[2];
-	ZeroMemory (&option, sizeof (option));
+	memset (&option, 0, sizeof (option));
 	option[0].optionString = _OptionClassPath (&settings);
 	option[1].optionString = _OptionFudgeAnnotationCache (&settings);
-	// TODO: additional option strings from registry
+	// TODO [XLS-187] additional option strings from registry
 	JavaVMInitArgs args;
-	ZeroMemory (&args, sizeof (args));
+	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
 	args.options = option;
 	args.nOptions = 2;
@@ -228,6 +252,7 @@ CJVM *CJVM::Create () {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
+#ifdef _WIN32
 	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Java_com_opengamma_excel_connector_Main_notifyStop, &hModule)) {
 		LOGWARN (TEXT ("Couldn't get current module handle, error ") << GetLastError ());
 		delete pJvm;
@@ -246,11 +271,15 @@ CJVM *CJVM::Create () {
 		LOGDEBUG (TEXT ("Removing \\\\?\\ prefix from filename"));
 		memmove (szFilename, szFilename + 4, (_tcslen (szFilename + 4) + 1) * sizeof (TCHAR));
 	}
+#else
+	TCHAR szFilename[256] = TEXT ("");
+	TODO (TEXT ("POSIX equivialent of getting the module name"));
+#endif
 	pEnv->PushLocalFrame (1);
 #ifdef _UNICODE
 	jstring jsPath = pEnv->NewString ((jchar*)szFilename, wcslen (szFilename));
 #else
-	jstring jsPath = pEnv->NewStringUtf (szFilename, strlen (szFilename));
+	jstring jsPath = pEnv->NewStringUTF (szFilename);
 #endif
 	LOGDEBUG (TEXT ("Injecting library reference ") << szFilename << TEXT (" into JVM"));
 	if (pJvm->Invoke (pEnv, "svcInitialise", "(Ljava/lang/String;)Z", jsPath)) {
@@ -274,12 +303,12 @@ bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSigna
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
 		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
-		return FALSE;
+		return false;
 	}
 	jmethodID mtd = pEnv->GetStaticMethodID (cls, pszMethodName, pszSignature);
 	if (!mtd) {
 		LOGWARN ("Couldn't find method " << pszMethodName << " on " << MAIN_CLASS);
-		return FALSE;
+		return false;
 	}
 	va_list args;
 	va_start (args, pszSignature);
@@ -296,35 +325,35 @@ bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSigna
 bool CJVM::Invoke (const char *pszMethodName) {
 	JNIEnv *pEnv;
 	JavaVMAttachArgs args;
-	ZeroMemory (&args, sizeof (args));
+	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
-	args.name = "Asynchronous SCM thread";
-	jint err = m_pJVM->AttachCurrentThread ((PVOID*)&pEnv, &args);
+	args.name = (char*)"Asynchronous SCM thread";
+	jint err = m_pJVM->AttachCurrentThread ((void**)&pEnv, &args);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't attach thread to JVM, error ") << err);
-		return FALSE;
+		return false;
 	}
 	jboolean res = Invoke (pEnv, pszMethodName, "()Z");
 	m_pJVM->DetachCurrentThread ();
 	return res != 0;
 }
 
-DWORD CJVM::StartProc (PVOID _po) {
+THREADPROC_RETURN CJVM::StartProc (void *_po) {
 	CJVM *po = (CJVM*)_po;
 	if (po->Invoke ("svcStart")) {
 		LOGINFO (TEXT ("Service started"));
-		po->m_bRunning = TRUE;
+		po->m_bRunning = true;
 	} else {
 		LOGERROR (TEXT ("Couldn't start service"));
 	}
 	return 0;
 }
 
-DWORD CJVM::StopProc (PVOID _po) {
+THREADPROC_RETURN CJVM::StopProc (void *_po) {
 	CJVM *po = (CJVM*)_po;
 	if (po->Invoke ("svcStop")) {
 		LOGINFO (TEXT ("Service stopped"));
-		po->m_bRunning = FALSE;
+		po->m_bRunning = false;
 	} else {
 		LOGERROR (TEXT ("Couldn't stop service"));
 	}
@@ -336,10 +365,15 @@ void CJVM::Start () {
 	if (m_hBusyTask) {
 		LOGERROR (TEXT ("Already a busy task running"));
 	} else {
+#ifdef _WIN32
 		DWORD dwThreadId;
 		m_hBusyTask = CreateThread (NULL, 0, StartProc, this, 0, &dwThreadId);
 		if (m_hBusyTask) {
 			LOGINFO (TEXT ("Created startup thread ") << dwThreadId);
+#else
+		if (PosixLastError (pthread_create (&m_hBusyTask, NULL, StartProc, this))) {
+			LOGINFO (TEXT ("Created startup thread"));
+#endif
 		} else {
 			LOGERROR (TEXT ("Couldn't create startup thread, error ") << GetLastError ());
 		}
@@ -352,10 +386,15 @@ void CJVM::Stop () {
 	if (m_hBusyTask) {
 		LOGERROR (TEXT ("Already a busy task running"));
 	} else {
+#ifdef _WIN32
 		DWORD dwThreadId;
 		m_hBusyTask = CreateThread (NULL, 0, StopProc, this, 0, &dwThreadId);
 		if (m_hBusyTask) {
 			LOGINFO (TEXT ("Created stop thread ") << dwThreadId);
+#else
+		if (PosixLastError (pthread_create (&m_hBusyTask, NULL, StopProc, this))) {
+			LOGINFO (TEXT ("Created stop thread"));
+#endif
 		} else {
 			LOGERROR (TEXT ("Couldn't create stop thread, error ") << GetLastError ());
 		}
@@ -364,26 +403,43 @@ void CJVM::Stop () {
 }
 
 bool CJVM::IsBusy (unsigned long dwTimeout) {
-	HANDLE hBusyTask = m_hBusyTask;
+	THREAD_HANDLE hBusyTask = m_hBusyTask;
 	EnterCriticalSection (&m_cs);
 	hBusyTask = m_hBusyTask;
 	LeaveCriticalSection (&m_cs);
 	if (hBusyTask) {
+#ifdef _WIN32
 		DWORD dw = WaitForSingleObject (hBusyTask, dwTimeout);
 		if (dw == WAIT_OBJECT_0) {
 			EnterCriticalSection (&m_cs);
 			m_hBusyTask = NULL;
 			LeaveCriticalSection (&m_cs);
-			CloseHandle (hBusyTask);
-			return FALSE;
+			DetachThread (hBusyTask);
+			return false;
 		} else if (dw == WAIT_TIMEOUT) {
-			return TRUE;
+			return true;
 		} else {
 			LOGERROR (TEXT ("Error waiting for busy task, dw=") << dw);
-			return TRUE;
+			return true;
 		}
+#else
+		struct timespec tsWait;
+		int ec = pthread_timedjoin_np (hBusyTask, NULL, &tsWait);
+		if (ec == 0) {
+			EnterCriticalSection (&m_cs);
+			m_hBusyTask = NULL;
+			LeaveCriticalSection (&m_cs);
+			DetachThread (hBusyTask);
+			return false;
+		} else if (ec == ETIMEDOUT) {
+			return true;
+		} else {
+			LOGERROR (TEXT ("Error waiting for busy task, ec=") << ec);
+			return true;
+		}
+#endif
 	} else {
-		return FALSE;
+		return false;
 	}
 }
 
@@ -395,7 +451,7 @@ bool CJVM::IsRunning () {
 	return bResult;
 }
 
-void CJVM::UserConnection (PCTSTR pszUserName, PCTSTR pszInputPipe, PCTSTR pszOutputPipe) {
+void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe) {
 	EnterCriticalSection (&m_cs);
 	if (m_bRunning) {
 		m_pEnv->PushLocalFrame (3);
@@ -404,9 +460,9 @@ void CJVM::UserConnection (PCTSTR pszUserName, PCTSTR pszInputPipe, PCTSTR pszOu
 		jstring jsInputPipe = m_pEnv->NewString ((jchar*)pszInputPipe, wcslen (pszInputPipe));
 		jstring jsOutputPipe = m_pEnv->NewString ((jchar*)pszOutputPipe, wcslen (pszOutputPipe));
 #else
-		jstring jsUserName = m_pEnv->NewStringUTF (pszUserName, strlen (pszUserName));
-		jstring jsInputPipe = m_pEnv->NewStringUTF (pszInputPipe, strlen (pszInputPipe));
-		jstring jsOutputPipe = m_pEnv->NewStringUTF (pszOutputPipe, strlen (pszOutputPipe));
+		jstring jsUserName = m_pEnv->NewStringUTF (pszUserName);
+		jstring jsInputPipe = m_pEnv->NewStringUTF (pszInputPipe);
+		jstring jsOutputPipe = m_pEnv->NewStringUTF (pszOutputPipe);
 #endif
 		if (Invoke (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", jsUserName, jsInputPipe, jsOutputPipe)) {
 			LOGINFO (TEXT ("Connection from ") << pszUserName << TEXT (" accepted"));

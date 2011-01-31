@@ -40,17 +40,17 @@ __inline const TCHAR *JavaClientGetJavaToCPPPipe (PJAVACLIENT_CONNECT pjcc) {
 
 #define JAVACLIENTCREATE_FUNCTION(_mode_, _strtype_, _strlen_, _chartype_) \
 __inline PJAVACLIENT_CONNECT JavaClientCreate##_mode_ (_strtype_ pszUserName, _strtype_ pszCPPToJavaPipe, _strtype_ pszJavaToCPPPipe) { \
-	DWORD cchUserName = _strlen_ (pszUserName); \
-	DWORD cchCPPToJavaPipe = _strlen_ (pszCPPToJavaPipe); \
-	DWORD cchJavaToCPPPipe = _strlen_ (pszJavaToCPPPipe); \
-	DWORD cbSize = sizeof (JAVACLIENT_CONNECT) + (cchUserName + cchCPPToJavaPipe + cchJavaToCPPPipe + 3) * sizeof (_chartype_); \
+	size_t cchUserName = _strlen_ (pszUserName); \
+	size_t cchCPPToJavaPipe = _strlen_ (pszCPPToJavaPipe); \
+	size_t cchJavaToCPPPipe = _strlen_ (pszJavaToCPPPipe); \
+	size_t cbSize = sizeof (JAVACLIENT_CONNECT) + (cchUserName + cchCPPToJavaPipe + cchJavaToCPPPipe + 3) * sizeof (_chartype_); \
 	PJAVACLIENT_CONNECT pjcc = (PJAVACLIENT_CONNECT)malloc (cbSize); \
 	if (pjcc) { \
 		pjcc->cbSize = cbSize; \
 		pjcc->cbChar = sizeof (_chartype_); \
 		pjcc->cchUserNameOffset = 0; \
 		memcpy ((pjcc + 1), pszUserName, (cchUserName + 1) * sizeof (_chartype_)); \
-		DWORD dwOfs = cchUserName + 1; \
+		size_t dwOfs = cchUserName + 1; \
 		pjcc->cchCPPToJavaPipeOffset = dwOfs; \
 		memcpy ((_chartype_*)(pjcc + 1) + dwOfs, pszCPPToJavaPipe, (cchCPPToJavaPipe + 1) * sizeof (_chartype_)); \
 		dwOfs += cchCPPToJavaPipe + 1; \
@@ -60,8 +60,8 @@ __inline PJAVACLIENT_CONNECT JavaClientCreate##_mode_ (_strtype_ pszUserName, _s
 	return pjcc; \
 }
 
-JAVACLIENTCREATE_FUNCTION (A, PCSTR, strlen, char)
-JAVACLIENTCREATE_FUNCTION (W, PCWSTR, wcslen, wchar_t)
+JAVACLIENTCREATE_FUNCTION (A, const char *, strlen, char)
+JAVACLIENTCREATE_FUNCTION (W, const wchar_t *, wcslen, wchar_t)
 
 #ifdef _UNICODE
 #define JavaClientCreate JavaClientCreateW

@@ -88,9 +88,11 @@
     <ClInclude Include="Concurrent.h" />
     <ClInclude Include="DllVersion.h" />
     <ClInclude Include="DllVersionInfo.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="Fudge.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="Unicode.h" />
   </ItemGroup>
   <ItemGroup>

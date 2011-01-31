@@ -42,6 +42,7 @@ const TCHAR *CSettings::GetJvmLibrary () {
 			LOGERROR ("Out of memory");
 			return NULL;
 		}
+#ifdef _WIN32
 		DWORD dwPath = GetEnvironmentVariable (TEXT ("JAVA_HOME"), pszPath, MAX_ENV_LEN);
 		if (dwPath != 0) {
 			size_t cb = dwPath + 20; // \bin\server\jvm.dll +\0
@@ -125,6 +126,9 @@ const TCHAR *CSettings::GetJvmLibrary () {
 				}
 			}
 		}
+#else
+		TODO (TEXT ("POSIX version of the environment scanning above"));
+#endif
 		delete pszPath;
 		if (m_pszDefaultJvmLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
@@ -134,12 +138,13 @@ const TCHAR *CSettings::GetJvmLibrary () {
 	return GetJvmLibrary (m_pszDefaultJvmLibrary);
 }
 
-PCTSTR CSettings::GetConnectionPipe () {
+const TCHAR *CSettings::GetConnectionPipe () {
 	return GetConnectionPipe (SERVICE_DEFAULT_CONNECTION_PIPE);
 }
 
-PCTSTR CSettings::GetJarPath () {
+const TCHAR *CSettings::GetJarPath () {
 	if (!m_pszDefaultJarPath) {
+#ifdef _WIN32
 		TCHAR szModuleFilename[MAX_PATH];
 		if (GetModuleFileName (NULL, szModuleFilename, MAX_PATH)) {
 			int n = _tcslen (szModuleFilename);
@@ -158,26 +163,31 @@ PCTSTR CSettings::GetJarPath () {
 			LOGWARN (TEXT ("Couldn't get executable filename and path, error ") << GetLastError ());
 			m_pszDefaultJarPath = _tcsdup (TEXT ("."));
 		}
+#else
+		TODO (TEXT ("POSIX version of the module above"));
+#endif
 	}
 	return GetJarPath (m_pszDefaultJarPath);
 }
 
-PCTSTR CSettings::GetAnnotationCache () {
+const TCHAR *CSettings::GetAnnotationCache () {
 	return GetAnnotationCache (GetJarPath ());
 }
 
-PCTSTR CSettings::GetLogConfiguration () {
+const TCHAR *CSettings::GetLogConfiguration () {
 	return GetLogConfiguration (DEFAULT_LOG_CONFIGURATION);
 }
 
-DWORD CSettings::GetIdleTimeout () {
+unsigned long CSettings::GetIdleTimeout () {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
 
-PCTSTR CSettings::GetServiceName () {
+const TCHAR *CSettings::GetServiceName () {
 	return GetServiceName (SERVICE_DEFAULT_SERVICE_NAME);
 }
 
-PCTSTR CSettings::GetServiceSDDL () {
+#ifdef _WIN32
+const TCHAR *CSettings::GetServiceSDDL () {
 	return GetServiceSDDL (DEFAULT_SDDL);
 }
+#endif /* ifdef _WIN32 */

@@ -15,34 +15,37 @@
 
 LOGGING(com.opengamma.language.service.Service);
 
-#define DEFAULT_ERROR_CODE	10
-#define WAIT_HINT			2000
-#define IS_BUSY_TIMEOUT		(WAIT_HINT / 2)
+#define WAIT_HINT				2000
+#define IS_BUSY_TIMEOUT			(WAIT_HINT / 2)
 
 static CRITICAL_SECTION g_cs;
 static CJVM *g_poJVM = NULL;
 static CConnectionPipe *g_poPipe = NULL;
+#ifdef _WIN32
 static SERVICE_STATUS_HANDLE g_hServiceStatus = NULL;
 static DWORD g_dwServiceCheckPoint = 0;
+#endif /* ifdef _WIN32 */
 
-static void _ReportState (DWORD dwStateCode, DWORD dwExitCode = NO_ERROR) {
+#ifdef _WIN32
+static void _ReportState (DWORD dwStateCode, DWORD dwExitCode, bool bInfo, PCTSTR pszLabel) {
 	SERVICE_STATUS sta;
 	ZeroMemory (&sta, sizeof (sta));
+	if (bInfo) {
+		LOGINFO (pszLabel);
+	} else {
+		LOGDEBUG (pszLabel);
+	}
 	switch (dwStateCode) {
 	case SERVICE_START_PENDING :
-		LOGDEBUG (TEXT ("Service starting"));
 		sta.dwCheckPoint = ++g_dwServiceCheckPoint;
 		break;
 	case SERVICE_RUNNING :
-		LOGINFO (TEXT ("Service started"));
 		sta.dwControlsAccepted = SERVICE_ACCEPT_STOP;
 		break;
 	case SERVICE_STOP_PENDING :
-		LOGDEBUG (TEXT ("Service stopping"));
 		sta.dwCheckPoint = ++g_dwServiceCheckPoint;
 		break;
 	case SERVICE_STOPPED :
-		LOGINFO (TEXT ("Service stopped"));
 		break;
 	default :
 		LOGFATAL (TEXT ("Unexpected service state code ") << dwStateCode);
@@ -56,11 +59,41 @@ static void _ReportState (DWORD dwStateCode, DWORD dwExitCode = NO_ERROR) {
 		SetServiceStatus (g_hServiceStatus, &sta);
 	}
 }
+#else
+static void _ReportStateImpl (bool bInfo, const TCHAR *pszLabel) {
+	if (bInfo) {
+		LOGINFO (pszLabel);
+	} else {
+		LOGDEBUG (pszLabel);
+	}
+}
+#define _ReportState(_win32state, _win32exitCode, _info, _label) _ReportStateImpl (_info, _label)
+#endif
+
+static void _ReportStateStarting () {
+	_ReportState (SERVICE_START_PENDING, 0, false, TEXT ("Service starting"));
+}
+
+static void _ReportStateRunning () {
+	_ReportState (SERVICE_RUNNING, 0, false, TEXT ("Service started"));
+}
+
+static void _ReportStateStopping () {
+	_ReportState (SERVICE_STOP_PENDING, 0, false, TEXT ("Service stopping"));
+}
+
+static void _ReportStateStopped () {
+	_ReportState (SERVICE_STOPPED, 0, true, TEXT ("Service stopped"));
+}
+
+static void _ReportStateErrored () {
+	_ReportState (SERVICE_STOPPED, ERROR_INVALID_ENVIRONMENT, true, TEXT ("Service stopped"));
+}
 
 void ServiceStop (bool bForce) {
 	EnterCriticalSection (&g_cs);
 	if (bForce) {
-		_ReportState (SERVICE_STOP_PENDING);
+		_ReportStateStopping ();
 		g_poPipe->Close ();
 	} else {
 		g_poPipe->LazyClose ();
@@ -69,13 +102,14 @@ void ServiceStop (bool bForce) {
 }
 
 void ServiceSuspend () {
-	_ReportState (SERVICE_STOP_PENDING);
+	_ReportStateStopping ();
 	EnterCriticalSection (&g_cs);
 	g_poPipe->Close ();
 	// Never leave the critical section - this function is designed specifically to fcuk up the
 	// execution of the service to test a hung JVM. IT IS NOT THE WINDOWS SERVICE SUSPEND/RESUME.
 }
 
+#ifdef _WIN32
 static void WINAPI ServiceHandler (DWORD dwAction) {
 	switch (dwAction) {
 	case SERVICE_CONTROL_STOP :
@@ -90,8 +124,10 @@ static void WINAPI ServiceHandler (DWORD dwAction) {
 		break;
 	}
 }
+#endif /* ifdef _WIN32 */
 
 static void _ServiceStartup (int nReason) {
+#ifdef _WIN32
 	CSettings oSettings;
 	if (nReason == SERVICE_RUN_SCM) {
 		g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), ServiceHandler);
@@ -133,7 +169,8 @@ static void _ServiceStartup (int nReason) {
 	} else {
 		LOGDEBUG (TEXT ("No security descriptor specified"));
 	}
-	_ReportState (SERVICE_START_PENDING);
+#endif /* ifdef _WIN32 */
+	_ReportStateStarting ();
 }
 
 void ServiceRun (int nReason) {
@@ -141,7 +178,7 @@ void ServiceRun (int nReason) {
 	g_poJVM = CJVM::Create ();
 	if (!g_poJVM) {
 		LOGERROR (TEXT ("Couldn't create JVM"));
-		_ReportState (SERVICE_STOPPED, DEFAULT_ERROR_CODE);
+		_ReportStateErrored ();
 		return;
 	}
 	g_poJVM->Start ();
@@ -150,10 +187,10 @@ void ServiceRun (int nReason) {
 		LOGERROR (TEXT ("Couldn't create IPC pipe"));
 	}
 	while (g_poJVM->IsBusy (IS_BUSY_TIMEOUT)) {
-		_ReportState (SERVICE_START_PENDING);
+		_ReportStateStarting ();
 	}
 	if (g_poPipe && g_poJVM->IsRunning ()) {
-		_ReportState (SERVICE_RUNNING);
+		_ReportStateRunning ();
 		do {
 			LOGDEBUG (TEXT ("Waiting for user connection"));
 			PJAVACLIENT_CONNECT pjcc = g_poPipe->ReadMessage ();
@@ -167,7 +204,7 @@ void ServiceRun (int nReason) {
 					g_poPipe->CancelLazyClose ();
 					if (g_poJVM->IsStopped ()) {
 						// Stop might have occurred between the check and the cancel, so restore the cancel
-						ServiceStop (FALSE);
+						ServiceStop (false);
 					}
 				}
 				EnterCriticalSection (&g_cs);
@@ -176,7 +213,7 @@ void ServiceRun (int nReason) {
 					delete g_poPipe;
 					g_poPipe = CConnectionPipe::Create ();
 					if (g_poPipe) {
-						_ReportState (SERVICE_RUNNING);
+						_ReportStateRunning ();
 					} else {
 						LOGERROR (TEXT ("Couldn't create IPC pipe - shutting down JVM"));
 						g_poJVM->Stop ();
@@ -188,13 +225,13 @@ void ServiceRun (int nReason) {
 				g_poJVM->Stop ();
 			}
 		} while (!g_poJVM->IsBusy (IS_BUSY_TIMEOUT) && g_poJVM->IsRunning ());
-		_ReportState (SERVICE_STOP_PENDING);
+		_ReportStateStopping ();
 		while (g_poJVM->IsBusy (IS_BUSY_TIMEOUT)) {
-			_ReportState (SERVICE_STOP_PENDING);
+			_ReportStateStopping ();
 		}
-		_ReportState (SERVICE_STOPPED);
+		_ReportStateStopped ();
 	} else {
-		_ReportState (SERVICE_STOPPED, DEFAULT_ERROR_CODE);
+		_ReportStateErrored ();
 	}
 	if (g_poPipe) {
 		delete g_poPipe;

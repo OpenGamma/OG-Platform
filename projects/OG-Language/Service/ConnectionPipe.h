@@ -13,22 +13,29 @@
 
 class CConnectionPipe {
 private:
-	volatile BOOL m_bClosed;
-	volatile DWORD m_dwIdleTimeout;
+	volatile bool m_bClosed;
+	volatile unsigned long m_dwIdleTimeout;
+#ifdef _WIN32
 	HANDLE m_hEvent;
 	HANDLE m_hPipe;
-	DWORD m_cbBuffer;
-	PBYTE m_pbBuffer;
+#endif
+	size_t m_cbBuffer;
+	void *m_pBuffer;
+	void Init ();
 public:
+#ifdef _WIN32
 	CConnectionPipe (HANDLE hPipe);
+#else
+	CConnectionPipe ();
+#endif
 public:
 	~CConnectionPipe ();
-	static CConnectionPipe *Create (PCTSTR pszSuffix = NULL);
+	static CConnectionPipe *Create (const TCHAR *pszSuffix = NULL);
 	PJAVACLIENT_CONNECT ReadMessage ();
 	void Close ();
-	void LazyClose (DWORD dwTimeout = 0);
+	void LazyClose (unsigned long dwTimeout = 0);
 	void CancelLazyClose ();
-	BOOL IsClosed () { return m_bClosed; }
+	bool IsClosed () { return m_bClosed; }
 };
 
 #endif /* ifndef __inc_og_language_service_connectionpipe_h */
