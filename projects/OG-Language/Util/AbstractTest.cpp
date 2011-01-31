@@ -19,6 +19,7 @@ LOGGING (com.opengamma.language.util.AbstractTest);
 #define MAX_TESTS	50
 
 static int g_nTests = 0;
+static int g_nSuccessfulTests = 0;
 static CAbstractTest *g_poTests[MAX_TESTS];
 
 CAbstractTest::CAbstractTest () {
@@ -38,8 +39,13 @@ void CAbstractTest::Main () {
 		g_poTests[nTest]->Run ();
 		g_poTests[nTest]->AfterAll ();
 	}
+	LOGINFO (TEXT ("Successfully executed ") << g_nSuccessfulTests << TEXT (" in ") << g_nTests << TEXT (" components"));
 	LOGDEBUG (TEXT ("Exiting with error code 0"));
 	exit (0);
+}
+
+void CAbstractTest::After () {
+	g_nSuccessfulTests++;
 }
 
 #endif /* ifndef __cplusplus_cli */

@@ -6,9 +6,10 @@
 
 #include "stdafx.h"
 
-#ifndef __cplusplus_cli
-int main (int argc, char **argv) {
-	CAbstractTest::Main ();
-	return 0;
-}
-#endif /* ifndef __cplusplus_cli */
+// Test the functions and objects in Service/JVM.cpp
+
+LOGGING (com.opengamma.language.service.JVMTest);
+
+BEGIN_TESTS (JVMTest)
+	// TODO
+END_TESTS

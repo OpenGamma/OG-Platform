@@ -15,10 +15,10 @@
 #include <wchar.h>
 #define TCHAR		wchar_t
 #define TEXT(str)	L##str
-#define _tcscmp		?
-#define _tcsdup		?
-#define _tcsicmp	?
-#define _tcslen		?
+#define _tcscmp		wcscmp
+#define _tcsdup		wcsdup
+#define _tcsicmp	wcscasecmp
+#define _tcslen		wcslen
 #define _tstoi		?
 #else
 #include <string.h>

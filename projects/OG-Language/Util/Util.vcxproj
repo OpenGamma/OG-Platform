@@ -60,6 +60,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -73,6 +74,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(OutDir)\$(ProjectName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -83,8 +85,10 @@
   <ItemGroup>
     <ClInclude Include="AbstractSettings.h" />
     <ClInclude Include="AbstractTest.h" />
+    <ClInclude Include="Concurrent.h" />
     <ClInclude Include="DllVersion.h" />
     <ClInclude Include="DllVersionInfo.h" />
+    <ClInclude Include="Fudge.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Unicode.h" />

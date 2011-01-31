@@ -6,9 +6,10 @@
 
 #include "stdafx.h"
 
-#ifndef __cplusplus_cli
-int main (int argc, char **argv) {
-	CAbstractTest::Main ();
-	return 0;
-}
-#endif /* ifndef __cplusplus_cli */
+// Test the functions and objects in Service/Settings.cpp
+
+LOGGING (com.opengamma.language.service.SettingsTest);
+
+BEGIN_TESTS (SettingsTest)
+	// TODO
+END_TESTS

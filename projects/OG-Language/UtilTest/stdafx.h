@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
-#include "Util/AbstractTest.h"
+
+#include <Util/AbstractTest.h>
 
 #endif /* ifndef __inc_og_language_utiltest_stdafx_h */

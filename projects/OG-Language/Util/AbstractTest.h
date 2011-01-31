@@ -19,7 +19,7 @@ public:
 	virtual void Run () = 0;
 	virtual void BeforeAll () { }
 	virtual void Before () { }
-	virtual void After () { }
+	virtual void After ();
 	virtual void AfterAll () { }
 	static void Main ();
 #endif /* ifndef __cplusplus_cli */
@@ -103,7 +103,8 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 		void After () { \
 			LOGDEBUG (TEXT ("Starting post-test ") << TEXT (#proc)); \
 			proc (); \
-			LOGDEBUG (TEXT ("Post-test ") << TEXT (#proc) << TEXT (" complete"));
+			LOGDEBUG (TEXT ("Post-test ") << TEXT (#proc) << TEXT (" complete")); \
+			CAbstractTest::After ();
 #define BEFORE_ALL_TESTS(proc) \
 		} \
 		void BeforeAll () { \
