@@ -11,6 +11,7 @@
 #include "JVM.h"
 #include "Settings.h"
 #include "ConnectionPipe.h"
+#include "Service.h"
 
 LOGGING(com.opengamma.language.service.Service);
 
@@ -56,7 +57,7 @@ static void _ReportState (DWORD dwStateCode, DWORD dwExitCode = NO_ERROR) {
 	}
 }
 
-void ServiceStop (BOOL bForce) {
+void ServiceStop (bool bForce) {
 	EnterCriticalSection (&g_cs);
 	if (bForce) {
 		_ReportState (SERVICE_STOP_PENDING);
@@ -90,9 +91,11 @@ static void WINAPI ServiceHandler (DWORD dwAction) {
 	}
 }
 
-static void _ServiceStartup () {
+static void _ServiceStartup (int nReason) {
 	CSettings oSettings;
-	g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), ServiceHandler);
+	if (nReason == SERVICE_RUN_SCM) {
+		g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), ServiceHandler);
+	}
 	PCTSTR pszSDDL = oSettings.GetServiceSDDL ();
 	if (pszSDDL) {
 		LOGDEBUG (TEXT ("Setting security descriptor ") << pszSDDL);
@@ -133,8 +136,8 @@ static void _ServiceStartup () {
 	_ReportState (SERVICE_START_PENDING);
 }
 
-void ServiceRun () {
-	_ServiceStartup ();
+void ServiceRun (int nReason) {
+	_ServiceStartup (nReason);
 	g_poJVM = CJVM::Create ();
 	if (!g_poJVM) {
 		LOGERROR (TEXT ("Couldn't create JVM"));

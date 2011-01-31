@@ -14,6 +14,8 @@
 #define SERVICE_SETTINGS_SERVICE_NAME		TEXT ("serviceName")
 #define SERVICE_DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
 
+// TODO [XLS-173]: This should be a .proto defined structure and be sent as a Fudge message
+
 #pragma pack (push, 4)
 typedef struct {
 	fudge_i32 cbSize;

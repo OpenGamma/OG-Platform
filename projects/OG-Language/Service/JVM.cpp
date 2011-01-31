@@ -168,7 +168,7 @@ static PSTR _OptionClassPath (CSettings *pSettings) {
 extern "C" {
 JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyStop (JNIEnv *pEnv, jclass cls) {
 	LOGINFO (TEXT ("STOP called from JVM"));
-	ServiceStop (FALSE);
+	ServiceStop (false);
 }
 }
 #pragma managed (pop)

@@ -138,12 +138,10 @@ PCTSTR CSettings::GetConnectionPipe () {
 	return GetConnectionPipe (SERVICE_DEFAULT_CONNECTION_PIPE);
 }
 
-extern HMODULE g_hModule;
-
 PCTSTR CSettings::GetJarPath () {
 	if (!m_pszDefaultJarPath) {
 		TCHAR szModuleFilename[MAX_PATH];
-		if (GetModuleFileName (g_hModule, szModuleFilename, MAX_PATH)) {
+		if (GetModuleFileName (NULL, szModuleFilename, MAX_PATH)) {
 			int n = _tcslen (szModuleFilename);
 			while ((n > 0) && (szModuleFilename[n] != '\\')) {
 				n--;

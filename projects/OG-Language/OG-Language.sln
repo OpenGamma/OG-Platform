@@ -28,6 +28,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceTest", "ServiceTest\
 		{126644F4-99B4-4333-BE33-5AA6CCC72551} = {126644F4-99B4-4333-BE33-5AA6CCC72551}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServiceRunner", "ServiceRunner\ServiceRunner.vcxproj", "{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{126644F4-99B4-4333-BE33-5AA6CCC72551} = {126644F4-99B4-4333-BE33-5AA6CCC72551}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -72,6 +77,12 @@ Global
 		{022BF8D3-128F-4C26-B5A0-20C6620B3649}.Release|Win32.ActiveCfg = Release|Win32
 		{022BF8D3-128F-4C26-B5A0-20C6620B3649}.Release|Win32.Build.0 = Release|Win32
 		{022BF8D3-128F-4C26-B5A0-20C6620B3649}.Release|x64.ActiveCfg = Release|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Debug|Win32.Build.0 = Debug|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Debug|x64.ActiveCfg = Debug|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Release|Win32.ActiveCfg = Release|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Release|Win32.Build.0 = Release|Win32
+		{B9C048A3-BB5E-4A27-8109-FCB1B95BF0C5}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
