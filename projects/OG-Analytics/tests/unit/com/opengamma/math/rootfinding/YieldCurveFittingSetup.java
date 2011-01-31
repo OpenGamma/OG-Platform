@@ -21,10 +21,10 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
@@ -56,6 +56,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public abstract class YieldCurveFittingSetup {
   // CSOFF
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
 
   protected static final double EPS = 1e-8;
   protected static final int STEPS = 100;
@@ -215,11 +216,11 @@ public abstract class YieldCurveFittingSetup {
 
   protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InterestRateDerivative> instruments, final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
-    return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old
-        .getUnknownCurveNodeSensitivityCalculators());
+    return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
+        old.getUnknownCurveNodeSensitivityCalculators());
   }
 
-  protected static InterestRateDerivativeWithRate makeIRD(final String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivative makeIRD(final String type, final double maturity, final String fundCurveName, final String indexCurveName, final double rate) {
     if ("cash".equals(type)) {
       return makeCash(maturity, fundCurveName, rate);
     } else if ("libor".equals(type)) {
@@ -236,19 +237,19 @@ public abstract class YieldCurveFittingSetup {
     throw new IllegalArgumentException("unknown IRD type " + type);
   }
 
-  protected static InterestRateDerivativeWithRate makeCash(final double time, final String fundCurveName, final double rate) {
+  protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate) {
     return new Cash(time, rate, fundCurveName);
   }
 
-  protected static InterestRateDerivativeWithRate makeLibor(final double time, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
     return new Libor(time, rate, indexCurveName);
   }
 
-  protected static InterestRateDerivativeWithRate makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
     return new ForwardRateAgreement(time - 0.25, time, rate, fundCurveName, indexCurveName);
   }
 
-  protected static InterestRateDerivativeWithRate makeFutrure(final double time, final String indexCurveName, final double rate) {
+  protected static InterestRateDerivative makeFutrure(final double time, final String indexCurveName, final double rate) {
     return new InterestRateFuture(time, time + 0.25, 0.25, rate, indexCurveName);
   }
 

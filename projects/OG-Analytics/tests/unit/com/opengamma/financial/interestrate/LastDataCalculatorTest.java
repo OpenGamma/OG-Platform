@@ -117,7 +117,6 @@ public class LastDataCalculatorTest {
 
     final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "");
     assertEquals(n * 0.5, LDC.visit(swap), 1e-12);
-
   }
 
   @Test

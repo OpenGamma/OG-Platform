@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate.annuity.definition;
@@ -73,12 +73,12 @@ public class FixedCouponAnnuityTest {
     assertEquals(annuity, new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, CURVE_NAME));
     assertEquals(annuity, new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME));
   }
-
-  @Test
-  public void testWithRate() {
-    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(PAYMENTS);
-    assertFalse(annuity.withRate(COUPON_RATE) == annuity);
-    assertEquals(annuity.withRate(COUPON_RATE), annuity);
-    assertEquals(annuity.withRate(COUPON_RATE + DIFF), new FixedCouponAnnuity(HIGHER));
-  }
+  //
+  // @Test
+  // public void testWithRate() {
+  // final FixedCouponAnnuity annuity = new FixedCouponAnnuity(PAYMENTS);
+  // assertFalse(annuity.withRate(COUPON_RATE) == annuity);
+  // assertEquals(annuity.withRate(COUPON_RATE), annuity);
+  // assertEquals(annuity.withRate(COUPON_RATE + DIFF), new FixedCouponAnnuity(HIGHER));
+  // }
 }

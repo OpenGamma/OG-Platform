@@ -160,11 +160,4 @@ public class BondTest {
     assertEquals(other, BOND);
   }
 
-  @Test
-  public void testWithRate() {
-    final double newCoupon = COUPON + 0.1;
-    final Bond bond = new Bond(TIMES, COUPON, BOND_CURVE);
-    final Bond other = new Bond(TIMES, newCoupon, BOND_CURVE);
-    assertEquals(other, bond.withRate(newCoupon));
-  }
 }

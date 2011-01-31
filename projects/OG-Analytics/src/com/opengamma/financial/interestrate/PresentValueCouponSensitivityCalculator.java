@@ -16,6 +16,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -25,7 +26,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * This can be used to convert between sensitivities of PV to the yield curve and sensitivities of Par rate to the yield curve
  */
 public final class PresentValueCouponSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
-
+  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator s_instance = new PresentValueCouponSensitivityCalculator();
 
@@ -58,7 +59,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getLiborCurveName());
+    final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getIndexCurveName());
     final double fwdAlpha = fra.getForwardYearFraction();
     final double discountAlpha = fra.getDiscountingYearFraction();
     final double forward = (liborCurve.getDiscountFactor(fra.getFixingDate()) / liborCurve.getDiscountFactor(fra.getMaturity()) - 1.0) / fwdAlpha;
@@ -73,7 +74,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    return -PVC.visit(swap.getFixedLeg().withRate(1.0), curves);
+    return -PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
 
   @Override
@@ -107,4 +108,8 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
     return sum;
   }
 
+  @Override
+  public Double visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle data) {
+    return visitFixedCouponSwap(swap, data);
+  }
 }
