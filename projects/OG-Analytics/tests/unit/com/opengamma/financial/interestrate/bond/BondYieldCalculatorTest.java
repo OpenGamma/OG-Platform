@@ -67,7 +67,8 @@ public class BondYieldCalculatorTest {
       price = 0.8 + i * 0.008;
       yield = CALCULATOR.calculate(bond, price);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
-      System.out.println(price + "\t" + yield);
+      // TODO real test
+      // System.out.println(price + "\t" + yield);
     }
 
   }

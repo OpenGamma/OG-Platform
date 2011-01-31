@@ -39,7 +39,7 @@ public class FinancialTestBase {
   public void createFudgeContext() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     RegionMaster regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populate(regionMaster);
+    RegionFileReader.createPopulated(regionMaster);
     _regionSource = new MasterRegionSource(regionMaster);
   }
 

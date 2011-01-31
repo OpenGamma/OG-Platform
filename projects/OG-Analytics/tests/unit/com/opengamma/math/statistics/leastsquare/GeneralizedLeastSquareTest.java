@@ -101,7 +101,7 @@ public class GeneralizedLeastSquareTest {
 
     for (int i = 0; i < 101; i++) {
       double x = 0 + i * 5.0 / 100.0;
-      System.out.println(x + "\t" + spline.evaluate(x));
+      // System.out.println(x + "\t" + spline.evaluate(x));
     }
     // for(int i = X.getNumberOfElements())
     // assertTrue(results.getChiSq() < 3 * Y.getNumberOfElements());

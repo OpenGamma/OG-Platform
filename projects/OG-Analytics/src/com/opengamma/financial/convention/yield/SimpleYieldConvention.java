@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.yield;
 
 import java.io.Serializable;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
 /**
  * A simple yield convention.
@@ -66,14 +66,14 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * @param name  the convention name, not null
    */
   protected SimpleYieldConvention(final String name) {
-    ArgumentChecker.notNull(name, "name");
+    Validate.notNull(name, "name");
     _name = name;
   }
 
-  // -------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;
   }
 
+  //REVIEW emcleod 28-1-2011 Is the lack of hashCode() and equals() deliberate?
 }

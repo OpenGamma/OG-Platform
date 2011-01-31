@@ -86,12 +86,12 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @Override
-  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitGenericAnnuity(this, data);
   }
 
   @Override
-  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
     return visitor.visitGenericAnnuity(this);
   }
 

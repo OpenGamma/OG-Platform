@@ -36,16 +36,15 @@ public class BasisFunctionGeneratorTest {
     BASIS_FUNCTION = GENERATOR.generate(KNOTS, 3, 3);
   }
 
-  @Test
-  public void test() {
-    double x, y;
-    for (int i = 0; i < 101; i++) {
-      x = 0. + 10. * i / 100.0;
-      y = BASIS_FUNCTION.evaluate(x);
-      System.out.println(x + "\t" + y);
-    }
-
-  }
+  // @Test
+  // public void test() {
+  // double x, y;
+  // for (int i = 0; i < 101; i++) {
+  // x = 0. + 10. * i / 100.0;
+  // y = BASIS_FUNCTION.evaluate(x);
+  // System.out.println(x + "\t" + y);
+  // }
+  // }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullKnots() {
@@ -111,7 +110,7 @@ public class BasisFunctionGeneratorTest {
 
   @Test
   public void testSet() {
-    List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
+    java.util.List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
     int n = functions.size();
     double[] w = new double[n];
     for (int i = 0; i < n; i++) {
@@ -122,7 +121,7 @@ public class BasisFunctionGeneratorTest {
     for (int i = 0; i < 101; i++) {
       double x = -3 + i * 8.0 / 100.0;
       double y = fun.evaluate(x);
-      System.out.println(x + "\t" + y);
+      // System.out.println(x + "\t" + y);
     }
   }
 
@@ -144,12 +143,12 @@ public class BasisFunctionGeneratorTest {
     for (int i = 0; i < 100; i++) {
       double x = -1 + i * 6 / 100.0;
       double y = fun.evaluate(x);
-      System.out.println(x + "\t" + y);
+      // System.out.println(x + "\t" + y);
     }
     for (int i = 0; i < 101; i++) {
       double x = 6 + i * 54 / 100.0;
       double y = fun.evaluate(x);
-      System.out.println(x + "\t" + y);
+      // System.out.println(x + "\t" + y);
     }
   }
 

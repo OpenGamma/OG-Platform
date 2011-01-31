@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
 /**
  * Factory to obtain instances of {@code YieldConvention}.
@@ -41,6 +41,7 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.JGB_SIMPLE);
     store(SimpleYieldConvention.MONEY_MARKET);
     store(SimpleYieldConvention.TRUE);
+    store(SimpleYieldConvention.US_BOND);
   }
 
   /**
@@ -48,17 +49,17 @@ public final class YieldConventionFactory {
    * @param convention  the convention to store, not null
    */
   private void store(final YieldConvention convention) {
-    ArgumentChecker.notNull(convention, "YieldConvention");
+    Validate.notNull(convention, "YieldConvention");
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
   }
-  
+
   /**
    * Stores the convention with an alternative string name
    * @param convention  the convention to store, not null
    * @param name the alternative name for the convention, not null
    */
   private void store(final YieldConvention convention, final String name) {
-    ArgumentChecker.notNull(convention, "YieldConvention");
+    Validate.notNull(convention, "YieldConvention");
     _conventionMap.put(name.toLowerCase(Locale.ENGLISH), convention);
   }
 
@@ -70,7 +71,7 @@ public final class YieldConventionFactory {
    * @return the convention, null if not found
    */
   public YieldConvention getYieldConvention(final String name) {
-    ArgumentChecker.notNull(name, "name");
+    Validate.notNull(name, "name");
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 

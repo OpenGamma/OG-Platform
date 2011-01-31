@@ -33,7 +33,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -58,9 +57,6 @@ import com.opengamma.web.WebPaging;
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(WebSecuritiesResource.class);
-  
-  private static final String TYPE = "Securities";
-  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "name");
   
   /**
    * Creates the resource.
@@ -92,13 +88,8 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
-    String result = null;
     FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
-    if (data().getUriInfo().getQueryParameters().size() > 0) {
-      SecuritySearchResult securitySearchResult = (SecuritySearchResult) out.get("searchResult");
-      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, securitySearchResult);
-    }
-    return result;
+    return getFreemarker().build("securities/jsonsecurities.ftl", out);
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {

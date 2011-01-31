@@ -48,8 +48,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSONSecurity() {
-    SecurityDocument doc = data().getSecurity();
-    return getJSONOutputter().buildSecuity(doc.getSecurity());
+    FlexiBean out = createRootData();
+    return getFreemarker().build("securities/jsonsecurity.ftl", out);
   }
   
   //-------------------------------------------------------------------------

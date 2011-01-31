@@ -7,7 +7,6 @@ package com.opengamma.web.holiday;
 
 import java.net.URI;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,7 +22,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
@@ -47,9 +45,6 @@ import com.opengamma.web.WebPaging;
 @Path("/holidays")
 public class WebHolidaysResource extends AbstractWebHolidayResource {
   
-  private static final String TYPE = "Holidays";
-  private static final List<String> DATA_FIELDS = Lists.newArrayList("id", "type", "name");
-
   /**
    * Creates the resource.
    * @param holidayMaster  the holiday master, not null
@@ -81,13 +76,8 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @Context UriInfo uriInfo) {
-    String result = null;
     FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
-    if (data().getUriInfo().getQueryParameters().size() > 0) {
-      HolidaySearchResult searchResult = (HolidaySearchResult) out.get("searchResult");
-      result = getJSONOutputter().buildJSONSearchResult(TYPE, DATA_FIELDS, searchResult);
-    } 
-    return result;
+    return getFreemarker().build("holidays/jsonholidays.ftl", out);
   }
 
   private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {
