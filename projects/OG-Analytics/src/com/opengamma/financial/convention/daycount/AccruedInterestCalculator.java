@@ -14,8 +14,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.analytics.securityconverters.StubCalculator;
-import com.opengamma.financial.analytics.securityconverters.StubType;
+import com.opengamma.financial.convention.StubCalculator;
+import com.opengamma.financial.convention.StubType;
 
 /**
  * Utility to calculate the accrued interest.

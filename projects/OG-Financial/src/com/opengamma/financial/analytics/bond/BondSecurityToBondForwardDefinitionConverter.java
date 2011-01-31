@@ -12,15 +12,15 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.financial.bond.BondConvention;
-import com.opengamma.financial.bond.BondDefinition;
-import com.opengamma.financial.bond.BondForwardDefinition;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.instrument.bond.BondConvention;
+import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.Identifier;
 

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
@@ -178,13 +177,13 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     bundle.setCurve(curveNames.get(0), curve);
 
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivativeWithRate ird;
+    InterestRateDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);
       for (final double t : times) {
         ird = makeIRD(name, t, curveNames.get(0), curveNames.get(0), 0.0);
-        ird = ird.withRate(ParRateCalculator.getInstance().visit(ird, bundle));
+        ird = REPLACE_RATE.visit(ird, ParRateCalculator.getInstance().visit(ird, bundle));
         instruments.add(ird);
         marketValues[index] = calculator.visit(ird, bundle);
         index++;
@@ -281,13 +280,13 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     }
 
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
-    InterestRateDerivativeWithRate ird;
+    InterestRateDerivative ird;
     index = 0;
     for (final String name : maturities.keySet()) {
       for (final double t : maturities.get(name)) {
         ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0);
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(ird.withRate(marketValues[index]));
+        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
       }
     }

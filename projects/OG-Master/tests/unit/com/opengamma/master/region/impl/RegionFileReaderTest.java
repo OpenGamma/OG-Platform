@@ -29,7 +29,7 @@ public class RegionFileReaderTest {
   @BeforeClass
   public static void setUpOnce() {
     _regionMaster = new InMemoryRegionMaster();
-    RegionFileReader.populate(_regionMaster);
+    RegionFileReader.createPopulated(_regionMaster);
   }
 
   @Test
@@ -42,7 +42,10 @@ public class RegionFileReaderTest {
   @Test
   public void test_search_all() {
     RegionSearchRequest request = new RegionSearchRequest();
-    assertEquals(279, _regionMaster.search(request).getDocuments().size());
+    int all = _regionMaster.search(request).getDocuments().size();
+    request.setClassification(RegionClassification.MUNICIPALITY);
+    int municipalities = _regionMaster.search(request).getDocuments().size();
+    assertEquals(279, all - municipalities);
   }
 
   @Test

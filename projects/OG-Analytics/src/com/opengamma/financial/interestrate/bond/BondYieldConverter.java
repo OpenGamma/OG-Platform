@@ -7,10 +7,10 @@ package com.opengamma.financial.interestrate.bond;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.financial.bond.BondConvention;
-import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.instrument.bond.BondConvention;
+import com.opengamma.financial.instrument.bond.BondDefinition;
 
 /**
  * 

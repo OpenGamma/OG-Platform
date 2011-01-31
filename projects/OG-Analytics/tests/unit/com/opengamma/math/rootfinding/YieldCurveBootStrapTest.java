@@ -29,6 +29,7 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
@@ -89,6 +90,7 @@ public class YieldCurveBootStrapTest {
 
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
 
   private static List<InterestRateDerivative> SINGLE_CURVE_INSTRUMENTS;
   private static List<InterestRateDerivative> DOUBLE_CURVE_INSTRUMENTS;
@@ -354,7 +356,7 @@ public class YieldCurveBootStrapTest {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
         final FixedFloatSwap swap = (FixedFloatSwap) SINGLE_CURVE_INSTRUMENTS.get(i);
         final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
-        final FixedCouponAnnuity newLeg = fixedLeg.withRate(swapRates[i]);
+        final FixedCouponAnnuity newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, swapRates[i]);
         final InterestRateDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
       }
@@ -456,7 +458,7 @@ public class YieldCurveBootStrapTest {
   protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {
     final ForwardLiborAnnuity floatingLeg = swap.getFloatingLeg();
     final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
-    final FixedCouponAnnuity newLeg = fixedLeg.withRate(rate);
+    final FixedCouponAnnuity newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, rate);
     return new FixedFloatSwap(newLeg, floatingLeg);
   }
 

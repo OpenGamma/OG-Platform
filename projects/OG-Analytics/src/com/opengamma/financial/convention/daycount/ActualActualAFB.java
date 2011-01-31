@@ -9,7 +9,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.analytics.timeseries.ScheduleFactory;
+import com.opengamma.financial.schedule.ScheduleFactory;
 
 /**
  * The 'Actual/Actual AFB' day count.

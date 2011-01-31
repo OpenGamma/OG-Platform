@@ -34,4 +34,9 @@ public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
     return visitor.visitFloatingRateNote(this, data);
   }
 
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitFloatingRateNote(this);
+  }
+
 }

@@ -99,7 +99,7 @@ public class ForwardRateAgreementTest {
     assertEquals(fra.getDiscountingYearFraction(), end - start, 0);
     assertEquals(fra.getForwardYearFraction(), end - start, 0);
     assertEquals(fra.getFundingCurveName(), CURVE_NAME1);
-    assertEquals(fra.getLiborCurveName(), CURVE_NAME2);
+    assertEquals(fra.getIndexCurveName(), CURVE_NAME2);
     assertEquals(fra.getStrike(), FWD_RATE, 0);
     ForwardRateAgreement other = new ForwardRateAgreement(start, end, FWD_RATE, CURVE_NAME1, CURVE_NAME2);
     assertEquals(fra, other);

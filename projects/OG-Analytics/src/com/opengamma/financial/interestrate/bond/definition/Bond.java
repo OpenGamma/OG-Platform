@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.bond.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -19,12 +19,12 @@ import com.opengamma.financial.interestrate.payments.FixedPayment;
  */
 // TODO Because of the way that accrued interest is calculated (i.e. Julian days, so that whole numbers of days are used), we need extra fields that can contain the accrued interest
 // up to the time today (fractions of a day) as well as the "official" accrued interest.
-public class Bond implements InterestRateDerivativeWithRate {
+public class Bond implements InterestRateDerivative {
   private final GenericAnnuity<FixedCouponPayment> _coupons;
   private final FixedPayment _principle;
   private final double _accruedInterest;
 
-  //TODO don't need this constructor
+  // TODO don't need this constructor
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
@@ -41,7 +41,7 @@ public class Bond implements InterestRateDerivativeWithRate {
     _accruedInterest = 0.0;
   }
 
-  //TODO don't need this constructor
+  // TODO don't need this constructor
   public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
@@ -117,23 +117,6 @@ public class Bond implements InterestRateDerivativeWithRate {
       temp[i] = _coupons.getNthPayment(i).withUnitCoupon();
     }
     return new GenericAnnuity<FixedCouponPayment>(temp);
-  }
-
-  @Override
-  public InterestRateDerivativeWithRate withRate(final double rate) {
-    final FixedCouponPayment[] payments = _coupons.getPayments();
-    final int n = payments.length;
-    final double[] times = new double[n];
-    final double[] coupons = new double[n];
-    final double[] yearFrac = new double[n];
-    for (int i = 0; i < n; i++) {
-      final FixedCouponPayment temp = payments[i];
-      times[i] = temp.getPaymentTime();
-      coupons[i] = rate;
-      yearFrac[i] = temp.getYearFraction();
-    }
-
-    return new Bond(times, coupons, yearFrac, getAccruedInterest(), payments[0].getFundingCurveName());
   }
 
   @Override
