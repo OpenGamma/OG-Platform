@@ -116,5 +116,10 @@ public class LabelledMatrix1DTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int compareKeys(Integer key1, Integer key2) {
+      throw new UnsupportedOperationException();
+    }
+
   }
 }

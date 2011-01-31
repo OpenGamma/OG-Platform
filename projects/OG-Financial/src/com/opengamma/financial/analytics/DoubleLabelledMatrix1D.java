@@ -39,6 +39,11 @@ public class DoubleLabelledMatrix1D extends LabelledMatrix1D<Double> {
   public LabelledMatrix1D<Double> add(final LabelledMatrix1D<Double> other) {
     return add(other, EPS, false);
   }
+  
+  @Override
+  public int compareKeys(Double key1, Double key2) {
+    return CompareUtils.compareWithTolerance(key1, key2, EPS);
+  }
 
   public LabelledMatrix1D<Double> add(final LabelledMatrix1D<Double> other, final double tolerance) {
     return add(other, tolerance, false);

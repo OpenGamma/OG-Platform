@@ -56,6 +56,10 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>> {
   public double[] getValues() {
     return _values;
   }
+  
+  public int size() {
+    return _keys.length;
+  }
 
   /**
    * Adds a labelled matrix to this one and returns a new matrix.
@@ -106,6 +110,17 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>> {
    * @return The sum of the matrices
    */
   public abstract LabelledMatrix1D<S> add(S key, Object label, double value);
+  
+  /**
+   * Compares two keys and indicates whether the first would be considered less than, equal to or greater than the
+   * second.
+   * 
+   * @param key1  the first key to compare, not null
+   * @param key2  the second key to compare, not null
+   * @return the value 0 if {@code key1} is equal to {@code key2}; a value less than 0 if {@code key1} is less than
+   *         {@code key2}; and a value greater than 0 if {@code key1} is greater than {@code key2}.
+   */
+  public abstract int compareKeys(S key1, S key2);
 
   protected void sort(final S[] keys, final Object[] labels, final double[] values) {
     final int n = keys.length;
