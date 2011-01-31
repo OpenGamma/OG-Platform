@@ -121,5 +121,22 @@ public class CompareUtils {
   public static boolean closeEquals(double a, double b, double maxDifference) {
     return (Math.abs(a - b) < maxDifference);
   }
+  
+  /**
+   * Compares two doubles, indicating equality when 'closely' equal, and otherwise indicating how the first differs
+   * from the second.
+   * 
+   * @param a  the first value
+   * @param b  the second value
+   * @param maxDifference  the maximum difference to allow while still considering the values equal
+   * @return the value 0 if a and b are equal to within the tolerance; a value less than 0 if a is numerically less
+   *         than b; and a value greater than 0 if a is numerically greater than b.
+   */
+  public static int compareWithTolerance(double a, double b, double maxDifference) {
+    if (Math.abs(a - b) < maxDifference) {
+      return 0;    
+    }
+    return (a < b) ? -1 : 1;
+  }
 
 }

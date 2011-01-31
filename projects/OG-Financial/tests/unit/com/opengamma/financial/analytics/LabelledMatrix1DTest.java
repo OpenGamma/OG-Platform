@@ -164,7 +164,7 @@ public class LabelledMatrix1DTest {
     }
 
     @Override
-    protected int compare(final Integer o1, final Integer o2, final Integer tolerance) {
+    public int compare(final Integer o1, final Integer o2, final Integer tolerance) {
       return o1.compareTo(o2);
     }
 

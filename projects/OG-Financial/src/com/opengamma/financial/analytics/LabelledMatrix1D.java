@@ -64,6 +64,10 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public double[] getValues() {
     return _values;
   }
+  
+  public int size() {
+    return _keys.length;
+  }
 
   /**
    * Adds a labelled matrix to this one and returns a new matrix.
@@ -184,7 +188,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   public LabelledMatrix1D<S, T> add(final S key, final Object label, final double value, final T tolerance) {
     return add(key, label, value, tolerance, false);
   }
-
+  
   protected LabelledMatrix1D<S, T> add(final LabelledMatrix1D<S, T> other, final T tolerance, final boolean ignoreLabel) {
     Validate.notNull(other, "labelled matrix");
     final S[] otherKeys = other.getKeys();
@@ -248,13 +252,36 @@ public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
   protected T getDefaultTolerance() {
     return _defaultTolerance;
   }
-
-  protected abstract int compare(S o1, S o2, T tolerance);
+  
+  /**
+   * Compares two keys and indicates whether the first would be considered less than, equal to or greater than the
+   * second.
+   * 
+   * @param key1  the first key to compare, not null
+   * @param key2  the second key to compare, not null
+   * @param tolerance  the tolerance for equality of the keys
+   * @return the value 0 if {@code key1} is equal to {@code key2}; a value less than 0 if {@code key1} is less than
+   *         {@code key2}; and a value greater than 0 if {@code key1} is greater than {@code key2}.
+   */
+  public abstract int compare(S key1, S key2, T tolerance);
+  
+  /**
+   * Compares two keys using the default equality tolerance, and indicates whether the first would be considered less
+   * than, equal to or greater than the second.
+   * 
+   * @param key1  the first key to compare, not null
+   * @param key2  the second key to compare, not null
+   * @return the value 0 if {@code key1} is equal to {@code key2}; a value less than 0 if {@code key1} is less than
+   *         {@code key2}; and a value greater than 0 if {@code key1} is greater than {@code key2}.
+   */
+  public int compare(S key1, S key2) {
+    return compare(key1, key2, getDefaultTolerance());
+  }
 
   protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, Object[] labels, double[] values);
 
-  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values);
-
+  protected abstract LabelledMatrix1D<S, T> getMatrix(S[] keys, double[] values); 
+  
   protected void sort(final S[] keys, final Object[] labels, final double[] values) {
     final int n = keys.length;
     tripleArrayQuickSort(keys, labels, values, 0, n - 1);

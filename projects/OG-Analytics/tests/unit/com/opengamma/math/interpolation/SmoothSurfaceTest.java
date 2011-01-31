@@ -92,13 +92,13 @@ public class SmoothSurfaceTest {
 
     double chiSquare = fom.evaluate(res);
 
-    System.out.println(res);
-    System.out.println("chi2: " + chiSquare);
-
-    List<Pair<double[], Double>> weights = combineWeightsAndPos(nodePos, res);
-    System.out.println("Pelenty: " + getPelenty(data, basisFunction, weights, isNormalized));
-
-    printSurface(basisFunction, weights, isNormalized);
+    // System.out.println(res);
+    // System.out.println("chi2: " + chiSquare);
+    //
+    // List<Pair<double[], Double>> weights = combineWeightsAndPos(nodePos, res);
+    // System.out.println("Pelenty: " + getPelenty(data, basisFunction, weights, isNormalized));
+    //
+    // printSurface(basisFunction, weights, isNormalized);
   }
 
   private static List<Pair<double[], Double>> combineWeightsAndPos(final List<double[]> nodePos, DoubleMatrix1D weights) {

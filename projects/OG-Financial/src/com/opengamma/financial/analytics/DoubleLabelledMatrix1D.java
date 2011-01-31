@@ -22,11 +22,8 @@ public class DoubleLabelledMatrix1D extends LabelledMatrix1D<Double, Double> {
   }
 
   @Override
-  protected int compare(final Double d1, final Double d2, final Double tolerance) {
-    if (CompareUtils.closeEquals(d1, d2, tolerance)) {
-      return 0;
-    }
-    return d1.compareTo(d2);
+  public int compare(final Double d1, final Double d2, final Double tolerance) {
+    return CompareUtils.compareWithTolerance(d1, d2, tolerance);
   }
 
   @Override
