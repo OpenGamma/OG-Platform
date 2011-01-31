@@ -23,7 +23,7 @@ public class ZonedDateTimeLabelledMatrix1D extends LabelledMatrix1D<ZonedDateTim
   }
 
   @Override
-  protected int compare(final ZonedDateTime d1, final ZonedDateTime d2, final Period tolerance) {
+  public int compare(final ZonedDateTime d1, final ZonedDateTime d2, final Period tolerance) {
     final ZonedDateTime dLow = d1.minus(tolerance);
     final ZonedDateTime dHigh = d1.plus(tolerance);
     if (d1.equals(d2) || (d2.isAfter(dLow) && d2.isBefore(dHigh))) {
