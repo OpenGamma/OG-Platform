@@ -26,7 +26,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
+public final class IdentificationScheme implements Serializable, Comparable<IdentificationScheme> {
 
   /**
    * Computing cache for the schemes.
