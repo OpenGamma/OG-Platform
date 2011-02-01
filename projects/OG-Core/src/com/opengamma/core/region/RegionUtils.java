@@ -11,10 +11,12 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Utilities and constants for regions.
  */
+@PublicAPI
 public class RegionUtils {
 
   /**

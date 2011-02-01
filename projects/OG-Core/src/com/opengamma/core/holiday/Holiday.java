@@ -13,6 +13,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A set of holidays when some form of market activity does not occur.
@@ -21,6 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
  * These can form part of algorithms and contracts.
  * Instances of this interface represent all known holiday dates for a single type of business.
  */
+@PublicSPI
 public interface Holiday extends UniqueIdentifiable {
 
   /**

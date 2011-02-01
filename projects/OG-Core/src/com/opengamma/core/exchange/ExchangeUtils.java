@@ -8,10 +8,12 @@ package com.opengamma.core.exchange;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Utilities and constants for exchanges.
  */
+@PublicAPI
 public class ExchangeUtils {
 
   /**

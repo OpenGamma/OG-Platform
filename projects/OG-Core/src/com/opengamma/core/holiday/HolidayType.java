@@ -5,11 +5,14 @@
  */
 package com.opengamma.core.holiday;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * The type of a holiday.
  * <p>
  * Holidays are categorized into fixed types.
  */
+@PublicSPI
 public enum HolidayType {
 
   /**
