@@ -24,11 +24,10 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -47,8 +46,8 @@ public class MasterPositionSourceTest {
   private static final UniqueIdentifier UID3 = UniqueIdentifier.of("E", "F");
   private static final UniqueIdentifier UID4 = UniqueIdentifier.of("G", "H");
   private static final UniqueIdentifier UID5 = UniqueIdentifier.of("I", "J");
-  private static final Instant VERSION_AS_OF = Instant.now();
-  private static final Instant CORRECTED_TO = Instant.now();
+  private static final Instant NOW = Instant.now();
+  private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
@@ -60,25 +59,13 @@ public class MasterPositionSourceTest {
     new MasterPositionSource(null, null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor4arg_nullMaster() throws Exception {
-    new MasterPositionSource(null, null, null, null);
-  }
-
   //-------------------------------------------------------------------------
   @Test
-  public void test_getPortfolio_uid() throws Exception {
+  public void test_getPortfolio_uniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
-    ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
-    manNode.setUniqueId(UID2);
-    manNode.setPortfolioId(UID);
-    ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
-    manChild.setUniqueId(UID3);
-    manChild.setParentNodeId(UID2);
-    manChild.setPortfolioId(UID);
-    manNode.addChildNode(manChild);
+    ManageablePortfolioNode manNode = example(false);
     ManageablePortfolio manPrt = new ManageablePortfolio("Hello", manNode);
     manPrt.setUniqueId(UID);
     PortfolioDocument prtDoc = new PortfolioDocument(manPrt);
@@ -107,21 +94,10 @@ public class MasterPositionSourceTest {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
-    ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
-    manNode.setUniqueId(UID2);
-    manNode.setPortfolioId(UID);
-    ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
-    manChild.setUniqueId(UID3);
-    manChild.setParentNodeId(UID2);
-    manChild.setPortfolioId(UID);
-    manChild.addPosition(UID4);
-    manNode.addChildNode(manChild);
+    ManageablePortfolioNode manNode = example(true);
     ManageablePortfolio manPrt = new ManageablePortfolio("Hello", manNode);
     manPrt.setUniqueId(UID);
     PortfolioDocument prtDoc = new PortfolioDocument(manPrt);
-    PortfolioHistoryRequest portfolioRequest = new PortfolioHistoryRequest(UID.toLatest(), VERSION_AS_OF, CORRECTED_TO);
-    PortfolioHistoryResult portfolioResult = new PortfolioHistoryResult();
-    portfolioResult.getDocuments().add(prtDoc);
     
     ManageableTrade manTrade = new ManageableTrade();
     manTrade.setQuantity(BigDecimal.valueOf(1234));
@@ -136,16 +112,15 @@ public class MasterPositionSourceTest {
     PositionDocument posDoc = new PositionDocument(manPos);
     PositionSearchRequest posRequest = new PositionSearchRequest();
     posRequest.addPositionId(UID4);
-    posRequest.setVersionAsOfInstant(VERSION_AS_OF);
-    posRequest.setCorrectedToInstant(CORRECTED_TO);
+    posRequest.setVersionCorrection(VC);
     PositionSearchResult posResult = new PositionSearchResult();
     posResult.getDocuments().add(posDoc);
     
-    when(mockPortfolio.history(portfolioRequest)).thenReturn(portfolioResult);
+    when(mockPortfolio.get(UID, VC)).thenReturn(prtDoc);
     when(mockPosition.search(posRequest)).thenReturn(posResult);
-    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition, VERSION_AS_OF, CORRECTED_TO);
+    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition, VC);
     Portfolio testResult = test.getPortfolio(UID);
-    verify(mockPortfolio, times(1)).history(portfolioRequest);
+    verify(mockPortfolio, times(1)).get(UID, VC);
     verify(mockPosition, times(1)).search(posRequest);
     
     assertEquals(UID, testResult.getUniqueId());
@@ -176,7 +151,7 @@ public class MasterPositionSourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_getPortfolioNode_uid() throws Exception {
+  public void test_getPortfolioNode_uniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
@@ -255,5 +230,21 @@ public class MasterPositionSourceTest {
 //    assertEquals(positionId, testResult.getPositionId());
 //    assertEquals(now.toLocalDate(), testResult.getTradeDate());
 //  }
+
+  //-------------------------------------------------------------------------
+  protected ManageablePortfolioNode example(boolean withPosition) {
+    ManageablePortfolioNode manNode = new ManageablePortfolioNode("Node");
+    manNode.setUniqueId(UID2);
+    manNode.setPortfolioId(UID);
+    ManageablePortfolioNode manChild = new ManageablePortfolioNode("Child");
+    manChild.setUniqueId(UID3);
+    manChild.setParentNodeId(UID2);
+    manChild.setPortfolioId(UID);
+    if (withPosition) {
+      manChild.addPosition(UID4);
+    }
+    manNode.addChildNode(manChild);
+    return manNode;
+  }
 
 }

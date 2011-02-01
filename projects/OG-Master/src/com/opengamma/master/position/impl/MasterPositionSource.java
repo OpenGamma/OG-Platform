@@ -5,12 +5,8 @@
  */
 package com.opengamma.master.position.impl;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.apache.commons.lang.StringUtils;
 
-import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -23,19 +19,16 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.VersionedSource;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionHistoryRequest;
-import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -47,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * The {@link PositionSource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link PortfolioMaster}.
  */
-public class MasterPositionSource implements PositionSource {
+public class MasterPositionSource implements PositionSource, VersionedSource {
   // TODO: This still needs work re versioning, as it crosses the boundary between two masters
 
   /**
@@ -59,64 +52,33 @@ public class MasterPositionSource implements PositionSource {
    */
   private final PositionMaster _positionMaster;
   /**
-   * The instant to search for a version at.
-   * Null is treated as the latest version.
+   * The version-correction locator to search at, null to not override versions.
    */
-  private final Instant _versionAsOfInstant;
-  /**
-   * The instant to search for corrections for.
-   * Null is treated as the latest correction.
-   */
-  private final Instant _correctedToInstant;
+  private volatile VersionCorrection _versionCorrection;
 
   /**
-   * Creates an instance with underlying masters.
+   * Creates an instance with underlying masters which does not override versions.
    * 
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
    */
   public MasterPositionSource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster) {
-    this(portfolioMaster, positionMaster, null, null);
+    this(portfolioMaster, positionMaster, null);
   }
 
   /**
-   * Creates an instance with underlying masters viewing the version
-   * that existed on the specified instant.
+   * Creates an instance with underlying masters optionally overriding the requested version.
    * 
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public MasterPositionSource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster, final InstantProvider versionAsOfInstantProvider) {
-    this(portfolioMaster, positionMaster, versionAsOfInstantProvider, null);
-  }
-
-  /**
-   * Creates an instance with underlying masters viewing the version
-   * that existed on the specified instant as corrected to the correction instant.
-   * 
-   * @param portfolioMaster  the portfolio master, not null
-   * @param positionMaster  the position master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
-   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
-   */
-  public MasterPositionSource(
-      final PortfolioMaster portfolioMaster, final PositionMaster positionMaster,
-      final InstantProvider versionAsOfInstantProvider, final InstantProvider correctedToInstantProvider) {
+  public MasterPositionSource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    if (versionAsOfInstantProvider != null) {
-      _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
-    } else {
-      _versionAsOfInstant = null;
-    }
-    if (correctedToInstantProvider != null) {
-      _correctedToInstant = Instant.of(correctedToInstantProvider);
-    } else {
-      _correctedToInstant = null;
-    }
+    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -139,113 +101,94 @@ public class MasterPositionSource implements PositionSource {
   }
 
   /**
-   * Gets the version instant to retrieve.
+   * Gets the version-correction locator to search at.
    * 
-   * @return the version instant to retrieve, null for latest version
+   * @return the version-correction locator to search at, null if not overriding versions
    */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
   }
 
   /**
-   * Gets the instant that the data should be corrected to.
+   * Sets the version-correction locator to search at.
    * 
-   * @return the instant that the data should be corrected to, null for latest correction
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
+  @Override
+  public void setVersionCorrection(final VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    Instant now = Instant.now();
-    Instant versionAsOf = Objects.firstNonNull(getVersionAsOfInstant(), now);
-    Instant correctedTo = Objects.firstNonNull(getCorrectedToInstant(), now);
+  public Portfolio getPortfolio(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolio manPrt;
-    if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
-      // use defined instants
-      PortfolioHistoryRequest portfolioSearch = new PortfolioHistoryRequest(uid.toLatest(), getVersionAsOfInstant(), getCorrectedToInstant());
-      PortfolioHistoryResult portfolios = getPortfolioMaster().history(portfolioSearch);
-      if (portfolios.getDocuments().size() != 1) {
-        return null;
+    try {
+      if (vc != null) {
+        manPrt = getPortfolioMaster().get(uniqueId, vc).getPortfolio();
+      } else {
+        manPrt = getPortfolioMaster().get(uniqueId).getPortfolio();
       }
-      manPrt = portfolios.getFirstPortfolio();
-    } else {
-      // match by uid
-      try {
-        PortfolioDocument prtDoc = getPortfolioMaster().get(uid);
-        manPrt = prtDoc.getPortfolio();
-      } catch (DataNotFoundException ex) {
-        return null;
-      }
+    } catch (DataNotFoundException ex) {
+      return null;
     }
     PortfolioImpl prt = new PortfolioImpl(manPrt.getUniqueId(), manPrt.getName());
-    convertNode(versionAsOf, correctedTo, manPrt.getRootNode(), prt.getRootNode());
+    convertNode(manPrt.getRootNode(), prt.getRootNode());
     return prt;
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    Instant now = Instant.now();
-    Instant versionAsOf = Objects.firstNonNull(getVersionAsOfInstant(), now);
-    Instant correctedTo = Objects.firstNonNull(getCorrectedToInstant(), now);
+  public PortfolioNode getPortfolioNode(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolioNode manNode;
-    if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
+    if (vc != null) {
       // use defined instants
       PortfolioSearchRequest portfolioSearch = new PortfolioSearchRequest();
-      portfolioSearch.addNodeId(uid);
-      portfolioSearch.setVersionAsOfInstant(versionAsOf);
-      portfolioSearch.setCorrectedToInstant(correctedTo);
+      portfolioSearch.addNodeId(uniqueId);
+      portfolioSearch.setVersionCorrection(vc);
       PortfolioSearchResult portfolios = getPortfolioMaster().search(portfolioSearch);
       if (portfolios.getDocuments().size() != 1) {
         return null;
       }
       ManageablePortfolio manPrt = portfolios.getFirstPortfolio();
-      manNode = manPrt.getRootNode().findNodeByObjectIdentifier(uid);
+      manNode = manPrt.getRootNode().findNodeByObjectIdentifier(uniqueId);
     } else {
-      // match by uid
+      // match by uniqueId
       try {
-        manNode = getPortfolioMaster().getNode(uid);
+        manNode = getPortfolioMaster().getNode(uniqueId);
       } catch (DataNotFoundException ex) {
         return null;
       }
     }
     PortfolioNodeImpl node = new PortfolioNodeImpl();
-    convertNode(versionAsOf, correctedTo, manNode, node);
+    convertNode(manNode, node);
     return node;
   }
 
   @Override
-  public Position getPosition(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    String[] schemes = StringUtils.split(uid.getScheme(), '-');
-    String[] values = StringUtils.split(uid.getValue(), '-');
-    String[] versions = StringUtils.split(uid.getVersion(), '-');
+  public Position getPosition(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
+    String[] values = StringUtils.split(uniqueId.getValue(), '-');
+    String[] versions = StringUtils.split(uniqueId.getVersion(), '-');
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uid);
+      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uniqueId);
     }
     UniqueIdentifier nodeId = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
     UniqueIdentifier posId = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePosition manPos;
-    if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
-      // use defined instants
-      PositionHistoryRequest positionSearch = new PositionHistoryRequest(posId.toLatest(), getVersionAsOfInstant(), getCorrectedToInstant());
-      PositionHistoryResult positions = getPositionMaster().history(positionSearch);
-      if (positions.getDocuments().size() != 1) {
-        return null;
+    try {
+      if (vc != null) {
+        manPos = getPositionMaster().get(posId, vc).getPosition();
+      } else {
+        manPos = getPositionMaster().get(posId).getPosition();
       }
-      manPos = positions.getFirstPosition();
-    } else {
-      // match by uid
-      try {
-        PositionDocument posDoc = getPositionMaster().get(posId);
-        manPos = posDoc.getPosition();
-      } catch (DataNotFoundException ex) {
-        return null;
-      }
+    } catch (DataNotFoundException ex) {
+      return null;
     }
     PositionImpl pos = new PositionImpl();
     convertPosition(nodeId, manPos, pos);
@@ -253,23 +196,23 @@ public class MasterPositionSource implements PositionSource {
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    String[] schemes = StringUtils.split(uid.getScheme(), '-');
-    String[] values = StringUtils.split(uid.getValue(), '-');
-    String[] versions = StringUtils.split(uid.getVersion(), '-');
+  public Trade getTrade(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
+    String[] values = StringUtils.split(uniqueId.getValue(), '-');
+    String[] versions = StringUtils.split(uniqueId.getVersion(), '-');
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uid);
+      throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uniqueId);
     }
     UniqueIdentifier nodeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[0], values[0]) : UniqueIdentifier.of(schemes[0], values[0], versions[0]);
     UniqueIdentifier tradeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[1], values[1]) : UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageableTrade manTrade;
-    if (getVersionAsOfInstant() != null || getCorrectedToInstant() != null) {
+    if (vc != null) {
       // use defined instants
       PositionSearchRequest positionSearch = new PositionSearchRequest();
       positionSearch.addTradeId(tradeId);
-      positionSearch.setVersionAsOfInstant(getVersionAsOfInstant());
-      positionSearch.setCorrectedToInstant(getCorrectedToInstant());
+      positionSearch.setVersionCorrection(vc);
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
       if (positions.getDocuments().size() != 1) {
         return null;
@@ -277,7 +220,7 @@ public class MasterPositionSource implements PositionSource {
       ManageablePosition manPos = positions.getFirstPosition();
       manTrade = manPos.getTrade(tradeId);
     } else {
-      // match by uid
+      // match by uniqueId
       try {
         manTrade = getPositionMaster().getTrade(tradeId);
       } catch (DataNotFoundException ex) {
@@ -293,12 +236,10 @@ public class MasterPositionSource implements PositionSource {
   /**
    * Converts a manageable node to a source node.
    * 
-   * @param versionAsOf  the version as of, not null
-   * @param correctedTo  the correction to, not null
    * @param manNode  the manageable node, not null
    * @param sourceNode  the source node, not null
    */
-  protected void convertNode(final Instant versionAsOf, final Instant correctedTo, final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
+  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
     UniqueIdentifier nodeId = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
@@ -307,8 +248,7 @@ public class MasterPositionSource implements PositionSource {
     if (manNode.getPositionIds().size() > 0) {
       PositionSearchRequest positionSearch = new PositionSearchRequest();
       positionSearch.setPositionIds(manNode.getPositionIds());
-      positionSearch.setVersionAsOfInstant(versionAsOf);
-      positionSearch.setCorrectedToInstant(correctedTo);
+      positionSearch.setVersionCorrection(getVersionCorrection());
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
       for (PositionDocument posDoc : positions.getDocuments()) {
         ManageablePosition manPos = posDoc.getPosition();
@@ -320,7 +260,7 @@ public class MasterPositionSource implements PositionSource {
     
     for (ManageablePortfolioNode child : manNode.getChildNodes()) {
       PortfolioNodeImpl childNode = new PortfolioNodeImpl();
-      convertNode(versionAsOf, correctedTo, child, childNode);
+      convertNode(child, childNode);
       sourceNode.addChildNode(childNode);
     }
   }
@@ -382,12 +322,9 @@ public class MasterPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = "MasterPositionSource[" + getPositionMaster();
-    if (_versionAsOfInstant != null) {
-      str += ",versionAsOf=" + _versionAsOfInstant;
-    }
-    if (_versionAsOfInstant != null) {
-      str += ",correctedTo=" + _correctedToInstant;
+    String str = getClass().getSimpleName() + "[" + getPositionMaster() + "," + getPositionMaster();
+    if (getVersionCorrection() != null) {
+      str += ",versionCorrection=" + getVersionCorrection();
     }
     return str + "]";
   }

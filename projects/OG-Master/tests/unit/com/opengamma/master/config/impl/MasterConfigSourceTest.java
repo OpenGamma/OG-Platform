@@ -16,7 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -55,7 +57,11 @@ public class MasterConfigSourceTest {
           return result;
         }
         @Override
-        public ConfigDocument<Identifier> get(UniqueIdentifier uid) {
+        public ConfigDocument<Identifier> get(UniqueIdentifier uniqueId) {
+          return DOC;
+        }
+        @Override
+        public ConfigDocument<Identifier> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
           return DOC;
         }
         @Override
@@ -67,7 +73,7 @@ public class MasterConfigSourceTest {
           throw new UnsupportedOperationException();
         }
         @Override
-        public void remove(UniqueIdentifier uid) {
+        public void remove(UniqueIdentifier uniqueId) {
           throw new UnsupportedOperationException();
         }
         @Override
@@ -111,11 +117,6 @@ public class MasterConfigSourceTest {
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterConfigSource(null, null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor3arg_nullMaster() throws Exception {
-    new MasterConfigSource(null, null, null);
   }
 
   @Test

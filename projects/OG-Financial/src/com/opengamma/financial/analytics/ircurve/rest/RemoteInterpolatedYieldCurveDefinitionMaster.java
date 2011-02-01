@@ -17,7 +17,10 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
@@ -116,6 +119,24 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
       throw new DataNotFoundException("uid=" + uid);
     }
     return new YieldCurveDefinitionDocument(uid, getFudgeDeserializationContext().fieldValueToObject(YieldCurveDefinition.class, definitionField));
+  }
+
+  @Override
+  public YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
+    ObjectIdentifier objectId = objectIdable.getObjectId();
+    final FudgeFieldContainer msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(objectId.toString()));
+    if (msg == null) {
+      throw new DataNotFoundException("uid=" + objectId);
+    }
+    UniqueIdentifier uniqueId = getIdentifier(msg);
+    if (uniqueId == null) {
+      throw new DataNotFoundException("uid=" + uniqueId);
+    }
+    final FudgeField definitionField = msg.getByName("definition");
+    if (definitionField == null) {
+      throw new DataNotFoundException("uid=" + uniqueId);
+    }
+    return new YieldCurveDefinitionDocument(uniqueId, getFudgeDeserializationContext().fieldValueToObject(YieldCurveDefinition.class, definitionField));
   }
 
   @Override

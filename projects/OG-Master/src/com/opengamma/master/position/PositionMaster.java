@@ -43,11 +43,11 @@ public interface PositionMaster extends AbstractMaster<PositionDocument> {
    * If the master supports history then the version in the identifier will be used
    * to return the requested historic version.
    * 
-   * @param uid  the trade unique identifier, not null
+   * @param tradeId  the trade unique identifier, not null
    * @return the trade, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no trade with that unique identifier
    */
-  ManageableTrade getTrade(UniqueIdentifier uid);
+  ManageableTrade getTrade(UniqueIdentifier tradeId);
 
 }

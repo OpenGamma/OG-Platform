@@ -15,9 +15,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifiables;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -39,34 +41,34 @@ public class InMemorySecurityMaster implements SecurityMaster {
   // be altered from outside as it is the same object
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
+   * The default scheme used for each {@link ObjectIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "MemSec";
+  public static final String DEFAULT_OID_SCHEME = "MemSec";
 
   /**
    * A cache of securities by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, SecurityDocument> _securities = new ConcurrentHashMap<UniqueIdentifier, SecurityDocument>();
+  private final ConcurrentMap<ObjectIdentifier, SecurityDocument> _store = new ConcurrentHashMap<ObjectIdentifier, SecurityDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
+  private final Supplier<ObjectIdentifier> _objectIdSupplier;
 
   /**
-   * Creates an empty security master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty security master using the default scheme for any {@link ObjectIdentifier}s created.
    */
   public InMemorySecurityMaster() {
-    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
+    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
-   * Creates an instance specifying the supplier of unique identifiers.
+   * Creates an instance specifying the supplier of object identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemorySecurityMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  public InMemorySecurityMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    _objectIdSupplier = objectIdSupplier;
   }
 
   //-------------------------------------------------------------------------
@@ -74,7 +76,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final SecuritySearchResult result = new SecuritySearchResult();
-    Collection<SecurityDocument> docs = _securities.values();
+    Collection<SecurityDocument> docs = _store.values();
     if (request.getSecurityType() != null) {
       docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
         @Override
@@ -115,11 +117,18 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityDocument get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final SecurityDocument document = _securities.get(uid);
+  public SecurityDocument get(final UniqueIdentifier uniqueId) {
+    return get(uniqueId, VersionCorrection.LATEST);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final SecurityDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
-      throw new DataNotFoundException("Security not found: " + uid);
+      throw new DataNotFoundException("Security not found: " + objectId);
     }
     return document;
   }
@@ -130,16 +139,15 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
+    final ObjectIdentifier objectId = _objectIdSupplier.get();
+    final UniqueIdentifier uniqueId = objectId.atVersion("");
     final ManageableSecurity security = document.getSecurity();
-    final UniqueIdentifier uid = _uidSupplier.get();
+    security.setUniqueId(uniqueId);
     final Instant now = Instant.now();
-    UniqueIdentifiables.setInto(security, uid);
-    final SecurityDocument doc = new SecurityDocument();
-    doc.setSecurity(security);
-    doc.setUniqueId(uid);
+    final SecurityDocument doc = new SecurityDocument(security);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
-    _securities.put(uid, doc);  // unique identifier should be unique
+    _store.put(objectId, doc);
     return doc;
   }
 
@@ -150,17 +158,17 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
-    final UniqueIdentifier uid = document.getUniqueId();
+    final UniqueIdentifier uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final SecurityDocument storedDocument = _securities.get(uid);
+    final SecurityDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Security not found: " + uid);
+      throw new DataNotFoundException("Security not found: " + uniqueId);
     }
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    if (_securities.replace(uid, storedDocument, document) == false) {
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return document;
@@ -168,11 +176,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (_securities.remove(uid) == null) {
-      throw new DataNotFoundException("Security not found: " + uid);
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Security not found: " + uniqueId);
     }
   }
 
@@ -183,7 +191,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final SecurityHistoryResult result = new SecurityHistoryResult();
-    final SecurityDocument doc = get(request.getObjectId().atLatestVersion());
+    final SecurityDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
       result.getDocuments().add(doc);
     }

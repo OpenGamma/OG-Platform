@@ -5,15 +5,19 @@
  */
 package com.opengamma.master;
 
-import javax.time.InstantProvider;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Trait for a "source" backed by a "master" that allows the version to be fixed externally.
  */
 public interface VersionedSource {
-
-  void setVersionAsOfInstant(InstantProvider versionAsOf);
-
   // TODO need a remote version of this to support ViewProcessorManager running on a different node to the actual masters and sources
+
+  /**
+   * Sets the version-correction locator to search at.
+   * 
+   * @param versionCorrection  the version-correction locator to search at, null for latest version
+   */
+  void setVersionCorrection(final VersionCorrection versionCorrection);
 
 }

@@ -95,7 +95,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     LocalDateDoubleTimeSeries timeseries = new ArrayLocalDateDoubleTimeSeries();
     TimeSeriesSearchResult<LocalDate> searchResult = getTimeSeriesMaster().searchTimeSeries(request);
     List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
-    UniqueIdentifier uid = null;
+    UniqueIdentifier uniqueId = null;
     if (!documents.isEmpty()) {
       if (documents.size() > 1) {
         Object[] param = new Object[]{securityBundle, dataSource, dataProvider, dataField, start, end};
@@ -103,23 +103,23 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       }
       TimeSeriesDocument<LocalDate> timeSeriesDocument = documents.get(0);
       timeseries = timeSeriesDocument.getTimeSeries().toLocalDateDoubleTimeSeries();
-      uid = timeSeriesDocument.getUniqueId();
+      uniqueId = timeSeriesDocument.getUniqueId();
     }
-    return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uid, timeseries);
+    return new ObjectsPair<UniqueIdentifier, LocalDateDoubleTimeSeries>(uniqueId, timeseries);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid) {
-    return getHistoricalData(uid, null, null);
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uniqueId) {
+    return getHistoricalData(uniqueId, null, null);
   }
 
-  private LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, LocalDate end) {
-    ArgumentChecker.notNull(uid, "Identifier");
+  private LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, LocalDate end) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.setLoadTimeSeries(true);
     request.setStart(start);
     request.setEnd(end);
-    request.setTimeSeriesId(uid);
+    request.setTimeSeriesId(uniqueId);
     request.setLoadTimeSeries(true);
     
     LocalDateDoubleTimeSeries result = new ArrayLocalDateDoubleTimeSeries();
@@ -127,7 +127,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     List<TimeSeriesDocument<LocalDate>> documents = searchResult.getDocuments();
     if (!documents.isEmpty()) {
       if (documents.size() > 1) {
-        s_logger.warn("multiple timeseries return for uid={}", uid);
+        s_logger.warn("multiple timeseries return for uniqueId={}", uniqueId);
       }
       result = documents.get(0).getTimeSeries().toLocalDateDoubleTimeSeries();   
     }
@@ -181,7 +181,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   }
 
   @Override
-  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+  public LocalDateDoubleTimeSeries getHistoricalData(UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(start, "start date");
     ArgumentChecker.notNull(end, "end date");
     if (!inclusiveStart) {
@@ -190,7 +190,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
     if (exclusiveEnd) {
       end = end.minusDays(1);
     }
-    return getHistoricalData(uid, start, end);
+    return getHistoricalData(uniqueId, start, end);
   }
 
   @Override

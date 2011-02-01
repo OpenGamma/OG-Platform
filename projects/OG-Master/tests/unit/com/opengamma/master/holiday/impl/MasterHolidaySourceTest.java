@@ -25,12 +25,12 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.master.holiday.impl.MasterHolidaySource;
 
 /**
  * Test MasterHolidaySource.
@@ -43,6 +43,8 @@ public class MasterHolidaySourceTest {
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final Instant NOW = Instant.now();
+  private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -54,36 +56,41 @@ public class MasterHolidaySourceTest {
     new MasterHolidaySource(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor3arg_nullMaster() throws Exception {
-    new MasterHolidaySource(null, null, null);
-  }
-
   //-------------------------------------------------------------------------
   @Test
-  public void test_getHoliday_found() throws Exception {
-    Instant now = Instant.now();
+  public void test_getHoliday_noOverride_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
-    Holiday hol = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
-    HolidayDocument doc = new HolidayDocument(hol);
+    HolidayDocument doc = new HolidayDocument(example());
     when(mock.get(UID)).thenReturn(doc);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock);
     Holiday testResult = test.getHoliday(UID);
     verify(mock, times(1)).get(UID);
     
-    assertEquals(hol, testResult);
+    assertEquals(example(), testResult);
+  }
+
+  @Test
+  public void test_getHoliday_found() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    
+    HolidayDocument doc = new HolidayDocument(example());
+    when(mock.get(UID, VC)).thenReturn(doc);
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    Holiday testResult = test.getHoliday(UID);
+    verify(mock, times(1)).get(UID, VC);
+    
+    assertEquals(example(), testResult);
   }
 
   @Test
   public void test_getHoliday_notFound() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     
-    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     Holiday testResult = test.getHoliday(UID);
-    verify(mock, times(1)).get(UID);
+    verify(mock, times(1)).get(UID, VC);
     
     assertEquals(null, testResult);
   }
@@ -91,18 +98,16 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateCurrency_holiday() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
     
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
     
@@ -111,16 +116,14 @@ public class MasterHolidaySourceTest {
 
   @Test
   public void test_isHoliday_LocalDateCurrency_workday() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     HolidaySearchResult result = new HolidaySearchResult();
     
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
     
@@ -129,16 +132,14 @@ public class MasterHolidaySourceTest {
 
   @Test
   public void test_isHoliday_LocalDateCurrency_sunday() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     request.setDateToCheck(DATE_SUNDAY);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     HolidaySearchResult result = new HolidaySearchResult();
     
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     boolean testResult = test.isHoliday(DATE_SUNDAY, GBP);
     verify(mock, times(0)).search(request);
     
@@ -148,18 +149,16 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateTypeIdentifier_holiday() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, IdentifierBundle.of(ID));
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
     
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     boolean testResult = test.isHoliday(DATE_MONDAY, HolidayType.BANK, ID);
     verify(mock, times(1)).search(request);
     
@@ -169,22 +168,25 @@ public class MasterHolidaySourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_isHoliday_LocalDateTypeIdentifierBundle_holiday() throws Exception {
-    Instant now = Instant.now();
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, BUNDLE);
     request.setDateToCheck(DATE_MONDAY);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();
     result.getDocuments().add(new HolidayDocument(holiday));
     
     when(mock.search(request)).thenReturn(result);
-    MasterHolidaySource test = new MasterHolidaySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     boolean testResult = test.isHoliday(DATE_MONDAY, HolidayType.BANK, BUNDLE);
     verify(mock, times(1)).search(request);
     
     assertEquals(true, testResult);
+  }
+
+  //-------------------------------------------------------------------------
+  protected Holiday example() {
+    return new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
   }
 
 }

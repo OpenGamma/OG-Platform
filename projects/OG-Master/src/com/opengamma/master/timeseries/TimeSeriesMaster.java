@@ -133,12 +133,12 @@ public interface TimeSeriesMaster<T> {
   /**
    * Gets a time-series by unique identifier.
    * 
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uid);
+  TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uniqueId);
 
   /**
    * Adds a time-series to the data store.
@@ -164,11 +164,11 @@ public interface TimeSeriesMaster<T> {
   /**
    * Removes a time-series from the data store.
    * 
-   * @param uid  the unique identifier to remove, not null
+   * @param uniqueId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void removeTimeSeries(final UniqueIdentifier uid);
+  void removeTimeSeries(final UniqueIdentifier uniqueId);
 
   /**
    * Searches for time-series matching the specified search criteria.
@@ -186,12 +186,12 @@ public interface TimeSeriesMaster<T> {
    * <p> 
    * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
    * 
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the data point document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  DataPointDocument<T> getDataPoint(UniqueIdentifier uid);
+  DataPointDocument<T> getDataPoint(UniqueIdentifier uniqueId);
 
   /**
    * Adds a data point to an existing time-series in the data store.
@@ -219,11 +219,11 @@ public interface TimeSeriesMaster<T> {
    * <p> 
    * The dataPoint UID is of the format {@code TimeSeriesUID-YYYYMMDD}.
    * 
-   * @param uid  the unique identifier to remove, not null
+   * @param uniqueId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void removeDataPoint(final UniqueIdentifier uid);
+  void removeDataPoint(final UniqueIdentifier uniqueId);
 
   //-------------------------------------------------------------------------
   /**

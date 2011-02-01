@@ -7,23 +7,21 @@ package com.opengamma.master.holiday.impl;
 
 import java.util.Collections;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@code HolidaySource} implemented using an underlying {@code HolidayMaster}.
@@ -31,125 +29,52 @@ import com.opengamma.util.ArgumentChecker;
  * The {@link HolidaySource} interface provides holidays to the application via a narrow API.
  * This class provides the source on top of a standard {@link HolidayMaster}.
  */
-public class MasterHolidaySource implements HolidaySource {
+public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, HolidayMaster> implements HolidaySource {
 
   /**
-   * The underlying master.
-   */
-  private final HolidayMaster _holidayMaster;
-  /**
-   * The instant to search for a version at.
-   * Null is treated as the latest version.
-   */
-  private final Instant _versionAsOfInstant;
-  /**
-   * The instant to search for corrections for.
-   * Null is treated as the latest correction.
-   */
-  private final Instant _correctedToInstant;
-
-  /**
-   * Creates an instance with an underlying holiday master.
+   * Creates an instance with an underlying master which does not override versions.
    * 
-   * @param holidayMaster  the holiday master, not null
+   * @param master  the master, not null
    */
-  public MasterHolidaySource(final HolidayMaster holidayMaster) {
-    this(holidayMaster, null, null);
+  public MasterHolidaySource(final HolidayMaster master) {
+    super(master);
   }
 
   /**
-   * Creates an instance with an underlying holiday master viewing the version
-   * that existed on the specified instant.
+   * Creates an instance with an underlying master optionally overriding the requested version.
    * 
-   * @param holidayMaster  the holiday master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
+   * @param master  the master, not null
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public MasterHolidaySource(final HolidayMaster holidayMaster, final InstantProvider versionAsOfInstantProvider) {
-    this(holidayMaster, versionAsOfInstantProvider, null);
-  }
-
-  /**
-   * Creates an instance with an underlying holiday master viewing the version
-   * that existed on the specified instant as corrected to the correction instant.
-   * 
-   * @param holidayMaster  the holiday master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
-   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
-   */
-  public MasterHolidaySource(final HolidayMaster holidayMaster, final InstantProvider versionAsOfInstantProvider, final InstantProvider correctedToInstantProvider) {
-    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
-    _holidayMaster = holidayMaster;
-    if (versionAsOfInstantProvider != null) {
-      _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
-    } else {
-      _versionAsOfInstant = null;
-    }
-    if (correctedToInstantProvider != null) {
-      _correctedToInstant = Instant.of(correctedToInstantProvider);
-    } else {
-      _correctedToInstant = null;
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the underlying holiday master.
-   * 
-   * @return the holiday master, not null
-   */
-  public HolidayMaster getHolidayMaster() {
-    return _holidayMaster;
-  }
-
-  /**
-   * Gets the version instant to retrieve.
-   * 
-   * @return the version instant to retrieve, null for latest version
-   */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
-  }
-
-  /**
-   * Gets the instant that the data should be corrected to.
-   * 
-   * @return the instant that the data should be corrected to, null for latest correction
-   */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
+  public MasterHolidaySource(final HolidayMaster master, VersionCorrection versionCorrection) {
+    super(master, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableHoliday getHoliday(UniqueIdentifier uid) {
-    try {
-      return getHolidayMaster().get(uid).getHoliday();
-    } catch (DataNotFoundException ex) {
-      return null;
-    }
+  public ManageableHoliday getHoliday(UniqueIdentifier uniqueId) {
+    HolidayDocument doc = getDocument(uniqueId);
+    return (doc != null ? doc.getHoliday() : null);
   }
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     HolidaySearchRequest request = new HolidaySearchRequest(currency);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);
   }
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final IdentifierBundle regionOrExchangeIds) {
     HolidaySearchRequest request = new HolidaySearchRequest(holidayType, regionOrExchangeIds);
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);
   }
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final Identifier regionOrExchangeId) {
     HolidaySearchRequest request = new HolidaySearchRequest(holidayType, IdentifierBundle.of(regionOrExchangeId));
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
+    request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);
   }
 
@@ -166,10 +91,10 @@ public class MasterHolidaySource implements HolidaySource {
       return true;
     }
     request.setDateToCheck(dateToCheck);
-    HolidayDocument doc = getHolidayMaster().search(request).getFirstDocument();
+    HolidayDocument doc = getMaster().search(request).getFirstDocument();
     return isHoliday(doc, dateToCheck);
   }
-  
+
   /**
    * Checks if the specified date is a holiday.
    * 
@@ -184,7 +109,7 @@ public class MasterHolidaySource implements HolidaySource {
     }
     return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
   }
-  
+
   /**
    * Checks if the date is at the weekend, defined as a Saturday or Sunday.
    * 
@@ -193,19 +118,6 @@ public class MasterHolidaySource implements HolidaySource {
    */
   protected boolean isWeekend(LocalDate date) {
     return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    String str = "MasterHolidaySource[" + getHolidayMaster();
-    if (_versionAsOfInstant != null) {
-      str += ",versionAsOf=" + _versionAsOfInstant;
-    }
-    if (_versionAsOfInstant != null) {
-      str += ",correctedTo=" + _correctedToInstant;
-    }
-    return str + "]";
   }
 
 }

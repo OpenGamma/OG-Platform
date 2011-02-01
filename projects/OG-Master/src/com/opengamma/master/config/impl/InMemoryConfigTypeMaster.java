@@ -17,9 +17,12 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -46,29 +49,31 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   /**
    * A cache of securities by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, ConfigDocument<T>> _configs = new ConcurrentHashMap<UniqueIdentifier, ConfigDocument<T>>();
+  private final ConcurrentMap<ObjectIdentifier, ConfigDocument<T>> _store = new ConcurrentHashMap<ObjectIdentifier, ConfigDocument<T>>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
-  
+  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  /**
+   * The listeners.
+   */
   private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 
   /**
    * Creates an instance.
    */
   public InMemoryConfigTypeMaster() {
-    this(new UniqueIdentifierSupplier(InMemoryConfigMaster.DEFAULT_UID_SCHEME));
+    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME));
   }
 
   /**
-   * Creates an instance specifying the supplier of unique identifiers.
+   * Creates an instance specifying the supplier of object identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryConfigTypeMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  public InMemoryConfigTypeMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    _objectIdSupplier = objectIdSupplier;
   }
 
   //-------------------------------------------------------------------------
@@ -76,7 +81,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   public ConfigSearchResult<T> search(final ConfigSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    Collection<ConfigDocument<T>> docs = _configs.values();
+    Collection<ConfigDocument<T>> docs = _store.values();
     if (request.getName() != null) {
       final Pattern pattern = RegexUtils.wildcardsToPattern(request.getName());
       docs = Collections2.filter(docs, new Predicate<ConfigDocument<T>>() {
@@ -93,11 +98,18 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<T> get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final ConfigDocument<T> document = _configs.get(uid);
+  public ConfigDocument<T> get(final UniqueIdentifier uniqueId) {
+    return get(uniqueId, VersionCorrection.LATEST);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final ConfigDocument<T> document = _store.get(objectId.getObjectId());
     if (document == null) {
-      throw new DataNotFoundException("Config not found: " + uid);
+      throw new DataNotFoundException("Config not found: " + objectId);
     }
     return document;
   }
@@ -110,15 +122,16 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(document.getValue(), "document.value");
     
     final T value = document.getValue();
-    final UniqueIdentifier uid = _uidSupplier.get();
+    final ObjectIdentifier objectId = _objectIdSupplier.get();
+    final UniqueIdentifier uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
-    UniqueIdentifiables.setInto(value, uid);
+    UniqueIdentifiables.setInto(value, uniqueId);
     final ConfigDocument<T> doc = new ConfigDocument<T>();
     doc.setName(document.getName());
     doc.setValue(value);
-    doc.setUniqueId(uid);
+    doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
-    _configs.put(uid, doc);  // unique identifier should be unique
+    _store.put(objectId, doc);
     
     //notify listeners
     notifyDocumentAdded(doc);
@@ -131,9 +144,9 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     }
   }
   
-  private void notifyDocumentRemoved(UniqueIdentifier uid) {
+  private void notifyDocumentRemoved(UniqueIdentifier uniqueId) {
     for (MasterChangeListener listener : _listeners) {
-      listener.removed(uid);
+      listener.removed(uniqueId);
     }
   }
   
@@ -147,34 +160,36 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigDocument<T> update(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getValue(), "document.value");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
     
-    final UniqueIdentifier uid = document.getUniqueId();
+    final UniqueIdentifier uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final ConfigDocument<T> storedDocument = _configs.get(uid);
+    final ConfigDocument<T> storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Config not found: " + uid);
+      throw new DataNotFoundException("Config not found: " + uniqueId);
     }
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
-    if (_configs.replace(uid, storedDocument, document) == false) {
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     
-    notifyDocumentUpdated(uid, document.getUniqueId());
+    notifyDocumentUpdated(uniqueId, document.getUniqueId());
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (_configs.remove(uid) == null) {
-      throw new DataNotFoundException("Config not found: " + uid);
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Config not found: " + uniqueId);
     }
-    notifyDocumentRemoved(uid);
+    notifyDocumentRemoved(uniqueId);
   }
 
   //-------------------------------------------------------------------------
@@ -184,7 +199,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
-    final ConfigDocument<T> doc = get(request.getObjectId().atLatestVersion());
+    final ConfigDocument<T> doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
       result.getDocuments().add(doc);
     }
