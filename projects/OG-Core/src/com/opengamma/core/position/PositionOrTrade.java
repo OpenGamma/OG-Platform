@@ -11,6 +11,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A position and a trade are related concepts and this interface provides common access.
@@ -22,6 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
  * The reference to a security is held primarily by an identifier bundle.
  * However, this can become resolved, setting the security field with the full data.
  */
+@PublicSPI
 public interface PositionOrTrade extends UniqueIdentifiable {
 
   /**

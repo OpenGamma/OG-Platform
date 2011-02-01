@@ -17,18 +17,17 @@ import javax.time.Instant;
 
 import org.junit.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityHistoryRequest;
-import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.master.security.impl.MasterSecuritySource;
 
 /**
  * Test MasterSecuritySource.
@@ -39,6 +38,8 @@ public class MasterSecuritySourceTest {
   private static final Identifier ID1 = Identifier.of("C", "D");
   private static final Identifier ID2 = Identifier.of("E", "F");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID1, ID2);
+  private static final Instant NOW = Instant.now();
+  private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -50,46 +51,59 @@ public class MasterSecuritySourceTest {
     new MasterSecuritySource(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor3arg_nullMaster() throws Exception {
-    new MasterSecuritySource(null, null, null);
-  }
-
   //-------------------------------------------------------------------------
   @Test
-  public void test_getSecurityByUID() throws Exception {
-    Instant now = Instant.now();
+  public void test_getSecurity_noOverride_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
-    SecurityHistoryRequest request = new SecurityHistoryRequest(UID, now.minusSeconds(2), now.minusSeconds(1));
-    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
-    SecurityHistoryResult result = new SecurityHistoryResult();
-    result.getDocuments().add(new SecurityDocument(security));
     
-    when(mock.history(request)).thenReturn(result);
-    MasterSecuritySource test = new MasterSecuritySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    SecurityDocument doc = new SecurityDocument(example());
+    when(mock.get(UID)).thenReturn(doc);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
     Security testResult = test.getSecurity(UID);
-    verify(mock, times(1)).history(request);
+    verify(mock, times(1)).get(UID);
     
-    assertEquals(UID, testResult.getUniqueId());
-    assertEquals("Test", testResult.getName());
+    assertEquals(example(), testResult);
+  }
+
+  @Test
+  public void test_getSecurity_found() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    
+    SecurityDocument doc = new SecurityDocument(example());
+    when(mock.get(UID, VC)).thenReturn(doc);
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    Security testResult = test.getSecurity(UID);
+    verify(mock, times(1)).get(UID, VC);
+    
+    assertEquals(example(), testResult);
+  }
+
+  @Test
+  public void test_getSecurity_notFound() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    
+    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    Security testResult = test.getSecurity(UID);
+    verify(mock, times(1)).get(UID, VC);
+    
+    assertEquals(null, testResult);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_getSecuritiesByIdentifierBundle() throws Exception {
-    Instant now = Instant.now();
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityKey(ID1);
     request.addSecurityKey(ID2);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
-    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    request.setVersionCorrection(VC);
+    ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
     
     when(mock.search(request)).thenReturn(result);
-    MasterSecuritySource test = new MasterSecuritySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     Collection<Security> testResult = test.getSecurities(BUNDLE);
     verify(mock, times(1)).search(request);
     
@@ -99,25 +113,28 @@ public class MasterSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_getSecurityByIdentifier() throws Exception {
-    Instant now = Instant.now();
+  public void test_getSecurity_Identifier() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityKey(ID1);
     request.addSecurityKey(ID2);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
-    ManageableSecurity security = new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    request.setVersionCorrection(VC);
+    ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
     
     when(mock.search(request)).thenReturn(result);
-    MasterSecuritySource test = new MasterSecuritySource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     Security testResult = test.getSecurity(BUNDLE);
     verify(mock, times(1)).search(request);
     
     assertEquals(UID, testResult.getUniqueId());
     assertEquals("Test", testResult.getName());
+  }
+
+  //-------------------------------------------------------------------------
+  protected ManageableSecurity example() {
+    return new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
   }
 
 }

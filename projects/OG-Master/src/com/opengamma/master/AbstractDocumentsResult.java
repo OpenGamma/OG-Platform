@@ -20,6 +20,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -27,6 +28,7 @@ import com.opengamma.util.db.Paging;
  * 
  * @param <D>  the type of the document
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractDocumentsResult<D extends AbstractDocument> extends DirectBean {
 

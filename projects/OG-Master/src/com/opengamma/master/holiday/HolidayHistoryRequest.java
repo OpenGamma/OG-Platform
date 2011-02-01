@@ -16,6 +16,7 @@ import org.joda.beans.MetaProperty;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for the history of a holiday.
@@ -39,6 +40,7 @@ import com.opengamma.master.AbstractHistoryRequest;
  * <p>
  * Versions and corrections are represented by instants in the search.
  */
+@PublicSPI
 @BeanDefinition
 public class HolidayHistoryRequest extends AbstractHistoryRequest {
 

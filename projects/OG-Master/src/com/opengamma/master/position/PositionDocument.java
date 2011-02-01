@@ -20,10 +20,12 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the position master.
  */
+@PublicSPI
 @BeanDefinition
 public class PositionDocument extends AbstractDocument implements Serializable {
 

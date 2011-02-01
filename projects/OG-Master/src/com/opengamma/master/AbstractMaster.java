@@ -6,7 +6,10 @@
 package com.opengamma.master;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An outline definition of a general-purpose master storing documents.
@@ -18,20 +21,35 @@ import com.opengamma.id.UniqueIdentifier;
  * 
  * @param <D>  the type of the document
  */
+@PublicSPI
 public interface AbstractMaster<D extends AbstractDocument> {
 
   /**
    * Gets a document by unique identifier.
    * <p>
-   * If the master supports history then the version in the identifier will be used
-   * to return the requested historic version.
+   * The identifier version string will be used to return the correct historic version providing
+   * that the master supports history.
    * 
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  D get(UniqueIdentifier uid);
+  D get(UniqueIdentifier uniqueId);
+
+  /**
+   * Gets a document by object identifier and version-correction locator.
+   * <p>
+   * The version-correction will be used to return the correct historic version providing
+   * that the master supports history.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @return the document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
   /**
    * Adds a document to the data store.
@@ -69,11 +87,11 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * If the identifier has a version it must be the latest version.
    * 
-   * @param uid  the unique identifier to remove, not null
+   * @param uniqueId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void remove(final UniqueIdentifier uid);
+  void remove(final UniqueIdentifier uniqueId);
 
   /**
    * Corrects a document in the data store.

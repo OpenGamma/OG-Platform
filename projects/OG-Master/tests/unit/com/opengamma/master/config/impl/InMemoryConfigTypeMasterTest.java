@@ -17,12 +17,11 @@ import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.config.impl.InMemoryConfigTypeMaster;
 
 /**
  * Test InMemoryConfigMaster.
@@ -40,8 +39,8 @@ public class InMemoryConfigTypeMasterTest {
 
   @Before
   public void setUp() {
-    testEmpty = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
-    testPopulated = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Test"));
+    testEmpty = new InMemoryConfigTypeMaster<Identifier>(new ObjectIdentifierSupplier("Test"));
+    testPopulated = new InMemoryConfigTypeMaster<Identifier>(new ObjectIdentifierSupplier("Test"));
     doc1 = new ConfigDocument<Identifier>();
     doc1.setName("ONE");
     doc1.setValue(VAL1);
@@ -70,7 +69,7 @@ public class InMemoryConfigTypeMasterTest {
 
   @Test
   public void test_alternateSupplier() {
-    InMemoryConfigTypeMaster<Identifier> master = new InMemoryConfigTypeMaster<Identifier>(new UniqueIdentifierSupplier("Hello"));
+    InMemoryConfigTypeMaster<Identifier> master = new InMemoryConfigTypeMaster<Identifier>(new ObjectIdentifierSupplier("Hello"));
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("ONE");
     doc.setValue(VAL1);

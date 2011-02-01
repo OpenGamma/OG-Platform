@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -259,7 +260,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_versionAsOf_below() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -268,7 +269,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_versionAsOf_mid() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -279,7 +280,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_versionAsOf_above() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());

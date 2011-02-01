@@ -9,12 +9,14 @@ import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.S
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SEARCH;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
+import javax.time.Instant;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -26,6 +28,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -86,10 +89,17 @@ public class SecurityMasterResource {
     }
 
     @GET
-    public FudgeMsgEnvelope get() {
+    public FudgeMsgEnvelope get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
       try {
-        final SecurityDocument document = getSecurityMaster().get(_uniqueId);
-        return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
+        if (_uniqueId.isVersioned()) {
+          final SecurityDocument document = getSecurityMaster().get(_uniqueId);
+          return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
+        } else {
+          Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
+          Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
+          final SecurityDocument document = getSecurityMaster().get(_uniqueId, VersionCorrection.of(v, c));
+          return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
+        }
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }

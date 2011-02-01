@@ -29,12 +29,14 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * The manageable implementation of a set of holiday dates.
  * <p>
  * This implementation is used by the holiday master to store and manipulate the data.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageableHoliday extends DirectBean implements Holiday, Serializable {
 

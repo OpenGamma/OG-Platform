@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A portfolio tree representing an arbitrary structure within an organization
@@ -29,6 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  * The position details are not held in the tree and must be retrieved separately
  * via the position master.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageablePortfolio extends DirectBean implements MutableUniqueIdentifiable {
 

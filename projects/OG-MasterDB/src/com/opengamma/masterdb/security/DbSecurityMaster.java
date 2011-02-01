@@ -19,12 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.google.common.base.Objects;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -121,6 +122,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final SecuritySearchResult result = new SecuritySearchResult();
@@ -128,10 +130,10 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType())
       .addValueNullIgnored("issuername", getDbHelper().sqlWildcardAdjustValue(request.getBondIssuerName()));
@@ -299,6 +301,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   @Override
   public SecurityDocument get(final UniqueIdentifier uniqueId) {
     SecurityDocument doc = doGet(uniqueId, new SecurityDocumentExtractor(), "Security");
+    loadDetail(Collections.singletonList(doc));
+    return doc;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    SecurityDocument doc = doGetByOidInstants(objectId, versionCorrection, new SecurityDocumentExtractor(), "Holiday");
     loadDetail(Collections.singletonList(doc));
     return doc;
   }

@@ -19,7 +19,7 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
 
 /**
- * An immutable unique identifier for an item within the OpenGamma instance.
+ * An immutable unique identifier for an item within the OpenGamma installation.
  * <p>
  * This identifier is used as a handle within the system to refer to an item uniquely.
  * All versions of the same object share an {@link ObjectIdentifier} with the
