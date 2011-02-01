@@ -26,13 +26,18 @@
 #include <dlfcn.h>
 #include <dirent.h>
 #endif
+#include <assert.h>
 
 #include <jni.h>
 
 #include <Util/AbstractSettings.h>
-#include <Util/Concurrent.h>
+#include <Util/BufferedInput.h>
 #include <Util/Fudge.h>
+#include <Util/Library.h>
 #include <Util/Logging.h>
+#include <Util/Mutex.h>
+#include <Util/NamedPipe.h>
 #include <Util/String.h>
+#include <Util/Thread.h>
 
 #endif /* ifndef __inc_og_language_service_stdafx_h */

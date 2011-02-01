@@ -7,7 +7,7 @@
 #ifndef __inc_og_language_util_error_h
 #define __inc_og_language_util_error_h
 
-// Standard error reporting/handling
+// Rrror reporting/handling
 
 #ifndef _WIN32
 #define GetLastError() errno

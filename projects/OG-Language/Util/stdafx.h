@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #endif
+#include <assert.h>
 
 #include <fudge/fudge.h>
 

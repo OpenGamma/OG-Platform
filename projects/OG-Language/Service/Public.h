@@ -16,6 +16,8 @@
 
 // TODO [XLS-173]: This should be a .proto defined structure and be sent as a Fudge message
 
+#include <Util/Fudge.h>
+
 #pragma pack (push, 4)
 typedef struct {
 	fudge_i32 cbSize;

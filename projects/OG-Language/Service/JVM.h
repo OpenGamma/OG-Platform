@@ -11,22 +11,20 @@
 
 class CJVM {
 private:
-	CRITICAL_SECTION m_cs;
-	LIBRARY_HANDLE m_hModule;
+	CMutex m_oMutex;
+	CLibrary *m_poModule;
 	JavaVM *m_pJVM;
 	JNIEnv *m_pEnv;
-	THREAD_HANDLE m_hBusyTask;
+	CThread *m_poBusyTask;
 	bool m_bRunning;
-	CJVM (LIBRARY_HANDLE hModule, JavaVM *pJVM, JNIEnv *pEnv);
+	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
 	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
 	bool Invoke (const char *pszMethod);
-	static THREADPROC_RETURN THREADPROC_DECLTYPE StartProc (void *pObject);
-	static THREADPROC_RETURN THREADPROC_DECLTYPE StopProc (void *pObject);
 public:
 	~CJVM ();
 	static CJVM *Create ();
-	void Start ();
-	void Stop ();
+	void Start (bool bAsync = true);
+	void Stop (bool bAsync = true);
 	bool IsBusy (unsigned long dwTimeout);
 	bool IsRunning ();
 	bool IsStopped ();

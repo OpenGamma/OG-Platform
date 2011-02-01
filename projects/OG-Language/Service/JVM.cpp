@@ -17,20 +17,21 @@ LOGGING(com.opengamma.svc.JVM);
 //#define DESTROY_JVM /* If there are rogue threads, the JVM won't terminate gracefully so comment this line out */
 #define MAIN_CLASS		"com/opengamma/language/connector/Main"
 #ifdef _WIN32
-#define PATH_CHAR		"\\"
+#define PATH_CHAR_STR	"\\"
+#define PATH_CHAR		'\\'
 #else
-#define PATH_CHAR		"/"
+#define PATH_CHAR_STR	"/"
+#define PATH_CHAR		'/'
 #endif
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppEnv, JavaVMInitArgs *pArgs);
 
-CJVM::CJVM (LIBRARY_HANDLE hModule, JavaVM *pJVM, JNIEnv *pEnv) {
+CJVM::CJVM (CLibrary *poModule, JavaVM *pJVM, JNIEnv *pEnv) {
 	LOGINFO (TEXT ("JVM created"));
-	InitializeCriticalSection (&m_cs);
-	m_hModule = hModule;
+	m_poModule = poModule;
 	m_pJVM = pJVM;
 	m_pEnv = pEnv;
-	m_hBusyTask = NULL;
+	m_poBusyTask = NULL;
 	m_bRunning = false;
 }
 
@@ -42,35 +43,34 @@ CJVM::~CJVM () {
 #else /* ifdef DESTROY_JVM */
 	LOGINFO (TEXT ("Destroying JVM implicitly through FreeLibrary call"));
 #endif /* ifdef DESTROY_JVM */
-	FreeLibrary (m_hModule);
-	DeleteCriticalSection (&m_cs);
-	if (m_hBusyTask) {
-		DetachThread (m_hBusyTask);
-		m_hBusyTask = NULL;
+	delete m_poModule;
+	if (m_poBusyTask) {
+		CThread::Release (m_poBusyTask);
 	}
 }
 
-#ifdef _WIN32
-static void _SetAlternateDirectory (PCTSTR pszDLL) {
+static CLibrary *_LoadJVMLibrary (PCTSTR pszDLL) {
+	PCTSTR pszSearchPath = NULL;
 	PTSTR psz = _tcsdup (pszDLL);
 	if (!psz) {
 		LOGFATAL (TEXT ("Out of memory"));
-		return;
+		return NULL;
 	}
-	int i = _tcslen (pszDLL), slashes = 2;
+	int i = _tcslen (pszDLL), separators = 2;
 	while (--i > 0) {
-		if (pszDLL[i] == '\\') {
-			if (!--slashes) {
+		if (pszDLL[i] == PATH_CHAR) {
+			if (!--separators) {
 				psz[i] = 0;
 				LOGDEBUG (TEXT ("DLL search path ") << psz);
-				SetDllDirectory (psz);
+				pszSearchPath = psz;
 				break;
 			}
 		}
 	}
+	CLibrary *po = CLibrary::Create (pszDLL, pszSearchPath);
 	free (psz);
+	return po;
 }
-#endif /* ifdef _WIN32 */
 
 static char *_OptionFudgeAnnotationCache (CSettings *pSettings) {
 	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
@@ -111,7 +111,7 @@ static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTot
 		free (pszBuffer);
 		pszBuffer = pszNewBuffer;
 	}
-	StringCbPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, ";%ws" PATH_CHAR "%ws", pszPath, pszFile);
+	StringCbPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, ";%ws" PATH_CHAR_STR "%ws", pszPath, pszFile);
 	*pcchUsed += cchExtra;
 	return pszBuffer;
 }
@@ -135,7 +135,7 @@ static char *_OptionClassPath (CSettings *pSettings) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
-	StringCbPrintfA (pszOption, cch, "-Djava.class.path=%ws" PATH_CHAR, pszPath);
+	StringCbPrintfA (pszOption, cch, "-Djava.class.path=%ws" PATH_CHAR_STR, pszPath);
 #ifdef _WIN32
 	WIN32_FIND_DATA wfd;
 	PTSTR pszSearch = new TCHAR[cchUsed];
@@ -144,7 +144,7 @@ static char *_OptionClassPath (CSettings *pSettings) {
 		delete pszOption;
 		return NULL;
 	}
-	StringCchPrintf (pszSearch, cchUsed, TEXT ("%s") TEXT (PATH_CHAR) TEXT ("*.*"), pszPath);
+	StringCchPrintf (pszSearch, cchUsed, TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("*.*"), pszPath);
 	HANDLE hFind = FindFirstFile (pszSearch, &wfd);
 	delete pszSearch;
 	if (hFind != NULL) {
@@ -206,21 +206,15 @@ CJVM *CJVM::Create () {
 	CSettings settings;
 	const TCHAR *pszLibrary = settings.GetJvmLibrary ();
 	LOGDEBUG (TEXT ("Loading library ") << pszLibrary << TEXT (" and creating JVM"));
-#ifdef _WIN32
-	_SetAlternateDirectory (pszLibrary);
-	LIBRARY_HANDLE hModule = LoadLibraryEx (pszLibrary, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-	SetDllDirectory (NULL);
-#else
-	LIBRARY_HANDLE hModule = dlopen (pszLibrary, RTLD_LAZY);
-#endif
-	if (!hModule) {
+	CLibrary *poLibrary = _LoadJVMLibrary (pszLibrary);
+	if (!poLibrary) {
 		LOGWARN (TEXT ("Couldn't load ") << pszLibrary << TEXT (", error ") << GetLastError ());
 		return NULL;
 	}
-	JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)GetProcAddress (hModule, "JNI_CreateJavaVM");
+	JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)poLibrary->GetAddress ("JNI_CreateJavaVM");
 	if (!procCreateVM) {
 		LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM, error ") << GetLastError ());
-		FreeLibrary (hModule);
+		delete poLibrary;
 		return NULL;
 	}
 	JavaVM *pJVM;
@@ -244,15 +238,17 @@ CJVM *CJVM::Create () {
 	}
 	if (err) {
 		LOGWARN (TEXT ("Couldn't create JVM, error ") << err);
-		FreeLibrary (hModule);
+		delete poLibrary;
 		return NULL;
 	}
-	CJVM *pJvm = new CJVM (hModule, pJVM, pEnv);
+	CJVM *pJvm = new CJVM (poLibrary, pJVM, pEnv);
 	if (!pJvm) {
 		LOGFATAL (TEXT ("Out of memory"));
+		delete poLibrary;
 		return NULL;
 	}
 #ifdef _WIN32
+	HMODULE hModule;
 	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Java_com_opengamma_excel_connector_Main_notifyStop, &hModule)) {
 		LOGWARN (TEXT ("Couldn't get current module handle, error ") << GetLastError ());
 		delete pJvm;
@@ -338,106 +334,95 @@ bool CJVM::Invoke (const char *pszMethodName) {
 	return res != 0;
 }
 
-THREADPROC_RETURN CJVM::StartProc (void *_po) {
-	CJVM *po = (CJVM*)_po;
-	if (po->Invoke ("svcStart")) {
-		LOGINFO (TEXT ("Service started"));
-		po->m_bRunning = true;
-	} else {
-		LOGERROR (TEXT ("Couldn't start service"));
+class CBusyTask : public CThread {
+private:
+	CJVM *m_pJVM;
+	bool m_bStart;
+public:
+	CBusyTask (CJVM *pJVM, bool bStart) {
+		m_pJVM = pJVM;
+		m_bStart = bStart;
 	}
-	return 0;
-}
-
-THREADPROC_RETURN CJVM::StopProc (void *_po) {
-	CJVM *po = (CJVM*)_po;
-	if (po->Invoke ("svcStop")) {
-		LOGINFO (TEXT ("Service stopped"));
-		po->m_bRunning = false;
-	} else {
-		LOGERROR (TEXT ("Couldn't stop service"));
-	}
-	return 0;
-}
-
-void CJVM::Start () {
-	EnterCriticalSection (&m_cs);
-	if (m_hBusyTask) {
-		LOGERROR (TEXT ("Already a busy task running"));
-	} else {
-#ifdef _WIN32
-		DWORD dwThreadId;
-		m_hBusyTask = CreateThread (NULL, 0, StartProc, this, 0, &dwThreadId);
-		if (m_hBusyTask) {
-			LOGINFO (TEXT ("Created startup thread ") << dwThreadId);
-#else
-		if (PosixLastError (pthread_create (&m_hBusyTask, NULL, StartProc, this))) {
-			LOGINFO (TEXT ("Created startup thread"));
-#endif
+	void Run () {
+		if (m_bStart) {
+			m_pJVM->Start (false);
 		} else {
-			LOGERROR (TEXT ("Couldn't create startup thread, error ") << GetLastError ());
+			m_pJVM->Stop (false);
 		}
 	}
-	LeaveCriticalSection (&m_cs);
-}
+};
 
-void CJVM::Stop () {
-	EnterCriticalSection (&m_cs);
-	if (m_hBusyTask) {
-		LOGERROR (TEXT ("Already a busy task running"));
-	} else {
-#ifdef _WIN32
-		DWORD dwThreadId;
-		m_hBusyTask = CreateThread (NULL, 0, StopProc, this, 0, &dwThreadId);
-		if (m_hBusyTask) {
-			LOGINFO (TEXT ("Created stop thread ") << dwThreadId);
-#else
-		if (PosixLastError (pthread_create (&m_hBusyTask, NULL, StopProc, this))) {
-			LOGINFO (TEXT ("Created stop thread"));
-#endif
+void CJVM::Start (bool bAsync) {
+	if (bAsync) {
+		m_oMutex.Enter ();
+		if (m_poBusyTask) {
+			LOGERROR (TEXT ("Already a busy task running"));
 		} else {
-			LOGERROR (TEXT ("Couldn't create stop thread, error ") << GetLastError ());
+			m_poBusyTask = new CBusyTask (this, true);
+			if (m_poBusyTask->Start ()) {
+				LOGINFO (TEXT ("Created startup thread ") << m_poBusyTask->GetThreadId ());
+			} else {
+				LOGERROR (TEXT ("Couldn't create startup thread, error ") << GetLastError ());
+				CThread::Release (m_poBusyTask);
+				m_poBusyTask = NULL;
+			}
+		}
+		m_oMutex.Leave ();
+	} else {
+		if (Invoke ("svcStart")) {
+			LOGINFO (TEXT ("Service started"));
+			m_bRunning = true;
+		} else {
+			LOGERROR (TEXT ("Couldn't start service"));
 		}
 	}
-	LeaveCriticalSection (&m_cs);
+}
+
+void CJVM::Stop (bool bAsync) {
+	if (bAsync) {
+		m_oMutex.Enter ();
+		if (m_poBusyTask) {
+			LOGERROR (TEXT ("Already a busy task running"));
+		} else {
+			m_poBusyTask = new CBusyTask (this, false);
+			if (m_poBusyTask->Start ()) {
+				LOGINFO (TEXT ("Created stop thread ") << m_poBusyTask->GetThreadId ());
+			} else {
+				LOGERROR (TEXT ("Couldn't create stop thread, error ") << GetLastError ());
+				CThread::Release (m_poBusyTask);
+				m_poBusyTask = NULL;
+			}
+		}
+		m_oMutex.Leave ();
+	} else {
+		if (Invoke ("svcStop")) {
+			LOGINFO (TEXT ("Service stopped"));
+			m_bRunning = false;
+		} else {
+			LOGERROR (TEXT ("Couldn't stop service"));
+		}
+	}
 }
 
 bool CJVM::IsBusy (unsigned long dwTimeout) {
-	THREAD_HANDLE hBusyTask = m_hBusyTask;
-	EnterCriticalSection (&m_cs);
-	hBusyTask = m_hBusyTask;
-	LeaveCriticalSection (&m_cs);
-	if (hBusyTask) {
-#ifdef _WIN32
-		DWORD dw = WaitForSingleObject (hBusyTask, dwTimeout);
-		if (dw == WAIT_OBJECT_0) {
-			EnterCriticalSection (&m_cs);
-			m_hBusyTask = NULL;
-			LeaveCriticalSection (&m_cs);
-			DetachThread (hBusyTask);
+	CThread *poBusyTask;
+	m_oMutex.Enter ();
+	poBusyTask = m_poBusyTask;
+	m_oMutex.Leave ();
+	if (poBusyTask) {
+		if (poBusyTask->Wait (dwTimeout)) {
+			m_oMutex.Enter ();
+			CThread::Release (m_poBusyTask);
+			m_poBusyTask = NULL;
+			m_oMutex.Leave ();
 			return false;
-		} else if (dw == WAIT_TIMEOUT) {
-			return true;
 		} else {
-			LOGERROR (TEXT ("Error waiting for busy task, dw=") << dw);
+			int error = GetLastError ();
+			if (error != WAIT_TIMEOUT) { //TODO: is WAIT_TIMEOUT valid on the APR build ?
+				LOGERROR (TEXT ("Couldn't wait for busy task, error ") << error);
+			}
 			return true;
 		}
-#else
-		struct timespec tsWait;
-		int ec = pthread_timedjoin_np (hBusyTask, NULL, &tsWait);
-		if (ec == 0) {
-			EnterCriticalSection (&m_cs);
-			m_hBusyTask = NULL;
-			LeaveCriticalSection (&m_cs);
-			DetachThread (hBusyTask);
-			return false;
-		} else if (ec == ETIMEDOUT) {
-			return true;
-		} else {
-			LOGERROR (TEXT ("Error waiting for busy task, ec=") << ec);
-			return true;
-		}
-#endif
 	} else {
 		return false;
 	}
@@ -445,14 +430,14 @@ bool CJVM::IsBusy (unsigned long dwTimeout) {
 
 bool CJVM::IsRunning () {
 	bool bResult;
-	EnterCriticalSection (&m_cs);
+	m_oMutex.Enter ();
 	bResult = m_bRunning;
-	LeaveCriticalSection (&m_cs);
+	m_oMutex.Leave ();
 	return bResult;
 }
 
 void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe) {
-	EnterCriticalSection (&m_cs);
+	m_oMutex.Enter ();
 	if (m_bRunning) {
 		m_pEnv->PushLocalFrame (3);
 #ifdef _UNICODE
@@ -474,7 +459,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 		// This shouldn't happen
 		LOGFATAL (TEXT ("JVM is shutting down - discarding connection request"));
 	}
-	LeaveCriticalSection (&m_cs);
+	m_oMutex.Leave ();
 }
 
 bool CJVM::IsStopped () {

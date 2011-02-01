@@ -107,12 +107,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AbstractSettingsTest.cpp" />
+    <ClCompile Include="BufferedInputTest.cpp" />
     <ClCompile Include="DllVersionTest.cpp" />
     <ClCompile Include="LoggingTest.cpp" />
+    <ClCompile Include="NamedPipeTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TimeoutIOTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DllVersionInfo.h" />

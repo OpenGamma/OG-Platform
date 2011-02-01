@@ -18,7 +18,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
+#include <assert.h>
 
 #include <Util/AbstractTest.h>
+#include <Util/Mutex.h>
+#include <Util/NamedPipe.h>
+#include <Util/Semaphore.h>
+#include <Util/Thread.h>
 
 #endif /* ifndef __inc_og_language_servicetest_stdafx_h */

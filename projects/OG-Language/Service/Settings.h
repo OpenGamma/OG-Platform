@@ -17,6 +17,7 @@
 #define SETTINGS_JVM_LIBRARY				TEXT ("jvmSO")
 #endif
 #define SETTINGS_CONNECTION_PIPE			SERVICE_SETTINGS_CONNECTION_PIPE
+#define SETTINGS_CONNECTION_TIMEOUT			TEXT ("connectionTimeout")
 #define SETTINGS_JAR_PATH					TEXT ("jars")
 #define SETTINGS_ANNOTATION_CACHE			TEXT ("annotationCache")
 #define SETTINGS_LOG_CONFIGURATION			TEXT ("serviceLogConfiguration")
@@ -32,6 +33,7 @@ private:
 	TCHAR *m_pszDefaultJarPath;
 	const TCHAR *GetJvmLibrary (const TCHAR *pszDefault) { return Get (SETTINGS_JVM_LIBRARY, pszDefault); }
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
+	unsigned long GetConnectionTimeout (unsigned long dwDefault) { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
 	const TCHAR *GetJarPath (const TCHAR *pszDefault) { return Get (SETTINGS_JAR_PATH, pszDefault); }
 	const TCHAR *GetAnnotationCache (const TCHAR *pszDefault) { return Get (SETTINGS_ANNOTATION_CACHE, pszDefault); }
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
@@ -45,6 +47,7 @@ public:
 	~CSettings ();
 	const TCHAR *GetJvmLibrary ();
 	const TCHAR *GetConnectionPipe ();
+	unsigned long GetConnectionTimeout ();
 	const TCHAR *GetJarPath ();
 	const TCHAR *GetAnnotationCache ();
 	const TCHAR *GetLogConfiguration ();

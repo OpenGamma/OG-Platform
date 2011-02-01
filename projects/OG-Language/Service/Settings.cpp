@@ -12,6 +12,7 @@
 
 LOGGING(com.opengamma.language.service.Settings);
 
+#define DEFAULT_CONNECTION_TIMEOUT	3000	/* 3s default */
 #define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
 #ifdef _WIN32
 #define DEFAULT_SDDL				NULL
@@ -140,6 +141,10 @@ const TCHAR *CSettings::GetJvmLibrary () {
 
 const TCHAR *CSettings::GetConnectionPipe () {
 	return GetConnectionPipe (SERVICE_DEFAULT_CONNECTION_PIPE);
+}
+
+unsigned long CSettings::GetConnectionTimeout () {
+	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
 const TCHAR *CSettings::GetJarPath () {
