@@ -72,17 +72,17 @@ public class SABRSurfaceFittingTest {
       nu[i] = params.getEntry(2);
       rho[i] = params.getEntry(3);
 
-      System.out.print(alpha[i] + "\t" + beta[i] + "\t" + nu[i] + "\t" + rho[i] + "\t");
-      for (int j = 0; j < m; j++) {
-        System.out.print("\t" + strikes[j]);
-      }
-      System.out.print("\n");
-      System.out.print("\t\t\t\t");
-      for (int j = 0; j < m; j++) {
-        double sabrVol = sabr.impliedVolatility(forwards[i], alpha[i], beta[i], nu[i], rho[i], strikes[j], maturities[i]);
-        System.out.print("\t" + sabrVol);
-      }
-      System.out.print("\n");
+      // System.out.print(alpha[i] + "\t" + beta[i] + "\t" + nu[i] + "\t" + rho[i] + "\t");
+      // for (int j = 0; j < m; j++) {
+      // System.out.print("\t" + strikes[j]);
+      // }
+      // System.out.print("\n");
+      // System.out.print("\t\t\t\t");
+      // for (int j = 0; j < m; j++) {
+      // double sabrVol = sabr.impliedVolatility(forwards[i], alpha[i], beta[i], nu[i], rho[i], strikes[j], maturities[i]);
+      // System.out.print("\t" + sabrVol);
+      // }
+      // System.out.print("\n");
     }
 
   }

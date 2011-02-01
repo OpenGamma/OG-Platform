@@ -60,6 +60,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _securityType;
   /**
+   * The issuer name of the bond, wildcards allowed, null not to match on issuer name.
+   * NOTE: This bond-specific search is likely to change to a more general style at some point.
+   */
+  @PropertyDefinition
+  private String _bondIssuerName;
+  /**
    * The depth of security data to return.
    * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
@@ -194,6 +200,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return getName();
       case 808245914:  // securityType
         return getSecurityType();
+      case 657857543:  // bondIssuerName
+        return getBondIssuerName();
       case -1233600576:  // fullDetail
         return isFullDetail();
     }
@@ -215,6 +223,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return;
       case 808245914:  // securityType
         setSecurityType((String) newValue);
+        return;
+      case 657857543:  // bondIssuerName
+        setBondIssuerName((String) newValue);
         return;
       case -1233600576:  // fullDetail
         setFullDetail((Boolean) newValue);
@@ -319,6 +330,34 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the issuer name of the bond, wildcards allowed, null not to match on issuer name.
+   * NOTE: This bond-specific search is likely to change to a more general style at some point.
+   * @return the value of the property
+   */
+  public String getBondIssuerName() {
+    return _bondIssuerName;
+  }
+
+  /**
+   * Sets the issuer name of the bond, wildcards allowed, null not to match on issuer name.
+   * NOTE: This bond-specific search is likely to change to a more general style at some point.
+   * @param bondIssuerName  the new value of the property
+   */
+  public void setBondIssuerName(String bondIssuerName) {
+    this._bondIssuerName = bondIssuerName;
+  }
+
+  /**
+   * Gets the the {@code bondIssuerName} property.
+   * NOTE: This bond-specific search is likely to change to a more general style at some point.
+   * @return the property, not null
+   */
+  public final Property<String> bondIssuerName() {
+    return metaBean().bondIssuerName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the depth of security data to return.
    * False will only return the basic information held in the {@code ManageableSecurity} class.
    * True will load the full security subclass for each returned security.
@@ -379,6 +418,10 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(this, "securityType", String.class);
     /**
+     * The meta-property for the {@code bondIssuerName} property.
+     */
+    private final MetaProperty<String> _bondIssuerName = DirectMetaProperty.ofReadWrite(this, "bondIssuerName", String.class);
+    /**
      * The meta-property for the {@code fullDetail} property.
      */
     private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(this, "fullDetail", Boolean.TYPE);
@@ -394,6 +437,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       temp.put("securityKeys", _securityKeys);
       temp.put("name", _name);
       temp.put("securityType", _securityType);
+      temp.put("bondIssuerName", _bondIssuerName);
       temp.put("fullDetail", _fullDetail);
       _map = Collections.unmodifiableMap(temp);
     }
@@ -444,6 +488,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> securityType() {
       return _securityType;
+    }
+
+    /**
+     * The meta-property for the {@code bondIssuerName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> bondIssuerName() {
+      return _bondIssuerName;
     }
 
     /**

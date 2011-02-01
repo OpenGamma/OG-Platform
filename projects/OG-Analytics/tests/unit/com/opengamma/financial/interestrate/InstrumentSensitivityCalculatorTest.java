@@ -61,7 +61,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     }
 
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jacFunc, data.getStartPosition());
-    System.out.println(yieldCurveNodes + "\n");
+    // System.out.println(yieldCurveNodes + "\n");
     final DoubleMatrix2D jacobian = jacFunc.evaluate(yieldCurveNodes);
 
     final HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);

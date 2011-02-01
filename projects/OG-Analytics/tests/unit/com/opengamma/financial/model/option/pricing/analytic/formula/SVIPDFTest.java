@@ -52,7 +52,7 @@ public class SVIPDFTest {
       double pdf = SVI_DIST.getPDF(k);
       double cdf = SVI_DIST.getCDF(k);
 
-      System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
+      // System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
     }
 
   }
@@ -78,7 +78,8 @@ public class SVIPDFTest {
     double chiSqr = result.getChiSq();
     final DoubleMatrix1D parms = result.getParameters();
 
-    System.out.println("\n params, chisq: \t" + parms.getEntry(0) + "\t" + parms.getEntry(1) + "\t" + parms.getEntry(2) + "\t" + parms.getEntry(3) + "\t" + chiSqr + "\n");
+    // TODO real test
+    // / System.out.println("\n params, chisq: \t" + parms.getEntry(0) + "\t" + parms.getEntry(1) + "\t" + parms.getEntry(2) + "\t" + parms.getEntry(3) + "\t" + chiSqr + "\n");
 
     final Function1D<Double, Double> sabrFunction = new Function1D<Double, Double>() {
       @Override
@@ -95,7 +96,7 @@ public class SVIPDFTest {
       double vol = sabrFunction.evaluate(k);
       double pdf = sabrDist.getPDF(k);
       double cdf = sabrDist.getCDF(k);
-      System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
+      // System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
     }
 
   }

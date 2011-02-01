@@ -81,9 +81,9 @@ public class SABRFittingTest {
     DoubleMatrix2D covar = results.getCovariance();
     double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
 
-    for (int i = 0; i < STRIKES.length; i++) {
-      System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
-    }
+    // for (int i = 0; i < STRIKES.length; i++) {
+    // System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
+    // }
 
     double[] res = results.getParameters().getData();
 
@@ -91,11 +91,11 @@ public class SABRFittingTest {
     for (int i = 0; i < 100; i++) {
       m = -3 + i * 4.5 / 100;
       k = F * Math.exp(m * sigmaLNRootT);
-      System.out.print(k + "\t" + SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolatility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
+      // System.out.print(k + "\t" + SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolatility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
     }
 
-    System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
-    System.out.println(results.getChiSq());
+    // System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
+    // System.out.println(results.getChiSq());
 
     // assertEquals(ALPHA, res[0], 1e-7);
     // assertEquals(BETA, res[1], 1e-7);
@@ -119,7 +119,7 @@ public class SABRFittingTest {
     for (int i = 0; i < 100; i++) {
       m = -3 + i * 4.5 / 100;
       k = f * Math.exp(m * sigmaLNRootT);
-      System.out.print(k + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, k, t) + "\n");
+      // System.out.print(k + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, k, t) + "\n");
     }
   }
 
@@ -136,7 +136,7 @@ public class SABRFittingTest {
     double rho0 = SABR.impliedVolatility(f, alpha, beta, nu, 0.0, f, t);
     for (int i = 0; i < 100; i++) {
       double rho = -1 + i / 49.5;
-      System.out.print(rho + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, f, t) / rho0 + "\n");
+      // System.out.print(rho + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, f, t) / rho0 + "\n");
     }
   }
 }
