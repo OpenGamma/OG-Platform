@@ -13,12 +13,13 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * @param <T> The domain type of the function (e.g. Double, double[], DoubleMatrix1D etc) 
  */
-public class BasisFunctionAggregation extends Function1D<Double, Double> {
-  private final List<Function1D<Double, Double>> _f;
+public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
+  private final List<Function1D<T, Double>> _f;
   private final double[] _w;
 
-  public BasisFunctionAggregation(List<Function1D<Double, Double>> functions, double[] weights) {
+  public BasisFunctionAggregation(List<Function1D<T, Double>> functions, double[] weights) {
     Validate.notEmpty(functions, "no functions");
     Validate.notNull(weights, "no weights");
     Validate.isTrue(functions.size() == weights.length);
@@ -27,7 +28,7 @@ public class BasisFunctionAggregation extends Function1D<Double, Double> {
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(T x) {
     double sum = 0;
     int n = _w.length;
     for (int i = 0; i < n; i++) {
