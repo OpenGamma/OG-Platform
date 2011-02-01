@@ -22,6 +22,7 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A {@code HolidaySource} implemented using an underlying {@code HolidayMaster}.
@@ -29,6 +30,7 @@ import com.opengamma.master.holiday.ManageableHoliday;
  * The {@link HolidaySource} interface provides holidays to the application via a narrow API.
  * This class provides the source on top of a standard {@link HolidayMaster}.
  */
+@PublicSPI
 public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, HolidayMaster> implements HolidaySource {
 
   /**

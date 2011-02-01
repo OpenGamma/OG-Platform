@@ -28,6 +28,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A position held in a position master.
@@ -43,6 +44,7 @@ import com.opengamma.util.ArgumentChecker;
  * Positions are logically attached to nodes in the portfolio tree, however they are
  * stored and returned separately from the position master.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageablePosition extends DirectBean implements MutableUniqueIdentifiable {
 

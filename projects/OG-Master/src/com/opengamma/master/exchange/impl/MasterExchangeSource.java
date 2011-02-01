@@ -15,6 +15,7 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -23,6 +24,7 @@ import com.opengamma.util.db.PagingRequest;
  * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API.
  * This class provides the source on top of a standard {@link ExchangeMaster}.
  */
+@PublicSPI
 public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument, ExchangeMaster> implements ExchangeSource {
 
   /**

@@ -13,6 +13,8 @@ import java.util.Map;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * Result from searching for documents.
  * <p>
@@ -21,6 +23,7 @@ import org.joda.beans.MetaProperty;
  * 
  * @param <D>  the type of the document
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractSearchResult<D extends AbstractDocument> extends AbstractDocumentsResult<D> {
 

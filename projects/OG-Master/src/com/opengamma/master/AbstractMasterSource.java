@@ -11,6 +11,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
@@ -21,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <D>  the type of the document
  * @param <M>  the type of the master
  */
+@PublicSPI
 public class AbstractMasterSource<D extends AbstractDocument, M extends AbstractMaster<D>> implements VersionedSource {
 
   /**

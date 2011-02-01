@@ -8,6 +8,7 @@ package com.opengamma.master.position;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose position master.
@@ -15,6 +16,7 @@ import com.opengamma.master.AbstractMaster;
  * The position master provides a uniform view over a set of position definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
+@PublicSPI
 public interface PositionMaster extends AbstractMaster<PositionDocument> {
 
   /**

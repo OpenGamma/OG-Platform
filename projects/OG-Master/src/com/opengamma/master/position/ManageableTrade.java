@@ -26,6 +26,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A trade forming part of a position.
@@ -34,6 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * For example a trade of 200 shares of OpenGamma might be combined with another trade
  * of 450 shares of OpenGamma to create a combined position of 650 shares.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageableTrade extends DirectBean implements MutableUniqueIdentifiable {
 

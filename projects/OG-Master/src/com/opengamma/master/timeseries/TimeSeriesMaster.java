@@ -13,6 +13,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose time-series master.
@@ -22,6 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
  * 
  * @param <T> Type of time series (LocalDate/Date) to operate on
  */
+@PublicSPI
 public interface TimeSeriesMaster<T> {
 
   /**

@@ -33,6 +33,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A {@code PositionSource} implemented using an underlying {@code PositionMaster}.
@@ -40,6 +41,7 @@ import com.opengamma.util.ArgumentChecker;
  * The {@link PositionSource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link PortfolioMaster}.
  */
+@PublicSPI
 public class MasterPositionSource implements PositionSource, VersionedSource {
   // TODO: This still needs work re versioning, as it crosses the boundary between two masters
 

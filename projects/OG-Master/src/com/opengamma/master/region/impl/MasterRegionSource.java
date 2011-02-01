@@ -15,6 +15,7 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -23,6 +24,7 @@ import com.opengamma.util.db.PagingRequest;
  * The {@link RegionSource} interface provides regions to the application via a narrow API.
  * This class provides the source on top of a standard {@link RegionMaster}.
  */
+@PublicSPI
 public class MasterRegionSource extends AbstractMasterSource<RegionDocument, RegionMaster> implements RegionSource {
 
   /**

@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for the history of an exchange.
@@ -42,6 +43,7 @@ import com.opengamma.master.AbstractHistoryRequest;
  * <p>
  * Versions and corrections are represented by instants in the search.
  */
+@PublicSPI
 @BeanDefinition
 public class ExchangeHistoryRequest extends AbstractHistoryRequest {
 

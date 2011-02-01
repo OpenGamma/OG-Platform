@@ -9,6 +9,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An outline definition of a general-purpose master storing documents.
@@ -20,6 +21,7 @@ import com.opengamma.id.VersionCorrection;
  * 
  * @param <D>  the type of the document
  */
+@PublicSPI
 public interface AbstractMaster<D extends AbstractDocument> {
 
   /**

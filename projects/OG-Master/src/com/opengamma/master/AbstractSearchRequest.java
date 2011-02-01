@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.google.common.base.Objects;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -29,6 +30,7 @@ import com.opengamma.util.db.PagingRequest;
  * as at a specific version and correction instant.
  * See {@link AbstractHistoryRequest} for more details on how history works.
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractSearchRequest extends DirectBean {
 

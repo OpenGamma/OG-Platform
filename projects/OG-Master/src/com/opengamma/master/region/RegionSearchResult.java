@@ -17,6 +17,7 @@ import org.joda.beans.MetaProperty;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractSearchResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result from searching for regions.
@@ -24,6 +25,7 @@ import com.opengamma.master.AbstractSearchResult;
  * The returned documents will match the search criteria.
  * See {@link RegionSearchRequest} for more details.
  */
+@PublicSPI
 @BeanDefinition
 public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
 

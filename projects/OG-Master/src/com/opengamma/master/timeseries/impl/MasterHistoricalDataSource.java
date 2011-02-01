@@ -23,6 +23,7 @@ import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -34,6 +35,7 @@ import com.opengamma.util.tuple.Pair;
  * The {@link HistoricalDataSource} interface provides time-series to the engine via a narrow API.
  * This class provides the source on top of a standard {@link TimeSeriesMaster}.
  */
+@PublicSPI
 public class MasterHistoricalDataSource implements HistoricalDataSource {
 
   /** Logger. */

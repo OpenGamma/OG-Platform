@@ -15,6 +15,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractSearchResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result from searching for portfolio trees.
@@ -25,6 +26,7 @@ import com.opengamma.master.AbstractSearchResult;
  * This returns multiple instances of the tree excluding positions, which may be a large response.
  * The depth parameter in the request allows the size of the result to be controlled.
  */
+@PublicSPI
 @BeanDefinition
 public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocument> {
 

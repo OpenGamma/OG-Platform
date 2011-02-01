@@ -6,10 +6,12 @@
 package com.opengamma.master;
 
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Trait for a "source" backed by a "master" that allows the version to be fixed externally.
  */
+@PublicSPI
 public interface VersionedSource {
   // TODO need a remote version of this to support ViewProcessorManager running on a different node to the actual masters and sources
 

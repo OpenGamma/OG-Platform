@@ -31,12 +31,14 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * The manageable implementation of a region.
  * <p>
  * This implementation is used by the region master to store and manipulate the data.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageableRegion extends DirectBean implements Region, Serializable {
 

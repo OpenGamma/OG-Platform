@@ -21,6 +21,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -28,6 +29,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @param <T> the type of time-series 
  */
+@PublicSPI
 @BeanDefinition
 public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 

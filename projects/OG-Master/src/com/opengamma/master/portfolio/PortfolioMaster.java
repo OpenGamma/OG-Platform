@@ -8,6 +8,7 @@ package com.opengamma.master.portfolio;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose portfolio master.
@@ -15,6 +16,7 @@ import com.opengamma.master.AbstractMaster;
  * The portfolio master provides a uniform view over a set of portfolio definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
+@PublicSPI
 public interface PortfolioMaster extends AbstractMaster<PortfolioDocument> {
 
   /**

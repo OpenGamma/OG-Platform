@@ -18,6 +18,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A {@code SecuritySource} implemented using an underlying {@code SecurityMaster}.
@@ -25,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * The {@link SecuritySource} interface provides securities to the engine via a narrow API.
  * This class provides the source on top of a standard {@link SecurityMaster}.
  */
+@PublicSPI
 public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument, SecurityMaster> implements SecuritySource {
 
   /**
