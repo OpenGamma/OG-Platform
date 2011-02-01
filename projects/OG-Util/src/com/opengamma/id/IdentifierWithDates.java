@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Cloneable, Serializable {
+public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Serializable {
 
   /**
    * Fudge message key for the valid_from.
