@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass a portfolio into and out of the portfolio master.
@@ -26,6 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * The portfolio consists of a tree of nodes with position identifiers.
  * To find the detail of each position, a separate search must be performed using the position master.
  */
+@PublicSPI
 @BeanDefinition
 public class PortfolioDocument extends AbstractDocument implements Serializable {
 

@@ -16,7 +16,10 @@ import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.master.listener.NotifyingMaster;
@@ -37,7 +40,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   private final Set<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 
   private String _identifierScheme;
-  private Instant _sourceVersionAsOfInstant;
+  private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
 
   public InMemoryInterpolatedYieldCurveDefinitionMaster() {
     setIdentifierScheme(DEFAULT_SCHEME);
@@ -69,10 +72,10 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       return null;
     }
     final Map.Entry<Instant, YieldCurveDefinition> entry;
-    if (_sourceVersionAsOfInstant == null) {
+    if (_sourceVersionCorrection.getVersionAsOf() == null) {
       entry = definitions.lastEntry();
     } else {
-      entry = definitions.floorEntry(_sourceVersionAsOfInstant);
+      entry = definitions.floorEntry(_sourceVersionCorrection.getVersionAsOf());
     }
     if (entry == null) {
       return null;
@@ -95,12 +98,8 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   // VersionedSource
 
   @Override
-  public synchronized void setVersionAsOfInstant(final InstantProvider versionAsOfInstantProvider) {
-    if (versionAsOfInstantProvider != null) {
-      _sourceVersionAsOfInstant = Instant.of(versionAsOfInstantProvider);
-    } else {
-      _sourceVersionAsOfInstant = null;
-    }
+  public synchronized void setVersionCorrection(final VersionCorrection versionCorrection) {
+    _sourceVersionCorrection = VersionCorrection.of(versionCorrection);
   }
 
   // InterpolatedYieldCurveDefinitionMaster
@@ -134,9 +133,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
     if (value != null) {
-      if (_sourceVersionAsOfInstant != null) {
+      if (_sourceVersionCorrection.getVersionAsOf() != null) {
         // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-        final Instant oldestNeeded = value.floorKey(_sourceVersionAsOfInstant);
+        final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
         if (oldestNeeded != null) {
           value.headMap(oldestNeeded).clear();
         }
@@ -194,6 +193,36 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   @Override
+  public synchronized YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectIdable, "objectIdable");
+    ObjectIdentifier objectId = objectIdable.getObjectId();
+    if (!getIdentifierScheme().equals(objectId.getScheme())) {
+      throw new DataNotFoundException("Scheme '" + objectId.getScheme() + "' not valid for '" + getIdentifierScheme() + "'");
+    }
+    final int i = objectId.getValue().indexOf('_');
+    if (i <= 0) {
+      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
+    }
+    final String name = objectId.getValue().substring(0, i);
+    final String iso = objectId.getValue().substring(i + 1);
+    final Currency currency;
+    try {
+      currency = Currency.getInstance(iso);
+    } catch (IllegalArgumentException e) {
+      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
+    }
+    final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
+    if (definitions == null) {
+      throw new DataNotFoundException("Curve definition not found");
+    }
+    final YieldCurveDefinition definition = definitions.lastEntry().getValue();
+    if (definition == null) {
+      throw new DataNotFoundException("Curve definition not found");
+    }
+    return new YieldCurveDefinitionDocument(objectId.atLatestVersion(), definition);
+  }
+
+  @Override
   public synchronized void remove(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     if (!uid.isLatest()) {
@@ -215,13 +244,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
     }
     final Pair<Currency, String> key = Pair.of(currency, name);
-    if (_sourceVersionAsOfInstant != null) {
+    if (_sourceVersionCorrection.getVersionAsOf() != null) {
       final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
       if (value == null) {
         throw new DataNotFoundException("Curve definition not found");
       }
       // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-      final Instant oldestNeeded = value.floorKey(_sourceVersionAsOfInstant);
+      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
       if (oldestNeeded != null) {
         value.headMap(oldestNeeded).clear();
       }
@@ -250,9 +279,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     if (value == null) {
       throw new DataNotFoundException("UID '" + uid + "' not found");
     }
-    if (_sourceVersionAsOfInstant != null) {
+    if (_sourceVersionCorrection.getVersionAsOf() != null) {
       // Don't need to keep the old values before the one needed by "versionAsOfInstant"
-      final Instant oldestNeeded = value.floorKey(_sourceVersionAsOfInstant);
+      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
       value.headMap(oldestNeeded).clear();
     } else {
       // Don't need any old values

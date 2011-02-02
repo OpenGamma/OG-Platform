@@ -42,7 +42,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatSwapFunction {
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
-  private InterpolatedYieldCurveDefinitionSource _definitionSource;
+  private Object[] _labels;
 
   public YieldCurveNodeSensitivityFixedFloatSwapFunction(final String currency, final String curveName, final String valueRequirementName) {
     super(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
@@ -64,7 +64,8 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _definitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
+    InterpolatedYieldCurveDefinitionSource definitionSource = OpenGammaCompilationContext.getInterpolatedYieldCurveDefinitionSource(context);
+    _labels = YieldCurveLabelGenerator.getLabels(definitionSource, getCurrency(), getForwardCurveName());
   }
 
   @Override
@@ -90,11 +91,10 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
     final int n = sensitivitiesForCurves.getNumberOfElements();
     final YieldAndDiscountCurve curve = bundle.getCurve(getForwardCurveName());
     final Double[] keys = curve.getCurve().getXData();
-    final Object[] labels = YieldCurveLabelGenerator.getLabels(_definitionSource, getCurrency(), getForwardCurveName());
     final double[] values = new double[n];
-    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
+    DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, _labels, values);
     for (i = 0; i < n; i++) {
-      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurves.getEntry(i));
+      labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], _labels[i], sensitivitiesForCurves.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(getCurrency(), labelledMatrix, getForwardCurveName());
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES + "_" + getForwardCurveName() + "_"

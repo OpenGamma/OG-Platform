@@ -20,6 +20,7 @@ import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
@@ -499,7 +500,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_versionAsOf_below() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(5)));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -508,7 +509,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_versionAsOf_mid() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -523,7 +524,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_versionAsOf_above() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());

@@ -43,6 +43,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.position.impl.MasterPositionSource;
@@ -299,13 +300,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
     InMemoryLKVSnapshotProvider snapshotProvider = createSnapshotProvider();
 
+    VersionCorrection vc = VersionCorrection.of(getStaticDataTime(), getOriginalCreationTime());
     SecuritySource securitySource = getJob().getSecuritySource();
     if (securitySource == null) {
-      securitySource = new MasterSecuritySource(getJob().getSecurityMaster(), getStaticDataTime(), getOriginalCreationTime());
+      securitySource = new MasterSecuritySource(getJob().getSecurityMaster(), vc);
     }
     PositionSource positionSource = getJob().getPositionSource();
     if (positionSource == null) {
-      positionSource = new MasterPositionSource(getJob().getPortfolioMaster(), getJob().getPositionMaster(), getStaticDataTime(), getOriginalCreationTime());
+      positionSource = new MasterPositionSource(getJob().getPortfolioMaster(), getJob().getPositionMaster(), vc);
     }
     
     FunctionExecutionContext functionExecutionContext = getJob().getFunctionExecutionContext().clone();

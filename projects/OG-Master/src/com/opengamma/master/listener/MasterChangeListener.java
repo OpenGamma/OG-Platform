@@ -6,12 +6,14 @@
 package com.opengamma.master.listener;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Listener interface used to receive events when a master changes.
  * <p>
  * Events will be sent when a document in a master is added, updated, removed or corrected.
  */
+@PublicSPI
 public interface MasterChangeListener {
 
   /**

@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.user;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -27,14 +29,20 @@ public class UserSecurityMaster implements SecurityMaster {
     _underlying = underlying;
   }
 
-  @Override
-  public SecurityHistoryResult history(SecurityHistoryRequest request) {
-    return _underlying.history(request);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public SecuritySearchResult search(SecuritySearchRequest request) {
     return _underlying.search(request);
+  }
+
+  @Override
+  public SecurityDocument get(UniqueIdentifier uniqueId) {
+    return _underlying.get(uniqueId);
+  }
+
+  @Override
+  public SecurityDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    return _underlying.get(objectId, versionCorrection);
   }
 
   @Override
@@ -47,24 +55,24 @@ public class UserSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public SecurityDocument correct(SecurityDocument document) {
-    return _underlying.correct(document);
-  }
-
-  @Override
-  public SecurityDocument get(UniqueIdentifier uid) {
-    return _underlying.get(uid);
-  }
-
-  @Override
-  public void remove(UniqueIdentifier uid) {
-    _underlying.remove(uid);
-    _tracker.deleted(uid);
-  }
-
-  @Override
   public SecurityDocument update(SecurityDocument document) {
     return _underlying.update(document);
+  }
+
+  @Override
+  public void remove(UniqueIdentifier uniqueId) {
+    _underlying.remove(uniqueId);
+    _tracker.deleted(uniqueId);
+  }
+
+  @Override
+  public SecurityHistoryResult history(SecurityHistoryRequest request) {
+    return _underlying.history(request);
+  }
+
+  @Override
+  public SecurityDocument correct(SecurityDocument document) {
+    return _underlying.correct(document);
   }
 
 }

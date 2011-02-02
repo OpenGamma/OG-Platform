@@ -24,6 +24,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of a master.
@@ -31,6 +32,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This abstract class is intended for providing the standard design for documents
  * stored in a master.
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractDocument extends DirectBean
     implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable {

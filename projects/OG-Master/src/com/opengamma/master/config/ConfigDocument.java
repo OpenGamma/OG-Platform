@@ -17,14 +17,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
-import com.opengamma.util.PublicAPI;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the config master.
  *
  * @param <T> the type of configuration document
  */
-@PublicAPI
+@PublicSPI
 @BeanDefinition
 public class ConfigDocument<T> extends AbstractDocument {
 

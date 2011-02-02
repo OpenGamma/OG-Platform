@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general purpose security loader for populating a master.
@@ -17,6 +18,7 @@ import com.opengamma.id.UniqueIdentifier;
  * SecurityLoader adds or updates the details about a security in the attached master.
  * This will normally be achieved by calling a standard external data source.
  */
+@PublicSPI
 public interface SecurityLoader {
 
   /**

@@ -9,19 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigHistoryRequest;
-import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -34,63 +33,37 @@ import com.opengamma.util.db.PagingRequest;
  * This allows the version to be set in the constructor, and applied automatically to the methods.
  * Some methods on {@code ConfigSource} specify their own version requirements, which are respected.
  */
+@PublicSPI
 public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   /**
    * The config master.
    */
   private final ConfigMaster _configMaster;
-
   /**
-   * The instant to search for a version at.
-   * Null is treated as the latest version.
+   * The version-correction locator to search at, null to not override versions.
    */
-  private Instant _versionAsOfInstant;
+  private volatile VersionCorrection _versionCorrection;
 
   /**
-   * The instant to search for corrections for.
-   * Null is treated as the latest correction.
-   */
-  private final Instant _correctedToInstant;
-
-  /**
-   * Creates an instance with an underlying config master.
+   * Creates an instance with an underlying config master which does not override versions.
+   * 
    * @param configMaster  the config master, not null
    */
   public MasterConfigSource(final ConfigMaster configMaster) {
-    this(configMaster, null, null);
+    this(configMaster, null);
   }
 
   /**
-   * Creates an instance with an underlying config master viewing the version
-   * that existed on the specified instant.
+   * Creates an instance with an underlying config master optionally overriding the requested version.
+   * 
    * @param configMaster  the config master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public MasterConfigSource(final ConfigMaster configMaster, InstantProvider versionAsOfInstantProvider) {
-    this(configMaster, versionAsOfInstantProvider, null);
-  }
-
-  /**
-   * Creates an instance with an underlying config master viewing the version
-   * that existed on the specified instant as corrected to the correction instant.
-   * @param configMaster  the config master, not null
-   * @param versionAsOfInstantProvider  the version instant to retrieve, null for latest version
-   * @param correctedToInstantProvider  the instant that the data should be corrected to, null for latest correction
-   */
-  public MasterConfigSource(final ConfigMaster configMaster, InstantProvider versionAsOfInstantProvider, InstantProvider correctedToInstantProvider) {
+  public MasterConfigSource(final ConfigMaster configMaster, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
-    if (versionAsOfInstantProvider != null) {
-      _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
-    } else {
-      _versionAsOfInstant = null;
-    }
-    if (correctedToInstantProvider != null) {
-      _correctedToInstant = Instant.of(correctedToInstantProvider);
-    } else {
-      _correctedToInstant = null;
-    }
+    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -104,34 +77,22 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   /**
-   * Gets the version instant to retrieve.
+   * Gets the version-correction locator to search at.
    * 
-   * @return the version instant to retrieve, null for latest version
+   * @return the version-correction locator to search at, null if not overriding versions
    */
-  public Instant getVersionAsOfInstant() {
-    return _versionAsOfInstant;
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
   }
 
   /**
-   * Sets the version instant to retrieve.
+   * Sets the version-correction locator to search at.
    * 
-   * @param versionAsOfInstantProvider the version instant to retrieve, null for latest version
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
-  public void setVersionAsOfInstant(final InstantProvider versionAsOfInstantProvider) {
-    if (versionAsOfInstantProvider != null) {
-      _versionAsOfInstant = Instant.of(versionAsOfInstantProvider);
-    } else {
-      _versionAsOfInstant = null;
-    }
-  }
-
-  /**
-   * Gets the instant that the data should be corrected to.
-   * 
-   * @return the instant that the data should be corrected to, null for latest correction
-   */
-  public Instant getCorrectedToInstant() {
-    return _correctedToInstant;
+  @Override
+  public void setVersionCorrection(final VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -146,9 +107,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   public <T> List<T> search(final Class<T> clazz, final ConfigSearchRequest request) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(request, "request");
-    request.setVersionAsOfInstant(_versionAsOfInstant);
-    request.setCorrectedToInstant(_correctedToInstant);
-    ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
+    request.setVersionCorrection(getVersionCorrection());
+    ConfigSearchResult<T> searchResult = getMaster().typed(clazz).search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
     List<T> result = new ArrayList<T>();
     for (ConfigDocument<T> configDocument : documents) {
@@ -158,8 +118,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   @Override
-  public <T> T get(final Class<T> clazz, final UniqueIdentifier uid) {
-    ConfigDocument<T> doc = getDocument(clazz, uid);
+  public <T> T get(final Class<T> clazz, final UniqueIdentifier uniqueId) {
+    ConfigDocument<T> doc = getDocument(clazz, uniqueId);
     return (doc != null ? doc.getValue() : null);
   }
 
@@ -180,29 +140,21 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * 
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
-   * @param uid  the unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the configuration document, null if not found
    */
-  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueIdentifier uid) {
+  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uid, "uid");
-    if (_versionAsOfInstant != null) {
-      ConfigHistoryRequest request = new ConfigHistoryRequest(uid.getObjectId(), _versionAsOfInstant, _correctedToInstant);
-      ConfigHistoryResult<T> result = _configMaster.typed(clazz).history(request);
-      if (result.getDocuments().isEmpty()) {
-        return null;
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    VersionCorrection vc = getVersionCorrection();  // lock against change
+    try {
+      if (vc != null) {
+        return getMaster().typed(clazz).get(uniqueId, vc);
+      } else {
+        return getMaster().typed(clazz).get(uniqueId);
       }
-      if (uid.isVersioned() && uid.getVersion().equals(result.getFirstDocument().getUniqueId().getVersion()) == false) {
-        return null;  // config found, but not matching the version we asked for
-      }
-      return result.getFirstDocument();
-    } else {
-      // just want the latest (or version) asked for, so don't use the more costly historic search operation
-      try {
-        return _configMaster.typed(clazz).get(uid);
-      } catch (DataNotFoundException ex) {
-        return null;
-      }
+    } catch (DataNotFoundException ex) {
+      return null;
     }
   }
 
@@ -223,10 +175,9 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(name, "name");
     ConfigSearchRequest request = new ConfigSearchRequest();
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(versionAsOf);
-    request.setCorrectedToInstant(null);
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(versionAsOf));
     request.setName(name);
-    ConfigSearchResult<T> searchResult = _configMaster.typed(clazz).search(request);
+    ConfigSearchResult<T> searchResult = getMaster().typed(clazz).search(request);
     return searchResult.getFirstDocument();
   }
 
@@ -234,11 +185,8 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   @Override
   public String toString() {
     String str = "MasterConfigSource[" + getMaster();
-    if (_versionAsOfInstant != null) {
-      str += ",versionAsOf=" + _versionAsOfInstant;
-    }
-    if (_correctedToInstant != null) {
-      str += ",correctedTo=" + _correctedToInstant;
+    if (getVersionCorrection() != null) {
+      str += ",versionCorrection=" + getVersionCorrection();
     }
     return str + "]";
   }

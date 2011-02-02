@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 // REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
 
@@ -23,6 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A currency.
  */
+@PublicAPI
 public final class Currency implements UniqueIdentifiable, Serializable {
 
   /** Serialization version. */

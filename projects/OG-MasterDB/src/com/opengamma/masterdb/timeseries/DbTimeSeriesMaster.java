@@ -714,17 +714,17 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     }
   }
 
-  protected DoubleTimeSeries<T> getHistoricalTimeSeries(UniqueIdentifier uid, T start, T end) {
-    ArgumentChecker.notNull(uid, "UniqueIdentifier");
-    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "Uid not for TimeSeriesStorage");
-    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
-    int timeSeriesKey = Integer.parseInt(uid.getValue());
+  protected DoubleTimeSeries<T> getHistoricalTimeSeries(UniqueIdentifier uniqueId, T start, T end) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "Uid not for TimeSeriesStorage");
+    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
+    int timeSeriesKey = Integer.parseInt(uniqueId.getValue());
     DoubleTimeSeries<T> timeSeries = loadTimeSeries(timeSeriesKey, start, end);
     return timeSeries;
   }
 
-  protected DoubleTimeSeries<T> getHistoricalTimeSeries(UniqueIdentifier uid) {
-    return getHistoricalTimeSeries(uid, null, null);
+  protected DoubleTimeSeries<T> getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+    return getHistoricalTimeSeries(uniqueId, null, null);
   }
 
   @Override
@@ -732,14 +732,14 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   public TimeSeriesDocument<T> addTimeSeries(TimeSeriesDocument<T> document) {
     validateTimeSeriesDocument(document);
     if (!contains(document)) {
-      UniqueIdentifier uid = addTimeSeries(
+      UniqueIdentifier uniqueId = addTimeSeries(
           document.getIdentifiers(), 
           document.getDataSource(), 
           document.getDataProvider(), 
           document.getDataField(), 
           document.getObservationTime(),
           document.getTimeSeries());
-      document.setUniqueId(uid);
+      document.setUniqueId(uniqueId);
       return document;
     } else {
       throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
@@ -749,13 +749,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   private boolean contains(TimeSeriesDocument<T> document) {
     for (IdentifierWithDates identifierWithDates : document.getIdentifiers()) {
       Identifier identifier = identifierWithDates.asIdentifier();
-      UniqueIdentifier uid = resolveIdentifier(
+      UniqueIdentifier uniqueId = resolveIdentifier(
           IdentifierBundle.of(identifier), 
           identifierWithDates.getValidFrom(), 
           document.getDataSource(), 
           document.getDataProvider(), 
           document.getDataField());
-      if (uid != null) {
+      if (uniqueId != null) {
         return true;
       }
     }
@@ -838,11 +838,11 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   }
 
   @Override
-  public TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uid) {
-    Long tsId = validateAndGetTimeSeriesId(uid);
+  public TimeSeriesDocument<T> getTimeSeries(UniqueIdentifier uniqueId) {
+    Long tsId = validateAndGetTimeSeriesId(uniqueId);
     
     TimeSeriesDocument<T> result = new TimeSeriesDocument<T>();
-    result.setUniqueId(uid);
+    result.setUniqueId(uniqueId);
     
     MetaData<T> metaData = getTimeSeriesMetaData(tsId);
     
@@ -857,13 +857,13 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return result;
   }
   
-  private ObjectsPair<Long, T> validateAndGetDataPointId(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "DataPoint UID");
-    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "UID not TSS");
-    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
-    String[] tokens = StringUtils.split(uid.getValue(), '/');
+  private ObjectsPair<Long, T> validateAndGetDataPointId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "DataPoint UID");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "UID not TSS");
+    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
+    String[] tokens = StringUtils.split(uniqueId.getValue(), '/');
     if (tokens.length != 2) {
-      throw new IllegalArgumentException("UID not expected format<12345/date> " + uid);
+      throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId);
     }
     String id = tokens[0];
     String dateStr = tokens[1];
@@ -873,31 +873,31 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       try {
         date = getDate(dateStr);
       } catch (CalendricalParseException ex) {
-        throw new IllegalArgumentException("UID not expected format<12345/date> " + uid, ex);
+        throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId, ex);
       }
       try {
         tsId = Long.parseLong(id);
       } catch (NumberFormatException ex) {
-        throw new IllegalArgumentException("UID not expected format<12345/date> " + uid, ex);
+        throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId, ex);
       }
     } else {
-      throw new IllegalArgumentException("UID not expected format<12345/date> " + uid);
+      throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId);
     }
     return ObjectsPair.of(tsId, date);
   }
 
-  private Long validateAndGetTimeSeriesId(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "TimeSeries UID");
-    ArgumentChecker.isTrue(uid.getScheme().equals(_identifierScheme), "UID not TSS");
-    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
+  private Long validateAndGetTimeSeriesId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "TimeSeries UID");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(_identifierScheme), "UID not TSS");
+    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
     
     Long tsId = Long.MIN_VALUE;
     
     try {
-      tsId = Long.parseLong(uid.getValue());
+      tsId = Long.parseLong(uniqueId.getValue());
     } catch (NumberFormatException ex) {
-      s_logger.warn("Invalid UID {}", uid);
-      throw new IllegalArgumentException("Invalid UID " + uid);
+      s_logger.warn("Invalid UID {}", uniqueId);
+      throw new IllegalArgumentException("Invalid UID " + uniqueId);
     }
     return tsId;
   }
@@ -1021,8 +1021,8 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public void removeTimeSeries(UniqueIdentifier uid) {
-    Long tsId = validateAndGetTimeSeriesId(uid);
+  public void removeTimeSeries(UniqueIdentifier uniqueId) {
+    Long tsId = validateAndGetTimeSeriesId(uniqueId);
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("tsKey", tsId, Types.BIGINT);
     getJdbcTemplate().update(_namedSQLMap.get(DEACTIVATE_META_DATA), parameters);
@@ -1034,9 +1034,9 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     ArgumentChecker.notNull(request, "timeseries request");
     
     TimeSeriesSearchResult<T> result = new TimeSeriesSearchResult<T>();
-    UniqueIdentifier uid = request.getTimeSeriesId();
-    if (uid != null) {
-      long tsId = validateAndGetTimeSeriesId(uid);
+    UniqueIdentifier uniqueId = request.getTimeSeriesId();
+    if (uniqueId != null) {
+      long tsId = validateAndGetTimeSeriesId(uniqueId);
       MetaData<T> tsMetaData = getTimeSeriesMetaData(tsId);
       s_logger.debug("tsMetaData={}", tsMetaData);
       TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
@@ -1045,7 +1045,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       document.setDataSource(tsMetaData.getDataSource());
       document.setIdentifiers(tsMetaData.getIdentifiers());
       document.setObservationTime(tsMetaData.getObservationTime());
-      document.setUniqueId(uid);
+      document.setUniqueId(uniqueId);
       if (request.isLoadDates()) {
         //load timeseries date ranges
         Map<String, T> dates = getTimeSeriesDateRange(tsId);
@@ -1175,22 +1175,22 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   public TimeSeriesSearchHistoricResult<T> searchHistoric(TimeSeriesSearchHistoricRequest request) {
     ArgumentChecker.notNull(request, "TimeSeriesSearchHistoricRequest");
     ArgumentChecker.notNull(request.getTimestamp(), "Timestamp");
-    UniqueIdentifier uid = request.getTimeSeriesId();
+    UniqueIdentifier uniqueId = request.getTimeSeriesId();
     TimeSeriesSearchHistoricResult<T>  searchResult = new TimeSeriesSearchHistoricResult<T>();
-    if (uid == null) {
+    if (uniqueId == null) {
       validateSearchHistoricRequest(request);
       String dataProvider = request.getDataProvider();
       String dataSource = request.getDataSource();
       String field = request.getDataField();
       IdentifierBundle identifiers = request.getIdentifiers();
       LocalDate currentDate = request.getCurrentDate();
-      uid = resolveIdentifier(identifiers, currentDate, dataSource, dataProvider, field);
-      if (uid == null) {
+      uniqueId = resolveIdentifier(identifiers, currentDate, dataSource, dataProvider, field);
+      if (uniqueId == null) {
         return searchResult;
       }
     }
     Instant timeStamp = request.getTimestamp();
-    long tsId = validateAndGetTimeSeriesId(uid);
+    long tsId = validateAndGetTimeSeriesId(uniqueId);
     DoubleTimeSeries<T> seriesSnapshot = getTimeSeriesSnapshot(timeStamp, tsId);
     TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
     document.setDataField(request.getDataField());
@@ -1198,7 +1198,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     document.setDataSource(request.getDataSource());
     document.setIdentifiers(IdentifierBundleWithDates.of(request.getIdentifiers()));
     document.setObservationTime(request.getObservationTime());
-    document.setUniqueId(uid);
+    document.setUniqueId(uniqueId);
     document.setTimeSeries(seriesSnapshot);
     searchResult.getDocuments().add(document);
     return searchResult;
@@ -1262,23 +1262,23 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       getJdbcTemplate().update(insertDelta, parameterSource);
     } 
     getJdbcTemplate().update(insertSQL, parameterSource);
-    String uid = new StringBuilder(String.valueOf(tsId)).append("/").append(printDate(document.getDate())).toString();
-    document.setDataPointId(UniqueIdentifier.of(_identifierScheme, uid));
+    String uniqueId = new StringBuilder(String.valueOf(tsId)).append("/").append(printDate(document.getDate())).toString();
+    document.setDataPointId(UniqueIdentifier.of(_identifierScheme, uniqueId));
     return document;
   }
   
   @Override
   @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-  public void removeDataPoint(UniqueIdentifier uid) {
-    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uid);
+  public void removeDataPoint(UniqueIdentifier uniqueId) {
+    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uniqueId);
     Long tsId = tsIdDatePair.getFirst();
     T date = tsIdDatePair.getSecond();
     removeDataPoint(tsId, date);
   }
 
   @Override
-  public DataPointDocument<T> getDataPoint(UniqueIdentifier uid) {
-    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uid);
+  public DataPointDocument<T> getDataPoint(UniqueIdentifier uniqueId) {
+    ObjectsPair<Long, T> tsIdDatePair = validateAndGetDataPointId(uniqueId);
     
     Long tsId = tsIdDatePair.getFirst();
     T date = tsIdDatePair.getSecond();
@@ -1291,7 +1291,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     final DataPointDocument<T> result = new DataPointDocument<T>();
     result.setDate(tsIdDatePair.getSecond());
     result.setTimeSeriesId(UniqueIdentifier.of(_identifierScheme, String.valueOf(tsId)));
-    result.setDataPointId(uid);
+    result.setDataPointId(uniqueId);
     jdbcOperations.query(_namedSQLMap.get(FIND_DATA_POINT_BY_DATE_AND_ID), paramSource, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {

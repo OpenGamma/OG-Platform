@@ -13,6 +13,8 @@ import java.util.Map;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * Result providing the history of a document.
  * <p>
@@ -22,6 +24,7 @@ import org.joda.beans.MetaProperty;
  * 
  * @param <D>  the type of the document
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractHistoryResult<D extends AbstractDocument> extends AbstractDocumentsResult<D> {
 

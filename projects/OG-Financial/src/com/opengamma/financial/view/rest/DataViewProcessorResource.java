@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,19 +33,22 @@ public class DataViewProcessorResource {
   //CSON: just constants
   
   private final ViewProcessor _viewProcessor;
+  private final JmsTemplate _jmsTemplate;
   private final String _jmsTopicPrefix;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final FudgeContext _fudgeContext;
+  private final ExecutorService _executorService;
   
-  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext) {
+  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext, ExecutorService executorService) {
     _viewProcessor = viewProcessor;
     
-    JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
-    jmsTemplate.setPubSubDomain(true);
+    _jmsTemplate = new JmsTemplate(connectionFactory);
+    _jmsTemplate.setPubSubDomain(true);
     
-    _jmsMessageSenderService = new JmsByteArrayMessageSenderService(jmsTemplate);
+    _jmsMessageSenderService = new JmsByteArrayMessageSenderService(_jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;
+    _executorService = executorService;
   }
   
   //-------------------------------------------------------------------------
@@ -63,7 +67,7 @@ public class DataViewProcessorResource {
     if (view == null) {
       return null;
     }
-    return new DataViewResource(view, _jmsMessageSenderService, _jmsTopicPrefix, _fudgeContext);
+    return new DataViewResource(view, _jmsTemplate, _jmsMessageSenderService, _jmsTopicPrefix, _fudgeContext, _executorService);
   }
   
   //-------------------------------------------------------------------------

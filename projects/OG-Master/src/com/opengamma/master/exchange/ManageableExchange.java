@@ -27,6 +27,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An exchange on which financial products can be traded or settled.
@@ -34,6 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * Financial products are often traded at a specific location known as an exchange.
  * This class represents details of the exchange, including region and opening hours.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageableExchange extends DirectBean implements Exchange {
 

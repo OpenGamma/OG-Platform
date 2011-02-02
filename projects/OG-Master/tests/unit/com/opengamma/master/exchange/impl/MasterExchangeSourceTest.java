@@ -21,12 +21,12 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.master.exchange.impl.MasterExchangeSource;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -37,6 +37,8 @@ public class MasterExchangeSourceTest {
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final Instant NOW = Instant.now();
+  private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -48,20 +50,14 @@ public class MasterExchangeSourceTest {
     new MasterExchangeSource(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor3arg_nullMaster() throws Exception {
-    new MasterExchangeSource(null, null, null);
-  }
-
   //-------------------------------------------------------------------------
   @Test
-  public void test_getExchange_found() throws Exception {
-    Instant now = Instant.now();
+  public void test_getExchange_noOverride_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
     ExchangeDocument doc = new ExchangeDocument(example());
     when(mock.get(UID)).thenReturn(doc);
-    MasterExchangeSource test = new MasterExchangeSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterExchangeSource test = new MasterExchangeSource(mock);
     Exchange testResult = test.getExchange(UID);
     verify(mock, times(1)).get(UID);
     
@@ -69,14 +65,26 @@ public class MasterExchangeSourceTest {
   }
 
   @Test
-  public void test_getExchange_notFound() throws Exception {
-    Instant now = Instant.now();
+  public void test_getExchange_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
-    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
-    MasterExchangeSource test = new MasterExchangeSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    ExchangeDocument doc = new ExchangeDocument(example());
+    when(mock.get(UID, VC)).thenReturn(doc);
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     Exchange testResult = test.getExchange(UID);
-    verify(mock, times(1)).get(UID);
+    verify(mock, times(1)).get(UID, VC);
+    
+    assertEquals(example(), testResult);
+  }
+
+  @Test
+  public void test_getExchange_notFound() throws Exception {
+    ExchangeMaster mock = mock(ExchangeMaster.class);
+    
+    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
+    Exchange testResult = test.getExchange(UID);
+    verify(mock, times(1)).get(UID, VC);
     
     assertEquals(null, testResult);
   }
@@ -84,19 +92,17 @@ public class MasterExchangeSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSingleExchange_Identifier_found() throws Exception {
-    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     result.getDocuments().add(new ExchangeDocument(example()));
     
     when(mock.search(request)).thenReturn(result);
-    MasterExchangeSource test = new MasterExchangeSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     Exchange testResult = test.getSingleExchange(ID);
     verify(mock, times(1)).search(request);
     
@@ -105,18 +111,16 @@ public class MasterExchangeSourceTest {
 
   @Test
   public void test_getSingleExchange_Identifier_noFound() throws Exception {
-    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     
     when(mock.search(request)).thenReturn(result);
-    MasterExchangeSource test = new MasterExchangeSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     Exchange testResult = test.getSingleExchange(ID);
     verify(mock, times(1)).search(request);
     
@@ -126,18 +130,16 @@ public class MasterExchangeSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getSingleExchange_IdentifierBundle_found() throws Exception {
-    Instant now = Instant.now();
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     ExchangeSearchResult result = new ExchangeSearchResult();
     result.getDocuments().add(new ExchangeDocument(example()));
     
     when(mock.search(request)).thenReturn(result);
-    MasterExchangeSource test = new MasterExchangeSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
     Exchange testResult = test.getSingleExchange(BUNDLE);
     verify(mock, times(1)).search(request);
     

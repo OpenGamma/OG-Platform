@@ -21,6 +21,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for searching for portfolios.
@@ -30,6 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  * as at a specific version and correction instant.
  * See {@link PortfolioHistoryRequest} for more details on how history works.
  */
+@PublicSPI
 @BeanDefinition
 public class PortfolioSearchRequest extends AbstractSearchRequest {
 

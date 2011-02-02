@@ -20,12 +20,15 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * Detailed information about an exchange, including when it opens and closes.
  * <p>
  * Some of this information is relatively unstructured, consisting mainly of strings.
  * Over time, it is expected that it will be interpreted more fully.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageableExchangeDetail extends DirectBean {
 

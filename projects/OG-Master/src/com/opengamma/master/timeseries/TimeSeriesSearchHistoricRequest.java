@@ -22,11 +22,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for searching for historic time-series.
  */
+@PublicSPI
 @BeanDefinition
 public class TimeSeriesSearchHistoricRequest extends DirectBean {
 

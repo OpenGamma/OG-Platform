@@ -24,8 +24,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -101,6 +103,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   @Override
   public PortfolioSearchResult search(final PortfolioSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final PortfolioSearchResult result = new PortfolioSearchResult();
@@ -108,10 +112,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
     searchWithPaging(request.getPagingRequest(), sqlSearch(request), args, new PortfolioDocumentExtractor(true), result);
@@ -164,6 +168,12 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   @Override
   public PortfolioDocument get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new PortfolioDocumentExtractor(true), "Portfolio");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PortfolioDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------

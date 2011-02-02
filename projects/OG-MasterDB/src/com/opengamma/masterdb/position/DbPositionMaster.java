@@ -31,9 +31,11 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -118,6 +120,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   @Override
   public PositionSearchResult search(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final PositionSearchResult result = new PositionSearchResult();
@@ -126,10 +130,10 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("min_quantity", request.getMinQuantity())
       .addValueNullIgnored("max_quantity", request.getMaxQuantity());
     if (request.getSecurityKeys() != null) {
@@ -303,6 +307,12 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   @Override
   public PositionDocument get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new PositionDocumentExtractor(), "Position");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PositionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new PositionDocumentExtractor(), "Position");
   }
 
   //-------------------------------------------------------------------------

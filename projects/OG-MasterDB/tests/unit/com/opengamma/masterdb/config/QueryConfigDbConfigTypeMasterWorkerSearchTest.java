@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -134,7 +135,7 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchTest extends AbstractDbCon
   @Test
   public void test_search_versionAsOf_below() {
     ConfigSearchRequest request = new ConfigSearchRequest();
-    request.setVersionAsOfInstant(_version1aInstant.minusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1aInstant.minusSeconds(5)));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -143,7 +144,7 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchTest extends AbstractDbCon
   @Test
   public void test_search_versionAsOf_mid() {
     ConfigSearchRequest request = new ConfigSearchRequest();
-    request.setVersionAsOfInstant(_version1cInstant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1cInstant.plusSeconds(5)));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -155,7 +156,7 @@ public class QueryConfigDbConfigTypeMasterWorkerSearchTest extends AbstractDbCon
   @Test
   public void test_search_versionAsOf_above() {
     ConfigSearchRequest request = new ConfigSearchRequest();
-    request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());

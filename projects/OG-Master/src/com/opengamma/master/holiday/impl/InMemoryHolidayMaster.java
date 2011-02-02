@@ -15,8 +15,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -39,34 +42,34 @@ import com.opengamma.util.db.Paging;
 public class InMemoryHolidayMaster implements HolidayMaster {
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
+   * The default scheme used for each {@link ObjectIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "MemHol";
+  public static final String DEFAULT_OID_SCHEME = "MemHol";
 
   /**
    * A cache of holidays by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, HolidayDocument> _holidays = new ConcurrentHashMap<UniqueIdentifier, HolidayDocument>();
+  private final ConcurrentMap<ObjectIdentifier, HolidayDocument> _store = new ConcurrentHashMap<ObjectIdentifier, HolidayDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
+  private final Supplier<ObjectIdentifier> _objectIdSupplier;
 
   /**
-   * Creates an empty holiday master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty master using the default scheme for any {@link ObjectIdentifier}s created.
    */
   public InMemoryHolidayMaster() {
-    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
+    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
-   * Creates an instance specifying the supplier of unique identifiers.
+   * Creates an instance specifying the supplier of object identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryHolidayMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  public InMemoryHolidayMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    _objectIdSupplier = objectIdSupplier;
   }
 
   //-------------------------------------------------------------------------
@@ -74,7 +77,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   public HolidaySearchResult search(final HolidaySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final HolidaySearchResult result = new HolidaySearchResult();
-    Collection<HolidayDocument> docs = _holidays.values();
+    Collection<HolidayDocument> docs = _store.values();
     if (request.getProviderKey() != null) {
       docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
         @Override
@@ -133,11 +136,18 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayDocument get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final HolidayDocument document = _holidays.get(uid);
+  public HolidayDocument get(final UniqueIdentifier uniqueId) {
+    return get(uniqueId, VersionCorrection.LATEST);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HolidayDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final HolidayDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
-      throw new DataNotFoundException("Holiday not found: " + uid);
+      throw new DataNotFoundException("Holiday not found: " + objectId);
     }
     return document;
   }
@@ -149,16 +159,17 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
-    final UniqueIdentifier uid = _uidSupplier.get();
+    final ObjectIdentifier objectId = _objectIdSupplier.get();
+    final UniqueIdentifier uniqueId = objectId.atVersion("");
     final ManageableHoliday holiday = document.getHoliday();
-    holiday.setUniqueId(uid);
-    document.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
+    document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    _holidays.put(uid, document);  // unique identifier should be unique
+    _store.put(objectId, document);
     return document;
   }
 
@@ -170,17 +181,17 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
-    final UniqueIdentifier uid = document.getUniqueId();
+    final UniqueIdentifier uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final HolidayDocument storedDocument = _holidays.get(uid);
+    final HolidayDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Holiday not found: " + uid);
+      throw new DataNotFoundException("Holiday not found: " + uniqueId);
     }
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    if (_holidays.replace(uid, storedDocument, document) == false) {
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return document;
@@ -188,11 +199,11 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (_holidays.remove(uid) == null) {
-      throw new DataNotFoundException("Holiday not found: " + uid);
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Holiday not found: " + uniqueId);
     }
   }
 
@@ -203,7 +214,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final HolidayHistoryResult result = new HolidayHistoryResult();
-    final HolidayDocument doc = get(request.getObjectId().atLatestVersion());
+    final HolidayDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
       result.getDocuments().add(doc);
     }

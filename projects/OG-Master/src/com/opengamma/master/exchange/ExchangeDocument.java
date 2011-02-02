@@ -19,10 +19,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the exchange master.
  */
+@PublicSPI
 @BeanDefinition
 public class ExchangeDocument extends AbstractDocument implements Serializable {
 

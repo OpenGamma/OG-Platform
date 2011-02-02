@@ -22,12 +22,12 @@ import com.opengamma.core.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -39,6 +39,8 @@ public class MasterRegionSourceTest {
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final Instant NOW = Instant.now();
+  private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -50,35 +52,41 @@ public class MasterRegionSourceTest {
     new MasterRegionSource(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void test_constructor3arg_nullMaster() throws Exception {
-    new MasterRegionSource(null, null, null);
-  }
-
   //-------------------------------------------------------------------------
   @Test
-  public void test_getRegion_found() throws Exception {
-    Instant now = Instant.now();
+  public void test_getRegion_noOverride_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
-    RegionDocument doc = new RegionDocument(uk());
+    RegionDocument doc = new RegionDocument(example());
     when(mock.get(UID)).thenReturn(doc);
-    MasterRegionSource test = new MasterRegionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterRegionSource test = new MasterRegionSource(mock);
     Region testResult = test.getRegion(UID);
     verify(mock, times(1)).get(UID);
     
-    assertEquals(uk(), testResult);
+    assertEquals(example(), testResult);
+  }
+
+  @Test
+  public void test_getRegion_found() throws Exception {
+    RegionMaster mock = mock(RegionMaster.class);
+    
+    RegionDocument doc = new RegionDocument(example());
+    when(mock.get(UID, VC)).thenReturn(doc);
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
+    Region testResult = test.getRegion(UID);
+    verify(mock, times(1)).get(UID, VC);
+    
+    assertEquals(example(), testResult);
   }
 
   @Test
   public void test_getRegion_notFound() throws Exception {
-    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     
-    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
-    MasterRegionSource test = new MasterRegionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getRegion(UID);
-    verify(mock, times(1)).get(UID);
+    verify(mock, times(1)).get(UID, VC);
     
     assertEquals(null, testResult);
   }
@@ -86,37 +94,33 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_Identifier_found() throws Exception {
-    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     RegionSearchResult result = new RegionSearchResult();
-    result.getDocuments().add(new RegionDocument(uk()));
+    result.getDocuments().add(new RegionDocument(example()));
     
     when(mock.search(request)).thenReturn(result);
-    MasterRegionSource test = new MasterRegionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getHighestLevelRegion(ID);
     verify(mock, times(1)).search(request);
     
-    assertEquals(uk(), testResult);
+    assertEquals(example(), testResult);
   }
 
   @Test
   public void test_getRegion_Identifier_noFound() throws Exception {
-    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     RegionSearchResult result = new RegionSearchResult();
     
     when(mock.search(request)).thenReturn(result);
-    MasterRegionSource test = new MasterRegionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getHighestLevelRegion(ID);
     verify(mock, times(1)).search(request);
     
@@ -126,26 +130,24 @@ public class MasterRegionSourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_IdentifierBundle_found() throws Exception {
-    Instant now = Instant.now();
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionAsOfInstant(now.minusSeconds(2));
-    request.setCorrectedToInstant(now.minusSeconds(1));
+    request.setVersionCorrection(VC);
     
     RegionSearchResult result = new RegionSearchResult();
-    result.getDocuments().add(new RegionDocument(uk()));
+    result.getDocuments().add(new RegionDocument(example()));
     
     when(mock.search(request)).thenReturn(result);
-    MasterRegionSource test = new MasterRegionSource(mock, now.minusSeconds(2), now.minusSeconds(1));
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getHighestLevelRegion(BUNDLE);
     verify(mock, times(1)).search(request);
     
-    assertEquals(uk(), testResult);
+    assertEquals(example(), testResult);
   }
 
   //-------------------------------------------------------------------------
-  protected ManageableRegion uk() {
+  protected ManageableRegion example() {
     ManageableRegion region = new ManageableRegion();
     region.setUniqueId(UID);
     region.setName("United Kingdom");

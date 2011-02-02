@@ -5,9 +5,12 @@
  */
 package com.opengamma.master.config;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * Utilities around the configuration master.
  */
+@PublicSPI
 public final class ConfigMasterUtils {
 
   /**
