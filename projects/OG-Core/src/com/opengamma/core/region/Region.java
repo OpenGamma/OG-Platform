@@ -15,6 +15,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A region of the world.
@@ -22,6 +23,7 @@ import com.opengamma.id.UniqueIdentifier;
  * Many aspects of business, algorithms and contracts are specific to a region.
  * The region may be of any size, from a municipality to a super-national group.
  */
+@PublicSPI
 public interface Region extends UniqueIdentifiable {
 
   /**

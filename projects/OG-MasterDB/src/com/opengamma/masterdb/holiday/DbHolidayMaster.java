@@ -20,14 +20,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.google.common.base.Objects;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -101,6 +102,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   public HolidaySearchResult search(final HolidaySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final HolidaySearchResult result = new HolidaySearchResult();
@@ -112,10 +114,10 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         IdentifierSearch.canMatch(exchangeKeys) == false) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
@@ -213,6 +215,12 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   @Override
   public HolidayDocument get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new HolidayDocumentExtractor(), "Holiday");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HolidayDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new HolidayDocumentExtractor(), "Holiday");
   }
 
   //-------------------------------------------------------------------------

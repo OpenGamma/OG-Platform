@@ -64,7 +64,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
+  private final Supplier<UniqueIdentifier> _uniqueIdSupplier;
 
   /**
    * Creates an empty time-series master using the default scheme for any {@link UniqueIdentifier}s created.
@@ -76,11 +76,11 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   /**
    * Creates an instance specifying the supplier of unique identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param uniqueIdSupplier  the supplier of unique identifiers, not null
    */
-  private InMemoryLocalDateTimeSeriesMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  private InMemoryLocalDateTimeSeriesMaster(final Supplier<UniqueIdentifier> uniqueIdSupplier) {
+    ArgumentChecker.notNull(uniqueIdSupplier, "uniqueIdSupplier");
+    _uniqueIdSupplier = uniqueIdSupplier;
   }
 
   //-------------------------------------------------------------------------
@@ -286,24 +286,24 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   }
   
   @Override
-  public TimeSeriesDocument<LocalDate> getTimeSeries(UniqueIdentifier uid) {
-    validateUId(uid);
-    final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(uid);
+  public TimeSeriesDocument<LocalDate> getTimeSeries(UniqueIdentifier uniqueId) {
+    validateUId(uniqueId);
+    final TimeSeriesDocument<LocalDate> document = _timeseriesDb.get(uniqueId);
     if (document == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uid);
+      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
     }
     return document;
   }
   
-  private void validateUId(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "TimeSeries UID");
-    ArgumentChecker.isTrue(uid.getScheme().equals(DEFAULT_UID_SCHEME), "UID not " + DEFAULT_UID_SCHEME);
-    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
+  private void validateUId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "TimeSeries UID");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(DEFAULT_UID_SCHEME), "UID not " + DEFAULT_UID_SCHEME);
+    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
     
     try {
-      Long.parseLong(uid.getValue());
+      Long.parseLong(uniqueId.getValue());
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Invalid UID " + uid);
+      throw new IllegalArgumentException("Invalid UID " + uniqueId);
     }
   }
 
@@ -311,17 +311,17 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   public TimeSeriesDocument<LocalDate> addTimeSeries(TimeSeriesDocument<LocalDate> document) {
     validateTimeSeriesDocument(document);
     if (!contains(document)) {
-      final UniqueIdentifier uid = _uidSupplier.get();
+      final UniqueIdentifier uniqueId = _uniqueIdSupplier.get();
       final TimeSeriesDocument<LocalDate> doc = new TimeSeriesDocument<LocalDate>();
-      doc.setUniqueId(uid);
+      doc.setUniqueId(uniqueId);
       doc.setDataField(document.getDataField());
       doc.setDataProvider(document.getDataProvider());
       doc.setDataSource(document.getDataSource());
       doc.setIdentifiers(document.getIdentifiers());
       doc.setObservationTime(document.getObservationTime());
       doc.setTimeSeries(document.getTimeSeries());
-      _timeseriesDb.put(uid, doc);  // unique identifier should be unique
-      document.setUniqueId(uid);
+      _timeseriesDb.put(uniqueId, doc);  // unique identifier should be unique
+      document.setUniqueId(uniqueId);
       return document;
     } else {
       throw new IllegalArgumentException("cannot add duplicate TimeSeries for identifiers " + document.getIdentifiers());
@@ -344,13 +344,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
   private boolean contains(TimeSeriesDocument<LocalDate> document) {
     for (IdentifierWithDates identifierWithDates : document.getIdentifiers()) {
       Identifier identifier = identifierWithDates.asIdentifier();
-      UniqueIdentifier uid = resolveIdentifier(
+      UniqueIdentifier uniqueId = resolveIdentifier(
           IdentifierBundle.of(identifier), 
           identifierWithDates.getValidFrom(), 
           document.getDataSource(), 
           document.getDataProvider(), 
           document.getDataField());
-      if (uid != null) {
+      if (uniqueId != null) {
         return true;
       }
     }
@@ -365,24 +365,24 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getDataProvider(), "document.dataProvider");
     ArgumentChecker.notNull(document.getDataSource(), "document.dataSource");
     ArgumentChecker.notNull(document.getObservationTime(), "document.observationTime");
-    ArgumentChecker.notNull(document.getUniqueId(), "document.uid");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    final UniqueIdentifier uid = document.getUniqueId();
-    final TimeSeriesDocument<LocalDate> storedDocument = _timeseriesDb.get(uid);
+    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final TimeSeriesDocument<LocalDate> storedDocument = _timeseriesDb.get(uniqueId);
     if (storedDocument == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uid);
+      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
     }
-    if (_timeseriesDb.replace(uid, storedDocument, document) == false) {
+    if (_timeseriesDb.replace(uniqueId, storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return document;
   }
   
   @Override
-  public void removeTimeSeries(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    if (_timeseriesDb.remove(uid) == null) {
-      throw new DataNotFoundException("Timeseries not found: " + uid);
+  public void removeTimeSeries(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    if (_timeseriesDb.remove(uniqueId) == null) {
+      throw new DataNotFoundException("Timeseries not found: " + uniqueId);
     }
   }
 
@@ -431,23 +431,23 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(mutableTS);
     storedDoc.setTimeSeries(mergedTS);
     
-    String uid = new StringBuilder(timeSeriesId.getValue()).append("/").append(DateUtil.printYYYYMMDD(document.getDate())).toString();
-    document.setDataPointId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, uid));
+    String uniqueId = new StringBuilder(timeSeriesId.getValue()).append("/").append(DateUtil.printYYYYMMDD(document.getDate())).toString();
+    document.setDataPointId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, uniqueId));
     return document;
     
   }
   
   @Override
-  public DataPointDocument<LocalDate> getDataPoint(UniqueIdentifier uid) {
-    Pair<Long, LocalDate> uidPair = validateAndGetDataPointId(uid);
+  public DataPointDocument<LocalDate> getDataPoint(UniqueIdentifier uniqueId) {
+    Pair<Long, LocalDate> uniqueIdPair = validateAndGetDataPointId(uniqueId);
     
-    Long tsId = uidPair.getFirst();
-    LocalDate date = uidPair.getSecond();
+    Long tsId = uniqueIdPair.getFirst();
+    LocalDate date = uniqueIdPair.getSecond();
     
     final DataPointDocument<LocalDate> result = new DataPointDocument<LocalDate>();
-    result.setDate(uidPair.getSecond());
+    result.setDate(uniqueIdPair.getSecond());
     result.setTimeSeriesId(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
-    result.setDataPointId(uid);
+    result.setDataPointId(uniqueId);
     
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     Double value = storedDoc.getTimeSeries().getValue(date);
@@ -456,13 +456,13 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     return result;
   }
   
-  private Pair<Long, LocalDate> validateAndGetDataPointId(UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "DataPoint UID");
-    ArgumentChecker.isTrue(uid.getScheme().equals(DEFAULT_UID_SCHEME), "UID not TssMemory");
-    ArgumentChecker.isTrue(uid.getValue() != null, "Uid value cannot be null");
-    String[] tokens = StringUtils.split(uid.getValue(), '/');
+  private Pair<Long, LocalDate> validateAndGetDataPointId(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "DataPoint UID");
+    ArgumentChecker.isTrue(uniqueId.getScheme().equals(DEFAULT_UID_SCHEME), "UID not TssMemory");
+    ArgumentChecker.isTrue(uniqueId.getValue() != null, "Uid value cannot be null");
+    String[] tokens = StringUtils.split(uniqueId.getValue(), '/');
     if (tokens.length != 2) {
-      throw new IllegalArgumentException("UID not expected format<12345/date> " + uid);
+      throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId);
     }
     String id = tokens[0];
     String dateStr = tokens[1];
@@ -472,28 +472,28 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
       try {
         date = DateUtil.toLocalDate(dateStr);
       } catch (CalendricalParseException ex) {
-        throw new IllegalArgumentException("UID not expected format<12345/date> " + uid, ex);
+        throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId, ex);
       }
       try {
         tsId = Long.parseLong(id);
       } catch (NumberFormatException ex) {
-        throw new IllegalArgumentException("UID not expected format<12345/date> " + uid, ex);
+        throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId, ex);
       }
     } else {
-      throw new IllegalArgumentException("UID not expected format<12345/date> " + uid);
+      throw new IllegalArgumentException("UID not expected format<12345/date> " + uniqueId);
     }
     return Pair.of(tsId, date);
   }
 
   @Override
-  public void removeDataPoint(UniqueIdentifier uid) {
-    Pair<Long, LocalDate> uidPair = validateAndGetDataPointId(uid);
+  public void removeDataPoint(UniqueIdentifier uniqueId) {
+    Pair<Long, LocalDate> uniqueIdPair = validateAndGetDataPointId(uniqueId);
     
-    Long tsId = uidPair.getFirst();
+    Long tsId = uniqueIdPair.getFirst();
     TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(UniqueIdentifier.of(DEFAULT_UID_SCHEME, String.valueOf(tsId)));
     
     MapLocalDateDoubleTimeSeries mutableTS = new MapLocalDateDoubleTimeSeries(storedDoc.getTimeSeries());
-    mutableTS.removeDataPoint(uidPair.getSecond());
+    mutableTS.removeDataPoint(uniqueIdPair.getSecond());
     storedDoc.setTimeSeries(mutableTS);
   }
 
@@ -508,8 +508,8 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(document.getDataField(), "dataField");
     
     validateUId(document.getUniqueId());
-    UniqueIdentifier uid = document.getUniqueId();
-    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(uid);
+    UniqueIdentifier uniqueId = document.getUniqueId();
+    TimeSeriesDocument<LocalDate> storedDoc = _timeseriesDb.get(uniqueId);
     DoubleTimeSeries<LocalDate> mergedTS = storedDoc.getTimeSeries().noIntersectionOperation(document.getTimeSeries());
     storedDoc.setTimeSeries(mergedTS);
   }
@@ -527,7 +527,7 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
     ArgumentChecker.notNull(dataField, "dataField");
     
     for (Entry<UniqueIdentifier, TimeSeriesDocument<LocalDate>> entry : _timeseriesDb.entrySet()) {
-      UniqueIdentifier uid = entry.getKey();
+      UniqueIdentifier uniqueId = entry.getKey();
       TimeSeriesDocument<LocalDate> tsDoc = entry.getValue();
       if (tsDoc.getDataSource().equals(dataSource) && tsDoc.getDataProvider().equals(dataProvider) && tsDoc.getDataField().equals(dataField)) {
         for (IdentifierWithDates idWithDates : tsDoc.getIdentifiers()) {
@@ -536,10 +536,10 @@ public class InMemoryLocalDateTimeSeriesMaster implements TimeSeriesMaster<Local
             LocalDate validTo = idWithDates.getValidTo();
             if (currentDate != null) {
               if (currentDate.equals(validFrom) || (currentDate.isAfter(validFrom) && currentDate.isBefore(validTo)) || currentDate.equals(validTo)) {
-                return uid;
+                return uniqueId;
               }
             } else {
-              return uid;
+              return uniqueId;
             }
           }
         }

@@ -16,6 +16,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractSearchResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result from searching for configuration documents.
@@ -25,6 +26,7 @@ import com.opengamma.master.AbstractSearchResult;
  * 
  * @param <T>  the document type
  */
+@PublicSPI
 @BeanDefinition
 public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T>> {
 

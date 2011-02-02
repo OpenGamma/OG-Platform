@@ -21,6 +21,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to pass into and out of the holiday master.
@@ -28,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * The holiday master provides full management of the holiday database.
  * Each element is stored in a document.
  */
+@PublicSPI
 @BeanDefinition
 public class HolidayDocument extends AbstractDocument implements Serializable {
 

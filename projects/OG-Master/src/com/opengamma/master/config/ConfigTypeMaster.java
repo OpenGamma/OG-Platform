@@ -8,6 +8,7 @@ package com.opengamma.master.config;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.master.listener.NotifyingMaster;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose configuration master.
@@ -21,6 +22,7 @@ import com.opengamma.master.listener.NotifyingMaster;
  * 
  * @param <T>  the configuration element type
  */
+@PublicSPI
 public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>>, NotifyingMaster {
 
   /**

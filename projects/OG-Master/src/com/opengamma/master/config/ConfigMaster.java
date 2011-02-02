@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.config;
 
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose configuration master.
@@ -15,6 +16,7 @@ package com.opengamma.master.config;
  * Many different kinds of configuration element may be stored in a single master.
  * Each type will be stored in an individual {@link ConfigTypeMaster}.
  */
+@PublicSPI
 public interface ConfigMaster {
 
   /**

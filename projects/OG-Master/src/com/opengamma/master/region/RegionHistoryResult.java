@@ -17,6 +17,7 @@ import org.joda.beans.MetaProperty;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result providing the history of a region.
@@ -25,6 +26,7 @@ import com.opengamma.master.AbstractHistoryResult;
  * The document instant fields are used to identify which are which.
  * See {@link RegionHistoryRequest} for more details.
  */
+@PublicSPI
 @BeanDefinition
 public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
 

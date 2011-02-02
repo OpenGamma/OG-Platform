@@ -26,9 +26,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.google.common.base.Objects;
 import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -138,12 +139,13 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   public ConfigSearchResult<T> search(final ConfigSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("config_type", getReifiedType().getName());
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
@@ -176,6 +178,12 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   @Override
   public ConfigDocument<T> get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new ConfigDocumentExtractor(), "Config");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<T> get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new ConfigDocumentExtractor(), "Config");
   }
 
   //-------------------------------------------------------------------------

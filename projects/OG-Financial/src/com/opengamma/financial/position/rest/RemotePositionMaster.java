@@ -7,7 +7,9 @@ package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -64,9 +66,17 @@ public class RemotePositionMaster implements PositionMaster {
       URI uri = DataPositionResource.uriVersion(_baseUri, uniqueId);
       return accessRemote(uri).get(PositionDocument.class);
     } else {
-      URI uri = DataPositionResource.uri(_baseUri, uniqueId);
-      return accessRemote(uri).get(PositionDocument.class);
+      return get(uniqueId, VersionCorrection.LATEST);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PositionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    
+    URI uri = DataPositionResource.uri(_baseUri, objectId, versionCorrection);
+    return accessRemote(uri).get(PositionDocument.class);
   }
 
   //-------------------------------------------------------------------------
@@ -86,7 +96,7 @@ public class RemotePositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uri(_baseUri, document.getUniqueId());
+    URI uri = DataPositionResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
     return accessRemote(uri).put(PositionDocument.class, document);
   }
 
@@ -95,7 +105,7 @@ public class RemotePositionMaster implements PositionMaster {
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPositionResource.uri(_baseUri, uniqueId);
+    URI uri = DataPositionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 

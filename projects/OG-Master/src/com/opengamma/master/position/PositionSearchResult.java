@@ -15,6 +15,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractSearchResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result from searching for positions.
@@ -22,6 +23,7 @@ import com.opengamma.master.AbstractSearchResult;
  * The returned documents will match the search criteria.
  * See {@link PositionSearchRequest} for more details.
  */
+@PublicSPI
 @BeanDefinition
 public class PositionSearchResult extends AbstractSearchResult<PositionDocument> {
 

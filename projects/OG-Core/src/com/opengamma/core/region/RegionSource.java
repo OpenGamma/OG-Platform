@@ -8,6 +8,7 @@ package com.opengamma.core.region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A source of region information as accessed by the main application.
@@ -15,6 +16,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This interface provides a simple view of regions as used by most parts of the application.
  * This may be backed by a full-featured region master, or by a much simpler data structure.
  */
+@PublicSPI
 public interface RegionSource {
 
   /**

@@ -7,6 +7,7 @@ package com.opengamma.financial.portfolio.rest;
 
 import java.net.URI;
 
+import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,6 +22,7 @@ import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -89,8 +91,10 @@ public class DataPortfolioResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response get() {
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId());
+  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
+    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
+    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
+    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
@@ -126,8 +130,8 @@ public class DataPortfolioResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    _urlResourceId = _urlResourceId.withVersion(versionId);
-    return get();
+    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId().withVersion(versionId));
+    return Response.ok(result).build();
   }
 
   @GET
@@ -144,10 +148,18 @@ public class DataPortfolioResource extends AbstractDataResource {
    * 
    * @param baseUri  the base URI, not null
    * @param objectId  the resource identifier, not null
+   * @param versionCorrection  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId) {
-    return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}").build(objectId.getObjectId());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
+    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
+      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
+    }
+    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
+      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
+    }
+    return b.build(objectId.getObjectId());
   }
 
   /**

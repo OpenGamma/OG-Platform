@@ -18,7 +18,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -72,35 +74,33 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     if (uniqueId.isVersioned()) {
       return doGetById(uniqueId, extractor, masterName);
     } else {
-      final Instant now = Instant.now(getTimeSource());
-      return doGetByOidInstants(uniqueId, now, now, extractor, masterName);
+      return doGetByOidInstants(uniqueId, VersionCorrection.LATEST, extractor, masterName);
     }
   }
 
   /**
    * Performs a standard get by object identifier at instants.
    * 
-   * @param oid  the object identifier, not null
-   * @param versionAsOf  the version instant, not null
-   * @param correctedTo  the corrected to instant, not null
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction locator, not null
    * @param extractor  the extractor to use, not null
    * @param masterName  a name describing the contents of the master for an error message, not null
    * @return the document, null if not found
    */
   protected D doGetByOidInstants(
-      final UniqueIdentifier oid, final Instant versionAsOf, final Instant correctedTo,
+      final ObjectIdentifiable objectId, final VersionCorrection versionCorrection,
       final ResultSetExtractor<List<D>> extractor, final String masterName) {
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.notNull(versionAsOf, "versionAsOf");
-    ArgumentChecker.notNull(correctedTo, "correctedTo");
+    ArgumentChecker.notNull(objectId, "oid");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(extractor, "extractor");
-    s_logger.debug("getByOidInstants {}", oid);
+    s_logger.debug("getByOidInstants {}", objectId);
     
-    final DbMapSqlParameterSource args = argsGetByOidInstants(oid, versionAsOf, correctedTo);
+    final VersionCorrection vc = versionCorrection.withLatestFixed(Instant.now(getTimeSource()));
+    final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<D> docs = namedJdbc.query(sqlGetByOidInstants(), args, extractor);
     if (docs.isEmpty()) {
-      throw new DataNotFoundException(masterName + " not found: " + oid);
+      throw new DataNotFoundException(masterName + " not found: " + objectId);
     }
     return docs.get(0);
   }
@@ -108,17 +108,16 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   /**
    * Gets the SQL arguments to use for a standard get by object identifier at instants.
    * 
-   * @param oid  the object identifier, not null
-   * @param versionAsOf  the version instant, not null
-   * @param correctedTo  the corrected to instant, not null
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction locator with instants fixed, not null
    * @return the SQL arguments, not null
    */
-  protected DbMapSqlParameterSource argsGetByOidInstants(final UniqueIdentifier oid, final Instant versionAsOf, final Instant correctedTo) {
-    final long docOid = extractOid(oid);
+  protected DbMapSqlParameterSource argsGetByOidInstants(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    final long docOid = extractOid(objectId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("doc_oid", docOid)
-      .addTimestamp("version_as_of", versionAsOf)
-      .addTimestamp("corrected_to", correctedTo);
+      .addTimestamp("version_as_of", versionCorrection.getVersionAsOf())
+      .addTimestamp("corrected_to", versionCorrection.getCorrectedTo());
     return args;
   }
 
@@ -428,7 +427,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the loaded document, not null
    */
   protected D getCheckLatestVersion(final UniqueIdentifier uniqueId) {
-    final D oldDoc = get(uniqueId);  // checks uid exists
+    final D oldDoc = get(uniqueId);  // checks uniqueId exists
     if (oldDoc.getVersionToInstant() != null) {
       throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uniqueId);
     }
@@ -471,7 +470,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the loaded document, not null
    */
   protected D getCheckLatestCorrection(final UniqueIdentifier uniqueId) {
-    final D oldDoc = get(uniqueId);  // checks uid exists
+    final D oldDoc = get(uniqueId);  // checks uniqueId exists
     if (oldDoc.getCorrectionToInstant() != null) {
       throw new IllegalArgumentException("UniqueIdentifier is not latest correction: " + uniqueId);
     }

@@ -19,6 +19,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -26,6 +27,7 @@ import com.opengamma.util.db.Paging;
  * 
  * @param <T> java.util.Date/LocalDate
  */
+@PublicSPI
 @BeanDefinition
 public class TimeSeriesSearchHistoricResult<T> extends DirectBean {
 

@@ -33,6 +33,7 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for searching for regions.
@@ -42,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
  * as at a specific version and correction instant.
  * See {@link RegionHistoryRequest} for more details on how history works.
  */
+@PublicSPI
 @BeanDefinition
 public class RegionSearchRequest extends AbstractSearchRequest implements Serializable {
 

@@ -16,10 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Utilities and constants for securities.
  */
+@PublicAPI
 public class SecurityUtils {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
 

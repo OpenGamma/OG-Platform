@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.PagingRequest;
 
 /**
@@ -47,6 +48,7 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * Versions and corrections are represented by instants in the search.
  */
+@PublicSPI
 @BeanDefinition
 public abstract class AbstractHistoryRequest extends DirectBean {
 

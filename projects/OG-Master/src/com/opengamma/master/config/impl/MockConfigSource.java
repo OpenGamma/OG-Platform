@@ -36,14 +36,14 @@ public class MockConfigSource extends MasterConfigSource {
   /**
    * The next index for the identifier.
    */
-  private final UniqueIdentifierSupplier _uidSupplier;
+  private final UniqueIdentifierSupplier _uniqueIdSupplier;
 
   /**
    * Creates the instance.
    */
   public MockConfigSource() {
     super(new InMemoryConfigMaster());
-    _uidSupplier = new UniqueIdentifierSupplier("Mock");
+    _uniqueIdSupplier = new UniqueIdentifierSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
@@ -63,8 +63,8 @@ public class MockConfigSource extends MasterConfigSource {
   }
 
   @Override
-  public <T> T get(Class<T> clazz, UniqueIdentifier uid) {
-    ConfigDocument<T> doc = getDocument(clazz, uid);
+  public <T> T get(Class<T> clazz, UniqueIdentifier uniqueId) {
+    ConfigDocument<T> doc = getDocument(clazz, uniqueId);
     return (doc != null ? doc.getValue() : null);
   }
 
@@ -81,10 +81,10 @@ public class MockConfigSource extends MasterConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueIdentifier uid) {
+  public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uid, "uid");
-    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uid);
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uniqueId);
     if (clazz.isInstance(config.getValue())) {
       return config;
     }
@@ -112,7 +112,7 @@ public class MockConfigSource extends MasterConfigSource {
    */
   public void add(ConfigDocument<?> configDoc) {
     ArgumentChecker.notNull(configDoc, "doc");
-    _configs.put(_uidSupplier.get(), configDoc);
+    _configs.put(_uniqueIdSupplier.get(), configDoc);
   }
 
 }

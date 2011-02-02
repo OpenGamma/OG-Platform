@@ -29,6 +29,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.master.listener.NotifyingMaster;
@@ -167,7 +168,7 @@ public class ViewProcessorManager implements Lifecycle {
             _masterToListener.put(master, listener);
             s_logger.debug("Latching {} to {}", source, now);
             // TODO this isn't ideal if there is clock drift between nodes - the time needs to be the system time at the master
-            source.setVersionAsOfInstant(now);
+            source.setVersionCorrection(VersionCorrection.ofVersionAsOf(now));  // TODO ignores correction
           }
         } finally {
           _changeLock.unlock();
@@ -271,7 +272,7 @@ public class ViewProcessorManager implements Lifecycle {
       }
       for (Map.Entry<VersionedSource, Instant> entry : latchInstants.entrySet()) {
         s_logger.debug("Latching {} to {}", entry.getKey(), entry.getValue());
-        entry.getKey().setVersionAsOfInstant(entry.getValue());
+        entry.getKey().setVersionCorrection(VersionCorrection.ofVersionAsOf(entry.getValue()));
       }
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();

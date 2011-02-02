@@ -7,7 +7,6 @@ package com.opengamma.financial.position.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -20,10 +19,9 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.position.rest.DataPositionResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -49,9 +47,9 @@ public class DataPositionResourceTest {
   public void testGetPosition() {
     final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     final PositionDocument result = new PositionDocument(position);
-    when(_underlying.get(eq(UID))).thenReturn(result);
+    when(_underlying.get(UID, VersionCorrection.LATEST)).thenReturn(result);
     
-    Response test = _resource.get();
+    Response test = _resource.get(null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }

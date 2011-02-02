@@ -17,7 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.AbstractSearchRequest;
-import com.opengamma.util.PublicAPI;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for searching for configuration documents.
@@ -27,7 +27,7 @@ import com.opengamma.util.PublicAPI;
  * as at a specific version and correction instant.
  * See {@link ConfigHistoryRequest} for more details on how history works.
  */
-@PublicAPI
+@PublicSPI
 @BeanDefinition
 public class ConfigSearchRequest extends AbstractSearchRequest {
 

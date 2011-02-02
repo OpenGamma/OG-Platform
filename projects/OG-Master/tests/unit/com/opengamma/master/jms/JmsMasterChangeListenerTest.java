@@ -152,11 +152,11 @@ public class JmsMasterChangeListenerTest {
     
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<Identifier> added = _configMaster.add(doc);
-    UniqueIdentifier uid = added.getUniqueId();
-    assertNotNull(uid);
+    UniqueIdentifier uniqueId = added.getUniqueId();
+    assertNotNull(uniqueId);
     
-    _configMaster.remove(uid);
-    UniqueIdentifier removedItem = uid;    
+    _configMaster.remove(uniqueId);
+    UniqueIdentifier removedItem = uniqueId;    
     _testListener.waitForRemovedItem(WAIT_TIMEOUT);
     assertEquals(removedItem, _testListener.getRemovedItem());
   }

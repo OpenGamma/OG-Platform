@@ -17,9 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.junit.Test;
 
 import com.opengamma.core.position.PositionSource;
@@ -40,6 +37,7 @@ import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
@@ -217,17 +215,16 @@ public class ViewProcessorManagerTest {
 
   private static class MockVersionedSource implements VersionedSource {
 
-    private final LinkedBlockingQueue<Instant> _versionAsOf = new LinkedBlockingQueue<Instant>();
+    private final LinkedBlockingQueue<VersionCorrection> _versionCorrections = new LinkedBlockingQueue<VersionCorrection>();
 
     @Override
-    public void setVersionAsOfInstant(InstantProvider versionAsOf) {
-      _versionAsOf.add(Instant.of(versionAsOf));
+    public void setVersionCorrection(VersionCorrection versionCorrection) {
+      _versionCorrections.add(versionCorrection);
     }
 
-    public Instant getVersionAsOf() throws InterruptedException {
-      return _versionAsOf.poll(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
+    public VersionCorrection getVersionCorrection() throws InterruptedException {
+      return _versionCorrections.poll(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
     }
-
   }
 
   @Test
@@ -245,15 +242,15 @@ public class ViewProcessorManagerTest {
     assertTrue(vp.isRunning());
     Long initialId = vp.getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     assertNotNull(initialId);
-    Instant initialVersion = source.getVersionAsOf();
+    VersionCorrection initialVersion = source.getVersionCorrection();
     // Notify it of a change to the master
     Thread.sleep(10);
     master.notifyListenerUnwatchedIdentifier();
     assertNull(vp.isSuspended(Timeout.standardTimeoutMillis()));
     master.notifyListenerWatchedIdentifier();
     assertTrue(vp.isSuspended(Timeout.standardTimeoutMillis()));
-    Instant newVersion = source.getVersionAsOf();
-    assertTrue(newVersion.isAfter(initialVersion));
+    VersionCorrection newVersion = source.getVersionCorrection();
+    assertTrue(newVersion.getVersionAsOf().isAfter(initialVersion.getVersionAsOf()));
     Long newId = 0L;
     for (int i = 0; i < 10; i++) {
       Thread.sleep(Timeout.standardTimeoutMillis() / 10);

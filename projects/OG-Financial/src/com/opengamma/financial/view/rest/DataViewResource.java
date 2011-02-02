@@ -6,7 +6,11 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,10 +20,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.client.ViewClient;
@@ -36,9 +43,11 @@ import com.opengamma.util.ArgumentChecker;
 public class DataViewResource {
 
   private final View _view;
+  private final JmsTemplate _jmsTemplate;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final String _jmsTopicPrefix;
   private final FudgeContext _fudgeContext;
+  private final ExecutorService _executorService;
   
   //CSOFF: just constants
   public static final String PATH_NAME = "name";
@@ -61,16 +70,21 @@ public class DataViewResource {
    * Creates the resource.
    * 
    * @param view  the underlying view
+   * @param jmsTemplate  the JMS template
    * @param jmsMessageSenderService  the JMS message sender service
    * @param jmsTopicPrefix  a JMS topic prefix
    * @param fudgeContext  the Fudge context
+   * @param executorService  the executor service
    */
-  public DataViewResource(View view, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext) {
+  public DataViewResource(View view, JmsTemplate jmsTemplate, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext,
+      ExecutorService executorService) {
     ArgumentChecker.notNull(view, "view");
     _view = view;
+    _jmsTemplate = jmsTemplate;
     _jmsMessageSenderService = jmsMessageSenderService;
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;
+    _executorService = executorService;
   }
   
   //-------------------------------------------------------------------------
@@ -88,9 +102,33 @@ public class DataViewResource {
   
   @POST
   @Path(PATH_INIT)
-  public Response init() {
-    _view.init();
-    return Response.ok().build();
+  public Response init(final String replyTo) {
+    _executorService.submit(new Runnable() {
+
+      @Override
+      public void run() {
+        boolean initialized = false;
+        try {
+          _view.init();
+          initialized = true;
+        } finally {
+          final boolean initValue = initialized;
+          _jmsTemplate.send(replyTo, new MessageCreator() {
+
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+              Message message = session.createMessage();
+              message.setBooleanProperty("init", initValue);
+              return message;
+            }
+            
+          });
+        }
+      }
+      
+    });
+    
+    return Response.status(Status.ACCEPTED).build();
   }
   
   @GET

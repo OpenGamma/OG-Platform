@@ -18,8 +18,8 @@ import org.junit.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -47,8 +47,8 @@ public class InMemorySecurityMasterTest {
 
   @Before
   public void setUp() {
-    testEmpty = new InMemorySecurityMaster(new UniqueIdentifierSupplier("Test"));
-    testPopulated = new InMemorySecurityMaster(new UniqueIdentifierSupplier("Test"));
+    testEmpty = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
+    testPopulated = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
     doc1 = new SecurityDocument();
     doc1.setSecurity(SEC1);
     doc1 = testPopulated.add(doc1);
@@ -74,7 +74,7 @@ public class InMemorySecurityMasterTest {
 
   @Test
   public void test_alternateSupplier() {
-    InMemorySecurityMaster master = new InMemorySecurityMaster(new UniqueIdentifierSupplier("Hello"));
+    InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Hello"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);

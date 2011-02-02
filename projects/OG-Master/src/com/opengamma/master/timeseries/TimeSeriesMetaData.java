@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.util.PublicSPI;
 
 /**
  * The meta-data for time-series.
@@ -25,6 +26,7 @@ import com.opengamma.id.IdentifierBundle;
  * Each time-series has a set of meta-data describing what the series represents.
  * This class stores that meta-data.
  */
+@PublicSPI
 @BeanDefinition
 public class TimeSeriesMetaData extends DirectBean {
 

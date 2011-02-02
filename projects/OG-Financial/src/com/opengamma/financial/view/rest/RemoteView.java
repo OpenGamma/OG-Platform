@@ -8,10 +8,17 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.Set;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.TemporaryTopic;
 import javax.ws.rs.core.UriBuilder;
 
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.SessionCallback;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
@@ -57,8 +64,39 @@ public class RemoteView implements View {
   
   @Override
   public void init() {
-    URI uri = getUri(_baseUri, DataViewResource.PATH_INIT);
-    _client.access(uri).post();
+    // NOTE jonathan 2011-01-31 -- using a RESTful call to kick off an asynchronous response via JMS since initialising
+    // a view can be very slow. Ideally the status code would be used to indicate whether the view has already been
+    // initialised, but this is not supported by the View interface and init() is being removed in any case.
+    
+    _jmsTemplate.execute(new SessionCallback<Object>() {
+
+      @Override
+      public Object doInJms(Session session) throws JMSException {
+        TemporaryTopic replyTo = null;
+        try {
+          replyTo = session.createTemporaryTopic();
+          MessageConsumer consumer = session.createConsumer(replyTo);
+          
+          // Make the RESTful call, indicating the reply topic
+          URI uri = getUri(_baseUri, DataViewResource.PATH_INIT);
+          _client.access(uri).post(replyTo.getTopicName());
+          
+          Message result = consumer.receive(_jmsTemplate.getReceiveTimeout());
+          consumer.close();
+          
+          if (result != null && result.getBooleanProperty("init")) {
+            return null;
+          } else {
+            throw new OpenGammaRuntimeException("Failed to initialize remote view");
+          }
+        } finally {
+          if (replyTo != null) {
+            replyTo.delete();
+          }
+        }
+      }
+      
+    }, true);
   }
   
   @Override

@@ -7,7 +7,6 @@ package com.opengamma.financial.portfolio.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -18,9 +17,8 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.financial.portfolio.rest.DataPortfolioResource;
-import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -46,9 +44,9 @@ public class DataPortfolioResourceTest {
   public void testGetPortfolio() {
     final ManageablePortfolio portfolio = new ManageablePortfolio("Portfolio");
     final PortfolioDocument result = new PortfolioDocument(portfolio);
-    when(_underlying.get(eq(UID))).thenReturn(result);
+    when(_underlying.get(UID, VersionCorrection.LATEST)).thenReturn(result);
     
-    Response test = _resource.get();
+    Response test = _resource.get(null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }

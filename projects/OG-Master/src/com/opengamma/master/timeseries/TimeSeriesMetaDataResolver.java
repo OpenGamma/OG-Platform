@@ -6,6 +6,7 @@
 package com.opengamma.master.timeseries;
 
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Resolves a security to the appropriate time-series meta-data.
@@ -13,6 +14,7 @@ import com.opengamma.id.IdentifierBundle;
  * Meta data includes data source, data provider, data field and observation time.
  * The meta-data can be used to lookup the time-series itself.
  */
+@PublicSPI
 public interface TimeSeriesMetaDataResolver {
 
   /**

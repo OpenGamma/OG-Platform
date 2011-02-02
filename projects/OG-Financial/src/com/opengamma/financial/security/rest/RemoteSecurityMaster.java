@@ -9,6 +9,8 @@ import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.S
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SEARCH;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
+import java.util.Collections;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -18,8 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -107,6 +111,25 @@ public class RemoteSecurityMaster implements SecurityMaster {
     if (message == null) {
       s_logger.debug("get-recv NULL");
       throw new DataNotFoundException("Security with identifier " + uid);
+    }
+    s_logger.debug("get-recv {}", message);
+    return getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, message);
+  }
+
+  @Override
+  public SecurityDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    final RestTarget target = _targetSecurity.resolve(objectId.getObjectId().toString());
+    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
+      target.resolveQuery("versionAsOf", Collections.singletonList(versionCorrection.getVersionAsOf().toString()));
+    }
+    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
+      target.resolveQuery("correctedTo", Collections.singletonList(versionCorrection.getCorrectedTo().toString()));
+    }
+    s_logger.debug("get-get to {}", target);
+    final FudgeFieldContainer message = getRestClient().getMsg(target);
+    if (message == null) {
+      s_logger.debug("get-recv NULL");
+      throw new DataNotFoundException("Security with identifier " + objectId);
     }
     s_logger.debug("get-recv {}", message);
     return getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, message);
