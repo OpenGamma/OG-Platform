@@ -116,7 +116,7 @@ public class ViewTest {
     // The test graph doesn't refer to functions which expire, so there should have been no re-build of the graphs
     assertSame (originalModel, view.getViewEvaluationModel ());
     // Trick the view into thinking it needs to rebuild after time0 + 20
-    final ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio()) {
+    final ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio(), 0) {
       @Override
       public boolean isValidFor (final long timestamp) {
         return (timestamp <= time0 + 20);

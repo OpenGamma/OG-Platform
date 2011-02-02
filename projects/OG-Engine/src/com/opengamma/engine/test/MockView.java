@@ -14,6 +14,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
@@ -131,11 +132,11 @@ public class MockView implements ViewInternal {
   }
 
   @Override
-  public void runOneCycle(long valuationTime) {
+  public void runOneCycle(long valuationTime, LiveDataSnapshotProvider snapshotProvider, ComputationResultListener listener) {
   }
 
   @Override
-  public SingleComputationCycle createCycle(long valuationTime) {
+  public SingleComputationCycle createCycle() {
     throw new UnsupportedOperationException();
   }
 
@@ -224,4 +225,9 @@ public class MockView implements ViewInternal {
   public void resume() {
   }
 
+  @Override
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
+    return null;
+  }
+  
 }

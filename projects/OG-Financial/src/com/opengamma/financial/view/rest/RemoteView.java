@@ -112,16 +112,6 @@ public class RemoteView implements View {
   }
   
   @Override
-  public void runOneCycle() {
-    // TODO: implement
-  }
-  
-  @Override
-  public void runOneCycle(long valuationTime) {
-    // TODO: implement
-  }
-  
-  @Override
   public boolean isLiveComputationRunning() {
     URI uri = getUri(_baseUri, DataViewResource.PATH_LIVE_COMPUTATION_RUNNING);
     return _client.access(uri).accept(FudgeRest.MEDIA_TYPE).get(Boolean.class);

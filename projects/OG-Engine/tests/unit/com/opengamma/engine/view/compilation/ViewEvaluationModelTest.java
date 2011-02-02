@@ -174,7 +174,7 @@ public class ViewEvaluationModelTest {
     for (DependencyGraph graph : graphs) {
       map.put(graph.getCalcConfName(), graph);
     }
-    return new ViewEvaluationModel(map, null);
+    return new ViewEvaluationModel(map, null, 0);
   }
 
   @Test

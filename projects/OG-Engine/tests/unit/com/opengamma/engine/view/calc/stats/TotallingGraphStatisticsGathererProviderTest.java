@@ -78,14 +78,6 @@ public class TotallingGraphStatisticsGathererProviderTest {
     }
 
     @Override
-    public void runOneCycle() {
-    }
-
-    @Override
-    public void runOneCycle(long valuationTime) {
-    }
-
-    @Override
     public ViewClient createClient(UserPrincipal credentials) {
       return null;
     }
