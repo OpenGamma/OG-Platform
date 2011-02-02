@@ -173,7 +173,11 @@ public class CancelExecutionTest {
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalcConfName(), graph);
     view.setViewEvaluationModel(new ViewEvaluationModel(graphs, new PortfolioImpl("Test Portfolio"), 0));
-    final SingleComputationCycle cycle = new SingleComputationCycle(view, liveData, 1L);
+    final SingleComputationCycle cycle = new SingleComputationCycle(
+        view, 
+        view.getViewEvaluationModel(), 
+        liveData, 
+        1L);
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

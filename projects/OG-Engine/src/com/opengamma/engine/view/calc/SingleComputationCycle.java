@@ -103,13 +103,15 @@ public class SingleComputationCycle {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(ViewInternal view,
+      ViewEvaluationModel viewEvaluationModel,
       LiveDataSnapshotProvider snapshotProvider,
       long valuationTime) {
     ArgumentChecker.notNull(view, "view");
+    ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
     ArgumentChecker.notNull(snapshotProvider, "snapshotProvider");
 
     _view = view;
-    _viewEvaluationModel = view.getViewEvaluationModel(); // save the CURRENT evaluation model - this could change on the view itself
+    _viewEvaluationModel = viewEvaluationModel;
     _snapshotProvider = snapshotProvider;
     
     _valuationTime = Instant.ofEpochMillis(valuationTime);

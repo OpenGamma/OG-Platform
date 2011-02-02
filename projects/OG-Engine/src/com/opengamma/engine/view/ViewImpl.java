@@ -495,7 +495,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       recompile = true;
     }
     
-    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel(); // by default, use the current view evaluation model 
     if (recompile) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
       
@@ -506,7 +506,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime));
       
       // if this is a BATCH (historical, one-off) cycle, we do not want to update the 
-      // live data subscriptions or the evaluation model. If we updated them, they would need
+      // live data subscriptions or the evaluation model on the view. If we updated them, they would need
       // to be reset again on the next live cycle
       if (liveCycle) {
         setViewEvaluationModel(viewEvaluationModel);
@@ -515,7 +515,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       
       timer.finished();
     }
-    SingleComputationCycle cycle = new SingleComputationCycle(this, snapshotProvider, valuationTime);
+    SingleComputationCycle cycle = new SingleComputationCycle(this, viewEvaluationModel, snapshotProvider, valuationTime);
     return cycle;
   }
 
