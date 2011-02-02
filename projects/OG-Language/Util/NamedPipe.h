@@ -15,7 +15,9 @@
 class CNamedPipe : public CTimeoutIO {
 private:
 	TCHAR *m_pszName;
-	CNamedPipe (FILE_REFERENCE pipe, const TCHAR *pszName);
+	bool m_bServer;
+	bool m_bReader;
+	CNamedPipe (FILE_REFERENCE pipe, const TCHAR *pszName, bool bServer, bool bReader);
 public:
 	~CNamedPipe ();
 	static CNamedPipe *ClientRead (const TCHAR *pszName);
@@ -24,6 +26,10 @@ public:
 	static CNamedPipe *ServerWrite (const TCHAR *pszName);
 	const TCHAR *GetName () { return m_pszName; }
 	CNamedPipe *Accept (unsigned long timeout);
+	bool IsServer () { return m_bServer; }
+	bool IsClient () { return !m_bServer; }
+	bool IsReader () { return m_bReader; }
+	bool IsWriter () { return !m_bReader; }
 };
 
 #endif /* ifndef __inc_og_language_util_namedpipe_h */

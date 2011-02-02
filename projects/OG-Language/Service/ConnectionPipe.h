@@ -20,6 +20,7 @@ public:
 	~CConnectionPipe ();
 	static CConnectionPipe *Create (const TCHAR *pszSuffix = NULL);
 	PJAVACLIENT_CONNECT ReadMessage ();
+	const TCHAR *GetName () { return m_poPipe->GetName (); }
 	bool Close () { return m_poPipe->Close (); }
 	bool LazyClose (unsigned long dwTimeout = 0);
 	bool CancelLazyClose () { return m_poPipe->CancelLazyClose (); }

@@ -17,9 +17,20 @@ private:
 #else
 #define FILE_REFERENCE	int
 #endif
-	FILE_REFERENCE m_pipe;
+	FILE_REFERENCE m_file;
+	volatile unsigned long m_lLazyTimeout;
+	volatile bool m_bClosed;
+protected:
+#ifdef _WIN32
+	OVERLAPPED *GetOverlapped () { return &m_overlapped; }
+	bool WaitOnOverlapped (unsigned long timeout);
+#endif
+	virtual bool CancelIO ();
+	FILE_REFERENCE GetFile () { return m_file; }
+	void SetFile (FILE_REFERENCE file) { m_file = file; }
+	unsigned long IsLazyClosing () { return m_lLazyTimeout; }
 public:
-	CTimeoutIO (FILE_REFERENCE pipe);
+	CTimeoutIO (FILE_REFERENCE file);
 	virtual ~CTimeoutIO ();
 	size_t Read (void *pBuffer, size_t cbBuffer, unsigned long timeout);
 	size_t Write (const void *pBuffer, size_t cbBuffer, unsigned long timeout);
@@ -27,7 +38,7 @@ public:
 	bool Close ();
 	bool LazyClose (unsigned long timeout);
 	bool CancelLazyClose ();
-	bool IsClosed ();
+	bool IsClosed () { return m_bClosed; }
 };
 
 #endif /* ifndef __inc_og_language_util_timeoutio_h */

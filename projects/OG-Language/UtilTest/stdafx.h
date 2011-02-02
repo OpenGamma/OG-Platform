@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #endif
+#include <assert.h>
 
 #include <Util/AbstractTest.h>
 

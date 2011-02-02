@@ -20,4 +20,14 @@ inline bool PosixLastError(int result) {
 	return false;
 }
 
+#ifdef __cplusplus_cli
+#pragma unmanaged
+static int NativeGetLastError () {
+	return GetLastError ();
+}
+#pragma managed
+#else /* ifdef __cplusplus_cli */
+#define NativeGetLastError GetLastError
+#endif /* ifdef __cplusplus_cli */
+
 #endif /* ifndef __inc_og_language_util_error_h */

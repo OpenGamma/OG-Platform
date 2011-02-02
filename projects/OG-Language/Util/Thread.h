@@ -101,7 +101,7 @@ public:
 		case WAIT_OBJECT_0 :
 			return true;
 		case WAIT_TIMEOUT :
-			SetLastError (WAIT_TIMEOUT);
+			SetLastError (ERROR_TIMEOUT);
 			return false;
 		default :
 			return false;
@@ -119,6 +119,11 @@ public:
 			return true;
 		}
 #endif
+	}
+	static bool WaitAndRelease (CThread *pThread, unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
+		bool result = pThread->Wait (timeout);
+		Release (pThread);
+		return result;
 	}
 };
 

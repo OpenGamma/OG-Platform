@@ -10,7 +10,7 @@
 // Public interface for Service component
 
 #define SERVICE_SETTINGS_CONNECTION_PIPE	TEXT ("connectionPipe")
-#define SERVICE_DEFAULT_CONNECTION_PIPE		TEXT ("\\\\.\\pipe\\OpenGamma-ExcelPlugin-Connection")
+#define SERVICE_DEFAULT_CONNECTION_PIPE		TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Connection")
 #define SERVICE_SETTINGS_SERVICE_NAME		TEXT ("serviceName")
 #define SERVICE_DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
 

@@ -51,14 +51,12 @@ public:
 			}
 		}
 	}
-	CWritingThread (void *pData, size_t cbData, int *pnWritten) {
+	CWritingThread (void *pData, size_t cbData, int *pnWritten, const TCHAR *pszPipeName) {
 		m_pData = pData;
 		m_cbData = cbData;
 		m_pnWritten = pnWritten;
 		CSettings settings;
-		size_t len = _tcslen (settings.GetConnectionPipe ()) + 5;
-		m_pszPipeName = new TCHAR[len];
-		StringCbPrintf (m_pszPipeName, len * sizeof (TCHAR), TEXT ("%sTEST"), settings.GetConnectionPipe ());
+		m_pszPipeName = _tcsdup (pszPipeName);
 		m_poPipe = NULL;
 		ASSERT (Start ());
 	}
@@ -109,9 +107,15 @@ public:
 	}
 };
 
-static void CreateDestroy () {
+static CConnectionPipe *_CreateTestPipe () {
+	// TODO: use the current user's name
 	CConnectionPipe *po = CConnectionPipe::Create (TEXT ("TEST"));
 	ASSERT (po);
+	return po;
+}
+
+static void CreateDestroy () {
+	CConnectionPipe *po = _CreateTestPipe ();
 	delete po;
 }
 

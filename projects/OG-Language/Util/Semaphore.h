@@ -79,7 +79,7 @@ public:
 		case WAIT_OBJECT_0 :
 			return true;
 		case WAIT_TIMEOUT :
-			SetLastError (WAIT_TIMEOUT);
+			SetLastError (ERROR_TIMEOUT);
 			return false;
 		default :
 			return false;
