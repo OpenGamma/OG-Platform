@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.UtilFunctions;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -28,7 +29,8 @@ public class BasisFunctionGenerator {
   public List<Function1D<Double, Double>> generateSet(double xa, double xb, int nKnots, final int degree) {
 
     int n = nKnots + 2 * degree;
-    List<Function1D<Double, Double>> functions = new ArrayList<Function1D<Double, Double>>(n);
+    int nSplines = nKnots + degree - 1;
+    List<Function1D<Double, Double>> functions = new ArrayList<Function1D<Double, Double>>(nSplines);
     double[] knots = new double[n];
     double dx = (xb - xa) / (nKnots - 1);
 
@@ -43,9 +45,50 @@ public class BasisFunctionGenerator {
     }
     knots[nKnots + degree - 1] = xb;
 
-    int nSplines = nKnots + degree - 1;
     for (int i = 0; i < nSplines; i++) {
       functions.add(generate(knots, degree, i));
+    }
+    return functions;
+  }
+
+  public List<Function1D<double[], Double>> generateSet(double[] xa, double[] xb, int[] nKnots, final int[] degree) {
+
+    int dim = xa.length;
+    Validate.isTrue(dim == xb.length, "xb wrong dimension");
+    Validate.isTrue(dim == nKnots.length, "nKnots wrong dimension");
+    Validate.isTrue(dim == degree.length, "degree wrong dimension");
+
+    int[] n = new int[dim];
+    int[] nSplines = new int[dim];
+    double[][] knots = new double[dim][];
+
+    double[] dx = new double[dim];
+    int product = 1;
+    for (int k = 0; k < dim; k++) {
+      int p = nKnots[k] + 2 * degree[k];
+      n[k] = p;
+      knots[k] = new double[p];
+      nSplines[k] = nKnots[k] + degree[k] - 1;
+      product *= nSplines[k];
+      dx[k] = (xb[k] - xa[k]) / (nKnots[k] - 1);
+
+      // knots to the left and right of the range
+      for (int i = 0; i < degree[k]; i++) {
+        knots[k][i] = (i - degree[k]) * dx[k] + xa[k];
+        knots[k][degree[k] + nKnots[k] + i] = xb[k] + dx[k] * (i + 1);
+      }
+      // knots in the main range
+      for (int i = 0; i < nKnots[k] - 1; i++) {
+        knots[k][i + degree[k]] = xa[k] + i * dx[k];
+      }
+      knots[k][nKnots[k] + degree[k] - 1] = xb[k];
+    }
+
+    List<Function1D<double[], Double>> functions = new ArrayList<Function1D<double[], Double>>(product);
+
+    for (int i = 0; i < product; i++) {
+      int[] indicies = UtilFunctions.fromTenorIndex(i, nSplines);
+      functions.add(generate(knots, degree, indicies));
     }
     return functions;
   }
@@ -98,6 +141,30 @@ public class BasisFunctionGenerator {
     knots[nKnots - 1] = xb;
 
     return generate(knots, degree, j);
+  }
+
+  public Function1D<double[], Double> generate(final double[][] knots, final int[] degree, final int[] index) {
+    Validate.notNull(knots, "knots are null");
+    final int dim = knots.length;
+    Validate.isTrue(dim == degree.length, "degree wrong dimension");
+    Validate.isTrue(dim == index.length, "index wrong dimension");
+    final List<Function1D<Double, Double>> funcs = new ArrayList<Function1D<Double, Double>>(dim);
+    for (int i = 0; i < dim; i++) {
+      funcs.add(generate(knots[i], degree[i], index[i]));
+    }
+    return new Function1D<double[], Double>() {
+
+      @Override
+      public Double evaluate(double[] x) {
+        double product = 1.0;
+        Validate.isTrue(dim == x.length);
+        for (int i = 0; i < dim; i++) {
+          product *= funcs.get(i).evaluate(x[i]);
+        }
+        return product;
+      }
+    };
+
   }
 
   public Function1D<Double, Double> generate(final double[] knots, final int degree, final int j) {

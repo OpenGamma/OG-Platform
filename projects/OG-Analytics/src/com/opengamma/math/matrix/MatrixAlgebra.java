@@ -73,6 +73,34 @@ public abstract class MatrixAlgebra {
     return multiply(m1, getInverse(m2));
   }
 
+  public Matrix<?> kroneckerProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
+      final double[][] a = ((DoubleMatrix2D) m1).getData();
+      final double[][] b = ((DoubleMatrix2D) m2).getData();
+      int aRows = a.length;
+      int aCols = a[0].length;
+      int bRows = b.length;
+      int bCols = b[0].length;
+      int rRows = aRows * bRows;
+      int rCols = aCols * bCols;
+      double[][] res = new double[rRows][rCols];
+      for (int i = 0; i < aRows; i++) {
+        for (int j = 0; j < aCols; j++) {
+          double t = a[i][j];
+          if (t != 0.0) {
+            for (int k = 0; k < bRows; k++) {
+              for (int l = 0; l < bCols; l++) {
+                res[i * bRows + k][j * bCols + l] = t * b[k][l];
+              }
+            }
+          }
+        }
+      }
+      return new DoubleMatrix2D(res);
+    }
+    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D. Have " + m1.getClass() + " and " + m2.getClass());
+  }
+
   public abstract Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2);
 
   /**

@@ -16,3 +16,4 @@ tests/output/
 /MANIFEST.MF
 .clover/
 .DS_Store
+build.number
