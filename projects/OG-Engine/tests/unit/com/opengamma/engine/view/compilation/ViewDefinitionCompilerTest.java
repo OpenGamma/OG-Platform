@@ -73,6 +73,7 @@ public class ViewDefinitionCompilerTest {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    functionCompilationContext.setFunctionInitId(123);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
 
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
@@ -119,6 +120,7 @@ public class ViewDefinitionCompilerTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     functionRepo.addFunction(fn1);
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
 
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
@@ -179,6 +181,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(fn1);
     functionRepo.addFunction(fn2);
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    functionCompilationContext.setFunctionInitId(123);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
@@ -222,6 +225,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(f1);
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    compilationContext.setFunctionInitId(123);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -261,6 +265,7 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(f2);
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    compilationContext.setFunctionInitId(123);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext));
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
         .createCacheManager());

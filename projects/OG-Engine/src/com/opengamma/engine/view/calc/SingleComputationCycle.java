@@ -37,6 +37,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
@@ -216,7 +217,35 @@ public class SingleComputationCycle {
   }
 
   // --------------------------------------------------------------------------
+  
+  public void execute() {
+    prepareInputs();
+    try {
+      executePlans();
+    } catch (InterruptedException e) {
+      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+    }
+    releaseResources();
+  }
+  
+  public ViewComputationResultModel executeWithResult() {
+    prepareInputs();
+    try {
+      executePlans();
+    } catch (InterruptedException e) {
+      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+      releaseResources();
+      return null;
+    }
 
+    populateResultModel();
+    releaseResources();
+    
+    return getResultModel();
+  }
+  
+  // --------------------------------------------------------------------------
+  
   public void prepareInputs() {
     if (_state != State.CREATED) {
       throw new IllegalStateException("State must be " + State.CREATED);
@@ -456,7 +485,7 @@ public class SingleComputationCycle {
       dumpComputationCachesToDisk();
     }
 
-    getSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
+    getSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong()); // BUG - what if 2 cycles use the same snapshot provider with the same valuation time?
     getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime().toEpochMillisLong());
 
     _state = State.CLEANED;

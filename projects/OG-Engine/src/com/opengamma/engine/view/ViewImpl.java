@@ -7,7 +7,6 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -379,25 +378,13 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   @Override
   public void runOneCycle() {
-    SingleComputationCycle cycle;
-    lock();
-    try {
-      assertInitialized();
-      long valuationTime = System.currentTimeMillis();
-      cycle = createCycleImpl(valuationTime, getLiveDataSnapshotProvider(), true);
-    } finally {
-      unlock();
-    }
-
-    runOneCycleImpl(cycle, _resultListeners);
+    long valuationTime = System.currentTimeMillis();
+    runOneCycle(valuationTime);
   }
   
-  /**
-   * This method is useful in tests
-   *  
-   * @param valuationTime valuation time
-   */
+  @Override
   public void runOneCycle(long valuationTime) {
+    // Caller MUST NOT hold the semaphore
     SingleComputationCycle cycle;
     lock();
     try {
@@ -407,7 +394,8 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       unlock();
     }
     
-    runOneCycleImpl(cycle, _resultListeners);
+    ViewComputationResultModel result = cycle.executeWithResult();
+    recalculationPerformed(result);
   }
 
   @Override
@@ -422,34 +410,14 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       unlock();
     }
     
-    Set<ComputationResultListener> resultListeners = 
-      listener == null 
-        ? Collections.<ComputationResultListener>emptySet() 
-        : Collections.singleton(listener);
-    
-    runOneCycleImpl(cycle, resultListeners);
+    if (listener == null) {
+      cycle.execute();      
+    } else {
+      ViewComputationResultModel result = cycle.executeWithResult();
+      listener.computationResultAvailable(result);
+    }
   }
   
-  private void runOneCycleImpl(SingleComputationCycle cycle, Set<ComputationResultListener> resultListeners) {
-    cycle.prepareInputs();
-    try {
-      cycle.executePlans();
-    } catch (InterruptedException e) {
-      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
-      cycle.releaseResources();
-      return;
-    }
-
-    if (!resultListeners.isEmpty()) {
-      cycle.populateResultModel();
-      for (ComputationResultListener resultListener : resultListeners) {
-        resultListener.computationResultAvailable(cycle.getResultModel());
-      }
-    }
-    
-    cycle.releaseResources();
-  }
-
   @Override
   public LiveDataInjector getLiveDataOverrideInjector() {
     return getProcessingContext().getLiveDataOverrideInjector();

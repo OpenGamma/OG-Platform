@@ -130,6 +130,10 @@ public class MockView implements ViewInternal {
   @Override
   public void runOneCycle() {
   }
+  
+  @Override
+  public void runOneCycle(long valuationTime) {
+  }
 
   @Override
   public void runOneCycle(long valuationTime, LiveDataSnapshotProvider snapshotProvider, ComputationResultListener listener) {

@@ -89,7 +89,8 @@ public interface ViewInternal extends View {
   /**
    * Synchronously runs a single computation cycle using live data.
    * Valuation time is the current time. The result
-   * will be sent to the live listeners.
+   * is sent to the live listeners and {@link #getLatestResult} 
+   * is updated.
    * <p>
    * This is used in unit tests, to simulate a single
    * live calculation having been computed.
@@ -99,12 +100,29 @@ public interface ViewInternal extends View {
   void runOneCycle();
   
   /**
-   * Synchronously runs a single computation cycle.
+   * Synchronously runs a single computation cycle using live data.
+   * The result is sent to the live listeners and {@link #getLatestResult} 
+   * is updated.
    * <p>
-   * This is used when the view is in batch mode.
+   * This is used in unit tests, to simulate a single
+   * live calculation having been computed.
    * 
-   * @param valuationTime  the time of an existing snapshot of live data, which should be used during the computation
-   *                       cycle
+   * @param valuationTime valuation time, millis from epoch
+   * @throws IllegalStateException  if the view has not been initialized
+   */
+  void runOneCycle(long valuationTime);
+  
+  /**
+   * Synchronously runs a single computation cycle.
+   * The result is not sent to the live listeners and {@link #getLatestResult} 
+   * is not updated.
+   * <p>
+   * This is used to run batch calculations. The view can 
+   * be running in live mode at the same time or it can be stopped.
+   * In the former case, the view is a mixed live/batch view; 
+   * in the latter case, the view is a stand-alone batch view.
+   * 
+   * @param valuationTime valuation time, millis from epoch
    * @param snapshotProvider market data to use in the computation cycle
    * @param listener where the result of the computation cycle should be sent.
    * The result is NOT sent to the regular (live) listeners. Can be null, 
