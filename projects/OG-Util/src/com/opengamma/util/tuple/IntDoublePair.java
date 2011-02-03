@@ -18,9 +18,9 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
 
   /** The first element. */
-  public final int first;  // CSIGNORE
+  public final int first; // CSIGNORE
   /** The second element. */
-  public final double second;  // CSIGNORE
+  public final double second; // CSIGNORE
 
   /**
    * Creates a pair from the specified values.

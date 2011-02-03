@@ -169,13 +169,13 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   @Override
   public String toString() {
     return new StringBuilder()
-      .append("Triple[")
-      .append(getFirst())
-      .append(", ")
-      .append(getSecond())
-      .append(", ")
-      .append(getThird())
-      .append("]").toString();
+        .append("Triple[")
+        .append(getFirst())
+        .append(", ")
+        .append(getSecond())
+        .append(", ")
+        .append(getThird())
+        .append("]").toString();
   }
 
 }

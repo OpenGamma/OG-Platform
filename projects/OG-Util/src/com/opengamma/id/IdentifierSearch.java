@@ -283,11 +283,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("Search")
-      .append("[")
-      .appendWithSeparators(_identifiers, ", ")
-      .append("]")
-      .toString();
+        .append("Search")
+        .append("[")
+        .appendWithSeparators(_identifiers, ", ")
+        .append("]")
+        .toString();
   }
 
   //-------------------------------------------------------------------------

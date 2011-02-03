@@ -166,7 +166,7 @@ public class DbDateUtils {
     LocalTime time = LocalTime.of(timeProvider);
     return new Time(time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
   }
-  
+
   /**
    * Creates a SQL timestamp from a {@code TimeProvider}.
    * <p>
@@ -193,7 +193,7 @@ public class DbDateUtils {
     ArgumentChecker.notNull(time, "time");
     return LocalTime.of(time.getHours(), time.getMinutes(), time.getSeconds());
   }
-  
+
   /**
    * Creates a {@code LocalTime} from an SQL timestamp.
    * <p>

@@ -22,9 +22,9 @@ import org.apache.tools.ant.types.FileList.FileName;
  * Configures UI Resources.
  */
 public class UiResourceConfigTask extends Task {
- 
+
   private static final String DEFAULT_VERSION = "1.0";
-  
+
   /**
    * Version number.
    */
@@ -37,7 +37,7 @@ public class UiResourceConfigTask extends Task {
    * Directory for output files.
    */
   private File _dir;
-  
+
   private Map<String, Bundle> _bundlesMap = new HashMap<String, Bundle>();
   private Map<com.opengamma.util.web.File, List<String>> _filesMap = new HashMap<com.opengamma.util.web.File, List<String>>();
 

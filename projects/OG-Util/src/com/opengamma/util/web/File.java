@@ -59,7 +59,7 @@ public class File {
   public void setBundle(List<String> bundle) {
     _bundle = bundle;
   }
-  
+
   /**
    * Gets the suffix field.
    * @return the suffix
