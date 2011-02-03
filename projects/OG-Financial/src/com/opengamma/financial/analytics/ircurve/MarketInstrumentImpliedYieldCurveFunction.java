@@ -135,7 +135,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
-  private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
+  private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
     this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
@@ -187,9 +187,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
     _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).get());
     _forwardCurveResult = new ValueSpecification(_forwardCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
-    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties().with(PROPERTY_FUNDING_CURVE_VALUE_NAME,
-        _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(
-        PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
+    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties()
+        .with(PROPERTY_FUNDING_CURVE_VALUE_NAME, _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)
+        .with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 

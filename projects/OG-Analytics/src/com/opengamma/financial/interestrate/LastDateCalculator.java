@@ -28,7 +28,15 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 /**
  * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
  */
-public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+public final class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+  private static final LastDateCalculator CALCULATOR = new LastDateCalculator();
+
+  public static LastDateCalculator getInstance() {
+    return CALCULATOR;
+  }
+
+  private LastDateCalculator() {
+  }
 
   @Override
   public Double visit(final InterestRateDerivative ird, final Object data) {
@@ -99,22 +107,22 @@ public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Ob
   }
 
   @Override
-  public Double visitFixedCouponAnnuity(FixedCouponAnnuity annuity) {
+  public Double visitFixedCouponAnnuity(final FixedCouponAnnuity annuity) {
     return visitGenericAnnuity(annuity);
   }
 
   @Override
-  public Double visitFixedCouponPayment(FixedCouponPayment payment) {
+  public Double visitFixedCouponPayment(final FixedCouponPayment payment) {
     return visitFixedPayment(payment);
   }
 
   @Override
-  public Double visitForwardLiborAnnuity(ForwardLiborAnnuity annuity) {
+  public Double visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity) {
     return visitGenericAnnuity(annuity);
   }
 
   @Override
-  public Double visitFixedFloatSwap(FixedFloatSwap swap) {
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap) {
     return visitSwap(swap);
   }
 }
