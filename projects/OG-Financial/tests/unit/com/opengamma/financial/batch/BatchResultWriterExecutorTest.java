@@ -27,7 +27,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 public class BatchResultWriterExecutorTest {
   
   @Test
-  public void basicOperation() {
+  public void basicOperation() throws Exception {
     
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
     CalculationJobResult result = new CalculationJobResult(spec, 
@@ -46,6 +46,7 @@ public class BatchResultWriterExecutorTest {
     
     Future<Object> future = executor.execute(graph, null);
     assertNotNull(future);
+    future.get();
     
     verify(writer).getGraphToExecute(graph);
     verify(writer).write(result, graph);

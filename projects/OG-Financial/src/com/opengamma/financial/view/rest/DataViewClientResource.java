@@ -43,6 +43,8 @@ public class DataViewClientResource {
   public static final String PATH_SHUTDOWN = "shutdown";
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
   
+  public static final String PATH_RUN_ONE_CYCLE = "runOneCycle";
+  
   public static final String PATH_START_JMS_RESULT_STREAM = "startJmsResultStream";
   public static final String PATH_STOP_JMS_RESULT_STREAM = "endJmsResultStream";
   public static final String PATH_START_JMS_DELTA_STREAM = "startJmsDeltaStream";
@@ -142,6 +144,15 @@ public class DataViewClientResource {
     return Response.ok().build();
   }
   
+  @POST
+  @Path(PATH_RUN_ONE_CYCLE)
+  public Response runOneCycle(long valuationTime) {
+    FudgeSerializationContext context = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
+    return Response.ok(new FudgeMsgEnvelope(msg)).build();
+  }
+
   @POST
   @Path(PATH_START_JMS_RESULT_STREAM)
   public Response startResultStream() {

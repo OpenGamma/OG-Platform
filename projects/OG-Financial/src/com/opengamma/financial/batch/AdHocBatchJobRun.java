@@ -83,15 +83,18 @@ public class AdHocBatchJobRun extends BatchJobRun {
   }
   
   // --------------------------------------------------------------------------
+  
+  public void saveResult(BatchDbManager dbManager) {
+    
+    
+  }
+  
+  // --------------------------------------------------------------------------
+  
 
   @Override
   public String getRunReason() {
     return "Ad hoc run";
-  }
-
-  @Override
-  public LocalDate getSnapshotObservationDate() {
-    return null;
   }
 
   @Override

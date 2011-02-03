@@ -65,6 +65,24 @@ public class WebRegionResource extends AbstractWebRegionResource {
     return getFreemarker().build("regions/region.ftl", out);
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    RegionSearchRequest search = new RegionSearchRequest();
+    search.setPagingRequest(PagingRequest.ALL);  // may need to add paging
+    search.setChildrenOfId(data().getRegion().getUniqueId());
+    RegionSearchResult children = data().getRegionMaster().search(search);
+    data().setRegionChildren(children.getDocuments());
+
+    for (UniqueIdentifier parentId : data().getRegion().getRegion().getParentRegionIds()) {
+      RegionDocument parent = data().getRegionMaster().get(parentId);
+      data().getRegionParents().add(parent);
+    }
+
+    FlexiBean out = createRootData();
+    return getFreemarker().build("regions/jsonregion.ftl", out);
+  }
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
