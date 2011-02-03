@@ -245,7 +245,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
 
   // --------------------------------------------------------------------------
   
-  public InMemoryLKVSnapshotProvider getSnapshotProvider() {
+  public InMemoryLKVSnapshotProvider createSnapshotProvider() {
     InMemoryLKVSnapshotProvider provider;
     if (getJob().getHistoricalDataProvider() != null) {
       provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchDbManager(), getJob().getHistoricalDataProvider());
@@ -276,8 +276,6 @@ public class CommandLineBatchJobRun extends BatchJobRun {
       provider.addValue(valueRequirement, value.getValue());
     }
 
-    provider.snapshot(getValuationTime().toEpochMillisLong());
-    
     return provider;
   }
 
@@ -300,8 +298,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
 
   public void createView() {
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
-    InMemoryLKVSnapshotProvider snapshotProvider = getSnapshotProvider();
-    
+    InMemoryLKVSnapshotProvider snapshotProvider = createSnapshotProvider();
+
     VersionCorrection vc = VersionCorrection.of(getStaticDataTime(), getOriginalCreationTime());
     SecuritySource securitySource = getJob().getSecuritySource();
     if (securitySource == null) {
@@ -340,7 +338,6 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         new DiscardingGraphStatisticsGathererProvider());
 
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
-    view.setPopulateResultModel(false);
     view.init(getValuationTime());
     setView(view);
   }
