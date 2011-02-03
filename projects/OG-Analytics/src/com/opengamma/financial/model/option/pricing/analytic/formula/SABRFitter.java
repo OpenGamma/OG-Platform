@@ -17,6 +17,7 @@ import com.opengamma.math.minimization.BrentMinimizer1D;
 import com.opengamma.math.minimization.ConjugateDirectionVectorMinimizer;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.ScalarMinimizer;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.TransformParameters;
@@ -41,17 +42,13 @@ public class SABRFitter {
 
   static {
     TRANSFORMS = new ParameterLimitsTransform[4];
-    TRANSFORMS[0] = new SingleRangeLimitTransform(0, true); // alpha > 0
+    TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // alpha > 0
     TRANSFORMS[1] = new DoubleRangeLimitTransform(0, 2.0); // 0 <= beta <= 2
-    TRANSFORMS[2] = new SingleRangeLimitTransform(0, true); // nu > 0
+    TRANSFORMS[2] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // nu > 0
     TRANSFORMS[3] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
-    // TRANSFORMS[0] = new NullTransform();
-    // TRANSFORMS[1] = new NullTransform();
-    // TRANSFORMS[2] = new NullTransform();
-    // TRANSFORMS[3] = new DoubleRangeLimitTransform(-1, 1); // -1 <= rho <= 1
   }
 
-  public SABRFitter(SABRFormula formula) {
+  public SABRFitter(final SABRFormula formula) {
     _formula = formula;
   }
 
@@ -65,17 +62,16 @@ public class SABRFitter {
       fixed.set(0, true);
     }
 
-    int n = strikes.length;
+    final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
     Validate.isTrue(n == errors.length, "errors and vols must be same length");
 
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
-      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double strike, DoubleMatrix1D fp) {
-        DoubleMatrix1D mp = transforms.inverseTransform(fp);
+      public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
+        final DoubleMatrix1D mp = transforms.inverseTransform(fp);
         double alpha = mp.getEntry(0);
         final double beta = mp.getEntry(1);
         final double nu = mp.getEntry(2);
@@ -87,9 +83,9 @@ public class SABRFitter {
       }
     };
 
-    DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
-    LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
+    final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
+    final LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
     if (recoverATMVol) {
       final double beta = mp.getEntry(1);
       final double nu = mp.getEntry(2);
@@ -110,9 +106,10 @@ public class SABRFitter {
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
     final Function1D<DoubleMatrix1D, Double> function = new Function1D<DoubleMatrix1D, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(DoubleMatrix1D fp) {
-        DoubleMatrix1D mp = transforms.inverseTransform(fp);
+      public Double evaluate(final DoubleMatrix1D fp) {
+        final DoubleMatrix1D mp = transforms.inverseTransform(fp);
         final double alpha = mp.getEntry(0);
         final double beta = mp.getEntry(1);
         final double nu = mp.getEntry(2);
@@ -123,45 +120,38 @@ public class SABRFitter {
         }
 
         return chiSqr;
-        // final double beta1 = 1 - beta;
-        // final double f1 = Math.pow(forward, beta1);
-        // double x = (beta1 * beta1 * alpha * alpha / 24 / f1 / f1 + rho * alpha * beta * nu / 4 / f1 + nu * nu * (2 - 3 * rho * rho) / 24);
-        // x = Math.max(0, -x);
-        // double lambda = 1000.0;
-        // return chiSqr + lambda * x * x;
       }
     };
-    ScalarMinimizer lineMinimizer = new BrentMinimizer1D();
-    VectorMinimizer minimzer = new ConjugateDirectionVectorMinimizer(lineMinimizer, 1e-6, 10000);
-    DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
-    DoubleMatrix1D minPos = minimzer.minimize(function, fp);
-    double chiSquare = function.evaluate(minPos);
-    DoubleMatrix1D res = transforms.inverseTransform(minPos);
+    final ScalarMinimizer lineMinimizer = new BrentMinimizer1D();
+    final VectorMinimizer minimzer = new ConjugateDirectionVectorMinimizer(lineMinimizer, 1e-6, 10000);
+    final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
+    final DoubleMatrix1D minPos = minimzer.minimize(function, fp);
+    final double chiSquare = function.evaluate(minPos);
+    final DoubleMatrix1D res = transforms.inverseTransform(minPos);
     return new LeastSquareResults(chiSquare, res, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
 
   }
 
   private final class SABRATMVolSolver {
-    @SuppressWarnings("hiding")
-    private final SABRFormula _formula;
+    private final SABRFormula _sabrFormula;
     private final BracketRoot _bracketer = new BracketRoot();
     private final RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
 
-    private SABRATMVolSolver(SABRFormula formula) {
-      _formula = formula;
+    private SABRATMVolSolver(final SABRFormula formula) {
+      _sabrFormula = formula;
     }
 
     double solve(final double forward, final double maturity, final double atmVol, final double beta, final double nu, final double rho) {
 
-      Function1D<Double, Double> f = new Function1D<Double, Double>() {
+      final Function1D<Double, Double> f = new Function1D<Double, Double>() {
         @SuppressWarnings("synthetic-access")
         @Override
-        public Double evaluate(Double alpha) {
-          return _formula.impliedVolatility(forward, alpha, beta, nu, rho, forward, maturity) - atmVol;
+        public Double evaluate(final Double alpha) {
+          return _sabrFormula.impliedVolatility(forward, alpha, beta, nu, rho, forward, maturity) - atmVol;
         }
       };
 
-      double alphaTry = atmVol * Math.pow(forward, 1 - beta);
+      final double alphaTry = atmVol * Math.pow(forward, 1 - beta);
       final double[] range = _bracketer.getBracketedPoints(f, alphaTry / 2.0, 2 * alphaTry);
       return _rootFinder.getRoot(f, range[0], range[1]);
     }

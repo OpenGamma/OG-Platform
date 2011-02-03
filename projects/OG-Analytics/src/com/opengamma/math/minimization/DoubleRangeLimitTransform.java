@@ -7,8 +7,8 @@ package com.opengamma.math.minimization;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.FunctionUtils;
+import com.opengamma.math.TrigonometricFunctionUtils;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   private final double _mid;
 
   /**
-   * * If a model parameter,<i>x</i>, is constrained to be between limited <i>lower</i> and   <i>upper</i> then this will transform it to an unconstrained variable <i>y</i> using a
+   * * If a model parameter,<i>x</i>, is constrained to be between limited <i>lower</i> and <i>upper</i> then this will transform it to an unconstrained variable <i>y</i> using a
    * tanh function
    * @param lower Limit
    * @param upper Limit
@@ -36,7 +36,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double inverseTrasfrom(double y) {
+  public double inverseTransform(final double y) {
     if (y > TANH_MAX) {
       return _upper;
     } else if (y < -TANH_MAX) {
@@ -46,7 +46,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double transform(double x) {
+  public double transform(final double x) {
     Validate.isTrue(x <= _upper && x >= _lower, "parameter out of range");
     if (x == _upper) {
       return TANH_MAX;
@@ -57,7 +57,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double inverseTrasfromGradient(double y) {
+  public double inverseTransformGradient(final double y) {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
@@ -65,9 +65,9 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double transformGrdient(double x) {
-    Validate.isTrue(x <= _upper && x >= _lower, "paramter out of range");
-    double t = (x - _mid) / _scale;
+  public double transformGradient(final double x) {
+    Validate.isTrue(x <= _upper && x >= _lower, "parameter out of range");
+    final double t = (x - _mid) / _scale;
     return 1 / (_scale * (1 - t * t));
   }
 
