@@ -84,9 +84,16 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private final Set<ViewClient> _liveComputationClients = new HashSet<ViewClient>();
 
-  private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
-  private ViewEvaluationModel _viewEvaluationModel;
-  private long _functionInitId;
+  private volatile ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
+  
+  /**
+   * Latest live mode dependency graphs.
+   * It's basically an optimization so the dep graphs
+   * don't need to be rebuilt every cycle. 
+   * Batch run dep graphs are not saved in this variable.  
+   */
+  private volatile ViewEvaluationModel _viewEvaluationModel;
+  
   private volatile ViewRecalculationJob _recalcJob;
   private volatile Thread _recalcThread;
 
@@ -95,7 +102,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
-  private volatile boolean _populateResultModel = true;
 
   /**
    * Constructs an instance.
@@ -155,7 +161,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
       final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
-      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
 
       timer.finished();
@@ -200,7 +205,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       removeLiveDataSubscriptions();
       final ViewCompilationServices viewCompilation = getProcessingContext().asCompilationServices();
       setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), viewCompilation, initializationInstant));
-      _functionInitId = viewCompilation.getFunctionCompilationContext().getFunctionInitId();
       addLiveDataSubscriptions();
 
       if (calculationState == ViewCalculationState.RUNNING) {
@@ -374,47 +378,46 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   @Override
   public void runOneCycle() {
-    // Caller MUST NOT hold the semaphore
-    lock();
-    try {
-      assertInitialized();
-      long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-      runOneCycleImpl(snapshotTime);
-    } finally {
-      unlock();
-    }
+    long valuationTime = System.currentTimeMillis();
+    runOneCycle(valuationTime);
   }
-
-  private void runOneCycleImpl(long valuationTime) {
-    // Caller MUST hold the semaphore
-    SingleComputationCycle cycle = createCycleImpl(valuationTime);
-    cycle.prepareInputs();
-    try {
-      cycle.executePlans();
-    } catch (InterruptedException e) {
-      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
-      cycle.releaseResources();
-      return;
-    }
-    if (isPopulateResultModel()) {
-      cycle.populateResultModel();
-      recalculationPerformedImpl(cycle.getResultModel());
-    }
-    cycle.releaseResources();
-  }
-
+  
   @Override
   public void runOneCycle(long valuationTime) {
     // Caller MUST NOT hold the semaphore
+    SingleComputationCycle cycle;
     lock();
     try {
       assertInitialized();
-      runOneCycleImpl(valuationTime);
+      cycle = createCycleImpl(valuationTime, getLiveDataSnapshotProvider(), true);
     } finally {
       unlock();
     }
+    
+    ViewComputationResultModel result = cycle.executeWithResult();
+    recalculationPerformed(result);
   }
 
+  @Override
+  public void runOneCycle(long valuationTime, LiveDataSnapshotProvider snapshotProvider, ComputationResultListener listener) {
+    // Caller MUST NOT hold the semaphore
+    SingleComputationCycle cycle;
+    lock();
+    try {
+      assertInitialized();
+      cycle = createCycleImpl(valuationTime, snapshotProvider, false);
+    } finally {
+      unlock();
+    }
+    
+    if (listener == null) {
+      cycle.execute();      
+    } else {
+      ViewComputationResultModel result = cycle.executeWithResult();
+      listener.computationResultAvailable(result);
+    }
+  }
+  
   @Override
   public LiveDataInjector getLiveDataOverrideInjector() {
     return getProcessingContext().getLiveDataOverrideInjector();
@@ -477,11 +480,11 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     }
   }
 
-  private SingleComputationCycle createCycleImpl(final long valuationTime) {
+  private SingleComputationCycle createCycleImpl(final long valuationTime, LiveDataSnapshotProvider snapshotProvider, boolean liveCycle) {
     // Caller MUST hold the semaphore
     boolean recompile = false;
     long functionInitId = getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    if (functionInitId == _functionInitId) {
+    if (functionInitId == getViewEvaluationModel().getFunctionInitId()) {
       if (getViewEvaluationModel().isValidFor(valuationTime)) {
         s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
         recompile = false;
@@ -489,29 +492,41 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
         recompile = true;
       }
     } else {
-      _functionInitId = functionInitId;
       recompile = true;
     }
+    
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel(); // by default, use the current view evaluation model 
     if (recompile) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
+      
       // TODO for "expired" also read "re-initialized"
       // [ENG-253] Incremental compilation - could remove nodes from the dep graph that require "expired" functions and then rebuild to fill in the gaps
       // [ENG-253] Incremental compilation - could at least only rebuild the dep graphs that have "expired" and reuse the others
       final Set<ValueRequirement> previousRequirement = getRequiredLiveData();
-      setViewEvaluationModel(ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime)));
-      updateLiveDataSubscriptions(previousRequirement);
+      viewEvaluationModel = ViewDefinitionCompiler.compile(getDefinition(), getProcessingContext().asCompilationServices(), Instant.ofEpochMillis(valuationTime));
+      
+      // if this is a BATCH (historical, one-off) cycle, we do not want to update the 
+      // live data subscriptions or the evaluation model on the view. If we updated them, they would need
+      // to be reset again on the next live cycle
+      if (liveCycle) {
+        setViewEvaluationModel(viewEvaluationModel);
+        updateLiveDataSubscriptions(previousRequirement);
+      }
+      
       timer.finished();
     }
-    SingleComputationCycle cycle = new SingleComputationCycle(this, valuationTime);
+    SingleComputationCycle cycle = new SingleComputationCycle(this, viewEvaluationModel, snapshotProvider, valuationTime);
     return cycle;
   }
 
   @Override
-  public SingleComputationCycle createCycle(long valuationTime) {
+  public SingleComputationCycle createCycle() {
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      return createCycleImpl(valuationTime);
+      long valuationTime = System.currentTimeMillis();
+      SingleComputationCycle cycle = createCycleImpl(valuationTime, getLiveDataSnapshotProvider(), true);
+      return cycle;
     } finally {
       unlock();
     }
@@ -593,7 +608,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    * Part of initialization. Adds live data subscriptions to the view.
    */
   private void addLiveDataSubscriptions() {
-    final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    final LiveDataSnapshotProvider snapshotProvider = getLiveDataSnapshotProvider();
     snapshotProvider.addListener(this);
     addLiveDataSubscriptions(getRequiredLiveData());
   }
@@ -601,7 +616,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   /**
    * Part of shutdown. Removes live data subscriptions for the view.
    */
-  // final LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+  // final LiveDataSnapshotProvider snapshotProvider = getLiveDataSnapshotProvider();
   private void removeLiveDataSubscriptions() {
     // [ENG-251] TODO snapshotProvider.removeListener(this);
     removeLiveDataSubscriptions(getRequiredLiveData());
@@ -628,13 +643,13 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
   private void addLiveDataSubscriptions(final Set<ValueRequirement> requiredLiveData) {
     // Caller MAY hold the semaphore
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", requiredLiveData.size(), getDefinition().getPortfolioId());
-    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
+    getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
     timer.finished();
   }
 
   private void removeLiveDataSubscriptions(final Set<ValueRequirement> requiredLiveData) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} live data subscriptions for portfolio {}", requiredLiveData.size(), getDefinition().getPortfolioId());
-    // [ENG-251] TODO getProcessingContext().getLiveDataSnapshotProvider().removeSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
+    // [ENG-251] TODO getLiveDataSnapshotProvider().removeSubscription(getDefinition().getLiveDataUser(), requiredLiveData);
     timer.finished();
   }
 
@@ -658,19 +673,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     if (recalcJob != null && liveDataRequirements.containsKey(valueSpecification)) {
       recalcJob.liveDataChanged();
     }
-  }
-
-  // -------------------------------------------------------------------------
-
-  // TODO jonathan 2010-09-11 -- populateResultModel doesn't feel right. Seems like it should be an optional argument
-  // to runOneCycle.
-
-  public boolean isPopulateResultModel() {
-    return _populateResultModel;
-  }
-
-  public void setPopulateResultModel(boolean populateResultModel) {
-    _populateResultModel = populateResultModel;
   }
 
   // -------------------------------------------------------------------------
@@ -726,6 +728,16 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
    */
   private void setRecalcThread(Thread recalcThread) {
     _recalcThread = recalcThread;
+  }
+  
+  /**
+   * Gets the live data snapshot provider used for all live mode calculations.
+   * 
+   * @return the live data snapshot provider, not null
+   */
+  @Override
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
+    return getProcessingContext().getLiveDataSnapshotProvider();
   }
 
   // -------------------------------------------------------------------------

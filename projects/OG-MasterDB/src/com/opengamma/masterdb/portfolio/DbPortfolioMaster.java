@@ -386,7 +386,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       "WHERE base.portfolio_id = main.id " +
         "AND (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
         "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) " +
-        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right ";
+        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right " +
+      sqlAdditionalWhere() +
+      sqlAdditionalOrderBy(true);
   }
 
   /**
@@ -401,7 +403,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addValue("node_id", extractRowId(uniqueId));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PortfolioDocument> docs = namedJdbc.query(sqlSelectNodeById(), args, extractor);
+    String sql = sqlSelectNodeById();
+    System.out.println(sql);
+    final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
@@ -420,7 +424,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       FROM +
       ", (SELECT portfolio_id, tree_left, tree_right FROM prt_node WHERE id = :node_id) base " +
       "WHERE base.portfolio_id = main.id " +
-        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right ";
+        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right " +
+      sqlAdditionalWhere() +
+      sqlAdditionalOrderBy(true);
   }
 
   //-------------------------------------------------------------------------
