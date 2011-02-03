@@ -55,7 +55,7 @@ public class FixedCouponPayment extends FixedPayment {
 
   @Override
   public String toString() {
-    return "FixedCouponPayment[" + _coupon + ", notional = " + _notional + ", t = " + _yearFraction + "]";
+    return "FixedCouponPayment[t = " + getPaymentTime() + ", " + _coupon + ", notional = " + _notional + ", t = " + _yearFraction + "]";
   }
 
   @Override

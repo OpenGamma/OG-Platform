@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.schedule;
+package com.opengamma.financial.schedule;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.time.DateUtil;
 
 /**

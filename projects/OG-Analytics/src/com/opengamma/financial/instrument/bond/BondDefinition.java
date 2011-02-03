@@ -29,7 +29,7 @@ import com.opengamma.util.CompareUtils;
 public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondDefinition.class);
   private final LocalDate[] _nominalDates;
-  private final LocalDate[] _settlementDates;// TODO settlement dates to be calculated in this class?
+  private final LocalDate[] _settlementDates; // TODO settlement dates to be calculated in this class?
   private final double[] _coupons;
   private final double _notional;
   private final double _couponsPerYear;
