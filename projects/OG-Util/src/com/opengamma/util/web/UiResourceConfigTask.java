@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.web;
@@ -19,46 +19,49 @@ import org.apache.tools.ant.types.FileList;
 import org.apache.tools.ant.types.FileList.FileName;
 
 /**
- * Configures UI Resources
+ * Configures UI Resources.
  */
 public class UiResourceConfigTask extends Task {
  
   private static final String DEFAULT_VERSION = "1.0";
   
   /**
-   * Version number
+   * Version number.
    */
   private String _version = DEFAULT_VERSION;
   /**
-   * UiResourceConfig XML file
+   * UiResourceConfig XML file.
    */
   private File _xmlFile;
   /**
-   * Directory for output files
+   * Directory for output files.
    */
   private File _dir;
   
   private Map<String, Bundle> _bundlesMap = new HashMap<String, Bundle>();
   private Map<com.opengamma.util.web.File, List<String>> _filesMap = new HashMap<com.opengamma.util.web.File, List<String>>();
-  
+
   /**
    * Gets the xml file field.
+   * 
    * @return the file
    */
   public File getXmlFile() {
     return _xmlFile;
   }
-  
+
   /**
    * Sets the file field.
+   * 
    * @param file  the file
    */
   public void setXmlFile(File file) {
     _xmlFile = file;
   }
-  
+
   /**
    * Gets the dir field.
+   * 
    * @return the dir
    */
   public File getDir() {
@@ -67,14 +70,16 @@ public class UiResourceConfigTask extends Task {
 
   /**
    * Sets the dir field.
+   * 
    * @param dir  the dir
    */
   public void setDir(File dir) {
     _dir = dir;
   }
- 
+
   /**
    * Gets the version field.
+   * 
    * @return the version
    */
   public String getVersion() {
@@ -83,12 +88,14 @@ public class UiResourceConfigTask extends Task {
 
   /**
    * Sets the version field.
+   * 
    * @param version  the version
    */
   public void setVersion(String version) {
     _version = version;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void execute() throws BuildException {
     if (_xmlFile == null || !_xmlFile.exists()) {
@@ -104,7 +111,6 @@ public class UiResourceConfigTask extends Task {
     concatFiles();
   }
 
-  
   private void concatFiles() {
     for (Entry<com.opengamma.util.web.File, List<String>> entry : _filesMap.entrySet()) {
       com.opengamma.util.web.File file = entry.getKey();
@@ -170,5 +176,5 @@ public class UiResourceConfigTask extends Task {
       }
     }
   }
-  
+
 }

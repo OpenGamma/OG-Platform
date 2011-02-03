@@ -76,7 +76,7 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
    * @param cls  the class required, not null
    * @return the builder, not null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private <T> FudgeBuilder<T> createBeanBuilder(final Class<T> cls) {
     FudgeBuilder<T> builder = (FudgeBuilder<T>) _builders.get(cls);
     if (builder == null) {

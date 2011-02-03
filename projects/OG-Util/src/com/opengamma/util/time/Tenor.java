@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 /**
  * A tenor.
  */
-public class Tenor implements Comparable<Tenor>{
+public class Tenor implements Comparable<Tenor> {
 
   /**
    * An overnight tenor.
