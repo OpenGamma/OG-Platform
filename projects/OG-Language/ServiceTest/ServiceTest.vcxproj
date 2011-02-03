@@ -12,6 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{022BF8D3-128F-4C26-B5A0-20C6620B3649}</ProjectGuid>
+    <ProjectTypes>{3AC096D0-A1C2-E12C-1390-A8335801FDAB}</ProjectTypes>
     <RootNamespace>ServiceTest</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -62,6 +63,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;log4cxx.lib;Util.lib;Service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -79,8 +83,13 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;log4cxx.lib;Util.lib;Service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DllVersionInfo.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ServiceTest.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

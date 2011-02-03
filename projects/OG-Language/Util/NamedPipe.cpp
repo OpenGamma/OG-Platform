@@ -99,7 +99,8 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bRea
 		sa.bInheritHandle = FALSE;
 		handle = CreateNamedPipe (pszName, (bReader ? PIPE_ACCESS_INBOUND : PIPE_ACCESS_OUTBOUND) | FILE_FLAG_OVERLAPPED, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, PIPE_UNLIMITED_INSTANCES, 0, 0, 0, &sa);
 	} else {
-		handle = CreateFile (pszName, bReader ? GENERIC_READ : GENERIC_WRITE, /* bReader ? FILE_SHARE_READ : FILE_SHARE_WRITE */, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+		// TODO: share or exclusive? We want a 1:1 on the pipe we've connected to - the server will open another for new clients
+		handle = CreateFile (pszName, bReader ? GENERIC_READ : GENERIC_WRITE, 0/* bReader ? FILE_SHARE_READ : FILE_SHARE_WRITE */, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	}
 	if (handle == INVALID_HANDLE_VALUE) {
 		DWORD dwError = GetLastError ();

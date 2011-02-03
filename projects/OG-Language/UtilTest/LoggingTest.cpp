@@ -32,11 +32,11 @@ static void DefaultInitialisation () {
 	LoggingInit (&settings);
 }
 
-#define IGNORE // Comment out this line to run these tests, they can screw up the logging subsystem
+#define IGNORE_TEST // Comment out this line to run these tests, they will propbably screw up the logging subsystem, so you don't want to run them as part of a batch
 
-#ifndef IGNORE
+#ifndef IGNORE_TEST
 BEGIN_TESTS (LoggingTest)
 	TEST (InitialisationFromPath)
 	TEST (DefaultInitialisation)
 END_TESTS
-#endif /* ifdef IGNORE */
+#endif /* ifdef IGNORE_TEST */

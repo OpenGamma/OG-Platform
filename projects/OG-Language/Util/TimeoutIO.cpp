@@ -75,6 +75,7 @@ waitOnSignal:
 			} else {
 				timeout = IsLazyClosing ();
 				LOGDEBUG (TEXT ("Event signalled without I/O completion, using idle timeout of ") << timeout << TEXT ("ms"));
+				ResetEvent (m_overlapped.hEvent);
 				bLazyWait = true;
 				goto waitOnSignal;
 			}

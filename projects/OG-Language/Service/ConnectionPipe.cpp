@@ -47,7 +47,7 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 	do {
 		LOGDEBUG (TEXT ("Waiting for client connection"));
 		CNamedPipe *poClient = m_poPipe->Accept (0xFFFFFFFF);
-		if (poClient) {
+		if (!poClient) {
 			if (m_poPipe->IsClosed ()) {
 				LOGINFO (TEXT ("Pipe closed"));
 			} else {

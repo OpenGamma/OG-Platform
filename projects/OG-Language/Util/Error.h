@@ -9,9 +9,7 @@
 
 // Rrror reporting/handling
 
-#ifndef _WIN32
 #include <errno.h>
-#endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
 #define GetLastError() errno

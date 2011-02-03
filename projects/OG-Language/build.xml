@@ -120,7 +120,7 @@
 		<subant target="compile" buildpath="${basedir}/Connector" />
 
 		<!-- C++ tests -->
-		<subant target="tests" buildpath="${basedir}/UtilTest" />
+<!--		<subant target="tests" buildpath="${basedir}/UtilTest" />--> <!-- DON'T CHECK IN -->
 		<subant target="tests" buildpath="${basedir}/ServiceTest" />
 		<subant target="tests" buildpath="${basedir}/ConnectorTest" />
 

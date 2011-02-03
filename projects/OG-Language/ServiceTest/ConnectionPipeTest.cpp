@@ -13,99 +13,8 @@
 
 LOGGING (com.opengamma.language.service.ConnectionPipeTest);
 
-#define TIMEOUT_ABORT	3000
-#define TIMEOUT_RETRY	(TIMEOUT_ABORT / 30)
-#define TIMEOUT_CLOSE	(TIMEOUT_ABORT / 3)
-// These timeouts shouldn't be hit, so are longer than the longest (ABORT) expected
-#define TIMEOUT_WRITE	(TIMEOUT_ABORT * 2)
-#define TIMEOUT_READ	(TIMEOUT_ABORT * 2)
-#define TIMEOUT_JOIN	(TIMEOUT_ABORT * 2)
-
-class CWritingThread : public CThread {
-private:
-	CMutex m_oMutex;
-	TCHAR *m_pszPipeName;
-	void *m_pData;
-	size_t m_cbData;
-	int *m_pnWritten;
-	CNamedPipe *m_poPipe;
-public:
-	void Run () {
-		m_oMutex.Enter ();
-		while (m_pszPipeName) {
-			m_poPipe = CNamedPipe::ClientWrite (m_pszPipeName);
-			if (m_poPipe) {
-				delete m_pszPipeName;
-				m_pszPipeName = NULL;
-			} else {
-				m_oMutex.Leave ();
-				CThread::Sleep (TIMEOUT_RETRY);
-				m_oMutex.Enter ();
-			}
-		}
-		CNamedPipe *poPipe = m_poPipe;
-		m_oMutex.Leave ();
-		if (poPipe) {
-			if (poPipe->Write (m_pData, m_cbData, TIMEOUT_WRITE)) {
-				(*m_pnWritten)++;
-			}
-		}
-	}
-	CWritingThread (void *pData, size_t cbData, int *pnWritten, const TCHAR *pszPipeName) {
-		m_pData = pData;
-		m_cbData = cbData;
-		m_pnWritten = pnWritten;
-		CSettings settings;
-		m_pszPipeName = _tcsdup (pszPipeName);
-		m_poPipe = NULL;
-		ASSERT (Start ());
-	}
-	void Stop () {
-		m_oMutex.Enter ();
-		CNamedPipe *poPipe;
-		if (m_poPipe) {
-			LOGDEBUG (TEXT ("Invalidating client connection"));
-			poPipe = m_poPipe;
-			m_poPipe = NULL;
-		} else if (m_pszPipeName) {
-			LOGDEBUG (TEXT ("Client never connected"));
-			delete m_pszPipeName;
-			m_pszPipeName = NULL;
-		}
-		m_oMutex.Leave ();
-		LOGDEBUG (TEXT ("Joining client writing thread"));
-		ASSERT (Wait (TIMEOUT_JOIN));
-		LOGDEBUG (TEXT ("Client writing thread closed"));
-		if (poPipe) {
-			delete poPipe;
-		}
-		Release (this);
-	}
-};
-
-class CAbortingThread : public CThread {
-private:
-	CConnectionPipe *m_poPipe;
-	CSemaphore m_oSemaphore;
-public:
-	void Run () {
-		if (m_oSemaphore.Wait (TIMEOUT_ABORT)) {
-			m_poPipe->Close ();
-		}
-	}
-public:
-	CAbortingThread (CConnectionPipe *poPipe) {
-		m_poPipe = poPipe;
-		ASSERT (Start ());
-	}
-	void Stop () {
-		LOGDEBUG (TEXT ("Signalling abort thread"));
-		m_oSemaphore.Signal ();
-		LOGDEBUG (TEXT ("Waiting for abort thread"));
-		Wait (TIMEOUT_JOIN);
-		LOGDEBUG (TEXT ("Abort thread closed"));
-	}
-};
+#define TIMEOUT			500
+#define TIMEOUT_JOIN	(TIMEOUT * 4)
 
 static CConnectionPipe *_CreateTestPipe () {
 	// TODO: use the current user's name as a test suffix
@@ -114,37 +23,105 @@ static CConnectionPipe *_CreateTestPipe () {
 	return po;
 }
 
-static void CreateDestroy () {
-	CConnectionPipe *po = _CreateTestPipe ();
-	delete po;
+#define TEST_USERNAME		"Username"
+#define TEST_CPP2JAVA		"\\\\.\\pipe\\Foo"
+#define TEST_JAVA2CPP		"\\\\.\\pipe\\Bar"
+#define __L(str)			L##str
+#define _L(str)				__L(str)
+
+class CServerThread : public CThread {
+private:
+	CConnectionPipe *m_poPipe;
+	bool m_bOk;
+public:
+	CServerThread (CConnectionPipe *poPipe) {
+		m_poPipe = poPipe;
+		m_bOk = false;
+		ASSERT (Start ());
+	}
+	void Run () {
+		PJAVACLIENT_CONNECT pjcc = m_poPipe->ReadMessage ();
+		if (pjcc) {
+			LOGDEBUG (TEXT ("UserName=") << JavaClientGetUserName (pjcc));
+			LOGDEBUG (TEXT ("CPP2Java=") << JavaClientGetCPPToJavaPipe (pjcc));
+			LOGDEBUG (TEXT ("Java2CPP=") << JavaClientGetJavaToCPPPipe (pjcc));
+			ASSERT (!_tcscmp (JavaClientGetUserName (pjcc), TEXT (TEST_USERNAME)));
+			ASSERT (!_tcscmp (JavaClientGetCPPToJavaPipe (pjcc), TEXT (TEST_CPP2JAVA)));
+			ASSERT (!_tcscmp (JavaClientGetJavaToCPPPipe (pjcc), TEXT (TEST_JAVA2CPP)));
+			free (pjcc);
+			m_bOk = true;
+		}
+	}
+	bool IsOk () {
+		return m_bOk;
+	}
+};
+
+class CClientThread : public CThread {
+private:
+	const TCHAR *m_pszPipeName;
+	bool m_bUnicode;
+public:
+	CClientThread (const TCHAR *pszPipeName, bool bUnicode) {
+		m_pszPipeName = pszPipeName;
+		m_bUnicode = bUnicode;
+		ASSERT (Start ());
+	}
+	void Run () {
+		int nAttempt = 0;
+		CNamedPipe *poPipe;
+		do {
+			if (nAttempt) {
+				Sleep (TIMEOUT / 10);
+			}
+			poPipe = CNamedPipe::ClientWrite (m_pszPipeName);
+		} while (!poPipe && (GetLastError () == ENOENT) && (++nAttempt < 10));
+		if (poPipe) {
+			LOGDEBUG (TEXT ("Client connected"));
+			PJAVACLIENT_CONNECT pjcc;
+			if (m_bUnicode) {
+				pjcc = JavaClientCreateW (_L (TEST_USERNAME), _L (TEST_CPP2JAVA), _L (TEST_JAVA2CPP));
+			} else {
+				pjcc = JavaClientCreateA (TEST_USERNAME, TEST_CPP2JAVA, TEST_JAVA2CPP);
+			}
+			ASSERT (pjcc);
+			ASSERT (poPipe->Write (pjcc, pjcc->cbSize, TIMEOUT) == pjcc->cbSize);
+			delete poPipe;
+		} else {
+			LOGWARN (TEXT ("Couldn't open client pipe, error ") << GetLastError ());
+		}
+	}
+};
+
+static void NormalOperation () {
+	CConnectionPipe *poPipe = _CreateTestPipe ();
+	CServerThread *poServer = new CServerThread (poPipe);
+	CClientThread *poClient = new CClientThread (poPipe->GetName (), sizeof (TCHAR) == sizeof (wchar_t));
+	ASSERT (poServer->Wait (TIMEOUT_JOIN));
+	ASSERT (poClient->Wait (TIMEOUT_JOIN));
+	ASSERT (poServer->IsOk ());
+	CThread::Release (poServer);
+	CThread::Release (poClient);
+	delete poPipe;
 }
 
 static void UnicodeMismatch () {
-	TODO (__FUNCTION__);
+	CConnectionPipe *poPipe = _CreateTestPipe ();
+	// Use LazyClose to set a timeout
+	poPipe->LazyClose (TIMEOUT);
+	CServerThread *poServer = new CServerThread (poPipe);
+	CClientThread *poClient = new CClientThread (poPipe->GetName (), sizeof (TCHAR) != sizeof (wchar_t));
+	ASSERT (poServer->Wait (TIMEOUT_JOIN));
+	ASSERT (poClient->Wait (TIMEOUT_JOIN));
+	ASSERT (!poServer->IsOk ());
+	CThread::Release (poServer);
+	CThread::Release (poClient);
+	delete poPipe;
 }
 
-static void ConnectionTimeout () {
-	TODO (__FUNCTION__);
-}
-
-static void LazyCloseBeforeRead () {
-	TODO (__FUNCTION__);
-}
-
-static void LazyCloseDuringRead () {
-	TODO (__FUNCTION__);
-}
-
-static void LazyCloseWithWriter () {
-	// The writer will complete, we therefore cancel the lazy, and so another read will be terminated by the abort thread, not the lazy close timeout
-	TODO (__FUNCTION__);
-}
+// Note: The lazy cancellation behaviour and timeouts are built on Util components already tested
 
 BEGIN_TESTS (ConnectionPipeTest)
-	TEST (CreateDestroy)
+	TEST (NormalOperation)
 	TEST (UnicodeMismatch)
-	TEST (ConnectionTimeout)
-	TEST (LazyCloseBeforeRead)
-	TEST (LazyCloseDuringRead)
-	TEST (LazyCloseWithWriter)
 END_TESTS
