@@ -8,13 +8,14 @@ package com.opengamma.math.statistics.leastsquare;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.lang.Validate;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister64;
 
-import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
@@ -27,7 +28,6 @@ import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.math.minimization.BrentMinimizer1D;
 import com.opengamma.math.minimization.ConjugateGradientVectorMinimizer;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 public class NonLinearLeastSquareTest {
@@ -41,7 +41,7 @@ public class NonLinearLeastSquareTest {
   private static final DoubleMatrix1D SIGMA;
   private static final NonLinearLeastSquare LS;
 
-  private static final Function1D<Double, Double> TARRGET = new Function1D<Double, Double>() {
+  private static final Function1D<Double, Double> TARGET = new Function1D<Double, Double>() {
 
     @Override
     public Double evaluate(final Double x) {
@@ -53,10 +53,10 @@ public class NonLinearLeastSquareTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D a) {
-      ArgumentChecker.isTrue(a.getNumberOfElements() == 4, "four parameters");
-      int n = X.getNumberOfElements();
-      double[] res = new double[n];
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D a) {
+      Validate.isTrue(a.getNumberOfElements() == 4, "four parameters");
+      final int n = X.getNumberOfElements();
+      final double[] res = new double[n];
       for (int i = 0; i < n; i++) {
         res[i] = a.getEntry(0) * Math.sin(a.getEntry(1) * X.getEntry(i) + a.getEntry(2)) + a.getEntry(3);
       }
@@ -68,7 +68,7 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public Double evaluate(final Double x, final DoubleMatrix1D a) {
-      ArgumentChecker.isTrue(a.getNumberOfElements() == 4, "four parameters");
+      Validate.isTrue(a.getNumberOfElements() == 4, "four parameters");
       return a.getEntry(0) * Math.sin(a.getEntry(1) * x + a.getEntry(2)) + a.getEntry(3);
     }
   };
@@ -77,7 +77,7 @@ public class NonLinearLeastSquareTest {
 
     @Override
     public DoubleMatrix1D evaluate(final Double x, final DoubleMatrix1D a) {
-      ArgumentChecker.isTrue(a.getNumberOfElements() == 4, "four parameters");
+      Validate.isTrue(a.getNumberOfElements() == 4, "four parameters");
       final double temp1 = Math.sin(a.getEntry(1) * x + a.getEntry(2));
       final double temp2 = Math.cos(a.getEntry(1) * x + a.getEntry(2));
       final double[] res = new double[4];
@@ -96,7 +96,7 @@ public class NonLinearLeastSquareTest {
 
     for (int i = 0; i < 20; i++) {
       X.getData()[i] = -Math.PI + i * Math.PI / 10;
-      Y.getData()[i] = TARRGET.evaluate(X.getEntry(i));
+      Y.getData()[i] = TARGET.evaluate(X.getEntry(i));
       SIGMA.getData()[i] = 0.1 * Math.exp(Math.abs(X.getEntry(i)) / Math.PI);
     }
 
@@ -128,10 +128,10 @@ public class NonLinearLeastSquareTest {
   }
 
   public void solveExactFromChiSqTest() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
-    Function1D<DoubleMatrix1D, Double> f = getChiSqFunction(X, Y, SIGMA, PARM_FUNCTION);
-    ConjugateGradientVectorMinimizer minimizer = new ConjugateGradientVectorMinimizer(new BrentMinimizer1D());
-    DoubleMatrix1D solution = minimizer.minimize(f, start);
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
+    final Function1D<DoubleMatrix1D, Double> f = getChiSqFunction(X, Y, SIGMA, PARM_FUNCTION);
+    final ConjugateGradientVectorMinimizer minimizer = new ConjugateGradientVectorMinimizer(new BrentMinimizer1D());
+    final DoubleMatrix1D solution = minimizer.minimize(f, start);
     assertEquals(0.0, f.evaluate(solution), 1e-8);
     assertEquals(1.0, solution.getEntry(0), 1e-8);
     assertEquals(1.0, solution.getEntry(1), 1e-8);
@@ -173,8 +173,8 @@ public class NonLinearLeastSquareTest {
 
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {1.2, 0.8, -0.2, -0.3});
 
-    NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    LeastSquareResults res = ls.solve(X, Y, SIGMA, PARM_FUNCTION, start);
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final LeastSquareResults res = ls.solve(X, Y, SIGMA, PARM_FUNCTION, start);
     assertEquals(0.0, res.getChiSq(), 1e-8);
     assertEquals(1.0, res.getParameters().getEntry(0), 1e-8);
     assertEquals(1.0, res.getParameters().getEntry(1), 1e-8);
@@ -219,7 +219,7 @@ public class NonLinearLeastSquareTest {
     // System.out.println("z: " + z);
   }
 
-  private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final DoubleMatrix1D x, final DoubleMatrix1D y, DoubleMatrix1D sigma,
+  private Function1D<DoubleMatrix1D, Double> getChiSqFunction(final DoubleMatrix1D x, final DoubleMatrix1D y, final DoubleMatrix1D sigma,
       final ParameterizedFunction<Double, DoubleMatrix1D, Double> paramFunc) {
 
     final int n = x.getNumberOfElements();
@@ -238,12 +238,12 @@ public class NonLinearLeastSquareTest {
       invSigmaSq[i] = 1 / sigma.getEntry(i) / sigma.getEntry(i);
     }
 
-    Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
+    final Function1D<DoubleMatrix1D, Double> func = new Function1D<DoubleMatrix1D, Double>() {
       @Override
-      public Double evaluate(DoubleMatrix1D params) {
+      public Double evaluate(final DoubleMatrix1D params) {
         double sum = 0;
         for (int k = 0; k < n; k++) {
-          sum += invSigmaSq[k] * UtilFunctions.square(y.getEntry(k) - paramFunc.evaluate(x.getEntry(k), params));
+          sum += invSigmaSq[k] * FunctionUtils.square(y.getEntry(k) - paramFunc.evaluate(x.getEntry(k), params));
         }
         return sum;
       }

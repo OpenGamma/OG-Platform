@@ -8,7 +8,7 @@ package com.opengamma.math.minimization;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.TrigonometricFunctionUtils;
-import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.FunctionUtils;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    return _scale * (1 - UtilFunctions.square(TrigonometricFunctionUtils.tanh(y).doubleValue()));
+    return _scale * (1 - FunctionUtils.square(TrigonometricFunctionUtils.tanh(y).doubleValue()));
   }
 
   @Override

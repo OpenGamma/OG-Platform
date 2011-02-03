@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static com.opengamma.math.UtilFunctions.square;
+import static com.opengamma.math.FunctionUtils.square;
 
 import com.opengamma.util.CompareUtils;
 

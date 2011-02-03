@@ -8,7 +8,7 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 import org.apache.activemq.util.BitArray;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -119,7 +119,7 @@ public class SABRFitter {
         final double rho = mp.getEntry(3);
         double chiSqr = 0;
         for (int i = 0; i < n; i++) {
-          chiSqr += UtilFunctions.square((blackVols[i] - _formula.impliedVolatility(forward, alpha, beta, nu, rho, strikes[i], maturity)) / errors[i]);
+          chiSqr += FunctionUtils.square((blackVols[i] - _formula.impliedVolatility(forward, alpha, beta, nu, rho, strikes[i], maturity)) / errors[i]);
         }
 
         return chiSqr;
