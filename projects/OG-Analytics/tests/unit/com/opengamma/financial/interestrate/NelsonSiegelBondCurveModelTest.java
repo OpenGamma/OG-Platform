@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 /**
  * 
  */
-public class NelsonSeigelBondCurveModelTest {
+public class NelsonSiegelBondCurveModelTest {
   private static final NelsonSiegelBondCurveModel MODEL = new NelsonSiegelBondCurveModel();
   private static final NonLinearLeastSquare NLLS = new NonLinearLeastSquare();
   private static final DoubleMatrix1D T = new DoubleMatrix1D(new double[] {1. / 12, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30});
@@ -45,6 +45,21 @@ public class NelsonSeigelBondCurveModelTest {
     final double[] e = new double[TREASURY_T.getNumberOfElements()];
     Arrays.fill(e, 1e-4);
     TREASURY_E = new DoubleMatrix1D(e);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTime() {
+    MODEL.getParameterizedFunction().evaluate(null, new DoubleMatrix1D(new double[] {1, 2, 3, 4}));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullParameters() {
+    MODEL.getParameterizedFunction().evaluate(3., null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongNumberOfElements() {
+    MODEL.getParameterizedFunction().evaluate(3., new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
   @Test
