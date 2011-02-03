@@ -13,6 +13,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.TransformParameters;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
@@ -35,14 +36,14 @@ public class SVIFitter {
 
     TRANSFORMS[0] = new NullTransform();
     TRANSFORMS[1] = new NullTransform();
-    TRANSFORMS[2] = new NullTransform();// DoubleRangeLimitTransform(-1.0, 1.0);
-    TRANSFORMS[3] = new SingleRangeLimitTransform(0, true);
-    TRANSFORMS[4] = new SingleRangeLimitTransform(0, true);
+    TRANSFORMS[2] = new NullTransform();
+    TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
+    TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
   }
 
   public LeastSquareResults solve(final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitArray fixed) {
 
-    int n = strikes.length;
+    final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
     Validate.isTrue(n == errors.length, "errors and vols must be same length");
 
@@ -51,8 +52,8 @@ public class SVIFitter {
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double strike, DoubleMatrix1D fp) {
-        DoubleMatrix1D mp = transforms.inverseTransform(fp);
+      public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
+        final DoubleMatrix1D mp = transforms.inverseTransform(fp);
         final double a = mp.getEntry(0);
         final double b = mp.getEntry(1);
         final double rho = mp.getEntry(2);
@@ -63,9 +64,9 @@ public class SVIFitter {
       }
     };
 
-    DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
-    LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
+    final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
+    final LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
 
     return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
 

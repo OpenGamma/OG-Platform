@@ -53,7 +53,8 @@ public class BondSecurityToBondDefinitionConverter {
   }
 
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement) {
-    Validate.notNull(security, "security");
+    Validate.notNull(security);
+    Validate.notNull(rollToSettlement);
     final Currency currency = security.getCurrency();
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_BOND_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
@@ -67,10 +68,11 @@ public class BondSecurityToBondDefinitionConverter {
    * @param convention A convention bundle, not null
    * @return a Bond
    */
+
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement, final ConventionBundle convention) {
     Validate.notNull(security, "security");
     Validate.notNull(convention, "convention");
-    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate(); // was maturity
+    final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
@@ -112,8 +114,7 @@ public class BondSecurityToBondDefinitionConverter {
       schedule = temp;
     }
     if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_log.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", "
-          + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+      s_log.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
       //throw new IllegalArgumentException("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", "
       //    + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
     }

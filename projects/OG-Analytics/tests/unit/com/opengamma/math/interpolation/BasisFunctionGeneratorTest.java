@@ -109,6 +109,33 @@ public class BasisFunctionGeneratorTest {
   }
 
   @Test
+  public void test2D() {
+
+    double[][] knots = new double[2][];
+    knots[0] = KNOTS;
+    knots[1] = KNOTS;
+    Function1D<double[], Double> func = GENERATOR.generate(knots, new int[] {2, 3}, new int[] {4, 4});
+    double[] x = new double[2];
+
+    for (int i = 0; i < 101; i++) {
+      x[0] = 0 + i * 10.0 / 100.0;
+      System.out.print("\t" + x[0]);
+    }
+    System.out.print("\n");
+    for (int i = 0; i < 101; i++) {
+      x[0] = 0 + i * 10.0 / 100.0;
+      System.out.print(x[0]);
+      for (int j = 0; j < 101; j++) {
+        x[1] = 0 + j * 10.0 / 100.0;
+        double y = func.evaluate(x);
+        System.out.print("\t" + y);
+      }
+      System.out.print("\n");
+    }
+
+  }
+
+  @Test
   public void testSet() {
     java.util.List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
     int n = functions.size();
@@ -149,6 +176,39 @@ public class BasisFunctionGeneratorTest {
       double x = 6 + i * 54 / 100.0;
       double y = fun.evaluate(x);
       // System.out.println(x + "\t" + y);
+    }
+  }
+
+  @Test
+  public void testSet3() {
+    double[] xa = new double[] {0.0, 0.0};
+    double[] xb = new double[] {1.0, 1.0};
+    int[] nknots = new int[] {10, 15};
+    int[] degree = new int[] {3, 4};
+    List<Function1D<double[], Double>> functions = GENERATOR.generateSet(xa, xb, nknots, degree);
+    int n = functions.size();
+    double[] w = new double[n];
+    for (int i = 0; i < n; i++) {
+      w[i] = 1 + 0.1 * NORMAL.nextRandom();
+    }
+    Function1D<double[], Double> fun = new BasisFunctionAggregation<double[]>(functions, w);
+
+    double[] x = new double[2];
+
+    for (int i = 0; i < 101; i++) {
+      x[0] = -0.4 + i * 1.8 / 100.0;
+      System.out.print("\t" + x[0]);
+    }
+    System.out.print("\n");
+    for (int i = 0; i < 101; i++) {
+      x[0] = -0.4 + i * 1.8 / 100.0;
+      System.out.print(x[0]);
+      for (int j = 0; j < 101; j++) {
+        x[1] = -0.4 + j * 1.8 / 100.0;
+        double y = fun.evaluate(x);
+        System.out.print("\t" + y);
+      }
+      System.out.print("\n");
     }
   }
 

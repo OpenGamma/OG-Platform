@@ -32,10 +32,12 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
@@ -65,6 +67,8 @@ public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
   private final ViewInternal _view;
+  private final ViewEvaluationModel _viewEvaluationModel;
+  private final LiveDataSnapshotProvider _snapshotProvider;
   private final Instant _valuationTime;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -98,10 +102,18 @@ public class SingleComputationCycle {
   // Outputs:
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(ViewInternal view, long valuationTime) {
+  public SingleComputationCycle(ViewInternal view,
+      ViewEvaluationModel viewEvaluationModel,
+      LiveDataSnapshotProvider snapshotProvider,
+      long valuationTime) {
     ArgumentChecker.notNull(view, "view");
+    ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
+    ArgumentChecker.notNull(snapshotProvider, "snapshotProvider");
 
     _view = view;
+    _viewEvaluationModel = viewEvaluationModel;
+    _snapshotProvider = snapshotProvider;
+    
     _valuationTime = Instant.ofEpochMillis(valuationTime);
 
     _resultModel = new InMemoryViewComputationResultModel();
@@ -120,13 +132,17 @@ public class SingleComputationCycle {
   public ViewInternal getView() {
     return _view;
   }
+  
+  public LiveDataSnapshotProvider getSnapshotProvider() {
+    return _snapshotProvider;
+  }
 
   public Instant getValuationTime() {
     return _valuationTime;
   }
 
   public long getFunctionInitId() {
-    return getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+    return getViewEvaluationModel().getFunctionInitId();
   }
 
   /**
@@ -195,10 +211,7 @@ public class SingleComputationCycle {
   }
 
   public ViewEvaluationModel getViewEvaluationModel() {
-    // REVIEW jonathan 2010-08-17 -- when we support re-compilation of views, we need to be more careful about how we
-    // handle the view evaluation model to ensure that a computation cycle works entirely with the output from a single
-    // compilation.
-    return getView().getViewEvaluationModel();
+    return _viewEvaluationModel;
   }
 
   public Set<String> getAllCalculationConfigurationNames() {
@@ -206,7 +219,35 @@ public class SingleComputationCycle {
   }
 
   // --------------------------------------------------------------------------
+  
+  public void execute() {
+    prepareInputs();
+    try {
+      executePlans();
+    } catch (InterruptedException e) {
+      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+    }
+    releaseResources();
+  }
+  
+  public ViewComputationResultModel executeWithResult() {
+    prepareInputs();
+    try {
+      executePlans();
+    } catch (InterruptedException e) {
+      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
+      releaseResources();
+      return null;
+    }
 
+    populateResultModel();
+    releaseResources();
+    
+    return getResultModel();
+  }
+  
+  // --------------------------------------------------------------------------
+  
   public void prepareInputs() {
     if (_state != State.CREATED) {
       throw new IllegalStateException("State must be " + State.CREATED);
@@ -221,6 +262,8 @@ public class SingleComputationCycle {
 
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
+    
+    getSnapshotProvider().snapshot(getValuationTime().toEpochMillisLong());
 
     _allLiveData = new HashSet<ComputedValue>();
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
@@ -230,7 +273,7 @@ public class SingleComputationCycle {
       // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      Object data = getSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement.getValue());
@@ -444,7 +487,7 @@ public class SingleComputationCycle {
       dumpComputationCachesToDisk();
     }
 
-    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
+    getSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong()); // BUG - what if 2 cycles use the same snapshot provider with the same valuation time?
     getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime().toEpochMillisLong());
 
     _state = State.CLEANED;

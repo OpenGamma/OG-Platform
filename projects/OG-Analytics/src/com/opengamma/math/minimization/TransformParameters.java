@@ -21,7 +21,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class TransformParameters {
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
-  private final BitArray _fixed;
+  private final BitArray _fixed; //TODO emcleod 3-2-2011 should we really be using ActiveMQ classes in Analytics?
   private final int _nMP;
   private final int _nFP;
 
@@ -56,7 +56,7 @@ public class TransformParameters {
    * 
    * @return The number of function parameters 
    */
-  public int getNumFunctionParameters() {
+  public int getNumberOfFunctionParameters() {
     return _nMP;
   }
 
@@ -64,7 +64,7 @@ public class TransformParameters {
    * 
    * @return The number of fitting parameters (equals the number of model parameters minus the number of fixed parameters) 
    */
-  public int getNumFittingParameters() {
+  public int getNumberOfFittingParameters() {
     return _nFP;
   }
 
@@ -76,7 +76,7 @@ public class TransformParameters {
    */
   public DoubleMatrix1D transform(final DoubleMatrix1D functionParameters) {
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
-    double[] fittingParameter = new double[_nFP];
+    final double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (!_fixed.get(i)) {
         fittingParameter[j] = _transforms[i].transform(functionParameters.getEntry(i));
@@ -93,12 +93,12 @@ public class TransformParameters {
    */
   public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameter) {
     Validate.isTrue(fittingParameter.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
-    double[] modelParameter = new double[_nMP];
+    final double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_fixed.get(i)) {
         modelParameter[i] = _startValues.getEntry(i);
       } else {
-        modelParameter[i] = _transforms[i].inverseTrasfrom(fittingParameter.getEntry(j));
+        modelParameter[i] = _transforms[i].inverseTransform(fittingParameter.getEntry(j));
         j++;
       }
     }
@@ -114,10 +114,10 @@ public class TransformParameters {
   // TODO not tested
   public DoubleMatrix2D jacobian(final DoubleMatrix1D functionParameters) {
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
-    double[][] jac = new double[_nFP][_nMP];
+    final double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (!_fixed.get(i)) {
-        jac[j][i] = _transforms[i].transformGrdient(functionParameters.getEntry(i));
+        jac[j][i] = _transforms[i].transformGradient(functionParameters.getEntry(i));
         j++;
       }
     }
@@ -133,10 +133,10 @@ public class TransformParameters {
   // TODO not tested
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
     Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
-    double[][] jac = new double[_nMP][_nFP];
+    final double[][] jac = new double[_nMP][_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (!_fixed.get(i)) {
-        jac[i][j] = _transforms[i].inverseTrasfromGradient(fittingParameters.getEntry(j));
+        jac[i][j] = _transforms[i].inverseTransformGradient(fittingParameters.getEntry(j));
         j++;
       }
     }

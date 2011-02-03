@@ -108,7 +108,7 @@ public class ViewTest {
     vp.start ();
     final ViewImpl view = (ViewImpl)vp.getView(env.getViewDefinition ().getName (), ViewProcessorTestEnvironment.TEST_USER);
     view.init ();
-    final ViewEvaluationModel originalModel = view.getViewEvaluationModel();
+    ViewEvaluationModel originalModel = view.getViewEvaluationModel();
     assertNotNull (originalModel);
     final long time0 = System.currentTimeMillis ();
     view.runOneCycle (time0);
@@ -116,7 +116,7 @@ public class ViewTest {
     // The test graph doesn't refer to functions which expire, so there should have been no re-build of the graphs
     assertSame (originalModel, view.getViewEvaluationModel ());
     // Trick the view into thinking it needs to rebuild after time0 + 20
-    final ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio()) {
+    ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio(), originalModel.getFunctionInitId()) {
       @Override
       public boolean isValidFor (final long timestamp) {
         return (timestamp <= time0 + 20);
@@ -129,6 +129,18 @@ public class ViewTest {
     // time0 + 30 requires a rebuild
     view.runOneCycle (time0 + 30);
     assertNotSame (dummy, view.getViewEvaluationModel ());
+    
+    // run a BATCH cycle. Even though a new evaluation model is built internally,
+    // it should not change the (live) evaluation model of the view 
+    dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio(), originalModel.getFunctionInitId()) {
+      @Override
+      public boolean isValidFor (final long timestamp) {
+        return false;
+      }
+    };
+    view.setViewEvaluationModel(dummy);
+    view.runOneCycle(time0, view.getLiveDataSnapshotProvider(), null);
+    assertSame(dummy, view.getViewEvaluationModel());
   }
   
 }

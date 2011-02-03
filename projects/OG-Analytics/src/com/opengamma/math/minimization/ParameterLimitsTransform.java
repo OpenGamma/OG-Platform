@@ -9,6 +9,13 @@ package com.opengamma.math.minimization;
  * 
  */
 public interface ParameterLimitsTransform {
+  /** Types of the limits */
+  public enum LimitType {
+    /** Greater than limit */
+    GREATER_THAN,
+    /** Less than limit */
+    LESS_THAN
+  }
 
   /**
    * Used to transform from a model parameter that is only allows to take certain values, to a fitting parameter that can take any value
@@ -22,20 +29,20 @@ public interface ParameterLimitsTransform {
    * @param y fitting parameter
    * @return Model parameter 
    */
-  double inverseTrasfrom(double y);
+  double inverseTransform(double y);
 
   /**
    * The gradient of the function used to transform from a model parameter that is only allows to take certain values, to a fitting parameter that can take any value
    * @param x Model parameter
    * @return the gradient
    */
-  double transformGrdient(double x);
+  double transformGradient(double x);
 
   /**
    * The gradient of the function used to transform from a fitting parameter that can take any value, to a model parameter that is only allows to take certain values
    * @param y fitting parameter
    * @return the gradient
    */
-  double inverseTrasfromGradient(double y);
+  double inverseTransformGradient(double y);
 
 }

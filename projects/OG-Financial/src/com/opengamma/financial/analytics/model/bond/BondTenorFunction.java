@@ -7,9 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -31,8 +29,6 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.time.DateUtil;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 
@@ -56,12 +52,9 @@ public class BondTenorFunction extends NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final BondSecurity security = (BondSecurity) position.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final Clock snapshotClock = executionContext.getSnapshotClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
+    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond((BondSecurity) position.getSecurity(), true);
     final LocalDate[] nominalDates = bond.getNominalDates();
     final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, position), getUniqueId());
@@ -70,7 +63,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.emptySet();
+    return Sets.newHashSet();
   }
 
   @Override

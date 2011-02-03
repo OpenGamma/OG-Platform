@@ -39,17 +39,17 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   private static final BusinessDayConvention PREVIOUS = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
   public BondPreviousCloseDirtyPriceFunction() {
-    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
+    super(MarketDataRequirementNames.MARKET_VALUE);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition bondDefinition, 
-      final Object value, final LocalDate now, final String yieldCurveName) {
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Position position, final BondDefinition bondDefinition, final Object value,
+      final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueId());
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
-    LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
+    final LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
     final Bond bond = bondDefinition.toDerivative(previousClose, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
