@@ -66,7 +66,7 @@ public class Main {
     try {
       s_logger.info("Starting OpenGamma language integration service");
       s_springContext = new GenericApplicationContext();
-      s_logger.debug("Reading ExcelConnector.xml");
+      s_logger.debug("Reading Client.xml");
       final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(s_springContext);
       reader.loadBeanDefinitions(new ClassPathResource("Client.xml"));
       s_logger.debug("Finished loading bean definitions");

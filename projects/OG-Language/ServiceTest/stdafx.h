@@ -20,7 +20,10 @@
 #endif
 #include <assert.h>
 
+#include <jni.h>
+
 #include <Util/AbstractTest.h>
+#include <Util/Library.h>
 #include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
 #include <Util/Semaphore.h>

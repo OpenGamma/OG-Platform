@@ -147,26 +147,50 @@ unsigned long CSettings::GetConnectionTimeout () {
 	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
+#define CLIENT_JAR_NAME		TEXT ("client.jar")
+#define CLIENT_JAR_LEN		10
+
 const TCHAR *CSettings::GetJarPath () {
 	if (!m_pszDefaultJarPath) {
 #ifdef _WIN32
-		TCHAR szModuleFilename[MAX_PATH];
-		if (GetModuleFileName (NULL, szModuleFilename, MAX_PATH)) {
-			int n = _tcslen (szModuleFilename);
-			while ((n > 0) && (szModuleFilename[n] != '\\')) {
-				n--;
-			}
-			if (n > 0) {
-				szModuleFilename[n] = 0;
-				LOGINFO (TEXT ("Default folder ") << szModuleFilename << TEXT (" found from executable"));
-				m_pszDefaultJarPath = _tcsdup (szModuleFilename);
+		// Scan backwards from the module to find a path which has Client.jar in. This works if all of the
+		// JARs and DLLs are in the same folder, but also in the case of a build system where we have sub-folders
+		// for the different configurations/platforms.
+		TCHAR szPath[MAX_PATH + CLIENT_JAR_LEN]; // Guarantee room for Client.jar at the end
+		HMODULE hModule;
+		if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
+			if (GetModuleFileName (hModule, szPath, MAX_PATH)) {
+				PTSTR pszEnd = _tcsrchr (szPath, '\\');
+				while (pszEnd) {
+					LOGDEBUG (TEXT ("Testing path ") << szPath);
+					memcpy (pszEnd + 1, CLIENT_JAR_NAME, (CLIENT_JAR_LEN + 1) * sizeof (TCHAR));
+					HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+					if (hFile == INVALID_HANDLE_VALUE) {
+						DWORD dwError = GetLastError ();
+						if (dwError != ERROR_FILE_NOT_FOUND) {
+							LOGWARN (TEXT ("Couldn't scan for ") << szPath << TEXT (", error ") << dwError);
+							break;
+						}
+						*pszEnd = 0;
+					} else {
+						CloseHandle (hFile);
+						*pszEnd = 0;
+						LOGINFO (TEXT ("Found path ") << szPath << TEXT (" containing ") << CLIENT_JAR_NAME);
+						m_pszDefaultJarPath = _tcsdup (szPath);
+						break;
+					}
+					pszEnd = _tcsrchr (szPath, '\\');
+				}
+				if (!m_pszDefaultJarPath) {
+					LOGWARN (TEXT ("Couldn't find client library Jar on module path"));
+					m_pszDefaultJarPath = _tcsdup (TEXT ("."));
+				}
 			} else {
-				LOGINFO (TEXT ("No default folder found"));
+				LOGWARN (TEXT ("Couldn't get executable filename and path, error ") << GetLastError ());
 				m_pszDefaultJarPath = _tcsdup (TEXT ("."));
 			}
 		} else {
-			LOGWARN (TEXT ("Couldn't get executable filename and path, error ") << GetLastError ());
-			m_pszDefaultJarPath = _tcsdup (TEXT ("."));
+			LOGWARN (TEXT ("Couldn't get module handle, error ") << GetLastError ());
 		}
 #else
 		TODO (TEXT ("POSIX version of the module above"));

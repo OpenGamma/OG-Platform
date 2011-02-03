@@ -116,6 +116,71 @@ static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTot
 	return pszBuffer;
 }
 
+static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTotal, const TCHAR *pszPath) {
+#ifdef _WIN32
+	WIN32_FIND_DATA wfd;
+	size_t cchSearch = _tcslen (pszPath) + 5;
+	PTSTR pszSearch = new TCHAR[cchSearch];
+	if (!pszSearch) {
+		LOGFATAL (TEXT ("Out of memory"));
+		return pszBuffer;
+	}
+	StringCchPrintf (pszSearch, cchSearch, TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("*.*"), pszPath);
+	HANDLE hFind = FindFirstFile (pszSearch, &wfd);
+	delete pszSearch;
+	if (hFind != NULL) {
+		do {
+#define __filename	wfd.cFileName
+#define __isdir		(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+#else
+	DIR *dir = opendir (pszPath);
+	if (dir) {
+		struct dirent *dp;
+		while ((dp = readdir (dir)) != NULL) {
+#define __filename	dp->d_name
+#define __isdir		(dp->d_type & DT_DIR)
+#endif
+			if (__filename[0] == '.') {
+				continue;
+			}
+			if (__isdir) {
+				LOGDEBUG (TEXT ("Recursing into folder ") << __filename);
+				cchSearch = _tcslen (pszPath) + _tcslen (__filename) + 2;
+				pszSearch = new TCHAR[cchSearch];
+				if (!pszSearch) {
+					LOGFATAL (TEXT ("Out of memory"));
+					break;
+				}
+				StringCchPrintf (pszSearch, cchSearch, TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("%s"), pszPath, __filename);
+				pszBuffer = _ScanClassPath (pszBuffer, pcchUsed, pcchTotal, pszSearch);
+				delete pszSearch;
+				continue;
+			}
+			const TCHAR *psz = _tcsrchr (__filename, '.');
+			if (!psz) {
+				continue;
+			}
+			if (_tcsicmp (psz, TEXT (".ear"))
+			 && _tcsicmp (psz, TEXT (".jar"))
+			 && _tcsicmp (psz, TEXT (".war"))
+			 && _tcsicmp (psz, TEXT (".zip"))) {
+				 continue;
+			}
+			pszBuffer = _BuildClasspath (pszBuffer , pcchUsed, pcchTotal, pszPath, __filename);
+#undef __filename
+#ifdef _WIN32
+		} while (FindNextFile (hFind, &wfd));
+		FindClose (hFind);
+#else
+		}
+		closedir (dir);
+#endif
+	} else {
+		LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+	}
+	return pszBuffer;
+}
+
 static char *_OptionClassPath (CSettings *pSettings) {
 	const TCHAR *pszPath = pSettings->GetJarPath ();
 	if (!pszPath) {
@@ -136,54 +201,7 @@ static char *_OptionClassPath (CSettings *pSettings) {
 		return NULL;
 	}
 	StringCbPrintfA (pszOption, cch, "-Djava.class.path=%ws" PATH_CHAR_STR, pszPath);
-#ifdef _WIN32
-	WIN32_FIND_DATA wfd;
-	PTSTR pszSearch = new TCHAR[cchUsed];
-	if (!pszSearch) {
-		LOGFATAL (TEXT ("Out of memory"));
-		delete pszOption;
-		return NULL;
-	}
-	StringCchPrintf (pszSearch, cchUsed, TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("*.*"), pszPath);
-	HANDLE hFind = FindFirstFile (pszSearch, &wfd);
-	delete pszSearch;
-	if (hFind != NULL) {
-		do {
-#define __filename	wfd.cFileName
-#else
-	DIR *dir = opendir (pszPath);
-	if (dir) {
-		struct dirent *dp;
-		while ((dp = readdir (dir)) != NULL) {
-#define __filename	dp->d_name
-#endif
-			if (__filename[0] == '.') {
-				continue;
-			}
-			const TCHAR *psz = _tcsrchr (__filename, '.');
-			if (!psz) {
-				LOGDEBUG (TEXT ("Ignoring extensionless file ") << __filename);
-				continue;
-			}
-			if (_tcsicmp (psz, TEXT (".ear"))
-			 && _tcsicmp (psz, TEXT (".jar"))
-			 && _tcsicmp (psz, TEXT (".war"))
-			 && _tcsicmp (psz, TEXT (".zip"))) {
-				 LOGDEBUG (TEXT ("Ignoring non-JAR ") << __filename);
-				 continue;
-			}
-			pszOption = _BuildClasspath (pszOption, &cchUsed, &cch, pszPath, __filename);
-#undef __filename
-#ifdef _WIN32
-		} while (FindNextFile (hFind, &wfd));
-		FindClose (hFind);
-#else
-		}
-		closedir (dir);
-#endif
-	} else {
-		LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
-	}
+	pszOption = _ScanClassPath (pszOption, &cchUsed, &cch, pszPath);
 	LOGDEBUG ("Using " << pszOption << " (" << strlen (pszOption) << " chars)");
 	return pszOption;
 }
@@ -229,6 +247,7 @@ CJVM *CJVM::Create () {
 	args.version = JNI_VERSION_1_6;
 	args.options = option;
 	args.nOptions = 2;
+	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
 	if (option[0].optionString) {
 		delete option[0].optionString;

@@ -1,5 +1,6 @@
 /build/
 /TestResults/
+/Client/tests/classes/
 /Client/tests/output/
 /*/Debug/
 /*/Release/
@@ -7,7 +8,6 @@
 /*/ReleaseWin32/
 /*/Debugx64/
 /*/Releasex64/
-/*/build/
 /*/*.aps
 /*/*.vcxproj.user
 /Connector/com_opengamma_language_*
