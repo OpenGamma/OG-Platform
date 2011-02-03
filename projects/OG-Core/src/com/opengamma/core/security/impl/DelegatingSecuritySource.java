@@ -75,4 +75,9 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
     return getDefaultDelegate().getSecurity(bundle);
   }
 
+  @Override
+  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+    return getDefaultDelegate().getAllBondsOfIssuerType(issuerType);
+  }
+
 }
