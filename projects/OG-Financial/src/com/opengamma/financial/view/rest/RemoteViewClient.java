@@ -113,8 +113,14 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
-  public void runOneCycle() {
-    // TOOD: implement
+  public ViewComputationResultModel runOneCycle(final long valuationTime) {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RUN_ONE_CYCLE);
+    FudgeMsgEnvelope envelope = _client.access(uri).post(FudgeMsgEnvelope.class, valuationTime);
+    FudgeField runOneCycleResult = envelope.getMessage().getByName(DataViewClientResource.PATH_RUN_ONE_CYCLE);
+    if (runOneCycleResult == null) {
+      return null;
+    }
+    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, runOneCycleResult);
   }
   
   @Override
