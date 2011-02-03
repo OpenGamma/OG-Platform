@@ -105,7 +105,7 @@
 				<constructor-arg value="${heartbeat.topic.name}" />
 			</bean>
     	</property>
-    	<property name="messageListener" ref="subscriptionRequestJmsReceiver" />
+    	<property name="messageListener" ref="heartbeatJmsReceiver" />
     	<property name="autoStartup" value="false" />
 	</bean>
 	
