@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -24,16 +26,32 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
-public class BondTenorFunction extends NonCompiledInvoker {
+public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
+
+  public BondCouponPaymentDiaryFunction() {
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES, target.getPosition()), getUniqueId()));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (canApplyTo(context, target)) {
+      return Sets.newHashSet();
+    }
+    return null;
+  }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -55,23 +73,20 @@ public class BondTenorFunction extends NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond((BondSecurity) position.getSecurity(), true);
-    final LocalDate[] nominalDates = bond.getNominalDates();
-    final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, position), getUniqueId());
-    return Sets.newHashSet(new ComputedValue(specification, t));
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Sets.newHashSet();
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getPosition()), getUniqueId()));
+    final double[] coupons = bond.getCoupons();
+    final double notional = ((BondSecurity) position.getSecurity()).getRedemptionValue();
+    final int n = bond.getCoupons().length;
+    final LocalDate[] couponPaymentDates = (LocalDate[]) ArrayUtils.subarray(bond.getSettlementDates(), 1, n + 1);
+    final Object[] labels = new Object[n];
+    final double[] payments = new double[n];
+    for (int i = 0; i < n; i++) {
+      payments[i] = coupons[i] * notional;
+      labels[i] = couponPaymentDates[i].toString();
     }
-    return null;
+    payments[n - 1] += notional;
+
+    final LocalDateLabelledMatrix1D matrix = new LocalDateLabelledMatrix1D(couponPaymentDates, labels, payments);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES, position), getUniqueId()), matrix));
   }
 
 }
