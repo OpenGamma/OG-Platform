@@ -9,13 +9,18 @@
 
 // I/O functions which support timeouts
 
+#include "Atomic.h"
+
 class CTimeoutIO {
 private:
 #ifdef _WIN32
 	OVERLAPPED m_overlapped;
-#define FILE_REFERENCE	HANDLE
+#define FILE_REFERENCE		HANDLE
 #else
-#define FILE_REFERENCE	int
+	CAtomicPointer m_oBlockedThread;
+	unsigned long m_lPreviousTimeout;
+#define TIMEOUT_IO_DEFAULT	1000
+#define FILE_REFERENCE		int
 #endif
 	FILE_REFERENCE m_file;
 	volatile unsigned long m_lLazyTimeout;
@@ -24,6 +29,9 @@ protected:
 #ifdef _WIN32
 	OVERLAPPED *GetOverlapped () { return &m_overlapped; }
 	bool WaitOnOverlapped (unsigned long timeout);
+#else
+	virtual bool SetTimeout (unsigned long timeout);
+	void CancelTimeout ();
 #endif
 	virtual bool CancelIO ();
 	FILE_REFERENCE GetFile () { return m_file; }
@@ -40,5 +48,11 @@ public:
 	bool CancelLazyClose ();
 	bool IsClosed () { return m_bClosed; }
 };
+
+// This is perhaps a dump place for this
+#ifndef _WIN32
+#include <apr-1/apr_time.h>
+#define GetTickCount()	apr_time_msec (apr_time_now ())
+#endif
 
 #endif /* ifndef __inc_og_language_util_timeoutio_h */

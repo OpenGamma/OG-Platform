@@ -14,8 +14,6 @@
 #define SERVICE_RUN_SCM		2
 #endif /* ifdef _WIN32 */
 
-void ServiceInit ();
-void ServiceDone ();
 void ServiceStop (bool bForce);
 void ServiceSuspend ();
 void ServiceRun (int nReason);

@@ -57,7 +57,7 @@ static void ReadSequence () {
 	ASSERT (hFile != INVALID_HANDLE_VALUE);
 	CTimeoutIO *poRead = new CTimeoutIO (hFile);
 #else
-	int file = open ("/dev/random", O_RDONLY);
+	int file = open ("/dev/urandom", O_RDONLY);
 	ASSERT (file);
 	CTimeoutIO *poRead = new CTimeoutIO (file);
 #endif

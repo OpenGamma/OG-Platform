@@ -51,7 +51,7 @@ public:
 #ifdef _UNICODE
 #error "Unicode not available"
 #else
-		if (!PosixLastError (apr_dso_load (&po->m_pDSO, pszPath, m_oPool))) {
+		if (!PosixLastError (apr_dso_load (&po->m_pDSO, pszPath, po->m_oPool))) {
 			delete po;
 			return NULL;
 		}
@@ -63,9 +63,9 @@ public:
 #ifdef _WIN32
 		return GetProcAddress (m_hModule, pszLabel);
 #else
-		apr_dso_handle_sym_t *pSym;
-		if (!PosixLastError (apr_dso_sym (&pSym, m_pDSO, pszLabel))) return NULL;
-		return pSym;
+		void *pAddress;
+		if (!PosixLastError (apr_dso_sym (&pAddress, m_pDSO, pszLabel))) return NULL;
+		return pAddress;
 #endif
 	}
 };

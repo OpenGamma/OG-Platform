@@ -7,6 +7,10 @@
 #ifndef __inc_og_language_util_string_h
 #define __inc_og_language_util_string_h
 
+#ifndef _WIN32
+#include <stdarg.h>
+#endif
+
 #include "Unicode.h"
 
 #ifndef _WIN32

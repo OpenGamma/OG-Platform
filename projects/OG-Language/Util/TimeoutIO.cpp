@@ -11,10 +11,14 @@
 #include "Logging.h"
 #include "TimeoutIO.h"
 #include "Mutex.h"
+#include "Thread.h"
 
 LOGGING (com.opengamma.language.util.TimeoutIO);
 
 static CMutex g_oClosing;
+#ifndef _WIN32
+static CMutex g_oBlockedThread;
+#endif /* ifndef _WIN32 */
 
 CTimeoutIO::CTimeoutIO (FILE_REFERENCE file) {
 	LOGINFO (TEXT ("File opened"));
@@ -24,6 +28,8 @@ CTimeoutIO::CTimeoutIO (FILE_REFERENCE file) {
 #ifdef _WIN32
 	ZeroMemory (&m_overlapped, sizeof (m_overlapped));
 	m_overlapped.hEvent = CreateEvent (NULL, TRUE, FALSE, NULL);
+#else
+	m_lPreviousTimeout = TIMEOUT_IO_DEFAULT;
 #endif
 }
 
@@ -33,7 +39,9 @@ CTimeoutIO::~CTimeoutIO () {
 	CloseHandle (m_file);
 	CloseHandle (m_overlapped.hEvent);
 #else
-	close (m_file);
+	if (m_file) {
+		close (m_file);
+	}
 #endif
 }
 
@@ -56,13 +64,13 @@ waitOnSignal:
 		if (IsClosed ()) {
 			LOGDEBUG (TEXT ("File closed"));
 			CancelIoEx (m_file, &m_overlapped);
-			SetLastError (ERROR_HANDLES_CLOSED);
+			SetLastError (ECANCELED);
 			return false;
 		} else if (!HasOverlappedIoCompleted (&m_overlapped)) {
 			if (bLazyWait) {
 				LOGWARN (TEXT ("Event signalled without I/O completion during idle wait, failing"));
 				CancelIoEx (m_file, &m_overlapped);
-				SetLastError (ERROR_HANDLES_CLOSED);
+				SetLastError (ECANCELED);
 				return false;
 			} else {
 				timeout = IsLazyClosing ();
@@ -87,12 +95,25 @@ waitOnSignal:
 	}
 	return true;
 }
-#endif
+#else /* ifdef _WIN32 */
+bool CTimeoutIO::SetTimeout (unsigned long timeout) {
+	m_oBlockedThread.Set (CThread::CurrentRef ());
+	if (m_lPreviousTimeout == timeout) {
+		return false;
+	}
+	m_lPreviousTimeout = timeout;
+	return true;
+}
+
+void CTimeoutIO::CancelTimeout () {
+	m_oBlockedThread.Set (NULL);
+}
+#endif /* ifdef _WIN32 */
 
 size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) {
 	if (IsClosed ()) {
 		LOGWARN (TEXT ("File already closed"));
-		SetLastError (ERROR_HANDLES_CLOSED);
+		SetLastError (ECANCELED);
 		return 0;
 	}
 #ifdef _WIN32
@@ -117,15 +138,44 @@ size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) 
 	}
 	return cbBytesRead;
 #else
-	TODO (TEXT ("Write to file"));
-	return 0;
+	bool bLazyWait = false;
+	if (IsLazyClosing ()) {
+		bLazyWait = true;
+		timeout = IsLazyClosing ();
+	}
+timeoutOperation:
+	SetTimeout (timeout);
+	ssize_t cbBytesRead = read (m_file, pBuffer, cbBuffer);
+	CancelTimeout ();
+	if (cbBytesRead < 0) {
+		int ec = GetLastError ();
+		if (ec == EINTR) {
+			LOGDEBUG (TEXT ("Read interrupted"));
+			if (IsLazyClosing ()) {
+				if (bLazyWait) {
+					LOGINFO (TEXT ("Closing file on idle timeout"));
+					Close ();
+				}
+			}
+			if (!IsClosed () && !bLazyWait) {
+				bLazyWait = true;
+				timeout = IsLazyClosing ();
+				LOGDEBUG (TEXT ("Resuming operation with idle timeout of ") << timeout << TEXT ("ms"));
+				goto timeoutOperation;
+			}
+		}
+		LOGWARN (TEXT ("Couldn't read from file, error ") << ec);
+		SetLastError (ec);
+		return 0;
+	}
+	return cbBytesRead;
 #endif
 }
 
 size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long timeout) {
 	if (IsClosed ()) {
 		LOGWARN (TEXT ("File already closed"));
-		SetLastError (ERROR_HANDLES_CLOSED);
+		SetLastError (ECANCELED);
 		return 0;
 	}
 #ifdef _WIN32
@@ -150,8 +200,37 @@ size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long ti
 	}
 	return cbBytesWritten;
 #else
-	TODO (TEXT ("Write to file"));
-	return 0;
+	bool bLazyWait = false;
+	if (IsLazyClosing ()) {
+		bLazyWait = true;
+		timeout = IsLazyClosing ();
+	}
+timeoutOperation:
+	SetTimeout (timeout);
+	ssize_t cbWritten = write (m_file, pBuffer, cbBuffer);
+	CancelTimeout ();
+	if (cbWritten < 0) {
+		int ec = GetLastError ();
+		if (ec == EINTR) {
+			LOGDEBUG (TEXT ("Write interrupted"));
+			if (IsLazyClosing ()) {
+				if (bLazyWait) {
+					LOGINFO (TEXT ("Closing file on idle timeout"));
+					Close ();
+				}
+			}
+			if (!IsClosed () && !bLazyWait) {
+				bLazyWait = true;
+				timeout = IsLazyClosing ();
+				LOGDEBUG (TEXT ("Resuming operation with idle timeout of ") << timeout << TEXT ("ms"));
+				goto timeoutOperation;
+			}
+		}
+		LOGWARN (TEXT ("Couldn't write to file, error ") << ec);
+		SetLastError (ec);
+		return 0;
+	}
+	return cbWritten;
 #endif
 }
 
@@ -159,8 +238,7 @@ bool CTimeoutIO::Flush () {
 #ifdef _WIN32
 	return FlushFileBuffers (m_file) ? true : false;
 #else
-	TODO (TEXT ("Flush file"));
-	return false;
+	return PosixLastError (fsync (m_file));
 #endif
 }
 
@@ -168,7 +246,13 @@ bool CTimeoutIO::CancelIO () {
 #ifdef _WIN32
 	SetEvent (m_overlapped.hEvent);
 #else
-	TODO (TEXT ("Cancel any pending I/O"));
+	void *pBlockedThread = m_oBlockedThread.GetAndSet (NULL);
+	if (pBlockedThread) {
+		LOGDEBUG (TEXT ("Interrupting thread blocked on I/O"));
+		CThread::Interrupt (pBlockedThread);
+	} else {
+		LOGDEBUG (TEXT ("No pending I/O to cancel"));
+	}
 #endif
 	return true;
 }

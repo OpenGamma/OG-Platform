@@ -39,7 +39,7 @@ public:
 				m_pszPipeName = NULL;
 			} else {
 				m_oMutex.Leave ();
-				Sleep (TIMEOUT_RETRY);
+				CThread::Sleep (TIMEOUT_RETRY);
 				m_oMutex.Enter ();
 			}
 		}
@@ -108,7 +108,7 @@ public:
 };
 
 static CConnectionPipe *_CreateTestPipe () {
-	// TODO: use the current user's name
+	// TODO: use the current user's name as a test suffix
 	CConnectionPipe *po = CConnectionPipe::Create (TEXT ("TEST"));
 	ASSERT (po);
 	return po;

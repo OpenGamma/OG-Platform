@@ -18,6 +18,10 @@ private:
 	bool m_bServer;
 	bool m_bReader;
 	CNamedPipe (FILE_REFERENCE pipe, const TCHAR *pszName, bool bServer, bool bReader);
+protected:
+#ifndef _WIN32
+	bool SetTimeout (unsigned long timeout);
+#endif
 public:
 	~CNamedPipe ();
 	static CNamedPipe *ClientRead (const TCHAR *pszName);

@@ -21,6 +21,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
+#include <signal.h>
 #endif
 #include <assert.h>
 

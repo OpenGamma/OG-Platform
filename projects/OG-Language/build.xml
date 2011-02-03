@@ -10,6 +10,7 @@
 		<pathelement path="${basedir}/ConnectorTest" />
 		<pathelement path="${basedir}/Client" />
 		<pathelement path="${basedir}/Service" />
+		<pathelement path="${basedir}/ServiceRunner" />
 		<pathelement path="${basedir}/ServiceTest" />
 		<pathelement path="${basedir}/Util" />
 		<pathelement path="${basedir}/UtilTest" />
@@ -103,6 +104,7 @@
 		<!-- C++ projects (in build order) -->
 		<subant target="compile" buildpath="${basedir}/Util" />
 		<subant target="compile" buildpath="${basedir}/Service" />
+		<subant target="compile" buildpath="${basedir}/ServiceRunner" />
 		<subant target="compile" buildpath="${basedir}/Connector" />
 
 	</target>

@@ -37,6 +37,11 @@
 			runtime="${cc.runtime}"
 			subsystem="${cc.subsystem}"
 			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
+			<defineset>
+				<define name="_DEBUG" if="cc.isDebug" />
+				<define name="NDEBUG" if="cc.isRelease" />
+				<define name="HAVE_PTHREAD" if="cc.library.have_pthread" />
+			</defineset>
 			<includepath path="${solution.dir}" />
 			<fileset dir="${basedir}">
 				<include name="*.c" />
@@ -47,6 +52,7 @@
 	</target>
 	<target name="compile-debug" if="cpptask.ok">
 		<antcall target="compile-impl">
+			<param name="cc.isDebug" value="true" />
 			<param name="cc.debug" value="true" />
 			<param name="cc.configuration" value="Debug" />
 			<param name="cc.optimization" value="none" />
@@ -54,6 +60,7 @@
 	</target>
 	<target name="compile-release" if="cpptask.ok">
 		<antcall target="compile-impl">
+			<param name="cc.isRelease" value="true" />
 			<param name="cc.debug" value="false" />
 			<param name="cc.configuration" value="Release" />
 			<param name="cc.optimization" value="speed" />
@@ -63,10 +70,12 @@
 
 	<target name="tests-impl">
 		<mkdir	dir="${solution.dir}/TestResults" />
+		<echo>Running tests - ${ant.project.name}</echo>
 		<exec	executable="./${ant.project.name}"
 			dir="${build.dir}/${cc.configuration}"
 			failonerror="true"
 			output="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log" />
+		<echo>TESTS SUCCESSFUL</echo>
 	</target>
 	<target name="tests-debug" depends="compile-debug" if="cpptask.ok">
 		<antcall target="tests-impl">

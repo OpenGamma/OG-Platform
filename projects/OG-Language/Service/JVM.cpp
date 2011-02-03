@@ -49,25 +49,25 @@ CJVM::~CJVM () {
 	}
 }
 
-static CLibrary *_LoadJVMLibrary (PCTSTR pszDLL) {
-	PCTSTR pszSearchPath = NULL;
-	PTSTR psz = _tcsdup (pszDLL);
+static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
+	const TCHAR *pszSearchPath = NULL;
+	TCHAR *psz = _tcsdup (pszLibrary);
 	if (!psz) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
-	int i = _tcslen (pszDLL), separators = 2;
+	int i = _tcslen (pszLibrary), separators = 2;
 	while (--i > 0) {
-		if (pszDLL[i] == PATH_CHAR) {
+		if (pszLibrary[i] == PATH_CHAR) {
 			if (!--separators) {
 				psz[i] = 0;
-				LOGDEBUG (TEXT ("DLL search path ") << psz);
+				LOGDEBUG (TEXT ("Library search path ") << psz);
 				pszSearchPath = psz;
 				break;
 			}
 		}
 	}
-	CLibrary *po = CLibrary::Create (pszDLL, pszSearchPath);
+	CLibrary *po = CLibrary::Create (pszLibrary, pszSearchPath);
 	free (psz);
 	return po;
 }
@@ -418,7 +418,7 @@ bool CJVM::IsBusy (unsigned long dwTimeout) {
 			return false;
 		} else {
 			int error = GetLastError ();
-			if (error != WAIT_TIMEOUT) { //TODO: is WAIT_TIMEOUT valid on the APR build ?
+			if (error != ETIMEDOUT) {
 				LOGERROR (TEXT ("Couldn't wait for busy task, error ") << error);
 			}
 			return true;

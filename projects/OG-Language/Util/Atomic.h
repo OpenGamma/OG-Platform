@@ -51,4 +51,27 @@ public:
 	}
 };
 
+class CAtomicPointer {
+private:
+	void * volatile m_pValue;
+public:
+	CAtomicPointer (void *pValue = NULL) {
+		m_pValue = pValue;
+	}
+	void *GetAndSet (void *pNewValue) {
+#ifdef _WIN32
+		return InterlockedExchangePointer (&m_pValue, pNewValue);
+#else
+		// Is the signature for the method wrong; shouldn't it be void * volatile * or volatile PVOID *?
+		return apr_atomic_xchgptr ((volatile void**)&m_pValue, pNewValue);
+#endif
+	}
+	void *Get () {
+		return m_pValue;
+	}
+	void Set (void *pValue) {
+		m_pValue = pValue;
+	}
+};
+
 #endif /* ifndef __inc_og_language_util_atomic_h */

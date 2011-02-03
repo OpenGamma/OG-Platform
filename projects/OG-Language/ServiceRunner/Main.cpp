@@ -15,6 +15,16 @@ static void _InitialiseLogging () {
 	LoggingInit (&oSettings);
 }
 
+static void _mainStart () {
+	_InitialiseLogging ();
+	LOGINFO (TEXT ("Starting service host process"));
+}
+
+static void _mainEnd () {
+	LOGINFO (TEXT ("Stopping service host process"));
+}
+
+#ifdef _WIN32
 static void WINAPI ServiceMain (DWORD dwArgs, PTSTR *ppszArgs) {
 	ServiceRun (SERVICE_RUN_SCM);
 }
@@ -35,10 +45,8 @@ static SERVICE_TABLE_ENTRY *_CreateDispatchTable () {
 	return pEntry;
 }
 
-int _tmain(int argc, _TCHAR* argv[]) {
-	_InitialiseLogging ();
-	LOGINFO (TEXT ("Starting service host process"));
-	ServiceInit ();
+int _tmain (int argc, _TCHAR* argv[]) {
+	_mainStart ();
 	if ((argc == 2) && !_tcscmp (argv[1], TEXT ("run"))) {
 		LOGDEBUG (TEXT ("Running inline"));
 		ServiceRun (SERVICE_RUN_INLINE);
@@ -50,7 +58,14 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		}
 		delete pServiceEntry;
 	}
-	LOGINFO (TEXT ("Stopping service host process"));
-	ServiceDone ();
+	_mainEnd ();
 	return 0;
 }
+#else
+int main (int argc, char **argv) {
+	_mainStart ();
+	ServiceRun (SERVICE_RUN_INLINE);
+	_mainEnd ();
+	return 0;
+}
+#endif

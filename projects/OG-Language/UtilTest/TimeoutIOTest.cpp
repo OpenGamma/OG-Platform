@@ -12,4 +12,4 @@
 
 LOGGING (com.opengamma.language.util.TimeoutIOTest);
 
-// Note: The contents of CTimeoutIO are tested by NamedPipeTest
+// Note: The contents of CTimeoutIO are tested by NamedPipeTest and BufferedInputTest

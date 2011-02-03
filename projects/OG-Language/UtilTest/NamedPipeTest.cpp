@@ -17,9 +17,17 @@ LOGGING (com.opengamma.language.util.NamedPipeTest);
 
 #define TIMEOUT_PIPE			1000
 #define TIMEOUT_HANG			(TIMEOUT_PIPE * 2)
-#define TIMEOUT_JOIN			(TIMEOUT_PIPE * 3)
+#define TIMEOUT_JOIN			(TIMEOUT_PIPE * 4)
 #define TIMEOUT_READWRITE		(TIMEOUT_PIPE / 3)
 #define READWRITE_OPERATIONS	(TIMEOUT_HANG / TIMEOUT_READWRITE)
+
+// The packet size needs to be so that the client/server can't buffer it and say the write was successful
+// but small enough to run the tests quickly
+#ifdef _WIN32
+#define PAYLOAD_SIZE				256
+#else
+#define PAYLOAD_SIZE				8192
+#endif
 
 TCHAR *NamedPipeTest_CreatePipeName () {
 	TCHAR szPipeTest[256];
@@ -36,23 +44,42 @@ TCHAR *NamedPipeTest_CreatePipeName () {
 static int _ReadAndWrite (CTimeoutIO *poIO, int nOperations, bool bThrottle, const TCHAR *pszLabel) {
 	LOGDEBUG (pszLabel << TEXT (" ") << ((nOperations > 0) ? TEXT ("reading") : TEXT ("writing")));
 	int nCount = 0;
+	char *pBuffer = new char[PAYLOAD_SIZE];
 	while (nOperations > 0) {
-		char buffer[16];
-		size_t cb = poIO->Read (buffer, sizeof (buffer), TIMEOUT_PIPE);
-		LOGDEBUG (pszLabel << TEXT (" read ") << cb << TEXT (" bytes"));
-		if (!cb) return nCount;
+		size_t cbToRead = PAYLOAD_SIZE;
+		do {
+			LOGDEBUG (pszLabel << TEXT (" reading ") << cbToRead << TEXT (" bytes"));
+			size_t cb = poIO->Read (pBuffer, cbToRead, TIMEOUT_PIPE);
+			LOGDEBUG (pszLabel << TEXT (" read ") << cb << TEXT (" bytes"));
+			if (!cb) {
+				delete pBuffer;
+				return nCount;
+			}
+			ASSERT (cb <= cbToRead);
+			cbToRead -= cb;
+		} while (cbToRead > 0);
 		nCount++;
 		nOperations--;
-		Sleep (bThrottle ? TIMEOUT_READWRITE : TIMEOUT_READWRITE / 3);
+		CThread::Sleep (bThrottle ? TIMEOUT_READWRITE : TIMEOUT_READWRITE / 3);
 	}
 	while (nOperations < 0) {
-		size_t cb = poIO->Write ("Hello world", 11, TIMEOUT_PIPE);
-		LOGDEBUG (pszLabel << TEXT (" wrote ") << cb << TEXT (" bytes"));
-		if (!cb) return nCount;
+		size_t cbToWrite = PAYLOAD_SIZE;
+		do {
+			LOGDEBUG (pszLabel << TEXT (" writing ") << cbToWrite << TEXT (" bytes"));
+			size_t cb = poIO->Write (pBuffer, cbToWrite, TIMEOUT_PIPE);
+			LOGDEBUG (pszLabel << TEXT (" wrote ") << cb << TEXT (" bytes"));
+			if (!cb) {
+				delete pBuffer;
+				return nCount;
+			}
+			ASSERT (cb <= cbToWrite);
+			cbToWrite -= cb;
+		} while (cbToWrite > 0);
 		nCount++;
 		nOperations++;
-		Sleep (bThrottle ? TIMEOUT_READWRITE : TIMEOUT_READWRITE / 3);
+		CThread::Sleep (bThrottle ? TIMEOUT_READWRITE : TIMEOUT_READWRITE / 3);
 	}
+	delete pBuffer;
 	return nCount;
 }
 
@@ -107,7 +134,7 @@ repeatOperation:
 						}
 					} else {
 						LOGDEBUG (TEXT ("Sleeping"));
-						Sleep (TIMEOUT_HANG);
+						CThread::Sleep (TIMEOUT_HANG);
 					}
 					LOGDEBUG (TEXT ("Deleting client connection object"));
 					delete m_poPipe;
@@ -123,7 +150,7 @@ repeatOperation:
 				}
 			} else {
 				LOGDEBUG (TEXT ("Sleeping"));
-				Sleep (TIMEOUT_HANG);
+				CThread::Sleep (TIMEOUT_HANG);
 			}
 			LOGDEBUG (TEXT ("Deleting server object"));
 			delete poServer;
@@ -167,10 +194,10 @@ repeatOperation:
 		do {
 			if (nAttempt) {
 				LOGDEBUG (TEXT ("Retrying client connection"));
-				Sleep (TIMEOUT_PIPE / 10);
+				CThread::Sleep (TIMEOUT_PIPE / 10);
 			}
 			m_poPipe = m_bRead ? CNamedPipe::ClientRead (m_pszPipeName) : CNamedPipe::ClientWrite (m_pszPipeName);
-		} while ((!m_poPipe) && (NativeGetLastError () == ERROR_FILE_NOT_FOUND) && (++nAttempt < 10));
+		} while ((!m_poPipe) && (NativeGetLastError () == ENOENT) && (++nAttempt < 10));
 		if (m_poPipe) {
 			if (m_nReadWriteOperations) {
 				int rw = _ReadAndWrite (m_poPipe, m_nReadWriteOperations, m_bThrottle, TEXT ("Client"));
@@ -183,7 +210,7 @@ repeatOperation:
 				}
 			} else {
 				LOGDEBUG ("Sleeping");
-				Sleep (TIMEOUT_HANG);
+				CThread::Sleep (TIMEOUT_HANG);
 			}
 			LOGDEBUG (TEXT ("Deleting client object"));
 			delete m_poPipe;
@@ -217,7 +244,7 @@ public:
 	}
 	void Run () {
 		LOGDEBUG (TEXT ("Sleeping"));
-		Sleep (TIMEOUT_HANG / 2);
+		CThread::Sleep (TIMEOUT_HANG / 2);
 		CNamedPipe *poPipe = *m_ppoPipe;
 		ASSERT (poPipe);
 		if (m_lLazyClose) {
@@ -225,7 +252,7 @@ public:
 			poPipe->LazyClose (m_lLazyClose);
 			if (m_bCancel) {
 				LOGDEBUG (TEXT ("Sleeping"));
-				Sleep (m_lLazyClose / 2);
+				CThread::Sleep (m_lLazyClose / 2);
 				LOGDEBUG (TEXT ("Cancelling lazy close"));
 				poPipe->CancelLazyClose ();
 			}
@@ -258,7 +285,7 @@ static void ClientToServerComplete () {
 static void ClientToServerTimeoutConnectServer () {
 	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 1);
-	Sleep (TIMEOUT_PIPE * 2);
+	CThread::Sleep (TIMEOUT_PIPE * 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->GetFailure () == FAIL_NO_ACCEPT);
 	CThread::Release (poServer);
@@ -271,7 +298,11 @@ static void ClientToServerTimeoutConnectClient () {
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
-	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE); // Or Client=FAIL_NO_CREATE if pipe semantics different on non-Win32
+#ifdef _WIN32
+	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE);
+#else
+	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_CREATE);
+#endif
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	free (pszPipeName);
@@ -316,7 +347,7 @@ static void ServerToClientComplete () {
 static void ServerToClientTimeoutConnectServer () {
 	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, true, 1);
-	Sleep (TIMEOUT_PIPE * 2);
+	CThread::Sleep (TIMEOUT_PIPE * 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->GetFailure () == FAIL_NO_ACCEPT);
 	CThread::Release (poServer);
@@ -329,7 +360,11 @@ static void ServerToClientTimeoutConnectClient () {
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, true, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
-	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE); // Or Client=FAIL_NO_CREATE if pipe semantics different on non-Win32
+#ifdef _WIN32
+	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE);
+#else
+	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_CREATE);
+#endif
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	free (pszPipeName);
@@ -404,7 +439,7 @@ static void TestLazyClose (bool bClientToServer, bool bCloseServer) {
 	CThread::Release (poCloser);
 	poServer = new CPipeServerThread (pszPipeName, bClientToServer, true, READWRITE_OPERATIONS, !bCloseServer);
 	poClient = new CPipeClientThread (pszPipeName, !bClientToServer, READWRITE_OPERATIONS, bCloseServer);
-	poCloser = new CPipeClosingThread (bCloseServer ? &poServer->m_poPipe : &poClient->m_poPipe, TIMEOUT_READWRITE / 2, false);
+	poCloser = new CPipeClosingThread (bCloseServer ? &poServer->m_poPipe : &poClient->m_poPipe, TIMEOUT_READWRITE / 3, false);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
 	ASSERT (poCloser->Wait (TIMEOUT_JOIN));

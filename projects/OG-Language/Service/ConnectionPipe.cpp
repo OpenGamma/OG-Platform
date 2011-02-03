@@ -60,7 +60,7 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 		if (!oBuffer.Read (poClient, sizeof (JAVACLIENT_CONNECT), m_dwReadTimeout)) {
 			int ec = GetLastError ();
 			delete poClient;
-			if (ec == WAIT_TIMEOUT) {
+			if (ec == ETIMEDOUT) {
 				LOGWARN (TEXT ("Client connection timed out on read"));
 				continue;
 			} else {
@@ -74,7 +74,7 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 		if (!oBuffer.Read (poClient, cbSize, m_dwReadTimeout)) {
 			int ec = GetLastError ();
 			delete poClient;
-			if (ec == WAIT_TIMEOUT) {
+			if (ec == ETIMEDOUT) {
 				LOGWARN (TEXT ("Client connection timed out on read"));
 				continue;
 			} else {

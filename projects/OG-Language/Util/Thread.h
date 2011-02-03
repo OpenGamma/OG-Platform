@@ -11,12 +11,16 @@
 
 #ifndef _WIN32
 #include <apr-1/apr_thread_proc.h>
+#include <unistd.h>
+#ifdef HAVE_PTHREAD
+#include <pthread.h>
+#endif
 #include "MemoryPool.h"
 #include "Semaphore.h"
-#include "Error.h"
 #endif
 
 #include "Atomic.h"
+#include "Error.h"
 
 class IRunnable {
 public:
@@ -101,7 +105,7 @@ public:
 		case WAIT_OBJECT_0 :
 			return true;
 		case WAIT_TIMEOUT :
-			SetLastError (ERROR_TIMEOUT);
+			SetLastError (ETIMEDOUT);
 			return false;
 		default :
 			return false;
@@ -125,6 +129,27 @@ public:
 		Release (pThread);
 		return result;
 	}
+	static void Sleep (unsigned long millis) {
+#ifdef _WIN32
+		::Sleep (millis);
+#else
+		usleep (millis * 1000);
+#endif
+	}
+#ifndef _WIN32
+	static void *CurrentRef () {
+#ifdef HAVE_PTHREAD
+		return (void*)pthread_self ();
+#else
+		return NULL;
+#endif
+	}
+	static void Interrupt (void *pThreadRef) {
+#ifdef HAVE_PTHREAD
+		pthread_kill ((pthread_t)pThreadRef, SIGALRM);
+#endif
+	}
+#endif
 };
 
 #endif /* ifndef __inc_og_language_util_thread_h */

@@ -18,7 +18,7 @@ LOGGING(com.opengamma.language.service.Service);
 #define WAIT_HINT				2000
 #define IS_BUSY_TIMEOUT			(WAIT_HINT / 2)
 
-static CRITICAL_SECTION g_cs;
+static CMutex g_oMutex;
 static CJVM *g_poJVM = NULL;
 static CConnectionPipe *g_poPipe = NULL;
 #ifdef _WIN32
@@ -91,19 +91,19 @@ static void _ReportStateErrored () {
 }
 
 void ServiceStop (bool bForce) {
-	EnterCriticalSection (&g_cs);
+	g_oMutex.Enter ();
 	if (bForce) {
 		_ReportStateStopping ();
 		g_poPipe->Close ();
 	} else {
 		g_poPipe->LazyClose ();
 	}
-	LeaveCriticalSection (&g_cs);
+	g_oMutex.Leave ();
 }
 
 void ServiceSuspend () {
 	_ReportStateStopping ();
-	EnterCriticalSection (&g_cs);
+	g_oMutex.Enter ();
 	g_poPipe->Close ();
 	// Never leave the critical section - this function is designed specifically to fcuk up the
 	// execution of the service to test a hung JVM. IT IS NOT THE WINDOWS SERVICE SUSPEND/RESUME.
@@ -207,7 +207,7 @@ void ServiceRun (int nReason) {
 						ServiceStop (false);
 					}
 				}
-				EnterCriticalSection (&g_cs);
+				g_oMutex.Enter ();
 				if (g_poPipe->IsClosed ()) {
 					LOGINFO (TEXT ("Pipe closed with pending connection - reopening"));
 					delete g_poPipe;
@@ -219,7 +219,7 @@ void ServiceRun (int nReason) {
 						g_poJVM->Stop ();
 					}
 				}
-				LeaveCriticalSection (&g_cs);
+				g_oMutex.Leave ();
 			} else {
 				LOGERROR (TEXT ("Shutting down JVM after failing to read from pipe"));
 				g_poJVM->Stop ();
@@ -239,12 +239,4 @@ void ServiceRun (int nReason) {
 	}
 	delete g_poJVM;
 	g_poJVM = NULL;
-}
-
-void ServiceInit () {
-	InitializeCriticalSection (&g_cs);
-}
-
-void ServiceDone () {
-	DeleteCriticalSection (&g_cs);
 }
