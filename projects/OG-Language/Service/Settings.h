@@ -14,7 +14,7 @@
 #ifdef _WIN32
 #define SETTINGS_JVM_LIBRARY				TEXT ("jvmDLL")
 #else
-#define SETTINGS_JVM_LIBRARY				TEXT ("jvmSO")
+#define SETTINGS_JVM_LIBRARY				TEXT ("jvmLibrary")
 #endif
 #define SETTINGS_CONNECTION_PIPE			SERVICE_SETTINGS_CONNECTION_PIPE
 #define SETTINGS_CONNECTION_TIMEOUT			TEXT ("connectionTimeout")

@@ -23,6 +23,7 @@
 #include <malloc.h>
 #include <pthread.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <dlfcn.h>
 #include <dirent.h>
 #endif
@@ -32,6 +33,7 @@
 
 #include <Util/AbstractSettings.h>
 #include <Util/BufferedInput.h>
+#include <Util/File.h>
 #include <Util/Fudge.h>
 #include <Util/Library.h>
 #include <Util/Logging.h>

@@ -12,38 +12,88 @@
 #define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
+#include "Error.h"
+#include "File.h"
+#include "String.h"
 
 LOGGING(com.opengamma.language.util.AbstractSettings);
 
+#ifndef _WIN32
+static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBase, const TCHAR *pszConfig) {
+	TCHAR szPath[PATH_MAX];
+	StringCbPrintf (szPath, sizeof (szPath), TEXT ("%s%s%s"), pszBase, pszConfig, pszSettingsLocation);
+	FILE *f = fopen (szPath, TEXT ("rt"));
+	if (!f) {
+		LOGWARN (TEXT ("Couldn't open ") << szPath << TEXT (", error ") << GetLastError ());
+	}
+	return f;
+}
+#endif /* ifndef _WIN32 */
+
 CAbstractSettings::CAbstractSettings () {
 	m_pCache = NULL;
+	TCHAR szSettingsLocation[256];
+	if (!GetSettingsLocation (szSettingsLocation, sizeof (szSettingsLocation))) {
+		LOGWARN (TEXT ("Couldn't get settings location, error ") << GetLastError ());
+		return;
+	}
 #ifdef _WIN32
 	m_hkeyGlobal = NULL;
 	m_hkeyLocal = NULL;
 	HKEY hkey;
-	TCHAR szRegistryConfigurationString[MAX_PATH];
 	LOGDEBUG ("Opening registry keys");
-	if (GetSettingsLocation (szRegistryConfigurationString, sizeof (szRegistryConfigurationString))) {
-		HRESULT hr;
-		if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
-			if ((hr = RegOpenKeyEx (hkey, szRegistryConfigurationString, 0, KEY_READ, &m_hkeyGlobal)) != ERROR_SUCCESS) {
-				LOGDEBUG ("Couldn't find machine global configuration settings, error " << hr);
-			}
-			RegCloseKey (hkey);
-		} else {
-			LOGWARN ("Couldn't open HKEY_LOCAL_MACHINE\\SOFTWARE registry key, error " << hr);
+	HRESULT hr;
+	if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
+		if ((hr = RegOpenKeyEx (hkey, szSettingsLocation, 0, KEY_READ, &m_hkeyGlobal)) != ERROR_SUCCESS) {
+			LOGDEBUG ("Couldn't find machine global configuration settings, error " << hr);
 		}
-		if ((hr = RegOpenKeyEx (HKEY_CURRENT_USER, TEXT ("SOFTWARE"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
-			if ((hr = RegOpenKeyEx (hkey, szRegistryConfigurationString, 0, KEY_READ, &m_hkeyLocal)) != ERROR_SUCCESS) {
-				LOGDEBUG ("Couldn't find user local configuration settings, error " << hr);
-			}
-			RegCloseKey (hkey);
-		} else {
-			LOGWARN ("Couldn't open HKEY_CURRENT_USER\\Software registry key, error " << hr);
-		}
+		RegCloseKey (hkey);
 	} else {
-		LOGWARN ("Couldn't find local registry configuration string, error " << GetLastError ());
+		LOGWARN ("Couldn't open HKEY_LOCAL_MACHINE\\SOFTWARE registry key, error " << hr);
 	}
+	if ((hr = RegOpenKeyEx (HKEY_CURRENT_USER, TEXT ("SOFTWARE"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
+		if ((hr = RegOpenKeyEx (hkey, szSettingsLocation, 0, KEY_READ, &m_hkeyLocal)) != ERROR_SUCCESS) {
+			LOGDEBUG ("Couldn't find user local configuration settings, error " << hr);
+		}
+		RegCloseKey (hkey);
+	} else {
+		LOGWARN ("Couldn't open HKEY_CURRENT_USER\\Software registry key, error " << hr);
+	}
+#else /* ifdef _WIN32 */
+	// TODO: the default paths should be configurable from the build
+	FILE *f = _OpenSettings (szSettingsLocation, getenv ("HOME"), TEXT ("/etc/"));
+	if (!f) {
+		f = _OpenSettings (szSettingsLocation, TEXT ("/usr/local"), TEXT ("/etc/"));
+		if (!f) {
+			f = _OpenSettings (szSettingsLocation, TEXT (""), TEXT ("/etc/"));
+			if (!f) {
+				LOGWARN (TEXT ("Couldn't open configuration file"));
+				return;
+			}
+		}
+	}
+	int nLine = 0;
+	while (fgets (szSettingsLocation, sizeof (szSettingsLocation), f)) {
+		nLine++;
+		TCHAR *psz = szSettingsLocation;
+		while (isspace (*psz)) psz++;
+		if (!*psz || (*psz == '#') || !strtok (psz, "\r\n")) continue;
+		TCHAR *pszKey = strtok (psz, "=");
+		if (!pszKey) {
+			// This shouldn't happen
+			LOGFATAL (TEXT ("Bad line ") << nLine);
+			continue;
+		}
+		TCHAR *pszValue = strtok (NULL, "");
+		if (!pszValue) {
+			LOGWARN (TEXT ("Bad line ") << nLine);
+			continue;
+		}
+		LOGDEBUG (TEXT ("Key=") << pszKey << TEXT (", Value=") << pszValue);
+		CachePut (pszKey, pszValue);
+	}
+	fclose (f);
+	LOGINFO (TEXT ("Configuration file read, ") << nLine << TEXT (" lines"));
 #endif /* ifdef _WIN32 */
 }
 
@@ -126,14 +176,14 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) {
 
 const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
 	const TCHAR *pszValue = CacheGet (pszKey);
-	if (!pszValue) {
 #ifdef _WIN32
+	if (!pszValue) {
 		pszValue = RegistryGet (m_hkeyLocal, pszKey);
 		if (!pszValue) {
 			pszValue = RegistryGet (m_hkeyGlobal, pszKey);
 		}
-#endif
 	}
+#endif
 	return pszValue;
 }
 
@@ -151,17 +201,6 @@ bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferL
 	CDllVersion version;
 	const TCHAR *pszCompanyName = version.GetCompanyName ();
 	const TCHAR *pszProductName = version.GetProductName ();
-#ifndef _WIN32
-	// TODO: pull the path prefix from a macro to allow user to change during ./configure & build
-	if (cbBufferLen > sizeof (TCHAR) * 5) {
-		*(pszBuffer++) = '/';
-		*(pszBuffer++) = 'e';
-		*(pszBuffer++) = 't';
-		*(pszBuffer++) = 'c';
-		*(pszBuffer++) = '/';
-		cbBufferLen -= sizeof (TCHAR) * 5;
-	}
-#endif /* ifndef _WIN32 */
 	while ((cbBufferLen > sizeof (TCHAR)) && *pszCompanyName) {
 		TCHAR c = *(pszCompanyName++);
 		if (((c >= 'a') && (c <= 'z'))
@@ -171,11 +210,7 @@ bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferL
 		}
 	}
 	if (cbBufferLen > sizeof (TCHAR)) {
-#ifdef _WIN32
-		*(pszBuffer++) = '\\';
-#else
-		*(pszBuffer++) = '/';
-#endif
+		*(pszBuffer++) = PATH_CHAR;
 		cbBufferLen -= sizeof (TCHAR);
 	}
 	while ((cbBufferLen > sizeof (TCHAR)) && *pszProductName) {

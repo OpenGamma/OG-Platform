@@ -16,13 +16,6 @@ LOGGING(com.opengamma.svc.JVM);
 
 //#define DESTROY_JVM /* If there are rogue threads, the JVM won't terminate gracefully so comment this line out */
 #define MAIN_CLASS		"com/opengamma/language/connector/Main"
-#ifdef _WIN32
-#define PATH_CHAR_STR	"\\"
-#define PATH_CHAR		'\\'
-#else
-#define PATH_CHAR_STR	"/"
-#define PATH_CHAR		'/'
-#endif
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppEnv, JavaVMInitArgs *pArgs);
 
@@ -117,10 +110,12 @@ static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTot
 }
 
 static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTotal, const TCHAR *pszPath) {
+	size_t cchSearch;
+	TCHAR *pszSearch;
 #ifdef _WIN32
 	WIN32_FIND_DATA wfd;
-	size_t cchSearch = _tcslen (pszPath) + 5;
-	PTSTR pszSearch = new TCHAR[cchSearch];
+	cchSearch = _tcslen (pszPath) + 5;
+	pszSearch = new TCHAR[cchSearch];
 	if (!pszSearch) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return pszBuffer;
@@ -151,7 +146,7 @@ static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTota
 					LOGFATAL (TEXT ("Out of memory"));
 					break;
 				}
-				StringCchPrintf (pszSearch, cchSearch, TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("%s"), pszPath, __filename);
+				StringCbPrintf (pszSearch, cchSearch / sizeof (TCHAR), TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("%s"), pszPath, __filename);
 				pszBuffer = _ScanClassPath (pszBuffer, pcchUsed, pcchTotal, pszSearch);
 				delete pszSearch;
 				continue;

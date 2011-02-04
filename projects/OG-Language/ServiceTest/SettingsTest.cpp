@@ -26,7 +26,7 @@ static void Defaults () {
 	PRINT_AND_ASSERT (ConnectionTimeout);
 	PRINT_AND_ASSERT (JarPath);
 	PRINT_AND_ASSERT (AnnotationCache);
-	PRINT_AND_ASSERT (LogConfiguration);
+	PRINT (LogConfiguration);
 	PRINT_AND_ASSERT (IdleTimeout);
 	PRINT_AND_ASSERT (ServiceName);
 #ifdef _WIN32
