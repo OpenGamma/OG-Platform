@@ -7,7 +7,9 @@ package com.opengamma.financial.portfolio.rest;
 
 import java.net.URI;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -63,9 +65,17 @@ public class RemotePortfolioMaster implements PortfolioMaster {
       URI uri = DataPortfolioResource.uriVersion(_baseUri, uniqueId);
       return accessRemote(uri).get(PortfolioDocument.class);
     } else {
-      URI uri = DataPortfolioResource.uri(_baseUri, uniqueId);
-      return accessRemote(uri).get(PortfolioDocument.class);
+      return get(uniqueId, VersionCorrection.LATEST);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PortfolioDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    
+    URI uri = DataPortfolioResource.uri(_baseUri, objectId, versionCorrection);
+    return accessRemote(uri).get(PortfolioDocument.class);
   }
 
   //-------------------------------------------------------------------------
@@ -86,7 +96,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioResource.uri(_baseUri, document.getUniqueId());
+    URI uri = DataPortfolioResource.uri(_baseUri, document.getUniqueId(), VersionCorrection.LATEST);
     return accessRemote(uri).put(PortfolioDocument.class, document);
   }
 
@@ -95,7 +105,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
   public void remove(final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPortfolioResource.uri(_baseUri, uniqueId);
+    URI uri = DataPortfolioResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
     accessRemote(uri).delete();
   }
 

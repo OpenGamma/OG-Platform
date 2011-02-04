@@ -49,6 +49,13 @@ public class WebPositionResource extends AbstractWebPositionResource {
     FlexiBean out = createRootData();
     return getFreemarker().build("positions/position.ftl", out);
   }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("positions/jsonposition.ftl", out);
+  }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

@@ -5,11 +5,14 @@
  */
 package com.opengamma.master.listener;
 
+import com.opengamma.util.PublicSPI;
+
 /**
  * Trait added to those masters that can send events whenever they are changed.
  * <p>
  * This trait allows listeners to be registered for the events.
  */
+@PublicSPI
 public interface NotifyingMaster {
 
   /**

@@ -30,6 +30,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for searching for holidays.
@@ -39,6 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * as at a specific version and correction instant.
  * See {@link HolidayHistoryRequest} for more details on how history works.
  */
+@PublicSPI
 @BeanDefinition
 public class HolidaySearchRequest extends AbstractSearchRequest implements Serializable {
 

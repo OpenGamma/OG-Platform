@@ -167,8 +167,8 @@ public class ViewRecalculationJob extends TerminatableJob {
     // case another cycle will run straight away.
     updateRecalculationTimes(currentTime, !doFullRecalc);
     
-    long snapshotTime = getView().getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-    SingleComputationCycle cycle = getView().createCycle(snapshotTime);
+    SingleComputationCycle cycle = getView().createCycle();
+    
     cycle.prepareInputs();
 
     if (doFullRecalc) {  

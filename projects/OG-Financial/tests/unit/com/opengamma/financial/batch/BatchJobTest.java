@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -18,18 +19,19 @@ import org.apache.commons.cli.PosixParser;
 import org.junit.Test;
 
 import com.opengamma.core.common.Currency;
+import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
-import com.opengamma.master.holiday.impl.CoppClarkHolidayFileReader;
-import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 
 /**
  * Test batchJob.
@@ -38,40 +40,40 @@ public class BatchJobTest {
   
   @Test(expected=IllegalStateException.class)
   public void emptyCommandLine() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "".split(" "));
     job.initialize(line, null);
   }
   
   @Test(expected=IllegalStateException.class)
   public void noViewName() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "-springXml batch.xml".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "-springXml batch.xml".split(" "));
     job.initialize(line, null);
   }
   
   @Test(expected=IllegalStateException.class)
   public void noSpringXml() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "-view TestPortfolio".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "-view TestPortfolio".split(" "));
     job.initialize(line, null);
   }
 
   @Test
   public void minimumCommandLine() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "-view TestPortfolio -springXml batch.xml".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "-view TestPortfolio -springXml batch.xml".split(" "));
     job.initialize(line, null);
     assertEquals(1, job.getRuns().size());
-    BatchJobRun run = job.getRuns().get(0);
+    CommandLineBatchJobRun run = job.getRuns().get(0);
     
-    assertEquals(job.getCreationTime(), run.getValuationTime());
-    assertEquals(job.getCreationTime(), run.getConfigDbTime());
-    assertEquals(job.getCreationTime(), run.getStaticDataTime());
+    assertEquals(job.getCreationTime().toInstant(), run.getValuationTime());
+    assertEquals(job.getCreationTime().toInstant(), run.getConfigDbTime());
+    assertEquals(job.getCreationTime().toInstant(), run.getStaticDataTime());
     
     assertEquals(job.getCreationTime().toLocalDate(), run.getObservationDate());
     assertEquals(BatchJobParameters.AD_HOC_OBSERVATION_TIME, run.getObservationTime());
@@ -86,9 +88,9 @@ public class BatchJobTest {
   
   @Test
   public void configDbParameters() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "-springXml batch.xml".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "-springXml batch.xml".split(" "));
     BatchJobParameters parameters = new BatchJobParameters();
     parameters.setViewName("TestPortfolio1");
     job.initialize(line, parameters);
@@ -97,9 +99,9 @@ public class BatchJobTest {
   
   @Test
   public void commandLineOverridesParameters() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), "-view TestPortfolio1 -springXml batch.xml".split(" "));
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), "-view TestPortfolio1 -springXml batch.xml".split(" "));
     BatchJobParameters parameters = new BatchJobParameters();
     parameters.setViewName("TestPortfolio2");
     job.initialize(line, parameters);
@@ -120,11 +122,11 @@ public class BatchJobTest {
     dbManager.addLiveData(snapshotId2, value);
     dbManager.addLiveData(snapshotId3, value);
     
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(dbManager);
     
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), 
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
         "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100901 -dateRangeEnd 20100907 -snapshotDateRange -observationTime LDN_CLOSE".split(" "));
     job.initialize(line, null);
     
@@ -137,7 +139,7 @@ public class BatchJobTest {
       observationDates.add(run.getObservationDate());
       snapshotObservationDates.add(run.getSnapshotObservationDate());
       
-      assertEquals(job.getCreationTime().toLocalTime(), run.getValuationTime().toLocalTime());
+      assertEquals(job.getCreationTime().toLocalTime(), ZonedDateTime.ofInstant(run.getValuationTime(), job.getCreationTime().getZone()).toLocalTime());
     }
     
     assertTrue(observationDates.contains(LocalDate.of(2010, 9, 1)));
@@ -149,15 +151,32 @@ public class BatchJobTest {
   
   @Test
   public void dateRangeCommandLineHolidayMaster() throws Exception {
-    HolidaySource holidaySource = CoppClarkHolidayFileReader.createPopulated(new InMemoryHolidayMaster());
+    HolidaySource holidaySource = new HolidaySource() {
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, Identifier regionOrExchangeId) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, IdentifierBundle regionOrExchangeIds) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+        return dateToCheck.equals(LocalDate.of(2010, 1, 18));
+      }
+      @Override
+      public Holiday getHoliday(UniqueIdentifier uid) {
+        throw new UnsupportedOperationException();
+      }
+    };
     
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());
     job.setHolidaySource(holidaySource);
     job.setHolidayCurrency(Currency.getInstance("USD"));
     
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), 
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
         "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100114 -dateRangeEnd 20100119 -observationTime LDN_CLOSE".split(" "));
     job.initialize(line, null);
     
@@ -170,7 +189,7 @@ public class BatchJobTest {
       observationDates.add(run.getObservationDate());
       snapshotObservationDates.add(run.getSnapshotObservationDate());
       
-      assertEquals(job.getCreationTime().toLocalTime(), run.getValuationTime().toLocalTime());
+      assertEquals(job.getCreationTime().toLocalTime(), ZonedDateTime.ofInstant(run.getValuationTime(), job.getCreationTime().getZone()).toLocalTime());
     }
     
     assertTrue(observationDates.contains(LocalDate.of(2010, 1, 14)));
@@ -182,11 +201,11 @@ public class BatchJobTest {
   
   @Test
   public void dateRangeCommandLineNoHolidayMaster() throws Exception {
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());
     
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), 
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
         "-view TestPortfolio -springXml batch.xml -dateRangeStart 20100114 -dateRangeEnd 20100119 -observationTime LDN_CLOSE".split(" "));
     job.initialize(line, null);
     
@@ -199,7 +218,7 @@ public class BatchJobTest {
       observationDates.add(run.getObservationDate());
       snapshotObservationDates.add(run.getSnapshotObservationDate());
       
-      assertEquals(job.getCreationTime().toLocalTime(), run.getValuationTime().toLocalTime());
+      assertEquals(job.getCreationTime().toLocalTime(), ZonedDateTime.ofInstant(run.getValuationTime(), job.getCreationTime().getZone()).toLocalTime());
     }
     
     assertTrue(observationDates.contains(LocalDate.of(2010, 1, 14)));
@@ -228,7 +247,7 @@ public class BatchJobTest {
     DummyBatchDbManager dbManager = new DummyBatchDbManager();
     dbManager.addLiveData(snapshotId, value);
 
-    BatchJob job = new BatchJob();
+    CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(dbManager);
     job.setPositionSource(testView.getProcessingContext().getPositionSource());
     job.setSecuritySource(testView.getProcessingContext().getSecuritySource());
@@ -237,7 +256,7 @@ public class BatchJobTest {
     job.setConfigSource(cfgSource);
     
     CommandLineParser parser = new PosixParser();
-    CommandLine line = parser.parse(BatchJob.getOptions(), 
+    CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
         "-view MyView -springXml batch.xml -observationDate 99990901".split(" "));
     job.initialize(line, null);
     

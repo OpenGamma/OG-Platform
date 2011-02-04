@@ -25,11 +25,12 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.google.common.base.Objects;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -100,6 +101,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final ExchangeSearchResult result = new ExchangeSearchResult();
@@ -107,10 +109,10 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
         (IdentifierSearch.canMatch(request.getExchangeKeys()) == false)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
     if (request.getExchangeKeys() != null) {
       int i = 0;
@@ -264,6 +266,12 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   @Override
   public ExchangeDocument get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new ExchangeDocumentExtractor(), "Exchange");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ExchangeDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new ExchangeDocumentExtractor(), "Exchange");
   }
 
   //-------------------------------------------------------------------------

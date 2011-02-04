@@ -6,6 +6,7 @@
 package com.opengamma.master.region;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose region master.
@@ -13,6 +14,7 @@ import com.opengamma.master.AbstractMaster;
  * The region master provides a uniform view over a set of region definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
+@PublicSPI
 public interface RegionMaster extends AbstractMaster<RegionDocument> {
 
   /**

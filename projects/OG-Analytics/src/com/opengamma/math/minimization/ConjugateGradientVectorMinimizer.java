@@ -59,6 +59,42 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
     return minimize(function, grad, startPosition);
   }
 
+  // private double[] preCon(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D x) {
+  // int n = x.getNumberOfElements();
+  // double[] res = new double[n];
+  // boolean nonPos = false;
+  // for (int i = 0; i < n; i++) {
+  // double secondDev = getSecondDev(function, x, i, i);
+  //
+  // if (res[i] <= 0.0) {
+  // nonPos = true;
+  // break;
+  // }
+  // res[i] = 1.0 / secondDev;
+  // }
+  //
+  // if (nonPos) {// set to identity if diagonal
+  // for (int i = 0; i < n; i++) {
+  // res[i] = 1.0;
+  // }
+  // }
+  // return res;
+  // }
+  //
+  // private double getSecondDev(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D x, int i, int j) {
+  // double eps = 1e-5;
+  // if (i == j) {
+  // double f_x = function.evaluate(x);
+  // double[] temp = x.toArray();
+  // temp[i] += eps;
+  // double f_p = function.evaluate(new DoubleMatrix1D(temp));
+  // temp[i] -= 2 * eps;
+  // double f_m = function.evaluate(new DoubleMatrix1D(temp));
+  // return (f_p + f_m - 2 * f_x) / eps / eps;
+  // }
+  // return 0.0;
+  // }
+
   @Override
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
 
@@ -67,7 +103,8 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
     DoubleMatrix1D deltaX;
     DoubleMatrix1D g = grad.evaluate(x);
     DoubleMatrix1D d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
-    final double delta0 = OG_ALGEBRA.getInnerProduct(g, g);
+
+    final double delta0 = -OG_ALGEBRA.getInnerProduct(g, d);
     double deltaOld;
     double deltaNew = delta0;
     double lambda = 0.0;
@@ -83,10 +120,11 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
       final double deltaMid = OG_ALGEBRA.getInnerProduct(g, gNew);
       g = gNew;
       deltaOld = deltaNew;
+
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
       if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol
-          //in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion 
+      // in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion
           && OG_ALGEBRA.getNorm2(deltaX) < _relTol * OG_ALGEBRA.getNorm2(x) + _absTol) {
 
         boolean flag = true;
@@ -101,6 +139,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         }
       }
       final double beta = (deltaNew - deltaMid) / deltaOld;
+      // final double beta = deltaNew / deltaOld;
 
       if (beta < 0 || resetCount == n) {
         d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
@@ -109,10 +148,14 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         d = (DoubleMatrix1D) OG_ALGEBRA.subtract(OG_ALGEBRA.scale(d, beta), g);
         final double sanity = OG_ALGEBRA.getInnerProduct(d, g);
         if (sanity > 0) {
-          throw new MathException();
+          d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
+          resetCount = 0;
+          // throw new MathException();
         }
       }
     }
-    throw new MathException("ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final position reached was " + x.toString());
+    double value = function.evaluate(x);
+    throw new MathException("ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final value: " + value
+        + " Final position reached was " + x.toString());
   }
 }

@@ -132,24 +132,6 @@ public interface View {
   Set<String> getAllSecurityTypes();
   
   /**
-   * Synchronously runs a single computation cycle using live data.
-   * 
-   * @throws IllegalStateException  if the view has not been initialized
-   */
-  void runOneCycle();
-  
-  /**
-   * Synchronously runs a single computation cycle using data snapshotted at the given time. This cannot be used while
-   * live computation is running.
-   * 
-   * @param valuationTime  the time of an existing snapshot of live data, which should be used during the computation
-   *                       cycle
-   *                       
-   * @throws IllegalStateException  if the view has not been initialized
-   */
-  void runOneCycle(long valuationTime);
-  
-  /**
    * Indicates whether the view is computing live results automatically. A view in this state will perform a
    * computation cycle whenever changes to its inputs have occurred since the last computation cycle.
    * <p>

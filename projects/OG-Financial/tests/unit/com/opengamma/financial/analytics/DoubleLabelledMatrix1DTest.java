@@ -49,51 +49,10 @@ public class DoubleLabelledMatrix1DTest {
   private static final DoubleLabelledMatrix1D M6 = new DoubleLabelledMatrix1D(TIMES6, LABELS4, VALUES6);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithNullKey() {
-    M1.addIgnoringLabel(null, "N", 2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithNullLabel() {
-    M1.addIgnoringLabel(2., null, 2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddSingleValueWrongLabel1() {
-    M1.add(1., "12M", 0.1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddSingleValueWrongLabel2() {
-    M1.add(1. + HIGH_TOLERANCE / 2, "12M", 0.1, HIGH_TOLERANCE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddNullMatrix1() {
-    M1.addIgnoringLabel(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddNullMatrix2() {
-    M1.add(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testAddWithWrongLabel() {
-    final int n = TIMES1.length;
-    final Double[] times = Arrays.copyOf(TIMES1, n);
-    final Object[] labels = Arrays.copyOf(LABELS1, n);
-    labels[3] = "7D";
-    final double[] values = Arrays.copyOf(VALUES1, n);
-    final LabelledMatrix1D<Double> m = new DoubleLabelledMatrix1D(times, labels, values);
-    M1.add(m);
-  }
-
   @Test
   public void testAddSingleValueAlreadyPresent() {
     final double x = 0.4;
-    LabelledMatrix1D<Double> m = M1.add(1., "1Y", x);
+    LabelledMatrix1D<Double, Double> m = M1.add(1., "1Y", x);
     Double[] newTimes = m.getKeys();
     Object[] newLabels = m.getLabels();
     double[] newValues = m.getValues();
@@ -128,20 +87,27 @@ public class DoubleLabelledMatrix1DTest {
   @Test
   public void testAddSingleValueNotPresent() {
     final double x = 0.4;
-    LabelledMatrix1D<Double> m = M1.add(2.5, "30M", x);
+    LabelledMatrix1D<Double, Double> m = M1.add(2.5, "30M", x);
     Double[] newTimes = m.getKeys();
     Object[] newLabels = m.getLabels();
     double[] newValues = m.getValues();
     int n = TIMES1.length;
     assertEquals(newTimes.length, n + 1);
-    for (int i = 0; i < n; i++) {
-      assertEquals(newTimes[i], TIMES1[i], EPS);
-      assertEquals(newLabels[i], LABELS1[i]);
-      assertEquals(newValues[i], VALUES1[i], EPS);
+    for (int i = 0; i < n + 1; i++) {
+      if (i < 9) {
+        assertEquals(newTimes[i], TIMES1[i], EPS);
+        assertEquals(newLabels[i], LABELS1[i]);
+        assertEquals(newValues[i], VALUES1[i], EPS);
+      } else if (i == 9) {
+        assertEquals(newTimes[i], 2.5, EPS);
+        assertEquals(newLabels[i], "30M");
+        assertEquals(newValues[i], x, EPS);
+      } else {
+        assertEquals(newTimes[i], TIMES1[i - 1], EPS);
+        assertEquals(newLabels[i], LABELS1[i - 1]);
+        assertEquals(newValues[i], VALUES1[i - 1], EPS);
+      }
     }
-    assertEquals(newTimes[n], 2.5, EPS);
-    assertEquals(newLabels[n], "30M");
-    assertEquals(newValues[n], x, EPS);
     m = M1.add(1. + 1.5 * HIGH_TOLERANCE, "1+Y", x, HIGH_TOLERANCE);
     newTimes = m.getKeys();
     newLabels = m.getLabels();
@@ -149,19 +115,26 @@ public class DoubleLabelledMatrix1DTest {
     n = TIMES1.length;
     assertEquals(newTimes.length, n + 1);
     for (int i = 0; i < n; i++) {
-      assertEquals(newTimes[i], TIMES1[i], EPS);
-      assertEquals(newLabels[i], LABELS1[i]);
-      assertEquals(newValues[i], VALUES1[i], EPS);
+      if (i < 7) {
+        assertEquals(newTimes[i], TIMES1[i], EPS);
+        assertEquals(newLabels[i], LABELS1[i]);
+        assertEquals(newValues[i], VALUES1[i], EPS);
+      } else if (i == 7) {
+        assertEquals(newTimes[i], 1. + 1.5 * HIGH_TOLERANCE, EPS);
+        assertEquals(newLabels[i], "1+Y");
+        assertEquals(newValues[i], x, EPS);
+      } else {
+        assertEquals(newTimes[i], TIMES1[i - 1], EPS);
+        assertEquals(newLabels[i], LABELS1[i - 1]);
+        assertEquals(newValues[i], VALUES1[i - 1], EPS);
+      }
     }
-    assertEquals(newTimes[n], 1. + 1.5 * HIGH_TOLERANCE, EPS);
-    assertEquals(newLabels[n], "1+Y");
-    assertEquals(newValues[n], x, EPS);
   }
 
   @Test
   public void testAddSingleValueAlreadyPresentWithError() {
     final double x = 0.4;
-    final LabelledMatrix1D<Double> m1 = M1.add(1. + HIGH_TOLERANCE / 2, "1Y", x, HIGH_TOLERANCE);
+    final LabelledMatrix1D<Double, Double> m1 = M1.add(1. + HIGH_TOLERANCE / 2, "1Y", x, HIGH_TOLERANCE);
     final Double[] newTimes1 = m1.getKeys();
     final Object[] newLabels1 = m1.getLabels();
     final double[] newValues1 = m1.getValues();
@@ -178,9 +151,9 @@ public class DoubleLabelledMatrix1DTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testAddSameTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M2);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M2);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
@@ -200,23 +173,16 @@ public class DoubleLabelledMatrix1DTest {
     for (int i = 0; i < n; i++) {
       assertEquals(values[i], VALUES1[i] + VALUES5[i], EPS);
     }
-    sum = M1.addIgnoringLabel(M5);
-    times = sum.getKeys();
-    labels = sum.getLabels();
-    values = sum.getValues();
-    n = TIMES1.length;
-    assertEquals(times.length, n + TIMES5.length);
-    assertEquals(labels.length, n + LABELS1.length);
-    for (int i = 0; i < n; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i], EPS);
-    }
-    for (int i = n; i < 2 * n; i++) {
-      assertEquals(times[i], TIMES5[i - n], EPS);
-      assertEquals(labels[i], LABELS1[i - n]);
-      assertEquals(values[i], VALUES5[i - n], EPS);
-    }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddSameTimesNoTolerance() {
+    final LabelledMatrix1D<Double, Double> sum = M1.addIgnoringLabel(M5);
+    final Double[] times = sum.getKeys();
+    Object[] labels = sum.getLabels();
+    final int n = TIMES1.length;
+    final int m = TIMES5.length;
+    assertEquals(times.length, n + m);
     labels = Arrays.copyOf(LABELS1, n);
     labels[0] = "O/N";
     M1.add(new DoubleLabelledMatrix1D(TIMES2, labels, VALUES2));
@@ -224,79 +190,95 @@ public class DoubleLabelledMatrix1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddNewTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M3);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M3);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
     final int n = TIMES1.length;
-    assertEquals(times.length, n + TIMES3.length);
-    for (int i = 0; i < n; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i], EPS);
-    }
-    for (int i = n; i < TIMES2.length; i++) {
-      assertEquals(times[i], TIMES3[i - n], EPS);
-      assertEquals(labels[i], LABELS3[i - n]);
-      assertEquals(values[i], VALUES3[i - n], EPS);
+    final int m = TIMES3.length;
+    assertEquals(times.length, n + m);
+    for (int i = 0; i < n + m; i++) {
+      if (i < 2) {
+        assertEquals(times[i], TIMES1[i], EPS);
+        assertEquals(labels[i], LABELS1[i]);
+        assertEquals(values[i], VALUES1[i], EPS);
+      } else if (i < 5) {
+        assertEquals(times[i], TIMES3[i - 2], EPS);
+        assertEquals(labels[i], LABELS3[i - 2]);
+        assertEquals(values[i], VALUES3[i - 2], EPS);
+      } else {
+        assertEquals(times[i], TIMES1[i - 3], EPS);
+        assertEquals(labels[i], LABELS1[i - 3]);
+        assertEquals(values[i], VALUES1[i - 3], EPS);
+      }
     }
     sum = M1.addIgnoringLabel(M3, 1.5 / 365);
     times = sum.getKeys();
     labels = sum.getLabels();
     values = sum.getValues();
     assertEquals(times.length, n + 1);
-    for (int i = 0; i < n; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      if (i == 1) {
-        assertEquals(values[i], VALUES1[i] + VALUES3[0], EPS);
-      } else if (i == 2) {
-        assertEquals(values[i], VALUES1[i] + VALUES3[2], EPS);
-      } else {
-        assertEquals(values[i], VALUES1[i], EPS);
-      }
+    assertEquals(times[0], TIMES1[0], EPS);
+    assertEquals(labels[0], LABELS1[0]);
+    assertEquals(values[0], VALUES1[0], EPS);
+    assertEquals(times[1], TIMES1[1], EPS);
+    assertEquals(labels[1], LABELS1[1]);
+    assertEquals(values[1], VALUES1[1] + VALUES3[0], EPS);
+    assertEquals(times[2], TIMES3[1], EPS);
+    assertEquals(labels[2], LABELS3[1]);
+    assertEquals(values[2], VALUES3[1], EPS);
+    assertEquals(times[3], TIMES1[2], EPS);
+    assertEquals(labels[3], LABELS1[2]);
+    assertEquals(values[3], VALUES1[2] + VALUES3[2], EPS);
+    for (int i = 4; i < n + 1; i++) {
+      assertEquals(times[i], TIMES1[i - 1], EPS);
+      assertEquals(labels[i], LABELS1[i - 1]);
+      assertEquals(values[i], VALUES1[i - 1], EPS);
     }
     sum = M1.add(M3, 1.5 / 365);
   }
 
   @Test
   public void testSomeIdenticalTimes() {
-    LabelledMatrix1D<Double> sum = M1.add(M4);
+    LabelledMatrix1D<Double, Double> sum = M1.add(M4);
     Double[] times = sum.getKeys();
     Object[] labels = sum.getLabels();
     double[] values = sum.getValues();
     final int n = TIMES1.length;
     assertEquals(times.length, n + 1);
-    for (int i = 0; i < 5; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i] + VALUES4[i], EPS);
+    for (int i = 0; i < n + 1; i++) {
+      if (i < 5) {
+        assertEquals(times[i], TIMES1[i], EPS);
+        assertEquals(labels[i], LABELS1[i]);
+        assertEquals(values[i], VALUES1[i] + VALUES4[i], EPS);
+      } else if (i == 5) {
+        assertEquals(times[i], TIMES4[i], EPS);
+        assertEquals(labels[i], LABELS4[i]);
+        assertEquals(values[i], VALUES4[i], EPS);
+      } else {
+        assertEquals(times[i], TIMES1[i - 1], EPS);
+        assertEquals(labels[i], LABELS1[i - 1]);
+        assertEquals(values[i], VALUES1[i - 1], EPS);
+      }
     }
-    for (int i = 5; i < n; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i], EPS);
-    }
-    assertEquals(times[n], TIMES4[5], EPS);
-    assertEquals(labels[n], LABELS4[5]);
-    assertEquals(values[n], VALUES4[5], EPS);
     sum = M1.addIgnoringLabel(M6, HIGH_TOLERANCE);
     times = sum.getKeys();
     labels = sum.getLabels();
     values = sum.getValues();
     assertEquals(times.length, n + 1);
-    for (int i = 0; i < 5; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i] + VALUES6[i], EPS);
+    for (int i = 0; i < n + 1; i++) {
+      if (i < 5) {
+        assertEquals(times[i], TIMES1[i], EPS);
+        assertEquals(labels[i], LABELS1[i]);
+        assertEquals(values[i], VALUES1[i] + VALUES6[i], EPS);
+      } else if (i == 5) {
+        assertEquals(times[i], TIMES6[i], EPS);
+        assertEquals(labels[i], LABELS4[i]);
+        assertEquals(values[i], VALUES6[i], EPS);
+      } else {
+        assertEquals(times[i], TIMES1[i - 1], EPS);
+        assertEquals(labels[i], LABELS1[i - 1]);
+        assertEquals(values[i], VALUES1[i - 1], EPS);
+      }
     }
-    for (int i = 5; i < n; i++) {
-      assertEquals(times[i], TIMES1[i], EPS);
-      assertEquals(labels[i], LABELS1[i]);
-      assertEquals(values[i], VALUES1[i], EPS);
-    }
-    assertEquals(times[n], TIMES6[5], EPS);
-    assertEquals(labels[n], LABELS4[5]);
-    assertEquals(values[n], VALUES6[5], EPS);
   }
 }

@@ -5,14 +5,25 @@
  */
 package com.opengamma.core.security;
 
+import javax.time.CalendricalException;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.format.DateTimeFormatters;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Utilities and constants for securities.
  */
+@PublicAPI
 public class SecurityUtils {
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
 
   /**
    * Identification scheme for the ISIN code.
@@ -34,6 +45,10 @@ public class SecurityUtils {
    * Identification scheme for Bloomberg tickers.
    */
   public static final IdentificationScheme BLOOMBERG_TICKER = IdentificationScheme.of("BLOOMBERG_TICKER");
+  /**
+   * Identification scheme for Bloomberg tickers.
+   */
+  public static final IdentificationScheme BLOOMBERG_TCM = IdentificationScheme.of("BLOOMBERG_TCM");
   /**
    * Identification scheme for Reuters RICs.
    */
@@ -146,6 +161,53 @@ public class SecurityUtils {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
     return Identifier.of(BLOOMBERG_TICKER, ticker);
+  }
+  
+  /**
+   * Creates a Bloomberg ticker coupon maturity identifier.
+   * <p>
+   * This is the ticker combined with a coupon and a maturity supplied by Bloomberg.
+   * Example might be {@code T 4.75 15/08/43 Govt}.
+   * 
+   * @param tickerWithoutSector  the Bloomberg ticker without the sector, not null
+   * @param coupon  the coupon, not null
+   * @param maturity  the maturity date, not null
+   * @param marketSector  the sector, not null
+   * @return the security identifier, not null
+   */
+  public static Identifier bloombergTCMSecurityId(final String tickerWithoutSector, final String coupon, final String maturity, final String marketSector) {
+    ArgumentChecker.notNull(tickerWithoutSector, "tickerWithoutSector");
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(maturity, "maturity");
+    ArgumentChecker.notNull(marketSector, "marketSector");
+    if (StringUtils.isEmpty(tickerWithoutSector)) {
+      throw new IllegalArgumentException("Ticker (without sector) must not be empty");
+    }
+    if (StringUtils.isEmpty(coupon)) {
+      throw new IllegalArgumentException("Coupon must not be empty, ticker = " + tickerWithoutSector);
+    }
+    if (StringUtils.isEmpty(maturity)) {
+      throw new IllegalArgumentException("Maturity must not be empty, ticker = " + tickerWithoutSector + ", coupon = " + coupon);
+    }
+    if (StringUtils.isEmpty(marketSector)) {
+      throw new IllegalArgumentException("Market sector must not be empty, ticker = " + tickerWithoutSector + ", coupon = " + coupon + ", maturity = " + maturity);
+    }
+    Double couponDbl;
+    try {
+      couponDbl = Double.parseDouble(coupon);
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("Coupon must be a valid double, ticker=" + tickerWithoutSector + ", coupon=" + coupon, ex);
+    }
+    if (s_logger.isDebugEnabled()) {
+      try {
+        LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
+      } catch (UnsupportedOperationException uoe) {
+        s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
+      } catch (CalendricalException ce) {
+        s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
+      }  
+    }
+    return Identifier.of(BLOOMBERG_TCM, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
   }
 
   /**

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.concurrent.ExecutorService;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 
@@ -21,6 +23,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   private ActiveMQConnectionFactory _connectionFactory;
   private String _topicPrefix;
   private FudgeContext _fudgeContext;
+  private ExecutorService _executorService;
    
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
@@ -53,6 +56,14 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   public void setFudgeContext(FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
+  
+  public ExecutorService getExecutorService() {
+    return _executorService;
+  }
+  
+  public void setExecutorService(ExecutorService executorService) {
+    _executorService = executorService;
+  }
 
   @Override
   protected DataViewProcessorsResource createObject() {
@@ -65,9 +76,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     if (_topicPrefix == null) {
       throw new OpenGammaRuntimeException("The topicPrefix property must be set");
     }
+    if (_executorService == null) {
+      throw new OpenGammaRuntimeException("The executorService property must be set");
+    }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(DataViewProcessorsResource.DEFAULT_VIEW_PROCESSOR_NAME, getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext());
+    resource.addViewProcessor(DataViewProcessorsResource.DEFAULT_VIEW_PROCESSOR_NAME, getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext(), getExecutorService());
     return resource;
   }
 

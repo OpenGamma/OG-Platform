@@ -96,12 +96,31 @@ public class SecuritySourceResource {
   }
 
   /**
-   * RESTful method to get securities by identifier bundle.
-   * @param idStrs  the identifiers from the URI, not null
-   * @return the security, null if not found
+   * RESTful method to get all bonds of a specific issuer type
+   * @param issuerType the issuer type
+   * @return the securities, null if not found
    */
   @GET
   @Path("securities")
+  public FudgeMsgEnvelope getAllBondsOfIssuerType(@QueryParam("issuerType") List<String> itStrs) {
+    ArgumentChecker.notEmpty(itStrs, "issuerTypes");
+    ArgumentChecker.isTrue(itStrs.size() == 1, "more or less than one parameter");
+    final FudgeSerializationContext context = getFudgeSerializationContext();
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    final Collection<Security> securities = getSecuritySource().getAllBondsOfIssuerType(itStrs.get(0));
+    for (Security security : securities) {
+      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+    }
+    return new FudgeMsgEnvelope(msg);
+  }
+  
+  /**
+   * RESTful method to get securities by identifier bundle.
+   * @param idStrs  the identifiers from the URI, not null
+   * @return the securities, null if not found
+   */
+  @GET
+  @Path("securities/bonds")
   public FudgeMsgEnvelope getSecurities(@QueryParam("id") List<String> idStrs) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
     IdentifierBundle bundle = IdentifierBundle.EMPTY;

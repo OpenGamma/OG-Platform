@@ -8,7 +8,7 @@ package com.opengamma.core.config;
 import javax.time.Instant;
 
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.PublicAPI;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A source of configuration elements as accessed by the main application.
@@ -16,7 +16,7 @@ import com.opengamma.util.PublicAPI;
  * This interface provides a simple view of configuration as used by most parts of the application.
  * This may be backed by a full-featured config master, or by a much simpler data structure.
  */
-@PublicAPI
+@PublicSPI
 public interface ConfigSource {
 
   /**

@@ -19,6 +19,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -464,7 +465,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_versionAsOf_below() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(5)));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -473,7 +474,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_versionAsOf_mid() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(6, test.getDocuments().size());
@@ -488,7 +489,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_versionAsOf_above() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(6, test.getDocuments().size());

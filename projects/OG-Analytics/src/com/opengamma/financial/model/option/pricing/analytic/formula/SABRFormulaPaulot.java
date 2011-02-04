@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static com.opengamma.math.UtilFunctions.square;
+import static com.opengamma.math.FunctionUtils.square;
 
 import com.opengamma.util.CompareUtils;
 
@@ -18,7 +18,8 @@ public class SABRFormulaPaulot implements SABRFormula {
 
   private static final double EPS = 1e-15;
 
-  public double impliedVolitility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
+  @Override
+  public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     double sigma0, sigma1;
 
@@ -28,48 +29,34 @@ public class SABRFormulaPaulot implements SABRFormula {
 
     // the formula behaves very badly close to ATM
     if (CompareUtils.closeEquals(x, 0.0, 1e-3)) {
-      double delta = 1.01e-3;
-      double a0 = (new SABRFormulaHagan()).impliedVolitility(f, alpha, beta, nu, rho, f, t);
+      final double delta = 1.01e-3;
+      final double a0 = (new SABRFormulaHagan()).impliedVolatility(f, alpha, beta, nu, rho, f, t);
       double kPlus, kMinus;
       kPlus = f * Math.exp(delta);
       kMinus = f * Math.exp(-delta);
-      // if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
-      // kPlus = f*(1+delta);
-      // kMinus = f*(1-delta);
-      // } else {
-      // kPlus = Math.pow(delta * beta1 + Math.pow(f, beta1), 1 / beta1);
-      // kMinus = Math.pow(-delta * beta1 + Math.pow(f, beta1), 1 / beta1);
-      // }
-      double yPlus = impliedVolitility(f, alpha, beta, nu, rho, kPlus, t);
-      double yMinus = impliedVolitility(f, alpha, beta, nu, rho, kMinus, t);
-      double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
-      double a1 = (yPlus - yMinus) / 2 / delta;
-
+      final double yPlus = impliedVolatility(f, alpha, beta, nu, rho, kPlus, t);
+      final double yMinus = impliedVolatility(f, alpha, beta, nu, rho, kMinus, t);
+      final double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
+      final double a1 = (yPlus - yMinus) / 2 / delta;
       return a2 * x * x + a1 * x + a0;
-
-      // sigma0 = alpha / Math.pow(k, beta1);
-      // sigma1 = beta1 * beta1 * alpha * alpha / 24 / a / a + rho * alpha * beta * nu / 4 / a + nu * nu * (2 - 3 * rho * rho) / 24;
-      // return sigma0 * (1 + sigma1 * t);
-    } else {
-
-      double tScale = nu * nu * t;
-      double alphaScale = alpha / nu; // TODO treat the nu = 0 limit
-
-      double q;
-      if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
-        q = x;
-      } else {
-        q = (Math.pow(k, beta1) - Math.pow(f, beta1)) / beta1;
-      }
-
-      final double vMin = Math.sqrt(alphaScale * alphaScale + 2 * rho * alphaScale * q + q * q);
-      final double logTerm = Math.log((vMin + rho * alphaScale + q) / (1 + rho) / alphaScale);
-      sigma0 = x / logTerm;
-
-      final double cTilde = getCTilde(f, k, alphaScale, beta, rho, q);
-      sigma1 = -(cTilde + Math.log(sigma0 * Math.sqrt(k * f))) / square(logTerm);
-      return nu * sigma0 * (1 + sigma1 * tScale);
     }
+    final double tScale = nu * nu * t;
+    final double alphaScale = alpha / nu; // TODO treat the nu = 0 limit
+
+    double q;
+    if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
+      q = x;
+    } else {
+      q = (Math.pow(k, beta1) - Math.pow(f, beta1)) / beta1;
+    }
+
+    final double vMin = Math.sqrt(alphaScale * alphaScale + 2 * rho * alphaScale * q + q * q);
+    final double logTerm = Math.log((vMin + rho * alphaScale + q) / (1 + rho) / alphaScale);
+    sigma0 = x / logTerm;
+
+    final double cTilde = getCTilde(f, k, alphaScale, beta, rho, q);
+    sigma1 = -(cTilde + Math.log(sigma0 * Math.sqrt(k * f))) / square(logTerm);
+    return nu * sigma0 * (1 + sigma1 * tScale);
   }
 
   private double getCTilde(final double f, final double k, final double alpha, final double beta, final double rho, final double q) {
@@ -96,15 +83,15 @@ public class SABRFormulaPaulot implements SABRFormula {
     return res;
   }
 
-  private double getG(final double a, final double b, final double c, double xCap, final double rCap, final double beta, final double t) {
+  private double getG(final double a, final double b, final double c, final double xCap, final double rCap, final double beta, final double t) {
     final double beta1 = 1 - beta;
     double res = Math.atan(t);
-    double y = square(a + b * xCap) - square((beta1 * rCap));
+    final double y = square(a + b * xCap) - square((beta1 * rCap));
     if (y > 0) {
-      double temp = Math.sqrt(y);
+      final double temp = Math.sqrt(y);
       res -= (a + b * xCap) / temp * Math.atan((c * rCap + t * (a + b * (xCap - rCap))) / temp);
     } else if (y < 0) {
-      double temp = Math.sqrt(-y);
+      final double temp = Math.sqrt(-y);
       res += (a + b * xCap) / temp * modAtanh((c * rCap + t * (a + b * (xCap - rCap))) / temp);
     } else {
       res += (a + b * xCap) / (c * rCap + t * (a + b * (xCap - rCap)));
@@ -112,7 +99,7 @@ public class SABRFormulaPaulot implements SABRFormula {
     return res;
   }
 
-  private double modAtanh(double z) {
+  private double modAtanh(final double z) {
     return 0.5 * Math.log(Math.abs((1 + z) / (1 - z)));
   }
 }

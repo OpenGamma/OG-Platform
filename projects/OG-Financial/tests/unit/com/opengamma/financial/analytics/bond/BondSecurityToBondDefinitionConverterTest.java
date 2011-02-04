@@ -18,7 +18,6 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.financial.bond.BondDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -26,6 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -64,17 +64,17 @@ public class BondSecurityToBondDefinitionConverterTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {
-    CONVERTER.getBond(null);
+    CONVERTER.getBond((BondSecurity) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity2() {
-    CONVERTER.getBond(null, false);
+    CONVERTER.getBond((BondSecurity) null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity3() {
-    CONVERTER.getBond(null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
+    CONVERTER.getBond((BondSecurity) null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -26,6 +26,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A node in a portfolio tree allowing an arbitrary structure within an organization
@@ -35,6 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * Each node can also have a collection of positions referred to by identifier.
  * The details of each position is held in the position master.
  */
+@PublicSPI
 @BeanDefinition
 public class ManageablePortfolioNode extends DirectBean implements MutableUniqueIdentifiable {
 

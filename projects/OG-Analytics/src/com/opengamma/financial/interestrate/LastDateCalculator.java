@@ -7,24 +7,36 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
- * 
+ * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
  */
-public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+public final class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Object, Double> {
+  private static final LastDateCalculator CALCULATOR = new LastDateCalculator();
+
+  public static LastDateCalculator getInstance() {
+    return CALCULATOR;
+  }
+
+  private LastDateCalculator() {
+  }
 
   @Override
   public Double visit(final InterestRateDerivative ird, final Object data) {
@@ -92,5 +104,25 @@ public class LastDateCalculator extends AbstractInterestRateDerivativeVisitor<Ob
   @Override
   public Double visitContinuouslyMonitoredAverageRatePayment(final ContinuouslyMonitoredAverageRatePayment payment) {
     return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitFixedCouponAnnuity(final FixedCouponAnnuity annuity) {
+    return visitGenericAnnuity(annuity);
+  }
+
+  @Override
+  public Double visitFixedCouponPayment(final FixedCouponPayment payment) {
+    return visitFixedPayment(payment);
+  }
+
+  @Override
+  public Double visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity) {
+    return visitGenericAnnuity(annuity);
+  }
+
+  @Override
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap) {
+    return visitSwap(swap);
   }
 }

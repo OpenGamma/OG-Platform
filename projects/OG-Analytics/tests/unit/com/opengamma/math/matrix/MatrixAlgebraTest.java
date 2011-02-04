@@ -156,6 +156,15 @@ public class MatrixAlgebraTest {
     ALGEBRA.divide(M3, M1);
   }
 
+  @Test
+  public void testKroneckerProduct() {
+    Matrix<?> m = ALGEBRA.kroneckerProduct(M3, M4);
+    assertTrue(m instanceof DoubleMatrix2D);
+
+    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] { {5, 6, 10, 12}, {7, 8, 14, 16}, {15, 18, 20, 24}, {21, 24, 28, 32}}));
+
+  }
+
   private void assertMatrixEquals(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D) {
       assertTrue(m2 instanceof DoubleMatrix1D);

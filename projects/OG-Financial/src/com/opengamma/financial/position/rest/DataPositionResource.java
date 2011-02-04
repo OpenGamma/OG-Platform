@@ -7,6 +7,7 @@ package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
+import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,6 +22,7 @@ import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -85,8 +87,10 @@ public class DataPositionResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response get() {
-    PositionDocument result = getPositionMaster().get(getUrlPositionId());
+  public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
+    Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
+    Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
+    PositionDocument result = getPositionMaster().get(getUrlPositionId(), VersionCorrection.of(v, c));
     return Response.ok(result).build();
   }
 
@@ -122,8 +126,8 @@ public class DataPositionResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    _urlResourceId = _urlResourceId.withVersion(versionId);
-    return get();
+    PositionDocument result = getPositionMaster().get(getUrlPositionId().withVersion(versionId));
+    return Response.ok(result).build();
   }
 
   @GET
@@ -139,10 +143,18 @@ public class DataPositionResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * @param baseUri  the base URI, not null
    * @param objectId  the resource identifier, not null
+   * @param versionCorrection  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId) {
-    return UriBuilder.fromUri(baseUri).path("/positions/{positionId}").build(objectId.getObjectId());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    UriBuilder b = UriBuilder.fromUri(baseUri).path("/positions/{positionId}");
+    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
+      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
+    }
+    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
+      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
+    }
+    return b.build(objectId.getObjectId());
   }
 
   /**

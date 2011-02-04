@@ -7,13 +7,13 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 
 /**
  * A wrapper class for a GenericAnnuity containing FixedCouponPayment
  */
-public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> implements InterestRateDerivativeWithRate {
+public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> {
 
   public FixedCouponAnnuity(final FixedCouponPayment[] payments) {
     super(payments);
@@ -56,20 +56,19 @@ public class FixedCouponAnnuity extends GenericAnnuity<FixedCouponPayment> imple
     final int n = paymentTimes.length;
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = (i == 0 ? paymentTimes[0] : paymentTimes[i] - paymentTimes[i - 1]); //TODO ????????? so the payment year fractions could be 2.5, 0.5, 0.5, 0.5?
+      res[i] = (i == 0 ? paymentTimes[0] : paymentTimes[i] - paymentTimes[i - 1]); // TODO ????????? so the payment year fractions could be 2.5, 0.5, 0.5, 0.5?
     }
     return res;
   }
 
   @Override
-  public FixedCouponAnnuity withRate(final double rate) {
-    final FixedCouponPayment[] payments = getPayments();
-    final int n = payments.length;
-    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = payments[i].withRate(rate);
-    }
-    return new FixedCouponAnnuity(temp);
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitFixedCouponAnnuity(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitFixedCouponAnnuity(this);
   }
 
 }

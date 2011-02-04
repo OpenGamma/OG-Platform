@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A document used to update a data point in a time-series.
@@ -25,6 +26,7 @@ import com.opengamma.id.UniqueIdentifier;
  * @param <T> LocalDate/java.util.Date depending on whether this is a
  *  daily or an intraday time series
  */
+@PublicSPI
 @BeanDefinition
 public class DataPointDocument<T> extends DirectBean {
 

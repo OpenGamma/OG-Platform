@@ -18,8 +18,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionDocumentComparator;
@@ -43,34 +46,34 @@ import com.opengamma.util.db.Paging;
 public class InMemoryRegionMaster implements RegionMaster {
 
   /**
-   * The default scheme used for each {@link UniqueIdentifier}.
+   * The default scheme used for each {@link ObjectIdentifier}.
    */
-  public static final String DEFAULT_UID_SCHEME = "MemReg";
+  public static final String DEFAULT_OID_SCHEME = "MemReg";
 
   /**
    * A cache of regions by identifier.
    */
-  private final ConcurrentMap<UniqueIdentifier, RegionDocument> _regions = new ConcurrentHashMap<UniqueIdentifier, RegionDocument>();
+  private final ConcurrentMap<ObjectIdentifier, RegionDocument> _store = new ConcurrentHashMap<ObjectIdentifier, RegionDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
+  private final Supplier<ObjectIdentifier> _objectIdSupplier;
 
   /**
-   * Creates an empty region master using the default scheme for any {@link UniqueIdentifier}s created.
+   * Creates an empty region master using the default scheme for any {@link ObjectIdentifier}s created.
    */
   public InMemoryRegionMaster() {
-    this(new UniqueIdentifierSupplier(DEFAULT_UID_SCHEME));
+    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
-   * Creates an instance specifying the supplier of unique identifiers.
+   * Creates an instance specifying the supplier of object identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryRegionMaster(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  public InMemoryRegionMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    _objectIdSupplier = objectIdSupplier;
   }
 
   //-------------------------------------------------------------------------
@@ -78,7 +81,7 @@ public class InMemoryRegionMaster implements RegionMaster {
   public RegionSearchResult search(final RegionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final RegionSearchResult result = new RegionSearchResult();
-    Collection<RegionDocument> docs = _regions.values();
+    Collection<RegionDocument> docs = _store.values();
     if (request.getProviderKey() != null) {
       docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
         @Override
@@ -137,11 +140,18 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    final RegionDocument document = _regions.get(uid);
+  public RegionDocument get(final UniqueIdentifier uniqueId) {
+    return get(uniqueId, VersionCorrection.LATEST);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public RegionDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final RegionDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
-      throw new DataNotFoundException("Region not found: " + uid);
+      throw new DataNotFoundException("Region not found: " + objectId);
     }
     return document;
   }
@@ -152,16 +162,17 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
-    final UniqueIdentifier uid = _uidSupplier.get();
+    final ObjectIdentifier objectId = _objectIdSupplier.get();
+    final UniqueIdentifier uniqueId = objectId.atVersion("");
     final ManageableRegion region = document.getRegion();
-    region.setUniqueId(uid);
-    document.setUniqueId(uid);
+    region.setUniqueId(uniqueId);
+    document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    _regions.put(uid, document);  // unique identifier should be unique
+    _store.put(objectId, document);
     return document;
   }
 
@@ -172,17 +183,17 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
-    final UniqueIdentifier uid = document.getUniqueId();
+    final UniqueIdentifier uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final RegionDocument storedDocument = _regions.get(uid);
+    final RegionDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
-      throw new DataNotFoundException("Region not found: " + uid);
+      throw new DataNotFoundException("Region not found: " + uniqueId);
     }
     document.setVersionFromInstant(now);
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
-    if (_regions.replace(uid, storedDocument, document) == false) {
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     return document;
@@ -190,11 +201,11 @@ public class InMemoryRegionMaster implements RegionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "uid");
+  public void remove(final UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (_regions.remove(uid) == null) {
-      throw new DataNotFoundException("Region not found: " + uid);
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Region not found: " + uniqueId);
     }
   }
 
@@ -205,7 +216,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
     final RegionHistoryResult result = new RegionHistoryResult();
-    final RegionDocument doc = get(request.getObjectId().atLatestVersion());
+    final RegionDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
       result.getDocuments().add(doc);
     }

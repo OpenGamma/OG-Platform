@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.Identifier;
+
 /**
  * 
  */
@@ -46,9 +47,9 @@ public class FRASecurityToForwardRateAgreementConverter {
     final DayCount dayCount = conventions.getDayCount();
 
     // all times on discount/yield/forward curves are measured ACT/ACT
-    final double fixingTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, fixingDate);
-    final double settlementTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, settlementDate);
-    final double maturityTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual").getDayCountFraction(now, maturityDate);
+    final double fixingTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(now, fixingDate);
+    final double settlementTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(now, settlementDate);
+    final double maturityTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(now, maturityDate);
 
     final double forwardYearFraction = dayCount.getDayCountFraction(fixingDate, maturityDate);
     final double discountingYearFraction = dayCount.getDayCountFraction(settlementDate, maturityDate);

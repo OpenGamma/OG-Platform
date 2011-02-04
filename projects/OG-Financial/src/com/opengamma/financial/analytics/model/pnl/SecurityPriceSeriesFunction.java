@@ -14,6 +14,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -27,10 +28,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.timeseries.Schedule;
-import com.opengamma.financial.analytics.timeseries.ScheduleCalculatorFactory;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.schedule.Schedule;
+import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -83,8 +84,11 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
       throw new NullPointerException("Could not get identifier / price series pair for security " + security);
     }
     final DoubleTimeSeries<?> ts = tsPair.getSecond();
-    if ((ts == null) || (ts.isEmpty())) {
+    if (ts == null) {
       throw new NullPointerException("Could not get price series for security " + security);
+    }
+    if (ts.isEmpty()) {
+      throw new OpenGammaRuntimeException("Could not get price series for security " + security);
     }
     final DoubleTimeSeries<?> resultTS;
     if (_scheduleCalculator != null && _samplingFunction != null) {

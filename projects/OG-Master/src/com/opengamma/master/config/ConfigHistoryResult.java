@@ -16,6 +16,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result providing the history of a piece of configuration.
@@ -26,6 +27,7 @@ import com.opengamma.master.AbstractHistoryResult;
  * 
  * @param <T>  the document type
  */
+@PublicSPI
 @BeanDefinition
 public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument<T>> {
 

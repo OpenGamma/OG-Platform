@@ -28,11 +28,6 @@ public abstract class AbstractWebResource {
   private FreemarkerOutputter _freemarker;
   
   /**
-   * JSON output formatter
-   */
-  private JSONOutputter _jsonOutputter = new JSONOutputter();
-
-  /**
    * Creates the resource, used by the root resource.
    */
   protected AbstractWebResource() {
@@ -79,12 +74,4 @@ public abstract class AbstractWebResource {
     return _freemarker;
   }
   
-  /**
-   * Gets the JSON security outputter
-   * @return the json out putter, not null
-   */
-  protected JSONOutputter getJSONOutputter() {
-    return _jsonOutputter;
-  }
-
 }

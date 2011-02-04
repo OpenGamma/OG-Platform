@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -210,11 +209,11 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       final YieldAndDiscountCurve curve = makeYieldCurve(yields, curveKnots, data.getInterpolatorForCurve(curveName));
       curveBundle.setCurve(curveName, curve);
 
-      InterestRateDerivativeWithRate instrument;
+      InterestRateDerivative instrument;
       final double[] marketValue = new double[n];
       for (int i = 0; i < n; i++) {
         instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);
-        instrument = instrument.withRate(ParRateCalculator.getInstance().visit(instrument, curveBundle));
+        instrument = REPLACE_RATE.visit(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
         instruments.add(instrument);
         marketValue[i] = data.getMarketValueCalculator().visit(instrument, curveBundle);
       }
@@ -329,7 +328,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
     for (int i = 0; i < n; i++) {
       instrument = makeSwap(swapMaturities[i], curve1, curve2, 0);
-      instrument = instrument.withRate(ParRateCalculator.getInstance().visit(instrument, curveBundle));
+      instrument = REPLACE_RATE.visitFixedFloatSwap(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
       instruments.add(instrument);
       // if the calculator is Present Value this should be zero (by definition of what par-rate is)
       marketValues[i] = marketValueCalculator.visit(instrument, curveBundle);

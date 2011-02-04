@@ -17,6 +17,7 @@ import org.junit.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -72,7 +73,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
 
   @Test
   public void testGetDefinition_versioned () {
-    _master.setVersionAsOfInstant(Instant.now());
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
     sleep();
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("GBP"), null, "3", "E")));
     _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_GBP"), new YieldCurveDefinition(Currency.getInstance("GBP"), null, "1", "E")));
@@ -91,7 +92,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     yc = _master.getDefinition(Currency.getInstance("GBP"), "1");
     assertNotNull(yc);
     assertEquals("B", yc.getInterpolatorName());
-    _master.setVersionAsOfInstant(nextInstant);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(nextInstant));
     // Expect first set of new data
     yc = _master.getDefinition(Currency.getInstance("GBP"), "3");
     assertNotNull(yc);
@@ -99,7 +100,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     yc = _master.getDefinition(Currency.getInstance("GBP"), "1");
     assertNotNull(yc);
     assertEquals("E", yc.getInterpolatorName());
-    _master.setVersionAsOfInstant(Instant.now());
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
     // Expect to see the delete
     yc = _master.getDefinition(Currency.getInstance("GBP"), "3");
     assertNull(yc);
@@ -134,17 +135,17 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   @Test
   public void testAddOrUpdate_discardOld () {
     Instant first = Instant.now();
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     sleep();
     _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     sleep();
     _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "F")));
     // This should only have kept the second one
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     assertNotNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
   }
   
@@ -188,19 +189,19 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   @Test
   public void testRemove_discardOld () {
     Instant first = Instant.now();
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     sleep();
     _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     sleep();
     _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
     // This should only have kept the second one
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     assertNotNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
-    _master.setVersionAsOfInstant(Instant.now());
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
   }
   
@@ -212,17 +213,17 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   @Test
   public void testUpdate_discardOld () {
     Instant first = Instant.now();
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     sleep();
     _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.getInstance("USD"), null, "1", "E")));
     Instant second = Instant.now();
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     sleep();
     _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
     // This should only have kept the second one
-    _master.setVersionAsOfInstant(first);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     assertNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
-    _master.setVersionAsOfInstant(second);
+    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     assertNotNull(_master.getDefinition(Currency.getInstance("USD"), "1"));
   }
   

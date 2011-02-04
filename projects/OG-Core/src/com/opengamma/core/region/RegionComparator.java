@@ -8,8 +8,6 @@ package com.opengamma.core.region;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.opengamma.OpenGammaRuntimeException;
-
 /**
  * Region comparator based on the region classification, then name.
  */
@@ -37,15 +35,7 @@ public final class RegionComparator implements Comparator<Region> {
     if (type != 0) {
       return type;
     }
-    int name = r1.getName().compareTo(r2.getName());
-    if (name != 0) {
-      return name;
-    }
-    if (r1.equals(r2)) {
-      return 0;
-    } else {
-      throw new OpenGammaRuntimeException("Non-unique name/classification present");
-    }
+    return r1.getName().compareTo(r2.getName());
   }
 
 }

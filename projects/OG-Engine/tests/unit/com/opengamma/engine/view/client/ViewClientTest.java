@@ -456,6 +456,42 @@ public class ViewClientTest {
     
     vp.stop();
   }
+  
+  @Test
+  public void runOneCycle() {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    snapshotProvider.addValue(env.getPrimitive1(), 0);
+    snapshotProvider.addValue(env.getPrimitive2(), 0);
+    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.init();
+    
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    view.start();
+    view.init();
+    
+    ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
+    
+    // PURE BATCH MODE
+    
+    ViewComputationResultModel result1 = client.runOneCycle(1000);
+    assertNotNull(result1);
+    assertEquals(2, result1.getAllResults().size());
+    
+    // MIXED BACH/LIVE MODE
+    
+    client.startLive();
+
+    ViewComputationResultModel result2 = client.runOneCycle(1000);
+    assertNotNull(result2);
+    assertEquals(2, result2.getAllResults().size());
+    
+    client.stopLive();
+    vp.stop();
+  }
  
   private void assertComputationResult(Map<ValueRequirement, Object> expected, ViewCalculationResultModel result) {
     Set<ValueRequirement> remaining = new HashSet<ValueRequirement>(expected.keySet());

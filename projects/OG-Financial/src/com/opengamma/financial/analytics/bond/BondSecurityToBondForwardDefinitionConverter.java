@@ -12,15 +12,15 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.financial.bond.BondConvention;
-import com.opengamma.financial.bond.BondDefinition;
-import com.opengamma.financial.bond.BondForwardDefinition;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.instrument.bond.BondConvention;
+import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.Identifier;
 
@@ -44,7 +44,6 @@ public class BondSecurityToBondForwardDefinitionConverter {
     Validate.notNull(security, "security");
     Validate.notNull(deliveryDate, "deliveryDate");
     final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
-    //final LocalDate maturityDate = security.getMaturity().getExpiry().toLocalDate();
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
     Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
     //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
@@ -55,7 +54,7 @@ public class BondSecurityToBondForwardDefinitionConverter {
     final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);
     Validate.notNull(conventionBundle, "convention bundle " + conventionName);
     final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-    final BondDefinition underlyingBond = _converter.getBond(security, false, conventionBundle);
+    final BondDefinition underlyingBond = _converter.getBond(security, false, conventionBundle); //TODO use notional
     final BondConvention bondForwardConvention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar,
         conventionBundle.isEOMConvention(), conventionName, conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     return new BondForwardDefinition(underlyingBond, deliveryDate.toLocalDate(), bondForwardConvention);

@@ -15,6 +15,7 @@ import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result providing the history of a portfolio tree.
@@ -23,6 +24,7 @@ import com.opengamma.master.AbstractHistoryResult;
  * The document instant fields are used to identify which are which.
  * See {@link PortfolioHistoryRequest} for more details.
  */
+@PublicSPI
 @BeanDefinition
 public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocument> {
 

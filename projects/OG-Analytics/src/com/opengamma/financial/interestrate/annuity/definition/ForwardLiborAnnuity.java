@@ -7,14 +7,14 @@ package com.opengamma.financial.interestrate.annuity.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateDerivativeWithRate;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 
 /**
  * 
  */
-public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> implements InterestRateDerivativeWithRate {
+public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> {
 
   public ForwardLiborAnnuity(final ForwardLiborPayment[] payments) {
     super(payments);
@@ -160,8 +160,13 @@ public class ForwardLiborAnnuity extends GenericAnnuity<ForwardLiborPayment> imp
   }
 
   @Override
-  public ForwardLiborAnnuity withRate(final double rate) {
-    return withSpread(rate);
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitForwardLiborAnnuity(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitForwardLiborAnnuity(this);
   }
 
 }

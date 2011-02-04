@@ -6,6 +6,7 @@
 package com.opengamma.master.holiday;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A general-purpose holiday master.
@@ -13,6 +14,7 @@ import com.opengamma.master.AbstractMaster;
  * The holiday master provides a uniform view over a set of holiday definitions.
  * This interface provides methods that allow the master to be searched and updated.
  */
+@PublicSPI
 public interface HolidayMaster extends AbstractMaster<HolidayDocument> {
 
   /**

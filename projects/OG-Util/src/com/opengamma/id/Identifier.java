@@ -37,7 +37,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class Identifier implements Identifiable, Comparable<Identifier>, Cloneable, Serializable {
+public final class Identifier implements Identifiable, Comparable<Identifier>, Serializable {
 
   /**
    * Fudge message key for the scheme.

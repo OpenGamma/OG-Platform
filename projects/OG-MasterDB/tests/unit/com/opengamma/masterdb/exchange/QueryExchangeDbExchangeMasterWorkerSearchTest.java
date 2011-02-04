@@ -19,6 +19,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -634,7 +635,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_versionAsOf_below() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.minusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.minusSeconds(5)));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -643,7 +644,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_versionAsOf_mid() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setVersionAsOfInstant(_version1Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1Instant.plusSeconds(5)));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -655,7 +656,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_versionAsOf_above() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setVersionAsOfInstant(_version2Instant.plusSeconds(5));
+    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());

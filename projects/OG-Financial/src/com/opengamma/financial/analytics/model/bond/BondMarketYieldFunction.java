@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
@@ -28,11 +28,11 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 public class BondMarketYieldFunction extends BondFunction {
 
   public BondMarketYieldFunction() {
-    super(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, "YLD_CNV_MID");
+    super(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition definition, final Object value, 
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Position position, final BondDefinition definition, final Object value,
       final LocalDate now, final String yieldCurveName) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_YTM, position), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, value));

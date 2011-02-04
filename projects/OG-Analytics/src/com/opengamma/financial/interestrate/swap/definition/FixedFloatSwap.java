@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -43,8 +44,12 @@ public class FixedFloatSwap extends FixedCouponSwap<ForwardLiborPayment> {
   }
 
   @Override
-  public FixedFloatSwap withRate(final double rate) {
-    return new FixedFloatSwap(getFixedLeg().withRate(rate), getReceiveLeg());
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitFixedFloatSwap(this, data);
   }
 
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitFixedFloatSwap(this);
+  }
 }

@@ -27,6 +27,9 @@
 		 will need to set the ssh.private.key property manually in build.properties. -->
 	<available file="${user.home}/.ssh/id_rsa" property="ssh.private.key" value="${user.home}/.ssh/id_rsa"/>
 	<available file="${user.home}/.ssh/id_dsa" property="ssh.private.key" value="${user.home}/.ssh/id_dsa"/>
+	
+	<!-- Generate build number. -->
+	<buildnumber/>
 	 
     <import file="common-ivy.xml"/>
 

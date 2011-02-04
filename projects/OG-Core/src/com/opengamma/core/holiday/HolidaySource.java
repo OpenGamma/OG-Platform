@@ -11,6 +11,7 @@ import com.opengamma.core.common.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * A source of holiday information as accessed by the main application.
@@ -18,6 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
  * This interface provides a simple view of holidays as used by most parts of the application.
  * This may be backed by a full-featured holiday master, or by a much simpler data structure.
  */
+@PublicSPI
 public interface HolidaySource {
 
   /**

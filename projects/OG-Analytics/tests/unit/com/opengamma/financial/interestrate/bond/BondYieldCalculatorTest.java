@@ -49,4 +49,28 @@ public class BondYieldCalculatorTest {
     assertEquals(YIELD, CALCULATOR.calculate(BOND, BUNDLE), 1e-8);
   }
 
+  @Test
+  public void testYieldPriceCurve() {
+
+    final int n = 4;
+    final double[] paymentTimes = new double[n];
+    final double alpha = 0.5;
+    for (int i = 0; i < n; i++) {
+      paymentTimes[i] = (i + 1) * alpha;
+    }
+    double coupon = 0.05;
+
+    Bond bond = new Bond(paymentTimes, coupon, "blah");
+    double price, yield;
+
+    for (int i = 0; i < 50; i++) {
+      price = 0.8 + i * 0.008;
+      yield = CALCULATOR.calculate(bond, price);
+      yield = 2 * (Math.exp(yield / 2) - 1.0);
+      // TODO real test
+      // System.out.println(price + "\t" + yield);
+    }
+
+  }
+
 }

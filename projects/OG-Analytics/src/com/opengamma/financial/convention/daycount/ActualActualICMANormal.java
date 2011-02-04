@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.analytics.securityconverters.StubType;
+import com.opengamma.financial.convention.StubType;
 
 /**
  * The 'Actual/Actual ICMA Normal' day count.

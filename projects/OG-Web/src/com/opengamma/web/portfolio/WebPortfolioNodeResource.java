@@ -34,7 +34,6 @@ import com.sleepycat.je.DatabaseNotFoundException;
  * RESTful resource for a node in a portfolio.
  */
 @Path("/portfolios/{portfolioId}/nodes/{nodeId}")
-@Produces(MediaType.TEXT_HTML)
 public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
 
   /**
@@ -47,7 +46,22 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
 
   //-------------------------------------------------------------------------
   @GET
+  @Produces(MediaType.TEXT_HTML)
   public String get() {
+    FlexiBean out = createPortfolioNodeData();
+    return getFreemarker().build("portfolios/portfolionode.ftl", out);
+  }
+  
+  //-------------------------------------------------------------------------
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createPortfolioNodeData();
+    return getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
+  }
+
+
+  private FlexiBean createPortfolioNodeData() {
     ManageablePortfolioNode node = data().getNode();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setPositionIds(node.getPositionIds());
@@ -56,8 +70,10 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     FlexiBean out = createRootData();
     out.put("positionsResult", positionsResult);
     out.put("positions", positionsResult.getPositions());
-    return getFreemarker().build("portfolios/portfolionode.ftl", out);
+    return out;
   }
+  
+  
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)

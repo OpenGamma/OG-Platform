@@ -10,6 +10,7 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.PublicSPI;
 
 /**
  * An exchange on which financial products can be traded or settled.
@@ -17,6 +18,7 @@ import com.opengamma.id.UniqueIdentifier;
  * Financial products are often traded at a specific location known as an exchange.
  * This interface represents details of the exchange.
  */
+@PublicSPI
 public interface Exchange extends UniqueIdentifiable {
 
   /**

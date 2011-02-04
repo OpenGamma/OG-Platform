@@ -19,12 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.google.common.base.Objects;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -121,6 +122,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final SecuritySearchResult result = new SecuritySearchResult();
@@ -128,12 +130,13 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("sec_type", request.getSecurityType());
+      .addValueNullIgnored("sec_type", request.getSecurityType())
+      .addValueNullIgnored("issuername", getDbHelper().sqlWildcardAdjustValue(request.getBondIssuerName()));
     if (request.getSecurityKeys() != null) {
       int i = 0;
       for (Identifier id : request.getSecurityKeys()) {
@@ -156,6 +159,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @return the SQL search and count, not null
    */
   protected String[] sqlSearchSecurities(final SecuritySearchRequest request) {
+    String extraFrom = "";
     String where = "WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant " +
                 "AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant ";
     if (request.getName() != null) {
@@ -163,6 +167,11 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
     if (request.getSecurityType() != null) {
       where += "AND sec_type = :sec_type ";
+    }
+    if (request.getBondIssuerName() != null) {
+      // this explicit reference to sec_bond is undesirable given its managed by hibernate
+      extraFrom = "LEFT JOIN sec_bond ON  (sec_bond.security_id = sec_security.id) ";
+      where += getDbHelper().sqlWildcardQuery("AND UPPER(issuername) ", "UPPER(:issuername)", request.getBondIssuerName());
     }
     if (request.getSecurityIds() != null) {
       StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
@@ -178,8 +187,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
     where += sqlAdditionalWhere();
     
-    String selectFromWhereInner = "SELECT id FROM sec_security " + where;
-    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
+    String selectFromWhereInner = "SELECT sec_security.id FROM sec_security " + extraFrom + where;
+    String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY sec_security.id ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM sec_security " + where;
     return new String[] {search, count};
@@ -292,6 +301,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   @Override
   public SecurityDocument get(final UniqueIdentifier uniqueId) {
     SecurityDocument doc = doGet(uniqueId, new SecurityDocumentExtractor(), "Security");
+    loadDetail(Collections.singletonList(doc));
+    return doc;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    SecurityDocument doc = doGetByOidInstants(objectId, versionCorrection, new SecurityDocumentExtractor(), "Holiday");
     loadDetail(Collections.singletonList(doc));
     return doc;
   }

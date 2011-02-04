@@ -10,16 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
+import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -27,7 +31,9 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * For an instrument, this calculates the sensitivity of the present value (PV) to points on the yield curve(s) (i.e. dPV/dR at every point the instrument has sensitivity). The return 
+ * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
+ * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
 public final class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
@@ -63,7 +69,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final String fundingCurveName = fra.getFundingCurveName();
-    final String liborCurveName = fra.getLiborCurveName();
+    final String liborCurveName = fra.getIndexCurveName();
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fundingCurveName);
     final YieldAndDiscountCurve liborCurve = curves.getCurve(liborCurveName);
     final double fwdAlpha = fra.getForwardYearFraction();
@@ -264,4 +270,23 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     return result;
   }
 
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedCouponAnnuity(FixedCouponAnnuity annuity, final YieldCurveBundle data) {
+    return visitGenericAnnuity(annuity, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedCouponPayment(FixedCouponPayment payment, final YieldCurveBundle data) {
+    return visitFixedPayment(payment, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitForwardLiborAnnuity(ForwardLiborAnnuity annuity, final YieldCurveBundle data) {
+    return visitGenericAnnuity(annuity, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitFixedFloatSwap(FixedFloatSwap swap, final YieldCurveBundle data) {
+    return visitFixedCouponSwap(swap, data);
+  }
 }

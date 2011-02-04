@@ -1,5 +1,6 @@
-/* Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+/*
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -59,6 +60,8 @@ import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -132,7 +135,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
   private Set<ValueSpecification> _results;
-  private static final LastDateCalculator LAST_DATE_CALCULATOR = new LastDateCalculator();
+  private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
     this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
@@ -184,9 +187,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
     _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).get());
     _forwardCurveResult = new ValueSpecification(_forwardCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
-    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties().with(PROPERTY_FUNDING_CURVE_VALUE_NAME,
-        _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(
-        PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
+    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties()
+        .with(PROPERTY_FUNDING_CURVE_VALUE_NAME, _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)
+        .with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
@@ -288,6 +291,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final int n = strips.size();
         final double[] initialRatesGuess = new double[n];
         final double[] nodeTimes = new double[n];
+        final double[] parRates = new double[n];
         _identifierToFundingNodeTimes.clear();
         _identifierToForwardNodeTimes.clear();
         int i = 0;
@@ -320,6 +324,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           if (derivative == null) {
             throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
           }
+          if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+            parRates[i] = 1.0 - marketValue / 100;
+          } else {
+            parRates[i] = marketValue / 100.;
+          }
+
           derivatives.add(derivative);
           initialRatesGuess[i] = 0.01;
           nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
@@ -341,10 +351,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
             .getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
         sensitivityCalculators.put(_fundingCurveDefinitionName, sensitivityCalculator);
-        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
+
         // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
-        final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PresentValueCalculator.getInstance());
-        final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PresentValueSensitivityCalculator.getInstance());
+        // final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
+        // final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PresentValueCalculator.getInstance());
+        // final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PresentValueSensitivityCalculator.getInstance());
+        // TODO check this ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, parRates, null, curveNodes, interpolators, sensitivityCalculators);
+        final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, ParRateCalculator.getInstance());
+        final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, ParRateCurveSensitivityCalculator.getInstance());
         NewtonVectorRootFinder rootFinder;
         double[] yields = null;
         try {
@@ -531,7 +547,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
     // ENG-252 expiry logic is flawed so make it valid for the current day only
-    Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
+    final Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
     Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);

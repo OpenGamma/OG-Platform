@@ -45,6 +45,8 @@ public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCas
     // printFlat(INTERPOLATOR, dataBundle);
     testFlat(INTERPOLATOR, dataBundle, 1e-6);
 
+    dataBundle = new RadialBasisFunctionInterpolatorDataBundle(SWAPTION_ATM_VOL_DATA, new GaussianRadialBasisFunction(r0), true);
+    // printSwaptionData(INTERPOLATOR, dataBundle);
   }
 
   @Test

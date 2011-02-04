@@ -66,7 +66,7 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
       HolidayDocument doc = (HolidayDocument) e.getValue();
       return isHoliday(doc, dateToCheck);
     } else {
-      HolidayDocument doc = getHolidayMaster().search(request).getFirstDocument();
+      HolidayDocument doc = getMaster().search(request).getFirstDocument();
       _holidayCache.put(new Element(request, doc));
       return isHoliday(doc, dateToCheck);
     }

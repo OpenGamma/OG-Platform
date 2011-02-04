@@ -24,8 +24,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -101,6 +103,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   @Override
   public PortfolioSearchResult search(final PortfolioSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
     
     final PortfolioSearchResult result = new PortfolioSearchResult();
@@ -108,10 +112,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
       return result;
     }
-    final Instant now = Instant.now(getTimeSource());
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(request.getVersionAsOfInstant(), now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(request.getCorrectedToInstant(), now))
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("depth", request.getDepth());
     searchWithPaging(request.getPagingRequest(), sqlSearch(request), args, new PortfolioDocumentExtractor(true), result);
@@ -164,6 +168,12 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   @Override
   public PortfolioDocument get(final UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new PortfolioDocumentExtractor(true), "Portfolio");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PortfolioDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------
@@ -376,7 +386,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       "WHERE base.portfolio_id = main.id " +
         "AND (ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant) " +
         "AND (corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant) " +
-        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right ";
+        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right " +
+      sqlAdditionalWhere() +
+      sqlAdditionalOrderBy(true);
   }
 
   /**
@@ -391,7 +403,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addValue("node_id", extractRowId(uniqueId));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final List<PortfolioDocument> docs = namedJdbc.query(sqlSelectNodeById(), args, extractor);
+    String sql = sqlSelectNodeById();
+    System.out.println(sql);
+    final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
@@ -410,7 +424,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       FROM +
       ", (SELECT portfolio_id, tree_left, tree_right FROM prt_node WHERE id = :node_id) base " +
       "WHERE base.portfolio_id = main.id " +
-        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right ";
+        "AND n.tree_left BETWEEN base.tree_left AND base.tree_right " +
+      sqlAdditionalWhere() +
+      sqlAdditionalOrderBy(true);
   }
 
   //-------------------------------------------------------------------------
