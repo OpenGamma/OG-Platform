@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.bond;
@@ -11,6 +11,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -25,8 +27,9 @@ import com.opengamma.util.CompareUtils;
  * A class that defines a coupon bond. 
  */
 public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
+  private static final Logger s_logger = LoggerFactory.getLogger(BondDefinition.class);
   private final LocalDate[] _nominalDates;
-  private final LocalDate[] _settlementDates;
+  private final LocalDate[] _settlementDates; // TODO settlement dates to be calculated in this class?
   private final double[] _coupons;
   private final double _notional;
   private final double _couponsPerYear;
@@ -150,7 +153,9 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
   public Bond toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
-    Validate.noNullElements(yieldCurveNames, "yield curve names");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 0);
+    s_logger.info("Using the first yield curve name as the funding curve name");
     final int index = Arrays.binarySearch(_nominalDates, date);
     int position = index;
     final int n = _settlementDates.length;
@@ -180,7 +185,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
     return new Bond(paymentTimes, coupon, timeBetweenCoupons, accruedInterest, yieldCurveNames[0]);
   }
 
-  //TODO this only works for following 
+  // TODO this only works for following
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
     LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
     for (int i = 0; i < settlementDays; i++) {

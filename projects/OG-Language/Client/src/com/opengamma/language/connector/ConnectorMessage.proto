@@ -1,0 +1,26 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.connector {
+
+  /**
+   * Low-level control messages between the Java client stack and wrapper for the bound language. 
+   */
+  message ConnectorMessage {
+  
+    enum Operation {
+      HEARTBEAT = 1;  // Heart beat messages to identify failure of either component
+      POISON = 2;     // Indicates component is to close
+      STASH = 3;      // The stash allows Java client state to survive a process restart
+    }
+
+    required Operation operation = 1;
+    
+    optional message stash = 2;
+  
+  }
+
+}

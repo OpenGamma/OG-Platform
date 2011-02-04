@@ -37,7 +37,6 @@
 		<path location="${classes.dir}" />
 	</path>
 	
-	
 	<!-- setup ivy default configuration with some custom info -->
 	<property name="ivy.local.default.root" value="${repository.dir}/local" />
 	<property name="ivy.shared.default.root" value="${repository.dir}/shared" />

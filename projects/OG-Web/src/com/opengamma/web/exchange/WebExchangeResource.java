@@ -49,6 +49,13 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     return getFreemarker().build("exchanges/exchange.ftl", out);
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("exchanges/jsonexchange.ftl", out);
+  }
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response put(

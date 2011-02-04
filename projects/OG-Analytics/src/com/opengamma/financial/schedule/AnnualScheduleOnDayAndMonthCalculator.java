@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.schedule;
@@ -84,5 +84,32 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
       date = date.plusYears(1);
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _dayOfMonth;
+    result = prime * result + _monthOfYear.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final AnnualScheduleOnDayAndMonthCalculator other = (AnnualScheduleOnDayAndMonthCalculator) obj;
+    if (_dayOfMonth != other._dayOfMonth) {
+      return false;
+    }
+    return _monthOfYear == other._monthOfYear;
   }
 }
