@@ -126,7 +126,7 @@ public final class PlatformConfigUtils {
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(String runMode) {
-    configureSystemProperties(runMode, MarketDataSource.DIRECT.name());
+    configureSystemProperties(runMode, toPropertyValue(MarketDataSource.DIRECT));
   }
   
   /**
