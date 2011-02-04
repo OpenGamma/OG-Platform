@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import static com.opengamma.math.UtilFunctions.square;
+import static com.opengamma.math.FunctionUtils.square;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;

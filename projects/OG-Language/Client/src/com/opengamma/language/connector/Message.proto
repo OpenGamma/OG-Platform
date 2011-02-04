@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.connector {
+
+  /**
+   * The unit of deserialization for messages received over the IPC channel.
+   */
+  message UserMessage {
+  
+    /**
+     * A handle is required for messages where a synchronous response is expected, or for the response itself. The
+     * handle links the request and the response.
+     */
+    optional int handle = 1;
+    
+    required UserMessagePayload payload = 2;
+    
+  }
+  
+}

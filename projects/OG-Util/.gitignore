@@ -14,3 +14,4 @@ tests/output/
 /.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
+build.number

@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language {
+
+  /**
+   * Represents any piece of data that can be sent to or received as an argument or result. Dimensionality
+   * is limited to 2 although some language bindings will easily support more than this. Any structures
+   * requiring more dimensions are probably not appropriate as transport objects to a bound language and
+   * should retain on the server and be interrogated.
+   */
+  message Data {
+    optional Value single = 1;
+    optional Value[] linear = 2;
+    optional Value[][] matrix = 3;
+    // NOTE: if adding higher orders, set the ordinal so that dimensions = ordinal - 1
+  }
+
+}

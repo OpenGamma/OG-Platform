@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- System properties -->
+  <bean id="systemSettingsLoader" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location">
+      <value>classpath:Client.properties</value>
+    </property>
+  </bean>
+  <bean id="systemSettings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="location">
+      <value>classpath:Client.properties</value>
+    </property>
+  </bean>
+  
+  <!-- Base system components -->
+  <bean id="engineFudgeContext" class="com.opengamma.util.fudge.OpenGammaFudgeContext" factory-method="getInstance" />
+  <bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+    <property name="poolSize" value="5" />
+  </bean>
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <constructor-arg value="${activeMQ.brokerURL}" />
+  </bean>
+  <!-- TODO: PluginConnectorFactory equivalent -->
+  <!-- TODO: EngineContextFactory equivalent -->
+  <!-- TODO: RemoteEngineContext equivalent -->
+  <bean id="liveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="subscriptionTopic" value="${opengamma.livedata.subscription}" />
+    <property name="entitlementTopic" value="${opengamma.livedata.entitlement}" />
+    <property name="heartbeatTopic" value="${opengamma.livedata.heartbeat}" />
+  </bean>
+
+  <!-- Debug items for testing-->
+  <bean id="debugFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: debug functions --> 
+      </list>
+    </property>
+  </bean>
+  <bean id="debugProcedures" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: debug procedures  --> 
+      </list>
+    </property>
+  </bean>
+  <bean id="debugLiveData" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: debug livedata --> 
+      </list>
+    </property>
+  </bean>
+  
+  <!-- Standard functions, procedures and livedata -->
+  <bean id="standardFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: standard functions -->
+      </list>
+    </property>
+  </bean>
+  <bean id="standardProcedures" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: standard procedures -->
+      </list>
+    </property>
+  </bean> 
+  <bean id="standardLiveData" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <!-- TODO: standard live data -->
+      </list>
+    </property>
+  </bean> 
+  
+  <!-- TODO: hooks into the argument processing -->
+  
+  <!-- User session instantiation -->
+  <!-- TODO: Session factory -->
+  
+  <!-- Note: The name of the factory is in the properties file. A language specific implementation provides
+             its own Client.properties, and imports the content of Client.xml -->
+  
+</beans>

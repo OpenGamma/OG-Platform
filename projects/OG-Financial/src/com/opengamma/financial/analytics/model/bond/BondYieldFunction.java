@@ -36,11 +36,11 @@ public class BondYieldFunction extends BondFunction {
   private static final BondYieldConverter YIELD_CONVERTER = new BondYieldConverter();
 
   public BondYieldFunction() {
-    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
+    super(MarketDataRequirementNames.MARKET_VALUE);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition definition, final Object value, 
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Position position, final BondDefinition definition, final Object value,
       final LocalDate now, final String yieldCurveName) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueId());
     final double cleanPrice = (Double) value;
@@ -57,7 +57,7 @@ public class BondYieldFunction extends BondFunction {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getPosition()), getUniqueId()));
     }
-    return null;
+    return Sets.newHashSet();
   }
 
   @Override

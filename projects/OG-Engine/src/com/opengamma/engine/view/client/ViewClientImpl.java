@@ -9,6 +9,9 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
@@ -31,6 +34,8 @@ import com.opengamma.util.ArgumentChecker;
  * </ul>
  */
 public class ViewClientImpl implements ViewClient {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewClientImpl.class);
   
   private final UniqueIdentifier _id;
   private final ViewImpl _view;
@@ -226,11 +231,45 @@ public class ViewClientImpl implements ViewClient {
     }    
   }
   
+  private class RunOneCycleListener implements ComputationResultListener {
+    private volatile ViewComputationResultModel _returnValue;
+    
+    @Override
+    public UserPrincipal getUser() {
+      return ViewClientImpl.this.getUser();
+    }
+    
+    @Override
+    public void computationResultAvailable(ViewComputationResultModel resultModel) {
+      _returnValue = resultModel;
+    }
+
+  };
+  
   @Override
-  public void runOneCycle() {
-    // TODO: implement
-    //  - check correct state
-    //  - add a single result listener to the view which gets the next result and forwards it to the user listener
+  public ViewComputationResultModel runOneCycle(final long valuationTime) {
+    final RunOneCycleListener listener = new RunOneCycleListener();
+
+    _clientLock.lock();
+    try {
+      checkNotTerminated(_state);
+      
+      // don't really care if client is terminated while cycle is running
+      // so don't hold onto the lock. This also allows multiple
+      // one-off cycles to be run in parallel.
+
+    } finally {
+      _clientLock.unlock();
+    }
+    
+    try {
+      _view.runOneCycle(valuationTime, _view.getLiveDataSnapshotProvider(), listener);
+    } catch (Exception e) {
+      s_logger.error("Run one cycle failed", e);
+      return null;
+    }
+    
+    return listener._returnValue;
   }
   
   @Override

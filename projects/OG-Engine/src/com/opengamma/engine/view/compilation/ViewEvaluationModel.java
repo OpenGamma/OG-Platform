@@ -37,17 +37,23 @@ public class ViewEvaluationModel {
   private final Set<String> _securityTypes;
   private final long _earliestValidity;
   private final long _latestValidity;
+  private final long _functionInitId;
 
   /**
    * Constructs an instance.
    * 
    * @param graphsByConfiguration  the dependency graphs by calculation configuration name, not null
    * @param portfolio  the portfolio, possibly null
+   * @param functionInitId  function init ID that was used when creating the dependency graphs
    */
-  public ViewEvaluationModel(Map<String, DependencyGraph> graphsByConfiguration, Portfolio portfolio) {
+  public ViewEvaluationModel(
+      Map<String, DependencyGraph> graphsByConfiguration, 
+      Portfolio portfolio,
+      long functionInitId) {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
 
     _portfolio = portfolio;
+    _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
     _liveDataRequirements = Collections.unmodifiableMap(processLiveDataRequirements(graphsByConfiguration));
     _securityTypes = Collections.unmodifiableSet(processSecurityTypes(graphsByConfiguration));
@@ -96,6 +102,10 @@ public class ViewEvaluationModel {
 
   public Portfolio getPortfolio() {
     return _portfolio;
+  }
+  
+  public long getFunctionInitId() {
+    return _functionInitId;
   }
 
   public Map<ValueRequirement, ValueSpecification> getAllLiveDataRequirements() {
