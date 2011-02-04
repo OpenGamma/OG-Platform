@@ -24,7 +24,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
-import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -183,48 +182,58 @@ public class DependencyGraphBuilder {
     }
     // Find functions that can do this
     final DependencyNode node = createDependencyNode(target, dependent);
-    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
-    resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
-      
-      private DependencyNode _node = node;
-      
-      @Override
-      protected boolean more() {
-        while (itr.hasNext()) {
-          final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
-          final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-          final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-          final ValueSpecification originalOutput = resolvedFunction.getSecond();
-          final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-          final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
-          if (existingNode != null) {
-            // Resolved function output already in the graph
-            s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
-            resolutionState.addExistingNode(existingNode, resolvedOutput);
-            return true;
-          }
-          if (_node == null) {
-            _node = createDependencyNode(target, dependent);
-          }
-          if (originalOutput.equals(resolvedOutput)) {
-            _node.addOutputValues(outputValues);
-          } else {
-            for (ValueSpecification outputValue : outputValues) {
-              if (originalOutput.equals(outputValue)) {
-                s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-                _node.addOutputValue(resolvedOutput);
-              } else {
-                _node.addOutputValue(outputValue);
+    s_functionResolverTime -= System.nanoTime ();
+    try {
+      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
+      resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
+  
+        private DependencyNode _node = node;
+  
+        @Override
+        protected boolean more() {
+          s_functionResolverTime -= System.nanoTime();
+          try {
+            while (itr.hasNext()) {
+              final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
+              final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+              final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+              final ValueSpecification originalOutput = resolvedFunction.getSecond();
+              final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+              final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
+              if (existingNode != null) {
+                // Resolved function output already in the graph
+                s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+                resolutionState.addExistingNode(existingNode, resolvedOutput);
+                return true;
               }
+              if (_node == null) {
+                _node = createDependencyNode(target, dependent);
+              }
+              if (originalOutput.equals(resolvedOutput)) {
+                _node.addOutputValues(outputValues);
+              } else {
+                for (ValueSpecification outputValue : outputValues) {
+                  if (originalOutput.equals(outputValue)) {
+                    s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+                    _node.addOutputValue(resolvedOutput);
+                  } else {
+                    _node.addOutputValue(outputValue);
+                  }
+                }
+              }
+              resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), _node);
+              _node = null;
+              return true;
             }
+            return false;
+          } finally {
+            s_functionResolverTime += System.nanoTime();
           }
-          resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), _node);
-          _node = null;
-          return true;
         }
-        return false;
-      }
-    });
+      });
+    } finally {
+      s_functionResolverTime += System.nanoTime ();
+    }
     return resolutionState;
   }
 
@@ -470,7 +479,6 @@ public class DependencyGraphBuilder {
     s_functionResolverTime = 0;
     logger.debug("targetResolverTime {}ms", (double) s_targetResolverTime / 1e6);
     s_targetResolverTime = 0;
-    DefaultCompiledFunctionResolver.report(logger);
   }
 
 }

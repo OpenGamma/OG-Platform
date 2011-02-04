@@ -13,11 +13,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.slf4j.Logger;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -150,55 +147,49 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
     @SuppressWarnings("unchecked")
     private void findNext() {
-      s_findNext++;
-      s_findNextTime -= System.nanoTime();
-      try {
-        if ((_nexts != null) && _nexts.hasNext()) {
+      if ((_nexts != null) && _nexts.hasNext()) {
+        _next = _nexts.next();
+        return;
+      }
+      LinkedList<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = null;
+      while (_entries.hasNext()) {
+        int rulesFound = 0;
+        for (ResolutionRule rule : _entries.next().getValue()) {
+          final ValueSpecification result = rule.getResult(_requirement, _node, _context);
+          if (result != null) {
+            if (applicableRules == null) {
+              if (_next == null) {
+                _next = Pair.of(rule.getFunction(), result);
+              } else {
+                applicableRules = new LinkedList<Pair<ParameterizedFunction, ValueSpecification>>();
+                applicableRules.add(_next);
+                applicableRules.add(Pair.of(rule.getFunction(), result));
+              }
+            } else {
+              applicableRules.add(Pair.of(rule.getFunction(), result));
+            }
+            rulesFound++;
+          }
+        }
+        if (rulesFound == 1) {
+          _nexts = null;
+          return;
+        } else if (rulesFound > 1) {
+          final Iterator<Pair<ParameterizedFunction, ValueSpecification>> iterator = applicableRules.descendingIterator();
+          final Pair<ParameterizedFunction, ValueSpecification>[] found = new Pair[rulesFound];
+          for (int i = 0; i < rulesFound; i++) {
+            found[i] = iterator.next();
+          }
+          // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+          // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+          // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
+          // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
+          // that will detect the equality case and trigger an exception.
+          Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
+          _nexts = Arrays.asList(found).iterator();
           _next = _nexts.next();
           return;
         }
-        LinkedList<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = null;
-        while (_entries.hasNext()) {
-          int rulesFound = 0;
-          for (ResolutionRule rule : _entries.next().getValue()) {
-            final ValueSpecification result = rule.getResult(_requirement, _node, _context);
-            if (result != null) {
-              if (applicableRules == null) {
-                if (_next == null) {
-                  _next = Pair.of(rule.getFunction(), result);
-                } else {
-                  applicableRules = new LinkedList<Pair<ParameterizedFunction, ValueSpecification>>();
-                  applicableRules.add(_next);
-                  applicableRules.add(Pair.of(rule.getFunction(), result));
-                }
-              } else {
-                applicableRules.add(Pair.of(rule.getFunction(), result));
-              }
-              rulesFound++;
-            }
-          }
-          if (rulesFound == 1) {
-            _nexts = null;
-            return;
-          } else if (rulesFound > 1) {
-            final Iterator<Pair<ParameterizedFunction, ValueSpecification>> iterator = applicableRules.descendingIterator();
-            final Pair<ParameterizedFunction, ValueSpecification>[] found = new Pair[rulesFound];
-            for (int i = 0; i < rulesFound; i++) {
-              found[i] = iterator.next();
-            }
-            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
-            // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
-            // that will detect the equality case and trigger an exception.
-            Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
-            _nexts = Arrays.asList(found).iterator();
-            _next = _nexts.next();
-            return;
-          }
-        }
-      } finally {
-        s_findNextTime += System.nanoTime();
       }
     }
 
@@ -219,18 +210,6 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     } else {
       throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
     }
-  }
-
-  // Reporting for PLAT-501 only
-
-  private static int s_findNext;
-  private static long s_findNextTime;
-
-  public static void report(final Logger logger) {
-    logger.debug("findNext {} in {}ms", s_findNext, (double) s_findNextTime / 1e6);
-    s_findNext = 0;
-    s_findNextTime = 0;
-    ResolutionRule.report(logger);
   }
 
 }
