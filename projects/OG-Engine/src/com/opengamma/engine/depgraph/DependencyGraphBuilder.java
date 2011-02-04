@@ -147,6 +147,7 @@ public class DependencyGraphBuilder {
 
   // Note the order requirements are considered can affect function choices and resultant graph construction (see [ENG-259]).
   private ResolutionState resolveValueRequirement(final ValueRequirement requirement, final DependencyNode dependent) {
+    s_debugResolveValueRequirement++;
     final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
@@ -213,6 +214,7 @@ public class DependencyGraphBuilder {
 
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ResolutionState resolved) {
     do {
+      s_debugAddTargetRequirement++;
       if (resolved.isEmpty()) {
         return resolved.getLastValid();
       }
@@ -257,8 +259,10 @@ public class DependencyGraphBuilder {
             graphNode.clearInputs();
             resolved.removeFirst();
             if (resolved.isEmpty()) {
+              s_debugCatchAndRethrow++;
               throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), t);
             }
+            s_debugBacktrack++;
             continue;
           }
         } else {
@@ -274,6 +278,7 @@ public class DependencyGraphBuilder {
             return result;
           }
           // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
+          s_debugBacktrackExceptions++;
           throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
         }
       } else {
@@ -302,8 +307,10 @@ public class DependencyGraphBuilder {
           graphNode.clearInputs();
           resolved.removeFirst();
           if (resolved.isEmpty()) {
+            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
           }
+          s_debugBacktrack++;
           continue;
         }
       }
@@ -320,8 +327,10 @@ public class DependencyGraphBuilder {
           s_logger.debug("Deep backtracking at late resolution failure", t);
           graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
+            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException("Late resolution failure of " + resolved.getValueRequirement(), t);
           }
+          s_debugBacktrack++;
           continue;
         }
         if (!graphNode.getOutputValues().equals(newOutputValues)) {
@@ -359,8 +368,10 @@ public class DependencyGraphBuilder {
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
+              s_debugBacktrackExceptions++;
               throw new UnsatisfiableDependencyGraphException(failureMessage);
             }
+            s_debugBacktrack++;
             continue;
           }
         }
@@ -385,8 +396,10 @@ public class DependencyGraphBuilder {
             graphNode.addOutputValues(originalOutputValues);
           }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
+            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
           }
+          s_debugBacktrack++;
           continue;
         }
       }
@@ -415,6 +428,26 @@ public class DependencyGraphBuilder {
       }
     }
     return _graph;
+  }
+
+  // Debugging code for PLAT-501; remove once that's dealt with
+  private static int s_debugResolveValueRequirement;
+  private static int s_debugAddTargetRequirement;
+  private static int s_debugBacktrackExceptions;
+  private static int s_debugCatchAndRethrow;
+  private static int s_debugBacktrack;
+
+  public static void report(final Logger logger) {
+    logger.debug("resolveValueRequirement {} invocations", s_debugResolveValueRequirement);
+    logger.debug("addTargetRequirement {} invocations", s_debugAddTargetRequirement);
+    logger.debug("backtrackExceptions {}", s_debugBacktrackExceptions);
+    logger.debug("catchAndRethrow {}", s_debugCatchAndRethrow);
+    logger.debug("backtrack {}", s_debugBacktrack);
+    s_debugResolveValueRequirement = 0;
+    s_debugAddTargetRequirement = 0;
+    s_debugBacktrackExceptions = 0;
+    s_debugCatchAndRethrow = 0;
+    s_debugBacktrack = 0;
   }
 
 }
