@@ -313,9 +313,12 @@
 		<copy todir="${dist.dir}/${dist.name}/scripts" failonerror="false">
 			<fileset dir="${basedir}/scripts"/>
 		</copy>
-		<copy todir="${dist.dir}/${dist.name}/web" failonerror="false">
-			<fileset dir="${basedir}/web"/>
+		<copy todir="${dist.dir}/${dist.name}/web-engine" failonerror="false">
+			<fileset dir="${basedir}/web-engine"/>
 		</copy>
+	    <copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
+	        <fileset dir="${basedir}/web-marketdata"/>
+        </copy>
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.sh" eol="lf" eof="remove" />
