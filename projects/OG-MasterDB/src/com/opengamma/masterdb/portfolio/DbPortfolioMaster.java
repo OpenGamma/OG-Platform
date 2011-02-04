@@ -404,7 +404,6 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     String sql = sqlSelectNodeById();
-    System.out.println(sql);
     final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
