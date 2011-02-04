@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +17,12 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Advertises a function to a FunctionResolver. 
@@ -72,54 +77,85 @@ public class ResolutionRule {
    * constraints.
    */
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
-    CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
-    ComputationTarget target = atNode.getComputationTarget();
-
-    // First check that the function can produce the output
-
-    if (!function.canApplyTo(context, target)) {
-      return null;
-    }
-
-    Set<ValueSpecification> resultSpecs = null;
+    s_debugGetResults++;
+    s_debugGetResultsTime -= System.nanoTime();
     try {
-      resultSpecs = function.getResults(context, target);
-    } catch (Throwable t) {
-      s_logger.debug("Exception thrown by getResults", t);
-    }
-    if (resultSpecs == null) {
-      // Exceptions and null returns are okay - the backtracking will hopefully find a way to satisfy the graph requirements
-      return null;
-    }
+      CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
+      ComputationTarget target = atNode.getComputationTarget();
 
-    ValueSpecification validSpec = null;
-    for (ValueSpecification resultSpec : resultSpecs) {
-      if (output.isSatisfiedBy(resultSpec)) {
-        validSpec = resultSpec;
+      // First check that the function can produce the output
+
+      s_debugCanApplyTo++;
+      s_debugCanApplyToTime -= System.nanoTime();
+      try {
+        if (!function.canApplyTo(context, target)) {
+          return null;
+        }
+      } finally {
+        s_debugCanApplyToTime += System.nanoTime();
       }
-    }
 
-    if (validSpec == null) {
-      return null;
-    }
+      s_debugFunctionResults++;
+      s_debugFunctionResultsTime -= System.nanoTime();
+      Set<ValueSpecification> resultSpecs = null;
+      try {
+        incrementOrPut(s_debugFunctionResultsMap, Pair.of(function.getFunctionDefinition(), target));
+        try {
+          resultSpecs = function.getResults(context, target);
+        } catch (Throwable t) {
+          s_logger.debug("Exception thrown by getResults", t);
+        }
+        if (resultSpecs == null) {
+          // Exceptions and null returns are okay - the backtracking will hopefully find a way to satisfy the graph requirements
+          return null;
+        }
+      } finally {
+        s_debugFunctionResultsTime += System.nanoTime();
+      }
 
-    // Then check that the function (applied to the same computation target) is not already
-    // in the dep graph above the current node (i.e., no cycles)
+      s_debugIsSatisfiedBy++;
+      s_debugIsSatisfiedByTime -= System.nanoTime();
+      ValueSpecification validSpec = null;
+      try {
+        for (ValueSpecification resultSpec : resultSpecs) {
+          if (output.isSatisfiedBy(resultSpec)) {
+            validSpec = resultSpec;
+          }
+        }
+      } finally {
+        s_debugIsSatisfiedByTime += System.nanoTime();
+      }
 
-    DependencyNode parent = atNode.getDependentNode();
-    while (parent != null) {
-      if (parent.getFunction().equals(getFunction()) && parent.getComputationTarget().equals(target)) {
+      if (validSpec == null) {
         return null;
       }
-      parent = parent.getDependentNode();
-    }
 
-    // Finally check that the computation target is a valid computation target for this rule
-    if (!_computationTargetFilter.accept(atNode)) {
-      return null;
-    }
+      // Then check that the function (applied to the same computation target) is not already
+      // in the dep graph above the current node (i.e., no cycles)
 
-    return validSpec;
+      s_debugCycleTest++;
+      s_debugCycleTestTime -= System.nanoTime();
+      try {
+        DependencyNode parent = atNode.getDependentNode();
+        while (parent != null) {
+          if (parent.getFunction().equals(getFunction()) && parent.getComputationTarget().equals(target)) {
+            return null;
+          }
+          parent = parent.getDependentNode();
+        }
+      } finally {
+        s_debugCycleTestTime += System.nanoTime();
+      }
+
+      // Finally check that the computation target is a valid computation target for this rule
+      if (!_computationTargetFilter.accept(atNode)) {
+        return null;
+      }
+
+      return validSpec;
+    } finally {
+      s_debugGetResultsTime += System.nanoTime();
+    }
   }
 
   /**
@@ -135,6 +171,53 @@ public class ResolutionRule {
   @Override
   public String toString() {
     return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";
+  }
+
+  // Reporting for PLAT-501 only
+
+  private static int s_debugGetResults;
+  private static long s_debugGetResultsTime;
+  private static int s_debugCanApplyTo;
+  private static long s_debugCanApplyToTime;
+  private static int s_debugFunctionResults;
+  private static long s_debugFunctionResultsTime;
+  private static int s_debugIsSatisfiedBy;
+  private static long s_debugIsSatisfiedByTime;
+  private static int s_debugCycleTest;
+  private static long s_debugCycleTestTime;
+  private static Map<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger> s_debugFunctionResultsMap = new HashMap<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger>();
+
+  private static <T> void incrementOrPut(final Map<T, AtomicInteger> map, final T key) {
+    AtomicInteger v = map.get(key);
+    if (v == null) {
+      v = new AtomicInteger(1);
+      map.put(key, v);
+    } else {
+      v.incrementAndGet();
+    }
+  }
+
+  public static void report(final Logger logger) {
+    logger.debug("getResults {} in {}ms", s_debugGetResults, (double) s_debugGetResultsTime / 1e6);
+    s_debugGetResults = 0;
+    s_debugGetResultsTime = 0;
+    logger.debug("canApplyTo {} in {}ms", s_debugCanApplyTo, (double) s_debugCanApplyToTime / 1e6);
+    s_debugCanApplyTo = 0;
+    s_debugCanApplyToTime = 0;
+    logger.debug("functionResults {} in {}ms", s_debugFunctionResults, (double) s_debugFunctionResultsTime / 1e6);
+    s_debugFunctionResults = 0;
+    s_debugFunctionResultsTime = 0;
+    logger.debug("isSatisfiedBy {} in {}ms", s_debugIsSatisfiedBy, (double) s_debugIsSatisfiedByTime / 1e6);
+    s_debugIsSatisfiedBy = 0;
+    s_debugIsSatisfiedByTime = 0;
+    logger.debug("cycleTest {} in {}ms", s_debugCycleTest, (double) s_debugCycleTestTime / 1e6);
+    s_debugCycleTest = 0;
+    s_debugCycleTestTime = 0;
+    final Map<Integer, AtomicInteger> counts = new HashMap<Integer, AtomicInteger>();
+    for (Map.Entry<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger> results : s_debugFunctionResultsMap.entrySet()) {
+      incrementOrPut(counts, results.getValue().intValue());
+    }
+    logger.debug("resultsCount {}", counts);
   }
 
 }

@@ -23,6 +23,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -148,7 +149,9 @@ public class DependencyGraphBuilder {
   // Note the order requirements are considered can affect function choices and resultant graph construction (see [ENG-259]).
   private ResolutionState resolveValueRequirement(final ValueRequirement requirement, final DependencyNode dependent) {
     s_debugResolveValueRequirement++;
+    s_targetResolverTime -= System.nanoTime();
     final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
+    s_targetResolverTime += System.nanoTime();
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
     }
@@ -178,36 +181,41 @@ public class DependencyGraphBuilder {
       resolutionState = new ResolutionState(requirement);
     }
     // Find functions that can do this
-    DependencyNode node = createDependencyNode(target, dependent);
-    for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
-      final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-      final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-      final ValueSpecification originalOutput = resolvedFunction.getSecond();
-      final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-      final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
-      if (existingNode != null) {
-        // Resolved function output already in the graph
-        s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
-        resolutionState.addExistingNode(existingNode, resolvedOutput);
-        continue;
-      }
-      if (node == null) {
-        node = createDependencyNode(target, dependent);
-      }
-      if (originalOutput.equals(resolvedOutput)) {
-        node.addOutputValues(outputValues);
-      } else {
-        for (ValueSpecification outputValue : outputValues) {
-          if (originalOutput.equals(outputValue)) {
-            s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-            node.addOutputValue(resolvedOutput);
-          } else {
-            node.addOutputValue(outputValue);
+    s_functionResolverTime -= System.nanoTime();
+    try {
+      DependencyNode node = createDependencyNode(target, dependent);
+      for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
+        final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+        final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+        final ValueSpecification originalOutput = resolvedFunction.getSecond();
+        final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+        final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
+        if (existingNode != null) {
+          // Resolved function output already in the graph
+          s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+          resolutionState.addExistingNode(existingNode, resolvedOutput);
+          continue;
+        }
+        if (node == null) {
+          node = createDependencyNode(target, dependent);
+        }
+        if (originalOutput.equals(resolvedOutput)) {
+          node.addOutputValues(outputValues);
+        } else {
+          for (ValueSpecification outputValue : outputValues) {
+            if (originalOutput.equals(outputValue)) {
+              s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+              node.addOutputValue(resolvedOutput);
+            } else {
+              node.addOutputValue(outputValue);
+            }
           }
         }
+        resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), node);
+        node = null;
       }
-      resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), node);
-      node = null;
+    } finally {
+      s_functionResolverTime += System.nanoTime();
     }
     return resolutionState;
   }
@@ -436,18 +444,25 @@ public class DependencyGraphBuilder {
   private static int s_debugBacktrackExceptions;
   private static int s_debugCatchAndRethrow;
   private static int s_debugBacktrack;
+  private static long s_functionResolverTime;
+  private static long s_targetResolverTime;
 
   public static void report(final Logger logger) {
     logger.debug("resolveValueRequirement {} invocations", s_debugResolveValueRequirement);
-    logger.debug("addTargetRequirement {} invocations", s_debugAddTargetRequirement);
-    logger.debug("backtrackExceptions {}", s_debugBacktrackExceptions);
-    logger.debug("catchAndRethrow {}", s_debugCatchAndRethrow);
-    logger.debug("backtrack {}", s_debugBacktrack);
     s_debugResolveValueRequirement = 0;
+    logger.debug("addTargetRequirement {} invocations", s_debugAddTargetRequirement);
     s_debugAddTargetRequirement = 0;
+    logger.debug("backtrackExceptions {}", s_debugBacktrackExceptions);
     s_debugBacktrackExceptions = 0;
+    logger.debug("catchAndRethrow {}", s_debugCatchAndRethrow);
     s_debugCatchAndRethrow = 0;
+    logger.debug("backtrack {}", s_debugBacktrack);
     s_debugBacktrack = 0;
+    logger.debug("functionResolverTime {}ms", (double) s_functionResolverTime / 1e6);
+    s_functionResolverTime = 0;
+    logger.debug("targetResolverTime {}ms", (double) s_targetResolverTime / 1e6);
+    s_targetResolverTime = 0;
+    DefaultCompiledFunctionResolver.report(logger);
   }
 
 }
