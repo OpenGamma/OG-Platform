@@ -50,8 +50,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Position position = target.getPosition();
-    final BondSecurity security = (BondSecurity) position.getSecurity();
+    final BondSecurity security = (BondSecurity) target.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
@@ -62,21 +61,21 @@ public abstract class BondFunction extends NonCompiledInvoker {
     }
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
-    return getComputedValues(executionContext, security.getCurrency(), position, bond, value, now.toLocalDate(), _bondCurveName);
+    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now.toLocalDate(), _bondCurveName);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId()));
     }
     return null;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.POSITION) {
-      final Security security = target.getPosition().getSecurity();
+    if (target.getType() == ComputationTargetType.SECURITY) {
+      final Security security = target.getSecurity();
       return security instanceof BondSecurity;
     }
     return false;
@@ -84,15 +83,15 @@ public abstract class BondFunction extends NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.SECURITY;
   }
 
   protected Currency getCurrencyForTarget(final ComputationTarget target) {
-    final BondSecurity bond = (BondSecurity) target.getPosition().getSecurity();
+    final BondSecurity bond = (BondSecurity) target.getSecurity();
     return bond.getCurrency();
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, Position position, BondDefinition bond, Object value, LocalDate now,
+  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, Security security, BondDefinition bond, Object value, LocalDate now,
       String yieldCurveName);
 
 }

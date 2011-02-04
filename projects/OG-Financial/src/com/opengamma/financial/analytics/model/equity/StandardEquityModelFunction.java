@@ -75,7 +75,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(
-              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
+              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getISOCode()).get()),
           getUniqueId()));
     }
     return null;
