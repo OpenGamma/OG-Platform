@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.tuple;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -85,8 +86,10 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
    * @return the pair, not null
    */
   public static ObjectsPair<?, ?> fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    Object first = context.fieldValueToObject(msg.getByName("first"));
-    Object second = context.fieldValueToObject(msg.getByName("second"));
+    FudgeField firstField = msg.getByName("first");
+    Object first = firstField != null ? context.fieldValueToObject(firstField) : null;
+    FudgeField secondField = msg.getByName("second");
+    Object second = secondField != null ? context.fieldValueToObject(secondField) : null;
     return ObjectsPair.of(first, second);
   }
 
