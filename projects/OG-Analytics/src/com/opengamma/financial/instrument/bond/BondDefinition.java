@@ -152,6 +152,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
   @Override
   public Bond toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
     s_logger.info("Using the first yield curve name as the funding curve name");

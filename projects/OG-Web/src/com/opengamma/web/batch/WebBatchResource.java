@@ -80,7 +80,39 @@ public class WebBatchResource extends AbstractWebBatchResource {
     out.put("batchErrors", batchErrors.getItems());
     return getFreemarker().build("batches/batch.ftl", out);
   }
-  
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = createRootData();
+
+    BatchDataSearchRequest request = new BatchDataSearchRequest();
+    request.setObservationDate(data().getBatch().getObservationDate());
+    request.setObservationTime(data().getBatch().getObservationTime());
+    request.setPagingRequest(PagingRequest.of(page, pageSize));
+
+    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+    data().setBatchResults(batchResults.getItems());
+
+    BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
+    errorRequest.setObservationDate(data().getBatch().getObservationDate());
+    errorRequest.setObservationTime(data().getBatch().getObservationTime());
+    errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+
+    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
+    data().setBatchErrors(batchErrors.getItems());
+
+    out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
+    out.put("errorPaging", new WebPaging(batchErrors.getPaging(), data().getUriInfo()));
+    out.put("batchResult", batchResults.getItems());
+    out.put("batchErrors", batchErrors.getItems());
+    return getFreemarker().build("batches/jsonbatch.ftl", out);
+  }
+
+
   @GET
   @Produces("text/csv;charset=UTF-8")
   public StreamingOutput getCsv(

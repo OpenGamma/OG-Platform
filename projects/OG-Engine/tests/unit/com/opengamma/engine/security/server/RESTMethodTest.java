@@ -50,6 +50,7 @@ public class RESTMethodTest {
     Identifier secId2 = Identifier.of(IdentificationScheme.of("d2"), "v2");
     MockSecurity sec1 = new MockSecurity("t1");
     sec1.setIdentifiers (IdentifierBundle.of(secId1));
+    sec1.setSecurityType("BOND");
     securitySource.addSecurity(sec1);
     MockSecurity sec2 = new MockSecurity("t2");
     sec2.setIdentifiers (IdentifierBundle.of(secId2));
@@ -112,6 +113,18 @@ public class RESTMethodTest {
     final Collection<FudgeField> securities = msg.getAllByName(SECURITYSOURCE_SECURITY);
     assertNotNull(securities);
     assertEquals(2, securities.size ());
+  }
+  
+  @Test
+  public void testGetAllBondsOfIssuerType() {
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getAllBondsOfIssuerType(Arrays.asList("US TREASURY N/B"));
+    assertNotNull(fme);
+    final FudgeFieldContainer msg = fme.getMessage();
+    assertNotNull(msg);
+    FudgeMsgFormatter.outputToSystemOut(msg);
+    final Collection<FudgeField> securities = msg.getAllByName(SECURITYSOURCE_SECURITY);
+    assertNotNull(securities);
+    assertEquals(1, securities.size ()); 
   }
 
 }

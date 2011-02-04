@@ -1,0 +1,16 @@
+/build/
+/TestResults/
+/Client/tests/classes/
+/Client/tests/output/
+/*/Debug/
+/*/Release/
+/*/DebugWin32/
+/*/ReleaseWin32/
+/*/Debugx64/
+/*/Releasex64/
+/*/*.aps
+/*/*.vcxproj.user
+/Connector/com_opengamma_language_*
+/OG-Language.suo
+.fudge-proto-gitignore
+MANIFEST.MF

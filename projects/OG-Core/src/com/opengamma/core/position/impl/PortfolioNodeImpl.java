@@ -29,6 +29,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  // DON'T CHECK IN WITH =true
+  private static final boolean DEBUG_FLAG = false;
+  private static final int DEBUG_MAX_NODES = 2;
+  private static final int DEBUG_MAX_POSITIONS = 2;
+
   /**
    * The unique identifier of the node.
    */
@@ -172,6 +177,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   @Override
   public List<PortfolioNode> getChildNodes() {
+    if (DEBUG_FLAG) {
+      if (_childNodes.size() > 1) {
+        return Collections.unmodifiableList(_childNodes.subList(0, DEBUG_MAX_NODES));
+      }
+    }
     return Collections.unmodifiableList(_childNodes);
   }
 
@@ -219,6 +229,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    */
   @Override
   public List<Position> getPositions() {
+    if (DEBUG_FLAG) {
+      if (_positions.size() > DEBUG_MAX_POSITIONS) {
+        return Collections.unmodifiableList(_positions.subList(0, DEBUG_MAX_POSITIONS));
+      }
+    }
     return Collections.unmodifiableList(_positions);
   }
 
