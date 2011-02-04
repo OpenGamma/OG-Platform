@@ -240,6 +240,7 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
   public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
       Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    // TODO [PLAT-1046]
     throw new NotImplementedException();
   }
 
