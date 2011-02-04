@@ -18,7 +18,7 @@ import cern.jet.random.engine.RandomEngine;
 public class RealPolynomialFunction1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double[] C = new double[] {3.4, 5.6, 1., -4.};
-  private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(C);
+  private static final DoubleFunction1D F = new RealPolynomialFunction1D(C);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
@@ -32,8 +32,14 @@ public class RealPolynomialFunction1DTest {
   }
 
   @Test
-  public void test() {
+  public void testEvaluate() {
     final double x = RANDOM.nextDouble();
     assertEquals(C[3] * Math.pow(x, 3) + C[2] * Math.pow(x, 2) + C[1] * x + C[0], F.evaluate(x), EPS);
+  }
+
+  @Test
+  public void testDerivative() {
+    final double x = RANDOM.nextDouble();
+    assertEquals(3 * C[3] * Math.pow(x, 2) + 2 * C[2] * x + C[1], F.derivative().evaluate(x), EPS);
   }
 }
