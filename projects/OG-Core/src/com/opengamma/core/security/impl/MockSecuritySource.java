@@ -7,6 +7,7 @@ package com.opengamma.core.security.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,17 @@ public class MockSecuritySource implements SecuritySource {
     ArgumentChecker.notNull(security, "security");
     UniqueIdentifiables.setInto(security, _uidSupplier.get());
     _securities.put(security.getUniqueId(), security);
+  }
+
+  @Override
+  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+    List<Security> results = new ArrayList<Security>();
+    for (Security sec : _securities.values()) {
+      if (sec.getSecurityType().equals("BOND")) {
+        results.add(sec);
+      }
+    }
+    return results;
   }
 
 }

@@ -27,12 +27,12 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
 
   @Test(expected = IllegalArgumentException.class)
   public void testOutOfRange3() {
-    RANGE_LIMITS.transformGrdient(-3);
+    RANGE_LIMITS.transformGradient(-3);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testOutOfRange4() {
-    RANGE_LIMITS.transformGrdient(1.01);
+    RANGE_LIMITS.transformGradient(1.01);
   }
 
   @Test

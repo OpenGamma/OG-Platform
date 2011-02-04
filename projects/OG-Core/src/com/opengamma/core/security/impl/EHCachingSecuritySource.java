@@ -36,6 +36,8 @@ public class EHCachingSecuritySource implements SecuritySource {
   /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
   /** The multiple security cache key. */
   /* package for testing */ static final String MULTI_SECURITIES_CACHE = "multi-securities-cache";
+  /** The mulitple bonds cache key */
+  /* package for testing */ static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
 
   /**
    * The underlying cache.
@@ -53,6 +55,10 @@ public class EHCachingSecuritySource implements SecuritySource {
    * The multiple security cache.
    */
   private final Cache _bundleCache;
+  /**
+   * The bond cache
+   */
+  private final Cache _bondCache;
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
@@ -66,8 +72,10 @@ public class EHCachingSecuritySource implements SecuritySource {
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
+    EHCacheUtils.addCache(cacheManager, MULTI_BONDS_CACHE);
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
+    _bondCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_BONDS_CACHE);
     _manager = cacheManager;
   }
 
@@ -147,6 +155,28 @@ public class EHCachingSecuritySource implements SecuritySource {
     }
     return matched.iterator().next();
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+    ArgumentChecker.notNull(issuerType, "issuerType");
+    Element e = _bondCache.get(issuerType);
+    Collection<Security> result = new HashSet<Security>();
+    if (e != null) {
+      Serializable value = e.getValue();
+      if (value instanceof Collection<?>) {
+        result.addAll((Collection<Security>) value);
+      } else {
+        s_logger.warn("returned object {} from bond cache is not a Collection<Security>", value);
+      }
+    } else {
+      result = getUnderlying().getAllBondsOfIssuerType(issuerType);
+      if (result != null) {
+        _bondCache.put(new Element(issuerType, result));
+      }
+    }
+    return result;
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -181,5 +211,7 @@ public class EHCachingSecuritySource implements SecuritySource {
     _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.shutdown();
   }
+
+
 
 }
