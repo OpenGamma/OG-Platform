@@ -14,13 +14,29 @@ import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceSe
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DEFAULT_BY_DATE;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_UID_BY_DATE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_EXCLUSIVE_END;
+
+
+import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
 import com.opengamma.id.IdentifierBundle;
@@ -205,6 +221,27 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalData(identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
+    FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
+    MutableFudgeFieldContainer msg = serializationContext.newMessage();
+    serializationContext.objectToFudgeMsg(msg, REQUEST_IDENTIFIER_SET, null, identifierSet);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_DATA_SOURCE, null, dataSource);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_DATA_PROVIDER, null, dataProvider);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_DATA_FIELD, null, dataField);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_START, null, start);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_INCLUSIVE_START, null, inclusiveStart);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_END, null, end);
+    serializationContext.objectToFudgeMsg(msg, REQUEST_EXCLUSIVE_END, null, exclusiveEnd);
+    
+    FudgeMsgEnvelope result = getRestClient().post(target, msg);
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getRestClient().getFudgeContext());
+    return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALDATASOURCE_TIMESERIES));
   }
 
 }

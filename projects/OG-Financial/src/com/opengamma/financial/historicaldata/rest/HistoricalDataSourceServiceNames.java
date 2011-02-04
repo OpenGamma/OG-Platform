@@ -58,5 +58,41 @@ public final class HistoricalDataSourceServiceNames {
    * 
    */
   public static final String REQUEST_UID_BY_DATE = "uidByDate";
+  /**
+   * 
+   */
+  public static final String REQUEST_MULTIPLE = "multiple";
+  /**
+   * 
+   */
+  public static final String REQUEST_IDENTIFIER_SET = "identifierSet";
+  /**
+   * 
+   */
+  public static final String REQUEST_DATA_SOURCE = "dataSource";
+  /**
+   * 
+   */
+  public static final String REQUEST_DATA_PROVIDER = "dataProvider";
+  /**
+   * 
+   */
+  public static final String REQUEST_DATA_FIELD = "dataField";
+  /**
+   * 
+   */
+  public static final String REQUEST_START = "start";
+  /**
+   * 
+   */
+  public static final String REQUEST_INCLUSIVE_START = "inclusiveStart";
+  /**
+   * 
+   */
+  public static final String REQUEST_END = "end";
+  /**
+   * 
+   */
+  public static final String REQUEST_EXCLUSIVE_END = "exclusiveEnd";
 
 }
