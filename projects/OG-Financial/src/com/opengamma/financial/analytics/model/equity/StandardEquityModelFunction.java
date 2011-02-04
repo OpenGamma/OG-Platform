@@ -16,6 +16,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -39,7 +41,8 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId()),
+                new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), 
+                                     ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getISOCode()).get()),
                 getUniqueId()),
                 price));
   }

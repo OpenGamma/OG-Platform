@@ -90,7 +90,13 @@ public class MockSecuritySource implements SecuritySource {
 
   @Override
   public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
-    return Collections.emptyList();
+    List<Security> results = new ArrayList<Security>();
+    for (Security sec : _securities.values()) {
+      if (sec.getSecurityType().equals("BOND")) {
+        results.add(sec);
+      }
+    }
+    return results;
   }
 
 }

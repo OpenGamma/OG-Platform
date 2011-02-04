@@ -9,6 +9,7 @@ import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SE
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -101,4 +102,18 @@ public class RemoteSecuritySource implements SecuritySource {
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
+  @Override
+  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+    ArgumentChecker.notNull(issuerType, "issuerType");
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("bonds").resolveQuery("issuerType", Collections.singletonList(issuerType));
+    final FudgeFieldContainer message = getRestClient().getMsg(target);
+    final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
+    final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
+    for (FudgeField security : message) {
+      if (SECURITYSOURCE_SECURITY.equals(security.getName())) {
+        securities.add(context.fieldValueToObject(Security.class, security));
+      }
+    }
+    return securities;
+  }
 }

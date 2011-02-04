@@ -73,4 +73,15 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     return securities.isEmpty() ? null : securities.iterator().next();
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+    ArgumentChecker.notNull(issuerType, "issuerType");
+    final SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setBondIssuerName(issuerType);
+    request.setVersionCorrection(getVersionCorrection());
+    request.setFullDetail(true);
+    return (Collection) getMaster().search(request).getSecurities();
+  }
+
 }
