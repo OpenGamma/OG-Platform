@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.opengamma.math.MathException;
-import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -47,7 +47,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
 
     @Override
     public Double evaluate(final Double x) {
-      return UtilFunctions.square((x - 50) / 50.0);
+      return FunctionUtils.square((x - 50) / 50.0);
     }
   };
 

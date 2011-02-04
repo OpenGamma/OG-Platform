@@ -504,7 +504,10 @@ public class CommandLineBatchJob {
   
         _batchDbManager.startBatch(run);
 
-        run.getView().runOneCycle(run.getValuationTime().toInstant().toEpochMillisLong());
+        run.getView().runOneCycle(
+            run.getValuationTime().toInstant().toEpochMillisLong(),
+            run.getView().getLiveDataSnapshotProvider(),
+            null);
 
         _batchDbManager.endBatch(run);
         

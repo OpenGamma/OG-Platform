@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.schedule;
+package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public final class ScheduleCalculator {
   private ScheduleCalculator() {
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Calculates the unadjusted date schedule.
    * 
@@ -100,7 +100,7 @@ public final class ScheduleCalculator {
     return dates.toArray(EMPTY_ARRAY);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Counts back from maturityDate, filling to equally spaced dates frequency
    * times a year until the last date <b>after</b> effective date.
@@ -130,7 +130,7 @@ public final class ScheduleCalculator {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = maturityDate;
 
-    //TODO review the tolerance given 
+    // TODO review the tolerance given
     while (date.isAfter(effectiveDate) && DateUtil.getExactDaysBetween(effectiveDate, date) > 4.0) {
       dates.add(date);
       date = date.minus(period);
@@ -247,7 +247,7 @@ public final class ScheduleCalculator {
     final ZonedDateTime[] results = new ZonedDateTime[n];
     results[0] = effectiveDate.plus(period);
     for (int i = 1; i < n; i++) {
-      results[i] = convention.adjustDate(calendar, dates[i - 1].plus(period)); //TODO need to further shift these dates by a convention 
+      results[i] = convention.adjustDate(calendar, dates[i - 1].plus(period)); // TODO need to further shift these dates by a convention
     }
 
     return results;
@@ -276,7 +276,6 @@ public final class ScheduleCalculator {
         yearFrac = dayCount.getDayCountFraction(fromDate, dates[i]);
       } else {
         yearFrac = -dayCount.getDayCountFraction(dates[i], fromDate);
-
       }
       result[i] = yearFrac;
     }

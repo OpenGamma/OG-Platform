@@ -25,7 +25,7 @@ public abstract class ParameterizedFunction<S, T, U> {
     return res;
   }
 
-  public Function1D<S, U> asFuntionOfArguments(final T params) {
+  public Function1D<S, U> asFunctionOfArguments(final T params) {
     Function1D<S, U> res = new Function1D<S, U>() {
       @Override
       public U evaluate(S x) {

@@ -22,14 +22,13 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 /**
  * 
  */
-public class LastDataCalculatorTest {
-
-  private static LastDateCalculator LDC = new LastDateCalculator();
+public class LastDateCalculatorTest {
+  private static LastDateCalculator LDC = LastDateCalculator.getInstance();
 
   @Test
   public void testCash() {
     final double t = 7 / 365.0;
-    Cash cash = new Cash(t, 0.0445, 1 / 365.0, 5.0 / 365, "t");
+    final Cash cash = new Cash(t, 0.0445, 1 / 365.0, 5.0 / 365, "t");
     assertEquals(t, LDC.visit(cash), 1e-12);
   }
 
@@ -41,7 +40,7 @@ public class LastDataCalculatorTest {
     final double forwardYearFrac = 31.0 / 365.0;
     final double discountYearFrac = 30.0 / 360;
 
-    ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.05, "", "");
+    final ForwardRateAgreement fra = new ForwardRateAgreement(settlement, maturity, fixingDate, forwardYearFrac, discountYearFrac, 0.05, "", "");
 
     assertEquals(maturity, LDC.visit(fra), 1e-12);
   }
@@ -54,13 +53,13 @@ public class LastDataCalculatorTest {
     final double indexYearFraction = 0.267;
     final double valueYearFraction = 0.25;
 
-    InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 98.4, "");
+    final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, 98.4, "");
     assertEquals(maturity, LDC.visit(edf, fixingDate), 1e-12); // passing in fixingDate is just to show that anything can be passed in - it is ignored
   }
 
   @Test
   public void testFixedCouponAnnuity() {
-    FixedCouponAnnuity annuity = new FixedCouponAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "");
+    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "");
     assertEquals(10, LDC.visit(annuity), 1e-12);
   }
 
@@ -82,7 +81,7 @@ public class LastDataCalculatorTest {
       yearFracs[i] = yearFrac;
       spreads[i] = spread;
     }
-    ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben");
+    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben");
     assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
   }
 
@@ -97,7 +96,7 @@ public class LastDataCalculatorTest {
       paymentTimes[i] = tau * (i + 1);
     }
 
-    Bond bond = new Bond(paymentTimes, coupon, yearFrac, 0.0, "dummy");
+    final Bond bond = new Bond(paymentTimes, coupon, yearFrac, 0.0, "dummy");
     assertEquals(n * tau, LDC.visit(bond), 1e-12);
   }
 

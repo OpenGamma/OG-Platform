@@ -77,7 +77,7 @@ public final class ViewDefinitionCompiler {
       outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
     }
 
-    return new ViewEvaluationModel(graphsByConfiguration, portfolio);
+    return new ViewEvaluationModel(graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
   // --------------------------------------------------------------------------

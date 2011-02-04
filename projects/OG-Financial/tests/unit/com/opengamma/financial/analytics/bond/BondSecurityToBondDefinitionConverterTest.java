@@ -64,17 +64,17 @@ public class BondSecurityToBondDefinitionConverterTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity1() {
-    CONVERTER.getBond(null);
+    CONVERTER.getBond((BondSecurity) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity2() {
-    CONVERTER.getBond(null, false);
+    CONVERTER.getBond((BondSecurity) null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecurity3() {
-    CONVERTER.getBond(null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
+    CONVERTER.getBond((BondSecurity) null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
   }
 
   @Test(expected = IllegalArgumentException.class)
