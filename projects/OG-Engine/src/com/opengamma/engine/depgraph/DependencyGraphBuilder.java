@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -398,8 +401,19 @@ public class DependencyGraphBuilder {
     } while (true);
   }
 
+  // DON'T CHECK IN WITH =true
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false;
+
   public DependencyGraph getDependencyGraph() {
-    //_graph.dumpStructureASCII(System.out);
+    if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
+      try {
+        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph.txt"));
+        _graph.dumpStructureASCII(ps);
+        ps.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
     return _graph;
   }
 
