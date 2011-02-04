@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -80,11 +83,9 @@ public class ResolutionRule {
     s_debugGetResults++;
     s_debugGetResultsTime -= System.nanoTime();
     try {
-      CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
-      ComputationTarget target = atNode.getComputationTarget();
-
-      // First check that the function can produce the output
-
+      final ComputationTarget target = atNode.getComputationTarget();
+      final CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
+      // Check the function can apply to the target
       s_debugCanApplyTo++;
       s_debugCanApplyToTime -= System.nanoTime();
       try {
@@ -94,12 +95,11 @@ public class ResolutionRule {
       } finally {
         s_debugCanApplyToTime += System.nanoTime();
       }
-
+      // Get the maximal set of results the function can produce for the target
       s_debugFunctionResults++;
       s_debugFunctionResultsTime -= System.nanoTime();
       Set<ValueSpecification> resultSpecs = null;
       try {
-        incrementOrPut(s_debugFunctionResultsMap, Pair.of(function.getFunctionDefinition(), target));
         try {
           resultSpecs = function.getResults(context, target);
         } catch (Throwable t) {
@@ -112,7 +112,7 @@ public class ResolutionRule {
       } finally {
         s_debugFunctionResultsTime += System.nanoTime();
       }
-
+      // Of the maximal outputs, is one valid for the requirement
       s_debugIsSatisfiedBy++;
       s_debugIsSatisfiedByTime -= System.nanoTime();
       ValueSpecification validSpec = null;
@@ -125,14 +125,11 @@ public class ResolutionRule {
       } finally {
         s_debugIsSatisfiedByTime += System.nanoTime();
       }
-
       if (validSpec == null) {
         return null;
       }
-
-      // Then check that the function (applied to the same computation target) is not already
-      // in the dep graph above the current node (i.e., no cycles)
-
+      // Has the function been used in the graph above the node - i.e. can we introduce it without
+      // creating a cycle
       s_debugCycleTest++;
       s_debugCycleTestTime -= System.nanoTime();
       try {
@@ -146,12 +143,10 @@ public class ResolutionRule {
       } finally {
         s_debugCycleTestTime += System.nanoTime();
       }
-
-      // Finally check that the computation target is a valid computation target for this rule
+      // Apply the target filter for this rule (this is applied last because filters probably rarely exclude compared to the other tests)
       if (!_computationTargetFilter.accept(atNode)) {
         return null;
       }
-
       return validSpec;
     } finally {
       s_debugGetResultsTime += System.nanoTime();
@@ -174,7 +169,7 @@ public class ResolutionRule {
   }
 
   // Reporting for PLAT-501 only
-
+  
   private static int s_debugGetResults;
   private static long s_debugGetResultsTime;
   private static int s_debugCanApplyTo;
@@ -185,17 +180,6 @@ public class ResolutionRule {
   private static long s_debugIsSatisfiedByTime;
   private static int s_debugCycleTest;
   private static long s_debugCycleTestTime;
-  private static Map<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger> s_debugFunctionResultsMap = new HashMap<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger>();
-
-  private static <T> void incrementOrPut(final Map<T, AtomicInteger> map, final T key) {
-    AtomicInteger v = map.get(key);
-    if (v == null) {
-      v = new AtomicInteger(1);
-      map.put(key, v);
-    } else {
-      v.incrementAndGet();
-    }
-  }
 
   public static void report(final Logger logger) {
     logger.debug("getResults {} in {}ms", s_debugGetResults, (double) s_debugGetResultsTime / 1e6);
@@ -213,11 +197,6 @@ public class ResolutionRule {
     logger.debug("cycleTest {} in {}ms", s_debugCycleTest, (double) s_debugCycleTestTime / 1e6);
     s_debugCycleTest = 0;
     s_debugCycleTestTime = 0;
-    final Map<Integer, AtomicInteger> counts = new HashMap<Integer, AtomicInteger>();
-    for (Map.Entry<Pair<FunctionDefinition, ComputationTarget>, AtomicInteger> results : s_debugFunctionResultsMap.entrySet()) {
-      incrementOrPut(counts, results.getValue().intValue());
-    }
-    logger.debug("resultsCount {}", counts);
   }
 
 }

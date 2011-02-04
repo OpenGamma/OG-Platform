@@ -91,9 +91,16 @@ import com.opengamma.util.tuple.Pair;
 
   }
 
+  public static abstract class LazyPopulator {
+
+    protected abstract boolean more();
+
+  }
+
   private final ValueRequirement _valueRequirement;
   private final List<Node> _nodes = new LinkedList<Node>();
   private Pair<DependencyNode, ValueSpecification> _lastValid;
+  private LazyPopulator _lazyPopulator;
 
   public ResolutionState(final ValueRequirement valueRequirement) {
     _valueRequirement = valueRequirement;
@@ -121,10 +128,32 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public boolean isEmpty() {
-    return _nodes.isEmpty();
+    if (_nodes.isEmpty()) {
+      if (_lazyPopulator != null) {
+        if (_lazyPopulator.more()) {
+          assert !_nodes.isEmpty();
+          return false;
+        } else {
+          _lazyPopulator = null;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isSingle() {
+    if (_nodes.size() == 1) {
+      if (_lazyPopulator != null) {
+        if (_lazyPopulator.more()) {
+          assert _nodes.size() > 1;
+          return false;
+        } else {
+          _lazyPopulator = null;
+        }
+      }
+    }
     return _nodes.size() == 1;
   }
 
@@ -164,6 +193,10 @@ import com.opengamma.util.tuple.Pair;
       throw new UnsatisfiableDependencyGraphException("Unsatisfied dependency on " + _valueRequirement);
     }
     return _lastValid;
+  }
+
+  public void setLazyPopulator(final LazyPopulator lazyPopulator) {
+    _lazyPopulator = lazyPopulator;
   }
 
   @Override

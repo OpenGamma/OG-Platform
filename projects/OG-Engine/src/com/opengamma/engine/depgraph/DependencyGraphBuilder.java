@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -181,42 +182,49 @@ public class DependencyGraphBuilder {
       resolutionState = new ResolutionState(requirement);
     }
     // Find functions that can do this
-    s_functionResolverTime -= System.nanoTime();
-    try {
-      DependencyNode node = createDependencyNode(target, dependent);
-      for (Pair<ParameterizedFunction, ValueSpecification> resolvedFunction : getFunctionResolver().resolveFunction(requirement, node)) {
-        final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-        final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-        final ValueSpecification originalOutput = resolvedFunction.getSecond();
-        final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-        final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
-        if (existingNode != null) {
-          // Resolved function output already in the graph
-          s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
-          resolutionState.addExistingNode(existingNode, resolvedOutput);
-          continue;
-        }
-        if (node == null) {
-          node = createDependencyNode(target, dependent);
-        }
-        if (originalOutput.equals(resolvedOutput)) {
-          node.addOutputValues(outputValues);
-        } else {
-          for (ValueSpecification outputValue : outputValues) {
-            if (originalOutput.equals(outputValue)) {
-              s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-              node.addOutputValue(resolvedOutput);
-            } else {
-              node.addOutputValue(outputValue);
+    final DependencyNode node = createDependencyNode(target, dependent);
+    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
+    resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
+      
+      private DependencyNode _node = node;
+      
+      @Override
+      protected boolean more() {
+        while (itr.hasNext()) {
+          final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
+          final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+          final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+          final ValueSpecification originalOutput = resolvedFunction.getSecond();
+          final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+          final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
+          if (existingNode != null) {
+            // Resolved function output already in the graph
+            s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+            resolutionState.addExistingNode(existingNode, resolvedOutput);
+            return true;
+          }
+          if (_node == null) {
+            _node = createDependencyNode(target, dependent);
+          }
+          if (originalOutput.equals(resolvedOutput)) {
+            _node.addOutputValues(outputValues);
+          } else {
+            for (ValueSpecification outputValue : outputValues) {
+              if (originalOutput.equals(outputValue)) {
+                s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+                _node.addOutputValue(resolvedOutput);
+              } else {
+                _node.addOutputValue(outputValue);
+              }
             }
           }
+          resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), _node);
+          _node = null;
+          return true;
         }
-        resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), node);
-        node = null;
+        return false;
       }
-    } finally {
-      s_functionResolverTime += System.nanoTime();
-    }
+    });
     return resolutionState;
   }
 

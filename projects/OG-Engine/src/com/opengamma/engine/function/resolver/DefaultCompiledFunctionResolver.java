@@ -113,71 +113,123 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   };
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode) {
-    s_debugResolveFunctions++;
-    s_debugResolveFunctionsTime -= System.nanoTime();
-    final LinkedList<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = new LinkedList<Pair<ParameterizedFunction, ValueSpecification>>();
-    // process rules in descending priority order
-    for (Map.Entry<Integer, Collection<ResolutionRule>> entry : _type2Priority2Rules.get(atNode.getComputationTarget().getType()).entrySet()) {
-      final Collection<ResolutionRule> rules = entry.getValue();
-      int rulesFound = 0;
-      for (ResolutionRule rule : rules) {
-        final ValueSpecification result = rule.getResult(requirement, atNode, getFunctionCompilationContext());
-        if (result != null) {
-          applicableRules.add(Pair.of(rule.getFunction(), result));
-          rulesFound++;
-        }
+  private static class InlineResolutionIterator implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
+
+    private final ValueRequirement _requirement;
+    private final DependencyNode _node;
+    private final FunctionCompilationContext _context;
+    private final Iterator<Map.Entry<Integer, Collection<ResolutionRule>>> _entries;
+    private Iterator<Pair<ParameterizedFunction, ValueSpecification>> _nexts;
+    private Pair<ParameterizedFunction, ValueSpecification> _next;
+
+    public InlineResolutionIterator(final ValueRequirement requirement, final DependencyNode node, final FunctionCompilationContext context,
+        final Iterator<Map.Entry<Integer, Collection<ResolutionRule>>> entries) {
+      _requirement = requirement;
+      _node = node;
+      _context = context;
+      _entries = entries;
+    }
+
+    @Override
+    public boolean hasNext() {
+      if (_next == null) {
+        findNext();
       }
-      if (rulesFound > 1) {
-        s_multipleRules++;
-        s_multipleRulesTime -= System.nanoTime();
-        final Iterator<Pair<ParameterizedFunction, ValueSpecification>> iterator = applicableRules.descendingIterator();
-        final Pair<ParameterizedFunction, ValueSpecification>[] found = new Pair[rulesFound];
-        for (int i = 0; i < rulesFound; i++) {
-          found[i] = iterator.next();
-          iterator.remove();
+      return _next != null;
+    }
+
+    @Override
+    public Pair<ParameterizedFunction, ValueSpecification> next() {
+      if (_next == null) {
+        findNext();
+      }
+      final Pair<ParameterizedFunction, ValueSpecification> result = _next;
+      _next = null;
+      return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void findNext() {
+      s_findNext++;
+      s_findNextTime -= System.nanoTime();
+      try {
+        if ((_nexts != null) && _nexts.hasNext()) {
+          _next = _nexts.next();
+          return;
         }
-        // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-        // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-        // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
-        // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
-        // that will detect the equality case and trigger an exception.
-        Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
-        for (int i = 0; i < rulesFound; i++) {
-          applicableRules.add(found[i]);
+        LinkedList<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = null;
+        while (_entries.hasNext()) {
+          int rulesFound = 0;
+          for (ResolutionRule rule : _entries.next().getValue()) {
+            final ValueSpecification result = rule.getResult(_requirement, _node, _context);
+            if (result != null) {
+              if (applicableRules == null) {
+                if (_next == null) {
+                  _next = Pair.of(rule.getFunction(), result);
+                } else {
+                  applicableRules = new LinkedList<Pair<ParameterizedFunction, ValueSpecification>>();
+                  applicableRules.add(_next);
+                  applicableRules.add(Pair.of(rule.getFunction(), result));
+                }
+              } else {
+                applicableRules.add(Pair.of(rule.getFunction(), result));
+              }
+              rulesFound++;
+            }
+          }
+          if (rulesFound == 1) {
+            _nexts = null;
+            return;
+          } else if (rulesFound > 1) {
+            final Iterator<Pair<ParameterizedFunction, ValueSpecification>> iterator = applicableRules.descendingIterator();
+            final Pair<ParameterizedFunction, ValueSpecification>[] found = new Pair[rulesFound];
+            for (int i = 0; i < rulesFound; i++) {
+              found[i] = iterator.next();
+            }
+            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
+            // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
+            // that will detect the equality case and trigger an exception.
+            Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
+            _nexts = Arrays.asList(found).iterator();
+            _next = _nexts.next();
+            return;
+          }
         }
-        s_multipleRulesTime += System.nanoTime();
+      } finally {
+        s_findNextTime += System.nanoTime();
       }
     }
-    s_debugResolveFunctionsTime += System.nanoTime();
-    if (applicableRules.isEmpty()) {
-      s_debugExceptions++;
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+  };
+
+  @Override
+  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode) {
+    // process rules in descending priority order
+    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = new InlineResolutionIterator(requirement, atNode, getFunctionCompilationContext(), _type2Priority2Rules.get(
+        atNode.getComputationTarget().getType()).entrySet().iterator());
+    if (itr.hasNext()) {
+      return itr;
+    } else {
       throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
     }
-    return applicableRules;
   }
 
   // Reporting for PLAT-501 only
 
-  private static int s_debugResolveFunctions;
-  private static long s_debugResolveFunctionsTime;
-  private static int s_debugExceptions;
-  private static int s_multipleRules;
-  private static long s_multipleRulesTime;
+  private static int s_findNext;
+  private static long s_findNextTime;
 
   public static void report(final Logger logger) {
-    logger.debug("resolveFunction invocations {}", s_debugResolveFunctions);
-    s_debugResolveFunctions = 0;
-    logger.debug("resolveFunction {}ms", (double) s_debugResolveFunctionsTime / 1e6);
-    s_debugResolveFunctionsTime = 0;
-    logger.debug("exceptions {}", s_debugExceptions);
-    s_debugExceptions = 0;
-    logger.debug("multipleRules {}", s_multipleRules);
-    s_multipleRules = 0;
-    logger.debug("multipleRulesTime {}", s_multipleRulesTime);
-    s_multipleRulesTime = 0;
+    logger.debug("findNext {} in {}ms", s_findNext, (double) s_findNextTime / 1e6);
+    s_findNext = 0;
+    s_findNextTime = 0;
     ResolutionRule.report(logger);
   }
 
