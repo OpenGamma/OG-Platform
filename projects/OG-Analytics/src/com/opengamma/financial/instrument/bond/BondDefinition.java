@@ -149,6 +149,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
   @Override
   public Bond toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
     Validate.noNullElements(yieldCurveNames, "yield curve names");
     final int index = Arrays.binarySearch(_nominalDates, date);
     int position = index;
