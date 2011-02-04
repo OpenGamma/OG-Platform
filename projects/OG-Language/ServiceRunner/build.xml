@@ -1,0 +1,3 @@
+<project name="ServiceRunner">
+	<import file="${basedir}/../build-cpp.xml" />
+</project>

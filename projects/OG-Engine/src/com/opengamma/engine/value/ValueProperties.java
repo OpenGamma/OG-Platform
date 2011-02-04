@@ -32,7 +32,7 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public abstract class ValueProperties implements Serializable, Comparable<ValueProperties> {
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
    */
@@ -148,7 +148,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String>emptySet());
+      _properties.put(propertyName.intern(), Collections.<String> emptySet());
       return this;
     }
 
@@ -198,7 +198,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       if (_optional != null) {
         for (String optionalProperty : _optional) {
           if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String>emptySet());
+            _properties.put(optionalProperty, Collections.<String> emptySet());
           }
         }
         return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
@@ -206,12 +206,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
       }
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * A value properties implementation holding a set of properties.
    */
@@ -259,8 +259,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           if (!isOptional(property.getKey())) {
@@ -301,8 +300,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
-        if ((available == null) || available.isEmpty()) {
+        if (available == null) {
           // This property unchanged in output
+          continue;
+        }
+        if (available.isEmpty()) {
+          // This property different in output if optional here, and composed against a required
+          if (isOptional(property.getKey()) && !properties.isOptional(property.getKey())) {
+            return composeImpl(properties);
+          }
           continue;
         }
         if (property.getValue().isEmpty()) {
@@ -327,8 +333,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-    nextProperty:
-      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           // Other is not defined, so use current value
@@ -342,8 +347,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
           }
           continue;
         }
-        // Preserve optionality from the other property set
-        if (properties.isOptional(property.getKey())) {
+        // Preserve least optionality from property sets
+        if (properties.isOptional(property.getKey()) && isOptional(property.getKey())) {
           if (optional == null) {
             optional = new HashSet<String>();
           }
@@ -385,7 +390,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
       }
     }
 
@@ -446,7 +451,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * A value properties implementation representing a nearly infinite property set.
    */
@@ -583,7 +588,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * The infinite property set.
    */
@@ -659,7 +664,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * The empty set.
    */
@@ -723,7 +728,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Returns the empty property set, typically indicating no value constraints.
    * 
@@ -745,7 +750,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     return INFINITE;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Creates a builder for constructing value properties.
    * <p>
@@ -899,7 +904,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     return copy().withoutAny(propertyName).get();
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Compares two sets.
    * 
