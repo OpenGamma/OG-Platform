@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through
  * alternative resolutions to node requirements.
  */
-/* package */class ResolutionState {
+/* package */final class ResolutionState {
 
   /**
    * 
@@ -91,7 +91,7 @@ import com.opengamma.util.tuple.Pair;
 
   }
 
-  public static abstract class LazyPopulator {
+  public abstract static class LazyPopulator {
 
     protected abstract boolean more();
 
@@ -190,7 +190,7 @@ import com.opengamma.util.tuple.Pair;
 
   public Pair<DependencyNode, ValueSpecification> getLastValid() {
     if (_lastValid == null) {
-      throw new UnsatisfiableDependencyGraphException("Unsatisfied dependency on " + _valueRequirement);
+      throw new UnsatisfiableDependencyGraphException(getValueRequirement());
     }
     return _lastValid;
   }

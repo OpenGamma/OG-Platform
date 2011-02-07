@@ -24,6 +24,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -153,7 +154,7 @@ public class DependencyGraphBuilder {
     final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
     s_targetResolverTime += System.nanoTime();
     if (target == null) {
-      throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + requirement);
+      throw new UnsatisfiableDependencyGraphException(requirement);
     }
     s_logger.info("Resolving target requirement for {} on {}", requirement, target);
     // Find existing nodes in the graph
@@ -182,13 +183,13 @@ public class DependencyGraphBuilder {
     }
     // Find functions that can do this
     final DependencyNode node = createDependencyNode(target, dependent);
-    s_functionResolverTime -= System.nanoTime ();
+    s_functionResolverTime -= System.nanoTime();
     try {
       final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
       resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
-  
+
         private DependencyNode _node = node;
-  
+
         @Override
         protected boolean more() {
           s_functionResolverTime -= System.nanoTime();
@@ -232,7 +233,7 @@ public class DependencyGraphBuilder {
         }
       });
     } finally {
-      s_functionResolverTime += System.nanoTime ();
+      s_functionResolverTime += System.nanoTime();
     }
     return resolutionState;
   }
@@ -285,7 +286,7 @@ public class DependencyGraphBuilder {
             resolved.removeFirst();
             if (resolved.isEmpty()) {
               s_debugCatchAndRethrow++;
-              throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), t);
+              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
             }
             s_debugBacktrack++;
             continue;
@@ -304,7 +305,7 @@ public class DependencyGraphBuilder {
           }
           // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
           s_debugBacktrackExceptions++;
-          throw new UnsatisfiableDependencyGraphException("In-situ specification reduction not implemented");
+          throw new UnsupportedOperationException("In-situ specification reduction not implemented");
         }
       } else {
         // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
@@ -333,7 +334,7 @@ public class DependencyGraphBuilder {
           resolved.removeFirst();
           if (resolved.isEmpty()) {
             s_debugCatchAndRethrow++;
-            throw new UnsatisfiableDependencyGraphException("Unable to satisfy requirement " + resolved.getValueRequirement(), e);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
           }
           s_debugBacktrack++;
           continue;
@@ -353,7 +354,7 @@ public class DependencyGraphBuilder {
           graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
             s_debugCatchAndRethrow++;
-            throw new UnsatisfiableDependencyGraphException("Late resolution failure of " + resolved.getValueRequirement(), t);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
           }
           s_debugBacktrack++;
           continue;
@@ -386,15 +387,13 @@ public class DependencyGraphBuilder {
               return result;
             }
           } else {
-            final String failureMessage = "Deep backtracking as provisional specification " + resolutionNode.getValueSpecification() + " no longer in output after late resolution of "
-                + resolved.getValueRequirement();
-            s_logger.debug(failureMessage);
+            s_logger.debug("Deep backtracking as provisional specification {} no longer in output after late resolution of {}", resolutionNode.getValueSpecification(), resolved.getValueRequirement());
             graphNode.clearInputs();
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
               s_debugBacktrackExceptions++;
-              throw new UnsatisfiableDependencyGraphException(failureMessage);
+              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
             }
             s_debugBacktrack++;
             continue;
@@ -422,7 +421,7 @@ public class DependencyGraphBuilder {
           }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
             s_debugCatchAndRethrow++;
-            throw new UnsatisfiableDependencyGraphException("Deep backtracking on dependency graph error", e);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
           }
           s_debugBacktrack++;
           continue;

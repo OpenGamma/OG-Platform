@@ -20,6 +20,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -144,7 +145,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           return c;
         }
       }
-      throw new UnsatisfiableDependencyGraphException("Rule priority conflict - cannot order " + o1 + " against " + o2);
+      throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
 
   };
@@ -209,7 +210,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           }
         }
         if (!_satisfied) {
-          throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
+          throw new UnsatisfiableDependencyGraphException(requirement);
         }
       }
 
