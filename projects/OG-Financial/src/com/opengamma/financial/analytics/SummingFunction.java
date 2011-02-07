@@ -93,8 +93,16 @@ public class SummingFunction extends PropertyPreservingFunction {
       final DoubleLabelledMatrix1D previousMatrix = (DoubleLabelledMatrix1D) previousSum;
       final DoubleLabelledMatrix1D currentMatrix = (DoubleLabelledMatrix1D) currentValue;
       return previousMatrix.add(currentMatrix);
+    } else if (currentValue instanceof LocalDateLabelledMatrix1D) {
+      final LocalDateLabelledMatrix1D previousMatrix = (LocalDateLabelledMatrix1D) previousSum;
+      final LocalDateLabelledMatrix1D currentMatrix = (LocalDateLabelledMatrix1D) currentValue;
+      return previousMatrix.add(currentMatrix);
+    } else if (currentValue instanceof ZonedDateTimeLabelledMatrix1D) {
+      final ZonedDateTimeLabelledMatrix1D previousMatrix = (ZonedDateTimeLabelledMatrix1D) previousSum;
+      final ZonedDateTimeLabelledMatrix1D currentMatrix = (ZonedDateTimeLabelledMatrix1D) currentValue;
+      return previousMatrix.add(currentMatrix);
     }
-    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and DoubleLabelledMatrix1D right now.");
+    throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime) right now.");
   }
 
   @Override

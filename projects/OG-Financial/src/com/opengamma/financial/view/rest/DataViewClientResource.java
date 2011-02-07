@@ -146,7 +146,7 @@ public class DataViewClientResource {
   
   @POST
   @Path(PATH_RUN_ONE_CYCLE)
-  public Response runOneCycle(long valuationTime) {
+  public Response runOneCycle(Long valuationTime) {
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeFieldContainer msg = context.newMessage();
     context.objectToFudgeMsg(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));

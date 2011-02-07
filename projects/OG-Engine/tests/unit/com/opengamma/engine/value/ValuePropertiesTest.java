@@ -171,6 +171,10 @@ public class ValuePropertiesTest {
     assertSame (requirement.getValues ("B"), props.getValues ("B"));
     assertSame (requirement.getValues ("C"), props.getValues ("C"));
     assertSame (offering.getValues ("E"), props.getValues ("E"));
+    offering = ValueProperties.with("A", "1").with("B", "2", "3").withOptional("C").withOptional("D").with ("E", "1").withOptional("E").get();
+    props = offering.compose (requirement);
+    assertEquals (requirement, props);
+    assertFalse (offering.equals (props));
   }
   
   @Test

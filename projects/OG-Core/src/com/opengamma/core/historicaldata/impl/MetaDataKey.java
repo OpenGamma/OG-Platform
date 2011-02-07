@@ -31,6 +31,10 @@ import com.opengamma.id.IdentifierBundle;
     _currentDate = currentDate;
     _configName = configName;
   }
+  
+  public IdentifierBundle getIdentifiers() {
+    return _dsids;
+  }
 
   @Override
   public int hashCode() {

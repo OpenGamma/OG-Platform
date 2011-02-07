@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.function;
@@ -9,12 +9,10 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
-
 /**
  * 
  */
-public class RealPolynomialFunction1D extends Function1D<Double, Double> {
+public class RealPolynomialFunction1D extends DoubleFunction1D {
   private final double[] _coefficients;
 
   /**
@@ -29,7 +27,7 @@ public class RealPolynomialFunction1D extends Function1D<Double, Double> {
    */
   public RealPolynomialFunction1D(final double[] coefficients) {
     Validate.notNull(coefficients);
-    ArgumentChecker.notEmpty(coefficients, "coefficients");
+    Validate.isTrue(coefficients.length > 0, "coefficients length must be greater than zero");
     _coefficients = coefficients;
   }
 
@@ -42,6 +40,16 @@ public class RealPolynomialFunction1D extends Function1D<Double, Double> {
       y = x * y + _coefficients[i];
     }
     return y;
+  }
+
+  @Override
+  public DoubleFunction1D derivative() {
+    final int n = _coefficients.length;
+    final double[] coefficients = new double[n - 1];
+    for (int i = 1; i < n; i++) {
+      coefficients[i - 1] = _coefficients[i] * i;
+    }
+    return new RealPolynomialFunction1D(coefficients);
   }
 
   public double[] getCoefficients() {

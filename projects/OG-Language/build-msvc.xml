@@ -1,0 +1,88 @@
+<project name="build-msvc">
+
+	<property file="${solution.dir}/build.properties" />
+
+	<target name="run-msbuild">
+		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
+		<exec executable="msbuild" failonerror="true">
+			<arg value="${basedir}\${ant.project.name}.vcxproj" />
+			<arg value="/p:SolutionDir=${basedir}\..\" />
+			<arg value="/p:Configuration=${msbuild.config}" />
+			<arg value="/p:Platform=${msbuild.platform}" />
+		</exec>
+	</target>
+	<target name="compile-win32" if="msvc.win32">
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+	</target>
+	<target name="compile-x64" if="msvc.x64">
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="run-msbuild">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+	</target>
+	<target name="compile" description="--> compile project">
+		<antcall target="compile-win32" />
+		<antcall target="compile-x64" />
+	</target>
+
+	<property name="log4cxx.configuration" value="${env.LOG4CXX_CONFIGURATION}" />
+	<property name="log4cxx.logfile" value="${log4cxx.configuration}.log" />
+	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
+	<target name="run-mstest">
+		<mkdir dir="${tests.results.dir}" />
+		<delete file="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
+		<exec executable="mstest" failonerror="false">
+			<arg value="/testcontainer:${build.dir}\${msbuild.config}${msbuild.platform}\${ant.project.name}.dll" />
+			<arg value="/resultsfile:${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
+			<arg value="/detail:stdout" />
+			<arg value="/detail:stderr" />
+			<env key="LOG4CXX_CONFIGURATION" value="${log4cxx.cofiguration}" />
+			<env key="WORKING_DIRECTORY" value="${build.dir}\${msbuild.config}${msbuild.platform}" />
+		</exec>
+		<copy file="${log4cxx.logfile}" tofile="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.log" failonerror="false" />
+		<delete file="${log4cxx.logfile}" failonerror="false" />
+	</target>
+	<target name="tests-win32" depends="compile-win32" if="msvc.win32">
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+	</target>
+	<target name="tests-x64" depends="compile-x64" if="msvc.x64">
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="run-mstest">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+	</target>
+	<target name="tests" description="--> run the tests">
+		<antcall target="tests-win32" />
+		<antcall target="tests-x64" />
+	</target>
+
+	<target name="clean" depends="clean-src" description="--> clean the output folders">
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/DebugWin32" />
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debugx64" />
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/ReleaseWin32" />
+		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Releasex64" />
+	</target>
+
+</project>

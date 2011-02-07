@@ -15,6 +15,7 @@ import com.opengamma.util.CompareUtils;
 public class SABRFormulaHagan implements SABRFormula {
   private static final double EPS = 1e-15;
 
+  @Override
   public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     Validate.isTrue(f > 0.0, "f must be > 0.0");
@@ -62,28 +63,15 @@ public class SABRFormulaHagan implements SABRFormula {
       return 1.0;
     }
 
-    double rhoStar = 1 - rho;
+    final double rhoStar = 1 - rho;
     if (CompareUtils.closeEquals(rhoStar, 0.0, 1e-8)) {
       if (z >= 1.0) {
         return 0.0;
       }
       return -z / Math.log(1 - z);
-    } else {
-      double chi = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) - Math.log(rhoStar);
-      double debug = -Math.log(1 - z);
-      return z / chi;
     }
+    final double chi = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) - Math.log(rhoStar);
+    return z / chi;
   }
-
-  // private static double getChi(final double rho, final double z) {
-  // return Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) / (1 - rho));
-  // }
-  //
-  // private static double getRatio(final double chi, final double z) {
-  // if (CompareUtils.closeEquals(chi, 0, EPS) && CompareUtils.closeEquals(z, 0, EPS)) {
-  // return 1;
-  // }
-  // return z / chi;
-  // }
 
 }
