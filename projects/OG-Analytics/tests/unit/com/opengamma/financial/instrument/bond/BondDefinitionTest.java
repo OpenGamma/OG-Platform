@@ -18,8 +18,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.instrument.bond.BondConvention;
-import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
@@ -128,6 +126,11 @@ public class BondDefinitionTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNullConvention2() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConvertAfterExpiry() {
+    DEFINITION.toDerivative(SETTLEMENT_DATES[SETTLEMENT_DATES.length - 1].plusMonths(1), "A");
   }
 
   @Test

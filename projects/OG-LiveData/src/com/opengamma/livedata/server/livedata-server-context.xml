@@ -42,7 +42,7 @@
     </bean>
     
 	<bean id="subscriptionRequestReceiver" class="com.opengamma.livedata.server.SubscriptionRequestReceiver">
-		<constructor-arg index="0" ref="server"/>
+		<constructor-arg index="0" ref="liveDataServer"/>
 	</bean>
 	
 	<bean id="subscriptionRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
@@ -87,7 +87,7 @@
 	</bean>
 	
 	<bean id="activeSecurityPublicationManager" class="com.opengamma.livedata.server.ExpirationManager">
-		<constructor-arg ref="server"/>
+		<constructor-arg ref="liveDataServer"/>
 	</bean>
 	
 	<bean id="heartbeatReceiver" class="com.opengamma.livedata.server.HeartbeatReceiver">
@@ -116,14 +116,14 @@
     </bean>
 	
 	<bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
-		depends-on="server">
-		<constructor-arg index="0" ref="server"/>
+		depends-on="liveDataServer">
+		<constructor-arg index="0" ref="liveDataServer"/>
 		<constructor-arg index="1" ref="mongoDBSettings"/>
 	</bean>
 	
 	<bean id="reconnectManager" class="com.opengamma.livedata.server.ReconnectManager"
-		depends-on="server">
-		<constructor-arg index="0" ref="server"/>
+		depends-on="liveDataServer">
+		<constructor-arg index="0" ref="liveDataServer"/>
 	</bean>
 	
 	<bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
@@ -171,7 +171,7 @@
 	</bean>
 	
 	<bean id="serverMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
-		<constructor-arg ref="server"/>
+		<constructor-arg ref="liveDataServer"/>
 	</bean>
 	
 	<bean id="persistentSubscriptionManagerMBean" class="com.opengamma.livedata.server.PersistentSubscriptionManagerMBean">

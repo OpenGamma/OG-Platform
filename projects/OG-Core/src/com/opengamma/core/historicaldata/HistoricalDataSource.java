@@ -5,6 +5,9 @@
  */
 package com.opengamma.core.historicaldata;
 
+import java.util.Map;
+import java.util.Set;
+
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.IdentifierBundle;
@@ -156,5 +159,23 @@ public interface HistoricalDataSource {
    */
   LocalDateDoubleTimeSeries getHistoricalData(
       UniqueIdentifier uid, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
+  
+  /**
+   * Finds multiple time-series for the same source, provider and field, with all data points between start and end
+   * date. 
+   * 
+   * @param identifierSet  a set containing an identifier bundle for each time-series required, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the data field, not null
+   * @param start  the start date, null will load the earliest date 
+   * @param inclusiveStart  whether or not the start date is included in the result
+   * @param end  the end date, null will load the latest date
+   * @param exclusiveEnd  whether or not the end date is included in the result
+   * @return a map of each identifier bundle to the corresponding time-series, not null
+   */
+  Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
+      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
 }
