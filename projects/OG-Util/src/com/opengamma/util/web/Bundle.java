@@ -10,6 +10,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.commons.lang.ObjectUtils;
+
 /**
  * Model class to represent the bundle element in uiResourceConfig XML document
  */
@@ -62,24 +64,15 @@ public class Bundle {
   
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Bundle other = (Bundle) obj;
-    if (_fragment == null) {
-      if (other._fragment != null)
-        return false;
-    } else if (!_fragment.equals(other._fragment))
-      return false;
-    if (_id == null) {
-      if (other._id != null)
-        return false;
-    } else if (!_id.equals(other._id))
-      return false;
-    return true;
+    }
+    if (obj instanceof Bundle) {
+      Bundle other = (Bundle) obj;
+      return ObjectUtils.equals(_id, other._id) &&
+      ObjectUtils.equals(_fragment, other._fragment);
+    }
+    return false;
   }
   
   @Override
