@@ -20,7 +20,7 @@ public class JTransformsWrapperTest {
 
     @Override
     public Double evaluate(final Double t) {
-      return Math.cos(6 * Math.PI * t) + Math.cos(8 * Math.PI * t);
+      return Math.cos(6 * Math.PI * t) + Math.cos(8 * Math.PI * t) + Math.cos(9 * Math.PI * t);
     }
 
   };
@@ -37,49 +37,69 @@ public class JTransformsWrapperTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull1() {
-    JTransformsWrapper.transformComplex(null);
+    JTransformsWrapper.transform1DComplex(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull2() {
-    JTransformsWrapper.inverseTransformComplex(null, false);
+    JTransformsWrapper.inverseTransform1DComplex(null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull3() {
-    JTransformsWrapper.fullTransformReal(null);
+    JTransformsWrapper.fullTransform1DReal(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull4() {
-    JTransformsWrapper.fullInverseTransformReal(null, false);
+    JTransformsWrapper.fullInverseTransform1DReal(null, false);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNull5() {
+    JTransformsWrapper.transform1DReal(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNull6() {
+    JTransformsWrapper.inverseTransform1DReal(null, false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty1() {
-    JTransformsWrapper.transformComplex(new ComplexNumber[0]);
+    JTransformsWrapper.transform1DComplex(new ComplexNumber[0]);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty2() {
-    JTransformsWrapper.inverseTransformComplex(new ComplexNumber[0], false);
+    JTransformsWrapper.inverseTransform1DComplex(new ComplexNumber[0], false);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty3() {
-    JTransformsWrapper.fullTransformReal(new double[0]);
+    JTransformsWrapper.fullTransform1DReal(new double[0]);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty4() {
-    JTransformsWrapper.fullInverseTransformReal(new double[0], false);
+    JTransformsWrapper.fullInverseTransform1DReal(new double[0], false);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmpty5() {
+    JTransformsWrapper.transform1DReal(new double[0]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmpty6() {
+    JTransformsWrapper.inverseTransform1DReal(new double[0], false);
   }
 
   @Test
-  public void testForwardBackward() {
+  public void testForwardBackwardFull() {
     final int n = A.length;
-    final ComplexNumber[] transform = JTransformsWrapper.fullTransformReal(A);
-    ComplexNumber[] inverse = JTransformsWrapper.inverseTransformComplex(transform, true);
+    final ComplexNumber[] transform = JTransformsWrapper.fullTransform1DReal(A);
+    ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DComplex(transform, true);
     final double[] realTransform = new double[n];
     final ComplexNumber[] complex = new ComplexNumber[n];
     for (int i = 0; i < n; i++) {
@@ -87,11 +107,26 @@ public class JTransformsWrapperTest {
       complex[i] = new ComplexNumber(A[i], 0);
       assertComplexEquals(inverse[i], new ComplexNumber(A[i], 0));
     }
-    final ComplexNumber[] transformComplex = JTransformsWrapper.transformComplex(complex);
-    inverse = JTransformsWrapper.fullInverseTransformReal(realTransform, true);
+    final ComplexNumber[] transformComplex = JTransformsWrapper.transform1DComplex(complex);
+    inverse = JTransformsWrapper.fullInverseTransform1DReal(realTransform, true);
     for (int i = 0; i < n; i++) {
       assertComplexEquals(transform[i], transformComplex[i]);
       assertComplexEquals(inverse[i], new ComplexNumber(A[i], 0));
+    }
+  }
+
+  @Test
+  public void testForwardBackwardReal() {
+    final ComplexNumber[] transform = JTransformsWrapper.transform1DReal(A);
+    final ComplexNumber[] transformFull = JTransformsWrapper.fullTransform1DReal(A);
+    final double[] realTransform = new double[A.length];
+    for (int i = 0; i < transform.length; i++) {
+      realTransform[i] = transform[i].getReal();
+      assertComplexEquals(transform[i], transformFull[i]);
+    }
+    final ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DReal(realTransform, true);
+    for (int i = 0; i < inverse.length; i++) {
+      assertEquals(inverse[i].getReal(), A[i], EPS);
     }
   }
 

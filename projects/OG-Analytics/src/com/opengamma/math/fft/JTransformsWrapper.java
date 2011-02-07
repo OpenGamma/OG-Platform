@@ -20,9 +20,9 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
  */
 public class JTransformsWrapper {
   //TODO this needs to be changed
-  private static final Map<Integer, DoubleFFT_1D> CACHE = new HashMap<Integer, DoubleFFT_1D>();
+  private static final Map<Integer, DoubleFFT_1D> CACHE_1D = new HashMap<Integer, DoubleFFT_1D>();
 
-  public static ComplexNumber[] transformComplex(final ComplexNumber[] z) {
+  public static ComplexNumber[] transform1DComplex(final ComplexNumber[] z) {
     Validate.notNull(z, "array of complex number");
     final int n = z.length;
     Validate.isTrue(n > 0);
@@ -31,16 +31,16 @@ public class JTransformsWrapper {
       a[2 * i] = z[i].getReal();
       a[2 * i + 1] = z[i].getImaginary();
     }
-    DoubleFFT_1D fft = CACHE.get(n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
-      CACHE.put(n, fft);
+      CACHE_1D.put(n, fft);
     }
     fft.complexForward(a);
     return convertToComplex(a);
   }
 
-  public static ComplexNumber[] inverseTransformComplex(final ComplexNumber[] z, final boolean scale) {
+  public static ComplexNumber[] inverseTransform1DComplex(final ComplexNumber[] z, final boolean scale) {
     Validate.notNull(z, "array of complex number");
     final int n = z.length;
     Validate.isTrue(n > 0);
@@ -49,40 +49,68 @@ public class JTransformsWrapper {
       a[2 * i] = z[i].getReal();
       a[2 * i + 1] = z[i].getImaginary();
     }
-    DoubleFFT_1D fft = CACHE.get(n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
-      CACHE.put(n, fft);
+      CACHE_1D.put(n, fft);
     }
     fft.complexInverse(a, scale);
     return convertToComplex(a);
   }
 
-  public static ComplexNumber[] fullTransformReal(final double[] x) {
+  public static ComplexNumber[] fullTransform1DReal(final double[] x) {
     Validate.notNull(x, "array of doubles");
     final int n = x.length;
     Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(x, 2 * n);
-    DoubleFFT_1D fft = CACHE.get(n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
-      CACHE.put(n, fft);
+      CACHE_1D.put(n, fft);
     }
     fft.realForwardFull(a);
     return convertToComplex(a);
   }
 
-  public static ComplexNumber[] fullInverseTransformReal(final double[] x, final boolean scale) {
+  public static ComplexNumber[] fullInverseTransform1DReal(final double[] x, final boolean scale) {
     Validate.notNull(x, "array of doubles");
     final int n = x.length;
     Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(x, 2 * n);
-    DoubleFFT_1D fft = CACHE.get(n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
-      CACHE.put(n, fft);
+      CACHE_1D.put(n, fft);
     }
     fft.realInverseFull(a, scale);
+    return convertToComplex(a);
+  }
+
+  public static ComplexNumber[] transform1DReal(final double[] x) {
+    Validate.notNull(x, "array of doubles");
+    final int n = x.length;
+    Validate.isTrue(n > 0);
+    final double[] a = Arrays.copyOf(x, n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
+    if (fft == null) {
+      fft = new DoubleFFT_1D(n);
+      CACHE_1D.put(n, fft);
+    }
+    fft.realForward(a);
+    return convertToComplex(a);
+  }
+
+  public static ComplexNumber[] inverseTransform1DReal(final double[] x, final boolean scale) {
+    Validate.notNull(x, "array of doubles");
+    final int n = x.length;
+    Validate.isTrue(n > 0);
+    final double[] a = Arrays.copyOf(x, n);
+    DoubleFFT_1D fft = CACHE_1D.get(n);
+    if (fft == null) {
+      fft = new DoubleFFT_1D(n);
+      CACHE_1D.put(n, fft);
+    }
+    fft.realInverse(a, scale);
     return convertToComplex(a);
   }
 
