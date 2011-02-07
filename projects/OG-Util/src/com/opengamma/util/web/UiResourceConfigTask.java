@@ -39,12 +39,11 @@ import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 public class UiResourceConfigTask extends Task {
  
   private static final String DEFAULT_CHARSET = "ISO-8859-1";
-  private static final String DEFAULT_VERSION = "10";
     
   /**
    * Version number
    */
-  private String _version = DEFAULT_VERSION;
+  private String _version;
   /**
    * UiResourceConfig XML file
    */
@@ -280,7 +279,6 @@ public class UiResourceConfigTask extends Task {
   }
 
   private File createDestinationFile(com.opengamma.util.web.File file, String prefix) {
-    String buildTime = getProject().getProperty("buildTime");
     StringBuilder buf = new StringBuilder();
     buf.append(_dir.getAbsolutePath());
     buf.append(System.getProperty("file.separator"));
@@ -288,10 +286,12 @@ public class UiResourceConfigTask extends Task {
     if (prefix != null) {
       buf.append("-");
       buf.append(prefix);
-    } else {
+    } 
+    if (getVersion() != null) {
       buf.append("-");
+      buf.append(getVersion());
     }
-    buf.append(getVersion());
+    String buildTime = getProject().getProperty("buildTime");
     if (buildTime != null) {
       buf.append("-");
       buf.append(buildTime);
