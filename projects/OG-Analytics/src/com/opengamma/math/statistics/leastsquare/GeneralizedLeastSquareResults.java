@@ -14,15 +14,17 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * 
+ * @param <T> The type of the inputs to the basis functions
  */
 public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
 
   private final Function1D<T, Double> _function;
 
   /**
-   * @param chiSq
-   * @param parameters
-   * @param covariance
+   * @param basisFunctions The basis functions
+   * @param chiSq The chi-squared of the fit
+   * @param parameters The parameters that were fit
+   * @param covariance The covariance matrix of the result
    */
   public GeneralizedLeastSquareResults(final List<Function1D<T, Double>> basisFunctions, double chiSq, DoubleMatrix1D parameters, DoubleMatrix2D covariance) {
     super(chiSq, parameters, covariance);

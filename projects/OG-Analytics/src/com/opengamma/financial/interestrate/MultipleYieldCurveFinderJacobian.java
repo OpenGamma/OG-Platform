@@ -36,7 +36,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
     _calculator = calculator;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x);

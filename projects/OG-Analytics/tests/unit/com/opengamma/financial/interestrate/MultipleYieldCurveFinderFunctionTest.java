@@ -88,7 +88,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
     list.add(new Cash(1, 0.01, CURVE_NAME));
     list.add(new Cash(0.5, 0.01, CURVE_NAME));
-    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
+    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
   }
 
   @Test
