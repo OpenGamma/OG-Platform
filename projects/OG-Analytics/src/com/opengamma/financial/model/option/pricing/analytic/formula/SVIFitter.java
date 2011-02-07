@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import org.apache.activemq.util.BitArray;
+import java.util.BitSet;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.ParameterizedFunction;
@@ -41,7 +42,7 @@ public class SVIFitter {
     TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
   }
 
-  public LeastSquareResults solve(final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitArray fixed) {
+  public LeastSquareResults solve(final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitSet fixed) {
 
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");

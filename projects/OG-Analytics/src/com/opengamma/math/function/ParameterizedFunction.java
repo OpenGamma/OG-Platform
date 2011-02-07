@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.function;
 
+
 /**
  * 
  * @param <S> Type of arguments
@@ -16,23 +17,21 @@ public abstract class ParameterizedFunction<S, T, U> {
   public abstract U evaluate(S x, T parameters);
 
   public Function1D<T, U> asFunctionOfParameters(final S x) {
-    Function1D<T, U> res = new Function1D<T, U>() {
+    return new Function1D<T, U>() {
       @Override
-      public U evaluate(T params) {
+      public final U evaluate(final T params) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
     };
-    return res;
   }
 
   public Function1D<S, U> asFunctionOfArguments(final T params) {
-    Function1D<S, U> res = new Function1D<S, U>() {
+    return new Function1D<S, U>() {
       @Override
-      public U evaluate(S x) {
+      public U evaluate(final S x) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
     };
-    return res;
   }
 
 }

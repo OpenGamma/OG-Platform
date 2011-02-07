@@ -11,7 +11,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes" })
 public final class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory {
 
   private CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory() {

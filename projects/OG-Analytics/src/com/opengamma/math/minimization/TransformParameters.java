@@ -5,7 +5,10 @@
  */
 package com.opengamma.math.minimization;
 
-import org.apache.activemq.util.BitArray;
+import java.util.Arrays;
+import java.util.BitSet;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -21,7 +24,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class TransformParameters {
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
-  private final BitArray _fixed; //TODO emcleod 3-2-2011 should we really be using ActiveMQ classes in Analytics?
+  private final BitSet _fixed;
   private final int _nMP;
   private final int _nFP;
 
@@ -32,7 +35,7 @@ public class TransformParameters {
    * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
    * @param fixed BitArray  with an element set to <b>true</b> if that parameter is fixed
    */
-  public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitArray fixed) {
+  public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
     Validate.notNull(startValues, "null start values");
     Validate.notEmpty(transforms, "must specify transforms");
     Validate.notNull(fixed, "must specify what is fixed (even if none)");
@@ -141,6 +144,42 @@ public class TransformParameters {
       }
     }
     return new DoubleMatrix2D(jac);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _fixed.hashCode();
+    result = prime * result + _startValues.hashCode();
+    result = prime * result + Arrays.hashCode(_transforms);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final TransformParameters other = (TransformParameters) obj;
+    if (!ObjectUtils.equals(_fixed, other._fixed)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_startValues, other._startValues)) {
+      return false;
+    }
+    System.out.println(_transforms.length + " " + other._transforms.length);
+    for (int i = 0; i < _transforms.length; i++) {
+      System.out.println(_transforms[i] + " " + other._transforms[i]);
+      System.out.println(_transforms[i].equals(other._transforms[i]));
+    }
+    return Arrays.equals(_transforms, other._transforms);
   }
 
 }

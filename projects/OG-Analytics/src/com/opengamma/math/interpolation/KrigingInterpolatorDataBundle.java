@@ -28,7 +28,8 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
   private final double[] _weights;
 
   /**
-   * @param data
+   * @param data The data 
+   * @param beta The beta
    */
   public KrigingInterpolatorDataBundle(final List<Pair<double[], Double>> data, double beta) {
     super(data);
@@ -79,7 +80,6 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
 
     return new Function1D<Double, Double>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         return alpha * Math.pow(x, beta);

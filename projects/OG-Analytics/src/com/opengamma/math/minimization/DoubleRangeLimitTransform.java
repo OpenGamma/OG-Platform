@@ -71,4 +71,34 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     return 1 / (_scale * (1 - t * t));
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_lower);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_upper);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final DoubleRangeLimitTransform other = (DoubleRangeLimitTransform) obj;
+    if (Double.doubleToLongBits(_lower) != Double.doubleToLongBits(other._lower)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_upper) == Double.doubleToLongBits(other._upper);
+  }
+
 }
