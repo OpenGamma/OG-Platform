@@ -149,10 +149,7 @@ public class DependencyGraphBuilder {
 
   // Note the order requirements are considered can affect function choices and resultant graph construction (see [ENG-259]).
   private ResolutionState resolveValueRequirement(final ValueRequirement requirement, final DependencyNode dependent) {
-    s_debugResolveValueRequirement++;
-    s_targetResolverTime -= System.nanoTime();
     final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
-    s_targetResolverTime += System.nanoTime();
     if (target == null) {
       throw new UnsatisfiableDependencyGraphException(requirement);
     }
@@ -183,64 +180,53 @@ public class DependencyGraphBuilder {
     }
     // Find functions that can do this
     final DependencyNode node = createDependencyNode(target, dependent);
-    s_functionResolverTime -= System.nanoTime();
-    try {
-      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
-      resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
+    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = getFunctionResolver().resolveFunction(requirement, node);
+    resolutionState.setLazyPopulator(new ResolutionState.LazyPopulator() {
 
-        private DependencyNode _node = node;
+      private DependencyNode _node = node;
 
-        @Override
-        protected boolean more() {
-          s_functionResolverTime -= System.nanoTime();
-          try {
-            while (itr.hasNext()) {
-              final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
-              final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
-              final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
-              final ValueSpecification originalOutput = resolvedFunction.getSecond();
-              final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
-              final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
-              if (existingNode != null) {
-                // Resolved function output already in the graph
-                s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
-                resolutionState.addExistingNode(existingNode, resolvedOutput);
-                return true;
-              }
-              if (_node == null) {
-                _node = createDependencyNode(target, dependent);
-              }
-              if (originalOutput.equals(resolvedOutput)) {
-                _node.addOutputValues(outputValues);
-              } else {
-                for (ValueSpecification outputValue : outputValues) {
-                  if (originalOutput.equals(outputValue)) {
-                    s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
-                    _node.addOutputValue(resolvedOutput);
-                  } else {
-                    _node.addOutputValue(outputValue);
-                  }
-                }
-              }
-              resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), _node);
-              _node = null;
-              return true;
-            }
-            return false;
-          } finally {
-            s_functionResolverTime += System.nanoTime();
+      @Override
+      protected boolean more() {
+        while (itr.hasNext()) {
+          final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
+          final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+          final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
+          final ValueSpecification originalOutput = resolvedFunction.getSecond();
+          final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
+          final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
+          if (existingNode != null) {
+            // Resolved function output already in the graph
+            s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+            resolutionState.addExistingNode(existingNode, resolvedOutput);
+            return true;
           }
+          if (_node == null) {
+            _node = createDependencyNode(target, dependent);
+          }
+          if (originalOutput.equals(resolvedOutput)) {
+            _node.addOutputValues(outputValues);
+          } else {
+            for (ValueSpecification outputValue : outputValues) {
+              if (originalOutput.equals(outputValue)) {
+                s_logger.debug("Substituting {} with {}", outputValue, resolvedOutput);
+                _node.addOutputValue(resolvedOutput);
+              } else {
+                _node.addOutputValue(outputValue);
+              }
+            }
+          }
+          resolutionState.addFunction(resolvedOutput, resolvedFunction.getFirst(), _node);
+          _node = null;
+          return true;
         }
-      });
-    } finally {
-      s_functionResolverTime += System.nanoTime();
-    }
+        return false;
+      }
+    });
     return resolutionState;
   }
 
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ResolutionState resolved) {
     do {
-      s_debugAddTargetRequirement++;
       if (resolved.isEmpty()) {
         return resolved.getLastValid();
       }
@@ -285,10 +271,8 @@ public class DependencyGraphBuilder {
             graphNode.clearInputs();
             resolved.removeFirst();
             if (resolved.isEmpty()) {
-              s_debugCatchAndRethrow++;
               throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
             }
-            s_debugBacktrack++;
             continue;
           }
         } else {
@@ -304,7 +288,6 @@ public class DependencyGraphBuilder {
             return result;
           }
           // TODO: update the node to reduce the specification & then return the node with the resolvedOutput
-          s_debugBacktrackExceptions++;
           throw new UnsupportedOperationException("In-situ specification reduction not implemented");
         }
       } else {
@@ -333,10 +316,8 @@ public class DependencyGraphBuilder {
           graphNode.clearInputs();
           resolved.removeFirst();
           if (resolved.isEmpty()) {
-            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
           }
-          s_debugBacktrack++;
           continue;
         }
       }
@@ -353,10 +334,8 @@ public class DependencyGraphBuilder {
           s_logger.debug("Deep backtracking at late resolution failure", t);
           graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
           }
-          s_debugBacktrack++;
           continue;
         }
         if (!graphNode.getOutputValues().equals(newOutputValues)) {
@@ -392,10 +371,8 @@ public class DependencyGraphBuilder {
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
-              s_debugBacktrackExceptions++;
               throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
             }
-            s_debugBacktrack++;
             continue;
           }
         }
@@ -420,10 +397,8 @@ public class DependencyGraphBuilder {
             graphNode.addOutputValues(originalOutputValues);
           }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            s_debugCatchAndRethrow++;
             throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
           }
-          s_debugBacktrack++;
           continue;
         }
       }
@@ -452,32 +427,6 @@ public class DependencyGraphBuilder {
       }
     }
     return _graph;
-  }
-
-  // Debugging code for PLAT-501; remove once that's dealt with
-  private static int s_debugResolveValueRequirement;
-  private static int s_debugAddTargetRequirement;
-  private static int s_debugBacktrackExceptions;
-  private static int s_debugCatchAndRethrow;
-  private static int s_debugBacktrack;
-  private static long s_functionResolverTime;
-  private static long s_targetResolverTime;
-
-  public static void report(final Logger logger) {
-    logger.debug("resolveValueRequirement {} invocations", s_debugResolveValueRequirement);
-    s_debugResolveValueRequirement = 0;
-    logger.debug("addTargetRequirement {} invocations", s_debugAddTargetRequirement);
-    s_debugAddTargetRequirement = 0;
-    logger.debug("backtrackExceptions {}", s_debugBacktrackExceptions);
-    s_debugBacktrackExceptions = 0;
-    logger.debug("catchAndRethrow {}", s_debugCatchAndRethrow);
-    s_debugCatchAndRethrow = 0;
-    logger.debug("backtrack {}", s_debugBacktrack);
-    s_debugBacktrack = 0;
-    logger.debug("functionResolverTime {}ms", (double) s_functionResolverTime / 1e6);
-    s_functionResolverTime = 0;
-    logger.debug("targetResolverTime {}ms", (double) s_targetResolverTime / 1e6);
-    s_targetResolverTime = 0;
   }
 
 }
