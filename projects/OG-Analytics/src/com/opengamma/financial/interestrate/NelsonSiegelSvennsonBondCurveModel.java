@@ -22,7 +22,7 @@ import com.opengamma.math.minimization.TransformParameters;
  */
 public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Double> {
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
-      new NullTransform(), new NullTransform(), new NullTransform()};
+    new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitArray FIXED_PARAMETERS = new BitArray();
   static {
     for (int i = 0; i < 6; i++) {
@@ -76,6 +76,7 @@ public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Doubl
       @Override
       public Double evaluate(final Double t, final DoubleMatrix1D transformedParameters) {
         Validate.notNull(transformedParameters, "parameters");
+        @SuppressWarnings("synthetic-access")
         final DoubleMatrix1D modelParameters = _transform.inverseTransform(transformedParameters);
         return new NelsonSiegelSvennsonBondCurveModel(modelParameters).evaluate(t);
       }

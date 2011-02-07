@@ -16,7 +16,8 @@ import com.opengamma.financial.instrument.Convention;
 public class SwapConvention extends Convention {
   private final boolean _isEOM;
 
-  public SwapConvention(final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar, final boolean isEOM, final String name) {
+  public SwapConvention(final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar, final boolean isEOM, 
+      final String name) {
     super(settlementDays, dayCount, businessDayConvention, workingDayCalendar, name);
     _isEOM = isEOM;
   }

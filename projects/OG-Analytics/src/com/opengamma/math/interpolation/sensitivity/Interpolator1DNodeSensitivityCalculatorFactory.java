@@ -15,7 +15,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes" })
 public final class Interpolator1DNodeSensitivityCalculatorFactory {
   /** Linear instance */
   public static final LinearInterpolator1DNodeSensitivityCalculator LINEAR_NODE_SENSITIVITY_CALCULATOR = new LinearInterpolator1DNodeSensitivityCalculator();
