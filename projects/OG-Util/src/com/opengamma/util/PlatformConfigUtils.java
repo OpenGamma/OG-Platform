@@ -72,7 +72,11 @@ public final class PlatformConfigUtils {
     /**
      * Establish a connection to an OpenGamma Market Data Server which can provide the required data. 
      */
-    OPENGAMMA;
+    OPENGAMMA,
+    /**
+     * Use a recording of the market data.
+     */
+    RECORDING;
     
     /**
      * System property used to specify the market data source

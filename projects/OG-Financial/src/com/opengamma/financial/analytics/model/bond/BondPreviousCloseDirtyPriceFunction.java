@@ -12,7 +12,6 @@ import javax.time.calendar.LocalDate;
 import com.google.common.collect.Sets;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
