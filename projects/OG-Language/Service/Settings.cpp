@@ -189,13 +189,13 @@ const TCHAR *CSettings::GetJarPath () {
 				LOGDEBUG (TEXT ("Testing path ") << szPath);
 				*pszEnd = PATH_CHAR;
 #endif
-				memcpy (pszEnd, CLIENT_JAR_NAME, (CLIENT_JAR_LEN + 1) * sizeof (TCHAR));
+				memcpy (pszEnd + 1, CLIENT_JAR_NAME, (CLIENT_JAR_LEN + 1) * sizeof (TCHAR));
 #ifdef _WIN32
 				HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 				if (hFile == INVALID_HANDLE_VALUE) {
 #else
 				int nFile = open (szPath, O_RDONLY);
-				if (nFile > 0) {
+				if (nFile <= 0) {
 #endif
 					int ec = GetLastError ();
 					if (ec != ENOENT) {
@@ -214,7 +214,7 @@ const TCHAR *CSettings::GetJarPath () {
 					m_pszDefaultJarPath = _tcsdup (szPath);
 					break;
 				}
-				pszEnd = _tcsrchr (szPath, '\\');
+				pszEnd = _tcsrchr (szPath, PATH_CHAR);
 			}
 			if (!m_pszDefaultJarPath) {
 				LOGWARN (TEXT ("Couldn't find client library Jar on module path"));

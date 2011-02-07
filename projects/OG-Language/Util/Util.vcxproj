@@ -87,6 +87,7 @@
     <ClInclude Include="AbstractTest.h" />
     <ClInclude Include="Atomic.h" />
     <ClInclude Include="BufferedInput.h" />
+    <ClInclude Include="File.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="DllVersion.h" />
     <ClInclude Include="DllVersionInfo.h" />

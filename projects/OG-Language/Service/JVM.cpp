@@ -77,7 +77,11 @@ static char *_OptionFudgeAnnotationCache (CSettings *pSettings) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
+#ifdef _UNICODE
 	StringCbPrintfA (pszOption, cch, "-Dfudgemsg.annotationCachePath=%ws", pszCache);
+#else
+	StringCbPrintf (pszOption, cch, "-Dfudgemsg.annotationCachePath=%s", pszCache);
+#endif
 	LOGDEBUG ("Using " << pszOption);
 	return pszOption;
 }
@@ -104,7 +108,11 @@ static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTot
 		free (pszBuffer);
 		pszBuffer = pszNewBuffer;
 	}
-	StringCbPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, ";%ws" PATH_CHAR_STR "%ws", pszPath, pszFile);
+#ifdef _UNICODE
+	StringCbPrintfA (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, SEP_CHAR_STR "%ws" PATH_CHAR_STR "%ws", pszPath, pszFile);
+#else
+	StringCbPrintf (pszBuffer + *pcchUsed, *pcchTotal - *pcchUsed, SEP_CHAR_STR "%s" PATH_CHAR_STR "%s", pszPath, pszFile);
+#endif
 	*pcchUsed += cchExtra;
 	return pszBuffer;
 }
@@ -163,6 +171,7 @@ static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTota
 			}
 			pszBuffer = _BuildClasspath (pszBuffer , pcchUsed, pcchTotal, pszPath, __filename);
 #undef __filename
+#undef __isdir
 #ifdef _WIN32
 		} while (FindNextFile (hFind, &wfd));
 		FindClose (hFind);
@@ -195,7 +204,11 @@ static char *_OptionClassPath (CSettings *pSettings) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
+#ifdef _UNICODE
 	StringCbPrintfA (pszOption, cch, "-Djava.class.path=%ws" PATH_CHAR_STR, pszPath);
+#else
+	StringCbPrintf (pszOption, cch, "-Djava.class.path=%s" PATH_CHAR_STR, pszPath);
+#endif
 	pszOption = _ScanClassPath (pszOption, &cchUsed, &cch, pszPath);
 	LOGDEBUG ("Using " << pszOption << " (" << strlen (pszOption) << " chars)");
 	return pszOption;
