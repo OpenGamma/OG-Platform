@@ -13,6 +13,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
+ * @param <T> Type of the data
  */
 public abstract class InterpolatorND<T extends InterpolatorNDDataBundle> implements Interpolator<T, double[]> {
 

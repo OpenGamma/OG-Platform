@@ -5,8 +5,6 @@
  */
 package com.opengamma.math.number;
 
-import com.opengamma.util.CompareUtils;
-
 /**
  * 
  */
@@ -29,16 +27,9 @@ public class ComplexNumber extends Number {
 
   @Override
   public String toString() {
-    if (CompareUtils.closeEquals(0, _real)) {
-      if (CompareUtils.closeEquals(0, _imaginary)) {
-        return Double.toString(0);
-      }
-      return Double.toString(_imaginary) + "i";
-    }
-    if (CompareUtils.closeEquals(0, _imaginary)) {
-      return Double.toString(_real);
-    }
-    return Double.toString(_real) + (_imaginary < 0 ? " " : " + ") + Double.toString(_imaginary) + "i";
+    final boolean negative = _imaginary < 0;
+    final double abs = Math.abs(_imaginary);
+    return Double.toString(_real) + (negative ? " - " : " + ") + Double.toString(abs) + "i";
   }
 
   @Override
