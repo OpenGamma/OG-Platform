@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.UtilFunctions;
+import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -87,7 +87,7 @@ public class BasisFunctionGenerator {
     List<Function1D<double[], Double>> functions = new ArrayList<Function1D<double[], Double>>(product);
 
     for (int i = 0; i < product; i++) {
-      int[] indicies = UtilFunctions.fromTenorIndex(i, nSplines);
+      int[] indicies = FunctionUtils.fromTensorIndex(i, nSplines);
       functions.add(generate(knots, degree, indicies));
     }
     return functions;

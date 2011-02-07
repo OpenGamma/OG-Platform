@@ -251,6 +251,9 @@ public final class ValueRequirementNames {
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   
   public static final String BOND_TENOR = "Bond Tenor";
+  public static final String NS_BOND_CURVE = "Nelson-Siegel Bond Curve";
+  public static final String NSS_BOND_CURVE = "Nelson-Siegel-Svennson Bond Curve";
+  public static final String BOND_COUPON_PAYMENT_TIMES = "Bond Coupon Payment Times";
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
 

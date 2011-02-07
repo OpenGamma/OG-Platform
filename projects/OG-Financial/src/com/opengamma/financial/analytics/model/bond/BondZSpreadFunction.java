@@ -36,8 +36,8 @@ import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.BondZSpreadCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 

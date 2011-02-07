@@ -125,10 +125,16 @@ public interface ViewClient extends UniqueIdentifiable {
   void stopLive();
 
   /**
-   * Causes a single, on-demand calculation to be performed asynchronously. The result will be delivered through the
-   * listeners. This operation is only possible if live computation is stopped. 
+   * Causes a single, on-demand calculation to be performed synchronously.
+   * The result is NOT sent to the live result listeners
+   * ({@link #setResultListener} or {@link #setDeltaResultListener}).
+   * <p>
+   * The view can be running in live mode at the same time or it can be stopped.
+   * 
+   * @param valuationTime valuation time, millis from epoch
+   * @return result of the on-demand calculation 
    */
-  void runOneCycle();
+  ViewComputationResultModel runOneCycle(long valuationTime);
 
   /**
    * Terminates this client, disconnecting it from any listeners and releasing any resources. This method <b>must</b>

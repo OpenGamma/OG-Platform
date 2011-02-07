@@ -1,0 +1,7 @@
+<project name="client" default="compile">
+	<import file="build.impl.xml" />
+
+	<!-- Suppress default targets (the clean wrecks the C++ header area)-->
+	<target name="clean-lib" />
+
+</project>

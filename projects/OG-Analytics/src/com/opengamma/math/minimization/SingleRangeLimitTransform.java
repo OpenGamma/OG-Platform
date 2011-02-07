@@ -21,15 +21,15 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
    * The transformation is <i>x = a + ln(e^y + 1)</i> for <i>x > a</i> and <i>x = a - ln(e^y + 1)</i> for <i>x < a</i>. For large y (>50) this becomes <i>x = a +/- y</i>, so any value of
    *  <i>y</i> will give a value of <i>x</i>
    * @param a The limit level 
-   * @param greaterThan Whether the parameter is greater than or less than the limit level 
+   * @param limitType Type of the limit for the parameter
    */
-  public SingleRangeLimitTransform(double a, boolean greaterThan) {
+  public SingleRangeLimitTransform(final double a, final LimitType limitType) {
     _limit = a;
-    _sign = greaterThan ? 1 : -1;
+    _sign = limitType == LimitType.GREATER_THAN ? 1 : -1;
   }
 
   @Override
-  public double inverseTrasfrom(double y) {
+  public double inverseTransform(final double y) {
     if (y > EXP_MAX) {
       return _limit + _sign * y;
     } else if (y < -EXP_MAX) {
@@ -39,12 +39,12 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double transform(double x) {
+  public double transform(final double x) {
     Validate.isTrue(_sign * x >= _sign * _limit, "x not in limit");
     if (x == _limit) {
       return -EXP_MAX;
     }
-    double r = _sign * (x - _limit);
+    final double r = _sign * (x - _limit);
     if (r > EXP_MAX) {
       return r;
     }
@@ -52,22 +52,22 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double inverseTrasfromGradient(double y) {
+  public double inverseTransformGradient(final double y) {
     if (y > EXP_MAX) {
       return _sign;
     }
-    double temp = Math.exp(y);
+    final double temp = Math.exp(y);
     return _sign * temp / (temp + 1);
   }
 
   @Override
-  public double transformGrdient(double x) {
+  public double transformGradient(final double x) {
     Validate.isTrue(_sign * x >= _sign * _limit, "x not in limit");
-    double r = _sign * (x - _limit);
+    final double r = _sign * (x - _limit);
     if (r > EXP_MAX) {
       return 1.0;
     }
-    double temp = Math.exp(r);
+    final double temp = Math.exp(r);
     return _sign * temp / (temp - 1);
   }
 

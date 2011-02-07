@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through
  * alternative resolutions to node requirements.
  */
-/* package */class ResolutionState {
+/* package */final class ResolutionState {
 
   /**
    * 
@@ -91,9 +91,16 @@ import com.opengamma.util.tuple.Pair;
 
   }
 
+  public abstract static class LazyPopulator {
+
+    protected abstract boolean more();
+
+  }
+
   private final ValueRequirement _valueRequirement;
   private final List<Node> _nodes = new LinkedList<Node>();
   private Pair<DependencyNode, ValueSpecification> _lastValid;
+  private LazyPopulator _lazyPopulator;
 
   public ResolutionState(final ValueRequirement valueRequirement) {
     _valueRequirement = valueRequirement;
@@ -121,10 +128,32 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public boolean isEmpty() {
-    return _nodes.isEmpty();
+    if (_nodes.isEmpty()) {
+      if (_lazyPopulator != null) {
+        if (_lazyPopulator.more()) {
+          assert !_nodes.isEmpty();
+          return false;
+        } else {
+          _lazyPopulator = null;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isSingle() {
+    if (_nodes.size() == 1) {
+      if (_lazyPopulator != null) {
+        if (_lazyPopulator.more()) {
+          assert _nodes.size() > 1;
+          return false;
+        } else {
+          _lazyPopulator = null;
+        }
+      }
+    }
     return _nodes.size() == 1;
   }
 
@@ -161,9 +190,13 @@ import com.opengamma.util.tuple.Pair;
 
   public Pair<DependencyNode, ValueSpecification> getLastValid() {
     if (_lastValid == null) {
-      throw new UnsatisfiableDependencyGraphException("Unsatisfied dependency on " + _valueRequirement);
+      throw new UnsatisfiableDependencyGraphException(getValueRequirement());
     }
     return _lastValid;
+  }
+
+  public void setLazyPopulator(final LazyPopulator lazyPopulator) {
+    _lazyPopulator = lazyPopulator;
   }
 
   @Override

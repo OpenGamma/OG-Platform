@@ -11,12 +11,12 @@ package com.opengamma.math.minimization;
 public class NullTransform implements ParameterLimitsTransform {
 
   @Override
-  public double inverseTrasfrom(double y) {
+  public double inverseTransform(double y) {
     return y;
   }
 
   @Override
-  public double inverseTrasfromGradient(double y) {
+  public double inverseTransformGradient(double y) {
     return 1;
   }
 
@@ -26,7 +26,7 @@ public class NullTransform implements ParameterLimitsTransform {
   }
 
   @Override
-  public double transformGrdient(double x) {
+  public double transformGradient(double x) {
     return 1;
   }
 

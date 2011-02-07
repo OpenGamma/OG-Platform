@@ -93,28 +93,37 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
       final Currency ccy = nodeSensitivities.getCurrency();
       final String name = nodeSensitivities.getYieldCurveName();
       final DoubleLabelledMatrix1D m = nodeSensitivities.getLabelledMatrix();
-      final double[] values = m.getValues();
-      final int n = values.length;
-      final double[] scaled = new double[n];
-      for (int i = 0; i < n; i++) {
-        scaled[i] = values[i] * quantity;
-      }
+      final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new YieldCurveNodeSensitivityDataBundle(ccy, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled), name));
     } else if (value instanceof DoubleLabelledMatrix1D) {
       final DoubleLabelledMatrix1D m = (DoubleLabelledMatrix1D) value;
       final double quantity = target.getPosition().getQuantity().doubleValue();
-      final double[] values = m.getValues();
-      final int n = values.length;
-      final double[] scaled = new double[n];
-      for (int i = 0; i < n; i++) {
-        scaled[i] = values[i] * quantity;
-      }
+      final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
+    } else if (value instanceof LocalDateLabelledMatrix1D) {
+      final LocalDateLabelledMatrix1D m = (LocalDateLabelledMatrix1D) value;
+      final double quantity = target.getPosition().getQuantity().doubleValue();
+      final double[] scaled = getScaledMatrix(m.getValues(), quantity);
+      scaledValue = new ComputedValue(specification, new LocalDateLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
+    } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
+      final ZonedDateTimeLabelledMatrix1D m = (ZonedDateTimeLabelledMatrix1D) value;
+      final double quantity = target.getPosition().getQuantity().doubleValue();
+      final double[] scaled = getScaledMatrix(m.getValues(), quantity);
+      scaledValue = new ComputedValue(specification, new ZonedDateTimeLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else {
       //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);
     }
     return Collections.singleton(scaledValue);
+  }
+
+  private double[] getScaledMatrix(final double[] values, final double quantity) {
+    final int n = values.length;
+    final double[] scaled = new double[n];
+    for (int i = 0; i < n; i++) {
+      scaled[i] = values[i] * quantity;
+    }
+    return scaled;
   }
 
 }

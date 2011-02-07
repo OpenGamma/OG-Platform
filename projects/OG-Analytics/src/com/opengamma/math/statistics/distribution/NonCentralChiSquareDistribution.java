@@ -5,8 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static com.opengamma.math.UtilFunctions.cube;
-import static com.opengamma.math.UtilFunctions.square;
+import static com.opengamma.math.FunctionUtils.cube;
+import static com.opengamma.math.FunctionUtils.square;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.math.MathException;

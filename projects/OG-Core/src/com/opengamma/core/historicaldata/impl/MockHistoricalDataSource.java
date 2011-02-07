@@ -6,6 +6,7 @@
 package com.opengamma.core.historicaldata.impl;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
@@ -155,6 +156,13 @@ public class MockHistoricalDataSource implements HistoricalDataSource {
   public Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> getHistoricalData(IdentifierBundle identifiers, LocalDate currentDate, String configDocName,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistorical without metadata");
+  }
+
+  @Override
+  public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
+      Set<IdentifierBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalData for multiple time-series");
   }
 
 }

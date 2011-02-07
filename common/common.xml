@@ -10,7 +10,7 @@
 	<property file="${common.dir}/ogdev.properties"/>
 	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}"><os family="windows" /></condition>
 		
-	<!-- project detaults -->
+	<!-- project defaults -->
 	<property file="${common.dir}/build.properties" />
 
 	<!-- REVIEW kirk 2010-04-29 - I believe this can be changed to reference ogdev.dir, but I don't want to
@@ -313,9 +313,12 @@
 		<copy todir="${dist.dir}/${dist.name}/scripts" failonerror="false">
 			<fileset dir="${basedir}/scripts"/>
 		</copy>
-		<copy todir="${dist.dir}/${dist.name}/web" failonerror="false">
-			<fileset dir="${basedir}/web"/>
+		<copy todir="${dist.dir}/${dist.name}/web-engine" failonerror="false">
+			<fileset dir="${basedir}/web-engine"/>
 		</copy>
+	    <copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
+	        <fileset dir="${basedir}/web-marketdata"/>
+        </copy>
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.sh" eol="lf" eof="remove" />

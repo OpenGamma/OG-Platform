@@ -6,9 +6,12 @@
 package com.opengamma.master.timeseries.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,6 +234,14 @@ public class MasterHistoricalDataSource implements HistoricalDataSource {
       end = end.minusDays(1);
     }
     return getHistoricalData(securityBundle, configDocName, currentDate, start, end);
+  }
+  
+  @Override
+  public Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> getHistoricalData(
+      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    // TODO [PLAT-1046]
+    throw new NotImplementedException();
   }
 
   //-------------------------------------------------------------------------

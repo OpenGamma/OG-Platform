@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.common.Currency;
-import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -36,13 +36,13 @@ public class BondYieldFunction extends BondFunction {
   private static final BondYieldConverter YIELD_CONVERTER = new BondYieldConverter();
 
   public BondYieldFunction() {
-    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
+    super(MarketDataRequirementNames.MARKET_VALUE);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition definition, final Object value, 
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition definition, final Object value,
       final LocalDate now, final String yieldCurveName) {
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, position), getUniqueId());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, security), getUniqueId());
     final double cleanPrice = (Double) value;
     final Bond bond = definition.toDerivative(now, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
@@ -55,9 +55,9 @@ public class BondYieldFunction extends BondFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getPosition()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.YTM, target.getSecurity()), getUniqueId()));
     }
-    return null;
+    return Sets.newHashSet();
   }
 
   @Override

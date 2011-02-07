@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    A language bound implementation should provide its own Client.xml & Client.properties in the classpath
+    which describe how to connect to the local OpenGamma infrastructure, and define language specific
+    extensions.
+  -->
+  
+  <import resource="classpath:/com/opengamma/language/connector/Client.xml" />
+  
+</beans>

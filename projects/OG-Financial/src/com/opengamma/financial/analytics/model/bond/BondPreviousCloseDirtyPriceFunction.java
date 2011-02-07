@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 import com.google.common.collect.Sets;
 import com.opengamma.core.common.Currency;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -39,17 +39,17 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   private static final BusinessDayConvention PREVIOUS = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
   public BondPreviousCloseDirtyPriceFunction() {
-    super(MarketDataRequirementNames.MARKET_VALUE, "PX_LAST");
+    super(MarketDataRequirementNames.MARKET_VALUE);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, final Position position, final BondDefinition bondDefinition, 
-      final Object value, final LocalDate now, final String yieldCurveName) {
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition bondDefinition, final Object value,
+      final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, position), getUniqueId());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, security), getUniqueId());
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
-    LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
+    final LocalDate previousClose = PREVIOUS.adjustDate(calendar, now.minusDays(1));
     final Bond bond = bondDefinition.toDerivative(previousClose, yieldCurveName);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
     return Sets.newHashSet(new ComputedValue(specification, dirtyPrice * 100.0));
@@ -58,7 +58,7 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, target.getPosition()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, target.getSecurity()), getUniqueId()));
     }
     return null;
   }

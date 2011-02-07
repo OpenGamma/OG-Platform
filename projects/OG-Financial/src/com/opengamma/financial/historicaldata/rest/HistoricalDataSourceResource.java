@@ -8,11 +8,23 @@ package com.opengamma.financial.historicaldata.rest;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_TIMESERIES;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.HISTORICALDATASOURCE_UNIQUEID;
 import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.NULL_VALUE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_MULTIPLE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_IDENTIFIER_SET;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_SOURCE;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_PROVIDER;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_DATA_FIELD;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_END;
+import static com.opengamma.financial.historicaldata.rest.HistoricalDataSourceServiceNames.REQUEST_EXCLUSIVE_END;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -20,8 +32,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.historicaldata.HistoricalDataSource;
@@ -186,6 +200,33 @@ public class HistoricalDataSourceResource {
         UniqueIdentifier.parse(uid), 
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start), Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end), Boolean.valueOf(excludeEnd)));
+  }
+  
+  @POST
+  @Path(REQUEST_MULTIPLE)
+  @SuppressWarnings("unchecked")
+  public FudgeMsgEnvelope getMultiple(FudgeMsgEnvelope request) {
+    // REVIEW jonathan 2011-02-03 -- this kind of query which can only realistically be represented by an entity
+    // delivered by a POST is not ideally placed here, but other Source interfaces are currently suffering from the
+    // same problem and the solution is not clear.
+    
+    FudgeFieldContainer msg = request.getMessage();
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
+    Set<IdentifierBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
+    String dataSource = msg.getString(REQUEST_DATA_SOURCE);
+    String dataProvider = msg.getString(REQUEST_DATA_PROVIDER);
+    String dataField = msg.getString(REQUEST_DATA_FIELD);
+    LocalDate start = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_START));
+    boolean inclusiveStart = msg.getBoolean(REQUEST_INCLUSIVE_START);
+    LocalDate end = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_END));
+    boolean exclusiveEnd = msg.getBoolean(REQUEST_EXCLUSIVE_END);
+    
+    Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> result = _dataSource.getHistoricalData(
+        identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+    FudgeSerializationContext context = getFudgeSerializationContext();
+    MutableFudgeFieldContainer message = context.newMessage();
+    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, Map.class);
+    return new FudgeMsgEnvelope(message); 
   }
 
   /**
