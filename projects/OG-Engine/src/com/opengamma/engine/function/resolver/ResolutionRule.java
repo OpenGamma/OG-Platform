@@ -57,6 +57,9 @@ public class ResolutionRule {
    * <li>This resolution rule applies to the given computation target  
    * </ol>
    * 
+   * The implementation has been split into two accessible components to allow
+   * a resolver to cache the intermediate results.
+   * 
    * @param output Output you want the function to produce
    * @param atNode Where in the dep graph this function would be applied.
    * Note that because the method is called during dep graph construction,
@@ -72,23 +75,57 @@ public class ResolutionRule {
    * constraints.
    */
   public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
-    final ComputationTarget target = atNode.getComputationTarget();
+    final Set<ValueSpecification> resultSpecs = getResults(atNode.getComputationTarget(), context);
+    if (resultSpecs == null) {
+      return null;
+    }
+    return getResult(output, atNode, context, resultSpecs);
+  }
+
+  /**
+   * The first half of the full {@link #getResult(ValueRequirement,DependencyNode,FunctionCompilationContext)} implementation
+   * returning the set of all function outputs for use by {@link #getResult(ValueRequirement,DependencyNode,FunctionCompilationContext,Set)}.
+   * 
+   * @param target the computation target
+   * @param context This should really be refactored out
+   * @return the set of all value specifications produced by the function, or {@code null} if none can be produced
+   */
+  public Set<ValueSpecification> getResults(final ComputationTarget target, final FunctionCompilationContext context) {
     final CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
     // Check the function can apply to the target
     if (!function.canApplyTo(context, target)) {
       return null;
     }
-    // Get the maximal set of results the function can produce for the target
-    Set<ValueSpecification> resultSpecs = null;
+    // Return the maximal set of results the function can produce for the target
     try {
-      resultSpecs = function.getResults(context, target);
+      return function.getResults(context, target);
     } catch (Throwable t) {
       s_logger.debug("Exception thrown by getResults", t);
     }
-    if (resultSpecs == null) {
-      // Exceptions and null returns are okay - the backtracking will hopefully find a way to satisfy the graph requirements
-      return null;
-    }
+    return null;
+  }
+
+  /**
+   * The second half of the full {@link #getResult(ValueRequirement,DependencyNode,FunctionCompilationContext}) implementation
+   * taking the set of all function outputs produced by {@link #getResults}.
+   * 
+   * @param output Output you want the function to produce
+   * @param atNode Where in the dep graph this function would be applied.
+   * Note that because the method is called during dep graph construction,
+   * you can only validly access:
+   * <ul>
+   * <li>The computation target of the node
+   * <li>Functions and computation targets of the nodes above this node
+   * </ul>  
+   * @param context This should really be refactored out.
+   * @param resultSpecs The results from {@link getResults}, not {@code null}
+   * @return Null if this the function advertised by this rule cannot produce 
+   * the desired output, a valid ValueSpecification otherwise - as returned by
+   * the function. The specification is not composed against the requirement
+   * constraints.
+   */
+  public ValueSpecification getResult(final ValueRequirement output, final DependencyNode atNode, final FunctionCompilationContext context, final Set<ValueSpecification> resultSpecs) {
+    final ComputationTarget target = atNode.getComputationTarget();
     // Of the maximal outputs, is one valid for the requirement
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {

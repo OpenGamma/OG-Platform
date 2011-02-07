@@ -13,9 +13,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.MapMaker;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
@@ -95,121 +100,142 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   }
 
   /**
-   * Comparator to give a fixed ordering of functions at the same priority so that we at least have deterministic behavior between runs.
+   * Comparator to give a fixed ordering of value specifications for use by the rule comparator. This is not a robust implementation, working
+   * only within the confines of the rule comparator's limited use.
    */
-  private static final Comparator<Pair<ParameterizedFunction, ValueSpecification>> s_ruleComparator = new Comparator<Pair<ParameterizedFunction, ValueSpecification>>() {
+  private static final Comparator<ValueSpecification> s_valueSpecificationComparator = new Comparator<ValueSpecification>() {
 
     @Override
-    public int compare(Pair<ParameterizedFunction, ValueSpecification> o1, Pair<ParameterizedFunction, ValueSpecification> o2) {
-      final int c = o1.getSecond().getProperties().compareTo(o2.getSecond().getProperties());
+    public int compare(ValueSpecification o1, ValueSpecification o2) {
+      int c = o1.getValueName().compareTo(o2.getValueName());
       if (c != 0) {
-        return 0;
+        return c;
+      }
+      c = o1.getProperties().compareTo(o2.getProperties());
+      if (c != 0) {
+        return c;
+      }
+      return 0;
+    }
+
+  };
+
+  /**
+   * Comparator to give a fixed ordering of functions at the same priority so that we at least have deterministic behavior between runs.
+   */
+  private static final Comparator<Pair<ResolutionRule, Set<ValueSpecification>>> s_ruleComparator = new Comparator<Pair<ResolutionRule, Set<ValueSpecification>>>() {
+
+    @Override
+    public int compare(Pair<ResolutionRule, Set<ValueSpecification>> o1, Pair<ResolutionRule, Set<ValueSpecification>> o2) {
+      final Set<ValueSpecification> s1 = o1.getSecond();
+      final Set<ValueSpecification> s2 = o2.getSecond();
+      if (s1.size() < s2.size()) {
+        return -1;
+      } else if (s1.size() > s2.size()) {
+        return 1;
+      }
+      final List<ValueSpecification> s1list = new ArrayList<ValueSpecification>(s1);
+      final List<ValueSpecification> s2list = new ArrayList<ValueSpecification>(s2);
+      Collections.sort(s1list, s_valueSpecificationComparator);
+      Collections.sort(s2list, s_valueSpecificationComparator);
+      for (int i = 0; i < s1list.size(); i++) {
+        final int c = s_valueSpecificationComparator.compare(s1list.get(i), s2list.get(i));
+        if (c != 0) {
+          return c;
+        }
       }
       throw new UnsatisfiableDependencyGraphException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
 
   };
 
-  private static class InlineResolutionIterator implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
+  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
 
-    private final ValueRequirement _requirement;
-    private final DependencyNode _node;
-    private final FunctionCompilationContext _context;
-    private final Iterator<Map.Entry<Integer, Collection<ResolutionRule>>> _entries;
-    private Iterator<Pair<ParameterizedFunction, ValueSpecification>> _nexts;
-    private Pair<ParameterizedFunction, ValueSpecification> _next;
-
-    public InlineResolutionIterator(final ValueRequirement requirement, final DependencyNode node, final FunctionCompilationContext context,
-        final Iterator<Map.Entry<Integer, Collection<ResolutionRule>>> entries) {
-      _requirement = requirement;
-      _node = node;
-      _context = context;
-      _entries = entries;
-    }
-
-    @Override
-    public boolean hasNext() {
-      if (_next == null) {
-        findNext();
-      }
-      return _next != null;
-    }
-
-    @Override
-    public Pair<ParameterizedFunction, ValueSpecification> next() {
-      if (_next == null) {
-        findNext();
-      }
-      final Pair<ParameterizedFunction, ValueSpecification> result = _next;
-      _next = null;
-      return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void findNext() {
-      if ((_nexts != null) && _nexts.hasNext()) {
-        _next = _nexts.next();
-        return;
-      }
-      LinkedList<Pair<ParameterizedFunction, ValueSpecification>> applicableRules = null;
-      while (_entries.hasNext()) {
+  @SuppressWarnings("unchecked")
+  @Override
+  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final DependencyNode atNode) {
+    List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(atNode.getComputationTarget());
+    if (cached == null) {
+      final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
+      for (Collection<ResolutionRule> rules : _type2Priority2Rules.get(atNode.getComputationTarget().getType()).values()) {
         int rulesFound = 0;
-        for (ResolutionRule rule : _entries.next().getValue()) {
-          final ValueSpecification result = rule.getResult(_requirement, _node, _context);
-          if (result != null) {
-            if (applicableRules == null) {
-              if (_next == null) {
-                _next = Pair.of(rule.getFunction(), result);
-              } else {
-                applicableRules = new LinkedList<Pair<ParameterizedFunction, ValueSpecification>>();
-                applicableRules.add(_next);
-                applicableRules.add(Pair.of(rule.getFunction(), result));
-              }
-            } else {
-              applicableRules.add(Pair.of(rule.getFunction(), result));
-            }
+        for (ResolutionRule rule : rules) {
+          final Set<ValueSpecification> results = rule.getResults(atNode.getComputationTarget(), getFunctionCompilationContext());
+          if (results != null) {
+            applicableRules.add(Pair.of(rule, results));
             rulesFound++;
           }
         }
-        if (rulesFound == 1) {
-          _nexts = null;
-          return;
-        } else if (rulesFound > 1) {
-          final Iterator<Pair<ParameterizedFunction, ValueSpecification>> iterator = applicableRules.descendingIterator();
-          final Pair<ParameterizedFunction, ValueSpecification>[] found = new Pair[rulesFound];
+        if (rulesFound > 1) {
+          final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
+          final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
           for (int i = 0; i < rulesFound; i++) {
             found[i] = iterator.next();
+            iterator.remove();
           }
           // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
           // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
           // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
           // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
           // that will detect the equality case and trigger an exception.
-          Arrays.<Pair<ParameterizedFunction, ValueSpecification>> sort(found, s_ruleComparator);
-          _nexts = Arrays.asList(found).iterator();
-          _next = _nexts.next();
-          return;
+          Arrays.<Pair<ResolutionRule, Set<ValueSpecification>>> sort(found, s_ruleComparator);
+          for (int i = 0; i < rulesFound; i++) {
+            applicableRules.add(found[i]);
+          }
         }
       }
+      cached = _targetCache.putIfAbsent(atNode.getComputationTarget(), applicableRules);
+      if (cached == null) {
+        cached = applicableRules;
+      }
     }
+    final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> values = cached.iterator();
+    return new Iterator<Pair<ParameterizedFunction, ValueSpecification>>() {
 
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException();
-    }
+      private Pair<ParameterizedFunction, ValueSpecification> _next;
+      private boolean _satisfied;
 
-  };
+      private void takeNext() {
+        if (_next != null) {
+          return;
+        }
+        while (values.hasNext()) {
+          final Pair<ResolutionRule, Set<ValueSpecification>> value = values.next();
+          final ValueSpecification result = value.getKey().getResult(requirement, atNode, getFunctionCompilationContext(), value.getValue());
+          if (result != null) {
+            _next = Pair.of(value.getKey().getFunction(), result);
+            _satisfied = true;
+            return;
+          }
+        }
+        if (!_satisfied) {
+          throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
+        }
+      }
 
-  @Override
-  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode) {
-    // process rules in descending priority order
-    final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = new InlineResolutionIterator(requirement, atNode, getFunctionCompilationContext(), _type2Priority2Rules.get(
-        atNode.getComputationTarget().getType()).entrySet().iterator());
-    if (itr.hasNext()) {
-      return itr;
-    } else {
-      throw new UnsatisfiableDependencyGraphException("There is no rule that can satisfy requirement " + requirement + " for target " + atNode.getComputationTarget());
-    }
+      @Override
+      public boolean hasNext() {
+        if (_next == null) {
+          takeNext();
+        }
+        return _next != null;
+      }
+
+      @Override
+      public Pair<ParameterizedFunction, ValueSpecification> next() {
+        if (_next == null) {
+          takeNext();
+        }
+        final Pair<ParameterizedFunction, ValueSpecification> result = _next;
+        _next = null;
+        return result;
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+
+    };
   }
-
 }
