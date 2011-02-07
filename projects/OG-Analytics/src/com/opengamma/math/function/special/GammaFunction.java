@@ -30,7 +30,10 @@ public class GammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return Math.exp(Gamma.logGamma(x));
+    if (x > 0.0) {
+      return Math.exp(Gamma.logGamma(x));
+    }
+    return Math.PI / Math.sin(Math.PI * x) / evaluate(1 - x);
   }
 
 }
