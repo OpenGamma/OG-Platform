@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +50,10 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.minimization.NullTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
@@ -63,6 +68,14 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(NelsonSiegelSvenssonBondCurveFunction.class);
   private static final NonLinearLeastSquare MINIMISER = new NonLinearLeastSquare();
   private static final LastDateCalculator LAST_DATE = LastDateCalculator.getInstance();
+  private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
+      new NullTransform(), new NullTransform(), new NullTransform()};
+  private static final BitSet FIXED_PARAMETERS = new BitSet(6);
+
+  static {
+    FIXED_PARAMETERS.set(0);
+  }
+
   private final Currency _currency;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;

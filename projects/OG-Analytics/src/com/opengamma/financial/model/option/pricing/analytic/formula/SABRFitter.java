@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import org.apache.activemq.util.BitArray;
+import java.util.BitSet;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.FunctionUtils;
@@ -54,9 +55,9 @@ public class SABRFitter {
 
   @SuppressWarnings("synthetic-access")
   public LeastSquareResults solve(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
-      final BitArray fixed, final double atmVol, final boolean recoverATMVol) {
+      final BitSet fixed, final double atmVol, final boolean recoverATMVol) {
 
-    final SABRATMVolSolver atmSover = new SABRATMVolSolver(_formula);
+    final SABRATMVolSolver atmSolver = new SABRATMVolSolver(_formula);
     if (recoverATMVol) {
       Validate.isTrue(atmVol > 0.0, "ATM  must be > 0");
       fixed.set(0, true);
@@ -77,7 +78,7 @@ public class SABRFitter {
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
         if (recoverATMVol) {
-          alpha = atmSover.solve(forward, maturity, atmVol, beta, nu, rho);
+          alpha = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
         }
         return _formula.impliedVolatility(forward, alpha, beta, nu, rho, strike, maturity);
       }
@@ -85,19 +86,20 @@ public class SABRFitter {
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
     final LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
-    final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
+    final double[] mp = transforms.inverseTransform(lsRes.getParameters()).toArray();
     if (recoverATMVol) {
-      final double beta = mp.getEntry(1);
-      final double nu = mp.getEntry(2);
-      final double rho = mp.getEntry(3);
-      mp.getData()[0] = atmSover.solve(forward, maturity, atmVol, beta, nu, rho);
+      final double beta = mp[1];
+      final double nu = mp[2];
+      final double rho = mp[3];
+      double value = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);      
+      mp[0] = value;
     }
 
-    return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
+    return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
   }
 
   public LeastSquareResults solveByCG(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
-      final BitArray fixed) {
+      final BitSet fixed) {
 
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");

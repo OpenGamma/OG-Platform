@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.activemq.util.BitArray;
+import java.util.BitSet;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
@@ -22,14 +23,8 @@ import com.opengamma.math.minimization.TransformParameters;
  */
 public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Double> {
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
-    new NullTransform(), new NullTransform(), new NullTransform()};
-  private static final BitArray FIXED_PARAMETERS = new BitArray();
-  static {
-    for (int i = 0; i < 6; i++) {
-      FIXED_PARAMETERS.set(i, false);
-    }
-  }
-
+      new NullTransform(), new NullTransform(), new NullTransform()};
+  private static final BitSet FIXED_PARAMETERS = new BitSet(6);
   private final double _beta0;
   private final double _beta1;
   private final double _beta2;
@@ -49,7 +44,7 @@ public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Doubl
     _beta3 = parameters.getEntry(4);
     _lambda2 = parameters.getEntry(5);
     _parameters = parameters;
-    _transform = new TransformParameters(parameters, TRANSFORMS, FIXED_PARAMETERS);
+    _transform = new TransformParameters(parameters, TRANSFORMS, FIXED_PARAMETERS); // TODO no no no no no
   }
 
   public DoubleMatrix1D getParameters() {

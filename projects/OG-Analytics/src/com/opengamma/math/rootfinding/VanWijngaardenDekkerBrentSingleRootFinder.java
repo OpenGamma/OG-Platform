@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding;
@@ -52,7 +52,7 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
       }
       eps = 2 * ZERO * Math.abs(b) + 0.5 * _accuracy;
       xMid = 0.5 * (c - b);
-      if (Math.abs(xMid) <= eps || Math.abs(fb) <= ZERO) {
+      if (Math.abs(xMid) <= eps /* || Math.abs(fb) <= ZERO */) {
         return b;
       }
       if (Math.abs(e) >= eps && Math.abs(fa) > Math.abs(fb)) {

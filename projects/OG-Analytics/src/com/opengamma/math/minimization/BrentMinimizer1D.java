@@ -19,6 +19,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * 
  */
+//TODO this class doesn't work properly
 public class BrentMinimizer1D implements ScalarMinimizer {
   private static final GoalType MINIMIZE = GoalType.MINIMIZE;
   private static final AbstractUnivariateRealOptimizer OPTIMIZER = new BrentOptimizer();

@@ -1,11 +1,13 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 
@@ -73,13 +75,42 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
 
   @Test
   public void testFit() {
-    //final LeastSquareResults result = NLLS.solve(TREASURY_T, TREASURY_20110127_Y, TREASURY_E, MODEL.getParameterizedFunction(), new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
-    //final DoubleMatrix1D fitted = result.getParameters();
-    //    assertEquals(fitted.getEntry(0), 4.07923660, 1e-3);
-    //    assertEquals(fitted.getEntry(1), -3.74204358, 1e-3);
-    //    assertEquals(fitted.getEntry(2), -6.18790519, 1e-3);
-    //    assertEquals(fitted.getEntry(3), 1.92088325, 1e-3);
-    //    assertEquals(fitted.getEntry(4), 5.43483123, 1e-3);
-    //    assertEquals(fitted.getEntry(5), 9.96780064, 1e-3);
+    final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {2, -1, -1, 2, 2, 9}));
+    final LeastSquareResults result = NLLS.solve(TREASURY_T, TREASURY_20110127_Y, TREASURY_E, model.getParameterizedFunction(), model.getTransform().transform(model.getParameters()));
+    final DoubleMatrix1D fitted = model.getTransform().inverseTransform(result.getParameters());
+    assertEquals(fitted.getEntry(0), 4.07923660, 1e-2);
+    assertEquals(fitted.getEntry(1), -3.74204358, 1e-2);
+    assertEquals(fitted.getEntry(2), -6.18790519, 1e-2);
+    assertEquals(fitted.getEntry(3), 1.92088325, 1e-2);
+    assertEquals(fitted.getEntry(4), 5.43483123, 1e-2);
+    assertEquals(fitted.getEntry(5), 9.96780064, 1e-2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullParametersToModel() {
+    new NelsonSiegelSvennsonBondCurveModel(null);
+  }
+
+  @Test
+  public void test() {
+    final DoubleMatrix1D parameters = new DoubleMatrix1D(new double[] {BETA0, BETA1, BETA2, LAMBDA1, BETA3, LAMBDA2});
+    final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(parameters);
+    assertEquals(model.getParameters(), parameters);
+    NelsonSiegelSvennsonBondCurveModel other = new NelsonSiegelSvennsonBondCurveModel(parameters);
+    assertEquals(model.getParameters(), parameters);
+    assertEquals(other, model);
+    assertEquals(other.hashCode(), model.hashCode());
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0 + 1, BETA1, BETA2, LAMBDA1, BETA3, LAMBDA2}));
+    assertFalse(other.equals(model));
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0, BETA1 + 1, BETA2, LAMBDA1, BETA3, LAMBDA2}));
+    assertFalse(other.equals(model));
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0, BETA1, BETA2 + 1, LAMBDA1, BETA3, LAMBDA2}));
+    assertFalse(other.equals(model));
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0, BETA1, BETA2, LAMBDA1 + 1, BETA3, LAMBDA2}));
+    assertFalse(other.equals(model));
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0, BETA1, BETA2, LAMBDA1, BETA3 + 1, LAMBDA2}));
+    assertFalse(other.equals(model));
+    other = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {BETA0, BETA1, BETA2, LAMBDA1, BETA3, LAMBDA2 + 1}));
+    assertFalse(other.equals(model));
   }
 }

@@ -5,7 +5,10 @@
  */
 package com.opengamma.math.minimization;
 
-import org.apache.activemq.util.BitArray;
+import java.util.Arrays;
+import java.util.BitSet;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -21,7 +24,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class TransformParameters {
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
-  private final BitArray _fixed; //TODO emcleod 3-2-2011 should we really be using ActiveMQ classes in Analytics?
+  private final BitSet _fixed;
   private final int _nMP;
   private final int _nFP;
 
@@ -32,19 +35,13 @@ public class TransformParameters {
    * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
    * @param fixed BitArray  with an element set to <b>true</b> if that parameter is fixed
    */
-  public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitArray fixed) {
+  public TransformParameters(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
     Validate.notNull(startValues, "null start values");
     Validate.notEmpty(transforms, "must specify transforms");
     Validate.notNull(fixed, "must specify what is fixed (even if none)");
     _nMP = startValues.getNumberOfElements();
     Validate.isTrue(_nMP == transforms.length, "must give a transform for each model parameter");
-
-    int count = 0;
-    for (int i = 0; i < _nMP; i++) {
-      if (fixed.get(i)) {
-        count++;
-      }
-    }
+    final int count = fixed.cardinality();
     Validate.isTrue(count < _nMP, "all parameters are fixed");
     _nFP = _nMP - count;
     _startValues = startValues;
@@ -75,6 +72,7 @@ public class TransformParameters {
    * @return The fitting parameters
    */
   public DoubleMatrix1D transform(final DoubleMatrix1D functionParameters) {
+    Validate.notNull(functionParameters, "function parameters");
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
@@ -88,17 +86,18 @@ public class TransformParameters {
 
   /**
    * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters (some of which may have constrained range and/or be fixed).
-   * @param fittingParameter The fitting parameters
+   * @param fittingParameters The fitting parameters
    * @return The function parameters 
    */
-  public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameter) {
-    Validate.isTrue(fittingParameter.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
+  public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameters) {
+    Validate.notNull(fittingParameters, "fitting parameters");
+    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
     final double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_fixed.get(i)) {
         modelParameter[i] = _startValues.getEntry(i);
       } else {
-        modelParameter[i] = _transforms[i].inverseTransform(fittingParameter.getEntry(j));
+        modelParameter[i] = _transforms[i].inverseTransform(fittingParameters.getEntry(j));
         j++;
       }
     }
@@ -106,13 +105,14 @@ public class TransformParameters {
   }
 
   /**
-   * Calculated the jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect 
+   * Calculated the Jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect 
    * to the j^th function parameter 
    * @param functionParameters The function parameters 
    * @return matrix of partial derivative of fitting parameter with respect to function parameters 
    */
   // TODO not tested
   public DoubleMatrix2D jacobian(final DoubleMatrix1D functionParameters) {
+    Validate.notNull(functionParameters, "function parameters");
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
@@ -125,13 +125,14 @@ public class TransformParameters {
   }
 
   /**
-   * Calculated the jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect 
+   * Calculated the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect 
    * to the j^th  fitting parameter 
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters 
    */
   // TODO not tested
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
+    Validate.notNull(fittingParameters, "fitting parameters");
     Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
     final double[][] jac = new double[_nMP][_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
@@ -141,6 +142,37 @@ public class TransformParameters {
       }
     }
     return new DoubleMatrix2D(jac);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _fixed.hashCode();
+    result = prime * result + _startValues.hashCode();
+    result = prime * result + Arrays.hashCode(_transforms);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final TransformParameters other = (TransformParameters) obj;
+    if (!ObjectUtils.equals(_fixed, other._fixed)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_startValues, other._startValues)) {
+      return false;
+    }
+    return Arrays.equals(_transforms, other._transforms);
   }
 
 }

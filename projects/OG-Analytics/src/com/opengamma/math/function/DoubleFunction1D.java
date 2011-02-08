@@ -5,26 +5,53 @@
  */
 package com.opengamma.math.function;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.differentiation.FiniteDifferenceType;
 
 /**
  * 
  */
 public abstract class DoubleFunction1D extends Function1D<Double, Double> {
-  private static final double EPS = 1e-12;
+  private static final double EPS = 1e-5;
 
   public DoubleFunction1D derivative() {
-    class A extends DoubleFunction1D implements Serializable {
+    return derivative(FiniteDifferenceType.CENTRAL, EPS);
+  }
 
-      @Override
-      public Double evaluate(final Double x) {
-        return (DoubleFunction1D.this.evaluate(x + EPS) - DoubleFunction1D.this.evaluate(x - EPS)) / 2 / EPS;
-      }
+  public DoubleFunction1D derivative(final FiniteDifferenceType differenceType, final double eps) {
+    Validate.notNull(differenceType, "difference type");
+    switch (differenceType) {
+      case CENTRAL:
+        return new DoubleFunction1D() {
 
+          @Override
+          public Double evaluate(final Double x) {
+            return (DoubleFunction1D.this.evaluate(x + eps) - DoubleFunction1D.this.evaluate(x - eps)) / 2 / eps;
+          }
+
+        };
+      case BACKWARD:
+        return new DoubleFunction1D() {
+
+          @Override
+          public Double evaluate(final Double x) {
+            return (DoubleFunction1D.this.evaluate(x) - DoubleFunction1D.this.evaluate(x - eps)) / eps;
+          }
+
+        };
+      case FORWARD:
+        return new DoubleFunction1D() {
+
+          @Override
+          public Double evaluate(final Double x) {
+            return (DoubleFunction1D.this.evaluate(x + eps) - DoubleFunction1D.this.evaluate(x)) / eps;
+          }
+
+        };
+      default:
+        throw new IllegalArgumentException("Unhandled FiniteDifferenceType " + differenceType);
     }
-    return new A();
   }
 
   public DoubleFunction1D add(final DoubleFunction1D f) {
