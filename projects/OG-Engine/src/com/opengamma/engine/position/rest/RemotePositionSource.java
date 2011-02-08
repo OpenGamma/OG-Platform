@@ -42,7 +42,6 @@ public class RemotePositionSource implements PositionSource {
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     Portfolio result = _client.getSingleValue(Portfolio.class, DataPositionSourceResource.targetPortfolio(_target, uid), "portfolio");
-    System.err.println("portfolio=" + result);
     return result;
   }
 
@@ -50,7 +49,6 @@ public class RemotePositionSource implements PositionSource {
   public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     PortfolioNode result = _client.getSingleValue(PortfolioNode.class, DataPositionSourceResource.targetPortfolioNode(_target, uid), "node");
-    System.err.println("portfolioNode=" + result);
     return result;
   }
 
@@ -58,7 +56,6 @@ public class RemotePositionSource implements PositionSource {
   public Position getPosition(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     Position result = _client.getSingleValue(Position.class, DataPositionSourceResource.targetPosition(_target, uid), "position");
-    System.err.println("position=" + result);
     return result;
   }
 
@@ -66,7 +63,6 @@ public class RemotePositionSource implements PositionSource {
   public Trade getTrade(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     Trade result = _client.getSingleValue(Trade.class, DataPositionSourceResource.targetTrade(_target, uid), "trade");
-    System.err.println("trade=" + result);
     return result;
   }
 
