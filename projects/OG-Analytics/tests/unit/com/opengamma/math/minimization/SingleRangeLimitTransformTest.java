@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
@@ -13,7 +16,6 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
  * 
  */
 public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestCase {
-
   private static final double A = -2.5;
   private static final double B = 1.0;
   private static final ParameterLimitsTransform LOWER_LIMIT = new SingleRangeLimitTransform(B, LimitType.GREATER_THAN);
@@ -63,5 +65,16 @@ public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestC
       testInverseGradient(UPPER_LIMIT, y);
       testGradientRoundTrip(UPPER_LIMIT, x);
     }
+  }
+
+  @Test
+  public void testHashCodeAndEquals() {
+    ParameterLimitsTransform other = new SingleRangeLimitTransform(B, LimitType.GREATER_THAN);
+    assertEquals(other, LOWER_LIMIT);
+    assertEquals(other.hashCode(), LOWER_LIMIT.hashCode());
+    other = new SingleRangeLimitTransform(A, LimitType.GREATER_THAN);
+    assertFalse(other.equals(LOWER_LIMIT));
+    other = new SingleRangeLimitTransform(B, LimitType.LESS_THAN);
+    assertFalse(other.equals(LOWER_LIMIT));
   }
 }
