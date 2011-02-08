@@ -6,12 +6,11 @@
 package com.opengamma.math.minimization;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.FunctionUtils;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -51,15 +50,14 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
     }
   };
 
-  @Test
+  @Override
+  protected MinimumBracketer getBracketer() {
+    return BRACKETER;
+  }
+
+  @Test(expected = MathException.class)
   public void test() {
-    testInputs(BRACKETER);
-    try {
-      BRACKETER.getBracketedPoints(LINEAR, 0., 1.);
-      fail();
-    } catch (final MathException e) {
-      // Expected
-    }
+    BRACKETER.getBracketedPoints(LINEAR, 0., 1.);
   }
 
   @Test

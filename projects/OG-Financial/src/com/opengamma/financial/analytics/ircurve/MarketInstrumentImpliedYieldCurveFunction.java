@@ -390,6 +390,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final double[] initialRatesGuess = new double[nFunding + nForward];
       final double[] fundingNodeTimes = new double[nFunding];
       final double[] forwardNodeTimes = new double[nForward];
+      final double[] parRates = new double[nFunding + nForward];
       _identifierToFundingNodeTimes.clear();
       _identifierToForwardNodeTimes.clear();
       int i = 0, fundingIndex = 0, forwardIndex = 0;
@@ -417,6 +418,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+        }
+        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+          parRates[i] = 1.0 - marketValue / 100;
+        } else {
+          parRates[i] = marketValue / 100.;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -480,7 +486,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           .getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
       sensitivityCalculators.put(_fundingCurveDefinitionName, fundingSensitivityCalculator);
       sensitivityCalculators.put(_forwardCurveDefinitionName, forwardSensitivityCalculator);
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, null, curveNodes, interpolators, sensitivityCalculators);
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, parRates, null, curveNodes, interpolators, sensitivityCalculators);
       // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PresentValueCalculator.getInstance());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PresentValueSensitivityCalculator.getInstance());

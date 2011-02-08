@@ -10,6 +10,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.commons.lang.ObjectUtils;
+
 /**
  * Model representation of a file element in uiResourceConfig XML document
  */
@@ -82,24 +84,15 @@ public class File {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    File other = (File) obj;
-    if (_id == null) {
-      if (other._id != null)
-        return false;
-    } else if (!_id.equals(other._id))
-      return false;
-    if (_suffix == null) {
-      if (other._suffix != null)
-        return false;
-    } else if (!_suffix.equals(other._suffix))
-      return false;
-    return true;
+    }
+    if (obj instanceof File) {
+      File other = (File) obj;
+      return ObjectUtils.equals(_id, other._id) &&
+              ObjectUtils.equals(_suffix, other._suffix);
+    }
+    return false;
   }
 
   @Override

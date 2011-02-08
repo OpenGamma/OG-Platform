@@ -7,7 +7,8 @@ package com.opengamma.math.statistics.leastsquare;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.activemq.util.BitArray;
+import java.util.BitSet;
+
 import org.junit.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFitter;
@@ -38,7 +39,7 @@ public class SABRFittingTest {
 
   static {
     STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07};
-    int n = STRIKES.length;
+    final int n = STRIKES.length;
     VOLS = new double[n];
     NOISY_VOLS = new double[n];
     ERRORS = new double[n];
@@ -52,15 +53,15 @@ public class SABRFittingTest {
   }
 
   @Test
-  public void TestExactFit() {
-    BitArray fixed = new BitArray();
+  public void testExactFit() {
+    final BitSet fixed = new BitSet();
 
-    double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
+    final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
-    SABRFitter fitter = new SABRFitter(SABR);
-    LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
-    double[] res = results.getParameters().getData();
-    DoubleMatrix2D covar = results.getCovariance();
+    final SABRFitter fitter = new SABRFitter(SABR);
+    final LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
+    final double[] res = results.getParameters().getData();
+    final DoubleMatrix2D covar = results.getCovariance();
 
     assertEquals(ALPHA, res[0], 1e-7);
     assertEquals(BETA, res[1], 1e-7);
@@ -70,22 +71,22 @@ public class SABRFittingTest {
   }
 
   @Test
-  public void TestNoisyFit() {
+  public void testNoisyFit() {
 
-    BitArray fixed = new BitArray();
+    final BitSet fixed = new BitSet();
     // fixed.set(1, true);
-    double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
-    SABRFitter fitter = new SABRFitter(SABR);
-    LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed, 0, false);
+    final double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
+    final SABRFitter fitter = new SABRFitter(SABR);
+    final LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed, 0, false);
     // assertTrue(results.getChiSq() < 3.0);
-    DoubleMatrix2D covar = results.getCovariance();
-    double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
+    final DoubleMatrix2D covar = results.getCovariance();
+    final double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
 
     // for (int i = 0; i < STRIKES.length; i++) {
     // System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
     // }
 
-    double[] res = results.getParameters().getData();
+    final double[] res = results.getParameters().getData();
 
     double k, m;
     for (int i = 0; i < 100; i++) {
@@ -106,15 +107,15 @@ public class SABRFittingTest {
   @Test
   public void sanityCheck() {
 
-    double alpha = 0.022218760837654682;
-    double beta = 0.2;// 0.991886529;
-    double nu = 0.20960993229450917;// 1.353913643;
-    double rho = 0.999999;
-    double t = 1.0;
+    final double alpha = 0.022218760837654682;
+    final double beta = 0.2;// 0.991886529;
+    final double nu = 0.20960993229450917;// 1.353913643;
+    final double rho = 0.999999;
+    final double t = 1.0;
 
-    double f = 0.039757;
+    final double f = 0.039757;
 
-    double sigmaLNRootT = alpha * Math.pow(f, beta - 1) * Math.sqrt(t);
+    final double sigmaLNRootT = alpha * Math.pow(f, beta - 1) * Math.sqrt(t);
     double k, m;
     for (int i = 0; i < 100; i++) {
       m = -3 + i * 4.5 / 100;
@@ -125,17 +126,17 @@ public class SABRFittingTest {
 
   @Test
   public void sanityCheck2() {
-    double volATM = 1.5;
-    double f = 0.046744;
-    double beta = 0.5;// 0.991886529;
-    double alpha = volATM * Math.pow(f, 1 - beta);
-    double nu = 2.0;// 1.353913643;
+    final double volATM = 1.5;
+    final double f = 0.046744;
+    final double beta = 0.5;// 0.991886529;
+    final double alpha = volATM * Math.pow(f, 1 - beta);
+    final double nu = 2.0;// 1.353913643;
     // double rho = -0.9;
-    double t = 2.0;
+    final double t = 2.0;
 
-    double rho0 = SABR.impliedVolatility(f, alpha, beta, nu, 0.0, f, t);
+    final double rho0 = SABR.impliedVolatility(f, alpha, beta, nu, 0.0, f, t);
     for (int i = 0; i < 100; i++) {
-      double rho = -1 + i / 49.5;
+      final double rho = -1 + i / 49.5;
       // System.out.print(rho + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, f, t) / rho0 + "\n");
     }
   }

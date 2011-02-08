@@ -134,6 +134,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   }
 
   private Interpolator1DDataBundle _dataBundle;
+  @SuppressWarnings("rawtypes")
   private Interpolator1D _interpolator;
 
   public InterpolatedDoublesCurve(final double[] xData, final double[] yData, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {

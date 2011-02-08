@@ -33,13 +33,6 @@ public class MultipleYieldCurveFinderDataBundle {
   private final int _totalNodes;
   private final List<String> _names;
 
-  @Deprecated
-  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final YieldCurveBundle knownCurves, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators) {
-    this(derivatives, new double[derivatives == null ? 0 : derivatives.size()], knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
-  }
-
   public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
       final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
       final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators) {
@@ -52,7 +45,8 @@ public class MultipleYieldCurveFinderDataBundle {
     Validate.notEmpty(unknownCurveNodePoints, "unknown curve node points");
     Validate.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
     Validate.notEmpty(unknownCurveNodeSensitivityCalculators, "unknown curve sensitivity calculators");
-    Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length");
+    Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have " + marketValues.length + " values for " 
+        + derivatives.size() + " derivatives)");
 
     if (knownCurves != null) {
       for (final String name : knownCurves.getAllNames()) {

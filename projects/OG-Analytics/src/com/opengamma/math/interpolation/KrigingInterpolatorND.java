@@ -24,7 +24,6 @@ public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDat
     double[] w = data.getWeights();
 
     int n = rawData.size();
-    final double[] v = new double[n + 1];
     double sum = 0.0;
     double r;
     for (int i = 0; i < n; i++) {

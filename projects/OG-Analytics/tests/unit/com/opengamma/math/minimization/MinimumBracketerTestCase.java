@@ -5,14 +5,14 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
  */
-public class MinimumBracketerTestCase {
+public abstract class MinimumBracketerTestCase {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
@@ -22,18 +22,15 @@ public class MinimumBracketerTestCase {
 
   };
 
-  public void testInputs(final MinimumBracketer bracketer) {
-    try {
-      bracketer.checkInputs(null, 1., 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      bracketer.checkInputs(F, 1., 1.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  protected abstract MinimumBracketer getBracketer();
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullFunction() {
+    getBracketer().checkInputs(null, 1., 2.);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInputs() {
+    getBracketer().checkInputs(F, 1., 1.);
   }
 }

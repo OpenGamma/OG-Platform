@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import org.apache.activemq.util.BitArray;
+import java.util.BitSet;
+
 import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
@@ -34,7 +35,7 @@ public class SVIPDFTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double k) {
+    public Double evaluate(final Double k) {
       return svi.impliedVolatility(k, A, B, RHO, SIGMA, M);
     }
   };
@@ -47,10 +48,10 @@ public class SVIPDFTest {
   public void test() {
 
     for (int i = 0; i < 100; i++) {
-      double k = 0.001 + i * 0.1 / 100;
-      double vol = SVI.evaluate(k);
-      double pdf = SVI_DIST.getPDF(k);
-      double cdf = SVI_DIST.getCDF(k);
+      final double k = 0.001 + i * 0.1 / 100;
+      final double vol = SVI.evaluate(k);
+      final double pdf = SVI_DIST.getPDF(k);
+      final double cdf = SVI_DIST.getCDF(k);
 
       // System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
     }
@@ -59,23 +60,23 @@ public class SVIPDFTest {
 
   @Test
   public void SABRTest() {
-    double[] strikes = new double[] {0.02, 0.03, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.05, 0.06};
+    final double[] strikes = new double[] {0.02, 0.03, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.05, 0.06};
     final int n = strikes.length;
-    double[] vols = new double[n];
-    double[] errors = new double[n];
+    final double[] vols = new double[n];
+    final double[] errors = new double[n];
     for (int i = 0; i < n; i++) {
       errors[i] = 0.001;
       vols[i] = SVI.evaluate(strikes[i]);
     }
 
-    double[] initialValues = new double[] {0.04, 1, 0.2, -0.3};
-    BitArray fixed = new BitArray();
+    final double[] initialValues = new double[] {0.04, 1, 0.2, -0.3};
+    final BitSet fixed = new BitSet();
     final SABRFormula sabr = new SABRFormulaHagan();
 
-    SABRFitter fitter = new SABRFitter(sabr);
-    LeastSquareResults result = fitter.solve(F, T, strikes, vols, errors, initialValues, fixed, 0, false);
+    final SABRFitter fitter = new SABRFitter(sabr);
+    final LeastSquareResults result = fitter.solve(F, T, strikes, vols, errors, initialValues, fixed, 0, false);
 
-    double chiSqr = result.getChiSq();
+    final double chiSqr = result.getChiSq();
     final DoubleMatrix1D parms = result.getParameters();
 
     // TODO real test
@@ -83,19 +84,19 @@ public class SVIPDFTest {
 
     final Function1D<Double, Double> sabrFunction = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double k) {
+      public Double evaluate(final Double k) {
         return sabr.impliedVolatility(F, parms.getEntry(0), parms.getEntry(1), parms.getEntry(2), parms.getEntry(3), k, T);
       }
     };
 
-    ProbabilityDistribution<Double> sabrDist = new DistributionFromImpliedVolatility(F, T, sabrFunction);
+    final ProbabilityDistribution<Double> sabrDist = new DistributionFromImpliedVolatility(F, T, sabrFunction);
 
     for (int i = 0; i < 100; i++) {
-      double k = 0.001 + i * 0.1 / 100;
+      final double k = 0.001 + i * 0.1 / 100;
 
-      double vol = sabrFunction.evaluate(k);
-      double pdf = sabrDist.getPDF(k);
-      double cdf = sabrDist.getCDF(k);
+      final double vol = sabrFunction.evaluate(k);
+      final double pdf = sabrDist.getPDF(k);
+      final double cdf = sabrDist.getCDF(k);
       // System.out.println(k + "\t" + vol + "\t" + pdf + "\t" + cdf);
     }
 
