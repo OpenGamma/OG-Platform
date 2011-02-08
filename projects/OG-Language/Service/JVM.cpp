@@ -154,7 +154,7 @@ static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTota
 					LOGFATAL (TEXT ("Out of memory"));
 					break;
 				}
-				StringCbPrintf (pszSearch, cchSearch / sizeof (TCHAR), TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("%s"), pszPath, __filename);
+				StringCbPrintf (pszSearch, cchSearch * sizeof (TCHAR), TEXT ("%s") TEXT (PATH_CHAR_STR) TEXT ("%s"), pszPath, __filename);
 				pszBuffer = _ScanClassPath (pszBuffer, pcchUsed, pcchTotal, pszSearch);
 				delete pszSearch;
 				continue;
