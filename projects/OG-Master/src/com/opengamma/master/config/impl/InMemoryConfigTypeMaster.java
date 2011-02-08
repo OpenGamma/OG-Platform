@@ -8,7 +8,6 @@ package com.opengamma.master.config.impl;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
 import javax.time.Instant;
@@ -29,7 +28,9 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
@@ -55,9 +56,9 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
    */
   private final Supplier<ObjectIdentifier> _objectIdSupplier;
   /**
-   * The listeners.
+   * The change manager.
    */
-  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
+  private final MasterChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -67,13 +68,34 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   }
 
   /**
+   * Creates an instance specifying the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryConfigTypeMaster(final MasterChangeManager changeManager) {
+    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
+  }
+
+  /**
    * Creates an instance specifying the supplier of object identifiers.
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryConfigTypeMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    this(objectIdSupplier, new BasicMasterChangeManager());
+  }
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers and change manager.
+   * 
+   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryConfigTypeMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -132,28 +154,8 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     _store.put(objectId, doc);
-    
-    //notify listeners
-    notifyDocumentAdded(doc);
+    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
     return doc;
-  }
-
-  private void notifyDocumentAdded(ConfigDocument<T> added) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.added(added.getUniqueId());
-    }
-  }
-  
-  private void notifyDocumentRemoved(UniqueIdentifier uniqueId) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.removed(uniqueId);
-    }
-  }
-  
-  private void notifyDocumentUpdated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.updated(oldItem, newItem);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -176,8 +178,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    
-    notifyDocumentUpdated(uniqueId, document.getUniqueId());
+    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -189,7 +190,7 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Config not found: " + uniqueId);
     }
-    notifyDocumentRemoved(uniqueId);
+    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -213,26 +214,14 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
     final UniqueIdentifier oldItem = document.getUniqueId();
     ConfigDocument<T> corrected = update(document);
     UniqueIdentifier newItem = corrected.getUniqueId();
-    notifyDocumentCorrected(oldItem, newItem);
+    _changeManager.masterChanged(MasterChangedType.CORRECTED, oldItem, newItem, corrected.getVersionFromInstant());
     return corrected;
   }
   
-  private void notifyDocumentCorrected(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.corrected(oldItem, newItem);
-    }
-  }
-
+  //-------------------------------------------------------------------------
   @Override
-  public void addChangeListener(MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.add(listener);
-  }
-
-  @Override
-  public void removeChangeListener(MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.remove(listener);
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

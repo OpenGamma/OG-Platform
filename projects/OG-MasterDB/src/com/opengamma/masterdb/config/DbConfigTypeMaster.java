@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 
@@ -36,7 +35,8 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -95,20 +95,23 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
    */
   private final Class<T> _clazz;
   /**
-   * The set of listeners.
+   * The change manager.
    */
-  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
+  private final MasterChangeManager _changeManager;
 
   /**
    * Creates an instance.
    * 
    * @param clazz  the class of the configuration, not null
    * @param dbSource  the database source combining all configuration, not null
+   * @param changeManager  the change manager, not null
    */
-  public DbConfigTypeMaster(final Class<T> clazz, final DbSource dbSource) {
+  public DbConfigTypeMaster(final Class<T> clazz, final DbSource dbSource, final MasterChangeManager changeManager) {
     super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _clazz = clazz;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -119,19 +122,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
    */
   public Class<T> getReifiedType() {
     return _clazz;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void addChangeListener(final MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.add(listener);
-  }
-
-  @Override
-  public void removeChangeListener(final MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.remove(listener);
   }
 
   //-------------------------------------------------------------------------
@@ -196,55 +186,32 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   @Override
   public ConfigDocument<T> add(final ConfigDocument<T> document) {
     ConfigDocument<T> result = super.add(document);
-    notifyDocumentAdded(result.getUniqueId());
+    changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
     return result;
   }
 
-  protected void notifyDocumentAdded(final UniqueIdentifier addedItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.added(addedItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public ConfigDocument<T> update(final ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    UniqueIdentifier beforeId = document.getUniqueId();
     ConfigDocument<T> result = super.update(document);
-    notifyDocumentUpdated(document.getUniqueId(), result.getUniqueId());
+    changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
     return result;
   }
 
-  protected void notifyDocumentUpdated(final UniqueIdentifier oldItem, final UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.updated(oldItem, newItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public void remove(final UniqueIdentifier uniqueId) {
     super.remove(uniqueId);
-    notifyDocumentRemoved(uniqueId);
+    changeManager().masterChanged(MasterChangedType.REMOVED, uniqueId, null, get(uniqueId).getVersionToInstant());
   }
 
-  protected void notifyDocumentRemoved(final UniqueIdentifier removedItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.removed(removedItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public ConfigDocument<T> correct(final ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    UniqueIdentifier beforeId = document.getUniqueId();
     ConfigDocument<T> result = super.correct(document);
-    notifyDocumentCorrected(document.getUniqueId(), result.getUniqueId());
+    changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getCorrectionFromInstant());
     return result;
-  }
-
-  protected void notifyDocumentCorrected(final UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.corrected(oldItem, newItem);
-    }
   }
 
   //-------------------------------------------------------------------------
@@ -315,6 +282,12 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   @Override
   protected String mainTableName() {
     return "cfg_config";
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

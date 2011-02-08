@@ -106,7 +106,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
 
   @Test
   public void test_update_rollback() {
-    DbConfigTypeMaster<Identifier> w = new DbConfigTypeMaster<Identifier>(Identifier.class, _cfgMaster.getDbSource()) {
+    DbConfigTypeMaster<Identifier> w = new DbConfigTypeMaster<Identifier>(Identifier.class, _cfgMaster.getDbSource(), _cfgMaster.changeManager()) {
       @Override
       protected String sqlInsertConfig() {
         return "INSERT";  // bad sql

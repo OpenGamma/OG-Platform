@@ -7,6 +7,9 @@ package com.opengamma.masterdb.config;
 
 import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.master.config.impl.DefaultConfigMaster;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbSource;
 
@@ -18,7 +21,7 @@ import com.opengamma.util.db.DbSource;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbConfigMaster extends DefaultConfigMaster {
+public class DbConfigMaster extends DefaultConfigMaster implements NotifyingMaster {
 
   /**
    * The scheme used for UniqueIdentifier objects.
@@ -33,6 +36,10 @@ public class DbConfigMaster extends DefaultConfigMaster {
    * The scheme in use for UniqueIdentifier, null for default.
    */
   private String _identifierScheme;
+  /**
+   * The change manager.
+   */
+  private MasterChangeManager _changeManager = new BasicMasterChangeManager();
 
   /**
    * Creates an instance.
@@ -65,13 +72,39 @@ public class DbConfigMaster extends DefaultConfigMaster {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the change manager.
+   * 
+   * @return the change manager, not null
+   */
+  public MasterChangeManager getChangeManager() {
+    return _changeManager;
+  }
+
+  /**
+   * Sets the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public void setChangeManager(final MasterChangeManager changeManager) {
+    ArgumentChecker.notNull(changeManager, "changeManager");
+    _changeManager = changeManager;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected <T> ConfigTypeMaster<T> createTypedMaster(Class<T> clazz) {
-    DbConfigTypeMaster<T> master = new DbConfigTypeMaster<T>(clazz, _dbSource);
+    DbConfigTypeMaster<T> master = new DbConfigTypeMaster<T>(clazz, _dbSource, getChangeManager());
     if (getIdentifierScheme() != null) {
       master.setIdentifierScheme(getIdentifierScheme());
     }
     return master;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return getChangeManager();  // events from all config type masters
   }
 
 }
