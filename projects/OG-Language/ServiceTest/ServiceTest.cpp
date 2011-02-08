@@ -14,7 +14,7 @@
 
 LOGGING (com.opengamma.language.service.ServiceTest);
 
-#define TIMEOUT_START		10000
+#define TIMEOUT_START		30000
 #define TIMEOUT_STOP		1000
 #define TIMEOUT_CONNECT		1000
 #define TIMEOUT_JOIN		3000
