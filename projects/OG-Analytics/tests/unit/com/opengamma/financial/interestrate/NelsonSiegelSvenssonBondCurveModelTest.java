@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -75,15 +75,15 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
 
   @Test
   public void testFit() {
-    final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {2, 1, 1, 4, 6, 1}));
+    final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {2, -1, -1, 2, 2, 9}));
     final LeastSquareResults result = NLLS.solve(TREASURY_T, TREASURY_20110127_Y, TREASURY_E, model.getParameterizedFunction(), model.getTransform().transform(model.getParameters()));
     final DoubleMatrix1D fitted = model.getTransform().inverseTransform(result.getParameters());
-    //    assertEquals(fitted.getEntry(0), 4.07923660, 1e-3);
-    //    assertEquals(fitted.getEntry(1), -3.74204358, 1e-3);
-    //    assertEquals(fitted.getEntry(2), -6.18790519, 1e-3);
-    //    assertEquals(fitted.getEntry(3), 1.92088325, 1e-3);
-    //    assertEquals(fitted.getEntry(4), 5.43483123, 1e-3);
-    //    assertEquals(fitted.getEntry(5), 9.96780064, 1e-3);
+    assertEquals(fitted.getEntry(0), 4.07923660, 1e-2);
+    assertEquals(fitted.getEntry(1), -3.74204358, 1e-2);
+    assertEquals(fitted.getEntry(2), -6.18790519, 1e-2);
+    assertEquals(fitted.getEntry(3), 1.92088325, 1e-2);
+    assertEquals(fitted.getEntry(4), 5.43483123, 1e-2);
+    assertEquals(fitted.getEntry(5), 9.96780064, 1e-2);
   }
 
   @Test(expected = IllegalArgumentException.class)

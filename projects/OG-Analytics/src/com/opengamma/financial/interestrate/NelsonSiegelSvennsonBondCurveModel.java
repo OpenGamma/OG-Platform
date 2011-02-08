@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.interestrate;
@@ -25,10 +25,6 @@ public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Doubl
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
       new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
-
-  static {
-    //FIXED_PARAMETERS.set(0);
-  }
   private final double _beta0;
   private final double _beta1;
   private final double _beta2;
@@ -48,7 +44,7 @@ public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Doubl
     _beta3 = parameters.getEntry(4);
     _lambda2 = parameters.getEntry(5);
     _parameters = parameters;
-    _transform = new TransformParameters(parameters, TRANSFORMS, FIXED_PARAMETERS); //TODO no no no no no
+    _transform = new TransformParameters(parameters, TRANSFORMS, FIXED_PARAMETERS); // TODO no no no no no
   }
 
   public DoubleMatrix1D getParameters() {
