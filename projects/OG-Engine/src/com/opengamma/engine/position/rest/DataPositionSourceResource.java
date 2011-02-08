@@ -28,8 +28,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * RESTful resource for a position source.
  */
-@Path("/data/sources/position")
+@Path("/positionSource")
 public class DataPositionSourceResource {
+  // TODO: indirect through another container to allow multiple position sources to be published
   
   /**
    * The injected position source.
