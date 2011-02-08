@@ -58,6 +58,46 @@ public class TransformParametersTest {
     new TransformParameters(INIT, NULLS, allFixed);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testTransformNullParameters() {
+    PARAMS.transform(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testTransformWrongParameters() {
+    PARAMS.transform(new DoubleMatrix1D(new double[] {1, 2}));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInverseTransformNullParameters() {
+    PARAMS.inverseTransform(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInverseTransformWrongParameters() {
+    PARAMS.inverseTransform(new DoubleMatrix1D(new double[] {1, 2}));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testJacobianNullParameters() {
+    PARAMS.jacobian(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testJacobianWrongParameters() {
+    PARAMS.jacobian(new DoubleMatrix1D(new double[] {1, 2}));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInverseJacobianNullParameters() {
+    PARAMS.inverseJacobian(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInverseJacobianWrongParameters() {
+    PARAMS.inverseJacobian(new DoubleMatrix1D(new double[] {1, 2}));
+  }
+
   @Test
   public void test() {
     assertEquals(PARAMS.getNumberOfFunctionParameters(), 4);
@@ -71,5 +111,11 @@ public class TransformParametersTest {
     assertFalse(other.equals(PARAMS));
     other = new TransformParameters(INIT, NULLS, new BitSet(4));
     assertFalse(other.equals(PARAMS));
+  }
+
+  @Test
+  public void testTransformAndInverse() {
+    final DoubleMatrix1D functionParameters = new DoubleMatrix1D(new double[] {1, 2, 6, 4});
+    assertEquals(PARAMS.inverseTransform(PARAMS.transform(functionParameters)), functionParameters);
   }
 }

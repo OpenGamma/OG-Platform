@@ -72,6 +72,7 @@ public class TransformParameters {
    * @return The fitting parameters
    */
   public DoubleMatrix1D transform(final DoubleMatrix1D functionParameters) {
+    Validate.notNull(functionParameters, "function parameters");
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
@@ -85,17 +86,18 @@ public class TransformParameters {
 
   /**
    * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters (some of which may have constrained range and/or be fixed).
-   * @param fittingParameter The fitting parameters
+   * @param fittingParameters The fitting parameters
    * @return The function parameters 
    */
-  public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameter) {
-    Validate.isTrue(fittingParameter.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
+  public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameters) {
+    Validate.notNull(fittingParameters, "fitting parameters");
+    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
     final double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (_fixed.get(i)) {
         modelParameter[i] = _startValues.getEntry(i);
       } else {
-        modelParameter[i] = _transforms[i].inverseTransform(fittingParameter.getEntry(j));
+        modelParameter[i] = _transforms[i].inverseTransform(fittingParameters.getEntry(j));
         j++;
       }
     }
@@ -110,6 +112,7 @@ public class TransformParameters {
    */
   // TODO not tested
   public DoubleMatrix2D jacobian(final DoubleMatrix1D functionParameters) {
+    Validate.notNull(functionParameters, "function parameters");
     Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
@@ -129,6 +132,7 @@ public class TransformParameters {
    */
   // TODO not tested
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
+    Validate.notNull(fittingParameters, "fitting parameters");
     Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
     final double[][] jac = new double[_nMP][_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
