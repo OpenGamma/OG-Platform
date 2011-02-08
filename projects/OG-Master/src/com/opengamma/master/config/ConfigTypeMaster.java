@@ -6,7 +6,6 @@
 package com.opengamma.master.config;
 
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -44,13 +43,5 @@ public interface ConfigTypeMaster<T> extends AbstractMaster<ConfigDocument<T>>, 
    * @throws IllegalArgumentException if the request is invalid
    */
   ConfigHistoryResult<T> history(ConfigHistoryRequest request);
-
-  /**
-   * Gets the change manager that handles events.
-   * 
-   * @return the change manager, not null
-   */
-  @Override
-  MasterChangeManager changeManager();
 
 }

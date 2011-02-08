@@ -23,7 +23,6 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.InMemoryConfigTypeMaster;
-import com.opengamma.master.listener.JmsMasterChangeManager;
 import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.tuple.Pair;
 
@@ -135,27 +134,6 @@ public class JmsMasterChangeManagerTest {
   }
 
   @Test
-  public void testCorrected() throws Exception {
-    _container.afterPropertiesSet();
-    _container.start();
-    while (!_container.isRunning()) {
-      Thread.sleep(10l);
-    }
-    
-    final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
-    UniqueIdentifier oldItem = added.getUniqueId();
-    assertNotNull(oldItem);
-    
-    ConfigDocument<Identifier> corrected = _configMaster.correct(added);
-    UniqueIdentifier newItem = corrected.getUniqueId();
-    assertNotNull(newItem);
-    
-    _testListener.waitForCorrectedItem(WAIT_TIMEOUT);
-    assertEquals(Pair.of(oldItem, newItem), _testListener.getCorrectedItem());
-  }
-
-  @Test
   public void testMultipleListeners() throws Exception {
     //setup multiple master change listener
     List<TestMasterChangeClient> clients = Lists.newArrayList();
@@ -171,15 +149,11 @@ public class JmsMasterChangeManagerTest {
       Thread.sleep(10l);
     }
     
-    //add, update, correct and remove doc in config master
+    // add, update and remove doc in config master
     final ConfigDocument<Identifier> doc = createTestDocument();
     ConfigDocument<Identifier> added = _configMaster.add(doc);
     UniqueIdentifier addedItem = added.getUniqueId();
     assertNotNull(addedItem);
-    
-    ConfigDocument<Identifier> corrected = _configMaster.correct(added);
-    UniqueIdentifier correctedItem = corrected.getUniqueId();
-    assertNotNull(correctedItem);
     
     ConfigDocument<Identifier> updated = _configMaster.update(added);
     UniqueIdentifier updatedItem = updated.getUniqueId();
@@ -189,7 +163,6 @@ public class JmsMasterChangeManagerTest {
     
     for (TestMasterChangeClient client : clients) {
       client.waitForAddedItem(WAIT_TIMEOUT);
-      client.waitForCorrectedItem(WAIT_TIMEOUT);
       client.waitForRemovedItem(WAIT_TIMEOUT);
       client.waitForUpdatedItem(WAIT_TIMEOUT);
     }
@@ -199,7 +172,6 @@ public class JmsMasterChangeManagerTest {
     for (TestMasterChangeClient client : clients) {
       assertEquals(addedItem, client.getAddedItem());
       assertEquals(removedItem, client.getRemovedItem());
-      assertEquals(Pair.of(addedItem, correctedItem), client.getCorrectedItem());
       assertEquals(Pair.of(addedItem, updatedItem), client.getUpdatedItem());
     }
   }

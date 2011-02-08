@@ -15,7 +15,7 @@ import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionCallback;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
@@ -26,6 +26,9 @@ import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -49,6 +52,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
 
   /**
+   * The change manager.
+   */
+  private MasterChangeManager _changeManager = new BasicMasterChangeManager();
+
+  /**
    * Creates an instance.
    * 
    * @param dbSource  the database source combining all configuration, not null
@@ -56,6 +64,36 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   public AbstractDocumentDbMaster(final DbSource dbSource, final String defaultScheme) {
     super(dbSource, defaultScheme);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the change manager.
+   * 
+   * @return the change manager, not null
+   */
+  public MasterChangeManager getChangeManager() {
+    return _changeManager;
+  }
+
+  /**
+   * Sets the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public void setChangeManager(final MasterChangeManager changeManager) {
+    ArgumentChecker.notNull(changeManager, "changeManager");
+    _changeManager = changeManager;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the change manager that handles events.
+   * 
+   * @return the change manager, not null if in use
+   */
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -313,9 +351,9 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document, "document");
     s_logger.debug("add {}", document);
     
-    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
       @Override
-      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+      public D doInTransaction(final TransactionStatus status) {
         // insert new row
         final Instant now = Instant.now(getTimeSource());
         document.setVersionFromInstant(now);
@@ -324,9 +362,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         document.setCorrectionToInstant(null);
         document.setUniqueId(null);
         insert(document);
+        return document;
       }
     });
-    return document;
+    changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -337,13 +377,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("update {}", document);
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
-    ArgumentChecker.isTrue(uniqueId.isVersioned(), "UniqueIdentifier must be versioned");
-    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+    final UniqueIdentifier beforeId = document.getUniqueId();
+    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
       @Override
-      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+      public D doInTransaction(final TransactionStatus status) {
         // load old row
-        final D oldDoc = getCheckLatestVersion(uniqueId);
+        final D oldDoc = getCheckLatestVersion(beforeId);
         // update old row
         final Instant now = Instant.now(getTimeSource());
         oldDoc.setVersionToInstant(now);
@@ -355,9 +395,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         document.setCorrectionToInstant(null);
         document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insert(document);
+        return document;
       }
     });
-    return document;
+    changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -367,17 +409,19 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(uniqueId);
     s_logger.debug("remove {}", uniqueId);
     
-    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
       @Override
-      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+      public D doInTransaction(final TransactionStatus status) {
         // load old row
         final D oldDoc = getCheckLatestVersion(uniqueId);
         // update old row
         final Instant now = Instant.now(getTimeSource());
         oldDoc.setVersionToInstant(now);
         updateVersionToInstant(oldDoc);
+        return oldDoc;
       }
     });
+    changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
   }
 
   //-------------------------------------------------------------------------
@@ -387,13 +431,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("correct {}", document);
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
-    ArgumentChecker.isTrue(uniqueId.isVersioned(), "UniqueIdentifier must be versioned");
-    getTransactionTemplate().execute(new TransactionCallbackWithoutResult() {
+    final UniqueIdentifier beforeId = document.getUniqueId();
+    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
       @Override
-      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+      public D doInTransaction(final TransactionStatus status) {
         // load old row
-        final D oldDoc = getCheckLatestCorrection(uniqueId);
+        final D oldDoc = getCheckLatestCorrection(beforeId);
         // update old row
         final Instant now = Instant.now(getTimeSource());
         oldDoc.setCorrectionToInstant(now);
@@ -405,9 +449,11 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         document.setCorrectionToInstant(null);
         document.setUniqueId(oldDoc.getUniqueId().toLatest());
         insert(document);
+        return document;
       }
     });
-    return document;
+    changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+    return result;
   }
 
   //-------------------------------------------------------------------------

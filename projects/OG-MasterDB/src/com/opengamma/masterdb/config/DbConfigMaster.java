@@ -94,7 +94,8 @@ public class DbConfigMaster extends DefaultConfigMaster implements NotifyingMast
   //-------------------------------------------------------------------------
   @Override
   protected <T> ConfigTypeMaster<T> createTypedMaster(Class<T> clazz) {
-    DbConfigTypeMaster<T> master = new DbConfigTypeMaster<T>(clazz, _dbSource, getChangeManager());
+    DbConfigTypeMaster<T> master = new DbConfigTypeMaster<T>(clazz, _dbSource);
+    master.setChangeManager(getChangeManager());
     if (getIdentifierScheme() != null) {
       master.setIdentifierScheme(getIdentifierScheme());
     }

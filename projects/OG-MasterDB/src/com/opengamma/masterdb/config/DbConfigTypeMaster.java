@@ -35,8 +35,6 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -94,24 +92,17 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
    * The class of the configuration.
    */
   private final Class<T> _clazz;
-  /**
-   * The change manager.
-   */
-  private final MasterChangeManager _changeManager;
 
   /**
    * Creates an instance.
    * 
    * @param clazz  the class of the configuration, not null
    * @param dbSource  the database source combining all configuration, not null
-   * @param changeManager  the change manager, not null
    */
-  public DbConfigTypeMaster(final Class<T> clazz, final DbSource dbSource, final MasterChangeManager changeManager) {
+  public DbConfigTypeMaster(final Class<T> clazz, final DbSource dbSource) {
     super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(changeManager, "changeManager");
     _clazz = clazz;
-    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -183,38 +174,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public ConfigDocument<T> add(final ConfigDocument<T> document) {
-    ConfigDocument<T> result = super.add(document);
-    changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
-  }
-
-  @Override
-  public ConfigDocument<T> update(final ConfigDocument<T> document) {
-    ArgumentChecker.notNull(document, "document");
-    UniqueIdentifier beforeId = document.getUniqueId();
-    ConfigDocument<T> result = super.update(document);
-    changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
-  }
-
-  @Override
-  public void remove(final UniqueIdentifier uniqueId) {
-    super.remove(uniqueId);
-    changeManager().masterChanged(MasterChangedType.REMOVED, uniqueId, null, get(uniqueId).getVersionToInstant());
-  }
-
-  @Override
-  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
-    ArgumentChecker.notNull(document, "document");
-    UniqueIdentifier beforeId = document.getUniqueId();
-    ConfigDocument<T> result = super.correct(document);
-    changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getCorrectionFromInstant());
-    return result;
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Inserts a new document.
    * 
@@ -282,12 +241,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   @Override
   protected String mainTableName() {
     return "cfg_config";
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public MasterChangeManager changeManager() {
-    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

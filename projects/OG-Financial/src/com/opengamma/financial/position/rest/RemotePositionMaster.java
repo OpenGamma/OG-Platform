@@ -10,6 +10,8 @@ import java.net.URI;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -36,6 +38,10 @@ public class RemotePositionMaster implements PositionMaster {
    * The client API.
    */
   private final FudgeRestClient _client;
+  /**
+   * The change manager.
+   */
+  private final MasterChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -43,8 +49,21 @@ public class RemotePositionMaster implements PositionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemotePositionMaster(final URI baseUri) {
+    this(baseUri, new BasicMasterChangeManager());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemotePositionMaster(final URI baseUri, MasterChangeManager changeManager) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -138,6 +157,12 @@ public class RemotePositionMaster implements PositionMaster {
     
     URI uri = DataPositionResource.uriTrade(_baseUri, tradeId);
     return accessRemote(uri).get(ManageableTrade.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

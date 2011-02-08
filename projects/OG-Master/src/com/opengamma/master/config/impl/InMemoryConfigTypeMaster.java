@@ -211,13 +211,9 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   //-------------------------------------------------------------------------
   @Override
   public ConfigDocument<T> correct(final ConfigDocument<T> document) {
-    final UniqueIdentifier oldItem = document.getUniqueId();
-    ConfigDocument<T> corrected = update(document);
-    UniqueIdentifier newItem = corrected.getUniqueId();
-    _changeManager.masterChanged(MasterChangedType.CORRECTED, oldItem, newItem, corrected.getVersionFromInstant());
-    return corrected;
+    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public MasterChangeManager changeManager() {

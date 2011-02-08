@@ -20,6 +20,9 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -53,12 +56,25 @@ public class InMemorySecurityMaster implements SecurityMaster {
    * The supplied of identifiers.
    */
   private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  /**
+   * The change manager.
+   */
+  private final MasterChangeManager _changeManager;
 
   /**
-   * Creates an empty security master using the default scheme for any {@link ObjectIdentifier}s created.
+   * Creates an instance.
    */
   public InMemorySecurityMaster() {
     this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+  }
+
+  /**
+   * Creates an instance specifying the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public InMemorySecurityMaster(final MasterChangeManager changeManager) {
+    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -67,8 +83,20 @@ public class InMemorySecurityMaster implements SecurityMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemorySecurityMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    this(objectIdSupplier, new BasicMasterChangeManager());
+  }
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers and change manager.
+   * 
+   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * @param changeManager  the change manager, not null
+   */
+  public InMemorySecurityMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -148,6 +176,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
+    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
     return doc;
   }
 
@@ -171,6 +200,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
+    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -182,6 +212,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);
     }
+    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -201,7 +232,13 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   @Override
   public SecurityDocument correct(final SecurityDocument document) {
-    return update(document);
+    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
 }
