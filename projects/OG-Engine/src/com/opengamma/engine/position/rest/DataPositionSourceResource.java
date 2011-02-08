@@ -1,17 +1,20 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position.rest;
 
-import java.net.URI;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -19,31 +22,39 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a position source.
  */
 @Path("/data/sources/position")
-public class DataPositionSourceResource extends AbstractDataResource {
-
+public class DataPositionSourceResource {
+  
   /**
    * The injected position source.
    */
   private final PositionSource _positionSource;
 
   /**
+   * The injected Fudge context.
+   */
+  private final FudgeContext _fudgeContext;
+
+  /**
    * Creates the resource.
    * 
+   * @param fudgeContext the Fudge context, not {@code null}
    * @param positionSource  the position source, not null
    */
-  public DataPositionSourceResource(final PositionSource positionSource) {
+  public DataPositionSourceResource(final FudgeContext fudgeContext, final PositionSource positionSource) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(positionSource, "positionSource");
+    _fudgeContext = fudgeContext;
     _positionSource = positionSource;
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Gets the position source.
    * 
@@ -53,82 +64,87 @@ public class DataPositionSourceResource extends AbstractDataResource {
     return _positionSource;
   }
 
-  //-------------------------------------------------------------------------
+  protected FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
+  protected FudgeSerializationContext getFudgeSerializationContext() {
+    return new FudgeSerializationContext(getFudgeContext());
+  }
+
+  // -------------------------------------------------------------------------
   @GET
   @Path("portfolios/{portfolioId}")
-  public Response getPortfolio(@PathParam("portfolioId") String portfolioId) {
+  public FudgeMsgEnvelope getPortfolio(@PathParam("portfolioId") String portfolioId) {
     UniqueIdentifier uniqueId = UniqueIdentifier.parse(portfolioId);
     Portfolio result = getPositionSource().getPortfolio(uniqueId);
-    return Response.ok(result).build();
+    if (result == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+    final FudgeSerializationContext fsc = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = fsc.newMessage();
+    fsc.objectToFudgeMsg(msg, "portfolio", null, result);
+    return new FudgeMsgEnvelope(msg);
   }
 
   @GET
   @Path("nodes/{nodeId}")
-  public Response getNode(@PathParam("nodeId") String nodeId) {
+  public FudgeMsgEnvelope getNode(@PathParam("nodeId") String nodeId) {
     UniqueIdentifier uniqueId = UniqueIdentifier.parse(nodeId);
     PortfolioNode result = getPositionSource().getPortfolioNode(uniqueId);
-    return Response.ok(result).build();
+    if (result == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+    final FudgeSerializationContext fsc = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = fsc.newMessage();
+    fsc.objectToFudgeMsg(msg, "node", null, result);
+    return new FudgeMsgEnvelope(msg);
   }
 
   @GET
   @Path("positions/{positionId}")
-  public Response getPosition(@PathParam("positionId") String positionId) {
+  public FudgeMsgEnvelope getPosition(@PathParam("positionId") String positionId) {
     UniqueIdentifier uniqueId = UniqueIdentifier.parse(positionId);
     Position result = getPositionSource().getPosition(uniqueId);
-    return Response.ok(result).build();
+    if (result == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+    final FudgeSerializationContext fsc = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = fsc.newMessage();
+    fsc.objectToFudgeMsg(msg, "position", null, result);
+    return new FudgeMsgEnvelope(msg);
   }
 
   @GET
   @Path("trades/{tradeId}")
-  public Response getTrade(@PathParam("tradeId") String tradeId) {
+  public FudgeMsgEnvelope getTrade(@PathParam("tradeId") String tradeId) {
     UniqueIdentifier uniqueId = UniqueIdentifier.parse(tradeId);
     Trade result = getPositionSource().getTrade(uniqueId);
-    return Response.ok(result).build();
+    if (result == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+    final FudgeSerializationContext fsc = getFudgeSerializationContext();
+    MutableFudgeFieldContainer msg = fsc.newMessage();
+    fsc.objectToFudgeMsg(msg, "trade", null, result);
+    return new FudgeMsgEnvelope(msg);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Builds a URI for a portfolio.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriPortfolio(URI baseUri, UniqueIdentifier uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/sources/position/portfolios/{portfolioId}").build(uniqueId);
+  // -------------------------------------------------------------------------
+
+  public static RestTarget targetPortfolio(final RestTarget target, final UniqueIdentifier uniqueId) {
+    return target.resolveBase("portfolios").resolve(uniqueId.toString());
   }
 
-  /**
-   * Builds a URI for a node.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriNode(URI baseUri, UniqueIdentifier uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/sources/position/nodes/{nodeId}").build(uniqueId);
+  public static RestTarget targetPortfolioNode(final RestTarget target, final UniqueIdentifier uniqueId) {
+    return target.resolveBase("nodes").resolve(uniqueId.toString());
   }
 
-  /**
-   * Builds a URI for a position.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriPosition(URI baseUri, UniqueIdentifier uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/sources/position/positions/{positionId}").build(uniqueId);
+  public static RestTarget targetPosition(final RestTarget target, final UniqueIdentifier uniqueId) {
+    return target.resolveBase("positions").resolve(uniqueId.toString());
   }
 
-  /**
-   * Builds a URI for a trade.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriTrade(URI baseUri, UniqueIdentifier uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/sources/position/trades/{tradeId}").build(uniqueId);
+  public static RestTarget targetTrade(final RestTarget target, final UniqueIdentifier uniqueId) {
+    return target.resolveBase("trades").resolve(uniqueId.toString());
   }
 
 }

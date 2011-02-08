@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.position.rest;
 
-import java.net.URI;
+import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -13,11 +13,9 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.FudgeRestClient;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * Provides access to a remote {@link PositionSource}.
@@ -27,79 +25,49 @@ public class RemotePositionSource implements PositionSource {
   /**
    * The base URI to call.
    */
-  private final URI _baseUri;
+  private final RestTarget _target;
+
   /**
    * The client API.
    */
-  private final FudgeRestClient _client;
+  private final RestClient _client;
 
-  /**
-   * Creates an instance.
-   * 
-   * @param baseUri  the base target URI for all RESTful web services, not null
-   */
-  public RemotePositionSource(final URI baseUri) {
-    _baseUri = baseUri;
-    _client = FudgeRestClient.create();
-  }
-
-  public RemotePositionSource(final RestTarget restTarget) {
-    this(restTarget.getURI().resolve("../.."));
+  public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget) {
+    _client = RestClient.getInstance(fudgeContext, null);
+    _target = restTarget;
   }
 
   // -------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-
-    URI uri = DataPositionSourceResource.uriPortfolio(_baseUri, uid);
-    return accessRemote(uri).get(Portfolio.class);
+    Portfolio result = _client.getSingleValue(Portfolio.class, DataPositionSourceResource.targetPortfolio(_target, uid), "portfolio");
+    System.err.println("portfolio=" + result);
+    return result;
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-
-    URI uri = DataPositionSourceResource.uriNode(_baseUri, uid);
-    return accessRemote(uri).get(PortfolioNode.class);
+    PortfolioNode result = _client.getSingleValue(PortfolioNode.class, DataPositionSourceResource.targetPortfolioNode(_target, uid), "node");
+    System.err.println("portfolioNode=" + result);
+    return result;
   }
 
   @Override
   public Position getPosition(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-
-    URI uri = DataPositionSourceResource.uriPosition(_baseUri, uid);
-    return accessRemote(uri).get(Position.class);
+    Position result = _client.getSingleValue(Position.class, DataPositionSourceResource.targetPosition(_target, uid), "position");
+    System.err.println("position=" + result);
+    return result;
   }
 
   @Override
   public Trade getTrade(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-
-    URI uri = DataPositionSourceResource.uriTrade(_baseUri, uid);
-    return accessRemote(uri).get(Trade.class);
-  }
-
-  // -------------------------------------------------------------------------
-  /**
-   * Accesses the remote object.
-   * 
-   * @param uri  the URI to call, not null
-   * @return the resource, suitable for calling get/post/put/delete on, not null
-   */
-  protected Builder accessRemote(URI uri) {
-    // TODO: Better solution to this limitation in JAX-RS (we shouldn't have "data" in URI)
-    // this code removes a second duplicate "data"
-    String uriStr = uri.toString();
-    int pos = uriStr.indexOf("/jax/data/");
-    if (pos > 0) {
-      pos = uriStr.indexOf("/data/", pos + 10);
-      if (pos > 0) {
-        uriStr = uriStr.substring(0, pos) + uriStr.substring(pos + 5);
-      }
-    }
-    uri = URI.create(uriStr);
-    return _client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
+    Trade result = _client.getSingleValue(Trade.class, DataPositionSourceResource.targetTrade(_target, uid), "trade");
+    System.err.println("trade=" + result);
+    return result;
   }
 
   // -------------------------------------------------------------------------
@@ -110,7 +78,7 @@ public class RemotePositionSource implements PositionSource {
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[" + _baseUri + "]";
+    return getClass().getSimpleName() + "[" + _target + "]";
   }
 
 }
