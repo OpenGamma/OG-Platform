@@ -41,13 +41,7 @@ public class TransformParameters {
     Validate.notNull(fixed, "must specify what is fixed (even if none)");
     _nMP = startValues.getNumberOfElements();
     Validate.isTrue(_nMP == transforms.length, "must give a transform for each model parameter");
-
-    int count = 0;
-    for (int i = 0; i < _nMP; i++) {
-      if (fixed.get(i)) {
-        count++;
-      }
-    }
+    final int count = fixed.cardinality();
     Validate.isTrue(count < _nMP, "all parameters are fixed");
     _nFP = _nMP - count;
     _startValues = startValues;
@@ -109,7 +103,7 @@ public class TransformParameters {
   }
 
   /**
-   * Calculated the jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect 
+   * Calculated the Jacobian of the transform from function parameters to fitting parameters - the i,j element will be the partial derivative of i^th fitting parameter with respect 
    * to the j^th function parameter 
    * @param functionParameters The function parameters 
    * @return matrix of partial derivative of fitting parameter with respect to function parameters 
@@ -128,7 +122,7 @@ public class TransformParameters {
   }
 
   /**
-   * Calculated the jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect 
+   * Calculated the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect 
    * to the j^th  fitting parameter 
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters 
@@ -173,11 +167,6 @@ public class TransformParameters {
     }
     if (!ObjectUtils.equals(_startValues, other._startValues)) {
       return false;
-    }
-    System.out.println(_transforms.length + " " + other._transforms.length);
-    for (int i = 0; i < _transforms.length; i++) {
-      System.out.println(_transforms[i] + " " + other._transforms[i]);
-      System.out.println(_transforms[i].equals(other._transforms[i]));
     }
     return Arrays.equals(_transforms, other._transforms);
   }
