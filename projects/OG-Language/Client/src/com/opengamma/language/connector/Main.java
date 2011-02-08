@@ -37,24 +37,8 @@ public class Main {
    * @return {@code true}
    */
   public static boolean svcTest() {
+    s_logger.info("svcTest called");
     return true;
-  }
-
-  /**
-   * Entry point from the service wrapper - loads the native library.
-   * 
-   * @param libraryPath the full path name to the library
-   * @return {@code true} if okay, {@code false} otherwise
-   */
-  public static boolean svcInitialise(final String libraryPath) {
-    try {
-      s_logger.info("Loading {}", libraryPath);
-      System.load(libraryPath);
-      return true;
-    } catch (Throwable t) {
-      s_logger.error("Exception thrown", t);
-      return false;
-    }
   }
 
   /**

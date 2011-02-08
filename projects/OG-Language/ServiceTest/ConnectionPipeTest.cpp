@@ -29,12 +29,12 @@ static CConnectionPipe *_CreateTestPipe () {
 #define __L(str)			L##str
 #define _L(str)				__L(str)
 
-class CServerThread : public CThread {
+class CConnectionServerThread : public CThread {
 private:
 	CConnectionPipe *m_poPipe;
 	bool m_bOk;
 public:
-	CServerThread (CConnectionPipe *poPipe) {
+	CConnectionServerThread (CConnectionPipe *poPipe) {
 		m_poPipe = poPipe;
 		m_bOk = false;
 		ASSERT (Start ());
@@ -57,12 +57,12 @@ public:
 	}
 };
 
-class CClientThread : public CThread {
+class CConnectionClientThread : public CThread {
 private:
 	const TCHAR *m_pszPipeName;
 	bool m_bUnicode;
 public:
-	CClientThread (const TCHAR *pszPipeName, bool bUnicode) {
+	CConnectionClientThread (const TCHAR *pszPipeName, bool bUnicode) {
 		m_pszPipeName = pszPipeName;
 		m_bUnicode = bUnicode;
 		ASSERT (Start ());
@@ -95,8 +95,8 @@ public:
 
 static void NormalOperation () {
 	CConnectionPipe *poPipe = _CreateTestPipe ();
-	CServerThread *poServer = new CServerThread (poPipe);
-	CClientThread *poClient = new CClientThread (poPipe->GetName (), sizeof (TCHAR) == sizeof (wchar_t));
+	CConnectionServerThread *poServer = new CConnectionServerThread (poPipe);
+	CConnectionClientThread *poClient = new CConnectionClientThread (poPipe->GetName (), sizeof (TCHAR) == sizeof (wchar_t));
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->IsOk ());
@@ -109,8 +109,8 @@ static void UnicodeMismatch () {
 	CConnectionPipe *poPipe = _CreateTestPipe ();
 	// Use LazyClose to set a timeout
 	poPipe->LazyClose (TIMEOUT);
-	CServerThread *poServer = new CServerThread (poPipe);
-	CClientThread *poClient = new CClientThread (poPipe->GetName (), sizeof (TCHAR) != sizeof (wchar_t));
+	CConnectionServerThread *poServer = new CConnectionServerThread (poPipe);
+	CConnectionClientThread *poClient = new CConnectionClientThread (poPipe->GetName (), sizeof (TCHAR) != sizeof (wchar_t));
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
 	ASSERT (!poServer->IsOk ());

@@ -214,18 +214,14 @@ static char *_OptionClassPath (CSettings *pSettings) {
 	return pszOption;
 }
 
-extern "C" {
+static void JNICALL _notifyStop (JNIEnv *pEnv, jclass cls) {
+	LOGINFO (TEXT ("STOP called from JVM"));
+	ServiceStop (false);
+}
 
-	JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyStop (JNIEnv *pEnv, jclass cls) {
-		LOGINFO (TEXT ("STOP called from JVM"));
-		ServiceStop (false);
-	}
-
-	JNIEXPORT void JNICALL Java_com_opengamma_excel_connector_Main_notifyPause (JNIEnv *pEnv, jclass cls) {
-		LOGINFO (TEXT ("PAUSE called from JVM"));
-		ServiceSuspend ();
-	}
-
+static void JNICALL _notifyPause (JNIEnv *pEnv, jclass cls) {
+	LOGINFO (TEXT ("PAUSE called from JVM"));
+	ServiceSuspend ();
 }
 
 CJVM *CJVM::Create () {
@@ -245,16 +241,21 @@ CJVM *CJVM::Create () {
 	}
 	JavaVM *pJVM;
 	JNIEnv *pEnv;
-	JavaVMOption option[2];
+	JavaVMOption option[3];
 	memset (&option, 0, sizeof (option));
 	option[0].optionString = _OptionClassPath (&settings);
 	option[1].optionString = _OptionFudgeAnnotationCache (&settings);
+#ifdef _DEBUG
+	option[2].optionString = (char*)"-Dservice.debug=true";
+#else
+	option[2].optionString = (char*)"-Dservice.ndebug=true";
+#endif
 	// TODO [XLS-187] additional option strings from registry
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
 	args.options = option;
-	args.nOptions = 2;
+	args.nOptions = 3;
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
 	if (option[0].optionString) {
@@ -274,43 +275,23 @@ CJVM *CJVM::Create () {
 		delete poLibrary;
 		return NULL;
 	}
-#ifdef _WIN32
-	HMODULE hModule;
-	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Java_com_opengamma_excel_connector_Main_notifyStop, &hModule)) {
-		LOGWARN (TEXT ("Couldn't get current module handle, error ") << GetLastError ());
+	LOGDEBUG (TEXT ("Registering native methods"));
+	JNINativeMethod methods[2] = {
+		{ "notifyPause", "()V", (void*)&_notifyPause },
+		{ "notifyStop", "()V", (void*)&_notifyStop }
+	};
+	jclass cls = pEnv->FindClass (MAIN_CLASS);
+	if (!cls) {
+		LOGWARN (TEXT ("Couldn't find class ") << TEXT (MAIN_CLASS));
 		delete pJvm;
 		return NULL;
 	}
-	TCHAR szFilename[MAX_PATH];
-	if (!GetModuleFileName (hModule, szFilename, MAX_PATH)) {
-		LOGWARN (TEXT ("Couldn't get current module filename, error ") << GetLastError ());
-		delete pJVM;
+	err = pEnv->RegisterNatives (cls, methods, 2);
+	if (err) {
+		LOGWARN (TEXT ("Couldn't register native methods, error ") << err);
+		delete pJvm;
 		return NULL;
 	}
-	if (!_tcsncmp (szFilename, TEXT ("\\\\?\\UNC\\"), 8)) {
-		LOGDEBUG (TEXT ("Removing \\\\?\\UNC\\ prefix from filename"));
-		memmove (szFilename + 2, szFilename + 8, (_tcslen (szFilename + 8) + 1) * sizeof (TCHAR));
-	} else if (!_tcsncmp (szFilename, TEXT ("\\\\?\\"), 4)) {
-		LOGDEBUG (TEXT ("Removing \\\\?\\ prefix from filename"));
-		memmove (szFilename, szFilename + 4, (_tcslen (szFilename + 4) + 1) * sizeof (TCHAR));
-	}
-#else
-	TCHAR szFilename[256] = TEXT ("");
-	TODO (TEXT ("POSIX equivialent of getting the module name"));
-#endif
-	pEnv->PushLocalFrame (1);
-#ifdef _UNICODE
-	jstring jsPath = pEnv->NewString ((jchar*)szFilename, wcslen (szFilename));
-#else
-	jstring jsPath = pEnv->NewStringUTF (szFilename);
-#endif
-	LOGDEBUG (TEXT ("Injecting library reference ") << szFilename << TEXT (" into JVM"));
-	if (pJvm->Invoke (pEnv, "svcInitialise", "(Ljava/lang/String;)Z", jsPath)) {
-		LOGINFO (TEXT ("JVM ready"));
-	} else {
-		LOGERROR (TEXT ("Error initialising native library within JVM"));
-	}
-	pEnv->PopLocalFrame (NULL);
 	return pJvm;
 }
 
