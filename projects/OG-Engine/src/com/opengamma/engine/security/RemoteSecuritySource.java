@@ -76,7 +76,7 @@ public class RemoteSecuritySource implements SecuritySource {
   @Override
   public Security getSecurity(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    final RestTarget target = _targetBase.resolveBase("securities").resolveBase("security").resolve(uid.toString());
+    final RestTarget target = _targetBase.resolveBase("security").resolve(uid.toString());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
@@ -105,7 +105,7 @@ public class RemoteSecuritySource implements SecuritySource {
   @Override
   public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
     ArgumentChecker.notNull(issuerType, "issuerType");
-    final RestTarget target = _targetBase.resolveBase("securities").resolve("bonds").resolveQuery("issuerType", Collections.singletonList(issuerType));
+    final RestTarget target = _targetBase.resolve("bonds").resolveQuery("issuerType", Collections.singletonList(issuerType));
     final FudgeFieldContainer message = getRestClient().getMsg(target);
     final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());

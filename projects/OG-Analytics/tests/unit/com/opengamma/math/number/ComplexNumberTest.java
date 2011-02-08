@@ -52,8 +52,10 @@ public class ComplexNumberTest {
     assertEquals(Z1, Z2);
     assertEquals(Z1.hashCode(), Z2.hashCode());
     assertEquals("1.0 + 2.0i", Z1.toString());
-    assertEquals("1.0", new ComplexNumber(1, 0).toString());
-    assertEquals("2.3i", new ComplexNumber(0, 2.3).toString());
+    assertEquals("1.0 + 0.0i", new ComplexNumber(1, 0).toString());
+    assertEquals("0.0 + 2.3i", new ComplexNumber(0, 2.3).toString());
+    assertEquals("-1.0 + 0.0i", new ComplexNumber(-1, 0).toString());
+    assertEquals("0.0 - 2.3i", new ComplexNumber(0, -2.3).toString());
     assertFalse(Z1.equals(Z3));
     assertFalse(Z1.equals(Z4));
     assertFalse(Z1.equals(Z5));

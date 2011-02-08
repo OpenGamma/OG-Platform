@@ -56,7 +56,7 @@ public class NodeSensitivityCalculator {
     return curveToNodeSensitivities(senseMap, interpolatedCurves);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSenitivities, final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.keySet()) { // loop over all curves (by name)
@@ -97,7 +97,7 @@ public class NodeSensitivityCalculator {
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve yieldCurve) {
     if (!(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");

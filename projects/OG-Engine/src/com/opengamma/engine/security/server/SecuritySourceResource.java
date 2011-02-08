@@ -86,7 +86,7 @@ public class SecuritySourceResource {
    * @return the security, null if not found
    */
   @GET
-  @Path("securities/security/{uid}")
+  @Path("security/{uid}")
   public FudgeMsgEnvelope getSecurity(@PathParam("uid") String uidStr) {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
@@ -97,11 +97,11 @@ public class SecuritySourceResource {
 
   /**
    * RESTful method to get all bonds of a specific issuer type
-   * @param issuerType the issuer type
+   * @param itStrs the issuer type
    * @return the securities, null if not found
    */
   @GET
-  @Path("securities")
+  @Path("bonds")
   public FudgeMsgEnvelope getAllBondsOfIssuerType(@QueryParam("issuerType") List<String> itStrs) {
     ArgumentChecker.notEmpty(itStrs, "issuerTypes");
     ArgumentChecker.isTrue(itStrs.size() == 1, "more or less than one parameter");
@@ -120,7 +120,7 @@ public class SecuritySourceResource {
    * @return the securities, null if not found
    */
   @GET
-  @Path("securities/bonds")
+  @Path("securities")
   public FudgeMsgEnvelope getSecurities(@QueryParam("id") List<String> idStrs) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
     IdentifierBundle bundle = IdentifierBundle.EMPTY;

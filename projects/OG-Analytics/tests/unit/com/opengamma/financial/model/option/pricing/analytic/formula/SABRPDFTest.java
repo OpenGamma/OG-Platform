@@ -98,7 +98,6 @@ public class SABRPDFTest {
     double[] impliedVol3 = new double[n];
     double[] impliedVol4 = new double[n];
     double[] impliedVol5 = new double[n];
-    double[] price = new double[n];
     double[] pdf1 = new double[n];
     double[] pdf2 = new double[n];
     double[] pdf3 = new double[n];

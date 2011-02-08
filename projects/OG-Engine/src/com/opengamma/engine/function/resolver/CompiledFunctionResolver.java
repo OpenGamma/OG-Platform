@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function.resolver;
 
-import java.util.List;
+import java.util.Iterator;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
@@ -30,6 +30,6 @@ public interface CompiledFunctionResolver {
    * @return the function(s) found
    * @throws UnsatisfiableDependencyGraphException if there is a problem
    */
-  List<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
+  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
   
 }

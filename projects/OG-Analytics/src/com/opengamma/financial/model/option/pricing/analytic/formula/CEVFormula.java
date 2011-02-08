@@ -54,14 +54,13 @@ public class CEVFormula {
         return discountFactor * (f * (1 - chiSq1.getCDF(a)) - k * chiSq2.getCDF(c));
       }
       return discountFactor * (k * (1 - chiSq2.getCDF(c)) - f * chiSq1.getCDF(a));
-    } else {
-      NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(-b, a);
-      NonCentralChiSquareDistribution chiSq2 = new NonCentralChiSquareDistribution(2 - b, c);
-      if (isCall) {
-        return discountFactor * (f * (1 - chiSq1.getCDF(c)) - k * chiSq2.getCDF(a));
-      }
-      return discountFactor * (k * (1 - chiSq2.getCDF(a)) - f * chiSq1.getCDF(c));
+    } 
+    NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(-b, a);
+    NonCentralChiSquareDistribution chiSq2 = new NonCentralChiSquareDistribution(2 - b, c);
+    if (isCall) {
+      return discountFactor * (f * (1 - chiSq1.getCDF(c)) - k * chiSq2.getCDF(a));
     }
+    return discountFactor * (k * (1 - chiSq2.getCDF(a)) - f * chiSq1.getCDF(c));    
   }
 
 }

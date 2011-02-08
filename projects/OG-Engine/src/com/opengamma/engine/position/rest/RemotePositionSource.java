@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.position.rest;
@@ -14,6 +14,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.WebResource.Builder;
@@ -42,11 +43,15 @@ public class RemotePositionSource implements PositionSource {
     _client = FudgeRestClient.create();
   }
 
-  //-------------------------------------------------------------------------
+  public RemotePositionSource(final RestTarget restTarget) {
+    this(restTarget.getURI().resolve("../.."));
+  }
+
+  // -------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    
+
     URI uri = DataPositionSourceResource.uriPortfolio(_baseUri, uid);
     return accessRemote(uri).get(Portfolio.class);
   }
@@ -54,7 +59,7 @@ public class RemotePositionSource implements PositionSource {
   @Override
   public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    
+
     URI uri = DataPositionSourceResource.uriNode(_baseUri, uid);
     return accessRemote(uri).get(PortfolioNode.class);
   }
@@ -62,7 +67,7 @@ public class RemotePositionSource implements PositionSource {
   @Override
   public Position getPosition(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    
+
     URI uri = DataPositionSourceResource.uriPosition(_baseUri, uid);
     return accessRemote(uri).get(Position.class);
   }
@@ -70,12 +75,12 @@ public class RemotePositionSource implements PositionSource {
   @Override
   public Trade getTrade(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
-    
+
     URI uri = DataPositionSourceResource.uriTrade(_baseUri, uid);
     return accessRemote(uri).get(Trade.class);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Accesses the remote object.
    * 
@@ -97,7 +102,7 @@ public class RemotePositionSource implements PositionSource {
     return _client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
   }
 
-  //-------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   /**
    * Returns a string summary of this object.
    * 

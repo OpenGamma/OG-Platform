@@ -76,29 +76,29 @@ public class InterpolatorNDTestCase {
     }
   }
 
-  protected <T extends InterpolatorNDDataBundle> void printFlat(InterpolatorND<T> interpolator, T dataBundle) {
-
-    // printout
-    double[] x = new double[3];
-    x[2] = 5.0;
-    System.out.print("\t");
-    for (int j = 0; j < 99; j++) {
-      System.out.print(j / 10.0 + "\t");
-    }
-    System.out.print(99 / 10.0 + "\n");
-
-    for (int i = 0; i < 100; i++) {
-      System.out.print(i / 10.0 + "\t");
-      x[0] = i / 10.0;
-      for (int j = 0; j < 100; j++) {
-        x[1] = j / 10.0;
-        double fit = interpolator.interpolate(dataBundle, x);
-
-        System.out.print(fit + "\t");
-      }
-      System.out.print("\n");
-    }
-  }
+  // protected <T extends InterpolatorNDDataBundle> void printFlat(InterpolatorND<T> interpolator, T dataBundle) {
+  //
+  // // printout
+  // double[] x = new double[3];
+  // x[2] = 5.0;
+  // System.out.print("\t");
+  // for (int j = 0; j < 99; j++) {
+  // System.out.print(j / 10.0 + "\t");
+  // }
+  // System.out.print(99 / 10.0 + "\n");
+  //
+  // for (int i = 0; i < 100; i++) {
+  // System.out.print(i / 10.0 + "\t");
+  // x[0] = i / 10.0;
+  // for (int j = 0; j < 100; j++) {
+  // x[1] = j / 10.0;
+  // double fit = interpolator.interpolate(dataBundle, x);
+  //
+  // System.out.print(fit + "\t");
+  // }
+  // System.out.print("\n");
+  // }
+  // }
 
   protected <T extends InterpolatorNDDataBundle> void testCosExp(InterpolatorND<T> interpolator, T dataBundle, double tol) {
     double x1, x2;
@@ -112,23 +112,23 @@ public class InterpolatorNDTestCase {
     }
   }
 
-  protected <T extends InterpolatorNDDataBundle> void printSwaptionData(InterpolatorND<T> interpolator, T dataBundle) {
-    double[] x = new double[2];
-    for (int j = 0; j < 101; j++) {
-      System.out.print("\t" + j / 5.0);
-    }
-    System.out.print("\n");
-
-    for (int i = 0; i < 76; i++) {
-      System.out.print(i / 5.0);
-      x[0] = i / 5.0;
-      for (int j = 0; j < 101; j++) {
-        x[1] = j / 5.0;
-        double fit = interpolator.interpolate(dataBundle, x);
-
-        System.out.print("\t" + fit);
-      }
-      System.out.print("\n");
-    }
-  }
+  // protected <T extends InterpolatorNDDataBundle> void printSwaptionData(InterpolatorND<T> interpolator, T dataBundle) {
+  // double[] x = new double[2];
+  // for (int j = 0; j < 101; j++) {
+  // System.out.print("\t" + j / 5.0);
+  // }
+  // System.out.print("\n");
+  //
+  // for (int i = 0; i < 76; i++) {
+  // System.out.print(i / 5.0);
+  // x[0] = i / 5.0;
+  // for (int j = 0; j < 101; j++) {
+  // x[1] = j / 5.0;
+  // double fit = interpolator.interpolate(dataBundle, x);
+  //
+  // System.out.print("\t" + fit);
+  // }
+  // System.out.print("\n");
+  // }
+  // }
 }

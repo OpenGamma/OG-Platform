@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,36 +43,44 @@ import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConver
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.interestrate.LastDateCalculator;
-import com.opengamma.financial.interestrate.NelsonSiegelBondCurveModel;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.minimization.NullTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
  */
-public class NelsonSiegelBondCurveFunction extends AbstractFunction {
+public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   /** Name of the property type*/
-  public static final String PROPERTY_CURVE_CALCULATION_TYPE = "Nelson_Siegel_Bond_Curve";
+  public static final String PROPERTY_CURVE_CALCULATION_TYPE = "Nelson_Siegel_Svennson_Bond_Curve";
   /** Name of the property*/
-  public static final String PROPERTY_PREFIX = "Nelson-Siegel";
-  private static final Logger s_logger = LoggerFactory.getLogger(NelsonSiegelBondCurveFunction.class);
-  private static final NelsonSiegelSvennsonBondCurveModel MODEL = new NelsonSiegelSvennsonBondCurveModel();
+  public static final String PROPERTY_PREFIX = "Nelson-Siegel-Svennson";
+  private static final Logger s_logger = LoggerFactory.getLogger(NelsonSiegelSvenssonBondCurveFunction.class);
   private static final NonLinearLeastSquare MINIMISER = new NonLinearLeastSquare();
   private static final LastDateCalculator LAST_DATE = LastDateCalculator.getInstance();
+  private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
+      new NullTransform(), new NullTransform(), new NullTransform()};
+  private static final BitSet FIXED_PARAMETERS = new BitSet(6);
+
+  static {
+    FIXED_PARAMETERS.set(0);
+  }
+
   private final Currency _currency;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
 
-  public NelsonSiegelBondCurveFunction(final String currencyName) {
+  public NelsonSiegelSvenssonBondCurveFunction(final String currencyName) {
     Validate.notNull(currencyName, "currency name");
     _currency = Currency.getInstance(currencyName);
   }
@@ -82,14 +91,14 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _result = new ValueSpecification(ValueRequirementNames.NS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _currency.getUniqueId()), createValueProperties().with(PROPERTY_CURVE_CALCULATION_TYPE,
-        PROPERTY_PREFIX + "_" + _currency.getISOCode()).get());
+    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _currency.getUniqueId()), createValueProperties().with(
+        PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + _currency.getISOCode()).get());
     _results = Sets.newHashSet(_result);
   }
 
   @Override
   public String getShortName() {
-    return "NelsonSiegelBondCurveFunction";
+    return "NelsonSiegelSvennsonBondCurveFunction";
   }
 
   @Override
@@ -104,14 +113,14 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
         final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
         final BondSecurityToBondDefinitionConverter converter = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource);
         final Collection<Security> allBonds = new ArrayList<Security>(executionContext.getSecuritySource().getAllBondsOfIssuerType("US TREASURY N/B"));
-        Iterator<Security> iter = allBonds.iterator();
+        final Iterator<Security> iter = allBonds.iterator();
         while (iter.hasNext()) {
-          Security sec = iter.next();
+          final Security sec = iter.next();
           if (sec instanceof BondSecurity) {
-            BondSecurity bond = (BondSecurity) sec;
+            final BondSecurity bond = (BondSecurity) sec;
             if (bond.getLastTradeDate().getExpiry().toLocalDate().isBefore(now)) {
               iter.remove();
-            }           
+            }
             s_logger.info(bond.getLastTradeDate().toString());
           } else {
             throw new OpenGammaRuntimeException("non-bond security " + sec + " returned by getAllBondsOfIssuerType()");
@@ -122,7 +131,7 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
         final double[] ytm = new double[n];
         int i = 0;
         for (final Security security : allBonds) {
-          BondSecurity bondSec = (BondSecurity) security;
+          final BondSecurity bondSec = (BondSecurity) security;
           final Object ytmObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YTM, ComputationTargetType.SECURITY, security.getUniqueId()));
           if (ytmObject == null) {
             s_logger.warn("Could not get YTM for " + security.getUniqueId());
@@ -134,24 +143,15 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
           final BondDefinition definition = converter.getBond(bondSec, true);
           final Bond bond = definition.toDerivative(now, PROPERTY_PREFIX + "_" + _currency.getISOCode());
           t[i] = LAST_DATE.visit(bond);
-          ytm[i++] = (Double) ytmObject;  
+          ytm[i++] = ((Double) ytmObject / 100);
         }
-        final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = MODEL.getParameterizedFunction();
-        final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3}));
-        final DoubleMatrix1D parameters = result.getParameters();
-        final Function1D<Double, Double> function = parameterizedFunction.asFunctionOfArguments(parameters);
+        final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3});
+        final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(initialValues);
+        final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = model.getParameterizedFunction();
+        final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, model.getTransform().transform(initialValues));
+        final DoubleMatrix1D parameters = model.getTransform().inverseTransform(result.getParameters());
+        final NelsonSiegelSvennsonBondCurveModel function = new NelsonSiegelSvennsonBondCurveModel(parameters);
         final FunctionalDoublesCurve curve = FunctionalDoublesCurve.from(function);
-        final StringBuilder sb = new StringBuilder();
-        sb.append("NelsonSiegelBondCurve[\n");
-        ParallelArrayBinarySort.parallelBinarySort(t, ytm);
-        for (int j=0; j<n; j++) {
-          sb.append(t[j]);
-          sb.append("\t");
-          sb.append(curve.getYValue(t[j]));
-          sb.append("\n");
-        }
-        sb.append("]\n");
-        s_logger.warn(sb.toString());
         final YieldCurve yieldCurve = new YieldCurve(curve);
         return Sets.newHashSet(new ComputedValue(_result, yieldCurve));
       }
@@ -173,14 +173,14 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
           final Collection<Security> allBonds = new ArrayList<Security>(context.getSecuritySource().getAllBondsOfIssuerType("US TREASURY N/B"));
-          Iterator<Security> iter = allBonds.iterator();
+          final Iterator<Security> iter = allBonds.iterator();
           while (iter.hasNext()) {
-            Security sec = iter.next();
+            final Security sec = iter.next();
             if (sec instanceof BondSecurity) {
-              BondSecurity bond = (BondSecurity) sec;
+              final BondSecurity bond = (BondSecurity) sec;
               if (bond.getLastTradeDate().getExpiry().toInstant().isBefore(atInstant.toInstant())) {
                 iter.remove();
-              }           
+              }
               s_logger.info(bond.getLastTradeDate().toString());
             } else {
               throw new OpenGammaRuntimeException("non-bond security " + sec + " returned by getAllBondsOfIssuerType()");
@@ -189,7 +189,7 @@ public class NelsonSiegelBondCurveFunction extends AbstractFunction {
           final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
           for (final Security sec : allBonds) {
             if (sec instanceof BondSecurity) {
-              BondSecurity bond = (BondSecurity) sec;
+              final BondSecurity bond = (BondSecurity) sec;
               if (!bond.getCurrency().equals(_currency)) {
                 throw new OpenGammaRuntimeException("Currency for bond " + bond.getUniqueId() + " (" + bond.getCurrency() + ") did not match that required (" + _currency + ")");
               }

@@ -60,7 +60,8 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * A continuous frequency, with a period of zero.
    */
-  public static final Map<PeriodFrequency, PeriodFrequency> s_cache = ImmutableMap.<PeriodFrequency, PeriodFrequency> builder().put(ANNUAL, ANNUAL).put(SEMI_ANNUAL, SEMI_ANNUAL).put(QUARTERLY,
+  public static final Map<PeriodFrequency, PeriodFrequency> s_cache = 
+    ImmutableMap.<PeriodFrequency, PeriodFrequency>builder().put(ANNUAL, ANNUAL).put(SEMI_ANNUAL, SEMI_ANNUAL).put(QUARTERLY,
       QUARTERLY).put(BIMONTHLY, BIMONTHLY).put(MONTHLY, MONTHLY).put(BIWEEKLY, BIWEEKLY).put(WEEKLY, WEEKLY).put(DAILY, DAILY).put(CONTINUOUS, CONTINUOUS).build();
 
   /**

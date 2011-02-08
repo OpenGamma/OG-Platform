@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
 /**
@@ -38,8 +41,8 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
   @Test
   public void test() {
     for (int i = 0; i < 10; i++) {
-      double x = A + (B - A) * RANDOM.nextDouble();
-      double y = 5 * NORMAL.nextRandom();
+      final double x = A + (B - A) * RANDOM.nextDouble();
+      final double y = 5 * NORMAL.nextRandom();
       testRoundTrip(RANGE_LIMITS, x);
       testReverseRoundTrip(RANGE_LIMITS, y);
 
@@ -50,4 +53,14 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
     }
   }
 
+  @Test
+  public void testHashCodeAndEquals() {
+    ParameterLimitsTransform other = new DoubleRangeLimitTransform(A, B);
+    assertEquals(other, RANGE_LIMITS);
+    assertEquals(other.hashCode(), RANGE_LIMITS.hashCode());
+    other = new DoubleRangeLimitTransform(A - 1, B);
+    assertFalse(other.equals(RANGE_LIMITS));
+    other = new DoubleRangeLimitTransform(A, B + 1);
+    assertFalse(other.equals(RANGE_LIMITS));
+  }
 }
