@@ -9,6 +9,9 @@
 // Runtime configuration options
 
 #include "Settings.h"
+#ifdef _WIN32
+#include <Util/DllVersion.h>
+#endif /* ifdef _WIN32 */
 
 LOGGING(com.opengamma.language.service.Settings);
 
@@ -174,9 +177,8 @@ unsigned long CSettings::GetConnectionTimeout () {
 
 static bool _GetExecutableName (TCHAR *pszBuffer, size_t cchBuffer) {
 #ifdef _WIN32
-	HMODULE hModule;
-	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
-		LOGWARN (TEXT ("Couldn't get module handle, error ") << GetLastError ());
+	HMODULE hModule = CDllVersion::GetCurrentModule ();
+	if (!hModule) {
 		return false;
 	}
 	if (!GetModuleFileName (hModule, pszBuffer, cchBuffer)) {

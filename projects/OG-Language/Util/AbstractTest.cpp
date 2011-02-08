@@ -34,7 +34,7 @@ void CAbstractTest::Main () {
 	int nTest;
 	InitialiseLogs ();
 	for (nTest = 0; nTest < g_nTests; nTest++) {
-		LOGINFO (TEXT ("Running test ") << nTest);
+		LOGINFO (TEXT ("Running test ") << (nTest + 1));
 		g_poTests[nTest]->BeforeAll ();
 		g_poTests[nTest]->Run ();
 		g_poTests[nTest]->AfterAll ();

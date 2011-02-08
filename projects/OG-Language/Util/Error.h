@@ -40,6 +40,8 @@ static int NativeGetLastError () {
 #define ENOENT			ERROR_FILE_NOT_FOUND
 #undef ETIMEDOUT
 #define ETIMEDOUT		ERROR_TIMEOUT
+#undef EALREADY
+#define EALREADY		ERROR_INVALID_STATE
 #endif /* ifdef _WIN32 */
 
 #endif /* ifndef __inc_og_language_util_error_h */

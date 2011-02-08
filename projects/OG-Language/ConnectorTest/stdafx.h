@@ -19,6 +19,13 @@
 #include <stdlib.h>
 #endif
 
+#include <assert.h>
+
 #include <Util/AbstractTest.h>
+#include <Util/Fudge.h>
+#include <Util/Logging.h>
+#include <Util/NamedPipe.h>
+#include <Util/Semaphore.h>
+#include <Util/Thread.h>
 
 #endif /* ifndef __inc_og_language_connectortest_stdafx_h */

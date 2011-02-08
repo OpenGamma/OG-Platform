@@ -34,6 +34,6 @@ static void Defaults () {
 #endif /* ifdef _WIN32 */
 }
 
-BEGIN_TESTS (SettingsTest)
+BEGIN_TESTS (ServiceSettingsTest)
 	TEST (Defaults);
 END_TESTS
