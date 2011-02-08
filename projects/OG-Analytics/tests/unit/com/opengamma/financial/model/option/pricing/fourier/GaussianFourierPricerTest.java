@@ -60,16 +60,16 @@ public class GaussianFourierPricerTest {
   @Test
   public void testIntergrad() {
     EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(CEF, 0.5, FORWARD, 1.1 * FORWARD, T, false, 0.15);
-    for (int i = 0; i < 100; i++) {
-      double x = -0. + i * 1000. / 100.0;
-      ComplexNumber res = intergrand.getIntegrand(x);
-      System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
-    }
-    for (int i = 0; i < 101; i++) {
-      double x = 1000. + i * 10000. / 100.0;
-      ComplexNumber res = intergrand.getIntegrand(x);
-      System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
-    }
+    // for (int i = 0; i < 100; i++) {
+    // double x = -0. + i * 1000. / 100.0;
+    // ComplexNumber res = intergrand.getIntegrand(x);
+    // System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
+    // }
+    // for (int i = 0; i < 101; i++) {
+    // double x = 1000. + i * 10000. / 100.0;
+    // ComplexNumber res = intergrand.getIntegrand(x);
+    // System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
+    // }
   }
 
 }

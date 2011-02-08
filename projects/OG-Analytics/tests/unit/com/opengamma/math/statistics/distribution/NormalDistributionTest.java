@@ -33,15 +33,6 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
   }
 
   @Test
-  public void testLowValues() {
-    for (int i = 0; i < 101; i++) {
-      double x = -8.5 + 1.5 * i / 100.;
-      double p = NORMAL.getCDF(x);
-      System.out.println(x + "\t" + p);
-    }
-  }
-
-  @Test
   public void testRoundTrip() {
     for (int i = 0; i < 51; i++) {
       double x = -37.0 + 44 * i / 50.;
