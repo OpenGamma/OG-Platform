@@ -90,9 +90,9 @@ public:
 			time (&ts.tv_sec);
 			ts.tv_sec += timeout / 1000;
 			ts.tv_nsec = (timeout % 1000) * 1000000;
-			return PosixLastError (sem_timedwait (&m_semaphore, &ts));
+			return !sem_timedwait (&m_semaphore, &ts);
 		} else {
-			return PosixLastError (sem_wait (&m_semaphore));
+			return !sem_wait (&m_semaphore);
 		}
 #endif
 	}

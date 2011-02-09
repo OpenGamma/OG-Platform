@@ -240,7 +240,6 @@ CNamedPipe *CNamedPipe::Accept (unsigned long timeout) {
 	return poClient;
 #else
 	struct sockaddr_un addr;
-	socklen_t len = sizeof (addr);
 	bool bLazyWait = false;
 	if (IsLazyClosing ()) {
 		bLazyWait = true;
@@ -248,7 +247,10 @@ CNamedPipe *CNamedPipe::Accept (unsigned long timeout) {
 	}
 timeoutOperation:
 	SetTimeout (timeout);
+	socklen_t len = sizeof (addr);
+	LOGDEBUG (TEXT ("Before call to accept"));
 	int sock = accept (GetFile (), (struct sockaddr*)&addr, &len);
+	LOGDEBUG (TEXT ("After call to accept"));
 	CancelTimeout ();
 	if (sock < 0) {
 		int ec = GetLastError ();
