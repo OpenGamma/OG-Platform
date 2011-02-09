@@ -6,6 +6,7 @@
 package com.opengamma.livedata.entitlement;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -43,11 +44,11 @@ public class EntitlementServer implements FudgeRequestReceiver {
     EntitlementRequest entitlementRequest = EntitlementRequest.fromFudgeMsg(context, requestFudgeMsg);
     s_logger.debug("Received entitlement request {}", entitlementRequest);
     
+    Map<LiveDataSpecification, Boolean> isEntitledMap = _delegate.isEntitled(entitlementRequest.getUser(), entitlementRequest.getLiveDataSpecifications());
+    
     ArrayList<EntitlementResponse> responses = new ArrayList<EntitlementResponse>();
     for (LiveDataSpecification spec : entitlementRequest.getLiveDataSpecifications()) {
-      
-      boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), spec);
-      
+      boolean isEntitled = isEntitledMap.get(spec);
       EntitlementResponse response;
       if (isEntitled) {
         response = new EntitlementResponse(spec, true);

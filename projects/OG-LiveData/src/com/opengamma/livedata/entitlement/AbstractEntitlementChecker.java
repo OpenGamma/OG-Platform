@@ -6,6 +6,7 @@
 package com.opengamma.livedata.entitlement;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,9 +15,23 @@ import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Makes implementing {@link LiveDataEntitlementChecker} easier.
+ * <p>
+ * You must override one or other of the two {@code isEntitled()} methods.
+ * <p>
+ * Override the individual {@link #isEntitled(UserPrincipal, LiveDataSpecification)} if you just want an easy life.
+ * <p> 
+ * Override the bulk {@link #isEntitled(UserPrincipal, Collection)} if you need to make a remote call
+ * to an external service and want your implementation to be efficient.
+
  * Implements {@link #isEntitled(UserPrincipal, Collection)} so you don't need to.
  */
 public abstract class AbstractEntitlementChecker implements LiveDataEntitlementChecker {
+  
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    Map<LiveDataSpecification, Boolean> result = isEntitled(user, Collections.singleton(requestedSpecification));
+    return result.get(requestedSpecification);
+  }
   
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
