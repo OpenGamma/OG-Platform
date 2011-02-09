@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument;
@@ -27,6 +27,7 @@ import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.irfuture.IRFutureConvention;
 import com.opengamma.financial.instrument.irfuture.IRFutureDefinition;
+import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.SwapConvention;
@@ -52,6 +53,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final FloatingSwapLegDefinition FLOATING_SWAP_LEG = new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.04, SWAP_CONVENTION);
   private static final FRADefinition FRA = new FRADefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2012, 1, 1), 0.02, SWAP_CONVENTION);
   private static final IRFutureDefinition IR_FUTURE = new IRFutureDefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 4, 1), 95, IRF_CONVENTION);
+  private static final FixedFloatSwapDefinition FIXED_FLOAT_SWAP = new FixedFloatSwapDefinition(FIXED_SWAP_LEG, FLOATING_SWAP_LEG);
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
 
@@ -74,6 +76,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(FRA.accept(VISITOR, o), "FRA1");
     assertEquals(IR_FUTURE.accept(VISITOR), "IRFuture2");
     assertEquals(IR_FUTURE.accept(VISITOR, o), "IRFuture1");
+    assertEquals(FIXED_FLOAT_SWAP.accept(VISITOR), "FixedFloatSwap2");
+    assertEquals(FIXED_FLOAT_SWAP.accept(VISITOR, o), "FixedFloatSwap1");
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
@@ -166,6 +170,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitIRFutureDefinition(final IRFutureDefinition irFuture) {
       return "IRFuture2";
+    }
+
+    @Override
+    public String visitFixedFloatSwapDefinition(final FixedFloatSwapDefinition swap, final T data) {
+      return "FixedFloatSwap1";
+    }
+
+    @Override
+    public String visitFixedFloatSwapDefinition(final FixedFloatSwapDefinition swap) {
+      return "FixedFloatSwap2";
     }
 
   }

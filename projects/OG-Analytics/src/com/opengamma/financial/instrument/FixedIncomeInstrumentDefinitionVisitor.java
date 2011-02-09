@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument;
@@ -11,6 +11,7 @@ import com.opengamma.financial.instrument.bond.BondFutureDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.irfuture.IRFutureDefinition;
+import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
 
@@ -56,4 +57,8 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitIRFutureDefinition(IRFutureDefinition irFuture, T data);
 
   U visitIRFutureDefinition(IRFutureDefinition irFuture);
+
+  U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap, T data);
+
+  U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap);
 }
