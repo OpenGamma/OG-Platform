@@ -74,7 +74,6 @@
 			</bean>
     	</property>
     	<property name="messageListener" ref="subscriptionRequestJmsReceiver" />
-    	<property name="autoStartup" value="false" />
 	</bean>
 
 	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -106,7 +105,6 @@
 			</bean>
     	</property>
     	<property name="messageListener" ref="heartbeatJmsReceiver" />
-    	<property name="autoStartup" value="false" />
 	</bean>
 	
 	<bean id="mongoDBSettings" class="com.opengamma.util.MongoDBConnectionSettings">
@@ -134,7 +132,6 @@
 			</bean>
     	</property>
     	<property name="messageListener" ref="entitlementRequestJmsReceiver" />
-    	<property name="autoStartup" value="false" />
 	</bean>
 	
 	<bean id="entitlementRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
