@@ -9,6 +9,8 @@
 
 // Manages and communicates with the Java client
 
+#include "Pipes.h"
+
 enum ClientServiceState {
 	STARTING,
 	RUNNING,
@@ -37,11 +39,15 @@ private:
 	CMutex m_oState;
 	CMutex m_oStop;
 	ClientServiceState m_eState;
+	CMutex m_oStateChange;
 	CStateChange *m_poStateChangeCallback;
+	CMutex m_oMessageReceived;
 	CMessageReceived *m_poMessageReceivedCallback;
 	CThread *m_poRunner;
+	CClientPipes *m_poPipes;
 	// Private constructor - stops stack allocation
 	CClientService ();
+	~CClientService ();
 	// Thread runner callbacks
 	bool ClosePipes ();
 	bool ConnectPipes ();
@@ -53,7 +59,6 @@ private:
 public:
 	// Creation
 	static CClientService *Create () { return new CClientService (); }
-	~CClientService ();
 	void Retain () { m_oRefCount.IncrementAndGet (); }
 	static void Release (CClientService *poClientService) { if (!poClientService->m_oRefCount.DecrementAndGet ()) delete poClientService; }
 	// Control

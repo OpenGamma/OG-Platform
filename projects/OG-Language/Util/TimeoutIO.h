@@ -52,7 +52,7 @@ public:
 // This is perhaps a dump place for this
 #ifndef _WIN32
 #include <apr-1/apr_time.h>
-#define GetTickCount()	apr_time_msec (apr_time_now ())
+#define GetTickCount()	apr_time_as_msec (apr_time_now ())
 #endif
 
 #endif /* ifndef __inc_og_language_util_timeoutio_h */

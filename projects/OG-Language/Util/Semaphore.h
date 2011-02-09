@@ -34,8 +34,10 @@ public:
 	CSemaphore (int nInitialValue = 0, int nMaxValue = MAX_SEMAPHORE_COUNT) {
 #ifdef _WIN32
 		m_hSemaphore = CreateSemaphore (NULL, nInitialValue, nMaxValue, NULL);
+		assert (m_hSemaphore);
 #else
 		if (sem_init (&m_semaphore, 0, nInitialValue)) {
+			assert (0);
 			memset (&m_semaphore, 0, sizeof (m_semaphore));
 			m_nMaxValue = 0;
 		} else {

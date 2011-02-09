@@ -88,6 +88,7 @@
     <ClCompile Include="AlertTest.cpp" />
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="ConnectorTest.cpp" />
+    <ClCompile Include="PipesTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

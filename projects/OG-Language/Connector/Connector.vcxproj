@@ -84,6 +84,7 @@
     <ClInclude Include="com_opengamma_language_connector_UserMessagePayload.h" />
     <ClInclude Include="com_opengamma_language_Data.h" />
     <ClInclude Include="com_opengamma_language_Value.h" />
+    <ClInclude Include="Pipes.h" />
     <ClInclude Include="Public.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
@@ -112,6 +113,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Connector.cpp" />
+    <ClCompile Include="Pipes.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

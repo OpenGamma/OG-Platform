@@ -17,8 +17,7 @@ LOGGING(com.opengamma.language.util.DllVersion);
 CDllVersion::CDllVersion () {
 #ifdef _WIN32
 	m_pData = NULL;
-	HMODULE hModule = GetCurrentModule ();
-	if (hModule) Init (hModule);
+	Init (GetCurrentModule ());
 #endif /* ifdef _WIN32 */
 }
 
@@ -33,6 +32,7 @@ CDllVersion::CDllVersion (PCTSTR pszModule) {
 }
 
 void CDllVersion::Init (HMODULE hModule) {
+	assert (hModule);
 	m_pData = NULL;
 	PTSTR pszPath = new TCHAR[MAX_PATH];
 	if (GetModuleFileName (hModule, pszPath, MAX_PATH) != 0) {
@@ -44,6 +44,7 @@ void CDllVersion::Init (HMODULE hModule) {
 }
 
 void CDllVersion::Init (PCTSTR pszModule) {
+	assert (pszModule);
 	DWORD cbVersionInfo = GetFileVersionInfoSize (pszModule, NULL);
 	if (cbVersionInfo != 0) {
 		m_pData = new BYTE[cbVersionInfo];

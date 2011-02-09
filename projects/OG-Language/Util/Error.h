@@ -34,14 +34,16 @@ static int NativeGetLastError () {
 
 #ifdef _WIN32
 // Don't use POSIX compatible calls, so replace the POSIX names with Win32 error codes
+#undef EALREADY
+#define EALREADY		ERROR_INVALID_STATE
 #undef ECANCELED
 #define ECANCELED		ERROR_CANCELLED
+#undef EINVAL
+#define EINVAL			ERROR_INVALID_PARAMETER
 #undef ENOENT
 #define ENOENT			ERROR_FILE_NOT_FOUND
 #undef ETIMEDOUT
 #define ETIMEDOUT		ERROR_TIMEOUT
-#undef EALREADY
-#define EALREADY		ERROR_INVALID_STATE
 #endif /* ifdef _WIN32 */
 
 #endif /* ifndef __inc_og_language_util_error_h */

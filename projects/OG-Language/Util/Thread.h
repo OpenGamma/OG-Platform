@@ -42,6 +42,15 @@ private:
 	CMemoryPool m_oPool;
 	static void *APR_THREAD_FUNC StartProc (apr_thread_t *handle, void *pObject);
 #endif
+protected:
+	~CThread () {
+		assert (m_oRefCount.Get () == 0);
+#ifdef _WIN32
+		if (m_hThread) CloseHandle (m_hThread);
+#else
+		if (m_pThread) apr_thread_detach (m_pThread);
+#endif
+	}
 public:
 	CThread () : IRunnable () {
 		m_oRefCount.Set (1);
@@ -49,14 +58,6 @@ public:
 		m_hThread = NULL;
 #else
 		m_pThread = NULL;
-#endif
-	}
-	~CThread () {
-		assert (m_oRefCount.Get () == 0);
-#ifdef _WIN32
-		if (m_hThread) CloseHandle (m_hThread);
-#else
-		if (m_pThread) apr_thread_detach (m_pThread);
 #endif
 	}
 	void Retain () {

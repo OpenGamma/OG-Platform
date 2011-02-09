@@ -67,8 +67,8 @@ static bool _EnableImpl () {
 		return false;
 	}
 	LOGDEBUG (TEXT ("Enabling user alerts"));
-	CDllVersion version;
 #ifdef _WIN32
+	CDllVersion version;
 	NOTIFYICONDATA nid;
 	_InitialiseNID (&nid);
 	nid.uFlags = NIF_ICON | NIF_TIP;

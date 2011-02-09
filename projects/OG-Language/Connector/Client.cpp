@@ -24,13 +24,14 @@ private:
 		TODO (TEXT ("Copy code from OG-Excel"));
 		return false;
 	}
+protected:
+	~CRunnerThread () {
+		LOGDEBUG (TEXT ("Runner thread destroyed"));
+	}
 public:
 	CRunnerThread (CClientService *poService) : CThread () {
 		LOGDEBUG (TEXT ("Runner thread created"));
 		m_poService = poService;
-	}
-	~CRunnerThread () {
-		LOGDEBUG (TEXT ("Runner thread destroyed"));
 	}
 	void Run () {
 		LOGINFO (TEXT ("Runner thread started"));
@@ -40,7 +41,7 @@ public:
 			if (!m_poService->SetState (STARTING)) break;
 			LOGINFO (TEXT ("Starting Java framework"));
 			if (!m_poService->CreatePipes ()) {
-				LOGFATAL (TEXT ("Unable to open pipes to Java framework"));
+				LOGERROR (TEXT ("Unable to open pipes to Java framework"));
 				CAlert::Bad (TEXT ("Unable to connect to service"));
 				bStatus = false;
 				break;
@@ -54,7 +55,7 @@ public:
 						continue;
 					}
 				}
-				LOGFATAL (TEXT ("Unable to connect to Java framework"));
+				LOGERROR (TEXT ("Unable to connect to Java framework"));
 				CAlert::Bad (TEXT ("Unable to start service"));
 				bStatus = false;
 				break;
@@ -69,7 +70,7 @@ public:
 						continue;
 					}
 				}
-				LOGFATAL (TEXT ("Java framework is not responding"));
+				LOGERROR (TEXT ("Java framework is not responding"));
 				CAlert::Bad (TEXT ("Service error"));
 				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user cloicks on the bubble?
 				// TODO: [XLS-43] (needs a hook to implement) What about a "retry" button to force Excel to unload and re-load the plugin
@@ -103,10 +104,24 @@ CClientService::CClientService () {
 	m_poMessageReceivedCallback = NULL;
 	m_eState = STOPPED;
 	m_poRunner = NULL;
+	m_poPipes = NULL;
 }
 
 CClientService::~CClientService () {
-	Stop ();
+	if (!Stop ()) {
+		LOGFATAL (TEXT ("Couldn't stop running service"));
+		assert (0);
+	}
+	if (m_poPipes) {
+		LOGFATAL (TEXT ("Pipes exist at shutdown"));
+		delete m_poPipes;
+		assert (0);
+	}
+	if (m_poRunner) {
+		LOGFATAL (TEXT ("Runner thread exists at shutdown"));
+		CThread::Release (m_poRunner);
+		assert (0);
+	}
 }
 
 bool CClientService::Start () {
@@ -190,40 +205,86 @@ bool CClientService::Send (FudgeMsg msg) {
 }
 
 void CClientService::SetStateChangeCallback (CStateChange *poCallback) {
-	m_oState.Enter ();
+	m_oStateChange.Enter ();
 	m_poStateChangeCallback = poCallback;
-	m_oState.Leave ();
+	m_oStateChange.Leave ();
 }
 
 void CClientService::SetMessageReceivedCallback (CMessageReceived *poCallback) {
-	m_oState.Enter ();
+	m_oMessageReceived.Enter ();
 	m_poMessageReceivedCallback = poCallback;
-	m_oState.Leave ();
+	m_oMessageReceived.Leave ();
 }
 
 bool CClientService::ClosePipes () {
-	TODO (__FUNCTION__);
-	return false;
+	LOGINFO (TEXT ("Closing pipes"));
+	if (m_poPipes) {
+		delete m_poPipes;
+		m_poPipes = NULL;
+		return true;
+	} else {
+		LOGWARN (TEXT ("Pipes not created"));
+		return false;
+	}
 }
 
 bool CClientService::ConnectPipes () {
+	LOGINFO (TEXT ("Connecting pipes to JVM"));
+	if (!m_poPipes) {
+		LOGFATAL (TEXT ("Pipes not created"));
+		assert (0);
+		return false;
+	}
 	TODO (__FUNCTION__);
 	return false;
 }
 
 bool CClientService::CreatePipes () {
-	TODO (__FUNCTION__);
-	return false;
+	LOGINFO (TEXT ("Creating pipes"));
+	if (m_poPipes) {
+		LOGFATAL (TEXT ("Pipes already created"));
+		assert (0);
+		return false;
+	}
+	m_poPipes = CClientPipes::Create ();
+	if (m_poPipes) {
+		return true;
+	} else {
+		LOGWARN (TEXT ("Couldn't create pipes, error ") << GetLastError ());
+		return false;
+	}
 }
 
 bool CClientService::SendPoison () {
+	LOGINFO (TEXT ("Sending poison to JVM"));
 	TODO (__FUNCTION__);
 	return false;
 }
 
+// Returns false if the state change wasn't allowed because a poison was in progress
 bool CClientService::SetState (ClientServiceState eNewState) {
-	TODO (__FUNCTION__);
-	return false;
+	LOGDEBUG (TEXT ("Set state ") << eNewState);
+	bool bResult;
+	ClientServiceState eOriginalState;
+	m_oState.Enter ();
+	if ((m_eState == POISONED) && (eNewState != STOPPED) && (eNewState != ERRORED) && (eNewState != POISONED)) {
+		LOGDEBUG (TEXT ("Currently in poison state, not changing"));
+		bResult = false;
+	} else {
+		eOriginalState = m_eState;
+		m_eState = eNewState;
+		bResult = true;
+	}
+	m_oState.Leave ();
+	if (bResult) {
+		m_oStateChange.Enter ();
+		if (m_poStateChangeCallback) {
+			LOGDEBUG (TEXT ("State changed from ") << eOriginalState << TEXT (" to ") << eNewState);
+			m_poStateChangeCallback->OnStateChange (eOriginalState, eNewState);
+		}
+		m_oStateChange.Leave ();
+	}
+	return bResult;
 }
 
 bool CClientService::StartJVM () {

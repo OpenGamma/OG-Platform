@@ -25,10 +25,10 @@
 
 #include <Util/Fudge.h>
 #ifdef __cplusplus
-#include <Util/DllVersion.h>
 #include <Util/Logging.h>
 #include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
+#include <Util/String.h>
 #include <Util/Thread.h>
 #endif /* ifdef __cplusplus */
 
