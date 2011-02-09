@@ -66,7 +66,7 @@
 		<constructor-arg ref="activeMQConnectionFactory"/>			
 	</bean>
 
-	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
     	<property name="connectionFactory" ref="jmsConnectionFactory"/>
     	<property name="destination">
 			<bean class="org.apache.activemq.command.ActiveMQTopic">
@@ -97,7 +97,7 @@
 		<constructor-arg index="0" ref="heartbeatReceiver"/>	
 	</bean>
 
-	<bean id="heartbeatJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+	<bean id="heartbeatJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
     	<property name="connectionFactory" ref="jmsConnectionFactory"/>
     	<property name="destination">
 			<bean class="org.apache.activemq.command.ActiveMQTopic">
@@ -124,7 +124,7 @@
 		<constructor-arg index="0" ref="liveDataServer"/>
 	</bean>
 	
-	<bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+	<bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
     	<property name="connectionFactory" ref="jmsConnectionFactory"/>
     	<property name="destination">
 			<bean class="org.apache.activemq.command.ActiveMQTopic">
