@@ -25,6 +25,7 @@ static CConnectionPipe *g_poPipe = NULL;
 static SERVICE_STATUS_HANDLE g_hServiceStatus = NULL;
 static DWORD g_dwServiceCheckPoint = 0;
 #endif /* ifdef _WIN32 */
+static volatile bool g_bServiceRunning = false;
 
 #ifdef _WIN32
 static void _ReportState (DWORD dwStateCode, DWORD dwExitCode, bool bInfo, PCTSTR pszLabel) {
@@ -72,22 +73,27 @@ static void _ReportStateImpl (bool bInfo, const TCHAR *pszLabel) {
 
 static void _ReportStateStarting () {
 	_ReportState (SERVICE_START_PENDING, 0, false, TEXT ("Service starting"));
+	g_bServiceRunning = false;
 }
 
 static void _ReportStateRunning () {
-	_ReportState (SERVICE_RUNNING, 0, false, TEXT ("Service started"));
+	_ReportState (SERVICE_RUNNING, 0, true, TEXT ("Service started"));
+	g_bServiceRunning = true;
 }
 
 static void _ReportStateStopping () {
 	_ReportState (SERVICE_STOP_PENDING, 0, false, TEXT ("Service stopping"));
+	g_bServiceRunning = false;
 }
 
 static void _ReportStateStopped () {
 	_ReportState (SERVICE_STOPPED, 0, true, TEXT ("Service stopped"));
+	g_bServiceRunning = false;
 }
 
 static void _ReportStateErrored () {
 	_ReportState (SERVICE_STOPPED, ERROR_INVALID_ENVIRONMENT, true, TEXT ("Service stopped"));
+	g_bServiceRunning = false;
 }
 
 void ServiceStop (bool bForce) {
@@ -239,4 +245,8 @@ void ServiceRun (int nReason) {
 	}
 	delete g_poJVM;
 	g_poJVM = NULL;
+}
+
+bool ServiceRunning () {
+	return g_bServiceRunning;
 }

@@ -35,6 +35,10 @@ import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 
 /**
  * Configures UI Resources
+ * 
+ * <p>
+ * Concatenates the given js/css files based on the given xml file 
+ * and then minifies it using YUICompressor
  */
 public class UiResourceConfigTask extends Task {
  

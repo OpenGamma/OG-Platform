@@ -14,10 +14,12 @@ import com.opengamma.livedata.server.DistributionSpecification;
  * <p>
  * This class is only useful in tests.
  */
-public class NaiveDistributionSpecificationResolver implements DistributionSpecificationResolver {
+public class NaiveDistributionSpecificationResolver 
+  extends AbstractResolver<LiveDataSpecification, DistributionSpecification> 
+  implements DistributionSpecificationResolver {
 
   @Override
-  public DistributionSpecification getDistributionSpecification(
+  public DistributionSpecification resolve(
       LiveDataSpecification spec) throws IllegalArgumentException {
     return new DistributionSpecification(
         spec.getIdentifiers().getIdentifiers().iterator().next(), 

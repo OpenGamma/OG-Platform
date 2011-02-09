@@ -354,7 +354,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // this is the only place where subscribe() can 'partially' fail
         DistributionSpecification distributionSpec;
         try {
-          distributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(specFromClient);
+          distributionSpec = getDistributionSpecificationResolver().resolve(specFromClient);
         } catch (RuntimeException e) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
           responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, e.getMessage()));                    
@@ -493,7 +493,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     
     for (LiveDataSpecification liveDataSpecificationFromClient : liveDataSpecificationsFromClient) {
       DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-        .getDistributionSpecification(liveDataSpecificationFromClient);
+        .resolve(liveDataSpecificationFromClient);
       LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
       
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
@@ -527,7 +527,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
       
       DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-        .getDistributionSpecification(liveDataSpecFromClient);
+        .resolve(liveDataSpecFromClient);
       FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
       if (normalizedMsg == null) {
         responses.add(getErrorResponse(
@@ -573,6 +573,29 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(
       LiveDataSubscriptionRequest subscriptionRequest) {
     
+    try {
+      
+      return subscriptionRequestMadeImpl(subscriptionRequest);
+      
+    } catch (Exception e) {
+      
+      s_logger.error("Failed to subscribe to " + subscriptionRequest, e);
+      
+      ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
+      for (LiveDataSpecification requestedSpecification :  subscriptionRequest.getSpecifications()) {
+        responses.add(getErrorResponse(
+            requestedSpecification, 
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage()));
+      }
+      return new LiveDataSubscriptionResponseMsg(subscriptionRequest
+          .getUser(), responses);
+    }
+  }
+  
+  public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(
+      LiveDataSubscriptionRequest subscriptionRequest) {
+    
     boolean persistent = subscriptionRequest.getType().equals(SubscriptionType.PERSISTENT);
 
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
@@ -580,20 +603,20 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     ArrayList<LiveDataSpecification> snapshots = new ArrayList<LiveDataSpecification>();
     ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
     
+    Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
+    
     for (LiveDataSpecification requestedSpecification : subscriptionRequest
         .getSpecifications()) {
 
       try {
 
         // Check that this spec can be found
-        try {
-          getDistributionSpecificationResolver().getDistributionSpecification(requestedSpecification);
-        } catch (RuntimeException e) {
-          s_logger.info("Unable to work out distribution spec for specification " + requestedSpecification, e);
+        DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
+        if (spec == null) {
           responses.add(new LiveDataSubscriptionResponse(
               requestedSpecification,
               LiveDataSubscriptionResult.NOT_PRESENT,
-              e.getMessage(),
+              "Could not build distribution specification for " + requestedSpecification,
               null,
               null, 
               null));
