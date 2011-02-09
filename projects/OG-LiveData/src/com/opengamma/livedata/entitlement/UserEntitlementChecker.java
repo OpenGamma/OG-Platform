@@ -5,9 +5,14 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -29,36 +34,52 @@ import com.opengamma.util.ArgumentChecker;
  * compatible <code>Authority</code>, access is denied.
  * 
  */
-public class UserEntitlementChecker extends DistributionSpecEntitlementChecker {
+public class UserEntitlementChecker extends AbstractEntitlementChecker {
   
   private static final Logger s_logger = LoggerFactory.getLogger(UserEntitlementChecker.class);
-
+  
   private final UserManager _userManager;
+  private final DistributionSpecificationResolver _resolver;
   
   /**
-   * @param resolver 
    * @param userManager
    *          Used to load users (their permissions really)
+   * @param resolver Used to map from {@link LiveDataSpecification} to {@link DistributionSpecification} 
    */
   public UserEntitlementChecker(UserManager userManager, DistributionSpecificationResolver resolver) {
-    super(resolver);
-    
     ArgumentChecker.notNull(userManager, "User manager");
+    ArgumentChecker.notNull(resolver, "Distribution Specification Resolver");
     _userManager = userManager;
+    _resolver = resolver;
   }
 
   @Override
-  public boolean isEntitled(UserPrincipal userPrincipal, DistributionSpecification distributionSpec) {
+  public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal userPrincipal, Collection<LiveDataSpecification> requestedSpecifications) {
+    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
     
     User user = _userManager.getUser(userPrincipal.getUserName());
     if (user == null) {
-      return false;
+      s_logger.debug("User {] does not exist - no permissions are granted", userPrincipal.getUserName());
+      for (LiveDataSpecification spec : requestedSpecifications) {
+        returnValue.put(spec, false);                
+      }
+      return returnValue;
+    }
+
+    Map<LiveDataSpecification, DistributionSpecification> distributionSpecs = _resolver.resolve(requestedSpecifications);
+    
+    for (LiveDataSpecification requestedSpec : requestedSpecifications) {
+      DistributionSpecification distributionSpec = distributionSpecs.get(requestedSpec);
+      if (distributionSpec != null) {
+        String permission = distributionSpec.getJmsTopic().replace('.', '/');
+        boolean hasPermission = user.hasPermission(permission);
+        returnValue.put(requestedSpec, hasPermission);                
+      } else {
+        returnValue.put(requestedSpec, false);
+      }
     }
     
-    String permission = distributionSpec.getJmsTopic().replace('.', '/');
-    s_logger.debug("Checking permission against {}", permission);
-    
-    return user.hasPermission(permission);
+    return returnValue;
   }
 
 }

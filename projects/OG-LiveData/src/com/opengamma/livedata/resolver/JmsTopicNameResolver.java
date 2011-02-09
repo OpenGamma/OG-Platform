@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.resolver;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 
@@ -12,7 +15,7 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
  * Produces a JMS topic name where to send market data.  
  *
  */
-public interface JmsTopicNameResolver {
+public interface JmsTopicNameResolver extends Resolver<JmsTopicNameResolveRequest, String> {
   
   /** Separator for hierarchical topic names **/
   String SEPARATOR = ".";
@@ -20,11 +23,19 @@ public interface JmsTopicNameResolver {
   /**
    * Gets a JMS topic name.
    * 
-   * @param marketDataUniqueId what market data the server is going to publish
-   * @param normalizationRule what normalization rule will be applied to the raw market data
-   * @return must not return null.
-   * @throws IllegalArgumentException if input data is invalid
+   * @param request what market data will be published  
+   * @return null if the JMS topic name could not be built, a valid JMS topic name otherwise.
    */
-  String resolve(Identifier marketDataUniqueId, NormalizationRuleSet normalizationRule);
+  String resolve(JmsTopicNameResolveRequest request);
+  
+  /**
+   * Same as calling {@link #resolve(Identifier, NormalizationRuleSet)} 
+   * individually, but since it works in bulk, may be more efficient. 
+   * 
+   * @param requests 
+   * @return map from request to result.  
+   * For each input request, there must be an entry in the map.
+   */
+  Map<JmsTopicNameResolveRequest, String> resolve(Collection<JmsTopicNameResolveRequest> requests);
 
 }

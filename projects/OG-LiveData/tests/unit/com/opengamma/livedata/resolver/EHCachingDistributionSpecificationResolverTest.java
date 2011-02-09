@@ -11,18 +11,29 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.After;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * 
  *
  */
-public class CachingDistributionSpecificationResolverTest {
+public class EHCachingDistributionSpecificationResolverTest {
+  
+  @After
+  public void cleanUp() {
+    EHCacheUtils.clearAll();
+  }
   
   @Test
   public void testCaching() {
@@ -33,19 +44,21 @@ public class CachingDistributionSpecificationResolverTest {
         "TestNormalization",
         Identifier.of("foo", "bar"));
     
-    DistributionSpecification returnValue = new DistributionSpecification(
+    DistributionSpecification distributionSpec = new DistributionSpecification(
         id,
         StandardRules.getNoNormalization(),
         "testtopic");
+    Map<LiveDataSpecification, DistributionSpecification> returnValue = new HashMap<LiveDataSpecification, DistributionSpecification>();
+    returnValue.put(request, distributionSpec);        
     
     DistributionSpecificationResolver underlying = mock(DistributionSpecificationResolver.class);
-    when(underlying.getDistributionSpecification(request)).thenReturn(returnValue);
+    when(underlying.resolve(Collections.singletonList(request))).thenReturn(returnValue);
     
-    CachingDistributionSpecificationResolver resolver = new CachingDistributionSpecificationResolver(underlying);
-    assertEquals(returnValue, resolver.getDistributionSpecification(request));
-    assertEquals(returnValue, resolver.getDistributionSpecification(request));
+    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, EHCacheUtils.createCacheManager());
+    assertEquals(distributionSpec, resolver.resolve(request));
+    assertEquals(distributionSpec, resolver.resolve(request));
     
-    verify(underlying, times(1)).getDistributionSpecification(request);
+    verify(underlying, times(1)).resolve(Collections.singletonList(request));
   }
 
 }
