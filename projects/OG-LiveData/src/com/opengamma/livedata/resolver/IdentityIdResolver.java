@@ -12,7 +12,7 @@ import com.opengamma.id.IdentifierBundle;
  * This {@code IdResolver} returns the ID as-is.  
  *
  */
-public class IdentityIdResolver implements IdResolver {
+public class IdentityIdResolver extends AbstractResolver<IdentifierBundle, Identifier> implements IdResolver {
 
   @Override
   public Identifier resolve(IdentifierBundle ids) {

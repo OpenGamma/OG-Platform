@@ -16,7 +16,9 @@ import com.opengamma.util.ArgumentChecker;
  * This class produces a {@code DistributionSpecification}
  * from a fixed map. 
  */
-public class FixedDistributionSpecificationResolver implements DistributionSpecificationResolver {
+public class FixedDistributionSpecificationResolver 
+  extends AbstractResolver<LiveDataSpecification, DistributionSpecification> 
+  implements DistributionSpecificationResolver {
   
   private final Map<LiveDataSpecification, DistributionSpecification> _liveDataSpec2DistSpec;
   
@@ -26,11 +28,8 @@ public class FixedDistributionSpecificationResolver implements DistributionSpeci
   }
 
   @Override
-  public DistributionSpecification getDistributionSpecification(LiveDataSpecification liveDataSpecificationFromClient) throws IllegalArgumentException {
+  public DistributionSpecification resolve(LiveDataSpecification liveDataSpecificationFromClient) throws IllegalArgumentException {
     DistributionSpecification spec = _liveDataSpec2DistSpec.get(liveDataSpecificationFromClient);
-    if (spec == null) {
-      throw new IllegalArgumentException("No distribution specification found for " + liveDataSpecificationFromClient);
-    }
     return spec;
   }
   
