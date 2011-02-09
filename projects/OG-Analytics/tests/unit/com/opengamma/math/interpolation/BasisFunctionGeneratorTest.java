@@ -21,6 +21,7 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
  */
 public class BasisFunctionGeneratorTest {
 
+  private static final Boolean PRINT = false;
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
   private static final BasisFunctionGenerator GENERATOR = new BasisFunctionGenerator();
   private static final Function1D<Double, Double> BASIS_FUNCTION;
@@ -117,20 +118,22 @@ public class BasisFunctionGeneratorTest {
     Function1D<double[], Double> func = GENERATOR.generate(knots, new int[] {2, 3}, new int[] {4, 4});
     double[] x = new double[2];
 
-    for (int i = 0; i < 101; i++) {
-      x[0] = 0 + i * 10.0 / 100.0;
-      System.out.print("\t" + x[0]);
-    }
-    System.out.print("\n");
-    for (int i = 0; i < 101; i++) {
-      x[0] = 0 + i * 10.0 / 100.0;
-      System.out.print(x[0]);
-      for (int j = 0; j < 101; j++) {
-        x[1] = 0 + j * 10.0 / 100.0;
-        double y = func.evaluate(x);
-        System.out.print("\t" + y);
+    if (PRINT) {
+      for (int i = 0; i < 101; i++) {
+        x[0] = 0 + i * 10.0 / 100.0;
+        System.out.print("\t" + x[0]);
       }
       System.out.print("\n");
+      for (int i = 0; i < 101; i++) {
+        x[0] = 0 + i * 10.0 / 100.0;
+        System.out.print(x[0]);
+        for (int j = 0; j < 101; j++) {
+          x[1] = 0 + j * 10.0 / 100.0;
+          double y = func.evaluate(x);
+          System.out.print("\t" + y);
+        }
+        System.out.print("\n");
+      }
     }
 
   }
@@ -195,20 +198,23 @@ public class BasisFunctionGeneratorTest {
 
     double[] x = new double[2];
 
-    for (int i = 0; i < 101; i++) {
-      x[0] = -0.4 + i * 1.8 / 100.0;
-      System.out.print("\t" + x[0]);
-    }
-    System.out.print("\n");
-    for (int i = 0; i < 101; i++) {
-      x[0] = -0.4 + i * 1.8 / 100.0;
-      System.out.print(x[0]);
-      for (int j = 0; j < 101; j++) {
-        x[1] = -0.4 + j * 1.8 / 100.0;
-        double y = fun.evaluate(x);
-        System.out.print("\t" + y);
+    if (PRINT) {
+
+      for (int i = 0; i < 101; i++) {
+        x[0] = -0.4 + i * 1.8 / 100.0;
+        System.out.print("\t" + x[0]);
       }
       System.out.print("\n");
+      for (int i = 0; i < 101; i++) {
+        x[0] = -0.4 + i * 1.8 / 100.0;
+        System.out.print(x[0]);
+        for (int j = 0; j < 101; j++) {
+          x[1] = -0.4 + j * 1.8 / 100.0;
+          double y = fun.evaluate(x);
+          System.out.print("\t" + y);
+        }
+        System.out.print("\n");
+      }
     }
   }
 

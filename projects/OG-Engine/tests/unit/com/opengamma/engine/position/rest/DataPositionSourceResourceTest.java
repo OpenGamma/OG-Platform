@@ -6,7 +6,6 @@
 package com.opengamma.engine.position.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -14,14 +13,18 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 
 import javax.time.calendar.LocalDate;
-import javax.ws.rs.core.Response;
 
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
@@ -29,7 +32,7 @@ import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.sun.jersey.api.client.ClientResponse.Status;
+import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Tests DataPositionResource.
@@ -44,7 +47,12 @@ public class DataPositionSourceResourceTest {
   @Before
   public void setUp() {
     _underlying = mock(PositionSource.class);
-    _resource = new DataPositionSourceResource(_underlying);
+    _resource = new DataPositionSourceResource(OpenGammaFudgeContext.getInstance (), _underlying);
+  }
+  
+  private <T> T decodeResponse (final Class<T> clazz, final String field, final FudgeMsgEnvelope response) {
+    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (_resource.getFudgeContext ());
+    return fdc.fieldValueToObject(clazz, response.getMessage ().getByName(field));
   }
 
   //-------------------------------------------------------------------------
@@ -59,9 +67,7 @@ public class DataPositionSourceResourceTest {
     portfolio.setRootNode(node);
     when(_underlying.getPortfolio(eq(UID1))).thenReturn(portfolio);
     
-    Response test = _resource.getPortfolio(UID1.toString());
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(portfolio, test.getEntity());
+    assertEquals (portfolio, decodeResponse (Portfolio.class, "portfolio", _resource.getPortfolio(UID1.toString())));
   }
 
   @Test
@@ -73,9 +79,7 @@ public class DataPositionSourceResourceTest {
     node.addPosition(position);
     when(_underlying.getPortfolioNode(eq(UID1))).thenReturn(node);
     
-    Response test = _resource.getNode(UID1.toString());
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(node, test.getEntity());
+    assertEquals (node, decodeResponse (PortfolioNode.class, "node", _resource.getNode(UID1.toString())));
   }
 
   @Test
@@ -84,9 +88,7 @@ public class DataPositionSourceResourceTest {
     position.setParentNodeId(UID2);
     when(_underlying.getPosition(eq(UID1))).thenReturn(position);
     
-    Response test = _resource.getPosition(UID1.toString());
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(position, test.getEntity());
+    assertEquals (position, decodeResponse (Position.class, "position", _resource.getPosition(UID1.toString())));
   }
 
   @Test
@@ -96,9 +98,7 @@ public class DataPositionSourceResourceTest {
     trade.setUniqueId(UID1);
     when(_underlying.getTrade(eq(UID1))).thenReturn(trade);
     
-    Response test = _resource.getTrade(UID1.toString());
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(trade, test.getEntity());
+    assertEquals (trade, decodeResponse (Trade.class, "trade", _resource.getTrade(UID1.toString())));
   }
 
 }

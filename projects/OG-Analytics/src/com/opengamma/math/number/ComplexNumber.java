@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.number;
@@ -11,6 +11,12 @@ package com.opengamma.math.number;
 public class ComplexNumber extends Number {
   private final double _real;
   private final double _imaginary;
+
+  // Implicit
+  public ComplexNumber(final double real) {
+    _real = real;
+    _imaginary = 0.0;
+  }
 
   public ComplexNumber(final double real, final double imaginary) {
     _real = real;

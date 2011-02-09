@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
@@ -18,6 +20,13 @@ public class BlackImpliedVolFormula {
   private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
 
   public static double impliedVol(final double optionPrice, final double f, final double k, final double discountFactor, final double t, final boolean isCall) {
+
+    double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
+    Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than inteinsic value");
+
+    if (optionPrice == intrinsicPrice) {
+      return 0.0;
+    }
 
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 

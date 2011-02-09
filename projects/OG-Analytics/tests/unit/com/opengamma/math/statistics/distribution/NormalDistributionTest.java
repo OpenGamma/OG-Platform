@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 public class NormalDistributionTest extends ProbabilityDistributionTestCase {
@@ -30,4 +32,15 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
     testInverseCDF(X, NORMAL);
   }
 
+  @Test
+  public void testRoundTrip() {
+    for (int i = 0; i < 51; i++) {
+      double x = -37.0 + 44 * i / 50.;
+      double p = NORMAL.getCDF(x);
+      double xStar = (p == 1.0 ? Double.POSITIVE_INFINITY : (p == 0.0 ? Double.NEGATIVE_INFINITY : NORMAL.getInverseCDF(p)));
+      // System.out.println(x + "\t" + p + "\t" + xStar);
+      assertEquals(x, xStar, 1e-3);
+    }
+
+  }
 }
