@@ -12,10 +12,15 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Holds values that will be provided to a {@link FunctionInvoker} during invocation.
+ * The context used during function invocation.
+ * <p>
+ * In order to successfully complete invocation of a function a variety of
+ * contextual objects are needed.
+ * This is primarily used by {@link FunctionInvoker}.
  */
 @PublicAPI
 public class FunctionExecutionContext extends AbstractFunctionContext {
+
   /**
    * The name under which an instance of {@link ViewProcessorQuery} should be bound.
    */
@@ -50,52 +55,53 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
    * Creates a function execution context as a copy of another.
    * 
-   * @param copyFrom context to copy elements from, not {@code null}
+   * @param copyFrom  the context to copy elements from, not null
    */
   protected FunctionExecutionContext(final FunctionExecutionContext copyFrom) {
     super(copyFrom);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the {@link ViewProcessorQuery} bound to the context.
+   * Gets the view processor query.
    * 
-   * @return the query object
+   * @return the view processor query, null if not in the context
    */
   public ViewProcessorQuery getViewProcessorQuery() {
     return (ViewProcessorQuery) get(VIEW_PROCESSOR_QUERY_NAME);
   }
 
   /**
-   * Binds a {@link ViewProcessorQuery} instance to the context
+   * Sets the view processor query.
    * 
-   * @param viewProcessorQuery the query object
+   * @param viewProcessorQuery  the view processor query to bind
    */
   public void setViewProcessorQuery(ViewProcessorQuery viewProcessorQuery) {
     put(VIEW_PROCESSOR_QUERY_NAME, viewProcessorQuery);
   }
 
   /**
-   * Returns the snapshot time for the context.
+   * Gets the snapshot instant.
    * 
-   * @return the snapshot time
+   * @return the snapshot instant, null if not in the context
    */
   public Long getSnapshotEpochTime() {
     return (Long) get(SNAPSHOT_EPOCH_TIME_NAME);
   }
 
   /**
-   * Sets the snapshot time for the context.
+   * Sets the snapshot instant.
    * 
-   * @param snapshotEpochTime the snapshot time
+   * @param snapshotEpochTime  the snapshot instant to bind
    */
   public void setSnapshotEpochTime(Long snapshotEpochTime) {
     put(SNAPSHOT_EPOCH_TIME_NAME, snapshotEpochTime);
   }
 
   /**
-   * Returns the clock providing the snapshot time.
+   * Gets the clock providing the snapshot time.
    * 
-   * @return the clock instance
+   * @return the clock, null if not in the context
    */
   public Clock getSnapshotClock() {
     return (Clock) get(SNAPSHOT_CLOCK_NAME);
@@ -111,59 +117,60 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   }
 
   /**
-   * Binds a {@link SecuritySource} instance to the context.
+   * Gets the source of securities.
    * 
-   * @param securitySource the instance to bind
-   */
-  public void setSecuritySource(SecuritySource securitySource) {
-    put(SECURITY_SOURCE_NAME, securitySource);
-  }
-
-  /**
-   * Returns the {@link SecuritySource} bound to the context.
-   * 
-   * @return the security source
+   * @return the source of securities, null if not in the context
    */
   public SecuritySource getSecuritySource() {
     return (SecuritySource) get(SECURITY_SOURCE_NAME);
   }
 
   /**
-   * Binds a {@link FunctionParameters} instance to the context.
+   * Sets the source of securities.
    * 
-   * @param functionParameters the instance to bind
+   * @param securitySource  the source of securities to bind
    */
-  public void setFunctionParameters(FunctionParameters functionParameters) {
-    put(FUNCTION_PARAMETERS_NAME, functionParameters);
+  public void setSecuritySource(SecuritySource securitySource) {
+    put(SECURITY_SOURCE_NAME, securitySource);
   }
 
   /**
-   * Returns the {@link FunctionParameters} bound to the context.
+   * Gets the function parameters.
    * 
-   * @return the function parameters
+   * @return the function parameters, null if not in the context
    */
   public FunctionParameters getFunctionParameters() {
     return (FunctionParameters) get(FUNCTION_PARAMETERS_NAME);
   }
 
   /**
-   * Binds a {@link PortfolioStructure} instance to the context.
+   * Sets the source of function parameters.
    * 
-   * @param portfolioStructure the instance to bind
+   * @param functionParameters  the function parameters to bind
    */
-  public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
-    put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
+  public void setFunctionParameters(FunctionParameters functionParameters) {
+    put(FUNCTION_PARAMETERS_NAME, functionParameters);
   }
 
   /**
-   * Returns the {@link PortfolioStructure} bound to the context
+   * Gets the source of portfolio structure information.
    * 
-   * @return the portfolio structure query object
+   * @return the portfolio structure, null if not in the context
    */
   public PortfolioStructure getPortfolioStructure() {
     return (PortfolioStructure) get(PORTFOLIO_STRUCTURE_NAME);
   }
 
+  /**
+   * Sets the source of portfolio structure information.
+   * 
+   * @param portfolioStructure  the portfolio structure to bind
+   */
+  public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
+    put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public FunctionExecutionContext clone() {
     return new FunctionExecutionContext(this);
