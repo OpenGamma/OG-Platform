@@ -41,11 +41,9 @@ public abstract class DistributionSpecEntitlementChecker extends AbstractEntitle
 
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    DistributionSpecification distributionSpecification;
-    try {
-      distributionSpecification = _resolver.getDistributionSpecification(requestedSpecification);
-    } catch (IllegalArgumentException e) {
-      s_logger.info("User not entitled as distribution specification could not be built", e);
+    DistributionSpecification distributionSpecification = _resolver.resolve(requestedSpecification);
+    if (distributionSpecification == null) {
+      s_logger.info("User not entitled as distribution specification could not be built for {}", requestedSpecification);
       return false;
     }
     return isEntitled(user, distributionSpecification);
