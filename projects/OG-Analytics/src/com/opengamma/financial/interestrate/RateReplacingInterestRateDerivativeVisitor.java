@@ -11,6 +11,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -29,7 +30,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public Bond visitBond(Bond bond, Double rate) {
+  public Bond visitBond(final Bond bond, final Double rate) {
     final FixedCouponPayment[] payments = bond.getCouponAnnuity().getPayments();
     final int n = payments.length;
     final double[] times = new double[n];
@@ -45,12 +46,12 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public Cash visitCash(Cash cash, Double rate) {
+  public Cash visitCash(final Cash cash, final Double rate) {
     return new Cash(cash.getMaturity(), rate, cash.getTradeTime(), cash.getYearFraction(), cash.getYieldCurveName());
   }
 
   @Override
-  public FixedCouponAnnuity visitFixedCouponAnnuity(FixedCouponAnnuity annuity, final Double rate) {
+  public FixedCouponAnnuity visitFixedCouponAnnuity(final FixedCouponAnnuity annuity, final Double rate) {
     final FixedCouponPayment[] payments = annuity.getPayments();
     final int n = payments.length;
     final FixedCouponPayment[] temp = new FixedCouponPayment[n];
@@ -61,36 +62,40 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public FixedCouponPayment visitFixedCouponPayment(FixedCouponPayment payment, final Double rate) {
+  public FixedCouponPayment visitFixedCouponPayment(final FixedCouponPayment payment, final Double rate) {
     return new FixedCouponPayment(payment.getPaymentTime(), payment.getNotional(), payment.getYearFraction(), rate, payment.getFundingCurveName());
   }
 
   // TODO is this really correct?
   @Override
-  public ForwardLiborAnnuity visitForwardLiborAnnuity(ForwardLiborAnnuity annuity, final Double rate) {
+  public ForwardLiborAnnuity visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity, final Double rate) {
     return annuity.withSpread(rate);
   }
 
   @Override
-  public ForwardRateAgreement visitForwardRateAgreement(ForwardRateAgreement fra, final Double rate) {
+  public ForwardRateAgreement visitForwardRateAgreement(final ForwardRateAgreement fra, final Double rate) {
     return new ForwardRateAgreement(fra.getSettlementDate(), fra.getMaturity(), fra.getFixingDate(), fra.getForwardYearFraction(), fra.getDiscountingYearFraction(), rate, fra.getFundingCurveName(),
         fra.getIndexCurveName());
   }
 
   @Override
-  public InterestRateFuture visitInterestRateFuture(InterestRateFuture future, final Double rate) {
+  public InterestRateFuture visitInterestRateFuture(final InterestRateFuture future, final Double rate) {
     return new InterestRateFuture(future.getSettlementDate(), future.getFixingDate(), future.getMaturity(), future.getIndexYearFraction(), future.getValueYearFraction(), 100 * (1 - rate),
         future.getCurveName());
   }
 
   @Override
-  public TenorSwap visitTenorSwap(TenorSwap swap, Double rate) {
+  public TenorSwap visitTenorSwap(final TenorSwap swap, final Double rate) {
     return new TenorSwap(swap.getPayLeg(), visitForwardLiborAnnuity((ForwardLiborAnnuity) swap.getReceiveLeg(), rate));
   }
 
   @Override
-  public FixedFloatSwap visitFixedFloatSwap(FixedFloatSwap swap, final Double rate) {
+  public FixedFloatSwap visitFixedFloatSwap(final FixedFloatSwap swap, final Double rate) {
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getReceiveLeg());
   }
 
+  @Override
+  public Libor visitLibor(final Libor libor, final Double rate) {
+    return new Libor(libor.getMaturity(), rate, libor.getTradeTime(), libor.getYearFraction(), libor.getYieldCurveName());
+  }
 }
