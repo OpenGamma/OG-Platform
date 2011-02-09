@@ -84,3 +84,36 @@ CClientPipes *CClientPipes::Create () {
 	}
 	return NULL;
 }
+
+bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
+	// TODO: the user stuff should be moved into util so it can be used on pipe suffixes in the tests
+#ifdef _WIN32
+	TCHAR szUserName[256];
+	DWORD dwSize = 256;
+	if (!GetUserName (szUserName, &dwSize)) {
+		LOGWARN (TEXT ("Couldn't lookup current user name, error ") << GetLastError ());
+		return false;
+	}
+	const TCHAR *pszUserName = szUserName;
+#else /* ifdef _WIN32 */
+	const TCHAR *pszUserName = getenv (TEXT ("USER"));
+	if (!pszUserName) {
+		LOGWARN (TEXT ("Couldn't lookup current user name"));
+		return false;
+	}
+#endif /* ifdef _WIN32 */
+	PJAVACLIENT_CONNECT pjcc = JavaClientCreate (pszUserName, m_poOutput->GetName (), m_poInput->GetName ());
+	if (!pjcc) {
+		LOGWARN (TEXT ("Couldn't create pipe connection message, error ") << GetLastError ());
+		return false;
+	}
+	LOGDEBUG (TEXT ("Writing connection message"));
+	bool bResult = poService->Write (pjcc, pjcc->cbSize, lTimeout) == pjcc->cbSize;
+	free (pjcc);
+	if (bResult) {
+		LOGINFO (TEXT ("Connected to JVM"));
+	} else {
+		LOGWARN (TEXT ("Couldn't write connection message, error ") << GetLastError ());
+	}
+	return bResult;
+}

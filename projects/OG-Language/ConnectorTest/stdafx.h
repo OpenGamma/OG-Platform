@@ -25,6 +25,7 @@
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
 #include <Util/NamedPipe.h>
+#include <Util/Process.h>
 #include <Util/Semaphore.h>
 #include <Util/Thread.h>
 

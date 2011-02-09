@@ -53,7 +53,7 @@ static void Start () {
 	ASSERT (g_poService->Start ());
 	int n;
 	LOGDEBUG (TEXT ("Waiting for client to start"));
-	for (n = 0; (g_poService->GetState () != RUNNING) && (n < TIMEOUT_START / 100); n++) {
+	for (n = 0; (g_poService->GetState () != RUNNING) && (g_poService->GetState () != ERRORED) && (g_poService->GetState () != STOPPED) && (n < TIMEOUT_START / 100); n++) {
 		CThread::Sleep (100);
 	}
 	ASSERT (g_poService->GetState () == RUNNING);

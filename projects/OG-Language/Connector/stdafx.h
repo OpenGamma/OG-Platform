@@ -19,15 +19,18 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #endif
 
 #include <assert.h>
 
 #include <Util/Fudge.h>
 #ifdef __cplusplus
+#include <Util/File.h>
 #include <Util/Logging.h>
 #include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
+#include <Util/Process.h>
 #include <Util/String.h>
 #include <Util/Thread.h>
 #endif /* ifdef __cplusplus */

@@ -8,8 +8,9 @@
 
 // Manages and communicates with the Java client
 
-#include "Client.h"
 #include "Alert.h"
+#include "Client.h"
+#include "Settings.h"
 
 LOGGING (com.opengamma.language.connector.Client);
 
@@ -105,6 +106,7 @@ CClientService::CClientService () {
 	m_eState = STOPPED;
 	m_poRunner = NULL;
 	m_poPipes = NULL;
+	m_poJVM = NULL;
 }
 
 CClientService::~CClientService () {
@@ -121,6 +123,9 @@ CClientService::~CClientService () {
 		LOGFATAL (TEXT ("Runner thread exists at shutdown"));
 		CThread::Release (m_poRunner);
 		assert (0);
+	}
+	if (m_poJVM) {
+		delete m_poJVM;
 	}
 }
 
@@ -235,8 +240,50 @@ bool CClientService::ConnectPipes () {
 		assert (0);
 		return false;
 	}
-	TODO (__FUNCTION__);
-	return false;
+	if (!m_poJVM) {
+		LOGFATAL (TEXT ("JVM not created"));
+		assert (0);
+		return false;
+	}
+	CSettings oSettings;
+	const TCHAR *pszPipeName = oSettings.GetConnectionPipe ();
+	LOGDEBUG (TEXT ("Connecting to ") << pszPipeName);
+	unsigned long lTimeout = m_poJVM->FirstConnection () ? oSettings.GetStartTimeout () : oSettings.GetConnectTimeout ();
+	m_lSendTimeout = lTimeout;
+	unsigned long lTime = GetTickCount ();
+	CNamedPipe *poPipe;
+	do {
+		poPipe = CNamedPipe::ClientWrite (pszPipeName);
+		if (poPipe) {
+			break;
+		} else {
+			int ec = GetLastError ();
+			if (ec == ENOENT) {
+				if (GetTickCount () - lTime > lTimeout) {
+					LOGWARN (TEXT ("Timeout waiting for JVM service to open ") << pszPipeName);
+					return false;
+				} else {
+					if (m_poJVM->IsAlive ()) {
+						LOGDEBUG (TEXT ("Waiting for JVM service to open pipe"));
+						CThread::Sleep (oSettings.GetServicePoll ());
+					} else {
+						LOGWARN (TEXT ("JVM service terminated before opening ") << pszPipeName);
+						return false;
+					}
+				}
+			} else {
+				LOGWARN (TEXT ("Couldn't connect to ") << pszPipeName << TEXT (", error ") << ec);
+				return false;
+			}
+		}
+	} while (true);
+	LOGDEBUG (TEXT ("Connected to service"));
+	bool bResult = m_poPipes->Connect (poPipe, lTimeout);
+	if (!bResult) {
+		LOGWARN (TEXT ("Couldn't connect to JVM service, error ") << GetLastError ());
+	}
+	delete poPipe;
+	return bResult;
 }
 
 bool CClientService::CreatePipes () {
@@ -288,11 +335,37 @@ bool CClientService::SetState (ClientServiceState eNewState) {
 }
 
 bool CClientService::StartJVM () {
-	TODO (__FUNCTION__);
-	return false;
+	LOGINFO (TEXT ("Starting JVM"));
+	if (m_poJVM) {
+		if (m_poJVM->IsAlive ()) {
+			LOGDEBUG (TEXT ("JVM already started"));
+			return true;
+		} else {
+			LOGDEBUG (TEXT ("Closing defunct JVM handle"));
+			delete m_poJVM;
+		}
+	}
+	m_poJVM = CClientJVM::Start ();
+	if (m_poJVM) {
+		return true;
+	} else {
+		LOGWARN (TEXT ("Couldn't start JVM, error ") << GetLastError ());
+		return false;
+	}
 }
 
 bool CClientService::StopJVM () {
-	TODO (__FUNCTION__);
-	return false;
+	LOGINFO (TEXT ("Stopping JVM"));
+	if (!m_poJVM) {
+		LOGDEBUG (TEXT ("JVM not running"));
+		return true;
+	}
+	if (m_poJVM->Stop ()) {
+		delete m_poJVM;
+		m_poJVM = NULL;
+		return true;
+	} else {
+		LOGWARN (TEXT ("Couldn't stop JVM, error ") << GetLastError ());
+		return false;
+	}
 }

@@ -12,6 +12,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Psapi.h>
 #include <tchar.h>
 #include <strsafe.h>
 #ifdef __cplusplus
@@ -27,6 +28,9 @@
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <signal.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <spawn.h>
 #endif
 #include <assert.h>
 

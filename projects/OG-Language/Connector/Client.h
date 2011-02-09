@@ -9,6 +9,7 @@
 
 // Manages and communicates with the Java client
 
+#include "JVM.h"
 #include "Pipes.h"
 
 enum ClientServiceState {
@@ -45,6 +46,8 @@ private:
 	CMessageReceived *m_poMessageReceivedCallback;
 	CThread *m_poRunner;
 	CClientPipes *m_poPipes;
+	CClientJVM *m_poJVM;
+	unsigned long m_lSendTimeout;
 	// Private constructor - stops stack allocation
 	CClientService ();
 	~CClientService ();

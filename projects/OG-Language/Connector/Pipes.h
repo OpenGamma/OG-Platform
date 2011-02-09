@@ -21,7 +21,7 @@ public:
 	static CNamedPipe *CreateOutput (const TCHAR *pszPrefix, int nMaxAttempts);
 	static CClientPipes *Create ();
 	~CClientPipes ();
-	// TODO
+	bool Connect (CNamedPipe *poService, unsigned long lTimeout);
 };
 
 #endif /* ifndef __inc_og_language_connector_pipes_h */
