@@ -5,8 +5,6 @@
  */
 package com.opengamma.transport.jaxrs;
 
-import javax.ws.rs.core.MediaType;
-
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 
@@ -24,11 +22,7 @@ public class HttpMethodFilter implements ContainerRequestFilter {
     if (request.getMethod().equalsIgnoreCase("POST") == false) {
       return request;
     }
-    MediaType mediaType = request.getMediaType();
-    if (mediaType != null && mediaType.equals(MediaType.APPLICATION_FORM_URLENCODED_TYPE) == false) {
-      return request;
-    }
-    String methodFormParam = request.getFormParameters().getFirst("method");
+    String methodFormParam = request.getFormParameters().getFirst("method");  // getFormParameters() returns empty when not a form
     if ("PUT".equals(methodFormParam)) {
       request.setMethod("PUT");
     } else if ("DELETE".equals(methodFormParam)) {
