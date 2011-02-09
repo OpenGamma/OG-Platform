@@ -19,8 +19,12 @@ public class TenorSwap extends Swap<ForwardLiborPayment, ForwardLiborPayment> {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitTenorSwap(this, data);
   }
 
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitTenorSwap(this);
+  }
 }

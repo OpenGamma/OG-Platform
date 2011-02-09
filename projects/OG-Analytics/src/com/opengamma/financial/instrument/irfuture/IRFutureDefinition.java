@@ -19,20 +19,21 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 
 /**
  * 
  */
-public class IRFutureDefinition implements InterestRateDerivativeProvider<InterestRateFuture> {
+public class IRFutureDefinition implements FixedIncomeInstrumentDefinition<InterestRateFuture> {
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureDefinition.class);
   private final ZonedDateTime _lastTradeDate;
   private final ZonedDateTime _maturityDate;
   private final IRFutureConvention _convention;
   private final double _rate;
 
-  public IRFutureDefinition(ZonedDateTime lastTradeDate, ZonedDateTime maturityDate, double rate, IRFutureConvention convention) {
+  public IRFutureDefinition(final ZonedDateTime lastTradeDate, final ZonedDateTime maturityDate, final double rate, final IRFutureConvention convention) {
     Validate.notNull(lastTradeDate, "last trade date");
     Validate.notNull(maturityDate, "maturity date");
     Validate.notNull(convention, "convention");
@@ -102,22 +103,32 @@ public class IRFutureDefinition implements InterestRateDerivativeProvider<Intere
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
-    Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
     s_logger.info("Assuming first yield curve name is the index curve");
-    Calendar calendar = _convention.getWorkingDayCalendar();
-    String indexCurveName = yieldCurveNames[0];
-    BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
+    final Calendar calendar = _convention.getWorkingDayCalendar();
+    final String indexCurveName = yieldCurveNames[0];
+    final BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime lastTradeDate = businessDayConvention.adjustDate(calendar, _lastTradeDate);
     final ZonedDateTime startDate = lastTradeDate.plusDays(_convention.getSettlementDays());
     final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, _maturityDate);
-    DayCount dayCount = _convention.getDayCount();
+    final DayCount dayCount = _convention.getDayCount();
     final double yearFraction = dayCount.getDayCountFraction(lastTradeDate, maturityDate);
     final double valueYearFraction = _convention.getYearFraction();
     final double settlementDateFraction = dayCount.getDayCountFraction(zonedDate, startDate);
     final double lastTradeDateFraction = dayCount.getDayCountFraction(zonedDate, _lastTradeDate);
     final double maturityDateFraction = dayCount.getDayCountFraction(zonedDate, _maturityDate);
     return new InterestRateFuture(settlementDateFraction, lastTradeDateFraction, maturityDateFraction, yearFraction, valueYearFraction, _rate, indexCurveName);
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitIRFutureDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitIRFutureDefinition(this);
   }
 
 }

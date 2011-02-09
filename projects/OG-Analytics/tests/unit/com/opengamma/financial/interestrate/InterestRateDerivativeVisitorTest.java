@@ -35,8 +35,30 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
  */
 public class InterestRateDerivativeVisitorTest {
   private static final String CURVE_NAME = "Test";
-
-  private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new AbstractInterestRateDerivativeVisitor<Object, Class<?>>() {
+  private static final AbstractInterestRateDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInterestRateDerivativeVisitor<Object, Object>() {
+  };
+  private static final Cash CASH = new Cash(1, 0, CURVE_NAME);
+  private static final ForwardRateAgreement FRA = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
+  private static final InterestRateFuture IR_FUTURE = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
+  private static final Libor LIBOR = new Libor(1, 0, CURVE_NAME);
+  private static final Bond BOND = new Bond(new double[] {1}, 0, CURVE_NAME);
+  private static final BondForward BOND_FORWARD = new BondForward(BOND, .5, 0, 0);
+  private static final BondFuture BOND_FUTURE = new BondFuture(new BondForward[] {BOND_FORWARD}, new double[] {1});
+  private static final ForwardLiborAnnuity FLOAT_LEG = new ForwardLiborAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
+  private static final FixedCouponAnnuity FIXED_LEG = new FixedCouponAnnuity(new double[] {1}, 0.0, CURVE_NAME);
+  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
+  private static final TenorSwap TENOR_SWAP = new TenorSwap(FLOAT_LEG, FLOAT_LEG);
+  private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
+  private static final FixedPayment FIXED_PAYMENT = new FixedPayment(1, 1, CURVE_NAME);
+  private static final ForwardLiborPayment LIBOR_PAYMENT = new ForwardLiborPayment(1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
+  private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
+  private static final FixedCouponSwap<ForwardLiborPayment> FCS = new FixedCouponSwap<ForwardLiborPayment>(FIXED_LEG, FLOAT_LEG);
+  private static final FixedCouponAnnuity FCA = new FixedCouponAnnuity(new double[] {1}, 0.05, CURVE_NAME);
+  private static final ForwardLiborAnnuity FLA = new ForwardLiborAnnuity(new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME);
+  private static final FixedCouponPayment FCP = new FixedCouponPayment(1, 1, 0.04, CURVE_NAME);
+  private static final ContinuouslyMonitoredAverageRatePayment CM = new ContinuouslyMonitoredAverageRatePayment(3, 1, 1, 2, 1, 1, 0, CURVE_NAME, CURVE_NAME);
+  private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA);
+  private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
 
     @Override
     public Class<?> visit(final InterestRateDerivative derivative, final Object curves) {
@@ -184,57 +206,57 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitFixedCouponAnnuity(FixedCouponAnnuity fixedCouponAnnuity, Object anything) {
+    public Class<?> visitFixedCouponAnnuity(final FixedCouponAnnuity fixedCouponAnnuity, final Object anything) {
       return visit(fixedCouponAnnuity, anything);
     }
 
     @Override
-    public Class<?> visitForwardLiborAnnuity(ForwardLiborAnnuity forwardLiborAnnuity, Object anything) {
+    public Class<?> visitForwardLiborAnnuity(final ForwardLiborAnnuity forwardLiborAnnuity, final Object anything) {
       return visit(forwardLiborAnnuity, anything);
     }
 
     @Override
-    public Class<?> visitFixedFloatSwap(FixedFloatSwap swap, Object anything) {
+    public Class<?> visitFixedFloatSwap(final FixedFloatSwap swap, final Object anything) {
       return visit(swap, anything);
     }
 
     @Override
-    public Class<?> visitLibor(Libor libor, Object anything) {
+    public Class<?> visitLibor(final Libor libor, final Object anything) {
       return visit(libor, anything);
     }
 
     @Override
-    public Class<?> visitFixedCouponPayment(FixedCouponPayment payment, Object anything) {
+    public Class<?> visitFixedCouponPayment(final FixedCouponPayment payment, final Object anything) {
       return visit(payment, anything);
     }
 
     @Override
-    public Class<?> visitFixedCouponAnnuity(FixedCouponAnnuity fixedCouponAnnuity) {
+    public Class<?> visitFixedCouponAnnuity(final FixedCouponAnnuity fixedCouponAnnuity) {
       return visit(fixedCouponAnnuity);
     }
 
     @Override
-    public Class<?> visitForwardLiborAnnuity(ForwardLiborAnnuity forwardLiborAnnuity) {
+    public Class<?> visitForwardLiborAnnuity(final ForwardLiborAnnuity forwardLiborAnnuity) {
       return visit(forwardLiborAnnuity);
     }
 
     @Override
-    public Class<?> visitFixedFloatSwap(FixedFloatSwap swap) {
+    public Class<?> visitFixedFloatSwap(final FixedFloatSwap swap) {
       return visit(swap);
     }
 
     @Override
-    public Class<?> visitLibor(Libor libor) {
+    public Class<?> visitLibor(final Libor libor) {
       return visit(libor);
     }
 
     @Override
-    public Class<?> visitFixedCouponPayment(FixedCouponPayment payment) {
+    public Class<?> visitFixedCouponPayment(final FixedCouponPayment payment) {
       return visit(payment);
     }
 
     @Override
-    public Class<?> visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity) {
+    public Class<?> visitGenericAnnuity(final GenericAnnuity<? extends Payment> genericAnnuity) {
       return visit(genericAnnuity);
     }
   };
@@ -242,57 +264,257 @@ public class InterestRateDerivativeVisitorTest {
   @Test
   public void test() {
     final Object curves = null;
-    final Cash cash = new Cash(1, 0, CURVE_NAME);
-    final ForwardRateAgreement fra = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
-    final InterestRateFuture future = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
-    final Libor libor = new Libor(1, 0, CURVE_NAME);
-    final Bond bond = new Bond(new double[] {1}, 0, CURVE_NAME);
-    final ForwardLiborAnnuity floatLeg = new ForwardLiborAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
-    final FixedCouponAnnuity fixedLeg = new FixedCouponAnnuity(new double[] {1}, 0.0, CURVE_NAME);
-    final FixedFloatSwap swap = new FixedFloatSwap(fixedLeg, floatLeg);
-    final TenorSwap bSwap = new TenorSwap(floatLeg, floatLeg);
-    final FloatingRateNote frn = new FloatingRateNote(floatLeg);
-    final FixedPayment fixedPayment = new FixedPayment(1, 1, CURVE_NAME);
-    final ForwardLiborPayment liborPayment = new ForwardLiborPayment(1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
-    final GenericAnnuity<Payment> ga = new GenericAnnuity<Payment>(new Payment[] {fixedPayment, liborPayment});
-    final FixedCouponSwap<ForwardLiborPayment> fcs = new FixedCouponSwap<ForwardLiborPayment>(fixedLeg, floatLeg);
-    FixedCouponAnnuity fca = new FixedCouponAnnuity(new double[] {1}, 0.05, CURVE_NAME);
-    ForwardLiborAnnuity fla = new ForwardLiborAnnuity(new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME);
-    FixedCouponPayment fcp = new FixedCouponPayment(1, 1, 0.04, CURVE_NAME);
-    assertEquals(VISITOR.visit(cash, curves), Cash.class);
-    assertEquals(fra.accept(VISITOR, curves), ForwardRateAgreement.class);
-    assertEquals(future.accept(VISITOR, curves), InterestRateFuture.class);
-    assertEquals(libor.accept(VISITOR, curves), Libor.class);
-    assertEquals(bond.accept(VISITOR, curves), Bond.class);
-    assertEquals(fixedLeg.accept(VISITOR, curves), FixedCouponAnnuity.class);
-    assertEquals(floatLeg.accept(VISITOR, curves), ForwardLiborAnnuity.class);
-    assertEquals(swap.accept(VISITOR, curves), FixedFloatSwap.class);
-    assertEquals(bSwap.accept(VISITOR, curves), TenorSwap.class);
-    assertEquals(frn.accept(VISITOR, curves), FloatingRateNote.class);
-    assertEquals(fixedPayment.accept(VISITOR, curves), FixedPayment.class);
-    assertEquals(liborPayment.accept(VISITOR, curves), ForwardLiborPayment.class);
-    assertEquals(fca.accept(VISITOR, curves), FixedCouponAnnuity.class);
-    assertEquals(fla.accept(VISITOR, curves), ForwardLiborAnnuity.class);
-    assertEquals(fcs.accept(VISITOR, curves), FixedCouponSwap.class);
-    assertEquals(fcp.accept(VISITOR, curves), FixedCouponPayment.class);
-    assertEquals(ga.accept(VISITOR), GenericAnnuity.class);
-    assertEquals(VISITOR.visit(cash), Cash.class);
-    assertEquals(fra.accept(VISITOR), ForwardRateAgreement.class);
-    assertEquals(future.accept(VISITOR), InterestRateFuture.class);
-    assertEquals(libor.accept(VISITOR), Libor.class);
-    assertEquals(bond.accept(VISITOR), Bond.class);
-    assertEquals(fixedLeg.accept(VISITOR), FixedCouponAnnuity.class);
-    assertEquals(floatLeg.accept(VISITOR), ForwardLiborAnnuity.class);
-    assertEquals(swap.accept(VISITOR), FixedFloatSwap.class);
-    assertEquals(bSwap.accept(VISITOR), TenorSwap.class);
-    assertEquals(frn.accept(VISITOR), FloatingRateNote.class);
-    assertEquals(fixedPayment.accept(VISITOR), FixedPayment.class);
-    assertEquals(liborPayment.accept(VISITOR), ForwardLiborPayment.class);
-    assertEquals(ga.accept(VISITOR), GenericAnnuity.class);
-    assertEquals(fca.accept(VISITOR), FixedCouponAnnuity.class);
-    assertEquals(fla.accept(VISITOR), ForwardLiborAnnuity.class);
-    assertEquals(fcs.accept(VISITOR), FixedCouponSwap.class);
-    assertEquals(fcp.accept(VISITOR), FixedCouponPayment.class);
+    assertEquals(VISITOR.visit(CASH, curves), Cash.class);
+    assertEquals(FRA.accept(VISITOR, curves), ForwardRateAgreement.class);
+    assertEquals(IR_FUTURE.accept(VISITOR, curves), InterestRateFuture.class);
+    assertEquals(LIBOR.accept(VISITOR, curves), Libor.class);
+    assertEquals(BOND.accept(VISITOR, curves), Bond.class);
+    assertEquals(BOND_FORWARD.accept(VISITOR, curves), BondForward.class);
+    assertEquals(BOND_FUTURE.accept(VISITOR, curves), BondFuture.class);
+    assertEquals(FIXED_LEG.accept(VISITOR, curves), FixedCouponAnnuity.class);
+    assertEquals(FLOAT_LEG.accept(VISITOR, curves), ForwardLiborAnnuity.class);
+    assertEquals(SWAP.accept(VISITOR, curves), FixedFloatSwap.class);
+    assertEquals(TENOR_SWAP.accept(VISITOR, curves), TenorSwap.class);
+    assertEquals(FRN.accept(VISITOR, curves), FloatingRateNote.class);
+    assertEquals(FIXED_PAYMENT.accept(VISITOR, curves), FixedPayment.class);
+    assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), ForwardLiborPayment.class);
+    assertEquals(FCA.accept(VISITOR, curves), FixedCouponAnnuity.class);
+    assertEquals(FLA.accept(VISITOR, curves), ForwardLiborAnnuity.class);
+    assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
+    assertEquals(FCP.accept(VISITOR, curves), FixedCouponPayment.class);
+    assertEquals(CM.accept(VISITOR, curves), ContinuouslyMonitoredAverageRatePayment.class);
+    assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
+    assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
+    assertEquals(VISITOR.visit(CASH), Cash.class);
+    assertEquals(FRA.accept(VISITOR), ForwardRateAgreement.class);
+    assertEquals(IR_FUTURE.accept(VISITOR), InterestRateFuture.class);
+    assertEquals(LIBOR.accept(VISITOR), Libor.class);
+    assertEquals(BOND.accept(VISITOR), Bond.class);
+    assertEquals(BOND_FORWARD.accept(VISITOR), BondForward.class);
+    assertEquals(BOND_FUTURE.accept(VISITOR), BondFuture.class);
+    assertEquals(FIXED_LEG.accept(VISITOR), FixedCouponAnnuity.class);
+    assertEquals(FLOAT_LEG.accept(VISITOR), ForwardLiborAnnuity.class);
+    assertEquals(SWAP.accept(VISITOR), FixedFloatSwap.class);
+    assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
+    assertEquals(FRN.accept(VISITOR), FloatingRateNote.class);
+    assertEquals(FIXED_PAYMENT.accept(VISITOR), FixedPayment.class);
+    assertEquals(LIBOR_PAYMENT.accept(VISITOR), ForwardLiborPayment.class);
+    assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
+    assertEquals(FCA.accept(VISITOR), FixedCouponAnnuity.class);
+    assertEquals(FLA.accept(VISITOR), ForwardLiborAnnuity.class);
+    assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
+    assertEquals(FCP.accept(VISITOR), FixedCouponPayment.class);
+    assertEquals(CM.accept(VISITOR), ContinuouslyMonitoredAverageRatePayment.class);
+    assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCash1() {
+    ABSTRACT_VISITOR.visit(CASH, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCash2() {
+    ABSTRACT_VISITOR.visit(CASH);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFRA1() {
+    ABSTRACT_VISITOR.visit(FRA, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFRA2() {
+    ABSTRACT_VISITOR.visit(FRA);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testIRFuture1() {
+    ABSTRACT_VISITOR.visit(IR_FUTURE, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testIRFuture2() {
+    ABSTRACT_VISITOR.visit(IR_FUTURE);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLibor1() {
+    ABSTRACT_VISITOR.visit(LIBOR, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLibor2() {
+    ABSTRACT_VISITOR.visit(LIBOR);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBond1() {
+    ABSTRACT_VISITOR.visit(BOND, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBond2() {
+    ABSTRACT_VISITOR.visit(BOND);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBondForward1() {
+    ABSTRACT_VISITOR.visit(BOND_FORWARD, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBondForward2() {
+    ABSTRACT_VISITOR.visit(BOND_FORWARD);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBondFuture1() {
+    ABSTRACT_VISITOR.visit(BOND_FUTURE, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testBondFuture2() {
+    ABSTRACT_VISITOR.visit(BOND_FUTURE);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFloatLeg1() {
+    ABSTRACT_VISITOR.visit(FLOAT_LEG, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFloatLeg2() {
+    ABSTRACT_VISITOR.visit(FLOAT_LEG);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFixedLeg1() {
+    ABSTRACT_VISITOR.visit(FIXED_LEG, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFixedLeg2() {
+    ABSTRACT_VISITOR.visit(FIXED_LEG);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testSwap1() {
+    ABSTRACT_VISITOR.visit(SWAP, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testSwap2() {
+    ABSTRACT_VISITOR.visit(SWAP);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testTenorSwap1() {
+    ABSTRACT_VISITOR.visit(TENOR_SWAP, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testTenorSwap2() {
+    ABSTRACT_VISITOR.visit(TENOR_SWAP);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFRN1() {
+    ABSTRACT_VISITOR.visit(FRN, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFRN2() {
+    ABSTRACT_VISITOR.visit(FRN);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFixedPayment1() {
+    ABSTRACT_VISITOR.visit(FIXED_PAYMENT, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFixedPayment2() {
+    ABSTRACT_VISITOR.visit(FIXED_PAYMENT);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLiborPayment1() {
+    ABSTRACT_VISITOR.visit(LIBOR_PAYMENT, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLiborPayment2() {
+    ABSTRACT_VISITOR.visit(LIBOR_PAYMENT);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGA1() {
+    ABSTRACT_VISITOR.visit(GA, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGA2() {
+    ABSTRACT_VISITOR.visit(GA);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCS1() {
+    ABSTRACT_VISITOR.visit(FCS, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCS2() {
+    ABSTRACT_VISITOR.visit(FCS);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCA1() {
+    ABSTRACT_VISITOR.visit(FCA, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCA2() {
+    ABSTRACT_VISITOR.visit(FCA);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFLA1() {
+    ABSTRACT_VISITOR.visit(FLA, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFLA2() {
+    ABSTRACT_VISITOR.visit(FLA);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCP1() {
+    ABSTRACT_VISITOR.visit(FCP, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testFCP2() {
+    ABSTRACT_VISITOR.visit(FCP);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGeneralSwap1() {
+    ABSTRACT_VISITOR.visit(FIXED_FIXED, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGeneralSwap2() {
+    ABSTRACT_VISITOR.visit(FIXED_FIXED);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCM1() {
+    ABSTRACT_VISITOR.visit(CM, CURVE_NAME);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCM2() {
+    ABSTRACT_VISITOR.visit(CM);
+  }
 }
