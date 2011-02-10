@@ -14,6 +14,7 @@ import com.opengamma.financial.instrument.irfuture.IRFutureDefinition;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
+import com.opengamma.financial.instrument.swap.TenorSwapDefinition;
 
 /**
  * 
@@ -61,4 +62,8 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap, T data);
 
   U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap);
+
+  U visitTenorSwapDefinition(TenorSwapDefinition swap, T data);
+
+  U visitTenorSwapDefinition(TenorSwapDefinition swap);
 }

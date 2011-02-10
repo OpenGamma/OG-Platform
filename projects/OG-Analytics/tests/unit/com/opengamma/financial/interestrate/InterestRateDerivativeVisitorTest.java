@@ -47,7 +47,7 @@ public class InterestRateDerivativeVisitorTest {
   private static final ForwardLiborAnnuity FLOAT_LEG = new ForwardLiborAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
   private static final FixedCouponAnnuity FIXED_LEG = new FixedCouponAnnuity(new double[] {1}, 0.0, CURVE_NAME);
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
-  private static final TenorSwap TENOR_SWAP = new TenorSwap(FLOAT_LEG, FLOAT_LEG);
+  private static final TenorSwap<ForwardLiborPayment> TENOR_SWAP = new TenorSwap<ForwardLiborPayment>(FLOAT_LEG, FLOAT_LEG);
   private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
   private static final FixedPayment FIXED_PAYMENT = new FixedPayment(1, 1, CURVE_NAME);
   private static final ForwardLiborPayment LIBOR_PAYMENT = new ForwardLiborPayment(1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
@@ -86,7 +86,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitTenorSwap(final TenorSwap swap, final Object anything) {
+    public Class<?> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Object anything) {
       return visit(swap, anything);
     }
 
@@ -156,7 +156,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitTenorSwap(final TenorSwap swap) {
+    public Class<?> visitTenorSwap(final TenorSwap<? extends Payment> swap) {
       return visit(swap);
     }
 

@@ -31,6 +31,7 @@ import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.SwapConvention;
+import com.opengamma.financial.instrument.swap.TenorSwapDefinition;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -54,6 +55,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final FRADefinition FRA = new FRADefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2012, 1, 1), 0.02, SWAP_CONVENTION);
   private static final IRFutureDefinition IR_FUTURE = new IRFutureDefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 4, 1), 95, IRF_CONVENTION);
   private static final FixedFloatSwapDefinition FIXED_FLOAT_SWAP = new FixedFloatSwapDefinition(FIXED_SWAP_LEG, FLOATING_SWAP_LEG);
+  private static final TenorSwapDefinition TENOR_SWAP = new TenorSwapDefinition(new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.06,
+      SWAP_CONVENTION), FLOATING_SWAP_LEG);
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
 
@@ -78,6 +81,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(IR_FUTURE.accept(VISITOR, o), "IRFuture1");
     assertEquals(FIXED_FLOAT_SWAP.accept(VISITOR), "FixedFloatSwap2");
     assertEquals(FIXED_FLOAT_SWAP.accept(VISITOR, o), "FixedFloatSwap1");
+    assertEquals(TENOR_SWAP.accept(VISITOR), "TenorSwap2");
+    assertEquals(TENOR_SWAP.accept(VISITOR, o), "TenorSwap1");
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
@@ -182,5 +187,14 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
       return "FixedFloatSwap2";
     }
 
+    @Override
+    public String visitTenorSwapDefinition(final TenorSwapDefinition swap, final T data) {
+      return "TenorSwap1";
+    }
+
+    @Override
+    public String visitTenorSwapDefinition(final TenorSwapDefinition swap) {
+      return "TenorSwap2";
+    }
   }
 }
