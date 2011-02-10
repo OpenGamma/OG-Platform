@@ -40,6 +40,33 @@ CSettings::~CSettings () {
 	}
 }
 
+#ifdef _WIN32
+static BOOL _IsValidLibrary (PCTSTR pszLibrary) {
+	DWORD dwAttrib = GetFileAttributes (pszLibrary);
+	if (dwAttrib == INVALID_FILE_ATTRIBUTES) return FALSE;
+	// Try and load to verify that the library is the same bittage as this process
+	HMODULE hModule = LoadLibrary (pszLibrary);
+	if (hModule) {
+		FreeLibrary (hModule);
+		return TRUE;
+	} else {
+		DWORD dwError = GetLastError ();
+		if (dwError == ERROR_BAD_EXE_FORMAT) {
+#if defined (_M_IX86)
+			LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 32-bit Windows module - try the 64-bit service"));
+#elif defined (_M_X64)
+			LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 64-bit Windows module - try the 32-bit service"));
+#else
+#error "Need correct error message for processor"
+#endif
+		} else {
+			LOGWARN (TEXT ("Found ") << pszLibrary << TEXT (" but couldn't load, error ") << dwError);
+		}
+		return FALSE;
+	}
+}
+#endif
+
 #define MAX_ENV_LEN 32767
 const TCHAR *CSettings::GetJvmLibrary () {
 	if (!m_pszDefaultJvmLibrary) {
@@ -59,13 +86,11 @@ const TCHAR *CSettings::GetJvmLibrary () {
 				return NULL;
 			}
 			StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\bin\\server\\jvm.dll"), pszPath);
-			DWORD dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-			if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+			if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 				LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from JAVA_HOME"));
 			} else {
 				StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\bin\\client\\jvm.dll"), pszPath);
-				dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-				if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+				if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 					LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from JAVA_HOME"));
 				} else {
 					LOGWARN (TEXT ("JAVA_HOME set but bin\\<server|client>\\jvm.dll doesn't exist"));
@@ -89,8 +114,7 @@ const TCHAR *CSettings::GetJvmLibrary () {
 					}
 					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\java.exe"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					DWORD dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-					if (dwAttrib == INVALID_FILE_ATTRIBUTES) {
+					if (!_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 						delete m_pszDefaultJvmLibrary;
 						m_pszDefaultJvmLibrary = NULL;
 						psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
@@ -99,29 +123,25 @@ const TCHAR *CSettings::GetJvmLibrary () {
 					LOGDEBUG (TEXT ("Default Java executable ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
 					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\server\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-					if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\..\\jre\\bin\\server\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-					if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\client\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-					if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\..\\jre\\bin\\client\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					dwAttrib = GetFileAttributes (m_pszDefaultJvmLibrary);
-					if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
+					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
 						break;
 					}
@@ -189,13 +209,13 @@ const TCHAR *CSettings::GetJarPath () {
 				LOGDEBUG (TEXT ("Testing path ") << szPath);
 				*pszEnd = PATH_CHAR;
 #endif
-				memcpy (pszEnd, CLIENT_JAR_NAME, (CLIENT_JAR_LEN + 1) * sizeof (TCHAR));
+				memcpy (pszEnd + 1, CLIENT_JAR_NAME, (CLIENT_JAR_LEN + 1) * sizeof (TCHAR));
 #ifdef _WIN32
 				HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 				if (hFile == INVALID_HANDLE_VALUE) {
 #else
 				int nFile = open (szPath, O_RDONLY);
-				if (nFile > 0) {
+				if (nFile <= 0) {
 #endif
 					int ec = GetLastError ();
 					if (ec != ENOENT) {
@@ -214,7 +234,7 @@ const TCHAR *CSettings::GetJarPath () {
 					m_pszDefaultJarPath = _tcsdup (szPath);
 					break;
 				}
-				pszEnd = _tcsrchr (szPath, '\\');
+				pszEnd = _tcsrchr (szPath, PATH_CHAR);
 			}
 			if (!m_pszDefaultJarPath) {
 				LOGWARN (TEXT ("Couldn't find client library Jar on module path"));

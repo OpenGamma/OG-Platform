@@ -61,7 +61,7 @@ public class RestClient {
    * to the user's context. This is here as a placeholder - passing NULL will give a default and
    * anonymous connection.
    * @param fudgeContext  the context, not null
-   * @param securityCredentials  the security details, not null
+   * @param securityCredentials  the security details
    * @return the RESTful client, not null
    */
   public static RestClient getInstance(FudgeContext fudgeContext, Map<String, String> securityCredentials) {

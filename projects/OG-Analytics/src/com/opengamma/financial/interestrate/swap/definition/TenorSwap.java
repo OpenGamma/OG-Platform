@@ -7,20 +7,25 @@ package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * 
+ * @param <R> The type of the (floating) payments
  */
-public class TenorSwap extends Swap<ForwardLiborPayment, ForwardLiborPayment> {
+public class TenorSwap<R extends Payment> extends Swap<R, R> {
 
-  public TenorSwap(final GenericAnnuity<ForwardLiborPayment> payLeg, final GenericAnnuity<ForwardLiborPayment> receiveLeg) {
+  public TenorSwap(final GenericAnnuity<R> payLeg, final GenericAnnuity<R> receiveLeg) {
     super(payLeg, receiveLeg);
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitTenorSwap(this, data);
   }
 
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitTenorSwap(this);
+  }
 }

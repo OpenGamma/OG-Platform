@@ -14,6 +14,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -159,22 +160,27 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitForwardLiborAnnuity(ForwardLiborAnnuity annuity, YieldCurveBundle curves) {
+  public Double visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
-  public Double visitFixedCouponPayment(FixedCouponPayment payment, YieldCurveBundle curves) {
+  public Double visitFixedCouponPayment(final FixedCouponPayment payment, final YieldCurveBundle curves) {
     return visitFixedPayment(payment, curves);
   }
 
   @Override
-  public Double visitFixedCouponAnnuity(FixedCouponAnnuity annuity, YieldCurveBundle curves) {
+  public Double visitFixedCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
-  public Double visitFixedFloatSwap(FixedFloatSwap swap, YieldCurveBundle curves) {
+  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitFixedCouponSwap(swap, curves);
+  }
+
+  @Override
+  public Double visitLibor(final Libor libor, final YieldCurveBundle curves) {
+    return visitCash(libor, curves);
   }
 }

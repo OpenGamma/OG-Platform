@@ -26,6 +26,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -53,9 +54,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
    * Creates the resource.
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
+   * @param securitySource  the security source, not null
    */
-  public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader) {
-    super(positionMaster, securityLoader);
+  public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource) {
+    super(positionMaster, securityLoader, securitySource);
   }
 
   //-------------------------------------------------------------------------

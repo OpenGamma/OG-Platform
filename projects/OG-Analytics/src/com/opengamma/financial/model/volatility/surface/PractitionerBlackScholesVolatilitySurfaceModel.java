@@ -103,6 +103,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       _result = result;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final DoublesPair... xy) {
       Validate.notNull(xy, "xy pairs");

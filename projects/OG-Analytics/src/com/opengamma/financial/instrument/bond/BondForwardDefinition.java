@@ -19,7 +19,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
@@ -27,10 +28,11 @@ import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 /**
  * 
  */
-public class BondForwardDefinition implements InterestRateDerivativeProvider<BondForward> {
+public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<BondForward> {
   private final BondDefinition _underlyingBond;
   private final LocalDate _forwardDate;
   private final BondConvention _convention;
+  private final double _accruedInterestAtDelivery;
   private static final FixedCouponPayment[] EMPTY_ARRAY = new FixedCouponPayment[0];
 
   public BondForwardDefinition(final BondDefinition underlyingBond, final LocalDate forwardDate, final BondConvention convention) {
@@ -42,6 +44,10 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
     _underlyingBond = underlyingBond;
     _forwardDate = forwardDate;
     _convention = convention;
+    final BondConvention underlyingConvention = _underlyingBond.getConvention();
+    final double coupon = underlyingBond.getCoupons()[0]; //TODO not necessarily - coupons might not be equal (unlikely but should be tested for)
+    _accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), coupon,
+        _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays());
   }
 
   public BondDefinition getUnderlyingBond() {
@@ -87,17 +93,13 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
     return ObjectUtils.equals(_convention, other._convention);
   }
 
-  //TODO pass in the convention here?
   @Override
   public BondForward toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(!date.isAfter(_forwardDate), date + " is after forward date (" + _forwardDate + ")");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    final BondConvention underlyingConvention = _underlyingBond.getConvention(); //TODO need a bond forward convention?
     final LocalDate settlementDate = getSettlementDate(date, _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
     final double accruedInterest = _underlyingBond.toDerivative(date, yieldCurveNames).getAccruedInterest();
-    final double coupon = _underlyingBond.getCoupons()[0]; //TODO not necessarily - coupons might not be equal (unlikely but should be tested for)
-    final double accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), coupon,
-        _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays()); //TODO move this into the forward definition
     final Bond bond = _underlyingBond.toDerivative(date, yieldCurveNames);
     final DayCount repoDaycount = _convention.getDayCount();
     final double timeToExpiry = repoDaycount.getDayCountFraction(settlementDate.atMidnight().atZone(TimeZone.UTC), _forwardDate.atMidnight().atZone(TimeZone.UTC));
@@ -120,7 +122,7 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
       }
       i++;
     }
-    return new BondForward(bond, timeToExpiry, accruedInterest, accruedInterestAtDelivery, expiredCoupons.toArray(EMPTY_ARRAY));
+    return new BondForward(bond, timeToExpiry, accruedInterest, _accruedInterestAtDelivery, expiredCoupons.toArray(EMPTY_ARRAY));
   }
 
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
@@ -129,5 +131,15 @@ public class BondForwardDefinition implements InterestRateDerivativeProvider<Bon
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }
     return date;
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitBondForwardDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitBondForwardDefinition(this);
   }
 }

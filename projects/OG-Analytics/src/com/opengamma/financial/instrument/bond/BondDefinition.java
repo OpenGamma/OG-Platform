@@ -18,7 +18,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.CompareUtils;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.CompareUtils;
  * 
  * A class that defines a coupon bond. 
  */
-public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
+public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondDefinition.class);
   private final LocalDate[] _nominalDates;
   private final LocalDate[] _settlementDates; // TODO settlement dates to be calculated in this class?
@@ -154,7 +155,7 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
   @Override
   public Bond toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(date.isBefore(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
+    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
     s_logger.info("Using the first yield curve name as the funding curve name");
@@ -194,6 +195,16 @@ public class BondDefinition implements InterestRateDerivativeProvider<Bond> {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }
     return date;
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitBondDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitBondDefinition(this);
   }
 
 }

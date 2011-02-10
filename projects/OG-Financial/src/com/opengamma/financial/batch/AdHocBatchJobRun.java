@@ -46,10 +46,9 @@ public class AdHocBatchJobRun extends BatchJobRun {
   
   public AdHocBatchJobRun(
       SingleComputationCycle cycle,
-      LocalDate observationDate,
-      String observationTime) {
+      BatchId batchId) {
 
-    super(new BatchId(observationDate, observationTime));
+    super(batchId);
     
     _cycle = cycle;
     _creationTime = Instant.now();
