@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.bond;
+package com.opengamma.financial.instrument.future;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
-import com.opengamma.financial.instrument.bond.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 
@@ -48,6 +48,7 @@ public class BondFutureDefinitionTest {
   private static final double[] CONVERSION_FACTORS = new double[] {1, .8, .6, .4};
   private static final BondDefinition[] DELIVERABLES = new BondDefinition[] {BOND_DEFINITION1, BOND_DEFINITION2, BOND_DEFINITION3, BOND_DEFINITION4};
   private static final BondFutureDefinition BOND_FUTURE_DEFINITION = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
+  private static final double FUTURE_PRICE = 104;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDeliverables() {
@@ -81,12 +82,12 @@ public class BondFutureDefinitionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testToDerivativeNullDate() {
-    BOND_FUTURE_DEFINITION.toDerivative(null, "A");
+    BOND_FUTURE_DEFINITION.toDerivative(null, FUTURE_PRICE, "A");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testToDerivativeNullNames() {
-    BOND_FUTURE_DEFINITION.toDerivative(DELIVERY_DATE, (String[]) null);
+    BOND_FUTURE_DEFINITION.toDerivative(DELIVERY_DATE, FUTURE_PRICE, (String[]) null);
   }
 
   @Test
@@ -124,7 +125,7 @@ public class BondFutureDefinitionTest {
     final BondForwardDefinition f1 = new BondForwardDefinition(b1, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
     final BondForwardDefinition f2 = new BondForwardDefinition(b2, DELIVERY_DATE, BOND_FUTURE_CONVENTION);
     final BondFutureDefinition definition = new BondFutureDefinition(new BondDefinition[] {b1, b2}, cf, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
-    final BondFuture future = new BondFuture(new BondForward[] {f1.toDerivative(date, curveName), f2.toDerivative(date, curveName)}, cf);
-    assertEquals(future, definition.toDerivative(date, curveName));
+    final BondFuture future = new BondFuture(new BondForward[] {f1.toDerivative(date, curveName), f2.toDerivative(date, curveName)}, cf, FUTURE_PRICE);
+    assertEquals(future, definition.toDerivative(date, FUTURE_PRICE, curveName));
   }
 }

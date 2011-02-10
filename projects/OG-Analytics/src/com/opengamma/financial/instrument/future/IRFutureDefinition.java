@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.irfuture;
+package com.opengamma.financial.instrument.future;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -19,29 +19,26 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 
 /**
  * 
  */
-public class IRFutureDefinition implements FixedIncomeInstrumentDefinition<InterestRateFuture> {
+public class IRFutureDefinition implements FixedIncomeFutureInstrumentDefinition<InterestRateFuture> {
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureDefinition.class);
   private final ZonedDateTime _lastTradeDate;
   private final ZonedDateTime _maturityDate;
   private final IRFutureConvention _convention;
-  private final double _rate;
 
-  public IRFutureDefinition(final ZonedDateTime lastTradeDate, final ZonedDateTime maturityDate, final double rate, final IRFutureConvention convention) {
+  public IRFutureDefinition(final ZonedDateTime lastTradeDate, final ZonedDateTime maturityDate, final IRFutureConvention convention) {
     Validate.notNull(lastTradeDate, "last trade date");
     Validate.notNull(maturityDate, "maturity date");
     Validate.notNull(convention, "convention");
     Validate.isTrue(maturityDate.isAfter(lastTradeDate), "maturity must be after last trade date");
-    Validate.isTrue(rate <= 100, "rate must be less than or equal to 100");
     _lastTradeDate = lastTradeDate;
     _maturityDate = maturityDate;
-    _rate = rate;
     _convention = convention;
   }
 
@@ -57,19 +54,12 @@ public class IRFutureDefinition implements FixedIncomeInstrumentDefinition<Inter
     return _convention;
   }
 
-  public double getRate() {
-    return _rate;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + _convention.hashCode();
     result = prime * result + _maturityDate.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_rate);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _lastTradeDate.hashCode();
     return result;
   }
@@ -92,14 +82,11 @@ public class IRFutureDefinition implements FixedIncomeInstrumentDefinition<Inter
     if (!ObjectUtils.equals(_maturityDate, other._maturityDate)) {
       return false;
     }
-    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
-      return false;
-    }
     return ObjectUtils.equals(_convention, other._convention);
   }
 
   @Override
-  public InterestRateFuture toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public InterestRateFuture toDerivative(final LocalDate date, final double price, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
@@ -118,16 +105,16 @@ public class IRFutureDefinition implements FixedIncomeInstrumentDefinition<Inter
     final double settlementDateFraction = dayCount.getDayCountFraction(zonedDate, startDate);
     final double lastTradeDateFraction = dayCount.getDayCountFraction(zonedDate, _lastTradeDate);
     final double maturityDateFraction = dayCount.getDayCountFraction(zonedDate, _maturityDate);
-    return new InterestRateFuture(settlementDateFraction, lastTradeDateFraction, maturityDateFraction, yearFraction, valueYearFraction, _rate, indexCurveName);
+    return new InterestRateFuture(settlementDateFraction, lastTradeDateFraction, maturityDateFraction, yearFraction, valueYearFraction, price, indexCurveName);
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final FixedIncomeFutureInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitIRFutureDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeFutureInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitIRFutureDefinition(this);
   }
 

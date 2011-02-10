@@ -26,10 +26,9 @@ public final class BondFutureNetBasisCalculator extends BondFutureCalculator {
   }
 
   @Override
-  public double[] calculate(final BondFuture bondFuture, final BondFutureDeliverableBasketDataBundle basketData, final double futurePrice) {
+  public double[] calculate(final BondFuture bondFuture, final BondFutureDeliverableBasketDataBundle basketData) {
     Validate.notNull(bondFuture, "bond future");
     Validate.notNull(basketData, "basket data");
-    Validate.isTrue(futurePrice > 0, "future price must be positive");
     final BondForward[] deliverableBonds = bondFuture.getBondForwards();
     final int n = deliverableBonds.length;
     Validate.isTrue(n == basketData.getBasketSize());
@@ -38,7 +37,7 @@ public final class BondFutureNetBasisCalculator extends BondFutureCalculator {
     final double[] conversionFactors = bondFuture.getConversionFactors();
     final double[] result = new double[n];
     for (int i = 0; i < n; i++) {
-      final double invoicePrice = futurePrice * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
+      final double invoicePrice = bondFuture.getPrice() * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
       final double forwardDirtyPrice = BOND_FORWARD_CALCULATOR.calculate(deliverableBonds[i], cleanPrices[i], repoRates[i]);
       result[i] = forwardDirtyPrice - invoicePrice;
     }

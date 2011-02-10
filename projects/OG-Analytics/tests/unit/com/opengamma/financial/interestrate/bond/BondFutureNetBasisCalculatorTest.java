@@ -32,28 +32,23 @@ public class BondFutureNetBasisCalculatorTest {
       new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), DELIVERY_DATES[1], ACCRUED_INTEREST[1], ACCRUED_INTEREST_AT_DELIVERY[1]),
       new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), DELIVERY_DATES[2], ACCRUED_INTEREST[2], ACCRUED_INTEREST_AT_DELIVERY[2])};
   private static final double[] CONVERSION_FACTORS = new double[] {0.123, 0.456, 0.789};
-  private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS);
   private static final BondFutureDeliverableBasketDataBundle BASKET_DATA = new BondFutureDeliverableBasketDataBundle(CLEAN_PRICES, REPO_RATES);
   private static final double FUTURE_PRICE = 105;
+  private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS, FUTURE_PRICE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBondFuture() {
-    NET_BASIS_CALCULATOR.calculate(null, BASKET_DATA, FUTURE_PRICE);
+    NET_BASIS_CALCULATOR.calculate(null, BASKET_DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBasket() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, null, FUTURE_PRICE);
+    NET_BASIS_CALCULATOR.calculate(FUTURE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongBasketSize() {
-    NET_BASIS_CALCULATOR.calculate(new BondFuture(new BondForward[] {DELIVERABLES[0]}, new double[] {0.78}), BASKET_DATA, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativeFuturePrice() {
-    NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA, -FUTURE_PRICE);
+    NET_BASIS_CALCULATOR.calculate(new BondFuture(new BondForward[] {DELIVERABLES[0]}, new double[] {0.78}, FUTURE_PRICE), BASKET_DATA);
   }
 
   @Test
@@ -70,7 +65,7 @@ public class BondFutureNetBasisCalculatorTest {
           deliverableDirtyPrices[i], REPO_RATES[i]);
       netBasis[i] = forwardDirtyPrices[i] - invoicePrices[i];
     }
-    final double[] result = NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA, FUTURE_PRICE);
+    final double[] result = NET_BASIS_CALCULATOR.calculate(FUTURE, BASKET_DATA);
     assertArrayEquals(result, netBasis, 1e-15);
   }
 }

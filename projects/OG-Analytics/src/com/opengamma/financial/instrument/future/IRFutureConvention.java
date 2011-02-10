@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.irfuture;
+package com.opengamma.financial.instrument.future;
 
 import org.apache.commons.lang.Validate;
 

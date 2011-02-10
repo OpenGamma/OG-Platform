@@ -14,7 +14,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Doubles;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.Region;
@@ -71,7 +70,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
   }
 
   public TenorSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String payLegCurveName, final String recieveLegCurveName, final double marketRate,
-       final ZonedDateTime now) {
+      final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
@@ -98,36 +97,26 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
 
-    final ForwardLiborAnnuity pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate,
-        fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/, conventions.getBasisSwapPayFloatingLegSettlementDays());
+    final ForwardLiborAnnuity pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,
+        conventions.getBasisSwapPayFloatingLegSettlementDays());
 
-    final ForwardLiborAnnuity receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate,
-        fundingCurveName, recieveLegCurveName, calendar, marketRate, conventions.getBasisSwapReceiveFloatingLegSettlementDays());
+    final ForwardLiborAnnuity receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate, fundingCurveName, recieveLegCurveName, calendar, marketRate,
+        conventions.getBasisSwapReceiveFloatingLegSettlementDays());
 
     return new TenorSwap(pay, receive);
   }
 
   public ForwardLiborAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double marketRate, final int settlementDays) {
-    s_logger.debug("getFloatLeg(floatLeg=" + floatLeg + ", now=" + now + ", effectiveDate=" + effectiveDate + ", maturityDate=" + maturityDate + ", fundingCurveName=" + fundingCurveName
-        + ", liborCurveName" + liborCurveName + ", calendar=" + calendar + ", settlementDays=" + settlementDays);
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
-    s_logger.debug("unadjustedDates=" + Arrays.asList(unadjustedDates));
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
-    s_logger.debug("adjustedDates=" + Arrays.asList(adjustedDates));
     final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
-    s_logger.debug("resetDates=" + Arrays.asList(resetDates));
     final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
-    s_logger.debug("maturityDates=" + Arrays.asList(maturityDates));
 
     final double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
-    s_logger.debug("paymentTimes=" + Doubles.asList(paymentTimes));
     final double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
-    s_logger.debug("resetTimes=" + Doubles.asList(resetTimes));
     final double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
-    s_logger.debug("maturityTimes=" + Doubles.asList(maturityTimes));
     final double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
-    s_logger.debug("yearFractions=" + Doubles.asList(yearFractions));
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
 
     final double[] spreads = new double[paymentTimes.length];

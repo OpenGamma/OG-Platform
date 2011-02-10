@@ -11,8 +11,9 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
@@ -85,8 +86,8 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public TenorSwap visitTenorSwap(final TenorSwap swap, final Double rate) {
-    return new TenorSwap(swap.getPayLeg(), visitForwardLiborAnnuity((ForwardLiborAnnuity) swap.getReceiveLeg(), rate));
+  public TenorSwap<? extends Payment> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Double rate) {
+    return new TenorSwap<ForwardLiborPayment>((ForwardLiborAnnuity) swap.getPayLeg(), visitForwardLiborAnnuity((ForwardLiborAnnuity) swap.getReceiveLeg(), rate));
   }
 
   @Override
@@ -94,8 +95,4 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getReceiveLeg());
   }
 
-  @Override
-  public Libor visitLibor(final Libor libor, final Double rate) {
-    return new Libor(libor.getMaturity(), rate, libor.getTradeTime(), libor.getYearFraction(), libor.getYieldCurveName());
-  }
 }

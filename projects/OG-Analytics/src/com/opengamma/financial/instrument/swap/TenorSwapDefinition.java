@@ -9,6 +9,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
@@ -21,6 +23,7 @@ import com.opengamma.util.CompareUtils;
  * 
  */
 public class TenorSwapDefinition implements FixedIncomeInstrumentDefinition<TenorSwap<Payment>> {
+  private static final Logger s_logger = LoggerFactory.getLogger(TenorSwapDefinition.class);
   private final FloatingSwapLegDefinition _payLeg;
   private final FloatingSwapLegDefinition _receiveLeg;
 
@@ -69,8 +72,11 @@ public class TenorSwapDefinition implements FixedIncomeInstrumentDefinition<Teno
 
   @Override
   public TenorSwap<Payment> toDerivative(final LocalDate date, final String... yieldCurveNames) {
-    final GenericAnnuity<Payment> payLeg = _payLeg.toDerivative(date, yieldCurveNames);
-    final GenericAnnuity<Payment> receiveLeg = _receiveLeg.toDerivative(date, yieldCurveNames);
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 2);
+    s_logger.info("Using first yield curve name as the funding curve name, the second as the pay leg libor curve name and the third as the receive leg libor curve name");
+    final GenericAnnuity<Payment> payLeg = _payLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[1]);
+    final GenericAnnuity<Payment> receiveLeg = _receiveLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[2]);
     return new TenorSwap<Payment>(payLeg, receiveLeg);
   }
 

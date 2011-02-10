@@ -32,7 +32,6 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -242,7 +241,7 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate) {
-    return new Libor(time, rate, indexCurveName);
+    return new Cash(time, rate, indexCurveName);
   }
 
   protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName, final String indexCurveName, final double rate) {
