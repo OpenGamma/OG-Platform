@@ -14,7 +14,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.security.MockSecuritySource;
+import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;

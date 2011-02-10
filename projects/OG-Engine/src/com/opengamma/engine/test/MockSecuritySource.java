@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.engine.test;
 
 import java.util.ArrayList;
 import java.util.Collection;

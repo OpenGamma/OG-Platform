@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.core.common.Currency;
-import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
