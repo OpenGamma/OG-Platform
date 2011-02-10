@@ -5,13 +5,20 @@
  */
 package com.opengamma.core.region;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.time.calendar.TimeZone;
+
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.common.Currency;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Utilities and constants for regions.
@@ -139,6 +146,27 @@ public class RegionUtils {
       throw new IllegalArgumentException("Code is invalid: " + code);
     }
     return Identifier.of(FINANCIAL, code);
+  }
+
+  /**
+   * Creates a set of regions from a region id. This is useful in the case where the region is compound (e.g. NY+LON)
+   * @param regionSource The region source, not null
+   * @param regionId The region id, not null
+   * @return a set of the region(s)
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Region> getRegions(RegionSource regionSource, final Identifier regionId) {
+    Validate.notNull(regionSource, "region source");
+    Validate.notNull(regionId, "region id");
+    if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
+      final String[] regions = regionId.getValue().split("\\+");
+      final Set<Region> resultRegions = new HashSet<Region>();
+      for (final String region : regions) {
+        resultRegions.add(regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
+      }
+      return resultRegions;
+    } 
+    return Collections.singleton(regionSource.getHighestLevelRegion(regionId)); 
   }
 
 }
