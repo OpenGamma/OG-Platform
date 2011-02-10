@@ -8,7 +8,6 @@ package com.opengamma.math.surface;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -24,12 +23,12 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
-    final Function<DoublesPair, Double> f = surface.getFunction();
-    final Function<DoublesPair, Double> shiftedFunction = new Function<DoublesPair, Double>() {
+    final Function<Double, Double> f = surface.getFunction();
+    final Function<Double, Double> shiftedFunction = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(final DoublesPair... x) {
-        return f.evaluate(x) + shift;
+      public Double evaluate(final Double... xy) {
+        return f.evaluate(xy) + shift;
       }
 
     };

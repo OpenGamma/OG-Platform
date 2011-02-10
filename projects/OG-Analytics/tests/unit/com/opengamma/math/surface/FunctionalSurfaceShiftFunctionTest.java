@@ -10,18 +10,16 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
 public class FunctionalSurfaceShiftFunctionTest {
-  private static final Function<DoublesPair, Double> F = new Function<DoublesPair, Double>() {
+  private static final Function<Double, Double> F = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final DoublesPair... x) {
-      final DoublesPair p = x[0];
-      return p.getFirst() + p.getSecond();
+    public Double evaluate(final Double... xy) {
+      return xy[0] + xy[1];
     }
 
   };
@@ -40,12 +38,12 @@ public class FunctionalSurfaceShiftFunctionTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void test3() {
-    SHIFT.evaluate(SURFACE, new double[] {2}, new double[] {1}, new double[] {2.});
+    SHIFT.evaluate(SURFACE, new double[] {2 }, new double[] {1 }, new double[] {2. });
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void test4() {
-    SHIFT.evaluate(SURFACE, new double[] {2}, new double[] {1}, new double[] {2.}, "A");
+    SHIFT.evaluate(SURFACE, new double[] {2 }, new double[] {1 }, new double[] {2. }, "A");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -65,7 +63,7 @@ public class FunctionalSurfaceShiftFunctionTest {
     for (int i = 0; i < 10; i++) {
       final double x = Math.random();
       final double y = Math.random();
-      assertEquals(shifted.getZValue(x, y), F.evaluate(DoublesPair.of(x, y)) + shift, 1e-15);
+      assertEquals(shifted.getZValue(x, y), F.evaluate(x, y) + shift, 1e-15);
     }
     assertEquals(shifted.getName(), "PARALLEL_SHIFT_A");
     final String newName = "Y";
@@ -73,7 +71,7 @@ public class FunctionalSurfaceShiftFunctionTest {
     for (int i = 0; i < 10; i++) {
       final double x = Math.random();
       final double y = Math.random();
-      assertEquals(shifted.getZValue(x, y), F.evaluate(DoublesPair.of(x, y)) + shift, 1e-15);
+      assertEquals(shifted.getZValue(x, y), F.evaluate(x, y) + shift, 1e-15);
     }
     assertEquals(shifted.getName(), newName);
   }
