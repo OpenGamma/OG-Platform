@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * 
  */
-public class DoublesCubeTestCase {
+public class DoublesCubeTest {
   protected static final String NAME = "a";
   protected static final double[] X_PRIMITIVE;
   protected static final double[] Y_PRIMITIVE;
