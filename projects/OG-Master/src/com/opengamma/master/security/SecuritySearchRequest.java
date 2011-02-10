@@ -24,6 +24,7 @@ import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -172,18 +173,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Checks if this search matches the specified document.
-   * 
-   * @param document  the document to match, null returns false
-   * @return true if matches
-   */
-  public boolean matches(SecurityDocument document) {
-    if (document == null) {
+  @Override
+  public boolean matches(AbstractDocument obj) {
+    if (obj instanceof SecurityDocument == false) {
       return false;
     }
+    SecurityDocument document = (SecurityDocument) obj;
     ManageableSecurity security = document.getSecurity();
-    if (getSecurityIds() != null && getSecurityIds().contains(document.getUniqueId()) == false) {
+    if (getSecurityIds() != null && getSecurityIds().contains(document.getObjectId()) == false) {
       return false;
     }
     if (getSecurityKeys() != null && getSecurityKeys().matches(security.getIdentifiers()) == false) {

@@ -5,16 +5,14 @@
  */
 package com.opengamma.master.config.impl;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 import javax.time.Instant;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -32,7 +30,6 @@ import com.opengamma.master.listener.BasicMasterChangeManager;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -102,19 +99,15 @@ public class InMemoryConfigTypeMaster<T> implements ConfigTypeMaster<T> {
   @Override
   public ConfigSearchResult<T> search(final ConfigSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    Collection<ConfigDocument<T>> docs = _store.values();
-    if (request.getName() != null) {
-      final Pattern pattern = RegexUtils.wildcardsToPattern(request.getName());
-      docs = Collections2.filter(docs, new Predicate<ConfigDocument<T>>() {
-        @Override
-        public boolean apply(final ConfigDocument<T> doc) {
-          return pattern.matcher(doc.getName()).matches();
-        }
-      });
+    final List<ConfigDocument<T>> list = new ArrayList<ConfigDocument<T>>();
+    for (ConfigDocument<T> doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
     }
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 

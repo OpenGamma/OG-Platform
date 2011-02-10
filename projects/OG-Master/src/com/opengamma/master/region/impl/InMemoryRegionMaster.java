@@ -6,7 +6,6 @@
 package com.opengamma.master.region.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,9 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -32,7 +29,6 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -80,60 +76,15 @@ public class InMemoryRegionMaster implements RegionMaster {
   @Override
   public RegionSearchResult search(final RegionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final RegionSearchResult result = new RegionSearchResult();
-    Collection<RegionDocument> docs = _store.values();
-    if (request.getProviderKey() != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return request.getProviderKey().equals(doc.getProviderKey());
-        }
-      });
+    final List<RegionDocument> list = new ArrayList<RegionDocument>();
+    for (RegionDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
     }
-    if (request.getClassification() != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return doc.getRegion().getClassification() == request.getClassification();
-        }
-      });
-    }
-    if (request.getChildrenOfId() != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return doc.getRegion().getParentRegionIds().contains(request.getChildrenOfId());
-        }
-      });
-    }
-    if (request.getRegionIds() != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return request.getRegionIds().contains(doc.getUniqueId());
-        }
-      });
-    }
-    if (request.getRegionKeys() != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return request.getRegionKeys().matches(doc.getRegion().getIdentifiers());
-        }
-      });
-    }
-    final String name = request.getName();
-    if (name != null) {
-      docs = Collections2.filter(docs, new Predicate<RegionDocument>() {
-        @Override
-        public boolean apply(final RegionDocument doc) {
-          return RegexUtils.wildcardsToPattern(name).matcher(doc.getRegion().getName()).matches();
-        }
-      });
-    }
-    result.setPaging(Paging.of(docs, request.getPagingRequest()));
-    List<RegionDocument> list = new ArrayList<RegionDocument>(docs);
     Collections.sort(list, RegionDocumentComparator.ASC);
+    RegionSearchResult result = new RegionSearchResult();
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }

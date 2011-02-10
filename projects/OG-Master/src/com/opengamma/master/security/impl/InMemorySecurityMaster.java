@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.security.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -99,13 +101,15 @@ public class InMemorySecurityMaster implements SecurityMaster {
   @Override
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final SecuritySearchResult result = new SecuritySearchResult();
+    final List<SecurityDocument> list = new ArrayList<SecurityDocument>();
     for (SecurityDocument doc : _store.values()) {
       if (request.matches(doc)) {
-        result.getDocuments().add(doc);
+        list.add(doc);
       }
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    SecuritySearchResult result = new SecuritySearchResult();
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 
