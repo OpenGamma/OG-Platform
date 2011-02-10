@@ -3,24 +3,24 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.security.server;
+package com.opengamma.financial.rest.security;
 
 import javax.ws.rs.Path;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.security.RemoteSecuritySource;
+import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.util.rest.AbstractResourceService;
 
 /**
- * RESTful backend for {@link RemoteSecuritySource}.
+ * RESTful backend for {@link RemoteFinancialSecuritySource}.
  */
 @Path("securitySource")
-public class SecuritySourceService extends AbstractResourceService<SecuritySource, SecuritySourceResource> {
+public class SecuritySourceService extends AbstractResourceService<FinancialSecuritySource, SecuritySourceResource> {
 
   /**
    * Creates an instance using the specified Fudge context.
+   * 
    * @param fudgeContext  the Fudge context, not null
    */
   public SecuritySourceService(FudgeContext fudgeContext) {
@@ -28,7 +28,7 @@ public class SecuritySourceService extends AbstractResourceService<SecuritySourc
   }
 
   @Override
-  protected SecuritySourceResource createResource(SecuritySource underlying) {
+  protected SecuritySourceResource createResource(FinancialSecuritySource underlying) {
     return new SecuritySourceResource(getFudgeContext(), underlying);
   }
 

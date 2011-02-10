@@ -171,6 +171,18 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the source of securities cast to a specific type.
+   * 
+   * @param <T>  the security source type
+   * @param clazz  the security source type
+   * @return the security source
+   * @throws ClassCastException if the security source is of a different type
+   */
+  public <T extends SecuritySource> T getSecuritySource(Class<T> clazz) {
+    return clazz.cast(get(SECURITY_SOURCE_NAME));
+  }
+
   @Override
   public FunctionExecutionContext clone() {
     return new FunctionExecutionContext(this);

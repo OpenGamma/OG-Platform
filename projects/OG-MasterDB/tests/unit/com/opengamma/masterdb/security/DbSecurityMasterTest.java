@@ -31,13 +31,13 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.security.DateTimeWithZone;
+import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
@@ -110,8 +110,8 @@ public class DbSecurityMasterTest extends DBTest {
     SecurityDocument loaded = _secMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
     
-    SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setBondIssuerName("*TREASURY*");
+    BondSecuritySearchRequest request = new BondSecuritySearchRequest();
+    request.setIssuerName("*TREASURY*");
     SecuritySearchResult result = _secMaster.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(loaded, result.getFirstDocument());

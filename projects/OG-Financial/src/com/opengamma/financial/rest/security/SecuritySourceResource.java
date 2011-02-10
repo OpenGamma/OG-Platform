@@ -3,9 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.security.server;
+package com.opengamma.financial.rest.security;
 
-import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,14 +21,14 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * REST resource wrapper for a {@link SecuritySource}.
+ * REST resource wrapper for a {@link FinancialSecuritySource}.
  */
 public class SecuritySourceResource {
 
@@ -39,23 +39,25 @@ public class SecuritySourceResource {
   /**
    * The underlying security source.
    */
-  private final SecuritySource _securitySource;
+  private final FinancialSecuritySource _securitySource;
 
   /**
    * Creates a resource to expose a security source over REST.
+   * 
    * @param fudgeContext  the context, not null
    * @param securitySource  the security source, not null
    */
-  public SecuritySourceResource(final FudgeContext fudgeContext, final SecuritySource securitySource) {
+  public SecuritySourceResource(final FudgeContext fudgeContext, final FinancialSecuritySource securitySource) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _fudgeContext = fudgeContext;
     _securitySource = securitySource;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the Fudge context.
+   * 
    * @return the context, not null
    */
   protected FudgeContext getFudgeContext() {
@@ -64,24 +66,27 @@ public class SecuritySourceResource {
 
   /**
    * Gets the security source.
+   * 
    * @return the security source, not null
    */
-  protected SecuritySource getSecuritySource() {
+  protected FinancialSecuritySource getSecuritySource() {
     return _securitySource;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the serialization context derived from the main Fudge context.
+   * 
    * @return the context, not null
    */
   protected FudgeSerializationContext getFudgeSerializationContext() {
     return new FudgeSerializationContext(getFudgeContext());
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * RESTful method to get a security by unique identifier.
+   * 
    * @param uidStr  the unique identifier from the URI, not null
    * @return the security, null if not found
    */
@@ -96,26 +101,8 @@ public class SecuritySourceResource {
   }
 
   /**
-   * RESTful method to get all bonds of a specific issuer type
-   * @param itStrs the issuer type
-   * @return the securities, null if not found
-   */
-  @GET
-  @Path("bonds")
-  public FudgeMsgEnvelope getAllBondsOfIssuerType(@QueryParam("issuerType") List<String> itStrs) {
-    ArgumentChecker.notEmpty(itStrs, "issuerTypes");
-    ArgumentChecker.isTrue(itStrs.size() == 1, "more or less than one parameter");
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
-    final Collection<Security> securities = getSecuritySource().getAllBondsOfIssuerType(itStrs.get(0));
-    for (Security security : securities) {
-      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
-    }
-    return new FudgeMsgEnvelope(msg);
-  }
-  
-  /**
    * RESTful method to get securities by identifier bundle.
+   * 
    * @param idStrs  the identifiers from the URI, not null
    * @return the securities, null if not found
    */
@@ -138,6 +125,7 @@ public class SecuritySourceResource {
 
   /**
    * RESTful method to get a security by identifier bundle.
+   * 
    * @param idStrs  the identifiers from the URI, not null
    * @return the security, null if not found
    */
@@ -155,6 +143,26 @@ public class SecuritySourceResource {
     return new FudgeMsgEnvelope(msg);
   }
 
+  /**
+   * RESTful method to get all bonds of a specific issuer type.
+   * 
+   * @param issuerName  the issuer type
+   * @return the securities, null if not found
+   */
+  @GET
+  @Path("bonds")
+  public FudgeMsgEnvelope getBondsWithIssuerName(@QueryParam("issuerName") String issuerName) {
+    ArgumentChecker.notEmpty(issuerName, "issuerName");
+    final FudgeSerializationContext context = getFudgeSerializationContext();
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    final Collection<Security> securities = getSecuritySource().getBondsWithIssuerName(issuerName);
+    for (Security security : securities) {
+      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+    }
+    return new FudgeMsgEnvelope(msg);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * For debugging purposes only.
    * 

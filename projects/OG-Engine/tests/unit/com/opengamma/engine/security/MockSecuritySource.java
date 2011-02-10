@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.security.impl;
+package com.opengamma.engine.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,17 +73,6 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
-  }
-
-  @Override
-  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
-    List<Security> results = new ArrayList<Security>();
-    for (Security sec : _securities.values()) {
-      if (sec.getSecurityType().equals("BOND")) {
-        results.add(sec);
-      }
-    }
-    return results;
   }
 
   //-------------------------------------------------------------------------

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.security.server;
+package com.opengamma.financial.rest.security;
 
 import com.opengamma.util.rest.AbstractResourceService;
 

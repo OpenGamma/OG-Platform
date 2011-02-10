@@ -125,6 +125,28 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
+  @Test
+  public void test_search_populatedMaster_filterByName() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setName("*est 2");
+    SecuritySearchResult result = testPopulated.search(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    List<SecurityDocument> docs = result.getDocuments();
+    assertEquals(1, docs.size());
+    assertEquals(true, docs.contains(doc2));
+  }
+
+  @Test
+  public void test_search_populatedMaster_filterByType() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setSecurityType("TYPE2");
+    SecuritySearchResult result = testPopulated.search(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    List<SecurityDocument> docs = result.getDocuments();
+    assertEquals(1, docs.size());
+    assertEquals(true, docs.contains(doc2));
+  }
+
   //-------------------------------------------------------------------------
   @Test(expected = DataNotFoundException.class)
   public void test_get_emptyMaster() {

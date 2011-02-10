@@ -3,9 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.security;
+package com.opengamma.financial.rest.security;
 
-import static com.opengamma.engine.security.server.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
+import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -25,11 +25,11 @@ import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An implementation of {@code SecuritySource} client that calls a remote data source.
+ * An implementation of {@code FinancialSecuritySource} client that calls a remote data source.
  * <p>
  * The implementation calls the remote data source in a RESTful manner using binary Fudge messages.
  */
-public class RemoteSecuritySource implements SecuritySource {
+public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
 
   /**
    * The RESTful client instance.
@@ -46,7 +46,7 @@ public class RemoteSecuritySource implements SecuritySource {
    * @param fudgeContext  the Fudge context, not null
    * @param baseTarget  the base target URI to call, not null
    */
-  public RemoteSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+  public RemoteFinancialSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(baseTarget, "baseTarget");
     _restClient = RestClient.getInstance(fudgeContext, null);
@@ -103,9 +103,9 @@ public class RemoteSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
-    ArgumentChecker.notNull(issuerType, "issuerType");
-    final RestTarget target = _targetBase.resolve("bonds").resolveQuery("issuerType", Collections.singletonList(issuerType));
+  public Collection<Security> getBondsWithIssuerName(String issuerName) {
+    ArgumentChecker.notNull(issuerName, "issuerName");
+    final RestTarget target = _targetBase.resolve("bonds").resolveQuery("issuerName", Collections.singletonList(issuerName));
     final FudgeFieldContainer message = getRestClient().getMsg(target);
     final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
@@ -116,4 +116,5 @@ public class RemoteSecuritySource implements SecuritySource {
     }
     return securities;
   }
+
 }

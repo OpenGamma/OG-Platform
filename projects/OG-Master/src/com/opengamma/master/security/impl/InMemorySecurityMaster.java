@@ -5,15 +5,12 @@
  */
 package com.opengamma.master.security.impl;
 
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -31,7 +28,6 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -104,42 +100,12 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final SecuritySearchResult result = new SecuritySearchResult();
-    Collection<SecurityDocument> docs = _store.values();
-    if (request.getSecurityType() != null) {
-      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
-        @Override
-        public boolean apply(final SecurityDocument doc) {
-          return request.getSecurityType().equals(doc.getSecurity().getSecurityType());
-        }
-      });
+    for (SecurityDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        result.getDocuments().add(doc);
+      }
     }
-    if (request.getSecurityIds() != null) {
-      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
-        @Override
-        public boolean apply(final SecurityDocument doc) {
-          return request.getSecurityIds().contains(doc.getUniqueId());
-        }
-      });
-    }
-    if (request.getSecurityKeys() != null) {
-      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
-        @Override
-        public boolean apply(final SecurityDocument doc) {
-          return request.getSecurityKeys().matches(doc.getSecurity().getIdentifiers());
-        }
-      });
-    }
-    final String name = request.getName();
-    if (name != null) {
-      docs = Collections2.filter(docs, new Predicate<SecurityDocument>() {
-        @Override
-        public boolean apply(final SecurityDocument doc) {
-          return RegexUtils.wildcardsToPattern(name).matcher(doc.getName()).matches();
-        }
-      });
-    }
-    result.getDocuments().addAll(docs);
-    result.setPaging(Paging.of(docs));
+    result.setPaging(Paging.of(result.getDocuments()));
     return result;
   }
 

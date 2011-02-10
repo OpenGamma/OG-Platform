@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.security.impl;
+package com.opengamma.financial.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,12 +28,12 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Test EHCachingSecuritySource.
+ * Test EHCachingFinancialSecuritySource.
  */
-public class EHCachingSecuritySourceTest {
+public class EHCachingFinancialSecuritySourceTest {
 
-  private MockSecuritySource _underlyingSecuritySource = null;
-  private EHCachingSecuritySource _cachingSecuritySource = null;
+  private MockFinancialSecuritySource _underlyingSecuritySource = null;
+  private EHCachingFinancialSecuritySource _cachingSecuritySource = null;
   private Identifier _secId1 = Identifier.of("d1", "v1");
   private Identifier _secId2 = Identifier.of("d1", "v2");
   private MockSecurity _security1 = new MockSecurity("");
@@ -41,8 +41,8 @@ public class EHCachingSecuritySourceTest {
 
   @Before
   public void setUp() throws Exception {    
-    _underlyingSecuritySource = new MockSecuritySource();
-    _cachingSecuritySource = new EHCachingSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
+    _underlyingSecuritySource = new MockFinancialSecuritySource();
+    _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
     
     _security1.addIdentifier(_secId1);
     _security2.addIdentifier(_secId2);
@@ -70,7 +70,7 @@ public class EHCachingSecuritySourceTest {
     assertSame(underlyingSec, cachedSec);
     
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
     Element element = singleSecCache.getQuiet(uid1);
     assertNotNull(element);
@@ -79,15 +79,15 @@ public class EHCachingSecuritySourceTest {
       assertNotNull(cachedSec);
       assertEquals(i, element.getHitCount());
     }
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertEquals(0, multiSecCache.getSize());
   }
 
   @Test
   public void getSecurity_UniqueIdentifier_empty() {
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     
     UniqueIdentifier uid = UniqueIdentifier.of("Mock", "99");
     Security cachedSec = _cachingSecuritySource.getSecurity(uid);
@@ -112,10 +112,10 @@ public class EHCachingSecuritySourceTest {
     
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     assertNotNull(cacheManager);
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertNotNull(singleSecCache);
     assertEquals(2, singleSecCache.getSize());
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertNotNull(multiSecCache);
     assertEquals(1, multiSecCache.getSize());
     
@@ -137,8 +137,8 @@ public class EHCachingSecuritySourceTest {
   public void getSecurities_IdentifierBundle_empty() {
     IdentifierBundle secKey = IdentifierBundle.of(_secId1);
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     
     Security cachedSec = _cachingSecuritySource.getSecurity(secKey);
     assertNull(cachedSec);
@@ -162,10 +162,10 @@ public class EHCachingSecuritySourceTest {
     
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     assertNotNull(cacheManager);
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertNotNull(singleSecCache);
     assertEquals(1, singleSecCache.getSize());
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertNotNull(multiSecCache);
     assertEquals(1, multiSecCache.getSize());
     
@@ -184,8 +184,8 @@ public class EHCachingSecuritySourceTest {
   public void getSecurity_IdentifierBundle_empty() {
     IdentifierBundle secKey = IdentifierBundle.of(_secId1);
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     
     Security cachedSec = _cachingSecuritySource.getSecurity(secKey);
     assertNull(cachedSec);
@@ -201,7 +201,7 @@ public class EHCachingSecuritySourceTest {
     addSecuritiesToMock(_security1, _security2);
     UniqueIdentifier uid1 = _security1.getUniqueId();
     _cachingSecuritySource.getSecurity(uid1);
-    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
     Element sec1Element = singleSecCache.getQuiet(uid1);
     assertNotNull(sec1Element);
@@ -228,8 +228,8 @@ public class EHCachingSecuritySourceTest {
     addSecuritiesToMock(_security1, _security2);
     IdentifierBundle secKey = IdentifierBundle.of(_secId1, _secId2);
     _cachingSecuritySource.getSecurities(secKey);
-    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.SINGLE_SECURITY_CACHE);
-    Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertEquals(2, singleSecCache.getSize());
     assertEquals(1, multiSecCache.getSize());
     
@@ -277,7 +277,7 @@ public class EHCachingSecuritySourceTest {
     
     IdentifierBundle secKey1 = IdentifierBundle.of(_secId1);
     _cachingSecuritySource.getSecurity(secKey1);
-    Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingSecuritySource.MULTI_SECURITIES_CACHE);
+    Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertEquals(1, multiSecCache.getSize());
     Element multiElement = multiSecCache.getQuiet(secKey1);
     assertNotNull(multiElement);

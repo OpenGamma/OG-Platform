@@ -7,4 +7,4 @@
 /**
  * Remote RESTful access to the security source.
  */
-package com.opengamma.engine.security.server;
+package com.opengamma.financial.rest.security;

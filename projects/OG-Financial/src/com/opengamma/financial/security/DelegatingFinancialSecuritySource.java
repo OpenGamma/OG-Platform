@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.security.impl;
+package com.opengamma.financial.security;
 
 import java.util.Collection;
 import java.util.Map;
@@ -21,14 +21,16 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  */
-public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<SecuritySource> implements SecuritySource {
+public class DelegatingFinancialSecuritySource
+    extends UniqueIdentifierSchemeDelegator<FinancialSecuritySource>
+    implements FinancialSecuritySource {
 
   /**
    * Creates an instance specifying the default delegate.
    * 
    * @param defaultSource  the source to use when no scheme matches, not null
    */
-  public DelegatingSecuritySource(SecuritySource defaultSource) {
+  public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource) {
     super(defaultSource);
   }
 
@@ -38,7 +40,7 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
    * @param defaultSource  the source to use when no scheme matches, not null
    * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
    */
-  public DelegatingSecuritySource(SecuritySource defaultSource, Map<String, SecuritySource> schemePrefixToSourceMap) {
+  public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource, Map<String, FinancialSecuritySource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
   }
 
@@ -73,6 +75,18 @@ public class DelegatingSecuritySource extends UniqueIdentifierSchemeDelegator<Se
       }
     }
     return getDefaultDelegate().getSecurity(bundle);
+  }
+
+  @Override
+  public Collection<Security> getBondsWithIssuerName(String issuerName) {
+    // best implementation is to return first matching result
+    for (FinancialSecuritySource delegateSource : getDelegates().values()) {
+      Collection<Security> result = delegateSource.getBondsWithIssuerName(issuerName);
+      if (!result.isEmpty()) {
+        return result;
+      }
+    }
+    return getDefaultDelegate().getBondsWithIssuerName(issuerName);
   }
 
 }

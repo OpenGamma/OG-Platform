@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.core.security.impl;
+package com.opengamma.financial.security;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -17,21 +17,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * A cache decorating a {@code SecuritySource}.
+ * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingSecuritySource implements SecuritySource {
+public class EHCachingFinancialSecuritySource implements FinancialSecuritySource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecuritySource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingFinancialSecuritySource.class);
   /** The single security cache key. */
   /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
   /** The multiple security cache key. */
@@ -42,7 +41,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   /**
    * The underlying cache.
    */
-  private final SecuritySource _underlying;
+  private final FinancialSecuritySource _underlying;
   /**
    * The cache manager.
    */
@@ -56,7 +55,7 @@ public class EHCachingSecuritySource implements SecuritySource {
    */
   private final Cache _bundleCache;
   /**
-   * The bond cache
+   * The bond cache.
    */
   private final Cache _bondCache;
 
@@ -66,7 +65,7 @@ public class EHCachingSecuritySource implements SecuritySource {
    * @param underlying  the underlying security source, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingSecuritySource(final SecuritySource underlying, final CacheManager cacheManager) {
+  public EHCachingFinancialSecuritySource(final FinancialSecuritySource underlying, final CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
@@ -85,7 +84,7 @@ public class EHCachingSecuritySource implements SecuritySource {
    * 
    * @return the underlying source of securities, not null
    */
-  protected SecuritySource getUnderlying() {
+  protected FinancialSecuritySource getUnderlying() {
     return _underlying;
   }
 
@@ -100,7 +99,7 @@ public class EHCachingSecuritySource implements SecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public synchronized Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueIdentifier uid) {
     ArgumentChecker.notNull(uid, "uid");
     Element e = _uidCache.get(uid);
     Security result = null;
@@ -147,7 +146,7 @@ public class EHCachingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public synchronized Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(IdentifierBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<Security> matched = getSecurities(bundle);
     if (matched.isEmpty()) {
@@ -155,10 +154,10 @@ public class EHCachingSecuritySource implements SecuritySource {
     }
     return matched.iterator().next();
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
+  public Collection<Security> getBondsWithIssuerName(String issuerType) {
     ArgumentChecker.notNull(issuerType, "issuerType");
     Element e = _bondCache.get(issuerType);
     Collection<Security> result = new HashSet<Security>();
@@ -170,9 +169,12 @@ public class EHCachingSecuritySource implements SecuritySource {
         s_logger.warn("returned object {} from bond cache is not a Collection<Security>", value);
       }
     } else {
-      result = getUnderlying().getAllBondsOfIssuerType(issuerType);
+      result = getUnderlying().getBondsWithIssuerName(issuerType);
       if (result != null) {
         _bondCache.put(new Element(issuerType, result));
+        for (Security security : result) {
+          _uidCache.put(new Element(security.getUniqueId(), security));
+        }
       }
     }
     return result;
@@ -211,7 +213,5 @@ public class EHCachingSecuritySource implements SecuritySource {
     _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.shutdown();
   }
-
-
 
 }
