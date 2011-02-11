@@ -362,7 +362,7 @@ public final class UniqueIdentifier
   @Override
   public String toString() {
     StrBuilder buf = new StrBuilder()
-      .append(_scheme).append(':').append(':').append(_value);
+        .append(_scheme).append(':').append(':').append(_value);
     if (_version != null) {
       buf.append(':').append(':').append(_version);
     }

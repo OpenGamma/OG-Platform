@@ -139,11 +139,11 @@ public abstract class DbHelper {
     // Others use window functions (more complex)
     if (paging.getFirstItemIndex() == 0) {
       return sqlSelectFromWhere + sqlOrderBy +
-        "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
+          "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
     }
     return sqlSelectFromWhere + sqlOrderBy +
-      "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
-      "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
+        "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
+        "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
   }
 
   //-------------------------------------------------------------------------

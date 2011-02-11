@@ -212,17 +212,17 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
   public int hashCode() {
     // see Map.Entry API specification
     return (getKey() == null ? 0 : getKey().hashCode()) ^
-            (getValue() == null ? 0 : getValue().hashCode()); 
+            (getValue() == null ? 0 : getValue().hashCode());
   }
 
   @Override
   public String toString() {
     return new StringBuilder()
-      .append("[")
-      .append(getFirst())
-      .append(", ")
-      .append(getSecond())
-      .append("]").toString();
+        .append("[")
+        .append(getFirst())
+        .append(", ")
+        .append(getSecond())
+        .append("]").toString();
   }
 
 }

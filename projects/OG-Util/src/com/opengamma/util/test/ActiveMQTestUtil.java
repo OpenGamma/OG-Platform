@@ -8,15 +8,18 @@ package com.opengamma.util.test;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
- * This test is only here to ensure that the Ivy configuration is sufficient
- * to launch an in-memory ActiveMQ connection.
- *
- * @author kirk
+ * Ensures that the Ivy configuration is sufficient to launch an in-memory ActiveMQ connection.
  */
 public class ActiveMQTestUtil {
-  
+
+  /**
+   * Creates an MQ connection factory for testing.
+   * 
+   * @return the connection factory
+   */
   public static ActiveMQConnectionFactory createTestConnectionFactory() {
     ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
     return cf;
   }
+
 }

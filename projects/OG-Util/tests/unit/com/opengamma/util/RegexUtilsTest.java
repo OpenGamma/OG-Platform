@@ -50,4 +50,11 @@ public class RegexUtilsTest {
     assertEquals(Pattern.compile("^\\QH\\E.*\\Qel[l\\E.\\Qo\\E$").toString(), RegexUtils.wildcardsToPattern("H*el[l?o").toString());
   }
 
+  @Test
+  public void test_matches_star() {
+    assertEquals(true, RegexUtils.wildcardMatch("Hello*", "Hello"));
+    assertEquals(true, RegexUtils.wildcardMatch("Hello*", "Hello world"));
+    assertEquals(false, RegexUtils.wildcardMatch("Hello*", "Hell on earth"));
+  }
+
 }

@@ -5,45 +5,23 @@
  */
 package com.opengamma.master.listener;
 
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
  * Listener interface used to receive events when a master changes.
  * <p>
- * Events will be sent when a document in a master is added, updated, removed or corrected.
+ * Events will be sent when a master is added, updated, removed or corrected.
  */
 @PublicSPI
 public interface MasterChangeListener {
 
   /**
-   * Event called when a document is added to the master.
+   * Event called when the master is changed.
+   * <p>
+   * Events will be sent when a master is added, updated, removed or corrected.
    * 
-   * @param addedItem  the unique identifier of the added item, not null
+   * @param event  the event description, not null
    */
-  void added(UniqueIdentifier addedItem);
-
-  /**
-   * Event called when a document is removed from the master.
-   * 
-   * @param removedItem  the unique identifier of the removed item, not null
-   */
-  void removed(UniqueIdentifier removedItem);
-
-  /**
-   * Event called when a document is updated in the master.
-   * 
-   * @param oldItem  the unique identifier of the item before the update, not null
-   * @param newItem  the unique identifier of the item after the update, not null
-   */
-  void updated(UniqueIdentifier oldItem, UniqueIdentifier newItem);
-
-  /**
-   * Event called when a document is corrected in the master.
-   * 
-   * @param oldItem  the unique identifier of the item before the correction, not null
-   * @param newItem  the unique identifier of the item after the correction, not null
-   */
-  void corrected(UniqueIdentifier oldItem, UniqueIdentifier newItem);
+  void masterChanged(MasterChanged event);
 
 }

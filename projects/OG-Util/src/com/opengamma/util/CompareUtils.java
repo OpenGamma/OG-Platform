@@ -68,10 +68,10 @@ public class CompareUtils {
     if (a == null) {
       return b == null ? 0 : -1;
     } else if (b == null) {
-      return 1;  // a not null
+      return 1; // a not null
     } else {
       return a.compareTo((E) b);
-    }    
+    }
   }
 
   /**
@@ -86,10 +86,10 @@ public class CompareUtils {
     if (a == null) {
       return b == null ? 0 : 1;
     } else if (b == null) {
-      return -1;  // a not null
+      return -1; // a not null
     } else {
       return a.compareTo((E) b);
-    }    
+    }
   }
 
   /**
@@ -121,7 +121,7 @@ public class CompareUtils {
   public static boolean closeEquals(double a, double b, double maxDifference) {
     return (Math.abs(a - b) < maxDifference);
   }
-  
+
   /**
    * Compares two doubles, indicating equality when 'closely' equal, and otherwise indicating how the first differs
    * from the second.
@@ -134,7 +134,7 @@ public class CompareUtils {
    */
   public static int compareWithTolerance(double a, double b, double maxDifference) {
     if (Math.abs(a - b) < maxDifference) {
-      return 0;    
+      return 0;
     }
     return (a < b) ? -1 : 1;
   }

@@ -32,6 +32,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.MasterChanged;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 
@@ -131,40 +132,14 @@ public class ViewProcessorManager implements Lifecycle {
             final NotifyingMaster master = entry.getKey();
             final VersionedSource source = entry.getValue();
             final MasterChangeListener listener = new MasterChangeListener() {
-
               @Override
-              public void added(UniqueIdentifier addedItem) {
-                if (_watchSet.contains(addedItem)) {
-                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, addedItem);
+              public void masterChanged(MasterChanged event) {
+                if (_watchSet.contains(event.getBeforeId())) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, event.getBeforeId());
                 }
               }
-
-              @Override
-              public void corrected(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-                if (_watchSet.contains(oldItem)) {
-                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, oldItem);
-                }
-              }
-
-              @Override
-              public void removed(UniqueIdentifier removedItem) {
-                if (_watchSet.contains(removedItem)) {
-                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, removedItem);
-                }
-              }
-
-              @Override
-              public void updated(UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-                s_logger.debug("updated {} to {}", oldItem, newItem);
-                if (_watchSet.contains(oldItem)) {
-                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, oldItem);
-                } else {
-                  s_logger.debug("Watchset doesn't contain");
-                }
-              }
-
             };
-            master.addChangeListener(listener);
+            master.changeManager().addChangeListener(listener);
             _masterToListener.put(master, listener);
             s_logger.debug("Latching {} to {}", source, now);
             // TODO this isn't ideal if there is clock drift between nodes - the time needs to be the system time at the master
@@ -206,7 +181,7 @@ public class ViewProcessorManager implements Lifecycle {
         final Iterator<Map.Entry<NotifyingMaster, MasterChangeListener>> itr = _masterToListener.entrySet().iterator();
         while (itr.hasNext()) {
           Map.Entry<NotifyingMaster, MasterChangeListener> entry = itr.next();
-          entry.getKey().removeChangeListener(entry.getValue());
+          entry.getKey().changeManager().removeChangeListener(entry.getValue());
           itr.remove();
         }
         _isRunning = false;

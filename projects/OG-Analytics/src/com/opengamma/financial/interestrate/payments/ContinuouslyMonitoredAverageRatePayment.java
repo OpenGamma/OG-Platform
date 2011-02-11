@@ -180,5 +180,4 @@ public class ContinuouslyMonitoredAverageRatePayment implements Payment {
     }
     return Double.doubleToLongBits(_startTime) == Double.doubleToLongBits(other._startTime);
   }
-
 }

@@ -20,13 +20,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 
 /**
  * 
  */
-public class FRADefinition implements InterestRateDerivativeProvider<ForwardRateAgreement> {
+public class FRADefinition implements FixedIncomeInstrumentDefinition<ForwardRateAgreement> {
   private static final Logger s_logger = LoggerFactory.getLogger(FRADefinition.class);
   private final ZonedDateTime _startDate;
   private final ZonedDateTime _maturityDate;
@@ -102,22 +103,22 @@ public class FRADefinition implements InterestRateDerivativeProvider<ForwardRate
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1);
-    Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
     s_logger.info("Assuming first yield curve name is the funding curve and the second is the index curve");
-    DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    Calendar calendar = _convention.getWorkingDayCalendar();
-    String fundingCurveName = yieldCurveNames[0];
-    String indexCurveName = yieldCurveNames[1];
-    BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final Calendar calendar = _convention.getWorkingDayCalendar();
+    final String fundingCurveName = yieldCurveNames[0];
+    final String indexCurveName = yieldCurveNames[1];
+    final BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime settlementDate = ZonedDateTime.of(LocalDateTime.ofMidnight(getSettlementDate(_startDate.toLocalDate(), calendar, businessDayConvention, _convention.getSettlementDays())),
         TimeZone.UTC);
     final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, _startDate);
     final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, _maturityDate);
-    double settlementTime = actAct.getDayCountFraction(zonedDate, settlementDate);
-    double maturityTime = actAct.getDayCountFraction(zonedDate, maturityDate);
-    double fixingTime = actAct.getDayCountFraction(zonedDate, fixingDate);
-    DayCount dayCount = _convention.getDayCount();
+    final double settlementTime = actAct.getDayCountFraction(zonedDate, settlementDate);
+    final double maturityTime = actAct.getDayCountFraction(zonedDate, maturityDate);
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, fixingDate);
+    final DayCount dayCount = _convention.getDayCount();
     final double forwardYearFraction = dayCount.getDayCountFraction(fixingDate, _maturityDate);
     final double discountingYearFraction = dayCount.getDayCountFraction(settlementDate, _maturityDate);
     return new ForwardRateAgreement(settlementTime, maturityTime, fixingTime, forwardYearFraction, discountingYearFraction, _rate, fundingCurveName, indexCurveName);
@@ -131,5 +132,15 @@ public class FRADefinition implements InterestRateDerivativeProvider<ForwardRate
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }
     return date;
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitFRADefintion(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitFRADefinition(this);
   }
 }

@@ -18,9 +18,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.instrument.bond.BondConvention;
-import com.opengamma.financial.instrument.bond.BondDefinition;
-import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.util.time.DateUtil;
 
@@ -44,12 +41,14 @@ public class BondForwardDefinitionTest {
   private static final double NOTIONAL = 100;
   private static final BondDefinition BOND_DEFINITION = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final LocalDate FORWARD_DATE = LocalDate.of(2000, 6, 30);
-  private static final BondConvention BOND_FORWARD_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "UK Bond Forward", 0, SimpleYieldConvention.MONEY_MARKET);
-  private static final BondForwardDefinition BOND_FORWARD_DEFINITION = new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE, BOND_FORWARD_CONVENTION);
+  private static final BondConvention BOND_FORWARD_CONVENTION;
+  private static final BondForwardDefinition BOND_FORWARD_DEFINITION;
 
   static {
     Arrays.fill(COUPONS, COUPON);
+    BOND_FORWARD_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        new MondayToFridayCalendar("Weekend"), true, "UK Bond Forward", 0, SimpleYieldConvention.MONEY_MARKET);
+    BOND_FORWARD_DEFINITION = new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE, BOND_FORWARD_CONVENTION);
   }
 
   @Test(expected = IllegalArgumentException.class)

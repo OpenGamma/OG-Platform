@@ -96,19 +96,19 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
     return _regression.regress(x, null, y, true);
   }
 
-  private class MySurfaceFunction implements Function<DoublesPair, Double> {
+  private class MySurfaceFunction implements Function<Double, Double> {
     private final LeastSquaresRegressionResult _result;
 
     public MySurfaceFunction(final LeastSquaresRegressionResult result) {
       _result = result;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(final DoublesPair... xy) {
-      Validate.notNull(xy, "xy pairs");
-      final DoublesPair pair = xy[0];
-      final double t = pair.first;
-      final double k = pair.second;
+    public Double evaluate(final Double... tk) {
+      Validate.notNull(tk, "tk pair");
+      final double t = tk[0];
+      final double k = tk[1];
       return _result.getPredictedValue(_independentVariableFunction.evaluate(t, k));
     }
   }

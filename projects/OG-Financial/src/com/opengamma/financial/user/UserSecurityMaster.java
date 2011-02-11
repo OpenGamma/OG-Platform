@@ -8,6 +8,7 @@ package com.opengamma.financial.user;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -73,6 +74,12 @@ public class UserSecurityMaster implements SecurityMaster {
   @Override
   public SecurityDocument correct(SecurityDocument document) {
     return _underlying.correct(document);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

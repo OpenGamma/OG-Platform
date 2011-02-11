@@ -53,7 +53,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFloatingRateNote(FloatingRateNote frn, S data);
 
-  T visitTenorSwap(TenorSwap tenorSwap, S data);
+  T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
   T visitBond(Bond bond, S data);
 
@@ -93,7 +93,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFloatingRateNote(FloatingRateNote frn);
 
-  T visitTenorSwap(TenorSwap tenorSwap);
+  T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
 
   T visitBond(Bond bond);
 

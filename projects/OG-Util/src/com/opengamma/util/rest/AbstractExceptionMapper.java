@@ -14,8 +14,6 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.transport.jaxrs.FudgeRest;
-
 /**
  * An abstract class to assist with writing JAX-RS exception mappers.
  */
@@ -44,7 +42,12 @@ public class AbstractExceptionMapper {
 
   //-------------------------------------------------------------------------
   public Response createResponse(final Throwable exception) {
-    if (_headers.getAcceptableMediaTypes().contains(FudgeRest.MEDIA_TYPE)) {
+    if (_headers.getAcceptableMediaTypes().contains(MediaType.TEXT_HTML)) {
+      s_logger.warn("RESTful website exception caught", exception);
+      // output error page
+      // TODO: error page
+      return Response.status(_status).build();
+    } else {
       s_logger.info("RESTful web-service exception caught and tunnelled to client", exception);
       // perform transparent exception tunneling for Fudge messages
       return Response.status(_status)
@@ -53,11 +56,6 @@ public class AbstractExceptionMapper {
         .type(MediaType.TEXT_PLAIN_TYPE)
         .entity("Status: " + _status.getStatusCode() + " " + _status.getReasonPhrase() + "; Message: " + exception.getMessage())
         .build();
-    } else {
-      s_logger.warn("RESTful website exception caught", exception);
-      // output error page
-      // TODO: error page
-      return Response.status(_status).build();
     }
   }
 

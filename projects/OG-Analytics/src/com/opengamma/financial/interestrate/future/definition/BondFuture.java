@@ -66,12 +66,12 @@ public class BondFuture implements InterestRateDerivative {
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visit(this, data);
+    return visitor.visitBondFuture(this, data);
   }
 
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visit(this);
+    return visitor.visitBondFuture(this);
   }
 
 }

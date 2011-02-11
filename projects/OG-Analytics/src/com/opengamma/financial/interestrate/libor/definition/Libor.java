@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.libor.definition;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 
 /**
@@ -19,5 +20,15 @@ public class Libor extends Cash {
 
   public Libor(final double maturity, final double rate, final double tradeTime, final double yearFraction, final String liborCurveName) {
     super(maturity, rate, tradeTime, yearFraction, liborCurveName);
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitLibor(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitLibor(this);
   }
 }

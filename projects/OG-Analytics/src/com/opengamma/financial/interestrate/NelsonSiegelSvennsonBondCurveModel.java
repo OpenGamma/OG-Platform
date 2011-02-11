@@ -23,7 +23,7 @@ import com.opengamma.math.minimization.TransformParameters;
  */
 public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Double> {
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
-      new NullTransform(), new NullTransform(), new NullTransform()};
+    new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
   private final double _beta0;
   private final double _beta1;

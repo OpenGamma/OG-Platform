@@ -19,7 +19,6 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class HestonCharacteristicExponent extends CharacteristicExponent {
-
   private final double _kappa;
   private final double _theta;
   private final double _vol0;
@@ -33,7 +32,6 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
    * @param vol0 starting value of vol
    * @param omega vol-of-vol
    * @param rho correlation
-   * @param t time to maturity 
    */
   public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho) {
     _kappa = kappa;
@@ -41,7 +39,6 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     _vol0 = vol0;
     _omega = omega;
     _rho = rho;
-
   }
 
   @Override

@@ -99,7 +99,7 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * @param map  a Map holding existing parameter values (can be <code>null</code>)
    * @return this, for chaining, not null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public DbMapSqlParameterSource addValues(final Map map) {
     super.addValues(map);

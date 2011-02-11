@@ -21,7 +21,9 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.bond.BondSecurityBeanOperation;
@@ -31,6 +33,8 @@ import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.OptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
+import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 
 /**
@@ -143,6 +147,14 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
   }
 
   /**
+   * Gets the database dialect.
+   * @return the dialect
+   */
+  protected DbHelper getDialect() {
+    return _dbSource.getDialect();
+  }
+
+  /**
    * Gets the session DAO.
    * @param session  the session
    * @return the DAO
@@ -197,6 +209,25 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         return null;
       }
     });
+  }
+
+  @Override
+  public String extendSearch(SecuritySearchRequest request, DbMapSqlParameterSource args, String select, String where) {
+    if (request instanceof BondSecuritySearchRequest) {
+      BondSecuritySearchRequest bondRequest = (BondSecuritySearchRequest) request;
+      if (bondRequest.getIssuerName() != null || bondRequest.getIssuerType() != null) {
+        select += "LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id) ";
+      }
+      if (bondRequest.getIssuerName() != null) {
+        args.addValue("bond_issuer_name", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
+        where += getDialect().sqlWildcardQuery("AND UPPER(issuername) ", "UPPER(:bond_issuer_name)", bondRequest.getIssuerName());
+      }
+      if (bondRequest.getIssuerType() != null) {
+        args.addValue("bond_issuer_type", getDialect().sqlWildcardAdjustValue(bondRequest.getIssuerName()));
+        where += getDialect().sqlWildcardQuery("AND UPPER(issuertype) ", "UPPER(:bond_issuer_type)", bondRequest.getIssuerName());
+      }
+    }
+    return select + where;
   }
 
 }
