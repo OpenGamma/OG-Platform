@@ -12,14 +12,15 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 
 /**
  * 
  */
-public class BondFutureDefinition implements InterestRateDerivativeProvider<BondFuture> {
+public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<BondFuture> {
   private final BondDefinition[] _deliverableBonds;
   private final double[] _conversionFactors;
   private final BondConvention _convention;
@@ -91,6 +92,7 @@ public class BondFutureDefinition implements InterestRateDerivativeProvider<Bond
   @Override
   public BondFuture toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(!date.isAfter(_deliveryDate), date + " is after delivery date (" + _deliveryDate + ")");
     Validate.notNull(yieldCurveNames, "yield curve name(s)");
     final int n = _deliverableBonds.length;
     final BondForward[] bondForwards = new BondForward[n];
@@ -100,4 +102,13 @@ public class BondFutureDefinition implements InterestRateDerivativeProvider<Bond
     return new BondFuture(bondForwards, _conversionFactors);
   }
 
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitBondFutureDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitBondFutureDefinition(this);
+  }
 }

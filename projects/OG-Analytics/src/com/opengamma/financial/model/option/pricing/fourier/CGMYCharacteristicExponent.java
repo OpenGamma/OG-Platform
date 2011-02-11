@@ -19,7 +19,6 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class CGMYCharacteristicExponent extends CharacteristicExponent {
-
   private final double _c;
   private final double _g;
   private final double _m;
@@ -53,4 +52,21 @@ public class CGMYCharacteristicExponent extends CharacteristicExponent {
     ComplexNumber res = multiply(t, multiply(_r2, c4));
     return res;
   }
+
+  public double getC() {
+    return _c;
+  }
+
+  public double getG() {
+    return _g;
+  }
+
+  public double getM() {
+    return _m;
+  }
+
+  public double getY() {
+    return _y;
+  }
+
 }

@@ -26,7 +26,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.MasterChangeManager;
 
 /**
  * Test MasterConfigSource.
@@ -85,11 +85,7 @@ public class MasterConfigSourceTest {
           throw new UnsupportedOperationException();
         }
         @Override
-        public void addChangeListener(MasterChangeListener listener) {
-          throw new UnsupportedOperationException();
-        }
-        @Override
-        public void removeChangeListener(MasterChangeListener listener) {
+        public MasterChangeManager changeManager() {
           throw new UnsupportedOperationException();
         }
       };

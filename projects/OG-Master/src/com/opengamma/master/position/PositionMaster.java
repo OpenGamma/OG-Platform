@@ -8,6 +8,7 @@ package com.opengamma.master.position;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -17,7 +18,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface PositionMaster extends AbstractMaster<PositionDocument> {
+public interface PositionMaster extends AbstractMaster<PositionDocument>, NotifyingMaster {
 
   /**
    * Searches for positions matching the specified search criteria.

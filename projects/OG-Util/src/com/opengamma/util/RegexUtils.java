@@ -19,6 +19,7 @@ public final class RegexUtils {
   private RegexUtils() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Converts a simple wildcard style pattern to a regex pattern.
    * <p>
@@ -54,6 +55,23 @@ public final class RegexUtils {
     }
     buf.append('$');
     return Pattern.compile(buf.toString(), Pattern.CASE_INSENSITIVE);
+  }
+
+  /**
+   * Checks if a string matches a potentially wildcard string.
+   * <p>
+   * The asterisk (<code>*</code>) matches zero or more characters.<br />
+   * The question mark (<code>?</code>) matches one character.<br />
+   * 
+   * @param searchCriteriaWithWildcard  the search criteria text with wildcards, null returns false
+   * @param textToMatchAgainst  the text without wildcards to match against, null returns false
+   * @return true if the text
+   */
+  public static boolean wildcardMatch(final String searchCriteriaWithWildcard, final String textToMatchAgainst) {
+    if (searchCriteriaWithWildcard == null || textToMatchAgainst == null) {
+      return false;
+    }
+    return wildcardsToPattern(searchCriteriaWithWildcard).matcher(textToMatchAgainst).matches();
   }
 
 }

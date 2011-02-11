@@ -18,7 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
@@ -27,7 +28,7 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 /**
  * 
  */
-public class FixedSwapLegDefinition implements InterestRateDerivativeProvider<GenericAnnuity<FixedCouponPayment>> {
+public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<GenericAnnuity<FixedCouponPayment>> {
   private static final Logger s_logger = LoggerFactory.getLogger(FixedSwapLegDefinition.class);
   private final ZonedDateTime _effectiveDate;
   private final ZonedDateTime[] _nominalDates;
@@ -36,7 +37,8 @@ public class FixedSwapLegDefinition implements InterestRateDerivativeProvider<Ge
   private final double _rate;
   private final SwapConvention _convention;
 
-  public FixedSwapLegDefinition(ZonedDateTime effectiveDate, ZonedDateTime[] nominalDates, ZonedDateTime[] settlementDates, double notional, double rate, SwapConvention convention) {
+  public FixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final double notional, final double rate,
+      final SwapConvention convention) {
     Validate.notNull(effectiveDate, "effective date");
     Validate.notNull(nominalDates, "nominal dates");
     Validate.notNull(settlementDates, "settlement dates");
@@ -92,7 +94,7 @@ public class FixedSwapLegDefinition implements InterestRateDerivativeProvider<Ge
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -102,7 +104,7 @@ public class FixedSwapLegDefinition implements InterestRateDerivativeProvider<Ge
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FixedSwapLegDefinition other = (FixedSwapLegDefinition) obj;
+    final FixedSwapLegDefinition other = (FixedSwapLegDefinition) obj;
     if (!ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
       return false;
     }
@@ -122,23 +124,32 @@ public class FixedSwapLegDefinition implements InterestRateDerivativeProvider<Ge
   }
 
   @Override
-  public GenericAnnuity<FixedCouponPayment> toDerivative(LocalDate date, String... yieldCurveNames) {
+  public GenericAnnuity<FixedCouponPayment> toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" 
+        + _settlementDates[_settlementDates.length - 1] + ")"); //TODO
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
     s_logger.info("Using the first yield curve name as the funding curve name");
-    ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     double[] paymentTimes = ScheduleCalculator.getTimes(_settlementDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), zonedDate);
     double[] yearFractions = ScheduleCalculator.getYearFractions(_settlementDates, _convention.getDayCount(), _effectiveDate);
     final int n = ScheduleCalculator.numberOfNegativeValues(paymentTimes);
-    if (n >= paymentTimes.length) {
-      return new FixedCouponAnnuity(new double[] {0.0}, 0.0, 0.0, yieldCurveNames[0]);
-    }
     if (n > 0) {
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
     return new FixedCouponAnnuity(paymentTimes, _notional, _rate, yearFractions, yieldCurveNames[0]);
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitFixedSwapLegDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitFixedSwapLegDefinition(this);
   }
 
 }

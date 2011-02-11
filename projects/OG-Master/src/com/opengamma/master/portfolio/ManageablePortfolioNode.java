@@ -116,6 +116,26 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if any node object identifier matches one in the specified list.
+   * 
+   * @param objectIds  the object identifiers to match against, not null
+   * @return true if at least one identifier matches
+   */
+  public boolean matchesAny(List<ObjectIdentifier> objectIds) {
+    ArgumentChecker.notNull(objectIds, "objectIds");
+    if (objectIds.contains(getUniqueId().getObjectId())) {
+      return true;
+    }
+    for (ManageablePortfolioNode childNode : getChildNodes()) {
+      if (childNode.matchesAny(objectIds)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Finds a node with the specified object identifier, which may be this node.
    * This scans all child nodes depth-first until the node is found.
    * 
@@ -138,9 +158,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     if (getUniqueId().equalObjectIdentifier(nodeObjectId)) {
       return this;
     }
-    for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
-      final ManageablePortfolioNode child = it.next();
-      ManageablePortfolioNode found = child.findNodeByObjectIdentifier0(nodeObjectId);
+    for (ManageablePortfolioNode childNode : getChildNodes()) {
+      ManageablePortfolioNode found = childNode.findNodeByObjectIdentifier0(nodeObjectId);
       if (found != null) {
         return found;
       }
@@ -148,6 +167,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     return null;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Finds a node with the specified name, which may be this node.
    * This scans all child nodes depth-first until the node is found.
@@ -169,6 +189,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     return null;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Finds the stack of nodes from the tree below this node by identifier.
    * This performs a recursive scan of the child nodes returning all the nodes
@@ -197,9 +218,8 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     if (getUniqueId().equalObjectIdentifier(nodeObjectId)) {
       return stack;
     }
-    for (Iterator<ManageablePortfolioNode> it = _childNodes.iterator(); it.hasNext(); ) {
-      final ManageablePortfolioNode child = it.next();
-      Stack<ManageablePortfolioNode> found = child.findNodeStackByObjectIdentifier0(stack, nodeObjectId);
+    for (ManageablePortfolioNode childNode : getChildNodes()) {
+      Stack<ManageablePortfolioNode> found = childNode.findNodeStackByObjectIdentifier0(stack, nodeObjectId);
       if (found != null) {
         return found;
       }
@@ -208,6 +228,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
     return null;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Removes a node from the tree below this node by identifier.
    * This performs a recursive scan of the child nodes.

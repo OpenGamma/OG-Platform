@@ -15,9 +15,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
@@ -60,7 +62,7 @@ public class InMemorySecurityMasterTest {
   //-------------------------------------------------------------------------
   @Test(expected = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemorySecurityMaster(null);
+    new InMemorySecurityMaster((Supplier<ObjectIdentifier>) null);
   }
 
   @Test
@@ -120,6 +122,28 @@ public class InMemorySecurityMasterTest {
     List<SecurityDocument> docs = result.getDocuments();
     assertEquals(2, docs.size());
     assertEquals(true, docs.contains(doc1));
+    assertEquals(true, docs.contains(doc2));
+  }
+
+  @Test
+  public void test_search_populatedMaster_filterByName() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setName("*est 2");
+    SecuritySearchResult result = testPopulated.search(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    List<SecurityDocument> docs = result.getDocuments();
+    assertEquals(1, docs.size());
+    assertEquals(true, docs.contains(doc2));
+  }
+
+  @Test
+  public void test_search_populatedMaster_filterByType() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setSecurityType("TYPE2");
+    SecuritySearchResult result = testPopulated.search(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    List<SecurityDocument> docs = result.getDocuments();
+    assertEquals(1, docs.size());
     assertEquals(true, docs.contains(doc2));
   }
 

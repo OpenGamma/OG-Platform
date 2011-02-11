@@ -26,9 +26,9 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public final class ObjectsPair<A, B> extends Pair<A, B> {
 
   /** The first element. */
-  public final A first;  // CSIGNORE
+  public final A first; // CSIGNORE
   /** The second element. */
-  public final B second;  // CSIGNORE
+  public final B second; // CSIGNORE
 
   /**
    * Creates a pair inferring the types.

@@ -17,6 +17,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -62,7 +63,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityKeys(securityKey);
     request.setVersionCorrection(getVersionCorrection());
-    return (Collection) getMaster().search(request).getSecurities();  // cast safe as supplied list will not be altered
+    return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered
   }
 
   @Override
@@ -73,15 +74,16 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     return securities.isEmpty() ? null : securities.iterator().next();
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<Security> getAllBondsOfIssuerType(String issuerType) {
-    ArgumentChecker.notNull(issuerType, "issuerType");
-    final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setBondIssuerName(issuerType);
-    request.setVersionCorrection(getVersionCorrection());
-    request.setFullDetail(true);
-    return (Collection) getMaster().search(request).getSecurities();
+  //-------------------------------------------------------------------------
+  /**
+   * Searches for securities matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  public SecuritySearchResult search(final SecuritySearchRequest request) {
+    return getMaster().search(request);
   }
 
 }

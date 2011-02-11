@@ -64,14 +64,5 @@ public interface SecuritySource {
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
   Security getSecurity(IdentifierBundle bundle);
-  
-  /**
-   * Finds the all the available bonds with an issuer type of the provided string.  
-   * This would be used, for example, to construct a bond curve.
-   * 
-   * @param issuerType
-   * @return a collection of bond securities with the issuerType specified
-   */
-  Collection<Security> getAllBondsOfIssuerType(String issuerType);
 
 }

@@ -119,9 +119,9 @@ public final class ArgumentChecker {
     notNull(parameter, name);
     if (parameter.length == 0) {
       throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
-    }    
+    }
   }
-  
+
   /**
    * Checks that the specified parameter array is non-null and not empty.
    * 
@@ -151,7 +151,7 @@ public final class ArgumentChecker {
       throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
     }
   }
-  
+
   /**
    * Checks that the specified parameter collection is non-null and not empty.
    * 
@@ -289,7 +289,7 @@ public final class ArgumentChecker {
    * @return true if the collection contains a null element
    * @throws IllegalArgumentException if the collection is null
    */
-  public static boolean hasNullElement(Iterable<?> iterable) {    
+  public static boolean hasNullElement(Iterable<?> iterable) {
     notNull(iterable, "collection");
     for (Object o : iterable) {
       if (o == null) {
@@ -298,7 +298,7 @@ public final class ArgumentChecker {
     }
     return false;
   }
-  
+
   /**
    * Checks a collection of doubles for negative elements.
    * 
@@ -306,7 +306,7 @@ public final class ArgumentChecker {
    * @return true if the collection contains a negative element
    * @throws IllegalArgumentException if the collection is null
    */
-  
+
   public static boolean hasNegativeElement(Iterable<Double> iterable) {
     notNull(iterable, "collection");
     for (Double d : iterable) {

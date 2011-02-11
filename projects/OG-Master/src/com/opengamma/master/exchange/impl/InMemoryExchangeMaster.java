@@ -5,15 +5,14 @@
  */
 package com.opengamma.master.exchange.impl;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -28,7 +27,6 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -76,35 +74,15 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
   @Override
   public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final ExchangeSearchResult result = new ExchangeSearchResult();
-    Collection<ExchangeDocument> docs = _store.values();
-    if (request.getExchangeIds() != null) {
-      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
-        @Override
-        public boolean apply(final ExchangeDocument doc) {
-          return request.getExchangeIds().contains(doc.getUniqueId());
-        }
-      });
+    final List<ExchangeDocument> list = new ArrayList<ExchangeDocument>();
+    for (ExchangeDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
     }
-    if (request.getExchangeKeys() != null) {
-      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
-        @Override
-        public boolean apply(final ExchangeDocument doc) {
-          return request.getExchangeKeys().matches(doc.getExchange().getIdentifiers());
-        }
-      });
-    }
-    final String name = request.getName();
-    if (name != null) {
-      docs = Collections2.filter(docs, new Predicate<ExchangeDocument>() {
-        @Override
-        public boolean apply(final ExchangeDocument doc) {
-          return RegexUtils.wildcardsToPattern(name).matcher(doc.getName()).matches();
-        }
-      });
-    }
-    result.setPaging(Paging.of(docs, request.getPagingRequest()));
-    result.getDocuments().addAll(request.getPagingRequest().select(docs));
+    ExchangeSearchResult result = new ExchangeSearchResult();
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 

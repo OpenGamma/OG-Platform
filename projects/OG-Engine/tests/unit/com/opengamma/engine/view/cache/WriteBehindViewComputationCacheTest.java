@@ -29,7 +29,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;

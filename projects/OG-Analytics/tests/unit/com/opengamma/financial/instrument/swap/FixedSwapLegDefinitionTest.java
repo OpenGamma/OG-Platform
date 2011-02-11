@@ -40,9 +40,9 @@ public class FixedSwapLegDefinitionTest {
   private static final ZonedDateTime[] NOMINAL_DATES = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 3), DateUtil.getUTCDate(2011, 7, 3), DateUtil.getUTCDate(2012, 1, 3),
       DateUtil.getUTCDate(2012, 7, 3), DateUtil.getUTCDate(2013, 1, 3), DateUtil.getUTCDate(2013, 7, 3), DateUtil.getUTCDate(2014, 1, 3), DateUtil.getUTCDate(2014, 7, 3),
       DateUtil.getUTCDate(2015, 1, 3), DateUtil.getUTCDate(2015, 7, 3)};
-  private static final ZonedDateTime[] SETTLEMENT_DATES = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 6), DateUtil.getUTCDate(2011, 7, 6), DateUtil.getUTCDate(2012, 1, 6),
-      DateUtil.getUTCDate(2012, 7, 6), DateUtil.getUTCDate(2013, 1, 8), DateUtil.getUTCDate(2013, 7, 8), DateUtil.getUTCDate(2014, 1, 8), DateUtil.getUTCDate(2014, 7, 8),
-      DateUtil.getUTCDate(2015, 1, 7), DateUtil.getUTCDate(2015, 7, 8)};
+  private static final ZonedDateTime[] SETTLEMENT_DATES = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 3), DateUtil.getUTCDate(2011, 7, 4), DateUtil.getUTCDate(2012, 1, 3),
+      DateUtil.getUTCDate(2012, 7, 3), DateUtil.getUTCDate(2013, 1, 3), DateUtil.getUTCDate(2013, 7, 3), DateUtil.getUTCDate(2014, 1, 3), DateUtil.getUTCDate(2014, 7, 3),
+      DateUtil.getUTCDate(2015, 1, 5), DateUtil.getUTCDate(2015, 7, 3)};
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
   private static final FixedSwapLegDefinition DEFINITION = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
@@ -92,9 +92,15 @@ public class FixedSwapLegDefinitionTest {
     DEFINITION.toDerivative(LocalDate.of(2011, 2, 1), new String[0]);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testAfterLastPayment() {
+    DEFINITION.toDerivative(LocalDate.of(2100, 1, 1), new String[] {"S"});
+  }
+
   @Test
   public void test() {
     assertEquals(DEFINITION.getConvention(), CONVENTION);
+    assertEquals(DEFINITION.getEffectiveDate(), EFFECTIVE_DATE);
     assertArrayEquals(DEFINITION.getNominalDates(), NOMINAL_DATES);
     assertEquals(DEFINITION.getNotional(), NOTIONAL, 0);
     assertEquals(DEFINITION.getRate(), RATE, 0);
@@ -118,18 +124,18 @@ public class FixedSwapLegDefinitionTest {
 
   @Test
   public void testConversion() {
-    String yieldCurveName = "R";
-    GenericAnnuity<FixedCouponPayment> annuity = DEFINITION.toDerivative(DATE.toLocalDate(), yieldCurveName);
-    int n = annuity.getNumberOfPayments();
-    int offset = 2;
+    final String yieldCurveName = "R";
+    final GenericAnnuity<FixedCouponPayment> annuity = DEFINITION.toDerivative(DATE.toLocalDate(), yieldCurveName);
+    final int n = annuity.getNumberOfPayments();
+    final int offset = 2;
     assertEquals(n, SETTLEMENT_DATES.length - offset);
     for (int i = 0; i < n; i++) {
-      FixedCouponPayment nthPayment = annuity.getNthPayment(i);
+      final FixedCouponPayment nthPayment = annuity.getNthPayment(i);
       assertEquals(nthPayment.getNotional(), NOTIONAL, 0);
       assertEquals(nthPayment.getFundingCurveName(), yieldCurveName);
-      double paymentTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(DATE, SETTLEMENT_DATES[i + offset]);
+      final double paymentTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(DATE, SETTLEMENT_DATES[i + offset]);
       assertEquals(nthPayment.getPaymentTime(), paymentTime, 0);
-      double yearFraction = DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i + offset - 1], SETTLEMENT_DATES[i + offset]);
+      final double yearFraction = DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i + offset - 1], SETTLEMENT_DATES[i + offset]);
       assertEquals(nthPayment.getYearFraction(), yearFraction, 0);
       assertEquals(nthPayment.getCoupon(), RATE, 0);
     }

@@ -20,8 +20,8 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
-  private final static double XMIN = -7.6;
-  private final static double DELTA = 0.05;
+  private static final double XMIN = -7.6;
+  private static final double DELTA = 0.05;
 
   // TODO need a better seed
   private final RandomEngine _randomEngine = new MersenneTwister64(new Date());
@@ -47,6 +47,8 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   /**
    *The cern.jet.random library gives poor results for x < -8, and returns zero for x < -8.37, so beyond x < -7.6 we used the approximation  N(x) = N'(x)/sqrt(1+x^2) and use the
    *symmetry for x > 7.6  
+   *@param x The value for which to find the cdf
+   *@return The cdf
    */
   @Override
   public double getCDF(final Double x) {

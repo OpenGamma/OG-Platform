@@ -220,7 +220,7 @@ public final class ScheduleCalculator {
     final ZonedDateTime[] result = new ZonedDateTime[n];
     result[0] = effectiveDate;
     for (int i = 1; i < n; i++) {
-      result[i] = convention.adjustDate(calendar, dates[i - 1].plusDays(settlementDays));
+      result[i] = convention.adjustDate(calendar, dates[i - 1].minusDays(settlementDays));
     }
     return result;
   }

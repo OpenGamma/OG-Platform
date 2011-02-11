@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 

@@ -39,12 +39,12 @@ public class ForwardLiborPayment implements Payment {
     Validate.isTrue(forwardYearFraction > 0, "forward year fraction <=0");
     Validate.notNull(fundingCurve);
     Validate.notNull(liborCurve);
-    final double actActYearFrac = liborMaturityTime - liborFixingTime;
+    final double deltaT = liborMaturityTime - liborFixingTime;
     // TODO try to catch a wrongly entered year fraction with very loose bounds around the ACT/ACT value (i.e. maturity - fixing). Needs more thought as to whether this should be tightened or removed
-    Validate.isTrue(paymentYearFraction < 1.1 * actActYearFrac + 0.1 && paymentYearFraction > 0.9 * actActYearFrac - 0.1, "input payment year fraction is " + paymentYearFraction
-        + " but ACT/ACT value is " + actActYearFrac);
-    Validate.isTrue(forwardYearFraction < 1.1 * actActYearFrac + 0.1 && forwardYearFraction > 0.9 * actActYearFrac - 0.1, "input forward year fraction is " + forwardYearFraction
-        + " but ACT/ACT value is " + actActYearFrac);
+    Validate.isTrue(paymentYearFraction < 1.1 * deltaT + 0.1 && paymentYearFraction > 0.9 * deltaT - 0.1, "input payment year fraction is " + paymentYearFraction
+        + " but ACT/ACT value is " + deltaT);
+    Validate.isTrue(forwardYearFraction < 1.1 * deltaT + 0.1 && forwardYearFraction > 0.9 * deltaT - 0.1, "input forward year fraction is " + forwardYearFraction
+        + " but ACT/ACT value is " + deltaT);
     _paymentTime = paymentTime;
     _liborFixingTime = liborFixingTime;
     _liborMaturityTime = liborMaturityTime;

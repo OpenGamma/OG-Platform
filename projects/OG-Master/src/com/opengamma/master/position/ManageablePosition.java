@@ -149,6 +149,22 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if any trade object identifier matches one in the specified list.
+   * 
+   * @param objectIds  the object identifiers to match against, not null
+   * @return true if at least one identifier matches
+   */
+  public boolean matchesAny(List<ObjectIdentifier> objectIds) {
+    ArgumentChecker.notNull(objectIds, "objectIds");
+    for (ManageableTrade trade : getTrades()) {
+      if (objectIds.contains(trade.getUniqueId().getObjectId())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Gets a trade from the list by object identifier.
    * 
    * @param tradeObjectId  the trade object identifier, not null

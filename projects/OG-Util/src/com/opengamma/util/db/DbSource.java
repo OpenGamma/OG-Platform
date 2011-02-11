@@ -97,7 +97,7 @@ public class DbSource {
   }
 
   //-------------------------------------------------------------------------
-  
+
   public String getName() {
     return _name;
   }

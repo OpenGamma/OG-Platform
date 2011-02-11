@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.web;
@@ -34,29 +34,29 @@ import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 
 /**
- * Configures UI Resources
- * 
+ * Configures UI Resources.
  * <p>
  * Concatenates the given js/css files based on the given xml file 
  * and then minifies it using YUICompressor
  */
 public class UiResourceConfigTask extends Task {
- 
+
+  private static final String DEFAULT_VERSION = "1.0";
   private static final String DEFAULT_CHARSET = "ISO-8859-1";
-    
+
   /**
-   * Version number
+   * Version number.
    */
   private String _version;
   /**
-   * UiResourceConfig XML file
+   * UiResourceConfig XML file.
    */
   private File _xmlFile;
   /**
-   * Directory for output files
+   * Directory for output files.
    */
   private File _dir;
-  
+
   private String _charset = DEFAULT_CHARSET;
   private int _lineBreakPosition = -1;
   private boolean _munge;
@@ -64,28 +64,30 @@ public class UiResourceConfigTask extends Task {
   private boolean _preserveAllSemiColons = true;
   private boolean _optimize = true;
   private boolean _delete = true;
-  
   private Map<String, Bundle> _bundlesMap = new HashMap<String, Bundle>();
   private Map<com.opengamma.util.web.File, List<String>> _filesMap = new HashMap<com.opengamma.util.web.File, List<String>>();
-  
+
   /**
    * Gets the xml file field.
+   * 
    * @return the file
    */
   public File getXmlFile() {
     return _xmlFile;
   }
-  
+
   /**
    * Sets the file field.
+   * 
    * @param file  the file
    */
   public void setXmlFile(File file) {
     _xmlFile = file;
   }
-  
+
   /**
    * Gets the dir field.
+   * 
    * @return the dir
    */
   public File getDir() {
@@ -94,14 +96,16 @@ public class UiResourceConfigTask extends Task {
 
   /**
    * Sets the dir field.
+   * 
    * @param dir  the dir
    */
   public void setDir(File dir) {
     _dir = dir;
   }
- 
+
   /**
    * Gets the version field.
+   * 
    * @return the version
    */
   public String getVersion() {
@@ -110,12 +114,14 @@ public class UiResourceConfigTask extends Task {
 
   /**
    * Sets the version field.
+   * 
    * @param version  the version
    */
   public void setVersion(String version) {
     _version = version;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void execute() throws BuildException {
     validate();
@@ -137,7 +143,7 @@ public class UiResourceConfigTask extends Task {
       throw new BuildException(getDir() + " is not a valid directory");
     }
   }
-  
+
   private Reader openFile(File file) throws BuildException {
     Reader in;
     try {
@@ -192,7 +198,7 @@ public class UiResourceConfigTask extends Task {
     concatTask.execute();
     return concatFile;
   }
-  
+
   private void deleteConcatFiles(List<File> concatFileList) {
     if (isDelete()) {
       Delete deleteTask = new Delete();
@@ -220,7 +226,7 @@ public class UiResourceConfigTask extends Task {
   }
 
   private JavaScriptCompressor createJavaScriptCompressor(Reader in) throws IOException {
-    
+
     JavaScriptCompressor compressor = new JavaScriptCompressor(in, new ErrorReporter() {
 
       private String getMessage(String source, String message, int line, int lineOffset) {
@@ -305,7 +311,7 @@ public class UiResourceConfigTask extends Task {
     File destFile = new File(buf.toString());
     return destFile;
   }
-  
+
   private File createConcatDestinationFile(com.opengamma.util.web.File file) {
     return createDestinationFile(file, "C");
   }
@@ -441,5 +447,5 @@ public class UiResourceConfigTask extends Task {
   public void setDelete(boolean delete) {
     _delete = delete;
   }
-  
+
 }

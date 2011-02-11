@@ -289,8 +289,8 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     if (mySet.size() > otherSet.size()) {
       return 1;
     }
-    final List<Identifier> myList = new ArrayList<Identifier>(mySet);  // already sorted as TreeSet
-    final List<Identifier> otherList = new ArrayList<Identifier>(otherSet);  // already sorted as TreeSet
+    final List<Identifier> myList = new ArrayList<Identifier>(mySet); // already sorted as TreeSet
+    final List<Identifier> otherList = new ArrayList<Identifier>(otherSet); // already sorted as TreeSet
     for (int i = 0; i < myList.size(); i++) {
       int c = myList.get(i).compareTo(otherList.get(i));
       if (c != 0) {
@@ -320,11 +320,11 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("Bundle")
-      .append("[")
-      .appendWithSeparators(_identifiers, ", ")
-      .append("]")
-      .toString();
+        .append("Bundle")
+        .append("[")
+        .appendWithSeparators(_identifiers, ", ")
+        .append("]")
+        .toString();
   }
 
   //-------------------------------------------------------------------------
