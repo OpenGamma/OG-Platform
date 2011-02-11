@@ -15,6 +15,7 @@ import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -208,5 +209,15 @@ public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     SURFACE.getZValue(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullX2() {
+    SURFACE.getZValue(Pair.of((Double) null, 2.));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullY2() {
+    SURFACE.getZValue(Pair.of(1., (Double) null));
   }
 }
