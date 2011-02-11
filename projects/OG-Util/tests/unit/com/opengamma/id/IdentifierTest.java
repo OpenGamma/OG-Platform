@@ -122,6 +122,13 @@ public class IdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_toBundle() {
+    Identifier test = Identifier.of(SCHEME, "value");
+    assertEquals(IdentifierBundle.of(test), test.toBundle());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     Identifier d1a = Identifier.of(SCHEME, "d1");
     Identifier d1b = Identifier.of(SCHEME, "d1");

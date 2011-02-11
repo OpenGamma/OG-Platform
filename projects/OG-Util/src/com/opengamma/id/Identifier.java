@@ -187,6 +187,15 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
     return UniqueIdentifier.of(getScheme().getName(), getValue());
   }
 
+  /**
+   * Converts this Identifier to a bundle.
+   * 
+   * @return a bundle wrapping this identifier, not null
+   */
+  public IdentifierBundle toBundle() {
+    return IdentifierBundle.of(this);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares the identifiers, sorting alphabetically by scheme followed by value.
