@@ -14,6 +14,10 @@ package com.opengamma.financial.convention.frequency;
 public interface Frequency {
 
   /**
+   * Never convention name.
+   */
+  String NEVER_NAME = "Never";
+  /**
    * Annual convention name
    */
   String ANNUAL_NAME = "Annual";
