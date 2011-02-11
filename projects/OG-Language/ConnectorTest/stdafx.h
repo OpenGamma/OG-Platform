@@ -22,6 +22,7 @@
 #include <assert.h>
 
 #include <Util/AbstractTest.h>
+#include <Util/BufferedInput.h>
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
 #include <Util/NamedPipe.h>

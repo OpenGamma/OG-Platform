@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 /**
  * Entry point for the Language add-in. Kicks off a Spring configuration script to create the main connector and
@@ -23,11 +24,12 @@ public class Main {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Main.class);
 
-  // TODO: copy fragments from OG-Excel project
-
   private static GenericApplicationContext s_springContext;
-
-  private static ExecutorService s_executorService = Executors.newCachedThreadPool();
+  
+  private static ClientFactoryBean s_clientFactory;
+  
+  private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new CustomizableThreadFactory(
+      "Client-"));
 
   private static int s_activeConnections;
 
@@ -58,7 +60,8 @@ public class Main {
       s_logger.info("Starting application context");
       s_springContext.start();
       s_logger.info("Application context started");
-      // TODO: get the beans we need
+      s_clientFactory = s_springContext.getBean(ClientFactoryBean.class);
+      // TODO: grab any other beans we need
       return true;
     } catch (Throwable t) {
       s_logger.error("Exception thrown", t);
@@ -78,14 +81,14 @@ public class Main {
       final String outputPipeName) {
     try {
       s_logger.info("Accepted connection from {}", userName);
-      s_logger.debug("Using pipes {}/{}", inputPipeName, outputPipeName);
-      // TODO: create the connection instance
+      s_logger.debug("Using pipes IN:{} OUT:{}", inputPipeName, outputPipeName);
+      final Client client = s_clientFactory.createClient(inputPipeName, outputPipeName);
       // TODO: create the engine context
       s_activeConnections++;
       s_executorService.submit(new Runnable() {
         @Override
         public void run() {
-          // TODO: run the connection
+          client.run();
           s_logger.info("Session for {} disconnected", userName);
           clientDisconnected();
         }

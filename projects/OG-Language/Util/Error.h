@@ -40,10 +40,20 @@ static int NativeGetLastError () {
 #define ECANCELED		ERROR_CANCELLED
 #undef EINVAL
 #define EINVAL			ERROR_INVALID_PARAMETER
+#undef EIO
+#define EIO_READ		ERROR_READ_FAULT
+#define EIO_WRITE		ERROR_WRITE_FAULT
+#define IS_EIO(ec)		((ec == ERROR_READ_FAULT) || (ec == ERROR_WRITE_FAULT))
 #undef ENOENT
 #define ENOENT			ERROR_FILE_NOT_FOUND
+#undef ENOTCONN
+#define ENOTCONN		ERROR_NOT_CONNECTED
 #undef ETIMEDOUT
 #define ETIMEDOUT		ERROR_TIMEOUT
+#else /* ifdef _WIN32 */
+#define EIO_READ		EIO
+#define EIO_WRITE		EIO
+#define IS_EIO(ec)		(ec == EIO)
 #endif /* ifdef _WIN32 */
 
 #endif /* ifndef __inc_og_language_util_error_h */

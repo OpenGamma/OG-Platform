@@ -14,7 +14,7 @@
 #include <Util/DllVersion.h>
 #endif /* ifdef _WIN32 */
 
-LOGGING (com.opengamma.connector.Alert);
+LOGGING (com.opengamma.language.connector.Alert);
 
 static CMutex g_oMutex;
 static bool g_bEnabled = false;

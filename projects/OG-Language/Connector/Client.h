@@ -37,17 +37,19 @@ private:
 	class CRunnerThread;
 	// Attributes
 	CAtomicInt m_oRefCount;
-	CMutex m_oState;
-	CMutex m_oStop;
+	CMutex m_oStateMutex;
+	CMutex m_oStopMutex;
 	ClientServiceState m_eState;
-	CMutex m_oStateChange;
+	CMutex m_oStateChangeMutex;
 	CStateChange *m_poStateChangeCallback;
-	CMutex m_oMessageReceived;
+	CMutex m_oMessageReceivedMutex;
 	CMessageReceived *m_poMessageReceivedCallback;
 	CThread *m_poRunner;
+	CSemaphore m_oPipesSemaphore;
 	CClientPipes *m_poPipes;
 	CClientJVM *m_poJVM;
 	unsigned long m_lSendTimeout;
+	unsigned long m_lShortTimeout;
 	// Private constructor - stops stack allocation
 	CClientService ();
 	~CClientService ();
@@ -55,6 +57,10 @@ private:
 	bool ClosePipes ();
 	bool ConnectPipes ();
 	bool CreatePipes ();
+	bool IsFirstConnection () { return m_lShortTimeout != 0; }
+	void FirstConnectionOk () { m_lSendTimeout = m_lShortTimeout; m_lShortTimeout = 0; }
+	FudgeMsgEnvelope Recv (unsigned long lTimeout);
+	bool Send (int cProcessingDirectives, FudgeMsg msg);
 	bool SendPoison ();
 	bool SetState (ClientServiceState eNewState);
 	bool StartJVM ();

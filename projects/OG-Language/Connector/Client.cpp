@@ -10,20 +10,72 @@
 
 #include "Alert.h"
 #include "Client.h"
+#include "MessageDirectives.h"
 #include "Settings.h"
+#define FUDGE_NO_NAMESPACE
+#include "com_opengamma_language_connector_ConnectorMessage.h"
 
 LOGGING (com.opengamma.language.connector.Client);
 
+static CFudgeInitialiser g_oInitialiseFudge;
+
 class CClientService::CRunnerThread : public CThread {
 private:
+	FudgeMsg m_msgStash;
 	CClientService *m_poService;
+	unsigned long m_lHeartbeatTimeout;
 	bool SendHeartbeat (bool bWithStash) {
-		TODO (TEXT ("Copy code from OG-Excel"));
-		return false;
+		LOGDEBUG (TEXT ("Sending heartbeat message"));
+		FudgeStatus status;
+		FudgeMsg msg;
+		if ((status = FudgeMsg_create (&msg)) != FUDGE_OK) {
+			LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+			assert (0);
+			return false;
+		}
+		if ((status = ConnectorMessage_setOperation (msg, HEARTBEAT)) != FUDGE_OK) {
+			FudgeMsg_release (msg);
+			LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+			assert (0);
+			return false;
+		}
+		if (bWithStash && m_msgStash) {
+			if ((status = ConnectorMessage_setStash (msg, m_msgStash)) != FUDGE_OK) {
+				LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+				assert (0);
+				status = FUDGE_OK;
+				// Not good, but can carry on
+			}
+		}
+		bool bResult = m_poService->Send (msg);
+		FudgeMsg_release (msg);
+		return bResult;
+	}
+	void DispatchAndRelease (FudgeMsgEnvelope env) {
+		switch (FudgeMsgEnvelope_getDirectives (env)) {
+		case MESSAGE_DIRECTIVES_CLIENT :
+			TODO (TEXT ("Client message"));
+			break;
+		case MESSAGE_DIRECTIVES_USER :
+			TODO (TEXT ("User message"));
+			break;
+		default :
+			LOGWARN (TEXT ("Unknown message delivery directive ") << FudgeMsgEnvelope_getDirectives (env));
+			break;
+		}
+		FudgeMsgEnvelope_release (env);
 	}
 	bool WaitForHeartbeatResponse () {
-		TODO (TEXT ("Copy code from OG-Excel"));
-		return false;
+		LOGDEBUG (TEXT ("Waiting for heartbeat response"));
+		FudgeMsgEnvelope env = m_poService->Recv (m_lHeartbeatTimeout);
+		if (env) {
+			DispatchAndRelease (env);
+			m_poService->FirstConnectionOk ();
+			return true;
+		} else {
+			LOGWARN (TEXT ("Heartbeat timeout exceeded"));
+			return false;
+		}
 	}
 protected:
 	~CRunnerThread () {
@@ -32,7 +84,10 @@ protected:
 public:
 	CRunnerThread (CClientService *poService) : CThread () {
 		LOGDEBUG (TEXT ("Runner thread created"));
+		CSettings oSettings;
 		m_poService = poService;
+		m_msgStash = NULL;
+		m_lHeartbeatTimeout = oSettings.GetHeartbeatTimeout ();
 	}
 	void Run () {
 		LOGINFO (TEXT ("Runner thread started"));
@@ -100,7 +155,8 @@ public:
 	}
 };
 
-CClientService::CClientService () {
+CClientService::CClientService ()
+: m_oPipesSemaphore (1, 1) {
 	m_poStateChangeCallback = NULL;
 	m_poMessageReceivedCallback = NULL;
 	m_eState = STOPPED;
@@ -131,7 +187,7 @@ CClientService::~CClientService () {
 
 bool CClientService::Start () {
 	LOGINFO (TEXT ("Starting"));
-	m_oState.Enter ();
+	m_oStateMutex.Enter ();
 	bool bResult;
 	if ((m_eState == ERRORED) || (m_eState == STOPPED)) {
 		if (m_poRunner) {
@@ -154,15 +210,15 @@ bool CClientService::Start () {
 		SetLastError (EALREADY);
 		bResult = false;
 	}
-	m_oState.Leave ();
+	m_oStateMutex.Leave ();
 	return bResult;
 }
 
 bool CClientService::Stop () {
 	LOGINFO (TEXT ("Stopping"));
 	// Exclude concurrent calls to Stop.
-	m_oStop.Enter ();
-	m_oState.Enter ();
+	m_oStopMutex.Enter ();
+	m_oStateMutex.Enter ();
 	CThread *poRunner;
 	if ((m_eState == ERRORED) || (m_eState == STOPPED)) {
 		LOGWARN (TEXT ("Runner thread already stopped"));
@@ -180,7 +236,7 @@ bool CClientService::Stop () {
 		m_poRunner = NULL;
 	}
 	// Release the state lock before blocking
-	m_oState.Leave ();
+	m_oStateMutex.Leave ();
 	bool bResult;
 	// We issued a poison request so wait for and close the slave thread handle to synchronise
 	if (poRunner) {
@@ -193,41 +249,43 @@ bool CClientService::Stop () {
 	} else {
 		bResult = true;
 	}
-	m_oStop.Leave ();
+	m_oStopMutex.Leave ();
 	return bResult;
 }
 
 ClientServiceState CClientService::GetState () {
-	m_oState.Enter ();
+	m_oStateMutex.Enter ();
 	ClientServiceState eState = m_eState;
-	m_oState.Leave ();
+	m_oStateMutex.Leave ();
 	return eState;
 }
 
 bool CClientService::Send (FudgeMsg msg) {
-	TODO (__FUNCTION__);
-	return false;
+	return Send (MESSAGE_DIRECTIVES_USER, msg);
 }
 
 void CClientService::SetStateChangeCallback (CStateChange *poCallback) {
-	m_oStateChange.Enter ();
+	m_oStateChangeMutex.Enter ();
 	m_poStateChangeCallback = poCallback;
-	m_oStateChange.Leave ();
+	m_oStateChangeMutex.Leave ();
 }
 
 void CClientService::SetMessageReceivedCallback (CMessageReceived *poCallback) {
-	m_oMessageReceived.Enter ();
+	m_oMessageReceivedMutex.Enter ();
 	m_poMessageReceivedCallback = poCallback;
-	m_oMessageReceived.Leave ();
+	m_oMessageReceivedMutex.Leave ();
 }
 
 bool CClientService::ClosePipes () {
 	LOGINFO (TEXT ("Closing pipes"));
+	m_oPipesSemaphore.Wait ();
 	if (m_poPipes) {
 		delete m_poPipes;
 		m_poPipes = NULL;
+		m_oPipesSemaphore.Signal ();
 		return true;
 	} else {
+		m_oPipesSemaphore.Signal ();
 		LOGWARN (TEXT ("Pipes not created"));
 		return false;
 	}
@@ -235,12 +293,15 @@ bool CClientService::ClosePipes () {
 
 bool CClientService::ConnectPipes () {
 	LOGINFO (TEXT ("Connecting pipes to JVM"));
+	m_oPipesSemaphore.Wait ();
 	if (!m_poPipes) {
+		m_oPipesSemaphore.Signal ();
 		LOGFATAL (TEXT ("Pipes not created"));
 		assert (0);
 		return false;
 	}
 	if (!m_poJVM) {
+		m_oPipesSemaphore.Signal ();
 		LOGFATAL (TEXT ("JVM not created"));
 		assert (0);
 		return false;
@@ -250,6 +311,7 @@ bool CClientService::ConnectPipes () {
 	LOGDEBUG (TEXT ("Connecting to ") << pszPipeName);
 	unsigned long lTimeout = m_poJVM->FirstConnection () ? oSettings.GetStartTimeout () : oSettings.GetConnectTimeout ();
 	m_lSendTimeout = lTimeout;
+	m_lShortTimeout = oSettings.GetSendTimeout ();
 	unsigned long lTime = GetTickCount ();
 	CNamedPipe *poPipe;
 	do {
@@ -260,6 +322,7 @@ bool CClientService::ConnectPipes () {
 			int ec = GetLastError ();
 			if (ec == ENOENT) {
 				if (GetTickCount () - lTime > lTimeout) {
+					m_oPipesSemaphore.Signal ();
 					LOGWARN (TEXT ("Timeout waiting for JVM service to open ") << pszPipeName);
 					return false;
 				} else {
@@ -267,11 +330,13 @@ bool CClientService::ConnectPipes () {
 						LOGDEBUG (TEXT ("Waiting for JVM service to open pipe"));
 						CThread::Sleep (oSettings.GetServicePoll ());
 					} else {
+						m_oPipesSemaphore.Signal ();
 						LOGWARN (TEXT ("JVM service terminated before opening ") << pszPipeName);
 						return false;
 					}
 				}
 			} else {
+				m_oPipesSemaphore.Signal ();
 				LOGWARN (TEXT ("Couldn't connect to ") << pszPipeName << TEXT (", error ") << ec);
 				return false;
 			}
@@ -283,23 +348,140 @@ bool CClientService::ConnectPipes () {
 		LOGWARN (TEXT ("Couldn't connect to JVM service, error ") << GetLastError ());
 	}
 	delete poPipe;
+	m_oPipesSemaphore.Signal ();
 	return bResult;
 }
 
 bool CClientService::CreatePipes () {
 	LOGINFO (TEXT ("Creating pipes"));
+	m_oPipesSemaphore.Wait ();
 	if (m_poPipes) {
+		m_oPipesSemaphore.Signal ();
 		LOGFATAL (TEXT ("Pipes already created"));
 		assert (0);
 		return false;
 	}
 	m_poPipes = CClientPipes::Create ();
 	if (m_poPipes) {
+		m_oPipesSemaphore.Signal ();
 		return true;
 	} else {
+		m_oPipesSemaphore.Signal ();
 		LOGWARN (TEXT ("Couldn't create pipes, error ") << GetLastError ());
 		return false;
 	}
+}
+
+// This must only be called from the thread that creates and connects the pipes. This then
+// doesn't need to acquire the pipe semaphore as the object won't be modified concurrently.
+// Another thread might be sending, but that's it.
+FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
+	FudgeStatus status;
+	FudgeMsgHeader header;
+	fudge_byte *ptr = (fudge_byte*)m_poPipes->PeekInput (8, lTimeout); // Fudge headers are 8-bytes long
+	if (!ptr) {
+		int ec = GetLastError ();
+		if (ec == ETIMEDOUT) {
+			LOGDEBUG (TEXT ("Timeout reading envelope header"));
+		} else {
+			LOGWARN (TEXT ("Couldn't read Fudge envelope header, error ") << ec);
+		}
+		SetLastError (ec);
+		return NULL;
+	}
+	if ((status = FudgeHeader_decodeMsgHeader (&header, ptr, 8)) != FUDGE_OK) {
+		LOGERROR (TEXT ("Couldn't decode Fudge envelope header, status ") << status);
+		SetLastError (EIO_READ);
+		return NULL;
+	}
+	ptr = (fudge_byte*)m_poPipes->PeekInput (header.numbytes, lTimeout);
+	if (!ptr) {
+		int ec = GetLastError ();
+		LOGWARN (TEXT ("Couldn't read full Fudge message (") << header.numbytes << TEXT (" bytes, error ") << ec);
+		SetLastError (ec);
+		return NULL;
+	}
+	FudgeMsgEnvelope env;
+	status = FudgeCodec_decodeMsg (&env, ptr, header.numbytes);
+	m_poPipes->DiscardInput (header.numbytes);
+	if (status == FUDGE_OK) {
+		return env;
+	} else {
+		LOGERROR (TEXT ("Couldn't decode Fudge message, status ") << status);
+		SetLastError (EIO_READ);
+		return NULL;
+	}
+}
+
+bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) {
+	FudgeStatus status;
+	FudgeMsgEnvelope env;
+	fudge_byte *ptrBuffer;
+	fudge_i32 cbBuffer;
+	if ((status = FudgeMsgEnvelope_create (&env, cProcessingDirectives, 0, 0, msg)) != FUDGE_OK) {
+		LOGWARN (TEXT ("Couldn't create message envelope, status ") << status);
+		return false;
+	}
+	status = FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer);
+	FudgeMsgEnvelope_release (env);
+	if (status != FUDGE_OK) {
+		LOGWARN (TEXT ("Couldn't encode message, status ") << status);
+		return false;
+	}
+	bool bResult;
+	m_oPipesSemaphore.Wait (m_lSendTimeout);
+	if (m_poPipes) {
+		int nPoll = 0;
+		long lStartTime = GetTickCount ();
+retrySend:
+		if (m_poPipes->Write (ptrBuffer, cbBuffer, m_lSendTimeout)) {
+			bResult = true;
+		} else {
+			int ec = GetLastError ();
+#ifdef _WIN32
+			if (ec == ERROR_PIPE_LISTENING) {
+				// No process at the other end of the pipe
+#else
+			if (ec == EPIPE) {
+				// Broken pipe -- they start off broken the way we create them
+#endif
+				if (GetTickCount () - lStartTime >= m_lSendTimeout) {
+					LOGWARN (TEXT ("Timeout exceeded waiting for other end of the pipe"));
+					ec = ETIMEDOUT;
+				} else if (IsFirstConnection ()) {
+					LOGDEBUG (TEXT ("No process at the other end of the pipe"));
+					if (m_poJVM->IsAlive ()) {
+						LOGDEBUG (TEXT ("Waiting for JVM"));
+						if (!nPoll) {
+							CSettings oSettings;
+							nPoll = oSettings.GetServicePoll ();
+						}
+						CThread::Sleep (nPoll);
+						goto retrySend;
+					} else {
+						LOGERROR (TEXT ("JVM service terminated before connecting to pipes, error ") << ec);
+					}
+				} else {
+#ifdef _WIN32
+					LOGFATAL (TEXT ("Not first connection but ERROR_PIPE_LISTENING returned"));
+					assert (0);
+#endif
+					LOGWARN (TEXT ("Couldn't write message, error ") << ec);
+				}
+			} else {
+				LOGWARN (TEXT ("Couldn't write message, error ") << ec);
+			}
+			SetLastError (ec);
+			bResult = false;
+		}
+	} else {
+		LOGWARN (TEXT ("Pipes not available for message"));
+		bResult = false;
+		SetLastError (ENOTCONN);
+	}
+	m_oPipesSemaphore.Signal ();
+	free (ptrBuffer);
+	return bResult;
 }
 
 bool CClientService::SendPoison () {
@@ -313,7 +495,7 @@ bool CClientService::SetState (ClientServiceState eNewState) {
 	LOGDEBUG (TEXT ("Set state ") << eNewState);
 	bool bResult;
 	ClientServiceState eOriginalState;
-	m_oState.Enter ();
+	m_oStateMutex.Enter ();
 	if ((m_eState == POISONED) && (eNewState != STOPPED) && (eNewState != ERRORED) && (eNewState != POISONED)) {
 		LOGDEBUG (TEXT ("Currently in poison state, not changing"));
 		bResult = false;
@@ -322,14 +504,14 @@ bool CClientService::SetState (ClientServiceState eNewState) {
 		m_eState = eNewState;
 		bResult = true;
 	}
-	m_oState.Leave ();
+	m_oStateMutex.Leave ();
 	if (bResult) {
-		m_oStateChange.Enter ();
+		m_oStateChangeMutex.Enter ();
 		if (m_poStateChangeCallback) {
 			LOGDEBUG (TEXT ("State changed from ") << eOriginalState << TEXT (" to ") << eNewState);
 			m_poStateChangeCallback->OnStateChange (eOriginalState, eNewState);
 		}
-		m_oStateChange.Leave ();
+		m_oStateChangeMutex.Leave ();
 	}
 	return bResult;
 }

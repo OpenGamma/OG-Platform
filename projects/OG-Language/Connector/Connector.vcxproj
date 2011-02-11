@@ -85,6 +85,7 @@
     <ClInclude Include="com_opengamma_language_Data.h" />
     <ClInclude Include="com_opengamma_language_Value.h" />
     <ClInclude Include="JVM.h" />
+    <ClInclude Include="MessageDirectives.h" />
     <ClInclude Include="Pipes.h" />
     <ClInclude Include="Public.h" />
     <ClInclude Include="Settings.h" />

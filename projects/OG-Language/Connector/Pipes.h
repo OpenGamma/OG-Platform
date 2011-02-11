@@ -13,6 +13,7 @@ class CClientPipes {
 private:
 	CNamedPipe *m_poOutput;
 	CNamedPipe *m_poInput;
+	CBufferedInput m_oInputBuffer;
 	CClientPipes (CNamedPipe *poOutput, CNamedPipe *poInput);
 public:
 	static CNamedPipe *CreateInput (const TCHAR *pszPrefix, int nMaxAttempts, int nSuffix);
@@ -22,6 +23,9 @@ public:
 	static CClientPipes *Create ();
 	~CClientPipes ();
 	bool Connect (CNamedPipe *poService, unsigned long lTimeout);
+	bool Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeout);
+	void *PeekInput (size_t cb, unsigned long lTimeout);
+	void DiscardInput (size_t cb) { m_oInputBuffer.Discard (cb); }
 };
 
 #endif /* ifndef __inc_og_language_connector_pipes_h */

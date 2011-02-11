@@ -209,6 +209,10 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				close (sock);
 				LOGWARN (TEXT ("Couldn't open pipe ") << pszName << TEXT (", error ") << ec);
 				switch (ec) {
+				case EAGAIN :
+					LOGDEBUG (TEXT ("Translating EAGAIN to ENOENT"));
+					ec = ENOENT;
+					break;
 				case ECONNREFUSED :
 					LOGDEBUG (TEXT ("Translating ECONNREFUSED to ENOENT"));
 					ec = ENOENT;
@@ -222,6 +226,12 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				int ec = GetLastError ();
 				close (sock);
 				LOGWARN (TEXT ("Handshake not received on ") << pszName << TEXT (", error ") << ec);
+				switch (ec) {
+				case EAGAIN :
+					LOGDEBUG (TEXT ("Translating EAGAIN to ENOENT"));
+					ec = ENOENT;
+					break;
+				}
 				SetLastError (ec);
 				return 0;
 			}
@@ -239,6 +249,11 @@ bool CNamedPipe::SetTimeout (unsigned long timeout) {
 	tv.tv_usec = (timeout % 1000) * 1000;
 	if (setsockopt (GetFile (), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv))) {
 		int ec = GetLastError ();
+		if (ec == ENOTSOCK) {
+			// This isn't a socket
+			// TODO: can we test what the handle is first?
+			return true;
+		}
 		LOGWARN (TEXT ("Couldn't set receive timeout on pipe, error ") << ec);
 		SetLastError (ec);
 		return 0;
@@ -298,6 +313,7 @@ CNamedPipe *CNamedPipe::Accept (unsigned long timeout) {
 	SetFile (handle);
 	return poClient;
 #else
+failedOperation:
 	struct sockaddr_un addr;
 	bool bLazyWait = false;
 	if (IsLazyClosing ()) {
@@ -343,6 +359,10 @@ timeoutOperation:
 	if (send (sock, "!", 1, 0) != 1) {
 		int ec = GetLastError ();
 		close (sock);
+		if (ec == EPIPE) {
+			LOGWARN (TEXT ("Client disconnected before receiving handshake"));
+			goto failedOperation;
+		}
 		LOGWARN (TEXT ("Couldn't send handshake message, error ") << ec);
 		SetLastError (ec);
 		return NULL;

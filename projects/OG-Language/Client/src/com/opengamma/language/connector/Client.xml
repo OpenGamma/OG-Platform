@@ -16,15 +16,12 @@
   
   <!-- Base system components -->
   <bean id="engineFudgeContext" class="com.opengamma.util.fudge.OpenGammaFudgeContext" factory-method="getInstance" />
-  <bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
-    <property name="poolSize" value="5" />
-  </bean>
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
     <constructor-arg value="${activeMQ.brokerURL}" />
   </bean>
-  <!-- TODO: PluginConnectorFactory equivalent -->
-  <!-- TODO: EngineContextFactory equivalent -->
-  <!-- TODO: RemoteEngineContext equivalent -->
+  <bean id="clientFactory" class="com.opengamma.language.connector.ClientFactoryBean">
+    <property name="fudgeContext" ref="engineFudgeContext" />
+  </bean>
   <bean id="liveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
     <property name="subscriptionTopic" value="${opengamma.livedata.subscription}" />

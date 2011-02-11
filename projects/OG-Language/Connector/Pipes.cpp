@@ -108,7 +108,7 @@ bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
 		return false;
 	}
 	LOGDEBUG (TEXT ("Writing connection message"));
-	bool bResult = poService->Write (pjcc, pjcc->cbSize, lTimeout) == pjcc->cbSize;
+	bool bResult = poService->Write (pjcc, pjcc->cbSize, lTimeout) == (size_t)pjcc->cbSize;
 	free (pjcc);
 	if (bResult) {
 		LOGINFO (TEXT ("Connected to JVM"));
@@ -116,4 +116,43 @@ bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
 		LOGWARN (TEXT ("Couldn't write connection message, error ") << GetLastError ());
 	}
 	return bResult;
+}
+
+bool CClientPipes::Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeout) {
+	do {
+		LOGDEBUG (TEXT ("Writing ") << cbBuffer << TEXT (" bytes"));
+		size_t cbWritten = m_poOutput->Write (ptrBuffer, cbBuffer, lTimeout);
+		if (cbWritten > 0) {
+			if (cbWritten < cbBuffer) {
+				cbBuffer -= cbWritten;
+				ptrBuffer = (char*)ptrBuffer + cbWritten;
+			} else {
+				if (!m_poOutput->Flush ()) {
+					LOGERROR (TEXT ("Couldn't flush output buffer, error ") << GetLastError ());
+				}
+				TODO (TEXT ("Store the last send time"));
+				return true;
+			}
+		} else {
+			int ec = GetLastError ();
+			LOGWARN (TEXT ("Couldn't write ") << cbBuffer << TEXT (" bytes, error ") << ec);
+			SetLastError (ec);
+			return false;
+		}
+	} while (true);
+}
+
+void *CClientPipes::PeekInput (size_t cb, unsigned long lTimeout) {
+	if (m_oInputBuffer.Read (m_poInput, cb, lTimeout)) {
+		return m_oInputBuffer.GetData ();
+	} else {
+		int ec = GetLastError ();
+		if (ec == ETIMEDOUT) {
+			LOGDEBUG (TEXT ("Timeout reading input"));
+		} else {
+			LOGWARN (TEXT ("Error reading input, error ") << ec);
+		}
+		SetLastError (ec);
+		return NULL;
+	}
 }

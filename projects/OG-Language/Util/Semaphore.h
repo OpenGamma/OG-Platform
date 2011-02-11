@@ -12,10 +12,10 @@
 #ifndef _WIN32
 #include <semaphore.h>
 #include <time.h>
+#include "Mutex.h"
 #endif /* ifndef _WIN32 */
 
 #include "Error.h"
-#include "Mutex.h"
 
 #define MAX_SEMAPHORE_COUNT	0x7FFFFFFF
 
@@ -72,7 +72,7 @@ public:
 		return true;
 #endif
 	}
-	bool Wait (unsigned long timeout) {
+	bool Wait (unsigned long timeout = 0xFFFFFFFF) {
 #ifdef _WIN32
 		switch (WaitForSingleObject (m_hSemaphore, timeout)) {
 		case WAIT_ABANDONED :

@@ -168,6 +168,10 @@ timeoutOperation:
 		LOGWARN (TEXT ("Couldn't read from file, error ") << ec);
 		SetLastError (ec);
 		return 0;
+	} else if (cbBytesRead == 0) {
+		LOGWARN (TEXT ("End of stream detected"));
+		SetLastError (ECONNRESET);
+		return 0;
 	}
 	return cbBytesRead;
 #endif
@@ -230,6 +234,10 @@ timeoutOperation:
 		LOGWARN (TEXT ("Couldn't write to file, error ") << ec);
 		SetLastError (ec);
 		return 0;
+	} else if (cbWritten == 0) {
+		LOGWARN (TEXT ("No bytes written"));
+		SetLastError (ECONNRESET);
+		return 0;
 	}
 	return cbWritten;
 #endif
@@ -239,7 +247,8 @@ bool CTimeoutIO::Flush () {
 #ifdef _WIN32
 	return FlushFileBuffers (m_file) ? true : false;
 #else
-	return PosixLastError (fsync (m_file));
+	//return fsync (m_file) == 0; // This is not supported for sockets or pipes
+	return true;
 #endif
 }
 
