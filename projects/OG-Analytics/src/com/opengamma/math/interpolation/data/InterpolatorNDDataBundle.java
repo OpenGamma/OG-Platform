@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.Iterator;
 import java.util.List;

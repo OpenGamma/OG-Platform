@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.Pair;
 
@@ -24,7 +24,7 @@ public class RadialBasisFunctionInterpolatorDataBundle extends InterpolatorNDDat
   private final Function1D<Double, Double> _basisFunction;
   private final boolean _useNormalized;
   private final double[] _weights;
-  private final Decomposition<?> _decomp = new LUDecompositionCommons();
+  private final Decomposition<?> _decomp = DecompositionFactory.LU_COMMONS;
 
   public RadialBasisFunctionInterpolatorDataBundle(List<Pair<double[], Double>> data, final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
     super(data);

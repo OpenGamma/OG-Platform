@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.List;
 
@@ -11,9 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.tuple.Pair;
@@ -22,8 +21,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
-
-  private final Decomposition<?> _decomp = new LUDecompositionCommons();
+  private final Decomposition<?> _decomp = DecompositionFactory.LU_COMMONS;
   private final Function1D<Double, Double> _variogram;
   private final double[] _weights;
 
@@ -31,7 +29,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
    * @param data The data 
    * @param beta The beta
    */
-  public KrigingInterpolatorDataBundle(final List<Pair<double[], Double>> data, double beta) {
+  public KrigingInterpolatorDataBundle(final List<Pair<double[], Double>> data, final double beta) {
     super(data);
     Validate.isTrue(beta >= 1 && beta < 2, "Beta was not in acceptable range (1 <= beta < 2");
     _variogram = calculateVariogram(data, beta);
@@ -55,7 +53,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
   }
 
   private Function1D<Double, Double> calculateVariogram(final List<Pair<double[], Double>> data, final double beta) {
-    int n = data.size();
+    final int n = data.size();
     double sum = 0.0;
     double normSum = 0.0;
     double[] x1, x2;
@@ -88,7 +86,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
   }
 
   private double[] calculateWeights(final List<Pair<double[], Double>> data, final Function1D<Double, Double> variogram) {
-    int n = data.size();
+    final int n = data.size();
     final double[] y = new double[n + 1];
     final double[][] v = new double[n + 1][n + 1];
     Pair<double[], Double> dataPoint;
@@ -101,7 +99,7 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
       for (int j = i + 1; j < n; j++) {
         dataPoint = data.get(j);
         x2 = dataPoint.getFirst();
-        double temp = variogram.evaluate(getDistance(x1, x2));
+        final double temp = variogram.evaluate(getDistance(x1, x2));
         v[i][j] = temp;
         v[j][i] = temp;
       }
@@ -114,17 +112,17 @@ public class KrigingInterpolatorDataBundle extends InterpolatorNDDataBundle {
     double[] res;
     try {
       res = solve(v, y, _decomp);
-    } catch (IllegalArgumentException e) {
-      SVDecompositionCommons decomp = new SVDecompositionCommons();
+    } catch (final IllegalArgumentException e) {
+      final Decomposition<?> decomp = DecompositionFactory.SV_COMMONS;
       res = solve(v, y, decomp);
     }
 
     return res;
   }
 
-  double[] solve(double[][] v, double[] y, Decomposition<?> decomp) {
-    DecompositionResult decompRes = decomp.evaluate(new DoubleMatrix2D(v));
-    DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
+  private double[] solve(final double[][] v, final double[] y, final Decomposition<?> decomp) {
+    final DecompositionResult decompRes = decomp.evaluate(new DoubleMatrix2D(v));
+    final DoubleMatrix1D res = decompRes.solve(new DoubleMatrix1D(y));
     return res.getData();
   }
 

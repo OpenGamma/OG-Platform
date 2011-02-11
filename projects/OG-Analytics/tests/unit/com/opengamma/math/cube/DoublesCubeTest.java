@@ -34,7 +34,7 @@ public class DoublesCubeTest {
   protected static final List<Double> DATA_LIST;
 
   static {
-    final int n = 10;
+    final int n = 125;
     X_PRIMITIVE = new double[n];
     Y_PRIMITIVE = new double[n];
     Z_PRIMITIVE = new double[n];
@@ -47,23 +47,29 @@ public class DoublesCubeTest {
     Y_LIST = new ArrayList<Double>();
     Z_LIST = new ArrayList<Double>();
     DATA_LIST = new ArrayList<Double>();
-    for (int i = 0; i < n; i++) {
-      final double x = i < 5 ? i : i - 5;
-      final double y = i < 5 ? 0 : 1;
-      final double z = 4;
-      double data = 5 * x + 1;
-      X_PRIMITIVE[i] = x;
-      Y_PRIMITIVE[i] = y;
-      Z_PRIMITIVE[i] = z;
-      DATA_PRIMITIVE[i] = data;
-      X_OBJECT[i] = x;
-      Y_OBJECT[i] = y;
-      Z_OBJECT[i] = z;
-      DATA_OBJECT[i] = data;
-      X_LIST.add(x);
-      Y_LIST.add(y);
-      Z_LIST.add(z);
-      DATA_LIST.add(data);
+    int count = 0;
+    for (int i = 0; i < 5; i++) {
+      final double x = i;
+      for (int j = 0; j < 5; j++) {
+        final double y = j;
+        for (int k = 0; k < 5; k++) {
+          final double z = k;
+          final double data = k;
+          X_PRIMITIVE[count] = x;
+          Y_PRIMITIVE[count] = y;
+          Z_PRIMITIVE[count] = z;
+          DATA_PRIMITIVE[count] = data;
+          X_OBJECT[count] = x;
+          Y_OBJECT[count] = y;
+          Z_OBJECT[count] = z;
+          DATA_OBJECT[count] = data;
+          X_LIST.add(x);
+          Y_LIST.add(y);
+          Z_LIST.add(z);
+          DATA_LIST.add(data);
+          count++;
+        }
+      }
     }
   }
 
@@ -76,8 +82,8 @@ public class DoublesCubeTest {
     assertTrue(y == cube.getYData());
     final Double[] z = cube.getZData();
     assertTrue(z == cube.getZData());
-    final Double[] data = cube.getData();
-    assertTrue(data == cube.getData());
+    final Double[] data = cube.getValues();
+    assertTrue(data == cube.getValues());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -102,22 +108,22 @@ public class DoublesCubeTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength1() {
-    new DummyCube(new double[] {2 }, Y_PRIMITIVE, Z_PRIMITIVE, DATA_PRIMITIVE);
+    new DummyCube(new double[] {2}, Y_PRIMITIVE, Z_PRIMITIVE, DATA_PRIMITIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength2() {
-    new DummyCube(X_PRIMITIVE, new double[] {2 }, Z_PRIMITIVE, DATA_PRIMITIVE);
+    new DummyCube(X_PRIMITIVE, new double[] {2}, Z_PRIMITIVE, DATA_PRIMITIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength3() {
-    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, new double[] {2 }, DATA_PRIMITIVE);
+    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, new double[] {2}, DATA_PRIMITIVE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength4() {
-    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, new double[] {2 });
+    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, new double[] {2});
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -142,22 +148,22 @@ public class DoublesCubeTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength5() {
-    new DummyCube(new double[] {2 }, Y_PRIMITIVE, Z_PRIMITIVE, DATA_PRIMITIVE, NAME);
+    new DummyCube(new double[] {2}, Y_PRIMITIVE, Z_PRIMITIVE, DATA_PRIMITIVE, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength6() {
-    new DummyCube(X_PRIMITIVE, new double[] {2 }, Z_PRIMITIVE, DATA_PRIMITIVE, NAME);
+    new DummyCube(X_PRIMITIVE, new double[] {2}, Z_PRIMITIVE, DATA_PRIMITIVE, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength7() {
-    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, new double[] {2 }, DATA_PRIMITIVE, NAME);
+    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, new double[] {2}, DATA_PRIMITIVE, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength8() {
-    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, new double[] {2 }, NAME);
+    new DummyCube(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, new double[] {2}, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -182,22 +188,22 @@ public class DoublesCubeTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength9() {
-    new DummyCube(new Double[] {2. }, Y_OBJECT, Z_OBJECT, DATA_OBJECT);
+    new DummyCube(new Double[] {2.}, Y_OBJECT, Z_OBJECT, DATA_OBJECT);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength10() {
-    new DummyCube(X_OBJECT, new Double[] {2. }, Z_OBJECT, DATA_OBJECT);
+    new DummyCube(X_OBJECT, new Double[] {2.}, Z_OBJECT, DATA_OBJECT);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength11() {
-    new DummyCube(X_OBJECT, Y_OBJECT, new Double[] {2. }, DATA_OBJECT);
+    new DummyCube(X_OBJECT, Y_OBJECT, new Double[] {2.}, DATA_OBJECT);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength12() {
-    new DummyCube(X_OBJECT, Y_OBJECT, Z_OBJECT, new Double[] {2. });
+    new DummyCube(X_OBJECT, Y_OBJECT, Z_OBJECT, new Double[] {2.});
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -222,22 +228,22 @@ public class DoublesCubeTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength13() {
-    new DummyCube(new Double[] {2. }, Y_OBJECT, Z_OBJECT, DATA_OBJECT, NAME);
+    new DummyCube(new Double[] {2.}, Y_OBJECT, Z_OBJECT, DATA_OBJECT, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength14() {
-    new DummyCube(X_OBJECT, new Double[] {2. }, Z_OBJECT, DATA_OBJECT, NAME);
+    new DummyCube(X_OBJECT, new Double[] {2.}, Z_OBJECT, DATA_OBJECT, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength15() {
-    new DummyCube(X_OBJECT, Y_OBJECT, new Double[] {2. }, DATA_OBJECT, NAME);
+    new DummyCube(X_OBJECT, Y_OBJECT, new Double[] {2.}, DATA_OBJECT, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLength16() {
-    new DummyCube(X_OBJECT, Y_OBJECT, Z_OBJECT, new Double[] {2. }, NAME);
+    new DummyCube(X_OBJECT, Y_OBJECT, Z_OBJECT, new Double[] {2.}, NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -321,32 +327,32 @@ public class DoublesCubeTest {
   }
 
   private static class DummyCube extends DoublesCube {
-    public DummyCube(final double[] xData, final double[] yData, final double[] zData, double[] data) {
+    public DummyCube(final double[] xData, final double[] yData, final double[] zData, final double[] data) {
       super(xData, yData, zData, data);
     }
 
-    public DummyCube(final Double[] xData, final Double[] yData, final Double[] zData, Double[] data) {
+    public DummyCube(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] data) {
       super(xData, yData, zData, data);
     }
 
-    public DummyCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, List<Double> data) {
+    public DummyCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> data) {
       super(xData, yData, zData, data);
     }
 
-    public DummyCube(final double[] xData, final double[] yData, final double[] zData, double[] data, final String name) {
+    public DummyCube(final double[] xData, final double[] yData, final double[] zData, final double[] data, final String name) {
       super(xData, yData, zData, data, name);
     }
 
-    public DummyCube(final Double[] xData, final Double[] yData, final Double[] zData, Double[] data, final String name) {
+    public DummyCube(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] data, final String name) {
       super(xData, yData, zData, data, name);
     }
 
-    public DummyCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, List<Double> data, final String name) {
+    public DummyCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> data, final String name) {
       super(xData, yData, zData, data, name);
     }
 
     @Override
-    public Double getValue(final Double x, final Double y, Double z) {
+    public Double getValue(final Double x, final Double y, final Double z) {
       return null;
     }
 
