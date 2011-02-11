@@ -47,7 +47,7 @@ private:
 				// Not good, but can carry on
 			}
 		}
-		bool bResult = m_poService->Send (msg);
+		bool bResult = m_poService->Send (MESSAGE_DIRECTIVES_CLIENT, msg);
 		FudgeMsg_release (msg);
 		return bResult;
 	}
@@ -116,7 +116,7 @@ public:
 				bStatus = false;
 				break;
 			}
-			if (!SendHeartbeat (TRUE) || !WaitForHeartbeatResponse ()) {
+			if (!SendHeartbeat (true) || !WaitForHeartbeatResponse ()) {
 				if (bRetry) {
 					LOGWARN (TEXT ("Java framework is not responding"));
 					if (m_poService->ClosePipes ()) {
@@ -127,7 +127,7 @@ public:
 					}
 				}
 				LOGERROR (TEXT ("Java framework is not responding"));
-				CAlert::Bad (TEXT ("Service error"));
+				CAlert::Bad (TEXT ("Service is not responding"));
 				// TODO: [XLS-43] (needs moving to PLAT) Can we get information from the log to pop-up if the user cloicks on the bubble?
 				// TODO: [XLS-43] (needs a hook to implement) What about a "retry" button to force Excel to unload and re-load the plugin
 				bStatus = false;
@@ -138,8 +138,39 @@ public:
 			LOGINFO (TEXT ("Java framework started and connected"));
 			// TODO: [XLS-43] (needs moving back to XLS project) Display messages a bit more sensibly - e.g. route them in from UDF when everything's registered
 			CAlert::Good (TEXT ("Connected to service"));
-			TODO (TEXT ("Message dispatch loop"));
-			if (!m_poService->SetState (POISONED)) break;
+			LOGDEBUG (TEXT ("Waiting for first message"));
+			FudgeMsgEnvelope env = m_poService->Recv (m_lHeartbeatTimeout);
+			while (env) {
+				TODO (TEXT ("Handle message"));
+				FudgeMsgEnvelope_release (env);
+				LOGDEBUG (TEXT ("Waiting for message"));
+				env = m_poService->Recv (m_lHeartbeatTimeout);
+			}
+			do {
+				int ec = GetLastError ();
+				if (ec == ETIMEDOUT) {
+					if (!SendHeartbeat (false)) {
+						LOGWARN (TEXT ("Couldn't send heartbeat, error ") << ec);
+						break;
+					}
+				} else {
+					LOGWARN (TEXT ("Couldn't read message, error ") << ec);
+					break;
+				}
+				LOGDEBUG (TEXT ("Waiting for critical message"));
+				env = m_poService->Recv (m_lHeartbeatTimeout);
+				if (!env) {
+					LOGWARN (TEXT ("Heartbeat missed"));
+					break;
+				}
+				do {
+					TODO (TEXT ("Handle message"));
+					FudgeMsgEnvelope_release (env);
+					LOGDEBUG (TEXT ("Waiting for message"));
+					env = m_poService->Recv (m_lHeartbeatTimeout);
+				} while (env);
+			} while (m_poService->GetState () == RUNNING);
+			if (!m_poService->SetState (STOPPING)) break;
 			LOGINFO (TEXT ("Restarting Java framework"));
 			CAlert::Bad (TEXT ("Reconnecting to service"));
 			m_poService->ClosePipes ();
@@ -220,6 +251,7 @@ bool CClientService::Stop () {
 	m_oStopMutex.Enter ();
 	m_oStateMutex.Enter ();
 	CThread *poRunner;
+	ClientServiceState ePreviousState = m_eState;
 	if ((m_eState == ERRORED) || (m_eState == STOPPED)) {
 		LOGWARN (TEXT ("Runner thread already stopped"));
 		// Already stopped, so close thread handle if still open
@@ -235,8 +267,17 @@ bool CClientService::Stop () {
 		poRunner = m_poRunner;
 		m_poRunner = NULL;
 	}
+	ClientServiceState eNewState = m_eState;
 	// Release the state lock before blocking
 	m_oStateMutex.Leave ();
+	// Notify listener of the state change
+	if (ePreviousState != eNewState) {
+		m_oStateChangeMutex.Enter ();
+		if (m_poStateChangeCallback) {
+			m_poStateChangeCallback->OnStateChange (ePreviousState, eNewState);
+		}
+		m_oStateChangeMutex.Leave ();
+	}
 	bool bResult;
 	// We issued a poison request so wait for and close the slave thread handle to synchronise
 	if (poRunner) {

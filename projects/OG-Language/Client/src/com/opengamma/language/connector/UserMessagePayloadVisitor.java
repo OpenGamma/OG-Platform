@@ -25,4 +25,6 @@ public interface UserMessagePayloadVisitor<T1, T2> {
 
   // TODO: Procedure
 
+  // TODO: Extension
+
 }

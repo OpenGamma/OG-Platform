@@ -207,6 +207,8 @@ CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameter
 #ifdef _DEBUG
 	si.lpTitle = (TCHAR*)oVersion.GetProductName ();
 	dwFlags |= CREATE_NEW_CONSOLE;
+#else /* ifdef _DEBUG */
+	dwFlags |= CREATE_NO_WINDOW;
 #endif /* ifdef _DEBUG */
 	size_t cchArgString = _tcslen (pszParameters) + 3;
 	TCHAR *pszArgString = new TCHAR[cchArgString];

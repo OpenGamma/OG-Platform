@@ -32,12 +32,14 @@ public final class ClientFactoryBean implements InitializingBean {
       .newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-"));
 
   /**
-   * Heartbeat timeout - should match (or probably be a touch less than) the value used by the clients.
+   * Heartbeat timeout. This should match (or ideally be a touch less than) the value used by the clients.
+   * If this is much lower the JVM process terminate prematurely. If this is much higher, the client
+   * threads may run for longer than they need to after failure of the C++ process.
    */
   private int _heartbeatTimeout = 4000;
 
   /**
-   * Termination timeout - the time to wait for any threads spawned by a client to terminate.
+   * Termination timeout. This the time to wait for any threads spawned by a client to terminate.
    */
   private int _terminationTimeout = 30000;
 

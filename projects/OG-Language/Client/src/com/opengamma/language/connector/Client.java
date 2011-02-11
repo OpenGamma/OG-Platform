@@ -14,8 +14,7 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.channels.Channels;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -55,6 +54,7 @@ public final class Client implements Runnable {
     private final ClientExecutor _executor;
     private final int _heartbeatTimeout;
     private final int _terminationTimeout;
+    private final FudgeMsgEnvelope _heartbeatMessage;
 
     /* package */Context(final FudgeContext fudgeContext, final ScheduledExecutorService scheduler,
         final ClientExecutor executor, final int heartbeatTimeout, final int terminationTimeout) {
@@ -63,6 +63,8 @@ public final class Client implements Runnable {
       _executor = executor;
       _heartbeatTimeout = heartbeatTimeout;
       _terminationTimeout = terminationTimeout;
+      _heartbeatMessage = new FudgeMsgEnvelope(new ConnectorMessage(ConnectorMessage.Operation.HEARTBEAT)
+          .toFudgeMsg(fudgeContext), 0, MessageDirectives.CLIENT);
     }
 
     public FudgeContext getFudgeContext() {
@@ -85,22 +87,25 @@ public final class Client implements Runnable {
       return _terminationTimeout;
     }
 
+    public FudgeMsgEnvelope getHeartbeatMessage() {
+      return _heartbeatMessage;
+    }
+
   }
 
   private final Context _context;
   private final String _inputPipeName;
   private final String _outputPipeName;
-  private final BlockingQueue<FudgeMsgEnvelope> _inputMessageBuffer = new LinkedBlockingQueue<FudgeMsgEnvelope>();
   private final BlockingQueue<FudgeMsgEnvelope> _outputMessageBuffer = new LinkedBlockingQueue<FudgeMsgEnvelope>();
   private final ExecutorService _executor;
 
   private FudgeStreamReader _inputPipe;
   private FudgeStreamWriter _outputPipe;
+  private volatile boolean _poisoned;
 
   // BEGIN-ORIGINAL
 
   private FudgeMessageReceiver _receiver;
-  private volatile boolean _poisoned;
   private FudgeFieldContainer _stash;
   private Runnable _onConnect;
   private Runnable _onDisconnect;
@@ -139,39 +144,26 @@ public final class Client implements Runnable {
     return _outputPipe;
   }
 
-  private BlockingQueue<FudgeMsgEnvelope> getInputMessageBuffer() {
-    return _inputMessageBuffer;
-  }
-
   private BlockingQueue<FudgeMsgEnvelope> getOutputMessageBuffer() {
     return _outputMessageBuffer;
   }
 
-  /**
-   * The main connection thread must always be in "READ" mode to avoid deadlocking against the
-   * alternating C/C++ one. Therefore we have a separate dispatch thread (or pool of them) for
-   * when messages arrive.
-   */
-  @Override
-  public void run() {
-    if (!connectPipes()) {
-      s_logger.error("Couldn't connect to client");
-      return;
-    }
-    final Runnable poison = new Runnable() {
+  private Runnable createPoisoner() {
+    return new Runnable() {
       @Override
       public void run() {
         s_logger.info("Queuing poison message and disconnecting pipes");
-        // Poison the other threads with empty Fudge message
         _poisoned = true;
-        getInputMessageBuffer().add(FudgeContext.EMPTY_MESSAGE_ENVELOPE);
+        // Poison the writer thread with an empty Fudge message
         getOutputMessageBuffer().add(FudgeContext.EMPTY_MESSAGE_ENVELOPE);
+        // Poison the reader thread by forcing an I/O exception when the pipes close
         disconnectPipes();
       }
     };
-    final Watchdog watchdog = new Watchdog(poison);
-    // Message sender - writes outgoing messages to C++
-    final Thread sender = new Thread() {
+  }
+
+  private Runnable createMessageWriter() {
+    return new Runnable() {
       private final FudgeMsgWriter _writer = new FudgeMsgWriter(getOutputPipe());
 
       @Override
@@ -202,6 +194,23 @@ public final class Client implements Runnable {
       }
 
     };
+  }
+
+  /**
+   * The main connection thread must always be in "READ" mode to avoid deadlocking against the
+   * alternating C/C++ one. Therefore we have a separate dispatch thread (or pool of them) for
+   * when messages arrive.
+   */
+  @Override
+  public void run() {
+    if (!connectPipes()) {
+      s_logger.error("Couldn't connect to client");
+      return;
+    }
+    final Runnable poison = createPoisoner();
+    final Watchdog watchdog = new Watchdog(poison);
+    // Message sender - writes outgoing messages to C++
+    final Thread sender = new Thread(createMessageWriter());
     sender.setName(Thread.currentThread().getName() + "-Writer");
     sender.start();
     synchronized (this) {
@@ -210,28 +219,53 @@ public final class Client implements Runnable {
     // TODO: call the on-connect handler(s)
     final ScheduledFuture<?> watchdogFuture = getContext().getScheduler().scheduleWithFixedDelay(watchdog,
         getContext().getHeartbeatTimeout(), getContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
+    // Main read loop - this thread is always available to read to avoid process deadlock. The loop will
+    // abort on I/O error or if the watchdog fires (triggering an I/O error)
     try {
       final FudgeMsgReader reader = new FudgeMsgReader(getInputPipe());
       s_logger.info("Starting message read loop");
-      messageLoop: while (reader.hasNext()) {
+      while (!_poisoned && reader.hasNext()) {
         final FudgeMsgEnvelope messageEnvelope = reader.nextMessageEnvelope();
         watchdog.stillAlive();
-        s_logger.debug("message envelope read: {}", messageEnvelope);
         switch (messageEnvelope.getProcessingDirectives()) {
-          case MessageDirectives.USER:
-            s_logger.error("TODO: handle user message {}", messageEnvelope.getMessage());
-            // TODO: handle the user message
-            //getExecutor().execute(dispatchUserMessage(messageEnvelope));
+          case MessageDirectives.USER: {
+            final UserMessage message = new UserMessage(messageEnvelope.getMessage());
+            getExecutor().execute(new Runnable() {
+              @Override
+              public void run() {
+                s_logger.error("TODO: handle user message {}", message);
+              }
+            });
             break;
-          case MessageDirectives.CLIENT:
-            s_logger.error("TODO: handle client message {}", messageEnvelope.getMessage());
-            // TODO: handle the client message
-            /*
-            if (!pluginConnectorMessage(new ConnectorMessage(messageEnvelope.getMessage()))) {
-              break messageLoop;
+          }
+          case MessageDirectives.CLIENT: {
+            final ConnectorMessage message = new ConnectorMessage(messageEnvelope.getMessage());
+            switch (message.getOperation()) {
+              case HEARTBEAT:
+                if (getOutputMessageBuffer().isEmpty()) {
+                  s_logger.debug("Sending heartbeat");
+                  getOutputMessageBuffer().add(getContext().getHeartbeatMessage());
+                } else {
+                  s_logger.debug("Ignoring heartbeat request - other messages pending");
+                }
+                if (message.getStash() == null) {
+                  break;
+                }
+                /* fall-through */
+              case STASH:
+                s_logger.info("Stash message received");
+                // TODO: handle the stash message
+                break;
+              case POISON:
+                s_logger.info("Poison message received");
+                poison.run();
+                break;
+              default:
+                s_logger.warn("Unexpected connector operation {}", message.getOperation());
+                break;
             }
-            */
             break;
+          }
           default:
             s_logger.warn("Unexpected processing directive {}", messageEnvelope.getProcessingDirectives());
             break;
@@ -240,50 +274,37 @@ public final class Client implements Runnable {
       }
     } catch (FudgeRuntimeIOException e) {
       s_logger.warn("Error reading message {}", e.toString());
+    } catch (Throwable t) {
+      s_logger.error("Unexpected exception thrown during read loop", t);
     }
+    watchdogFuture.cancel(true);
+    // Shutdown (poison may have already been called by a watchdog - no harm in calling it twice though)
     poison.run();
     synchronized (this) {
       _running = false;
     }
     // TODO: call the on-disconnect handler(s)
     getExecutor().shutdown();
-    watchdogFuture.cancel(true);
     try {
       s_logger.debug("Joining thread(s)");
       sender.join();
       if (!getExecutor().awaitTermination(getContext().getTerminationTimeout(), TimeUnit.MILLISECONDS)) {
         dumpThreads();
       }
-      getInputMessageBuffer().clear();
-      getOutputMessageBuffer().clear();
     } catch (InterruptedException e) {
       s_logger.warn("Interrupted joining threads, {}", e.toString());
     }
   }
 
-  private static class In extends InputStream {
-
-    private final InputStream _underlying;
-
-    public In(final InputStream underlying) {
-      _underlying = underlying;
-    }
-
-    @Override
-    public int read() throws IOException {
-      s_logger.debug("READING");
-      int c = _underlying.read();
-      s_logger.debug("READ {}", c);
-      return c;
-    }
-
-  }
-
   private boolean connectPipes() {
     s_logger.debug("Connecting to input pipe: {}", getInputPipeName());
     try {
+      // Go via the File channel so that it is interruptible. This might not be necessary on all JVMs
+      // but just using a FileInputStream was not releasing the blocked reader thread on my Linux workstation
+      // at pipe closure.
       _inputPipe = getContext().getFudgeContext().createReader(
-          (DataInput) new DataInputStream(new BufferedInputStream(new In(new FileInputStream(getInputPipeName())))));
+          (DataInput) new DataInputStream(new BufferedInputStream(Channels.newInputStream(new FileInputStream(
+              getInputPipeName()).getChannel()))));
     } catch (FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getInputPipeName(), e.toString());
       return false;
