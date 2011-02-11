@@ -18,7 +18,6 @@ private:
 #define FILE_REFERENCE		HANDLE
 #else
 	CAtomicPointer m_oBlockedThread;
-	unsigned long m_lPreviousTimeout;
 #define TIMEOUT_IO_DEFAULT	1000
 #define FILE_REFERENCE		int
 #endif
@@ -30,8 +29,8 @@ protected:
 	OVERLAPPED *GetOverlapped () { return &m_overlapped; }
 	bool WaitOnOverlapped (unsigned long timeout);
 #else
-	virtual bool SetTimeout (unsigned long timeout);
-	void CancelTimeout ();
+	bool BeginOverlapped (unsigned long timeout, bool bRead);
+	void EndOverlapped ();
 #endif
 	virtual bool CancelIO ();
 	FILE_REFERENCE GetFile () { return m_file; }

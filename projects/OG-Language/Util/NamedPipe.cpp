@@ -42,6 +42,7 @@ CNamedPipe::~CNamedPipe () {
 }
 
 #ifndef _WIN32
+
 static bool _SetDefaultSocketOptions (int sock) {
 	timeval tv;
 	tv.tv_sec = TIMEOUT_IO_DEFAULT / 1000;
@@ -196,7 +197,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				SetLastError (ec);
 				return 0;
 			}
-			if (listen (sock, 0)) {
+			if (fcntl (sock, F_SETFL, O_NONBLOCK) || listen (sock, 0)) {
 				int ec = GetLastError ();
 				close (sock);
 				LOGWARN (TEXT ("Couldn't open pipe ") << pszName << TEXT (", error ") << ec);
@@ -222,7 +223,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				return 0;
 			}
 			LOGDEBUG (TEXT ("Connection accepted, waiting for handshake confirmation"));
-			if (recv (sock, addr.sun_path, 1, 0) != 1) {
+			if ((recv (sock, addr.sun_path, 1, 0) != 1) || fcntl (sock, F_SETFL, O_NONBLOCK)) {
 				int ec = GetLastError ();
 				close (sock);
 				LOGWARN (TEXT ("Handshake not received on ") << pszName << TEXT (", error ") << ec);
@@ -240,34 +241,6 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 	}
 #endif
 }
-
-#ifndef _WIN32
-bool CNamedPipe::SetTimeout (unsigned long timeout) {
-	if (!CTimeoutIO::SetTimeout (timeout)) return false;
-	timeval tv;
-	tv.tv_sec = timeout / 1000;
-	tv.tv_usec = (timeout % 1000) * 1000;
-	if (setsockopt (GetFile (), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv))) {
-		int ec = GetLastError ();
-		if (ec == ENOTSOCK) {
-			// This isn't a socket
-			// TODO: can we test what the handle is first?
-			return true;
-		}
-		LOGWARN (TEXT ("Couldn't set receive timeout on pipe, error ") << ec);
-		SetLastError (ec);
-		return 0;
-	}
-	if (setsockopt (GetFile (), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof (tv))) {
-		int ec = GetLastError ();
-		LOGWARN (TEXT ("Couldn't set send timeout on pipe, error ") << ec);
-		SetLastError (ec);
-		return 0;
-	}
-	LOGDEBUG (TEXT ("Timeout on pipe set to ") << timeout << TEXT ("ms"));
-	return true;
-}
-#endif /* ifndef _WIN32 */
 
 CNamedPipe *CNamedPipe::ClientRead (const TCHAR *pszName) {
 	FILE_REFERENCE hFile = _CreatePipe (pszName, false, false, true);
@@ -321,12 +294,14 @@ failedOperation:
 		timeout = IsLazyClosing ();
 	}
 timeoutOperation:
-	SetTimeout (timeout);
-	socklen_t len = sizeof (addr);
-	LOGDEBUG (TEXT ("Before call to accept"));
-	int sock = accept (GetFile (), (struct sockaddr*)&addr, &len);
-	LOGDEBUG (TEXT ("After call to accept"));
-	CancelTimeout ();
+	int sock;
+	if (BeginOverlapped (timeout, true)) {
+		socklen_t len = sizeof (addr);
+		sock = accept (GetFile (), (struct sockaddr*)&addr, &len);
+		EndOverlapped ();
+	} else {
+		sock = -1;
+	}
 	if (sock < 0) {
 		int ec = GetLastError ();
 		if (ec == EINTR) {
@@ -356,7 +331,7 @@ timeoutOperation:
 		SetLastError (ec);
 		return NULL;
 	}
-	if (send (sock, "!", 1, 0) != 1) {
+	if ((send (sock, "!", 1, 0) != 1) || fcntl (sock, F_SETFL, O_NONBLOCK)) {
 		int ec = GetLastError ();
 		close (sock);
 		if (ec == EPIPE) {
