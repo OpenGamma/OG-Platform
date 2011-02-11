@@ -16,6 +16,7 @@ LOGGING (com.opengamma.language.connector.Pipes);
 CClientPipes::CClientPipes (CNamedPipe *poOutput, CNamedPipe *poInput) {
 	m_poOutput = poOutput;
 	m_poInput = poInput;
+	m_bConnected = false;
 }
 
 CClientPipes::~CClientPipes () {
@@ -86,6 +87,7 @@ CClientPipes *CClientPipes::Create () {
 }
 
 bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
+	assert (!m_bConnected);
 	// TODO: the user stuff should be moved into util so it can be used on pipe suffixes in the tests
 #ifdef _WIN32
 	TCHAR szUserName[256];
@@ -108,14 +110,14 @@ bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
 		return false;
 	}
 	LOGDEBUG (TEXT ("Writing connection message"));
-	bool bResult = poService->Write (pjcc, pjcc->cbSize, lTimeout) == (size_t)pjcc->cbSize;
+	m_bConnected = poService->Write (pjcc, pjcc->cbSize, lTimeout) == (size_t)pjcc->cbSize;
 	free (pjcc);
-	if (bResult) {
+	if (m_bConnected) {
 		LOGINFO (TEXT ("Connected to JVM"));
 	} else {
 		LOGWARN (TEXT ("Couldn't write connection message, error ") << GetLastError ());
 	}
-	return bResult;
+	return m_bConnected;
 }
 
 bool CClientPipes::Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeout) {

@@ -51,25 +51,11 @@ private:
 		FudgeMsg_release (msg);
 		return bResult;
 	}
-	void DispatchAndRelease (FudgeMsgEnvelope env) {
-		switch (FudgeMsgEnvelope_getDirectives (env)) {
-		case MESSAGE_DIRECTIVES_CLIENT :
-			TODO (TEXT ("Client message"));
-			break;
-		case MESSAGE_DIRECTIVES_USER :
-			TODO (TEXT ("User message"));
-			break;
-		default :
-			LOGWARN (TEXT ("Unknown message delivery directive ") << FudgeMsgEnvelope_getDirectives (env));
-			break;
-		}
-		FudgeMsgEnvelope_release (env);
-	}
 	bool WaitForHeartbeatResponse () {
 		LOGDEBUG (TEXT ("Waiting for heartbeat response"));
 		FudgeMsgEnvelope env = m_poService->Recv (m_lHeartbeatTimeout);
 		if (env) {
-			DispatchAndRelease (env);
+			m_poService->DispatchAndRelease (env);
 			m_poService->FirstConnectionOk ();
 			return true;
 		} else {
@@ -141,35 +127,33 @@ public:
 			LOGDEBUG (TEXT ("Waiting for first message"));
 			FudgeMsgEnvelope env = m_poService->Recv (m_lHeartbeatTimeout);
 			while (env) {
-				TODO (TEXT ("Handle message"));
-				FudgeMsgEnvelope_release (env);
+				m_poService->DispatchAndRelease (env);
+				if (m_poService->HeartbeatNeeded (m_lHeartbeatTimeout) && !SendHeartbeat (false)) break;
 				LOGDEBUG (TEXT ("Waiting for message"));
 				env = m_poService->Recv (m_lHeartbeatTimeout);
 			}
 			do {
 				int ec = GetLastError ();
 				if (ec == ETIMEDOUT) {
-					if (!SendHeartbeat (false)) {
-						LOGWARN (TEXT ("Couldn't send heartbeat, error ") << ec);
-						break;
-					}
+					if (!SendHeartbeat (false)) goto endMessageLoop;
 				} else {
 					LOGWARN (TEXT ("Couldn't read message, error ") << ec);
-					break;
+					goto endMessageLoop;
 				}
 				LOGDEBUG (TEXT ("Waiting for critical message"));
 				env = m_poService->Recv (m_lHeartbeatTimeout);
 				if (!env) {
 					LOGWARN (TEXT ("Heartbeat missed"));
-					break;
+					goto endMessageLoop;
 				}
 				do {
-					TODO (TEXT ("Handle message"));
-					FudgeMsgEnvelope_release (env);
+					m_poService->DispatchAndRelease (env);
+					if (m_poService->HeartbeatNeeded (m_lHeartbeatTimeout) && !SendHeartbeat (false)) goto endMessageLoop;
 					LOGDEBUG (TEXT ("Waiting for message"));
 					env = m_poService->Recv (m_lHeartbeatTimeout);
 				} while (env);
 			} while (m_poService->GetState () == RUNNING);
+endMessageLoop:
 			if (!m_poService->SetState (STOPPING)) break;
 			LOGINFO (TEXT ("Restarting Java framework"));
 			CAlert::Bad (TEXT ("Reconnecting to service"));
@@ -416,6 +400,47 @@ bool CClientService::CreatePipes () {
 // This must only be called from the thread that creates and connects the pipes. This then
 // doesn't need to acquire the pipe semaphore as the object won't be modified concurrently.
 // Another thread might be sending, but that's it.
+bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
+	FudgeMsg msg = FudgeMsgEnvelope_getMessage (env);
+	switch (FudgeMsgEnvelope_getDirectives (env)) {
+	case MESSAGE_DIRECTIVES_CLIENT : {
+		Operation op;
+		if (ConnectorMessage_getOperation (msg, &op) == FUDGE_OK) {
+			switch (op) {
+			case HEARTBEAT :
+				LOGDEBUG (TEXT ("Heartbeat received"));
+				break;
+			case POISON :
+				// This shouldn't be sent by the Java stack
+				LOGFATAL (TEXT ("Received poison from Java framework"));
+				assert (0);
+				break;
+			case STASH :
+				TODO (TEXT ("Store the stash message"));
+				break;
+			default :
+				LOGWARN (TEXT ("Invalid client message - operation ") << op);
+				break;
+			}
+		} else {
+			LOGWARN (TEXT ("Invalid client message"));
+		}
+		break;
+										}
+	case MESSAGE_DIRECTIVES_USER :
+		TODO (TEXT ("Deliver user message"));
+		break;
+	default :
+		LOGWARN (TEXT ("Unknown message delivery directive ") << FudgeMsgEnvelope_getDirectives (env));
+		break;
+	}
+	FudgeMsgEnvelope_release (env);
+	return m_poPipes->IsConnected ();
+}
+
+// This must only be called from the thread that creates and connects the pipes. This then
+// doesn't need to acquire the pipe semaphore as the object won't be modified concurrently.
+// Another thread might be sending, but that's it.
 FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
 	FudgeStatus status;
 	FudgeMsgHeader header;
@@ -471,7 +496,7 @@ bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) {
 	}
 	bool bResult;
 	m_oPipesSemaphore.Wait (m_lSendTimeout);
-	if (m_poPipes) {
+	if (m_poPipes && m_poPipes->IsConnected ()) {
 		int nPoll = 0;
 		long lStartTime = GetTickCount ();
 retrySend:
@@ -513,6 +538,7 @@ retrySend:
 				LOGWARN (TEXT ("Couldn't write message, error ") << ec);
 			}
 			SetLastError (ec);
+			m_poPipes->Disconnected ();
 			bResult = false;
 		}
 	} else {
@@ -527,8 +553,22 @@ retrySend:
 
 bool CClientService::SendPoison () {
 	LOGINFO (TEXT ("Sending poison to JVM"));
-	TODO (__FUNCTION__);
-	return false;
+	FudgeStatus status;
+	FudgeMsg msg;
+	if ((status = FudgeMsg_create (&msg)) != FUDGE_OK) {
+		LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+		assert (0);
+		return false;
+	}
+	if ((status = ConnectorMessage_setOperation (msg, POISON)) != FUDGE_OK) {
+		FudgeMsg_release (msg);
+		LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+		assert (0);
+		return false;
+	}
+	bool bResult = Send (MESSAGE_DIRECTIVES_CLIENT, msg);
+	FudgeMsg_release (msg);
+	return bResult;
 }
 
 // Returns false if the state change wasn't allowed because a poison was in progress

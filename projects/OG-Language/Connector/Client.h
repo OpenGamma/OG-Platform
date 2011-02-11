@@ -57,8 +57,10 @@ private:
 	bool ClosePipes ();
 	bool ConnectPipes ();
 	bool CreatePipes ();
+	bool DispatchAndRelease (FudgeMsgEnvelope env);
 	bool IsFirstConnection () { return m_lShortTimeout != 0; }
 	void FirstConnectionOk () { m_lSendTimeout = m_lShortTimeout; m_lShortTimeout = 0; }
+	bool HeartbeatNeeded (unsigned long lTimeout) { return GetTickCount () - m_poPipes->GetLastWrite () >= lTimeout; }
 	FudgeMsgEnvelope Recv (unsigned long lTimeout);
 	bool Send (int cProcessingDirectives, FudgeMsg msg);
 	bool SendPoison ();
