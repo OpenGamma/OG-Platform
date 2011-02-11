@@ -78,7 +78,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
     if (_underlyingConverter == null) {
       _underlyingConverter = new SecurityToFixedIncomeDefinitionConverter(_holidaySource, _conventionSource, _regionSource);
     }
-    final LocalDate deliveryDateLD = deliveryDate.toLocalDate();
+    final LocalDate deliveryDateLD = null;//deliveryDate.toLocalDate();
     final List<BondFutureDeliverable> deliverableBasket = security.getBasket();
     final int n = deliverableBasket.size();
     final BondDefinition[] deliverableBonds = new BondDefinition[n];
