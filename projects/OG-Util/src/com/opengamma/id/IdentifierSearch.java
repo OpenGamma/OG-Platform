@@ -183,6 +183,27 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this search matches the identifier.
+   * 
+   * @param otherIdentifier  the identifier to search for, not null
+   * @return true if this search contains all of the keys specified
+   */
+  public boolean matches(Identifier otherIdentifier) {
+    ArgumentChecker.notNull(otherIdentifier, "otherIdentifier");
+    switch (_searchType) {
+      case EXACT:
+        return Sets.newHashSet(otherIdentifier).equals(_identifiers);
+      case ALL:
+        return Sets.newHashSet(otherIdentifier).containsAll(_identifiers);
+      case ANY:
+        return contains(otherIdentifier);
+      case NONE:
+        return contains(otherIdentifier) == false;
+    }
+    return false;
+  }
+
+  /**
    * Checks if this search matches the identifiers.
    * 
    * @param otherIdentifiers  the identifiers to search for, empty returns true, not null
@@ -283,11 +304,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("Search")
-      .append("[")
-      .appendWithSeparators(_identifiers, ", ")
-      .append("]")
-      .toString();
+        .append("Search")
+        .append("[")
+        .appendWithSeparators(_identifiers, ", ")
+        .append("]")
+        .toString();
   }
 
   //-------------------------------------------------------------------------

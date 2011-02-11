@@ -5,15 +5,14 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Collections2;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -28,7 +27,6 @@ import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.RegexUtils;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -76,61 +74,15 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   @Override
   public HolidaySearchResult search(final HolidaySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    final List<HolidayDocument> list = new ArrayList<HolidayDocument>();
+    for (HolidayDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
+    }
     final HolidaySearchResult result = new HolidaySearchResult();
-    Collection<HolidayDocument> docs = _store.values();
-    if (request.getProviderKey() != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return request.getProviderKey().equals(doc.getProviderKey());
-        }
-      });
-    }
-    if (request.getCurrency() != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return request.getCurrency().equals(doc.getHoliday().getCurrency());
-        }
-      });
-    }
-    if (request.getRegionKeys() != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getRegionKey() != null &&
-            request.getRegionKeys().contains(doc.getHoliday().getRegionKey());
-        }
-      });
-    }
-    if (request.getExchangeKeys() != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getExchangeKey() != null &&
-            request.getExchangeKeys().contains(doc.getHoliday().getExchangeKey());
-        }
-      });
-    }
-    final String name = request.getName();
-    if (name != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return RegexUtils.wildcardsToPattern(name).matcher(doc.getName()).matches();
-        }
-      });
-    }
-    if (request.getType() != null) {
-      docs = Collections2.filter(docs, new Predicate<HolidayDocument>() {
-        @Override
-        public boolean apply(final HolidayDocument doc) {
-          return doc.getHoliday().getType() == request.getType();
-        }
-      });
-    }
-    result.setPaging(Paging.of(docs, request.getPagingRequest()));
-    result.getDocuments().addAll(request.getPagingRequest().select(docs));
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
 

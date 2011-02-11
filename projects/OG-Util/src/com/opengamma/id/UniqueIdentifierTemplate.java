@@ -86,7 +86,7 @@ public class UniqueIdentifierTemplate {
     }
     return UniqueIdentifier.of(getScheme(), value);
   }
-  
+
   /**
    * Checks whether a given {@link UniqueIdentifier} conforms to this template.
    * 
@@ -103,7 +103,7 @@ public class UniqueIdentifierTemplate {
     }
     return uid.getValue().startsWith(getValuePrefix());
   }
-  
+
   /**
    * Extracts the content out of the value of a {@link UniqueIdentifier} (i.e. the value minus any prefix). The
    * identifier must conform to this template.
@@ -118,7 +118,7 @@ public class UniqueIdentifierTemplate {
     int contentPos = getValuePrefix() == null ? 0 : getValuePrefix().length();
     return uid.getValue().substring(contentPos);
   }
-  
+
   /**
    * @return  the scheme
    */
@@ -132,5 +132,5 @@ public class UniqueIdentifierTemplate {
   public String getValuePrefix() {
     return _valuePrefix;
   }
-  
+
 }

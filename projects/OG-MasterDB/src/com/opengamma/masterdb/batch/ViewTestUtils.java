@@ -14,7 +14,6 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.security.impl.MockSecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -39,6 +38,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
+import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -55,7 +55,7 @@ public class ViewTestUtils {
 
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
 
-    MockSecuritySource securitySource = new MockSecuritySource();
+    MockFinancialSecuritySource securitySource = new MockFinancialSecuritySource();
 
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));

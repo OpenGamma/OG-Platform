@@ -9,7 +9,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -17,23 +16,23 @@ import com.opengamma.util.tuple.Pair;
  */
 public class FunctionalDoublesSurface extends Surface<Double, Double, Double> {
 
-  public static FunctionalDoublesSurface from(final Function<DoublesPair, Double> function) {
+  public static FunctionalDoublesSurface from(final Function<Double, Double> function) {
     return new FunctionalDoublesSurface(function);
   }
 
-  public static FunctionalDoublesSurface from(final Function<DoublesPair, Double> function, final String name) {
+  public static FunctionalDoublesSurface from(final Function<Double, Double> function, final String name) {
     return new FunctionalDoublesSurface(function, name);
   }
 
-  private final Function<DoublesPair, Double> _function;
+  private final Function<Double, Double> _function;
 
-  public FunctionalDoublesSurface(final Function<DoublesPair, Double> function) {
+  public FunctionalDoublesSurface(final Function<Double, Double> function) {
     super();
     Validate.notNull(function, "function");
     _function = function;
   }
 
-  public FunctionalDoublesSurface(final Function<DoublesPair, Double> function, final String name) {
+  public FunctionalDoublesSurface(final Function<Double, Double> function, final String name) {
     super(name);
     Validate.notNull(function, "function");
     _function = function;
@@ -63,16 +62,16 @@ public class FunctionalDoublesSurface extends Surface<Double, Double, Double> {
   public Double getZValue(final Double x, final Double y) {
     Validate.notNull(x, "x");
     Validate.notNull(y, "y");
-    return _function.evaluate(DoublesPair.of(x.doubleValue(), y.doubleValue()));
+    return _function.evaluate(x, y);
   }
 
   @Override
   public Double getZValue(final Pair<Double, Double> xy) {
     Validate.notNull(xy, "x-y pair");
-    return _function.evaluate(DoublesPair.of(xy));
+    return _function.evaluate(xy.getFirst(), xy.getSecond());
   }
 
-  public Function<DoublesPair, Double> getFunction() {
+  public Function<Double, Double> getFunction() {
     return _function;
   }
 

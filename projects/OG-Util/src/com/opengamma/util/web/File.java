@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.util.web;
@@ -10,10 +10,10 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.apache.commons.lang.ObjectUtils;
+import com.google.common.base.Objects;
 
 /**
- * Model representation of a file element in uiResourceConfig XML document
+ * Model representation of a file element in uiResourceConfig XML document.
  */
 public class File {
 
@@ -23,39 +23,43 @@ public class File {
   private String _suffix;
   @XmlElement(name = "bundle")
   private List<String> _bundle;
-  
+
   /**
    * Gets the id field.
+   * 
    * @return the id
    */
   public String getId() {
     return _id;
   }
-  
+
   /**
    * Sets the id field.
+   * 
    * @param id  the id
    */
   public void setId(String id) {
     _id = id;
   }
-  
+
   /**
    * Gets the bundle field.
+   * 
    * @return the bundle
    */
   public List<String> getBundle() {
     return _bundle;
   }
-  
+
   /**
    * Sets the bundle field.
+   * 
    * @param bundle  the bundle
    */
   public void setBundle(List<String> bundle) {
     _bundle = bundle;
   }
-  
+
   /**
    * Gets the suffix field.
    * @return the suffix
@@ -72,16 +76,7 @@ public class File {
     _suffix = suffix;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_bundle == null) ? 0 : _bundle.hashCode());
-    result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-    result = prime * result + ((_suffix == null) ? 0 : _suffix.hashCode());
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -89,10 +84,16 @@ public class File {
     }
     if (obj instanceof File) {
       File other = (File) obj;
-      return ObjectUtils.equals(_id, other._id) &&
-              ObjectUtils.equals(_suffix, other._suffix);
+      return Objects.equal(_suffix, other._suffix) &&
+          Objects.equal(_id, other._id) &&
+          Objects.equal(_bundle, other._bundle);
     }
     return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(_bundle, _id, _suffix);
   }
 
   @Override

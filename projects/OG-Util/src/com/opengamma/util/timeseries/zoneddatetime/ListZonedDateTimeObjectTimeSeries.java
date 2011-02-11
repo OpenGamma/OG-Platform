@@ -48,12 +48,12 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
         .convertToLong(dates), values));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ListZonedDateTimeObjectTimeSeries(final ObjectTimeSeries<ZonedDateTime, T> dts) {
     super(s_converter, (FastMutableLongObjectTimeSeries<T>) s_converter.convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ListZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<ZonedDateTime, T> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongObjectTimeSeries<T>) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastListLongObjectTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));

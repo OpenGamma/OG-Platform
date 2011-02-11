@@ -148,7 +148,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
   public void setHibernateShowSql(boolean hibernateShowSql) {
     _hibernateShowSql = hibernateShowSql;
   }
-  
+
   public boolean isAllowHibernateThreadBoundSession() {
     return _allowHibernateThreadBoundSession;
   }
@@ -230,7 +230,7 @@ public class DbSourceFactoryBean extends SingletonFactoryBean<DbSource> {
     if (factory == null) {
       String[] files = createHibernateFiles();
       if (files.length == 0) {
-        return null;  // Hibernate not required
+        return null; // Hibernate not required
       }
       factory = new LocalSessionFactoryBean();
       factory.setMappingResources(files);

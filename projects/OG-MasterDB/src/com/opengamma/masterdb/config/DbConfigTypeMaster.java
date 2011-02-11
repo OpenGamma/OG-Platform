@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 
@@ -36,7 +35,6 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.config.ConfigTypeMaster;
-import com.opengamma.master.listener.MasterChangeListener;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
@@ -94,10 +92,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
    * The class of the configuration.
    */
   private final Class<T> _clazz;
-  /**
-   * The set of listeners.
-   */
-  private final CopyOnWriteArraySet<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
 
   /**
    * Creates an instance.
@@ -119,19 +113,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
    */
   public Class<T> getReifiedType() {
     return _clazz;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void addChangeListener(final MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.add(listener);
-  }
-
-  @Override
-  public void removeChangeListener(final MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.remove(listener);
   }
 
   //-------------------------------------------------------------------------
@@ -190,61 +171,6 @@ public class DbConfigTypeMaster<T> extends AbstractDocumentDbMaster<ConfigDocume
   @Override
   public ConfigHistoryResult<T> history(final ConfigHistoryRequest request) {
     return doHistory(request, new ConfigHistoryResult<T>(), new ConfigDocumentExtractor());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ConfigDocument<T> add(final ConfigDocument<T> document) {
-    ConfigDocument<T> result = super.add(document);
-    notifyDocumentAdded(result.getUniqueId());
-    return result;
-  }
-
-  protected void notifyDocumentAdded(final UniqueIdentifier addedItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.added(addedItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ConfigDocument<T> update(final ConfigDocument<T> document) {
-    ConfigDocument<T> result = super.update(document);
-    notifyDocumentUpdated(document.getUniqueId(), result.getUniqueId());
-    return result;
-  }
-
-  protected void notifyDocumentUpdated(final UniqueIdentifier oldItem, final UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.updated(oldItem, newItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void remove(final UniqueIdentifier uniqueId) {
-    super.remove(uniqueId);
-    notifyDocumentRemoved(uniqueId);
-  }
-
-  protected void notifyDocumentRemoved(final UniqueIdentifier removedItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.removed(removedItem);
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ConfigDocument<T> correct(final ConfigDocument<T> document) {
-    ConfigDocument<T> result = super.correct(document);
-    notifyDocumentCorrected(document.getUniqueId(), result.getUniqueId());
-    return result;
-  }
-
-  protected void notifyDocumentCorrected(final UniqueIdentifier oldItem, UniqueIdentifier newItem) {
-    for (MasterChangeListener listener : _listeners) {
-      listener.corrected(oldItem, newItem);
-    }
   }
 
   //-------------------------------------------------------------------------

@@ -22,9 +22,9 @@ import org.apache.http.util.LangUtils;
 public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
 
   /** The first element. */
-  public final int first;  // CSIGNORE
+  public final int first; // CSIGNORE
   /** The second element. */
-  public final T second;  // CSIGNORE
+  public final T second; // CSIGNORE
 
   /**
    * Creates a pair inferring the types.

@@ -14,7 +14,7 @@ import org.hibernate.dialect.Dialect;
  *
  */
 public interface DBDialect {
-  
+
   /**
    * Initializes the database.
    * @param dbServerHost  the database server, not null
@@ -101,14 +101,14 @@ public interface DBDialect {
    * @return A string describing the database, which is dialect specific.
    */
   String describeDatabase(String catalog);
-  
+
   /**
    * Gets the database used for tests.
    * 
    * @return the database used for tests
    */
   String getTestCatalog();
-  
+
   /**
    * Gets the schema used for tests.
    * 

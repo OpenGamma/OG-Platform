@@ -46,6 +46,7 @@ import com.opengamma.financial.interestrate.LastDateCalculator;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.ParameterizedFunction;
@@ -69,7 +70,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   private static final NonLinearLeastSquare MINIMISER = new NonLinearLeastSquare();
   private static final LastDateCalculator LAST_DATE = LastDateCalculator.getInstance();
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
-      new NullTransform(), new NullTransform(), new NullTransform()};
+    new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
 
   static {
@@ -112,7 +113,8 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final Clock snapshotClock = executionContext.getSnapshotClock();
         final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
         final BondSecurityToBondDefinitionConverter converter = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource);
-        final Collection<Security> allBonds = new ArrayList<Security>(executionContext.getSecuritySource().getAllBondsOfIssuerType("US TREASURY N/B"));
+        final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
+        final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
         final Iterator<Security> iter = allBonds.iterator();
         while (iter.hasNext()) {
           final Security sec = iter.next();
@@ -172,7 +174,8 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         if (canApplyTo(context, target)) {
-          final Collection<Security> allBonds = new ArrayList<Security>(context.getSecuritySource().getAllBondsOfIssuerType("US TREASURY N/B"));
+          final FinancialSecuritySource securitySource = context.getSecuritySource(FinancialSecuritySource.class);
+          final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
           final Iterator<Security> iter = allBonds.iterator();
           while (iter.hasNext()) {
             final Security sec = iter.next();

@@ -16,21 +16,10 @@ import com.opengamma.util.PublicSPI;
 public interface NotifyingMaster {
 
   /**
-   * Adds a change listener to the master.
-   * <p>
-   * This will add a change listener to the master which will be called with events.
+   * Gets the change manager that handles events.
    * 
-   * @param listener  the change listener, not null
+   * @return the change manager, not null
    */
-  void addChangeListener(MasterChangeListener listener);
-
-  /**
-   * Removes a change listener from the master.
-   * <p>
-   * This will remove a change listener from the master.
-   * 
-   * @param listener  the change listener, not null
-   */
-  void removeChangeListener(MasterChangeListener listener);
+  MasterChangeManager changeManager();
 
 }
