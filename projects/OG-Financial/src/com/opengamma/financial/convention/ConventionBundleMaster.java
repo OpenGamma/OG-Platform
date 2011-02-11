@@ -17,6 +17,7 @@ import com.opengamma.id.UniqueIdentifier;
  * Repository for rates and associated metadata - e.g. LIBOR/EURIBOR etc...
  */
 public interface ConventionBundleMaster {
+
   ConventionBundleSearchResult searchConventionBundle(ConventionBundleSearchRequest searchRequest);
 
   ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest searchRequest);
@@ -38,7 +39,8 @@ public interface ConventionBundleMaster {
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, String capmRiskFreeRateName, String capmMarketName);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays);
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays,
+      boolean rollToSettlement);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays, DayCount dayCount,
       BusinessDayConvention businessDayConvention, YieldConvention yieldConvention);

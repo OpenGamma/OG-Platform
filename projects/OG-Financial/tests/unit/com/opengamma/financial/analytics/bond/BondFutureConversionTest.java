@@ -57,7 +57,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * The data in this test is from a Bloomberg screen shot show on page 362 of Fixed-income Securities
  */
-public class BondFutureTest {
+public class BondFutureConversionTest {
   private static final String CURVE_NAME = "A";
   private static final BondYieldCalculator YIELD_CALCULATOR = BondYieldCalculator.getInstance();
   private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
@@ -66,8 +66,8 @@ public class BondFutureTest {
   private static final BondFutureNetBasisCalculator NET_BASIS_CALCULATOR = BondFutureNetBasisCalculator.getInstance();
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
-  private static final BondSecurityToBondDefinitionConverter BOND_CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final BondSecurityToBondForwardDefinitionConverter BOND_FORWARD_CONVERTER = new BondSecurityToBondForwardDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
+  //  private static final BondSecurityToBondDefinitionConverter BOND_CONVERTER = new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
+  //  private static final BondSecurityToBondForwardDefinitionConverter BOND_FORWARD_CONVERTER = new BondSecurityToBondForwardDefinitionConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE);
 
   private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2001, 12, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2001, 12, 10);
