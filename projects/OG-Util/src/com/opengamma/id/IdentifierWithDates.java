@@ -178,7 +178,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   public String toString() {
     StringBuilder buf = new StringBuilder(_identifier.toString());
     if (_validFrom != null) {
-      buf.append(":S:").append(_validFrom.toString()); 
+      buf.append(":S:").append(_validFrom.toString());
     }
     if (_validTo != null) {
       buf.append(":E:").append(_validTo.toString());

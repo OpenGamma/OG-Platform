@@ -22,9 +22,9 @@ import org.apache.http.util.LangUtils;
 public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.Entry<T> {
 
   /** The first element. */
-  public final long first;  // CSIGNORE
+  public final long first; // CSIGNORE
   /** The second element. */
-  public final T second;  // CSIGNORE
+  public final T second; // CSIGNORE
 
   /**
    * Creates a pair inferring the types.

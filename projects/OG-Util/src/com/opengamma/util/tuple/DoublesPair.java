@@ -25,9 +25,9 @@ import com.opengamma.util.ArgumentChecker;
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
   /** The first element. */
-  public final double first;  // CSIGNORE
+  public final double first; // CSIGNORE
   /** The second element. */
-  public final double second;  // CSIGNORE
+  public final double second; // CSIGNORE
 
   /**
    * Checks the specified pair is not null.

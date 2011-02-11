@@ -7,9 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -21,7 +19,9 @@ import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
-import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -37,7 +37,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
-  private final Set<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();
+  private final MasterChangeManager _changeManager = new BasicMasterChangeManager();  // TODO
 
   private String _identifierScheme;
   private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
@@ -115,11 +115,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       throw new IllegalArgumentException("Duplicate definition");
     }
     final TreeMap<Instant, YieldCurveDefinition> value = new TreeMap<Instant, YieldCurveDefinition>();
-    value.put(Instant.now(), document.getYieldCurveDefinition());
+    Instant now = Instant.now();
+    value.put(now, document.getYieldCurveDefinition());
     _definitions.put(key, value);
     final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
     document.setUniqueId(uid);
-    notifyAdded(uid);
+    changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
     return document;
   }
 
@@ -132,6 +133,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getISOCode());
+    Instant now = Instant.now();
     if (value != null) {
       if (_sourceVersionCorrection.getVersionAsOf() != null) {
         // Don't need to keep the old values before the one needed by "versionAsOfInstant"
@@ -143,13 +145,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         // Don't need any old values
         value.clear();
       }
-      value.put(Instant.now(), document.getYieldCurveDefinition());
-      notifyUpdated(uid, uid);
+      value.put(now, document.getYieldCurveDefinition());
+      changeManager().masterChanged(MasterChangedType.UPDATED, uid, uid, now);
     } else {
       value = new TreeMap<Instant, YieldCurveDefinition>();
-      value.put(Instant.now(), document.getYieldCurveDefinition());
+      value.put(now, document.getYieldCurveDefinition());
       _definitions.put(key, value);
-      notifyAdded(uid);
+      changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
     }
     document.setUniqueId(uid);
     return document;
@@ -261,7 +263,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
         throw new DataNotFoundException("Curve definition not found");
       }
     }
-    notifyRemoved(uid);
+    changeManager().masterChanged(MasterChangedType.REMOVED, uid, null, Instant.now());
   }
 
   @Override
@@ -287,40 +289,16 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
       // Don't need any old values
       value.clear();
     }
-    value.put(Instant.now(), document.getYieldCurveDefinition());
+    Instant now = Instant.now();
+    value.put(now, document.getYieldCurveDefinition());
     document.setUniqueId(uid);
-    notifyUpdated(uid, uid);
+    changeManager().masterChanged(MasterChangedType.UPDATED, uid, uid, now);
     return document;
   }
 
-  private void notifyUpdated(final UniqueIdentifier oldIdentifier, final UniqueIdentifier newIdentifier) {
-    for (final MasterChangeListener listener : _listeners) {
-      listener.updated(oldIdentifier, newIdentifier);
-    }
-  }
-
-  private void notifyAdded(final UniqueIdentifier identifier) {
-    for (final MasterChangeListener listener : _listeners) {
-      listener.added(identifier);
-    }
-  }
-
-  private void notifyRemoved(final UniqueIdentifier identifier) {
-    for (final MasterChangeListener listener : _listeners) {
-      listener.removed(identifier);
-    }
-  }
-
   @Override
-  public void addChangeListener(MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.add(listener);
-  }
-
-  @Override
-  public void removeChangeListener(MasterChangeListener listener) {
-    ArgumentChecker.notNull(listener, "listener");
-    _listeners.remove(listener);
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

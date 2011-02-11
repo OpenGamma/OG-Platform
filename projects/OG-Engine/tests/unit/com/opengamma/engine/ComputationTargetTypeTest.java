@@ -24,7 +24,7 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.security.MockSecurity;
+import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;

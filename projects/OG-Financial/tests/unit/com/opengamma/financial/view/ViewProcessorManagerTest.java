@@ -17,6 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 import com.opengamma.core.position.PositionSource;
@@ -42,6 +44,9 @@ import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChanged;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.test.Timeout;
 
@@ -50,8 +55,8 @@ import com.opengamma.util.test.Timeout;
  */
 public class ViewProcessorManagerTest {
 
+  //-------------------------------------------------------------------------
   private static class MockViewProcessor implements ViewProcessorInternal {
-
     private final CompiledFunctionService _compiledFunctionService;
     private final LinkedBlockingQueue<Boolean> _suspendState = new LinkedBlockingQueue<Boolean>();
     private boolean _running;
@@ -180,11 +185,10 @@ public class ViewProcessorManagerTest {
     public Boolean isSuspended(final long timeout) throws InterruptedException {
       return _suspendState.poll(timeout, TimeUnit.MILLISECONDS);
     }
-
   }
 
-  private static class MockNotifyingMaster implements NotifyingMaster {
-
+  //-------------------------------------------------------------------------
+  private static final class MockChangeManager implements MasterChangeManager {
     private MasterChangeListener _listener;
 
     @Override
@@ -203,18 +207,31 @@ public class ViewProcessorManagerTest {
       return _listener != null;
     }
 
+    @Override
+    public void masterChanged(MasterChangedType type, UniqueIdentifier beforeId, UniqueIdentifier afterId, Instant versionInstant) {
+    }
+
     public void notifyListenerUnwatchedIdentifier() {
-      _listener.added(UniqueIdentifier.of("Test", "Unwatched"));
+      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Unwatched"), UniqueIdentifier.of("Test", "UnwatchedNew"), Instant.now()));
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.added(UniqueIdentifier.of("Test", "Watched"));
+      _listener.masterChanged(new MasterChanged(MasterChangedType.UPDATED, UniqueIdentifier.of("Test", "Watched"), UniqueIdentifier.of("Test", "WatchedNew"), Instant.now()));
     }
-
   }
 
-  private static class MockVersionedSource implements VersionedSource {
+  //-------------------------------------------------------------------------
+  private static class MockNotifyingMaster implements NotifyingMaster {
+    private MasterChangeManager _changeManager = new MockChangeManager();
 
+    @Override
+    public MasterChangeManager changeManager() {
+      return _changeManager;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static class MockVersionedSource implements VersionedSource {
     private final LinkedBlockingQueue<VersionCorrection> _versionCorrections = new LinkedBlockingQueue<VersionCorrection>();
 
     @Override
@@ -227,17 +244,19 @@ public class ViewProcessorManagerTest {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testBasicOperation() throws InterruptedException {
     final ViewProcessorManager vpm = new ViewProcessorManager();
     final MockViewProcessor vp = new MockViewProcessor();
     vpm.setViewProcessor(vp);
     final MockNotifyingMaster master = new MockNotifyingMaster();
+    final MockChangeManager changeManger = (MockChangeManager) master.changeManager();
     final MockVersionedSource source = new MockVersionedSource();
     vpm.setMasterAndSource(master, source);
     // Check normal startup
     vpm.start();
-    assertTrue(master.hasListener());
+    assertTrue(changeManger.hasListener());
     assertTrue(vpm.isRunning());
     assertTrue(vp.isRunning());
     Long initialId = vp.getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
@@ -245,10 +264,10 @@ public class ViewProcessorManagerTest {
     VersionCorrection initialVersion = source.getVersionCorrection();
     // Notify it of a change to the master
     Thread.sleep(10);
-    master.notifyListenerUnwatchedIdentifier();
+    changeManger.notifyListenerUnwatchedIdentifier();
     assertNull(vp.isSuspended(Timeout.standardTimeoutMillis()));
-    master.notifyListenerWatchedIdentifier();
-    assertTrue(vp.isSuspended(Timeout.standardTimeoutMillis()));
+    changeManger.notifyListenerWatchedIdentifier();
+    assertEquals(Boolean.TRUE, vp.isSuspended(Timeout.standardTimeoutMillis()));
     VersionCorrection newVersion = source.getVersionCorrection();
     assertTrue(newVersion.getVersionAsOf().isAfter(initialVersion.getVersionAsOf()));
     Long newId = 0L;
@@ -257,12 +276,12 @@ public class ViewProcessorManagerTest {
       newId = vp.getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     }
     assertTrue(newId > initialId);
-    assertFalse(vp.isSuspended(Timeout.standardTimeoutMillis()));
+    assertEquals(Boolean.FALSE, vp.isSuspended(Timeout.standardTimeoutMillis()));
     // Shutdown
     vpm.stop();
     assertFalse(vpm.isRunning());
     assertFalse(vp.isRunning());
-    assertFalse(master.hasListener());
+    assertFalse(changeManger.hasListener());
   }
 
 }

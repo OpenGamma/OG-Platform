@@ -117,7 +117,6 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
         return "INSERT";  // bad sql
       }
     };
-    w.setDetailProvider(null);
     final SecurityDocument base = _secMaster.get(UniqueIdentifier.of("DbSec", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));

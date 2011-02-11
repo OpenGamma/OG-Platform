@@ -8,6 +8,7 @@ package com.opengamma.financial.user;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
@@ -91,6 +92,12 @@ public class UserPositionMaster implements PositionMaster {
   @Override
   public ManageableTrade getTrade(UniqueIdentifier uniqueId) {
     return _underlying.getTrade(uniqueId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

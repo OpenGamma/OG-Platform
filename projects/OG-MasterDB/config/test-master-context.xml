@@ -16,6 +16,9 @@
     </property>
   </bean>
 
+  <bean id="positionMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+
   <!-- ============================================================================== -->
   <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${hsqldb.jdbc.driver}"/>
@@ -42,11 +45,13 @@
 
   <bean id="hsqldbDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="hsqldbDbSource" />
+    <property name="changeManager" ref="positionMasterChangeManager" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="hsqldbDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 
@@ -86,11 +91,13 @@
 
   <bean id="postgresDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="postgresDbSource" />
+    <property name="changeManager" ref="positionMasterChangeManager" />
     <property name="identifierScheme" value="DbPos" />
   </bean>
 
   <bean id="postgresDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="identifierScheme" value="DbSec" />
   </bean>
 

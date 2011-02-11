@@ -24,6 +24,8 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -32,6 +34,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Provides access to a remote {@link SecurityMaster}.
@@ -45,15 +48,36 @@ public class RemoteSecurityMaster implements SecurityMaster {
   private final RestTarget _targetSecurity;
   private final RestTarget _targetSearch;
   private final RestTarget _targetHistoric;
+  private final MasterChangeManager _changeManager;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param baseTarget  the RESTful target, not null
+   */
   public RemoteSecurityMaster(FudgeContext fudgeContext, RestTarget baseTarget) {
+    this(fudgeContext, baseTarget, new BasicMasterChangeManager());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param baseTarget  the RESTful target, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemoteSecurityMaster(FudgeContext fudgeContext, RestTarget baseTarget, MasterChangeManager changeManager) {
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _fudgeContext = fudgeContext;
     _targetSecurity = baseTarget.resolveBase(SECURITYMASTER_SECURITY);
     _targetSearch = baseTarget.resolve(SECURITYMASTER_SEARCH);
     _targetHistoric = baseTarget.resolve(SECURITYMASTER_HISTORIC);
     _restClient = RestClient.getInstance(fudgeContext, null);
+    _changeManager = changeManager;
   }
 
+  //-------------------------------------------------------------------------
   protected FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
@@ -183,6 +207,12 @@ public class RemoteSecurityMaster implements SecurityMaster {
     s_logger.debug("update-recv {}", env.getMessage());
     document.setUniqueId(getFudgeDeserializationContext().fudgeMsgToObject(UniqueIdentifier.class, env.getMessage()));
     return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

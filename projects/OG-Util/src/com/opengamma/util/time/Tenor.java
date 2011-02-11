@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 /**
  * A tenor.
  */
-public class Tenor implements Comparable<Tenor>{
+public class Tenor implements Comparable<Tenor> {
 
   /**
    * An overnight tenor.
@@ -119,7 +119,7 @@ public class Tenor implements Comparable<Tenor>{
   /**
    * A tenor of the working days in a year measured in hours (250 * 24 hours).
    */
-  public static final Tenor WORKING_DAYS_IN_YEAR = new Tenor(Period.ofHours(252 * 24));  // TODO: should be days???
+  public static final Tenor WORKING_DAYS_IN_YEAR = new Tenor(Period.ofHours(252 * 24)); // TODO: should be days???
   /**
    * A tenor of the working days in a month measured in hours (250 * 24 / 12 hours).
    */
@@ -165,19 +165,19 @@ public class Tenor implements Comparable<Tenor>{
   public Period getPeriod() {
     return _period;
   }
-  
+
   public static final Tenor ofDays(int days) {
     return new Tenor(Period.ofDays(days));
   }
-  
+
   public static final Tenor ofWeeks(int weeks) {
     return new Tenor(Period.ofDays(weeks * 7));
   }
-  
+
   public static final Tenor ofMonths(int months) {
     return new Tenor(Period.ofMonths(months)); // TODO: what do we do here
   }
-  
+
   public static final Tenor ofYears(int years) {
     return new Tenor(Period.ofYears(years)); // TODO: what do we do here
   }
@@ -192,17 +192,17 @@ public class Tenor implements Comparable<Tenor>{
     Tenor other = (Tenor) o;
     return getPeriod().equals(other.getPeriod());
   }
-  
+
   public int hashCode() {
     return getPeriod().hashCode();
   }
-  
+
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Tenor[");
     sb.append(getPeriod().toString());
     sb.append("]");
-    return sb.toString(); 
+    return sb.toString();
   }
 
   //TODO [PLAT-1013] not the best way to do this
@@ -216,5 +216,5 @@ public class Tenor implements Comparable<Tenor>{
       return 1;
     }
     return 0;
-  }  
+  }
 }

@@ -18,9 +18,9 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
 
   /** The first element. */
-  public final long first;  // CSIGNORE
+  public final long first; // CSIGNORE
   /** The second element. */
-  public final double second;  // CSIGNORE
+  public final double second; // CSIGNORE
 
   /**
    * Creates a pair from the specified values.

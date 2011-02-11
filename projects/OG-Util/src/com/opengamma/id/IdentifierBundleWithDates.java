@@ -161,7 +161,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
   public Set<IdentifierWithDates> getIdentifiers() {
     return _identifiers;
   }
-  
+
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
@@ -174,7 +174,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
     ids.add(identifier);
     return new IdentifierBundleWithDates(ids);
   }
-  
+
   /**
    * Returns a new bundle with the specified identifier removed.
    * This instance is immutable and unaffected by this method call.
@@ -187,7 +187,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
     ids.remove(identifier);
     return new IdentifierBundleWithDates(ids);
   }
-  
+
   /**
    * Gets the number of identifiers in the bundle.
    * 
@@ -196,7 +196,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
   public int size() {
     return _identifiers.size();
   }
-  
+
   /**
    * Returns an iterator over the identifiers in the bundle.
    * 
@@ -206,7 +206,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
   public Iterator<IdentifierWithDates> iterator() {
     return _identifiers.iterator();
   }
-  
+
   /**
    * Checks if this bundle contains any key from the specified bundle.
    * 
@@ -222,7 +222,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
     }
     return false;
   }
-  
+
   /**
    * Checks if this bundle contains the specified key.
    * 
@@ -270,8 +270,8 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
     if (mySet.size() > otherSet.size()) {
       return 1;
     }
-    final List<IdentifierWithDates> myList = new ArrayList<IdentifierWithDates>(mySet);  // already sorted as TreeSet
-    final List<IdentifierWithDates> otherList = new ArrayList<IdentifierWithDates>(otherSet);  // already sorted as TreeSet
+    final List<IdentifierWithDates> myList = new ArrayList<IdentifierWithDates>(mySet); // already sorted as TreeSet
+    final List<IdentifierWithDates> otherList = new ArrayList<IdentifierWithDates>(otherSet); // already sorted as TreeSet
     for (int i = 0; i < myList.size(); i++) {
       int c = myList.get(i).compareTo(otherList.get(i));
       if (c != 0) {
@@ -301,11 +301,11 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("BundleWithDates")
-      .append("[")
-      .appendWithSeparators(_identifiers, ", ")
-      .append("]")
-      .toString();
+        .append("BundleWithDates")
+        .append("[")
+        .appendWithSeparators(_identifiers, ", ")
+        .append("]")
+        .toString();
   }
 
   //-------------------------------------------------------------------------

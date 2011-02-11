@@ -90,7 +90,7 @@ public class DateUtil {
     }
     return (double) (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_YEAR;
   }
-  
+
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
@@ -108,8 +108,6 @@ public class DateUtil {
     }
     return (double) (endDate.toLocalDate().toEpochDays() - startDate.toLocalDate().toEpochDays()) / DAYS_PER_YEAR;
   }
-  
-    
 
   /**
    * Returns endDate - startDate in years, where a year-length is specified.
@@ -256,7 +254,7 @@ public class DateUtil {
     }
     return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / (double) SECONDS_PER_DAY;
   }
-  
+
   /**
    * Calculates the number of days in between two dates.
    * 
@@ -266,7 +264,7 @@ public class DateUtil {
    * @throws IllegalArgumentException if the date is null
    */
   public static int getDaysBetween(final DateProvider startDate, final DateProvider endDate) {
-    return getDaysBetween(startDate, true, endDate, false);    
+    return getDaysBetween(startDate, true, endDate, false);
   }
 
   /**
@@ -307,7 +305,7 @@ public class DateUtil {
     }
     return YYYYMMDD_LOCAL_DATE.print(date);
   }
-  
+
   /**
    * Prints the date in MM-dd format.
    * @param date  the date, not null
@@ -329,7 +327,7 @@ public class DateUtil {
     Clock clock = Clock.system(TimeZone.UTC);
     return previousWeekDay(clock.today());
   }
-  
+
   /**
    * Gets the next Monday to Friday week-day after now.
    * @return the date, not null
@@ -350,7 +348,7 @@ public class DateUtil {
     }
     LocalDate next = null;
     DayOfWeek dayOfWeek = startDate.getDayOfWeek();
-    switch(dayOfWeek)  {
+    switch (dayOfWeek) {
       case FRIDAY:
         next = startDate.plusDays(3);
         break;
@@ -364,7 +362,7 @@ public class DateUtil {
       case SUNDAY:
         next = startDate.plusDays(1);
         break;
-      default :
+      default:
         throw new OpenGammaRuntimeException("Unrecognised day of the week");
     }
     return next;
@@ -381,7 +379,7 @@ public class DateUtil {
     }
     LocalDate previous = null;
     DayOfWeek dayOfWeek = startDate.getDayOfWeek();
-    switch(dayOfWeek)  {
+    switch (dayOfWeek) {
       case MONDAY:
         previous = startDate.minusDays(3);
         break;
@@ -395,7 +393,7 @@ public class DateUtil {
       case SUNDAY:
         previous = startDate.minusDays(2);
         break;
-      default :
+      default:
         throw new OpenGammaRuntimeException("Unrecognised day of the week");
     }
     return previous;
@@ -407,7 +405,7 @@ public class DateUtil {
    * @return the epoch millis
    */
   public static long getUTCEpochMilis(int date) {
-    LocalDate localDate = YYYYMMDD_LOCAL_DATE.parse(String.valueOf(date), LocalDate.rule()); 
+    LocalDate localDate = YYYYMMDD_LOCAL_DATE.parse(String.valueOf(date), LocalDate.rule());
     return localDate.toEpochDays() * 24 * 60 * 60 * 1000;
   }
 

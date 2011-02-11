@@ -19,6 +19,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -29,7 +30,6 @@ import com.opengamma.master.security.SecurityLoader;
  */
 @BeanDefinition
 public class WebPositionsData extends DirectBean {
-
   /**
    * The position master.
    */
@@ -40,6 +40,11 @@ public class WebPositionsData extends DirectBean {
    */
   @PropertyDefinition
   private SecurityLoader _securityLoader;
+  /**
+   * The security source
+   */
+  @PropertyDefinition
+  private SecuritySource _securitySource;
   /**
    * The JSR-311 URI information.
    */
@@ -115,6 +120,8 @@ public class WebPositionsData extends DirectBean {
         return getPositionMaster();
       case -903470221:  // securityLoader
         return getSecurityLoader();
+      case -702456965:  // securitySource
+        return getSecuritySource();
       case -173275078:  // uriInfo
         return getUriInfo();
       case 1240319664:  // uriPositionId
@@ -137,6 +144,9 @@ public class WebPositionsData extends DirectBean {
         return;
       case -903470221:  // securityLoader
         setSecurityLoader((SecurityLoader) newValue);
+        return;
+      case -702456965:  // securitySource
+        setSecuritySource((SecuritySource) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -205,6 +215,31 @@ public class WebPositionsData extends DirectBean {
    */
   public final Property<SecurityLoader> securityLoader() {
     return metaBean().securityLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security source
+   * @return the value of the property
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Sets the security source
+   * @param securitySource  the new value of the property
+   */
+  public void setSecuritySource(SecuritySource securitySource) {
+    this._securitySource = securitySource;
+  }
+
+  /**
+   * Gets the the {@code securitySource} property.
+   * @return the property, not null
+   */
+  public final Property<SecuritySource> securitySource() {
+    return metaBean().securitySource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -351,6 +386,10 @@ public class WebPositionsData extends DirectBean {
      */
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(this, "securityLoader", SecurityLoader.class);
     /**
+     * The meta-property for the {@code securitySource} property.
+     */
+    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(this, "securitySource", SecuritySource.class);
+    /**
      * The meta-property for the {@code uriInfo} property.
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
@@ -380,6 +419,7 @@ public class WebPositionsData extends DirectBean {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("positionMaster", _positionMaster);
       temp.put("securityLoader", _securityLoader);
+      temp.put("securitySource", _securitySource);
       temp.put("uriInfo", _uriInfo);
       temp.put("uriPositionId", _uriPositionId);
       temp.put("uriVersionId", _uriVersionId);
@@ -418,6 +458,14 @@ public class WebPositionsData extends DirectBean {
      */
     public final MetaProperty<SecurityLoader> securityLoader() {
       return _securityLoader;
+    }
+
+    /**
+     * The meta-property for the {@code securitySource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecuritySource> securitySource() {
+      return _securitySource;
     }
 
     /**

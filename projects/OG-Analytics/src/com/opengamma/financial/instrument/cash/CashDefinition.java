@@ -20,13 +20,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.InterestRateDerivativeProvider;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 
 /**
  * 
  */
-public class CashDefinition implements InterestRateDerivativeProvider<Cash> {
+public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
   private static final Logger s_logger = LoggerFactory.getLogger(CashDefinition.class);
   private final Convention _convention;
   private final ZonedDateTime _maturityDate;
@@ -90,7 +91,7 @@ public class CashDefinition implements InterestRateDerivativeProvider<Cash> {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
-    Validate.isTrue(_maturityDate.toLocalDate().isAfter(date) || _maturityDate.equals(date), "Date for security is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
     if (yieldCurveNames.length > 1) {
       s_logger.warn("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
     }
@@ -113,6 +114,16 @@ public class CashDefinition implements InterestRateDerivativeProvider<Cash> {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }
     return date;
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitCashDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCashDefinition(this);
   }
 
 }
