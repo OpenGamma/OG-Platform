@@ -117,7 +117,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.ok().build();
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
     }  
     data().getPortfolioMaster().remove(doc.getUniqueId());
     URI uri = WebPortfolioResource.uri(data());
