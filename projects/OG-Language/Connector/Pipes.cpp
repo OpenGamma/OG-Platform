@@ -17,6 +17,7 @@ CClientPipes::CClientPipes (CNamedPipe *poOutput, CNamedPipe *poInput) {
 	m_poOutput = poOutput;
 	m_poInput = poInput;
 	m_bConnected = false;
+	m_lLastWrite = GetTickCount ();
 }
 
 CClientPipes::~CClientPipes () {
@@ -132,7 +133,7 @@ bool CClientPipes::Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeo
 				if (!m_poOutput->Flush ()) {
 					LOGERROR (TEXT ("Couldn't flush output buffer, error ") << GetLastError ());
 				}
-				TODO (TEXT ("Store the last send time"));
+				m_lLastWrite = GetTickCount ();
 				return true;
 			}
 		} else {

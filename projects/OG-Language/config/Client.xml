@@ -10,4 +10,24 @@
   
   <import resource="classpath:/com/opengamma/language/connector/Client.xml" />
   
+  <!--
+    TODO: working extension example
+    
+    The obvious extension points are marked in the main Client.xml. These beans can be referenced by ID and
+    tweaked by other beans prior to context start-up (e.g. at "afterPropertiesSet", but NOT at "start"). For
+    example:
+    
+    <bean class="my.package.MyCustomMessagesHandler">
+      <property name="customMessageRegistry" ref="clientMessageHandler" />
+    </bean>
+    
+    and in code:
+    
+    public void setCustomMessageRegistry (final CustomMessageVisitorRegistry registry) {
+      registry.register (MessageClass1.class, myMessageClass1Handler);
+      registry.register (MessageClass2.class, myMessageClass2Handler);
+      //...
+    }
+  -->
+  
 </beans>

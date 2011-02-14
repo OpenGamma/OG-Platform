@@ -23,11 +23,16 @@ enum ClientServiceState {
 
 class CClientService {
 public:
+	// Callback for state changes (e.g. to be notified when fully connected). The callback is part of the
+	// main service event thread so should not block or call back to other blocking operations (like
+	// sending a message).
 	class CStateChange {
 	protected:
 		friend class CClientService;
 		virtual void OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState) = 0;
 	};
+	// Callback for messages received. The callback is part of the main service event thread so should not
+	// block or call back to other blocking operations (like sending a message).
 	class CMessageReceived {
 	protected:
 		friend class CClientService;

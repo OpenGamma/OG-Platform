@@ -8,7 +8,7 @@ package com.opengamma.language.connector;
 /**
  * Message delivery directives - must match the codes in Connector/MessageDirectives.h
  */
-public final class MessageDirectives {
+/* package */final class MessageDirectives {
 
   /**
    * Prevent construction.

@@ -14,6 +14,7 @@ private:
 	CNamedPipe *m_poOutput;
 	CNamedPipe *m_poInput;
 	CBufferedInput m_oInputBuffer;
+	long m_lLastWrite;
 	bool m_bConnected;
 	CClientPipes (CNamedPipe *poOutput, CNamedPipe *poInput);
 public:
@@ -29,6 +30,7 @@ public:
 	void DiscardInput (size_t cb) { m_oInputBuffer.Discard (cb); }
 	void Disconnected () { m_bConnected = false; }
 	bool IsConnected () { return m_bConnected; }
+	unsigned long GetLastWrite () { return m_lLastWrite; }
 };
 
 #endif /* ifndef __inc_og_language_connector_pipes_h */

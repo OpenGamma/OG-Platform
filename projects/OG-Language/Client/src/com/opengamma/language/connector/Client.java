@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -34,66 +34,20 @@ import org.fudgemsg.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.language.context.MutableSessionContext;
+import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.context.SessionContextInitializationEventHandler;
 
 /**
  * Client connection thread to interface with the C++ module. This connects to the two
  * pipe interfaces and provides user message routing.
  */
-public final class Client implements Runnable {
+public final class Client implements Runnable, SessionContextInitializationEventHandler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Client.class);
 
-  /**
-   * Represents constant state held by most clients.
-   */
-  public static class Context {
-
-    private final FudgeContext _fudgeContext;
-    private final ScheduledExecutorService _scheduler;
-    private final ClientExecutor _executor;
-    private final int _heartbeatTimeout;
-    private final int _terminationTimeout;
-    private final FudgeMsgEnvelope _heartbeatMessage;
-
-    /* package */Context(final FudgeContext fudgeContext, final ScheduledExecutorService scheduler,
-        final ClientExecutor executor, final int heartbeatTimeout, final int terminationTimeout) {
-      _fudgeContext = fudgeContext;
-      _scheduler = scheduler;
-      _executor = executor;
-      _heartbeatTimeout = heartbeatTimeout;
-      _terminationTimeout = terminationTimeout;
-      _heartbeatMessage = new FudgeMsgEnvelope(new ConnectorMessage(ConnectorMessage.Operation.HEARTBEAT)
-          .toFudgeMsg(fudgeContext), 0, MessageDirectives.CLIENT);
-    }
-
-    public FudgeContext getFudgeContext() {
-      return _fudgeContext;
-    }
-
-    public ScheduledExecutorService getScheduler() {
-      return _scheduler;
-    }
-
-    public ExecutorService createExecutor() {
-      return _executor.createClientExecutor();
-    }
-
-    public int getHeartbeatTimeout() {
-      return _heartbeatTimeout;
-    }
-
-    public int getTerminationTimeout() {
-      return _terminationTimeout;
-    }
-
-    public FudgeMsgEnvelope getHeartbeatMessage() {
-      return _heartbeatMessage;
-    }
-
-  }
-
-  private final Context _context;
+  private final ClientContext _clientContext;
+  private final SessionContext _sessionContext;
   private final String _inputPipeName;
   private final String _outputPipeName;
   private final BlockingQueue<FudgeMsgEnvelope> _outputMessageBuffer = new LinkedBlockingQueue<FudgeMsgEnvelope>();
@@ -103,25 +57,21 @@ public final class Client implements Runnable {
   private FudgeStreamWriter _outputPipe;
   private volatile boolean _poisoned;
 
-  // BEGIN-ORIGINAL
-
-  private FudgeMessageReceiver _receiver;
-  private FudgeFieldContainer _stash;
-  private Runnable _onConnect;
-  private Runnable _onDisconnect;
-  private boolean _running;
-
-  // END-ORIGINAL
-
-  /* package */Client(final Context context, final String inputPipeName, final String outputPipeName) {
-    _context = context;
-    _executor = context.createExecutor();
+  /* package */Client(final ClientContext clientContext, final String inputPipeName, final String outputPipeName,
+      final SessionContext session) {
+    _clientContext = clientContext;
+    _sessionContext = session;
+    _executor = clientContext.createExecutor();
     _inputPipeName = inputPipeName;
     _outputPipeName = outputPipeName;
   }
 
-  private Context getContext() {
-    return _context;
+  private ClientContext getClientContext() {
+    return _clientContext;
+  }
+
+  private SessionContext getSessionContext() {
+    return _sessionContext;
   }
 
   private String getInputPipeName() {
@@ -196,6 +146,55 @@ public final class Client implements Runnable {
     };
   }
 
+  private void sendUserMessage(final UserMessage message) {
+    getOutputMessageBuffer().add(
+        new FudgeMsgEnvelope(message.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.USER));
+  }
+
+  @Override
+  public void initContext(MutableSessionContext context) {
+    context.setMessageSender(new MessageSender() {
+
+      @Override
+      public UserMessagePayload call(final UserMessagePayload message, final long timeoutMillis)
+          throws TimeoutException {
+        // TODO: implement this if/when we need it
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public long getDefaultTimeout() {
+        return getClientContext().getMessageTimeout();
+      }
+
+      @Override
+      public void send(final UserMessagePayload payload) {
+        sendUserMessage(new UserMessage(payload));
+      }
+
+      @Override
+      public void sendAndWait(final UserMessagePayload message, final long timeoutMillis) throws TimeoutException {
+        // TODO: implement this if/when we need it
+        throw new UnsupportedOperationException();
+      }
+    });
+  }
+
+  @Override
+  public void initContextWithStash(MutableSessionContext context, FudgeFieldContainer stash) {
+    initContext(context);
+  }
+
+  private void initializeContext(final FudgeFieldContainer stash) {
+    s_logger.info("Initializing session context");
+    if (stash != null) {
+      getSessionContext().initContextWithStash(this, stash);
+    } else {
+      getSessionContext().initContext(this);
+    }
+    s_logger.debug("Session context initialized");
+  }
+
   /**
    * The main connection thread must always be in "READ" mode to avoid deadlocking against the
    * alternating C/C++ one. Therefore we have a separate dispatch thread (or pool of them) for
@@ -213,15 +212,12 @@ public final class Client implements Runnable {
     final Thread sender = new Thread(createMessageWriter());
     sender.setName(Thread.currentThread().getName() + "-Writer");
     sender.start();
-    synchronized (this) {
-      _running = true;
-    }
-    // TODO: call the on-connect handler(s)
-    final ScheduledFuture<?> watchdogFuture = getContext().getScheduler().scheduleWithFixedDelay(watchdog,
-        getContext().getHeartbeatTimeout(), getContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
+    final ScheduledFuture<?> watchdogFuture = getClientContext().getScheduler().scheduleWithFixedDelay(watchdog,
+        getClientContext().getHeartbeatTimeout(), getClientContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
     // Main read loop - this thread is always available to read to avoid process deadlock. The loop will
     // abort on I/O error or if the watchdog fires (triggering an I/O error)
     try {
+      boolean contextInitialized = false;
       final FudgeMsgReader reader = new FudgeMsgReader(getInputPipe());
       s_logger.info("Starting message read loop");
       while (!_poisoned && reader.hasNext()) {
@@ -230,12 +226,7 @@ public final class Client implements Runnable {
         switch (messageEnvelope.getProcessingDirectives()) {
           case MessageDirectives.USER: {
             final UserMessage message = new UserMessage(messageEnvelope.getMessage());
-            getExecutor().execute(new Runnable() {
-              @Override
-              public void run() {
-                s_logger.error("TODO: handle user message {}", message);
-              }
-            });
+            getExecutor().execute(dispatchUserMessage(message));
             break;
           }
           case MessageDirectives.CLIENT: {
@@ -244,17 +235,14 @@ public final class Client implements Runnable {
               case HEARTBEAT:
                 if (getOutputMessageBuffer().isEmpty()) {
                   s_logger.debug("Sending heartbeat");
-                  getOutputMessageBuffer().add(getContext().getHeartbeatMessage());
+                  getOutputMessageBuffer().add(getClientContext().getHeartbeatMessage());
                 } else {
                   s_logger.debug("Ignoring heartbeat request - other messages pending");
                 }
-                if (message.getStash() == null) {
-                  break;
+                if (!contextInitialized) {
+                  initializeContext(message.getStash());
+                  contextInitialized = true;
                 }
-                /* fall-through */
-              case STASH:
-                s_logger.info("Stash message received");
-                // TODO: handle the stash message
                 break;
               case POISON:
                 s_logger.info("Poison message received");
@@ -280,20 +268,20 @@ public final class Client implements Runnable {
     watchdogFuture.cancel(true);
     // Shutdown (poison may have already been called by a watchdog - no harm in calling it twice though)
     poison.run();
-    synchronized (this) {
-      _running = false;
-    }
-    // TODO: call the on-disconnect handler(s)
     getExecutor().shutdown();
     try {
-      s_logger.debug("Joining thread(s)");
+      s_logger.info("Waiting for client thread(s) to terminate");
       sender.join();
-      if (!getExecutor().awaitTermination(getContext().getTerminationTimeout(), TimeUnit.MILLISECONDS)) {
+      if (!getExecutor().awaitTermination(getClientContext().getTerminationTimeout(), TimeUnit.MILLISECONDS)) {
         dumpThreads();
       }
+      s_logger.debug("Client thread(s) terminated");
     } catch (InterruptedException e) {
       s_logger.warn("Interrupted joining threads, {}", e.toString());
     }
+    s_logger.info("Destroying session context");
+    getSessionContext().doneContext();
+    s_logger.debug("Session context destroyed");
   }
 
   private boolean connectPipes() {
@@ -302,7 +290,7 @@ public final class Client implements Runnable {
       // Go via the File channel so that it is interruptible. This might not be necessary on all JVMs
       // but just using a FileInputStream was not releasing the blocked reader thread on my Linux workstation
       // at pipe closure.
-      _inputPipe = getContext().getFudgeContext().createReader(
+      _inputPipe = getClientContext().getFudgeContext().createReader(
           (DataInput) new DataInputStream(new BufferedInputStream(Channels.newInputStream(new FileInputStream(
               getInputPipeName()).getChannel()))));
     } catch (FileNotFoundException e) {
@@ -311,7 +299,7 @@ public final class Client implements Runnable {
     }
     s_logger.debug("Connecting to output pipe: {}", getOutputPipeName());
     try {
-      _outputPipe = getContext().getFudgeContext().createWriter(
+      _outputPipe = getClientContext().getFudgeContext().createWriter(
           (DataOutput) new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getOutputPipeName()))));
     } catch (FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getOutputPipeName(), e.toString());
@@ -357,170 +345,27 @@ public final class Client implements Runnable {
     }
   }
 
-  // ORIGINAL
-
-  /*
-  private boolean pluginConnectorMessage(final PluginConnectorMessage message) {
-    switch (message.getOperation()) {
-      case HEARTBEAT:
-        s_logger.debug("Heartbeat message received");
-        final PluginConnectorMessage msg = new PluginConnectorMessage(Operation.HEARTBEAT);
-        getOutputMessageBuffer().add(
-            new FudgeMsgEnvelope(msg.toFudgeMsg(getFudgeContext()), 0, FudgeProcessingDirectives.PLUGIN_CONNECTOR));
-        if (message.getStash() != null) {
-          synchronized (this) {
-            // First heartbeat may contain the stash message
-            _stash = message.getStash();
-          }
-        }
-        return true;
-      case POISON:
-        s_logger.info("Poison message received");
-        return false;
-      case STASH:
-        s_logger.debug("Stashed data received");
-        // CSOFF: checkstyle gets this wrong
-        synchronized (this) {
-          if (message.getStash() != null) {
-            _stash = message.getStash();
-          } else {
-            _stash = FudgeContext.EMPTY_MESSAGE;
-          }
-          notifyAll();
-        }
-        // CSON: checkstyle gets this wrong
-        return true;
-      default:
-        s_logger.warn("Unexpected connector message {}", message.getOperation());
-        return true;
-    }
-  }
-
-  private Runnable dispatchUserMessage(final FudgeMsgEnvelope msg) {
+  private Runnable dispatchUserMessage(final UserMessage message) {
     return new Runnable() {
       @Override
       public void run() {
-        s_logger.debug("Dispatching user message {}", msg.getMessage());
-        final FudgeMessageReceiver receiver = getMessageReceiver();
-        if (receiver != null) {
-          receiver.messageReceived(getFudgeContext(), msg);
-        } else {
-          s_logger.warn("No receiver to dispatch message {} to", msg.getMessage());
+        UserMessagePayload response = null;
+        try {
+          response = message.getPayload().accept(getClientContext().getMessageHandler(), getSessionContext());
+        } catch (Throwable t) {
+          s_logger.error("Error in user message handler", t);
+          response = UserMessagePayload.EMPTY_PAYLOAD;
+        }
+        if (message.getHandle() != null) {
+          if (response == null) {
+            s_logger.error("User message handler returned null for synchronous message call {}", message);
+            response = UserMessagePayload.EMPTY_PAYLOAD;
+          }
+          message.setPayload(response);
+          sendUserMessage(message);
         }
       }
     };
   }
-
-  public FudgeMessageSender getMessageSender() {
-    return new FudgeMessageSender() {
-      @Override
-      public void send(final FudgeFieldContainer message) {
-        s_logger.debug("Sending {} to output stream", message);
-        if (_poisoned) {
-          s_logger.warn("Connector has been poisoned - not sending {}", message);
-          throw new OpenGammaRuntimeException("Connection has been closed - message not sent");
-        } else {
-          getOutputMessageBuffer().add(new FudgeMsgEnvelope(message, 0, FudgeProcessingDirectives.STANDARD_DELIVERY));
-        }
-      }
-
-      @Override
-      public FudgeContext getFudgeContext() {
-        return PluginConnector.this.getFudgeContext();
-      }
-    };
-  }
-
-  public synchronized void setMessageReceiver(final FudgeMessageReceiver receiver) {
-    _receiver = receiver;
-  }
-
-  public synchronized FudgeMessageReceiver getMessageReceiver() {
-    return _receiver;
-  }
-  */
-
-  /**
-   * If a message was stashed by setStashedMessage in this JVM instance or a previous one, returns it. Returns
-   * the empty message if there was none.
-   * 
-   * @return the message
-   */
-  /*
-  public synchronized FudgeFieldContainer getStashedMessage() {
-    if (_stash == null) {
-      final PluginConnectorMessage stash = new PluginConnectorMessage(Operation.STASH);
-      s_logger.debug("Sending STASH fetch request");
-      getOutputMessageBuffer().add(
-          new FudgeMsgEnvelope(stash.toFudgeMsg(getFudgeContext()), 0, FudgeProcessingDirectives.PLUGIN_CONNECTOR));
-      try {
-        wait(getOperationTimeout());
-      } catch (InterruptedException e) {
-        s_logger.warn("Interrupted waiting on STASH");
-      }
-      if (_stash == null) {
-        s_logger.warn("Timeout before STASH response received");
-      }
-    }
-    return _stash;
-  }
-  */
-
-  /**
-   * Stores a small amount of state with the underlying connector in order to survive a JVM restart. Do not
-   * pass {@code null} to clear any state - send an empty message.
-   * 
-   * @param message the message
-   */
-  /*
-  public synchronized void setStashedMessage(final FudgeFieldContainer message) {
-    ArgumentChecker.notNull(message, "message");
-    final PluginConnectorMessage stash = new PluginConnectorMessage(Operation.STASH);
-    stash.setStash(message);
-    s_logger.debug("Sending STASH put request {}", message);
-    getOutputMessageBuffer().add(
-        new FudgeMsgEnvelope(stash.toFudgeMsg(getFudgeContext()), 0, FudgeProcessingDirectives.PLUGIN_CONNECTOR));
-    _stash = message;
-  }
-  */
-
-  /*
-  public synchronized void setOnConnectCallback(final Runnable onConnect) {
-    _onConnect = onConnect;
-  }
-
-  public synchronized Runnable getOnConnectCallback() {
-    return _onConnect;
-  }
-
-  public synchronized boolean setOnDisconnectCallback(final Runnable onDisconnect) {
-    if (_running) {
-      _onDisconnect = onDisconnect;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public synchronized Runnable getOnDisconnectCallback() {
-    return _onDisconnect;
-  }
-
-  private void onConnect(final ExecutorService executor) {
-    Runnable onConnect = getOnConnectCallback();
-    if (onConnect != null) {
-      s_logger.debug("Calling onConnect listener");
-      executor.execute(onConnect);
-    }
-  }
-
-  private void onDisconnect(final ExecutorService executor) {
-    Runnable onDisconnect = getOnDisconnectCallback();
-    if (onDisconnect != null) {
-      s_logger.debug("Calling onDisconnect listener");
-      executor.execute(onDisconnect);
-    }
-  }
-  */
 
 }

@@ -15,16 +15,16 @@ package com.opengamma.language.connector;
  */
 public interface UserMessagePayloadVisitor<T1, T2> {
 
-  T1 visitUserMessagePayload(final UserMessagePayload payload, final T2 data);
+  T1 visitUserMessagePayload(UserMessagePayload payload, T2 data);
 
-  T1 visitTest(final Test message, final T2 data);
+  T1 visitTest(Test message, T2 data);
 
-  // TODO: LiveData
+  T1 visitLiveData(LiveData message, T2 data);
 
-  // TODO: Function
+  T1 visitFunction(Function message, T2 data);
 
-  // TODO: Procedure
+  T1 visitProcedure(Procedure message, T2 data);
 
-  // TODO: Extension
+  T1 visitCustom(Custom message, T2 data);
 
 }

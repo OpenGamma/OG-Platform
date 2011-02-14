@@ -25,6 +25,7 @@
 #include <Util/BufferedInput.h>
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
+#include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
 #include <Util/Process.h>
 #include <Util/Semaphore.h>

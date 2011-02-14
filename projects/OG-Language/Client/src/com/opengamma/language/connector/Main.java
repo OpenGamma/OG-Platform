@@ -16,6 +16,8 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
+import com.opengamma.language.context.ContextFactoryBean;
+
 /**
  * Entry point for the Language add-in. Kicks off a Spring configuration script to create the main connector and
  * load language specific extensions.
@@ -27,6 +29,7 @@ public class Main {
   private static GenericApplicationContext s_springContext;
   
   private static ClientFactoryBean s_clientFactory;
+  private static ContextFactoryBean s_contextFactory;
   
   private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new CustomizableThreadFactory(
       "Client-"));
@@ -61,7 +64,7 @@ public class Main {
       s_springContext.start();
       s_logger.info("Application context started");
       s_clientFactory = s_springContext.getBean(ClientFactoryBean.class);
-      // TODO: grab any other beans we need
+      s_contextFactory = s_springContext.getBean(ContextFactoryBean.class);
       return true;
     } catch (Throwable t) {
       s_logger.error("Exception thrown", t);
@@ -82,8 +85,8 @@ public class Main {
     try {
       s_logger.info("Accepted connection from {}", userName);
       s_logger.debug("Using pipes IN:{} OUT:{}", inputPipeName, outputPipeName);
-      final Client client = s_clientFactory.createClient(inputPipeName, outputPipeName);
-      // TODO: create the engine context
+      final Client client = s_clientFactory.createClient(inputPipeName, outputPipeName, s_contextFactory
+          .createSessionContext(userName));
       s_activeConnections++;
       s_executorService.submit(new Runnable() {
         @Override

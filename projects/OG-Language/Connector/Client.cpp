@@ -428,7 +428,11 @@ bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
 		break;
 										}
 	case MESSAGE_DIRECTIVES_USER :
-		TODO (TEXT ("Deliver user message"));
+		m_oMessageReceivedMutex.Enter ();
+		if (m_poMessageReceivedCallback) {
+			m_poMessageReceivedCallback->OnMessageReceived (msg);
+		}
+		m_oMessageReceivedMutex.Leave ();
 		break;
 	default :
 		LOGWARN (TEXT ("Unknown message delivery directive ") << FudgeMsgEnvelope_getDirectives (env));

@@ -11,14 +11,16 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.Lifecycle;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
+import com.opengamma.language.context.SessionContext;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Constructs {@link Client} instances as connections are received.
  */
-public final class ClientFactoryBean implements InitializingBean {
+public final class ClientFactoryBean implements InitializingBean, Lifecycle {
 
   /**
    * The Fudge context to use for encoding/decoding messages sent and received.
@@ -30,6 +32,14 @@ public final class ClientFactoryBean implements InitializingBean {
    */
   private ScheduledExecutorService _scheduler = Executors
       .newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-"));
+
+  /**
+   * Message timeout. This should match the value used by the clients for consistent behavior. This is
+   * typically used with the blocking message send routines as either its direct value or a multiple if
+   * the operation is known to take an unusually long or short time. Messaging timeouts are typically
+   * shorter than the heartbeat timeouts.
+   */
+  private int _messageTimeout = 3000;
 
   /**
    * Heartbeat timeout. This should match (or ideally be a touch less than) the value used by the clients.
@@ -53,7 +63,12 @@ public final class ClientFactoryBean implements InitializingBean {
    */
   private int _maxClientThreads = Integer.MAX_VALUE;
 
-  private Client.Context _clientContext;
+  /**
+   * Message handler.
+   */
+  private UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
+
+  private ClientContext _clientContext;
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -71,6 +86,15 @@ public final class ClientFactoryBean implements InitializingBean {
 
   public ScheduledExecutorService getScheduler() {
     return _scheduler;
+  }
+
+  public void setMessageTimeout(final int messageTimeout) {
+    ArgumentChecker.notNegativeOrZero(messageTimeout, "messageTimeout");
+    _messageTimeout = messageTimeout;
+  }
+
+  public int getMessageTimeout() {
+    return _messageTimeout;
   }
 
   public void setHeartbeatTimeout(final int heartbeatTimeout) {
@@ -107,22 +131,51 @@ public final class ClientFactoryBean implements InitializingBean {
     return _maxClientThreads;
   }
 
-  private void setClientContext(final Client.Context context) {
+  public void setMessageHandler(final UserMessagePayloadVisitor<UserMessagePayload, SessionContext> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    _messageHandler = visitor;
+  }
+
+  public UserMessagePayloadVisitor<UserMessagePayload, SessionContext> getMessageHandler() {
+    return _messageHandler;
+  }
+
+  private void setClientContext(final ClientContext context) {
     _clientContext = context;
   }
 
-  private Client.Context getClientContext() {
+  private ClientContext getClientContext() {
     return _clientContext;
   }
 
-  public Client createClient(final String inputPipeName, final String outputPipeName) {
-    return new Client(getClientContext(), inputPipeName, outputPipeName);
+  public Client createClient(final String inputPipeName, final String outputPipeName,
+      final SessionContext sessionContext) {
+    return new Client(getClientContext(), inputPipeName, outputPipeName, sessionContext);
+  }
+
+  // Lifecycle
+
+  @Override
+  public boolean isRunning() {
+    return false;
   }
 
   @Override
+  public void start() {
+    setClientContext(new ClientContext(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
+        getMaxClientThreads()), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(),
+        getMessageHandler()));
+  }
+
+  @Override
+  public void stop() {
+  }
+
+  // InitializingBean
+
+  @Override
   public void afterPropertiesSet() throws Exception {
-    setClientContext(new Client.Context(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
-        getMaxClientThreads()), getHeartbeatTimeout(), getTerminationTimeout()));
+    ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
   }
 
 }

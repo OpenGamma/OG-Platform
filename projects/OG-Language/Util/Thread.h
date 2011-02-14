@@ -52,8 +52,7 @@ protected:
 #endif
 	}
 public:
-	CThread () : IRunnable () {
-		m_oRefCount.Set (1);
+	CThread () : IRunnable (), m_oRefCount (1) {
 #ifdef _WIN32
 		m_hThread = NULL;
 #else
@@ -135,6 +134,18 @@ public:
 		::Sleep (millis);
 #else
 		usleep (millis * 1000);
+#endif
+	}
+#ifdef Yield
+#undef Yield
+#endif /* ifdef Yield */
+	static void Yield () {
+#ifdef _WIN32
+		SwitchToThread ();
+#elif defined (HAVE_PTHREAD)
+		pthread_yield ();
+#else
+		apr_thread_yield ();
 #endif
 	}
 #ifndef _WIN32
