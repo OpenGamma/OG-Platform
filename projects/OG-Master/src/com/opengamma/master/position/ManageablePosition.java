@@ -28,6 +28,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.JdkUtils;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -134,7 +135,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    */
   public String getName() {
     if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
-      final String amount = getQuantity().toPlainString() + " ";
+      final String amount = JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x ";
       if (getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER) != null) {
         return amount + getSecurityKey().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
       } else if (getSecurityKey().getIdentifier(SecurityUtils.RIC) != null) {
