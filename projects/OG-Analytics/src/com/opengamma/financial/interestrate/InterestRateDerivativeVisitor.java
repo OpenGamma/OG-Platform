@@ -14,7 +14,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -59,8 +58,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCash(Cash cash, S data);
 
-  T visitLibor(Libor libor, S data);
-
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
@@ -98,8 +95,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitBond(Bond bond);
 
   T visitCash(Cash cash);
-
-  T visitLibor(Libor libor);
 
   T visitInterestRateFuture(InterestRateFuture future);
 

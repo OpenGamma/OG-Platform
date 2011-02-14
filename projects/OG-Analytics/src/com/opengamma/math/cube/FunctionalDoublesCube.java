@@ -53,7 +53,7 @@ public class FunctionalDoublesCube extends Cube<Double, Double, Double, Double> 
   }
 
   @Override
-  public Double[] getData() {
+  public Double[] getValues() {
     throw new UnsupportedOperationException("Cannot get data - this cube is defined by a function");
   }
 

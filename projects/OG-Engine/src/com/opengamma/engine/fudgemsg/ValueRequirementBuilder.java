@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -16,7 +17,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * 
@@ -47,9 +47,9 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
   @Override
   public ValueRequirement buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     String valueName = message.getString(VALUE_NAME_FIELD_NAME);
-    FudgeFieldChecker.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
+    Validate.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
     ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationBuilder.buildObjectImpl(context, message);
-    FudgeFieldChecker.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
+    Validate.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
     FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
     if (constraints != null) {
       return new ValueRequirement(valueName, targetSpecification, context.fieldValueToObject(ValueProperties.class, constraints));

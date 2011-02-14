@@ -72,6 +72,11 @@ public class TenorSwapDefinitionTest {
     new TenorSwapDefinition(RECEIVE_DEFINITION, RECEIVE_DEFINITION);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadYieldCurveNames() {
+    SWAP.toDerivative(DATE, new String[] {"a", "b"});
+  }
+
   @Test
   public void test() {
     assertEquals(SWAP.getPayLeg(), PAY_DEFINITION);
@@ -88,9 +93,9 @@ public class TenorSwapDefinitionTest {
 
   @Test
   public void testConversion() {
-    final String[] names = new String[] {"e", "r"};
+    final String[] names = new String[] {"e", "r", "c"};
     final TenorSwap<Payment> swap = SWAP.toDerivative(DATE, names);
-    assertEquals(swap.getPayLeg(), PAY_DEFINITION.toDerivative(DATE, names));
-    assertEquals(swap.getReceiveLeg(), RECEIVE_DEFINITION.toDerivative(DATE, names));
+    assertEquals(swap.getPayLeg(), PAY_DEFINITION.toDerivative(DATE, names[0], names[1]));
+    assertEquals(swap.getReceiveLeg(), RECEIVE_DEFINITION.toDerivative(DATE, names[0], names[2]));
   }
 }

@@ -91,6 +91,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(@FormParam("name") String name) {
     name = StringUtils.trimToNull(name);
     if (name == null) {
@@ -99,11 +100,25 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolios-add.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = createPortfolio(name);
+    return Response.seeOther(uri).build();
+  }
+
+  private URI createPortfolio(String name) {
     ManageablePortfolio portfolio = new ManageablePortfolio(name);
     PortfolioDocument doc = new PortfolioDocument(portfolio);
     PortfolioDocument added = data().getPortfolioMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.seeOther(uri).build();
+    return uri;
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(@FormParam("name") String name) {
+    name = StringUtils.trimToNull(name);
+    URI uri = createPortfolio(name);
+    return Response.created(uri).build();
   }
 
   //-------------------------------------------------------------------------

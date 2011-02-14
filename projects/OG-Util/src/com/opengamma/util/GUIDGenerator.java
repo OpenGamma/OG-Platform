@@ -24,13 +24,15 @@ public final class GUIDGenerator {
   private static long s_clockSeqAndNode = 0x8000000000000000L;
 
   /**
-   * Restrictive constructor.
+   * Restricted constructor.
    */
   private GUIDGenerator() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Generate a UUID.
+   * 
    * @return the UUID, not null
    */
   public static UUID generate() {
@@ -39,6 +41,7 @@ public final class GUIDGenerator {
 
   /**
    * Generates the time part of the GUID.
+   * 
    * @return the time
    */
   public static synchronized long newTime() {

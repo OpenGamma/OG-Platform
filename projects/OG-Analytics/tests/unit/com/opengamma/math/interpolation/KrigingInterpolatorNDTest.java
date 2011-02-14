@@ -5,14 +5,29 @@
  */
 package com.opengamma.math.interpolation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
+
+import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 
 /**
  * 
  */
 public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
+  private static final double BETA = 1.5;
+  private static final InterpolatorND<KrigingInterpolatorDataBundle> INTERPOLATOR = new KrigingInterpolatorND(BETA);
 
-  private static final InterpolatorND<KrigingInterpolatorDataBundle> INTERPOLATOR = new KrigingInterpolatorND();
+  @Test(expected = IllegalArgumentException.class)
+  public void testLowBeta() {
+    new KrigingInterpolatorND(-3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighBeta() {
+    new KrigingInterpolatorND(10);
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
@@ -21,26 +36,39 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPoint() {
-    KrigingInterpolatorDataBundle dataBundle = new KrigingInterpolatorDataBundle(FLAT_DATA, 1.5);
-    INTERPOLATOR.interpolate(dataBundle, null);
+    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongDimension() {
-    KrigingInterpolatorDataBundle dataBundle = new KrigingInterpolatorDataBundle(FLAT_DATA, 1.5);
-    INTERPOLATOR.interpolate(dataBundle, new double[] {1, 2});
+    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2});
+  }
+
+  @Test
+  public void test() {
+    InterpolatorND<KrigingInterpolatorDataBundle> other = new KrigingInterpolatorND(BETA);
+    assertEquals(other, INTERPOLATOR);
+    assertEquals(other.hashCode(), INTERPOLATOR.hashCode());
+    other = new KrigingInterpolatorND(1.4);
+    assertFalse(other.equals(INTERPOLATOR));
+  }
+
+  @Test
+  //TODO if this interpolator cannot get the answer right then an exception should be thrown
+  public void testFlat() {
+    final double x1 = 10 * RANDOM.nextDouble();
+    final double x2 = 10 * RANDOM.nextDouble();
+    final double x3 = 10 * RANDOM.nextDouble();
+    // Fails utterly for flat surface since the variogram function will be zero for all r
+    final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
+    final KrigingInterpolatorDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
+    assertEquals(INTERPOLATOR.interpolate(dataBundle, new double[] {x1, x2, x3}), 0, 0);
   }
 
   @Test
   public void testInterpolation() {
-
-    KrigingInterpolatorDataBundle dataBundle = new KrigingInterpolatorDataBundle(COS_EXP_DATA, 1.99);
-    testCosExp(INTERPOLATOR, dataBundle, 2e-2);
-
-    // Fails utterly for flat surface since the variogram function will be zero for all r
-    dataBundle = new KrigingInterpolatorDataBundle(FLAT_DATA, 1.99);
-    // printFlat(INTERPOLATOR, dataBundle);
-    // testFlat(INTERPOLATOR, dataBundle, 1e-10);
+    final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
+    testCosExp(interpolator, 2e-2);
   }
 
 }

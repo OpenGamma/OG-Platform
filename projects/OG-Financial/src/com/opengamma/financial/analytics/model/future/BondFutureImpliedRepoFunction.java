@@ -136,7 +136,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
       }
     }
     final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(cleanPrices, repoRates);
-    final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors), basketData, futurePrice / 100);
+    final double[] impliedRepos = IMPLIED_REPO_CALCULATOR.calculate(new BondFuture(deliverables, conversionFactors, futurePrice / 100), basketData);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.IMPLIED_REPO, position), getUniqueId());
     values.add(new ComputedValue(specification, impliedRepos));
     return values;

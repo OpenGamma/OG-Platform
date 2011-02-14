@@ -64,7 +64,7 @@ public class FunctionalDoublesCubeTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testGetData() {
-    CUBE.getData();
+    CUBE.getValues();
   }
 
   @Test(expected = UnsupportedOperationException.class)

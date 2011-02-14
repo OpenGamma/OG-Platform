@@ -11,10 +11,23 @@ import java.net.UnknownHostException;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
+ * Utility for managing IP addresses.
  */
-public class InetAddressUtils {
-  
+public final class InetAddressUtils {
+
+  /**
+   * Restricted constructor.
+   */
+  private InetAddressUtils() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the local host name.
+   * 
+   * @return the local host name, not null
+   * @throws OpenGammaRuntimeException if unable to obtain the local host
+   */
   public static String getLocalHostName() {
     try {
       return InetAddress.getLocalHost().getHostName();

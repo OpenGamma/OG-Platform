@@ -45,7 +45,7 @@ public interface SecuritySource {
    * 
    * @param bundle  the bundle keys to match, not null
    * @return all securities matching the specified key, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
   Collection<Security> getSecurities(IdentifierBundle bundle);
 
@@ -61,7 +61,7 @@ public interface SecuritySource {
    * 
    * @param bundle  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
-   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
   Security getSecurity(IdentifierBundle bundle);
 

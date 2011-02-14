@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 

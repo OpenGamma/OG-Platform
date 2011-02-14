@@ -8,8 +8,15 @@ package com.opengamma.util;
 /**
  * Utility to simplify comparisons.
  */
-public class CompareUtils {
+public final class CompareUtils {
 
+  /**
+   * Restricted constructor.
+   */
+  private CompareUtils() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Compares two objects finding the maximum.
    * 
@@ -56,6 +63,7 @@ public class CompareUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Compares two objects, either of which might be null, sorting nulls low.
    * 
@@ -92,6 +100,7 @@ public class CompareUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Compare two doubles to see if they're 'closely' equal - this is because rounding errors can mean 
    * the results of double precision computations lead to small differences in results.  The definition
@@ -122,9 +131,10 @@ public class CompareUtils {
     return (Math.abs(a - b) < maxDifference);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Compares two doubles, indicating equality when 'closely' equal, and otherwise indicating how the first differs
-   * from the second.
+   * Compares two doubles, indicating equality when 'closely' equal, and otherwise
+   * indicating how the first differs from the second.
    * 
    * @param a  the first value
    * @param b  the second value

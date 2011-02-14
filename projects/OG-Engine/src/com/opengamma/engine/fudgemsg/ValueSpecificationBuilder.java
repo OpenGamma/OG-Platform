@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -17,7 +18,6 @@ import org.fudgemsg.types.StringFieldType;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * Fudge message builder for {@code ValueSpecification}.
@@ -47,11 +47,11 @@ public class ValueSpecificationBuilder implements FudgeBuilder<ValueSpecificatio
   @Override
   public ValueSpecification buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     FudgeField fudgeField = message.getByName(VALUE_NAME_KEY);
-    FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + VALUE_NAME_KEY + "' is not present");
+    Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + VALUE_NAME_KEY + "' is not present");
     final String valueName = message.getFieldValue(String.class, fudgeField);
     final ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationBuilder.buildObjectImpl(context, message);
     fudgeField = message.getByName(PROPERTIES_KEY);
-    FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + PROPERTIES_KEY + "' is not present");
+    Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + PROPERTIES_KEY + "' is not present");
     final ValueProperties properties = context.fieldValueToObject(ValueProperties.class, fudgeField);
     return new ValueSpecification(valueName, targetSpecification, properties);
   }

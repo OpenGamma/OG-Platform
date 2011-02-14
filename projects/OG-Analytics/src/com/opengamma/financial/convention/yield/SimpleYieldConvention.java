@@ -55,6 +55,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * US bond (T-bill and treasuries) yield convention - US treasury for all periods but the last, in which case use money-market
    */
   public static final YieldConvention US_BOND = new SimpleYieldConvention("US Treasury"); //TODO better name
+  /**
+   * US short duration T-bill.
+   */
+  public static final YieldConvention DISCOUNT = new SimpleYieldConvention("DISCOUNT");
 
   /**
    * The convention name.

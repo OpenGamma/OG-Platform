@@ -40,7 +40,7 @@ public abstract class Cube<S, T, U, V> {
 
   public abstract U[] getZData();
 
-  public abstract V[] getData();
+  public abstract V[] getValues();
 
   public abstract int size();
 

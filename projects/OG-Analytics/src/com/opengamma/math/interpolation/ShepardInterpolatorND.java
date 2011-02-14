@@ -8,6 +8,7 @@ package com.opengamma.math.interpolation;
 import java.util.List;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -21,12 +22,12 @@ public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBund
   }
 
   @Override
-  public Double interpolate(InterpolatorNDDataBundle data, double[] x) {
+  public Double interpolate(final InterpolatorNDDataBundle data, final double[] x) {
     validateInput(data, x);
 
-    List<Pair<double[], Double>> rawData = data.getData();
+    final List<Pair<double[], Double>> rawData = data.getData();
 
-    int n = rawData.size();
+    final int n = rawData.size();
     double sum = 0;
     double normSum = 0;
     double[] xi;
@@ -43,6 +44,16 @@ public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBund
     }
 
     return sum / normSum;
+  }
+
+  @Override
+  public InterpolatorNDDataBundle getDataBundle(final double[] x, final double[] y, final double[] z, final double[] values) {
+    return new InterpolatorNDDataBundle(transformData(x, y, z, values));
+  }
+
+  @Override
+  public InterpolatorNDDataBundle getDataBundle(final List<Pair<double[], Double>> data) {
+    return new InterpolatorNDDataBundle(data);
   }
 
 }

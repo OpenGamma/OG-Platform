@@ -243,4 +243,11 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return The yield quotation convention for the bond
    */
   YieldConvention getYieldConvention();
+
+  /**
+   * Field for bonds that determines whether the payment dates should be rolled to settlement. In general, this will be 
+   * true for bonds but is hard-coded to false for deliverables in a bond future basket
+   * @return Whether or not to roll to settlement
+   */
+  boolean rollToSettlement();
 }

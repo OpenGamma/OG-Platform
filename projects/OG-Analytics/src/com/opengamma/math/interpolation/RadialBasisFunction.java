@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**

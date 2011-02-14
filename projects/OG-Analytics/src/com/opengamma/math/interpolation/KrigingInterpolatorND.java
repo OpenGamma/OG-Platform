@@ -7,23 +7,33 @@ package com.opengamma.math.interpolation;
 
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDataBundle> {
+  private final double _beta;
+
+  public KrigingInterpolatorND(final double beta) {
+    Validate.isTrue(beta >= 1 && beta < 2, "Beta was not in acceptable range (1 <= beta < 2");
+    _beta = beta;
+  }
 
   @Override
-  public Double interpolate(KrigingInterpolatorDataBundle data, double[] x) {
+  public Double interpolate(final KrigingInterpolatorDataBundle data, final double[] x) {
     validateInput(data, x);
 
-    List<Pair<double[], Double>> rawData = data.getData();
-    Function1D<Double, Double> variogram = data.getVariogram();
-    double[] w = data.getWeights();
+    final List<Pair<double[], Double>> rawData = data.getData();
+    final Function1D<Double, Double> variogram = data.getVariogram();
+    final double[] w = data.getWeights();
 
-    int n = rawData.size();
+    final int n = rawData.size();
     double sum = 0.0;
     double r;
     for (int i = 0; i < n; i++) {
@@ -33,6 +43,41 @@ public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDat
     sum += w[n];
 
     return sum;
+  }
+
+  @Override
+  public KrigingInterpolatorDataBundle getDataBundle(final double[] x, final double[] y, final double[] z, final double[] values) {
+    return new KrigingInterpolatorDataBundle(transformData(x, y, z, values), _beta);
+  }
+
+  @Override
+  public KrigingInterpolatorDataBundle getDataBundle(final List<Pair<double[], Double>> data) {
+    return new KrigingInterpolatorDataBundle(data, _beta);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_beta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final KrigingInterpolatorND other = (KrigingInterpolatorND) obj;
+    return Double.doubleToLongBits(_beta) == Double.doubleToLongBits(other._beta);
   }
 
 }

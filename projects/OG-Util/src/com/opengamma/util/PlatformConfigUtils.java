@@ -19,50 +19,59 @@ import com.opengamma.OpenGammaRuntimeException;
  * been set.
  */
 public final class PlatformConfigUtils {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PlatformConfigUtils.class);
-  private static final String PROPERTY_PREFIX = "opengamma.platform.";
-   
   /**
-   * Enumerates the valid OS types
+   * The prefix for the property.
+   */
+  private static final String PROPERTY_PREFIX = "opengamma.platform.";
+  /**
+   * System property used to specify the OS type.
+   */
+  public static final String OS_TYPE_PROPERTY_NAME = PROPERTY_PREFIX + "os";
+  /**
+   * System property used to specify the run mode.
+   */
+  public static final String RUN_MODE_PROPERTY_NAME = PROPERTY_PREFIX + "runmode";
+  /**
+   * System property used to specify the market data source
+   */
+  public static final String MARKET_DATA_PROPERTY_NAME = PROPERTY_PREFIX + "marketdatasource";
+
+  //-------------------------------------------------------------------------
+  /**
+   * Enumerates the valid operating system types.
    */
   public static enum OsType {
     /**
-     * Windows
+     * Windows.
      */
     WIN,
     /**
-     * POSIX-compliant
+     * POSIX-compliant.
      */
     POSIX;
-    
-    /**
-     * System property used to specify the OS type
-     */
-    public static final String PROPERTY_NAME = PROPERTY_PREFIX + "os";
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Enumerates the valid database types
    */
-  public static enum RunMode {    
+  public static enum RunMode {
     /**
-     * Standalone
+     * Standalone mode.
      */
     STANDALONE,
     /**
-     * Shared dev
+     * Shared development mode.
      */
     SHAREDDEV;
-    
-    /**
-     * System property used to specify the run mode
-     */
-    public static final String PROPERTY_NAME = PROPERTY_PREFIX + "runmode";
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Enumerates the valid market data sources
+   * Enumerates the valid market data sources.
    */
   public static enum MarketDataSource {
     /**
@@ -77,34 +86,30 @@ public final class PlatformConfigUtils {
      * Use a recording of the market data.
      */
     RECORDING;
-    
-    /**
-     * System property used to specify the market data source
-     */
-    public static final String PROPERTY_NAME = PROPERTY_PREFIX + "marketdatasource";
   }
-  
+
   /**
-   * Hidden constructor
+   * Restricted constructor.
    */
   private PlatformConfigUtils() {
   }
-   
+
+  //-------------------------------------------------------------------------
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. 
    * 
-   * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
+   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties() {
     configureSystemProperties((String) null, (String) null);
   }
-  
+
   /**
-   * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
-   * used if the corresponding system properties have not been set directly. 
+   * Sets and/or validates the system properties generally necessary for the platform to run.
+   * Argument values are only used if the corresponding system properties have not been set directly. 
    * 
-   * @param runMode  the database type, possibly null
-   * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
+   * @param runMode  the run mode, not null
+   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(RunMode runMode) {
     configureSystemProperties(toPropertyValue(runMode));
@@ -114,9 +119,9 @@ public final class PlatformConfigUtils {
    * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
    * used if the corresponding system properties have not been set directly.
    * 
-   * @param runMode  the database type, possibly null
-   * @param marketDataSource  the source of market data, possibly null
-   * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
+   * @param runMode  the run mode, not null
+   * @param marketDataSource  the source of market data, not null
+   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(RunMode runMode, MarketDataSource marketDataSource) {
     configureSystemProperties(toPropertyValue(runMode), toPropertyValue(marketDataSource));
@@ -126,58 +131,58 @@ public final class PlatformConfigUtils {
    * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
    * used if the corresponding system properties have not been set directly.
    * 
-   * @param runMode  the database type, possibly null
-   * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
+   * @param runMode  the run mode, not null
+   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(String runMode) {
     configureSystemProperties(runMode, toPropertyValue(MarketDataSource.DIRECT));
   }
-  
+
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
    * used if the corresponding system properties have not been set directly.
    * 
-   * @param runMode  the database type, possibly null
-   * @param marketDataSource  the market data source, possibly null
+   * @param runMode  the run mode, not null
+   * @param marketDataSource  the market data source, not null
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties(String runMode, String marketDataSource) {
-    if (System.getProperty(OsType.PROPERTY_NAME) == null) {
+    if (System.getProperty(OS_TYPE_PROPERTY_NAME) == null) {
       String os = System.getProperty("os.name").toLowerCase();
-      System.setProperty(OsType.PROPERTY_NAME, toPropertyValue(os.startsWith("win") ? OsType.WIN : OsType.POSIX));
+      System.setProperty(OS_TYPE_PROPERTY_NAME, toPropertyValue(os.startsWith("win") ? OsType.WIN : OsType.POSIX));
     } else {
-      validateProperty(OsType.class, OsType.PROPERTY_NAME);
+      validateProperty(OsType.class, OS_TYPE_PROPERTY_NAME);
     }
     
-    if (System.getProperty(RunMode.PROPERTY_NAME) == null && runMode != null) {
-      setFromEnumValue(RunMode.class, RunMode.PROPERTY_NAME, runMode);
+    if (System.getProperty(RUN_MODE_PROPERTY_NAME) == null && runMode != null) {
+      setFromEnumValue(RunMode.class, RUN_MODE_PROPERTY_NAME, runMode);
     } else {
-      validateProperty(RunMode.class, RunMode.PROPERTY_NAME);
+      validateProperty(RunMode.class, RUN_MODE_PROPERTY_NAME);
     }
     
-    if (System.getProperty(MarketDataSource.PROPERTY_NAME) == null && marketDataSource != null) {
-      setFromEnumValue(MarketDataSource.class, MarketDataSource.PROPERTY_NAME, marketDataSource);
+    if (System.getProperty(MARKET_DATA_PROPERTY_NAME) == null && marketDataSource != null) {
+      setFromEnumValue(MarketDataSource.class, MARKET_DATA_PROPERTY_NAME, marketDataSource);
     } else {
-      validateProperty(MarketDataSource.class, MarketDataSource.PROPERTY_NAME);
+      validateProperty(MarketDataSource.class, MARKET_DATA_PROPERTY_NAME);
     }
     
     logPlatformConfiguration();
   }
-  
+
   private static <T extends Enum<T>> String toPropertyValue(Enum<T> enumValue) {
     return enumValue.name().toLowerCase();
   }
-  
+
   private static <T extends Enum<T>> void setFromEnumValue(Class<T> enumType, String propertyName, String propertyValue) {
     validatePropertyValue(enumType, propertyName, propertyValue);
     System.setProperty(propertyName, propertyValue);
   }
-  
+
   private static <T extends Enum<T>> void validateProperty(Class<T> enumType, String propertyName) {
     String propertyValue = System.getProperty(propertyName);
     validatePropertyValue(enumType, propertyName, propertyValue);
   }
-  
+
   private static <T extends Enum<T>> void validatePropertyValue(Class<T> enumType, String propertyName, String propertyValue) {
     if (propertyValue == null) {
       throw new OpenGammaRuntimeException("System property '" + propertyName + "' is required, but has not been set");
@@ -188,7 +193,7 @@ public final class PlatformConfigUtils {
       throw new OpenGammaRuntimeException("The value '" + propertyValue + "' is not valid for system property '" + propertyName + "'");
     }
   }
-  
+
   private static void logPlatformConfiguration() {
     if (!s_logger.isInfoEnabled()) {
       return;
@@ -201,5 +206,5 @@ public final class PlatformConfigUtils {
     }
     s_logger.info(sb.toString());
   }
-  
+
 }
