@@ -75,10 +75,10 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
   @PropertyDefinition
   private OffsetTime _tradeTime;
   /**
-   * The counterparty identifier, null if not known.
+   * The counterparty key identifier, null if not known.
    */
   @PropertyDefinition
-  private Identifier _counterpartyId;
+  private Identifier _counterpartyKey;
 
   /**
    * Creates an instance.
@@ -102,7 +102,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     _quantity = quantity;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _counterpartyId = counterpartyId;
+    _counterpartyKey = counterpartyId;
     _securityKey = IdentifierBundle.of(securityKey);
   }
   
@@ -122,7 +122,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     _quantity = quantity;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _counterpartyId = counterpartyId;
+    _counterpartyKey = counterpartyId;
     _securityKey = securityKey;
   }
   
@@ -167,8 +167,8 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
         return getTradeDate();
       case 752903761:  // tradeTime
         return getTradeTime();
-      case -2058077915:  // counterpartyId
-        return getCounterpartyId();
+      case 624096149:  // counterpartyKey
+        return getCounterpartyKey();
     }
     return super.propertyGet(propertyName);
   }
@@ -194,8 +194,8 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
       case 752903761:  // tradeTime
         setTradeTime((OffsetTime) newValue);
         return;
-      case -2058077915:  // counterpartyId
-        setCounterpartyId((Identifier) newValue);
+      case 624096149:  // counterpartyKey
+        setCounterpartyKey((Identifier) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -368,27 +368,27 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the counterparty identifier, null if not known.
+   * Gets the counterparty key identifier, null if not known.
    * @return the value of the property
    */
-  public Identifier getCounterpartyId() {
-    return _counterpartyId;
+  public Identifier getCounterpartyKey() {
+    return _counterpartyKey;
   }
 
   /**
-   * Sets the counterparty identifier, null if not known.
-   * @param counterpartyId  the new value of the property
+   * Sets the counterparty key identifier, null if not known.
+   * @param counterpartyKey  the new value of the property
    */
-  public void setCounterpartyId(Identifier counterpartyId) {
-    this._counterpartyId = counterpartyId;
+  public void setCounterpartyKey(Identifier counterpartyKey) {
+    this._counterpartyKey = counterpartyKey;
   }
 
   /**
-   * Gets the the {@code counterpartyId} property.
+   * Gets the the {@code counterpartyKey} property.
    * @return the property, not null
    */
-  public final Property<Identifier> counterpartyId() {
-    return metaBean().counterpartyId().createProperty(this);
+  public final Property<Identifier> counterpartyKey() {
+    return metaBean().counterpartyKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -426,9 +426,9 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
      */
     private final MetaProperty<OffsetTime> _tradeTime = DirectMetaProperty.ofReadWrite(this, "tradeTime", OffsetTime.class);
     /**
-     * The meta-property for the {@code counterpartyId} property.
+     * The meta-property for the {@code counterpartyKey} property.
      */
-    private final MetaProperty<Identifier> _counterpartyId = DirectMetaProperty.ofReadWrite(this, "counterpartyId", Identifier.class);
+    private final MetaProperty<Identifier> _counterpartyKey = DirectMetaProperty.ofReadWrite(this, "counterpartyKey", Identifier.class);
     /**
      * The meta-properties.
      */
@@ -443,7 +443,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
       temp.put("securityKey", _securityKey);
       temp.put("tradeDate", _tradeDate);
       temp.put("tradeTime", _tradeTime);
-      temp.put("counterpartyId", _counterpartyId);
+      temp.put("counterpartyKey", _counterpartyKey);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -512,11 +512,11 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     }
 
     /**
-     * The meta-property for the {@code counterpartyId} property.
+     * The meta-property for the {@code counterpartyKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> counterpartyId() {
-      return _counterpartyId;
+    public final MetaProperty<Identifier> counterpartyKey() {
+      return _counterpartyKey;
     }
 
   }

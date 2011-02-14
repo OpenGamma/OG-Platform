@@ -200,7 +200,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (getPositionIds() != null && getPositionIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getTradeIds() != null && position.matchesAny(getTradeIds()) == false) {
+    if (getTradeIds() != null && position.matchesAnyTrade(getTradeIds()) == false) {
       return false;
     }
     if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityKey()) == false) {

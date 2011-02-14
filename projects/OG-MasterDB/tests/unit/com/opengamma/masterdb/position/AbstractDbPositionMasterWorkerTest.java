@@ -211,7 +211,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertNotNull(trade);
     assertEquals(UniqueIdentifier.of("DbPos", "400", "0"), trade.getUniqueId());
     assertEquals(uid, trade.getPositionId());
-    assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterpartyId());
+    assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterpartyKey());
     assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
     assertEquals(_now.toOffsetTime().minusSeconds(400), trade.getTradeTime());
@@ -242,7 +242,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     assertNotNull(trade);
     assertEquals(UniqueIdentifier.of("DbPos", "401", "0"), trade.getUniqueId());
     assertEquals(uid, trade.getPositionId());
-    assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterpartyId());
+    assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterpartyKey());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
     assertEquals(_now.toOffsetTime().minusSeconds(401), trade.getTradeTime());

@@ -366,7 +366,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     for (ManageableTrade trade : document.getPosition().getTrades()) {
       final long tradeId = nextId("pos_master_seq");
       final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
-      final Identifier counterpartyId = trade.getCounterpartyId();
+      final Identifier counterpartyId = trade.getCounterpartyKey();
       final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource()
         .addValue("trade_id", tradeId)
         .addValue("trade_oid", tradeOid)
