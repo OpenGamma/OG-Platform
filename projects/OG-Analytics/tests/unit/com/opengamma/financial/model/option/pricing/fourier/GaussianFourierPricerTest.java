@@ -23,7 +23,7 @@ public class GaussianFourierPricerTest {
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
 
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA);;
+  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA);
 
   @Test
   public void test() {

@@ -22,11 +22,11 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
-import com.opengamma.financial.instrument.bond.BondFutureDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.instrument.irfuture.IRFutureConvention;
-import com.opengamma.financial.instrument.irfuture.IRFutureDefinition;
+import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.IRFutureConvention;
+import com.opengamma.financial.instrument.future.IRFutureDefinition;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
@@ -53,7 +53,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final FixedSwapLegDefinition FIXED_SWAP_LEG = new FixedSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, 100, 0.03, SWAP_CONVENTION);
   private static final FloatingSwapLegDefinition FLOATING_SWAP_LEG = new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.04, SWAP_CONVENTION);
   private static final FRADefinition FRA = new FRADefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2012, 1, 1), 0.02, SWAP_CONVENTION);
-  private static final IRFutureDefinition IR_FUTURE = new IRFutureDefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 4, 1), 95, IRF_CONVENTION);
+  private static final IRFutureDefinition IR_FUTURE = new IRFutureDefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 4, 1), IRF_CONVENTION);
   private static final FixedFloatSwapDefinition FIXED_FLOAT_SWAP = new FixedFloatSwapDefinition(FIXED_SWAP_LEG, FLOATING_SWAP_LEG);
   private static final TenorSwapDefinition TENOR_SWAP = new TenorSwapDefinition(new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.06,
       SWAP_CONVENTION), FLOATING_SWAP_LEG);
@@ -85,7 +85,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(TENOR_SWAP.accept(VISITOR, o), "TenorSwap1");
   }
 
-  private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String> {
+  private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String>, FixedIncomeFutureInstrumentDefinitionVisitor<T, String> {
 
     @Override
     public String visit(final FixedIncomeInstrumentDefinition<?> definition, final T data) {

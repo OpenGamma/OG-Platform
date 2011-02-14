@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.instrument.bond;
+package com.opengamma.financial.instrument.future;
 
 import java.util.Arrays;
 
@@ -12,15 +12,18 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.bond.BondConvention;
+import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 
 /**
  * 
  */
-public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<BondFuture> {
+public class BondFutureDefinition implements FixedIncomeFutureInstrumentDefinition<BondFuture> {
   private final BondDefinition[] _deliverableBonds;
   private final double[] _conversionFactors;
   private final BondConvention _convention;
@@ -90,7 +93,7 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
   }
 
   @Override
-  public BondFuture toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public BondFuture toDerivative(final LocalDate date, final double price, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(_deliveryDate), date + " is after delivery date (" + _deliveryDate + ")");
     Validate.notNull(yieldCurveNames, "yield curve name(s)");
@@ -99,16 +102,17 @@ public class BondFutureDefinition implements FixedIncomeInstrumentDefinition<Bon
     for (int i = 0; i < n; i++) {
       bondForwards[i] = new BondForwardDefinition(_deliverableBonds[i], _deliveryDate, _convention).toDerivative(date, yieldCurveNames);
     }
-    return new BondFuture(bondForwards, _conversionFactors);
+    return new BondFuture(bondForwards, _conversionFactors, price);
   }
 
   @Override
-  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+  public <U, V> V accept(final FixedIncomeFutureInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBondFutureDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeFutureInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFutureDefinition(this);
   }
+
 }

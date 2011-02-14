@@ -266,10 +266,13 @@ CREATE TABLE sec_future (
     unitnumber double precision,
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
+<<<<<<< HEAD
     bondFutureFirstDeliveryDate timestamp,
     bondFutureFirstDeliveryDate_zone varchar(50),
     bondFutureLastDeliveryDate timestamp,
     bondFutureLastDeliveryDate_zone varchar(50),
+=======
+>>>>>>> b501526759fa9a5c9b0569de7e4cdfb40e52c776
     primary key (id),
     constraint sec_fk_future2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
@@ -326,8 +329,11 @@ CREATE TABLE sec_fra (
     start_zone varchar(50) not null,
     end_date timestamp not null,
     end_zone varchar(50) not null,
+<<<<<<< HEAD
     rate double precision not null,
     amount double precision not null,
+=======
+>>>>>>> b501526759fa9a5c9b0569de7e4cdfb40e52c776
     primary key (id),
     constraint sec_fk_fra2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_fra2currency foreign key (currency_id) references sec_currency (id)

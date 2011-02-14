@@ -155,6 +155,13 @@ public final class ScheduleCalculator {
     return getAdjustedDateSchedule(dates, convention, calendar, 0);
   }
 
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
+    Validate.notNull(date);
+    Validate.notNull(convention);
+    Validate.notNull(calendar);
+    return getAdjustedDateSchedule(new ZonedDateTime[] {date}, convention, calendar, settlementDays)[0];
+  }
+
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);

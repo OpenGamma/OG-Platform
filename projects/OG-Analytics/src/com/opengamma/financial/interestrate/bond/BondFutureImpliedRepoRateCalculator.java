@@ -28,10 +28,9 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
   }
 
   @Override
-  public double[] calculate(final BondFuture bondFuture, final BondFutureDeliverableBasketDataBundle basketData, final double futurePrice) {
+  public double[] calculate(final BondFuture bondFuture, final BondFutureDeliverableBasketDataBundle basketData) {
     Validate.notNull(bondFuture, "bond future");
     Validate.notNull(basketData, "basket data");
-    Validate.isTrue(futurePrice > 0, "future price must be positive");
     final BondForward[] deliverableBonds = bondFuture.getBondForwards();
     final int n = deliverableBonds.length;
     Validate.isTrue(n == basketData.getBasketSize());
@@ -52,7 +51,7 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
         sum2 += payments.getAmount() * (deliveryDate - ti); //TODO are the times right?
       }
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(deliverableBonds[i].getBond(), cleanPrices[i]);
-      final double invoicePrice = futurePrice * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
+      final double invoicePrice = bondFuture.getPrice() * conversionFactors[i] + deliverableBonds[i].getAccruedInterestAtDelivery();
       result[i] = (invoicePrice - dirtyPrice + sum1) / (dirtyPrice * deliveryDate - sum2);
     }
     return result;

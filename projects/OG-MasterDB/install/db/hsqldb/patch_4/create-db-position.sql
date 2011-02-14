@@ -45,6 +45,8 @@ CREATE TABLE pos_trade (
     zone_offset int null,
     cparty_scheme varchar(255) not null,
     cparty_value varchar(255) not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );

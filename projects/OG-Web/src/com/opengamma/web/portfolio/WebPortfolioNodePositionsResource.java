@@ -27,7 +27,6 @@ import com.opengamma.master.portfolio.PortfolioDocument;
  * RESTful resource for all positions in a node.
  */
 @Path("/portfolios/{portfolioId}/nodes/{nodeId}/positions")
-@Produces(MediaType.TEXT_HTML)
 public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResource {
 
   /**
@@ -40,6 +39,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
 
   //-------------------------------------------------------------------------
   @POST
+  @Produces(MediaType.TEXT_HTML)
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
       @FormParam("positionurl") String positionUrlStr) {
@@ -67,6 +67,11 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = addPosition(doc, posUid);
+    return Response.seeOther(uri).build();
+  }
+
+  private URI addPosition(PortfolioDocument doc, UniqueIdentifier posUid) {
     ManageablePortfolioNode node = data().getNode();
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
     if (node.getPositionIds().contains(posUid) == false) {
@@ -74,8 +79,32 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       doc = data().getPortfolioMaster().update(doc);
       data().setPortfolio(doc);
     }
-    return Response.seeOther(uri).build();
+    return uri;
   }
+ 
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(@FormParam("uid") String uidStr) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).get()).build();
+    }
+    uidStr = StringUtils.trimToNull(uidStr);
+    if (uidStr == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    UniqueIdentifier posUid = null;
+    try {
+      posUid = UniqueIdentifier.parse(uidStr);
+    } catch (Exception ex) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    URI uri = addPosition(doc, posUid);
+    return Response.created(uri).build();
+  }
+  
+  
 
   //-------------------------------------------------------------------------
   /**

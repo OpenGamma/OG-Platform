@@ -117,8 +117,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
-      final int exDividendDays, final int settlementDays) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays);
+      final int exDividendDays, final int settlementDays, final boolean rollToSettlement) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays, rollToSettlement);
     final UniqueIdentifier uid = _mapper.add(bundle, convention);
     convention.setUniqueId(uid);
     return uid;
@@ -198,39 +198,55 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following, freq,
         2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following, freq, 
+        2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRJ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 10m")), "USD DEPOSIT 10m", act360, following, freq,
         2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following, freq,
         2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following, freq,
         2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following, freq, 
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following, freq, 
+        2);
 
     //TODO check that this is ok for FRA
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR00C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 3x3")), "USD FRA 3x3", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0CF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x9")), "USD FRA 6x9", act360, following, freq, 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0FI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 9x12")), "USD FRA 9x12", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following, freq, 
+        2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR011C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 15x18")), "USD FRA 15x18", act360, following, freq,
         2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1C1F Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 18x21")), "USD FRA 18x21", act360, following, freq,
         2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1F1I Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 21x24")), "USD FRA 21x24", act360, following, freq,
         2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following, freq, 
+        2);
 
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
@@ -431,7 +447,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addUSDTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")), "USD_TREASURY_BOND_CONVENTION", true, true, 0, 1);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")), "USD_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
   }
 
   private void addUSDBondFutureConvention() {
@@ -440,7 +456,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addGBPTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_BOND_CONVENTION")), "GBP_TREASURY_BOND_CONVENTION", true, true, 7, 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_BOND_CONVENTION")), "GBP_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
   }
 
   private void addGBPBondFutureConvention() {

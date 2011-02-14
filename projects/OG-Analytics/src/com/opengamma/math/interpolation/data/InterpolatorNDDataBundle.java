@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +19,7 @@ public class InterpolatorNDDataBundle {
 
   private final List<Pair<double[], Double>> _data;
 
-  public InterpolatorNDDataBundle(List<Pair<double[], Double>> data) {
+  public InterpolatorNDDataBundle(final List<Pair<double[], Double>> data) {
     validateData(data);
     _data = data;
   }
@@ -28,18 +28,19 @@ public class InterpolatorNDDataBundle {
     return _data;
   }
 
-  private void validateData(List<Pair<double[], Double>> data) {
+  private void validateData(final List<Pair<double[], Double>> data) {
     Validate.notEmpty(data, "no data");
-    Iterator<Pair<double[], Double>> iter = data.iterator();
-    int dim = iter.next().getFirst().length;
+    final Iterator<Pair<double[], Double>> iter = data.iterator();
+    final int dim = iter.next().getFirst().length;
     Validate.isTrue(dim > 0, "no actual data");
     while (iter.hasNext()) {
       Validate.isTrue(iter.next().getFirst().length == dim, "different dimensions in data");
     }
   }
 
+  //TODO why is this in here?
   public static double getDistance(final double[] x1, final double[] x2) {
-    int dim = x1.length;
+    final int dim = x1.length;
     Validate.isTrue(dim == x2.length, "different dimensions");
     double sum = 0;
     double diff;

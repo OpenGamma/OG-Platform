@@ -20,6 +20,10 @@ public final class SimpleFrequency implements Frequency, Serializable {
   /**
    * A frequency with a period of one year.
    */
+  public static final SimpleFrequency NEVER = new SimpleFrequency(NEVER_NAME, 0);
+  /**
+   * A frequency with a period of one year.
+   */
   public static final SimpleFrequency ANNUAL = new SimpleFrequency(ANNUAL_NAME, 1);
   /**
    * A frequency with a period of six months.
@@ -74,7 +78,7 @@ public final class SimpleFrequency implements Frequency, Serializable {
    */
   /* package */SimpleFrequency(final String name, final double periodsPerYear) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
+    ArgumentChecker.notNegative(periodsPerYear, "periods per year");
     _name = name;
     _periodsPerYear = periodsPerYear;
   }

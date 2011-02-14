@@ -33,27 +33,22 @@ public class BondFutureImpliedRepoRateCalculatorTest {
       new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, COUPONS[1], NAME), DELIVERY_TIMES[1], ACCRUED_INTEREST[1], ACCRUED_INTEREST_AT_DELIVERY[1]),
       new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, COUPONS[2], NAME), DELIVERY_TIMES[2], ACCRUED_INTEREST[2], ACCRUED_INTEREST_AT_DELIVERY[2])};
   private static final double[] CONVERSION_FACTORS = new double[] {1, 1, 1};
-  private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS);
   private static final double FUTURE_PRICE = 105;
+  private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS, FUTURE_PRICE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBondFuture() {
-    IRR_CALCULATOR.calculate(null, BASKET_DATA, FUTURE_PRICE);
+    IRR_CALCULATOR.calculate(null, BASKET_DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBasketData() {
-    IRR_CALCULATOR.calculate(FUTURE, null, FUTURE_PRICE);
+    IRR_CALCULATOR.calculate(FUTURE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongBasketSize() {
-    IRR_CALCULATOR.calculate(new BondFuture(new BondForward[] {DELIVERABLES[0]}, new double[] {0.78}), BASKET_DATA, FUTURE_PRICE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativeFuturePrice() {
-    IRR_CALCULATOR.calculate(FUTURE, BASKET_DATA, -FUTURE_PRICE);
+    IRR_CALCULATOR.calculate(new BondFuture(new BondForward[] {DELIVERABLES[0]}, new double[] {0.78}, FUTURE_PRICE), BASKET_DATA);
   }
 
   @Test
@@ -67,7 +62,7 @@ public class BondFutureImpliedRepoRateCalculatorTest {
       invoicePrice[i] = FUTURE_PRICE * CONVERSION_FACTORS[i] + ACCRUED_INTEREST_AT_DELIVERY[i];
       result[i] = (invoicePrice[i] - dirtyPrice[i] + COUPONS[i]) / (dirtyPrice[i] * DELIVERY_TIMES[i] - COUPONS[i] / 2);
     }
-    final double[] irr = IRR_CALCULATOR.calculate(FUTURE, BASKET_DATA, FUTURE_PRICE);
+    final double[] irr = IRR_CALCULATOR.calculate(FUTURE, BASKET_DATA);
     assertArrayEquals(irr, result, 1e-15);
   }
 

@@ -19,11 +19,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -161,7 +161,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
    * @return  The spread on the receive leg of a Tenor swap 
    */
   @Override
-  public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
+  public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     final ForwardLiborAnnuity payLeg = ((ForwardLiborAnnuity) swap.getPayLeg()).withZeroSpread();
     final ForwardLiborAnnuity receiveLeg = ((ForwardLiborAnnuity) swap.getReceiveLeg()).withZeroSpread();
     final FixedCouponAnnuity spreadLeg = receiveLeg.withUnitCoupons();
@@ -274,10 +274,5 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitLibor(final Libor libor, final YieldCurveBundle data) {
-    return visitCash(libor, data);
   }
 }

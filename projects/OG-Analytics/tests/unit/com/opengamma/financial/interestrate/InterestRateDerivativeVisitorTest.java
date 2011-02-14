@@ -18,7 +18,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -40,10 +39,9 @@ public class InterestRateDerivativeVisitorTest {
   private static final Cash CASH = new Cash(1, 0, CURVE_NAME);
   private static final ForwardRateAgreement FRA = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
   private static final InterestRateFuture IR_FUTURE = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
-  private static final Libor LIBOR = new Libor(1, 0, CURVE_NAME);
   private static final Bond BOND = new Bond(new double[] {1}, 0, CURVE_NAME);
   private static final BondForward BOND_FORWARD = new BondForward(BOND, .5, 0, 0);
-  private static final BondFuture BOND_FUTURE = new BondFuture(new BondForward[] {BOND_FORWARD}, new double[] {1});
+  private static final BondFuture BOND_FUTURE = new BondFuture(new BondForward[] {BOND_FORWARD}, new double[] {1}, 131);
   private static final ForwardLiborAnnuity FLOAT_LEG = new ForwardLiborAnnuity(new double[] {1}, CURVE_NAME, CURVE_NAME);
   private static final FixedCouponAnnuity FIXED_LEG = new FixedCouponAnnuity(new double[] {1}, 0.0, CURVE_NAME);
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
@@ -221,11 +219,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitLibor(final Libor libor, final Object anything) {
-      return visit(libor, anything);
-    }
-
-    @Override
     public Class<?> visitFixedCouponPayment(final FixedCouponPayment payment, final Object anything) {
       return visit(payment, anything);
     }
@@ -246,11 +239,6 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitLibor(final Libor libor) {
-      return visit(libor);
-    }
-
-    @Override
     public Class<?> visitFixedCouponPayment(final FixedCouponPayment payment) {
       return visit(payment);
     }
@@ -267,7 +255,6 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(VISITOR.visit(CASH, curves), Cash.class);
     assertEquals(FRA.accept(VISITOR, curves), ForwardRateAgreement.class);
     assertEquals(IR_FUTURE.accept(VISITOR, curves), InterestRateFuture.class);
-    assertEquals(LIBOR.accept(VISITOR, curves), Libor.class);
     assertEquals(BOND.accept(VISITOR, curves), Bond.class);
     assertEquals(BOND_FORWARD.accept(VISITOR, curves), BondForward.class);
     assertEquals(BOND_FUTURE.accept(VISITOR, curves), BondFuture.class);
@@ -288,7 +275,6 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(VISITOR.visit(CASH), Cash.class);
     assertEquals(FRA.accept(VISITOR), ForwardRateAgreement.class);
     assertEquals(IR_FUTURE.accept(VISITOR), InterestRateFuture.class);
-    assertEquals(LIBOR.accept(VISITOR), Libor.class);
     assertEquals(BOND.accept(VISITOR), Bond.class);
     assertEquals(BOND_FORWARD.accept(VISITOR), BondForward.class);
     assertEquals(BOND_FUTURE.accept(VISITOR), BondFuture.class);
@@ -336,16 +322,6 @@ public class InterestRateDerivativeVisitorTest {
   @Test(expected = UnsupportedOperationException.class)
   public void testIRFuture2() {
     ABSTRACT_VISITOR.visit(IR_FUTURE);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testLibor1() {
-    ABSTRACT_VISITOR.visit(LIBOR, CURVE_NAME);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testLibor2() {
-    ABSTRACT_VISITOR.visit(LIBOR);
   }
 
   @Test(expected = UnsupportedOperationException.class)

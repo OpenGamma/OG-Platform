@@ -19,19 +19,19 @@ import com.opengamma.util.tuple.DoublesPair;
 public class FunctionalDoublesSurfaceTest {
   private static final String NAME1 = "P";
   private static final String NAME2 = "O";
-  private static final Function<DoublesPair, Double> F1 = new Function<DoublesPair, Double>() {
+  private static final Function<Double, Double> F1 = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final DoublesPair... x) {
-      return x[0].first + x[0].second;
+    public Double evaluate(final Double... xy) {
+      return xy[0] + xy[1];
     }
 
   };
-  private static final Function<DoublesPair, Double> F2 = new Function<DoublesPair, Double>() {
+  private static final Function<Double, Double> F2 = new Function<Double, Double>() {
 
     @Override
-    public Double evaluate(final DoublesPair... x) {
-      return x[0].first + x[0].second;
+    public Double evaluate(final Double... xy) {
+      return xy[0] + xy[1];
     }
 
   };
@@ -99,8 +99,8 @@ public class FunctionalDoublesSurfaceTest {
   public void testGetters() {
     assertEquals(SURFACE.getName(), NAME1);
     assertEquals(SURFACE.getFunction(), F1);
-    assertEquals(SURFACE.getZValue(1., 2.), F1.evaluate(DoublesPair.of(1., 2.)), 0);
-    assertEquals(SURFACE.getZValue(DoublesPair.of(1., 4.)), F1.evaluate(DoublesPair.of(1., 4.)), 0);
+    assertEquals(SURFACE.getZValue(1., 2.), F1.evaluate(1., 2.), 0);
+    assertEquals(SURFACE.getZValue(DoublesPair.of(1., 4.)), F1.evaluate(1., 4.), 0);
   }
 
   @Test

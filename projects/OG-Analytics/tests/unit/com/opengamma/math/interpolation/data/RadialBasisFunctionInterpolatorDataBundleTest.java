@@ -3,9 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation;
+package com.opengamma.math.interpolation.data;
 
 import org.junit.Test;
+
+import com.opengamma.math.interpolation.InterpolatorNDTestCase;
+import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 
 /**
  * 

@@ -6,7 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-    create sequence hibernate_sequence start with 1 increment by 1;
+create sequence hibernate_sequence start with 1 increment by 1;
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -529,6 +529,7 @@ CREATE TABLE sec_swap (
     primary key (id),
     constraint sec_fk_swap2sec foreign key (security_id) references sec_security (id)
 );
+
 -- create-db-portfolio.sql: Portfolio Master
 
 -- design has one document
@@ -597,6 +598,7 @@ CREATE TABLE prt_position (
 );
 -- prt_position is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
+
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -644,6 +646,8 @@ CREATE TABLE pos_trade (
     zone_offset int null,
     cparty_scheme varchar(255) not null,
     cparty_value varchar(255) not null,
+    provider_scheme varchar(255),
+    provider_value varchar(255),
     primary key (id),
     constraint pos_fk_trade2position foreign key (position_id) references pos_position (id)
 );
@@ -676,6 +680,7 @@ CREATE TABLE pos_trade2idkey (
     constraint pos_fk_tradeidkey2trade foreign key (trade_id) references pos_trade (id),
     constraint pos_fk_tradeidkey2idkey foreign key (idkey_id) references pos_idkey (id)
 );
+
 -------------------------------------
 -- Static data
 -------------------------------------
