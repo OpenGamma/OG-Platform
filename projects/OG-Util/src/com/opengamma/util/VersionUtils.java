@@ -15,12 +15,22 @@ import org.slf4j.LoggerFactory;
 /**
  * Gets the current OpenGamma build version. 
  */
-public class VersionUtil {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(VersionUtil.class);
-  
+public final class VersionUtils {
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(VersionUtils.class);
+  /**
+   * The local build version number.
+   */
   private static String s_localBuildVersion;
-  
+
+  /**
+   * Restricted constructor.
+   */
+  private VersionUtils() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the current OpenGamma build version.
    * <p>
@@ -32,35 +42,33 @@ public class VersionUtil {
    * where <code>System.currentTimeMillis()</code> becomes fixed on the first
    * call within this VM.
    * 
-   * @param projectName name of the OpenGamma project, for example og-financial, not null
-   * @return current version of the specified project, not null
+   * @param projectName  the name of the OpenGamma project, for example og-financial, not null
+   * @return the current version of the specified project, not null
    */
   public static String getVersion(String projectName) {
     String fileName = "/" + projectName + ".properties";
     
-    InputStream stream = VersionUtil.class.getResourceAsStream(fileName);
+    InputStream stream = VersionUtils.class.getResourceAsStream(fileName);
     if (stream == null) {
       return getLocalBuildVersion();
     }
     
     Properties properties = new Properties();
-    
     try {
       properties.load(stream);
       stream.close();
     } catch (IOException e) {
-      s_logger.error("Failed to read properties", e);      
-      return getLocalBuildVersion(); 
+      s_logger.error("Failed to read properties", e);
+      return getLocalBuildVersion();
     }
     
     String version = properties.getProperty("version");
     if (version == null) {
       return getLocalBuildVersion();
     }
-    
     return version;
   }
-  
+
   private static synchronized String getLocalBuildVersion() {
     if (s_localBuildVersion != null) {
       return s_localBuildVersion;

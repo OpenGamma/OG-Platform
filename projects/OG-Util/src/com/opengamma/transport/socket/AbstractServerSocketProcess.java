@@ -26,7 +26,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.EndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.ThreadUtils;
 
 /**
  * 
@@ -120,7 +120,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, Initiali
       // Totally fine.
     }
 
-    ThreadUtil.safeJoin(_socketAcceptThread, 60 * 1000L);
+    ThreadUtils.safeJoin(_socketAcceptThread, 60 * 1000L);
     try {
       _serverSocket.close();
     } catch (IOException e) {
