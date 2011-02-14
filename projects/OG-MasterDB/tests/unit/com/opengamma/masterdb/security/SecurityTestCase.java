@@ -86,7 +86,7 @@ import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -624,7 +624,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   @Override
   @Test
   public void testSwapOptionSecurity() {
-    testSecurities(SwapOptionSecurity.class);
+    testSecurities(SwaptionSecurity.class);
   }
 
   @Override

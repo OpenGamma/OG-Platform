@@ -14,6 +14,7 @@ import com.opengamma.masterdb.security.hibernate.ExchangeBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
  * Hibernate bean for storage.
@@ -34,6 +35,8 @@ public class FutureSecurityBean extends SecurityBean {
   private Double _unitNumber;
   private IdentifierBean _underlying;
   private Set<FutureBundleBean> _basket;
+  private ZonedDateTimeBean _firstDeliveryDate;
+  private ZonedDateTimeBean _lastDeliveryDate;
   
   public FutureSecurityBean() {
     super();
@@ -58,6 +61,34 @@ public class FutureSecurityBean extends SecurityBean {
    */
   public void setExpiry(ExpiryBean expiry) {
     _expiry = expiry;
+  }
+  
+  /**
+   * @return the first delivery date (bond futures only)
+   */
+  public ZonedDateTimeBean getFirstDeliveryDate() {
+    return _firstDeliveryDate;
+  }
+  
+  /**
+   * @param firstDeliveryDate the first delivery date (bond futures only)
+   */
+  public void setFirstDeliveryDate(ZonedDateTimeBean firstDeliveryDate) {
+    _firstDeliveryDate = firstDeliveryDate;
+  }
+  
+  /**
+   * @return the last delivery date (bond futures only)
+   */
+  public ZonedDateTimeBean getLastDeliveryDate() {
+    return _lastDeliveryDate;
+  }
+  
+  /**
+   * @param lastDeliveryDate the last delivery date (bond futures only)
+   */
+  public void setLastDeliveryDate(ZonedDateTimeBean lastDeliveryDate) {
+    _lastDeliveryDate = lastDeliveryDate;
   }
 
   /**

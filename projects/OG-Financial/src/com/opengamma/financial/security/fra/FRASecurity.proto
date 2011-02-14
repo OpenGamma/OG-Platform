@@ -14,6 +14,8 @@ namespace com.opengamma.financial.security.fra {
     required id.Identifier region;
     required DateTimeWithZone startDate;
     required DateTimeWithZone endDate;
+    required double rate;
+    required double amount;
 
     binding Java {
       body <<<JAVA

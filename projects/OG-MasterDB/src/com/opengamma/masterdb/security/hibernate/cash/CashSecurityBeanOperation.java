@@ -6,6 +6,12 @@
 
 package com.opengamma.masterdb.security.hibernate.cash;
 
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
+import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -15,8 +21,6 @@ import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
-
-import static com.opengamma.masterdb.security.hibernate.Converters.*;
 
 /**
  * Bean/security conversion operations.
@@ -36,7 +40,9 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   public boolean beanEquals(final OperationContext context, CashSecurityBean bean, CashSecurity security) {
     return ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
         && ObjectUtils.equals(identifierBeanToIdentifier(bean.getRegion()), security.getRegion())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), security.getMaturity());
+        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), security.getMaturity())
+        && bean.getRate() == security.getRate() // should maybe use closeEquals()?
+        && bean.getAmount() == security.getAmount();
   }
 
   @Override
@@ -48,12 +54,15 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
     bean.setCurrency(currencyBean);
     bean.setRegion(regionIdentifier);
     bean.setMaturity(maturityBean);
+    bean.setRate(security.getRate());
+    bean.setAmount(security.getAmount());
     return bean;
   }
 
   @Override
   public CashSecurity createSecurity(final OperationContext context, CashSecurityBean bean) {
-    final CashSecurity security = new CashSecurity(currencyBeanToCurrency(bean.getCurrency()), identifierBeanToIdentifier(bean.getRegion()), zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()));
+    final CashSecurity security = new CashSecurity(currencyBeanToCurrency(bean.getCurrency()), identifierBeanToIdentifier(bean.getRegion()), 
+                                                   zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), bean.getRate(), bean.getAmount());
     return security;
   }
 

@@ -10,6 +10,9 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToE
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
+import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
+
 
 import java.util.Collection;
 import java.util.Date;
@@ -19,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -73,8 +77,7 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
           basket.add(futureBundleBeanToBondFutureDeliverable(basketBean));
         }
         return new BondFutureSecurity(expiryBeanToExpiry(bean.getExpiry()), bean.getTradingExchange().getName(), bean.getSettlementExchange().getName(), currencyBeanToCurrency(bean.getCurrency1()),
-            basket,
-            bean.getBondType().getName());
+            basket, bean.getBondType().getName(), zonedDateTimeBeanToDateTimeWithZone(bean.getFirstDeliveryDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getLastDeliveryDate()));
       }
 
       @Override
@@ -398,6 +401,8 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
           BondFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setBondType(secMasterSession.getOrCreateBondFutureTypeBean(security.getBondType()));
+        bean.setFirstDeliveryDate(dateTimeWithZoneToZonedDateTimeBean(security.getFirstDeliveryDate()));
+        bean.setLastDeliveryDate(dateTimeWithZoneToZonedDateTimeBean(security.getLastDeliveryDate()));
         final Collection<BondFutureDeliverable> basket = security.getBasket();
         final Set<FutureBundleBean> basketBeans = new HashSet<FutureBundleBean>(basket.size());
         for (BondFutureDeliverable deliverable : basket) {

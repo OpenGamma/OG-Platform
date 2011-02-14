@@ -22,6 +22,8 @@ namespace com.opengamma.financial.security.future {
   
     required repeated BondFutureDeliverable basket;
     required string bondType;
+    required DateTimeWithZone firstDeliveryDate;
+    required DateTimeWithZone lastDeliveryDate;
     
     binding Java {
       body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitBondFutureSecurity (this); }";
