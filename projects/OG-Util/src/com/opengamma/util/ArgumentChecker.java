@@ -13,7 +13,7 @@ import java.util.Map;
 public final class ArgumentChecker {
 
   /**
-   * Restrictive constructor.
+   * Restricted constructor.
    */
   private ArgumentChecker() {
   }
