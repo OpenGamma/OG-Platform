@@ -160,7 +160,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.ok().build();
+      Response.status(Status.FORBIDDEN).entity(get()).build();
     }
     
     if (data().getParentNode() == null) {
