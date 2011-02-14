@@ -146,6 +146,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     out.put("portfolio", doc.getPortfolio());
     out.put("childNodes", doc.getPortfolio().getRootNode().getChildNodes());
     out.put("deleted", !doc.isLatest());
+    out.put("rootNode", doc.getPortfolio().getRootNode());
     return out;
   }
 
