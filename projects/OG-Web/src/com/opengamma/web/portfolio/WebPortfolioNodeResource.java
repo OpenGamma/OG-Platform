@@ -60,7 +60,6 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     return getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
   }
 
-
   private FlexiBean createPortfolioNodeData() {
     ManageablePortfolioNode node = data().getNode();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
@@ -73,10 +72,9 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     return out;
   }
   
-  
-
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(@FormParam("name") String name) {
     name = StringUtils.trimToNull(name);
     if (name == null) {
@@ -85,6 +83,20 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolionode-add.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = createPortfolioNode(name);
+    return Response.seeOther(uri).build();
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(@FormParam("name") String name) {
+    name = StringUtils.trimToNull(name);
+    URI uri = createPortfolioNode(name);
+    return Response.created(uri).build();
+  }
+
+  private URI createPortfolioNode(String name) {
     ManageablePortfolioNode newNode = new ManageablePortfolioNode(name);
     ManageablePortfolioNode node = data().getNode();
     node.addChildNode(newNode);
@@ -92,17 +104,18 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     doc = data().getPortfolioMaster().update(doc);
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
     data().setPortfolio(doc);
-    return Response.seeOther(uri).build();
+    return uri;
   }
+  
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
     }
-    
     name = StringUtils.trimToNull(name);
     if (name == null) {
       FlexiBean out = createRootData();
@@ -110,6 +123,24 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolionode-update.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = updatePortfolioNode(name, doc);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(@FormParam("name") String name) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    name = StringUtils.trimToNull(name);
+    updatePortfolioNode(name, doc);
+    return Response.ok().build();
+  }
+
+  private URI updatePortfolioNode(String name, PortfolioDocument doc) {
     ManageablePortfolioNode node = data().getNode();
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
     if (Objects.equal(node.getName(), name) == false) {
@@ -117,9 +148,9 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       doc = data().getPortfolioMaster().update(doc);
       data().setPortfolio(doc);
     }
-    return Response.seeOther(uri).build();
+    return uri;
   }
-
+  
   @DELETE
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();

@@ -69,6 +69,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
@@ -82,11 +83,29 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
       String html = getFreemarker().build("portfolios/portfolio-update.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = updatePortfolio(name, doc);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(@FormParam("name") String name) {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    name = StringUtils.trimToNull(name);
+    updatePortfolio(name, doc);
+    return Response.ok().build();
+  }
+
+  private URI updatePortfolio(String name, PortfolioDocument doc) {
     doc.getPortfolio().setName(name);
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
     URI uri = WebPortfolioResource.uri(data());
-    return Response.seeOther(uri).build();
+    return uri;
   }
 
   @DELETE
@@ -94,8 +113,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
-    }
-    
+    }  
     data().getPortfolioMaster().remove(doc.getUniqueId());
     URI uri = WebPortfolioResource.uri(data());
     return Response.seeOther(uri).build();
