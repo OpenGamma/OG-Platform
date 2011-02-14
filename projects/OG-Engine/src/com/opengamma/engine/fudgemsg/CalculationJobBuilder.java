@@ -8,6 +8,7 @@ package com.opengamma.engine.fudgemsg;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -20,7 +21,6 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * Fudge message builder for {@code CalculationJob}.
@@ -53,7 +53,7 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
   @Override
   public CalculationJob buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     CalculationJobSpecification jobSpec = context.fudgeMsgToObject(CalculationJobSpecification.class, message);
-    FudgeFieldChecker.notNull(jobSpec, "Fudge message is not a CalculationJob - field 'calculationJobSpecification' is not present");
+    Validate.notNull(jobSpec, "Fudge message is not a CalculationJob - field 'calculationJobSpecification' is not present");
     final long functionInitializationIdentifier = message.getLong(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME);
     Collection<FudgeField> fields = message.getAllByName(REQUIRED_FIELD_NAME);
     ArrayList<Long> requiredJobIds = null;

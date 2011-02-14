@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
-import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -119,7 +119,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
       t.start();
     }
     for(Thread t : threads) {
-      ThreadUtil.safeJoin(t, 10000L);
+      ThreadUtils.safeJoin(t, 10000L);
     }
     assertFalse("One thread failed. Check logs.", failed.get());
   }

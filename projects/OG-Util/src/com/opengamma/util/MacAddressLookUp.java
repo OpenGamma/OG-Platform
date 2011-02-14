@@ -45,7 +45,7 @@ final class MacAddressLookUp {
   }
 
   /**
-   * Restrictive constructor.
+   * Restricted constructor.
    */
   private MacAddressLookUp() {
   }
