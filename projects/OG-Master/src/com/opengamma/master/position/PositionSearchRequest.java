@@ -60,11 +60,17 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private IdentifierSearch _securityKeys;
   /**
-   * The data provider key to match, null to not match on provider.
+   * The position data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerKey;
+  private Identifier _positionProviderKey;
+  /**
+   * The trade data provider key to match, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   */
+  @PropertyDefinition
+  private Identifier _tradeProviderKey;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -206,7 +212,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityKey()) == false) {
       return false;
     }
-    if (getProviderKey() != null && getProviderKey().equals(document.getProviderKey()) == false) {
+    if (getPositionProviderKey() != null && getPositionProviderKey().equals(position.getProviderKey()) == false) {
+      return false;
+    }
+    if (getTradeProviderKey() != null && position.matchesAnyTradeProviderKey(getTradeProviderKey()) == false) {
       return false;
     }
     if (getMinQuantity() != null && (position.getQuantity() == null || position.getQuantity().compareTo(getMinQuantity()) < 0)) {
@@ -242,8 +251,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return getTradeIds();
       case 807958868:  // securityKeys
         return getSecurityKeys();
-      case 2064682670:  // providerKey
-        return getProviderKey();
+      case -370050619:  // positionProviderKey
+        return getPositionProviderKey();
+      case -510247254:  // tradeProviderKey
+        return getTradeProviderKey();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
@@ -265,8 +276,11 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
         return;
-      case 2064682670:  // providerKey
-        setProviderKey((Identifier) newValue);
+      case -370050619:  // positionProviderKey
+        setPositionProviderKey((Identifier) newValue);
+        return;
+      case -510247254:  // tradeProviderKey
+        setTradeProviderKey((Identifier) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -345,30 +359,58 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the data provider key to match, null to not match on provider.
+   * Gets the position data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderKey() {
-    return _providerKey;
+  public Identifier getPositionProviderKey() {
+    return _positionProviderKey;
   }
 
   /**
-   * Sets the data provider key to match, null to not match on provider.
+   * Sets the position data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param providerKey  the new value of the property
+   * @param positionProviderKey  the new value of the property
    */
-  public void setProviderKey(Identifier providerKey) {
-    this._providerKey = providerKey;
+  public void setPositionProviderKey(Identifier positionProviderKey) {
+    this._positionProviderKey = positionProviderKey;
   }
 
   /**
-   * Gets the the {@code providerKey} property.
+   * Gets the the {@code positionProviderKey} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerKey() {
-    return metaBean().providerKey().createProperty(this);
+  public final Property<Identifier> positionProviderKey() {
+    return metaBean().positionProviderKey().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the trade data provider key to match, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @return the value of the property
+   */
+  public Identifier getTradeProviderKey() {
+    return _tradeProviderKey;
+  }
+
+  /**
+   * Sets the trade data provider key to match, null to not match on provider.
+   * This field is useful when receiving updates from the same provider.
+   * @param tradeProviderKey  the new value of the property
+   */
+  public void setTradeProviderKey(Identifier tradeProviderKey) {
+    this._tradeProviderKey = tradeProviderKey;
+  }
+
+  /**
+   * Gets the the {@code tradeProviderKey} property.
+   * This field is useful when receiving updates from the same provider.
+   * @return the property, not null
+   */
+  public final Property<Identifier> tradeProviderKey() {
+    return metaBean().tradeProviderKey().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -446,9 +488,13 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code positionProviderKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _positionProviderKey = DirectMetaProperty.ofReadWrite(this, "positionProviderKey", Identifier.class);
+    /**
+     * The meta-property for the {@code tradeProviderKey} property.
+     */
+    private final MetaProperty<Identifier> _tradeProviderKey = DirectMetaProperty.ofReadWrite(this, "tradeProviderKey", Identifier.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
@@ -468,7 +514,8 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       temp.put("positionIds", _positionIds);
       temp.put("tradeIds", _tradeIds);
       temp.put("securityKeys", _securityKeys);
-      temp.put("providerKey", _providerKey);
+      temp.put("positionProviderKey", _positionProviderKey);
+      temp.put("tradeProviderKey", _tradeProviderKey);
       temp.put("minQuantity", _minQuantity);
       temp.put("maxQuantity", _maxQuantity);
       _map = Collections.unmodifiableMap(temp);
@@ -515,11 +562,19 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     }
 
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code positionProviderKey} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerKey() {
-      return _providerKey;
+    public final MetaProperty<Identifier> positionProviderKey() {
+      return _positionProviderKey;
+    }
+
+    /**
+     * The meta-property for the {@code tradeProviderKey} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Identifier> tradeProviderKey() {
+      return _tradeProviderKey;
     }
 
     /**
