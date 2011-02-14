@@ -50,9 +50,13 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON() {
+  public Response getJSON() {
     FlexiBean out = createPortfolioData();
-    return getFreemarker().build("portfolios/jsonportfolio.ftl", out);
+    PortfolioDocument doc = data().getPortfolio();
+    if (!doc.isLatest()) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    return Response.ok(getFreemarker().build("portfolios/jsonportfolio.ftl", out)).build();
   }
 
   private FlexiBean createPortfolioData() {
@@ -109,16 +113,27 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   }
 
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.ok().build();
     }  
     data().getPortfolioMaster().remove(doc.getUniqueId());
     URI uri = WebPortfolioResource.uri(data());
     return Response.seeOther(uri).build();
   }
-
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest()) {
+      data().getPortfolioMaster().remove(doc.getUniqueId());
+    }  
+    return Response.ok().build();
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
