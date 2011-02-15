@@ -33,7 +33,7 @@ public class FFTPricerTest {
     int nStrikes = 21;
     double deltaMoneyness = 0.01;
     double alpha = -0.5;
-    double tol = 1e-8;
+    double tol = 1e-10;
 
     FFTPricer pricer = new FFTPricer();
     double[][] strikeNprice = null;
@@ -54,8 +54,8 @@ public class FFTPricerTest {
         impVol = BlackImpliedVolFormula.impliedVol(price, FORWARD, k, DF, T, true);
       } catch (Exception e) {
       }
-      System.out.println(k + "\t" + price + "\t" + impVol);
-      //assertEquals(SIGMA, impVol, 1e-6);
+      // System.out.println(k + "\t" + price + "\t" + impVol);
+      assertEquals(SIGMA, impVol, 1e-5);
 
     }
   }

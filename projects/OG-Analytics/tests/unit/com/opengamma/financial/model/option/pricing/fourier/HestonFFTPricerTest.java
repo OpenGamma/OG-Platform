@@ -44,7 +44,7 @@ public class HestonFFTPricerTest {
       double k = strikeNprice[i][0];
       double price = strikeNprice[i][1];
       double impVol = BlackImpliedVolFormula.impliedVol(price, FORWARD, k, DF, T, true);
-      System.out.println(k + "\t" + impVol);
+      //  System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }
   }

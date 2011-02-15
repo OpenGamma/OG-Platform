@@ -39,7 +39,7 @@ public class TestIntegrandDecay {
       z = new ComplexNumber(x, -(1 + ALPHA));
       ComplexNumber u = PSI.evaluate(z);
       double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
-      System.out.println(x + "\t" + res);
+      //System.out.println(x + "\t" + res);
     }
   }
 
@@ -64,7 +64,7 @@ public class TestIntegrandDecay {
     for (int i = 0; i < 1000; i++) {
       x = cal.solve(psi, ALPHA, 1e-6);
     }
-    System.out.println("x: " + x);
+    // System.out.println("x: " + x);
   }
 
 }

@@ -62,8 +62,8 @@ public class TestTimeChange {
       ComplexNumber res1 = NORMAL_CIR.evaluate(z);
       ComplexNumber res2 = NORMAL.evaluate(z);
       ComplexNumber res3 = HESTON.evaluate(z);
-      System.out.println(x + "\t" + res1.getReal() + "\t" + +res2.getReal() + "\t" + res3.getReal() + "\t" + res1.getImaginary() + "\t" +
-          res2.getImaginary() + "\t" + res3.getImaginary());
+      // System.out.println(x + "\t" + res1.getReal() + "\t" + +res2.getReal() + "\t" + res3.getReal() + "\t" + res1.getImaginary() + "\t" +
+      //    res2.getImaginary() + "\t" + res3.getImaginary());
     }
 
   }
