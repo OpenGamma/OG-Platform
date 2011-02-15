@@ -8,14 +8,15 @@ package com.opengamma.util;
 /**
  * Utility methods for working with threads.
  */
-public final class ThreadUtil {
+public final class ThreadUtils {
 
   /**
-   * Restrictive constructor.
+   * Restricted constructor.
    */
-  private ThreadUtil() {
+  private ThreadUtils() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Attempt to join the thread specified safely.
    *  

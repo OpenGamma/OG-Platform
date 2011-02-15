@@ -37,7 +37,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.VersionUtil;
+import com.opengamma.util.VersionUtils;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -171,7 +171,7 @@ public class CommandLineBatchJob {
   // --------------------------------------------------------------------------
 
   public String getOpenGammaVersion() {
-    return VersionUtil.getVersion(getSystemVersionPropertyFile());
+    return VersionUtils.getVersion(getSystemVersionPropertyFile());
   }
   
   public String getSystemVersionPropertyFile() {

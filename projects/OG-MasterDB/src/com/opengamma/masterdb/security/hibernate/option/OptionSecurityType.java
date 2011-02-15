@@ -13,7 +13,7 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 
 /**
  * Type of the security.
@@ -67,7 +67,7 @@ public enum OptionSecurityType {
       }
 
       @Override
-      public OptionSecurityType visitSwapOptionSecurity(SwapOptionSecurity security) {
+      public OptionSecurityType visitSwaptionSecurity(SwaptionSecurity security) {
         return SWAP;
       }
     });
@@ -92,7 +92,7 @@ public enum OptionSecurityType {
       case OPTION:
         return visitor.visitOptionOptionSecurity(null);
       case SWAP:
-        return visitor.visitSwapOptionSecurity(null);
+        return visitor.visitSwaptionSecurity(null);
       default:
         throw new OpenGammaRuntimeException("unexpected enum value " + this);
     }

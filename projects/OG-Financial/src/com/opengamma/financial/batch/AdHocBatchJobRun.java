@@ -15,7 +15,7 @@ import javax.time.Instant;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.util.VersionUtil;
+import com.opengamma.util.VersionUtils;
 
 /**
  * A batch run where results already exist in memory, but
@@ -67,7 +67,7 @@ public class AdHocBatchJobRun extends BatchJobRun {
 
   @Override
   public String getOpenGammaVersion() {
-    return VersionUtil.getVersion("og-financial");
+    return VersionUtils.getVersion("og-financial");
   }
 
   @Override

@@ -34,7 +34,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
@@ -64,7 +64,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String FUTURE_OPTIONS = "Future Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String OPTION_OPTIONS = "Option Options";
-  /* package */static final String SWAP_OPTIONS = "Swap Options";
+  /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String CASH = "Cash";
   /* package */static final String FRAS = "FRAs";
   /* package */static final String SWAPS = "Swaps";
@@ -178,8 +178,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitSwapOptionSecurity(SwapOptionSecurity security) {
-          return SWAP_OPTIONS;
+        public String visitSwaptionSecurity(SwaptionSecurity security) {
+          return SWAPTIONS;
         }
       }, new SwapSecurityVisitor<String>() {
 

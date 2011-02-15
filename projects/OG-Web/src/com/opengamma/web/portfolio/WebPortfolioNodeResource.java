@@ -55,9 +55,13 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON() {
+  public Response getJSON() {
     FlexiBean out = createPortfolioNodeData();
-    return getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
+    PortfolioDocument doc = data().getPortfolio();
+    if (!doc.isLatest()) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    return Response.ok(getFreemarker().build("portfolios/jsonportfolionode.ftl", out)).build();
   }
 
   private FlexiBean createPortfolioNodeData() {
@@ -152,10 +156,11 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   }
   
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      Response.status(Status.FORBIDDEN).entity(get()).build();
     }
     
     if (data().getParentNode() == null) {
@@ -168,6 +173,22 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     data().setPortfolio(doc);
     URI uri = WebPortfolioNodeResource.uri(data(), data().getParentNode().getUniqueId());
     return Response.seeOther(uri).build();
+  }
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest()) {
+      if (data().getParentNode() == null) {
+        throw new IllegalArgumentException("Root node cannot be deleted");
+      }
+      if (data().getParentNode().removeNode(data().getNode().getUniqueId()) == false) {
+        throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
+      }
+      doc = data().getPortfolioMaster().update(doc);
+    }
+    return Response.ok().build();
   }
 
   //-------------------------------------------------------------------------

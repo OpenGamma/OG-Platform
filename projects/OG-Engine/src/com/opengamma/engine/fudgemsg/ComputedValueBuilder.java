@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -15,7 +16,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * Fudge message builder for {@code ComputedValue}.
@@ -48,10 +48,10 @@ public class ComputedValueBuilder implements FudgeBuilder<ComputedValue> {
   @Override
   public ComputedValue buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     FudgeField fudgeField = message.getByName(SPECIFICATION_KEY);
-    FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'specification' is not present");
+    Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'specification' is not present");
     ValueSpecification valueSpec = context.fieldValueToObject(ValueSpecification.class, fudgeField);
     fudgeField = message.getByName(VALUE_KEY);
-    FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
+    Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
     Object valueObject = context.fieldValueToObject(fudgeField);
     return new ComputedValue(valueSpec, valueObject);
   }
