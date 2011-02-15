@@ -6,7 +6,6 @@
 package com.opengamma.masterdb.security;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.LinkedList;
@@ -14,13 +13,12 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,18 +116,16 @@ public class DbSecurityMasterTest extends DBTest {
   }
 
   //-------------------------------------------------------------------------
-  @Ignore("Test fails because of a known issue")
   @Test
   public void test_concurrentModification() {    
-    final AtomicBoolean exceptionOccurred = new AtomicBoolean();
+    final AtomicReference<Throwable> exceptionOccurred = new AtomicReference<Throwable>();
     Runnable task = new Runnable() {
       @Override
       public void run() {
         try {
           test_equity();
-        } catch (Throwable t) {
-          exceptionOccurred.set(true);
-          s_logger.error("Error running task", t);
+        } catch (Throwable th) {
+          exceptionOccurred.compareAndSet(null, th);
         }
       }
     };
@@ -152,7 +148,7 @@ public class DbSecurityMasterTest extends DBTest {
       }
     }
     
-    assertFalse(exceptionOccurred.get());
+    assertEquals(null, exceptionOccurred.get());
   }
 
   //-------------------------------------------------------------------------

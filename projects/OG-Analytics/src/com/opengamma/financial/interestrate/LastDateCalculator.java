@@ -45,7 +45,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitTenorSwap(final TenorSwap swap) {
+  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap) {
     return visitSwap(swap);
   }
 

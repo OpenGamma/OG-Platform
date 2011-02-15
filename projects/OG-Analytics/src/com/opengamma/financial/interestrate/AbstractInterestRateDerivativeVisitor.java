@@ -16,7 +16,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -93,10 +92,10 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
   }
 
-  @Override
-  public T visitLibor(final Libor libor, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitLibor()");
-  }
+  //  @Override
+  //  public T visitLibor(final Libor libor, final S data) {
+  //    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitLibor()");
+  //  }
 
   @Override
   public T visitInterestRateFuture(final InterestRateFuture future, final S data) {
@@ -188,10 +187,10 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
   }
 
-  @Override
-  public T visitLibor(final Libor libor) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitLibor()");
-  }
+  //  @Override
+  //  public T visitLibor(final Libor libor) {
+  //    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitLibor()");
+  //  }
 
   @Override
   public T visitInterestRateFuture(final InterestRateFuture future) {

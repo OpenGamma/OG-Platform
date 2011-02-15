@@ -22,6 +22,38 @@ public class CashSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private IdentifierBean _region;
   private ZonedDateTimeBean _maturity;
+  /**
+   * Gets the rate field.
+   * @return the rate
+   */
+  public double getRate() {
+    return _rate;
+  }
+  /**
+   * Sets the rate field.
+   * @param rate  the rate
+   */
+  public void setRate(double rate) {
+    _rate = rate;
+  }
+  /**
+   * Gets the amount field.
+   * @return the amount
+   */
+  public double getAmount() {
+    return _amount;
+  }
+  /**
+   * Sets the amount field.
+   * @param amount  the amount
+   */
+  
+  public void setAmount(double amount) {
+    _amount = amount;
+  }
+
+  private double _rate;
+  private double _amount;
   
   public CashSecurityBean() {
     super();
@@ -68,6 +100,8 @@ public class CashSecurityBean extends SecurityBean {
     _maturity = maturity;
   }
   
+  
+  
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof CashSecurityBean)) {
@@ -78,7 +112,9 @@ public class CashSecurityBean extends SecurityBean {
       .append(getId(), cash.getId())
       .append(getCurrency(), cash.getCurrency())
       .append(getRegion(), cash.getRegion())
-      .append(getMaturity(), cash.getMaturity()).isEquals();
+      .append(getMaturity(), cash.getMaturity())
+      .append(getRate(), cash.getRate())
+      .append(getAmount(), cash.getAmount()).isEquals();
   }
   
   @Override
@@ -87,6 +123,8 @@ public class CashSecurityBean extends SecurityBean {
       .append(getCurrency())
       .append(getRegion())
       .append(getMaturity())
+      .append(getRate())
+      .append(getAmount())
       .toHashCode();
   }
 }

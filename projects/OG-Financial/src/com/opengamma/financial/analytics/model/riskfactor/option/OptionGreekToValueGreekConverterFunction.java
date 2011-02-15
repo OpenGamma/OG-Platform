@@ -39,7 +39,7 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
@@ -207,7 +207,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
     }
 
     @Override
-    public Double visitSwapOptionSecurity(SwapOptionSecurity security) {
+    public Double visitSwaptionSecurity(SwaptionSecurity security) {
       return 1.0;
     }
   };

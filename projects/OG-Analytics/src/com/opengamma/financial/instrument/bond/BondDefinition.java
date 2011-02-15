@@ -40,8 +40,7 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     this(nominalDates, settlementDates, couponRate, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear, 
-      final BondConvention convention) {
+  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear, final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
     Validate.notEmpty(nominalDates, "nominal dates");
@@ -62,8 +61,7 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     this(nominalDates, settlementDates, coupons, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear, 
-      final BondConvention convention) {
+  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear, final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
     Validate.notEmpty(nominalDates, "nominal dates");
@@ -162,7 +160,6 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     final int index = Arrays.binarySearch(_nominalDates, date);
     int position = index;
     final int n = _settlementDates.length;
-    double accruedInterest = 0;
     double accrualTime = 0;
     double coupon;
     if (index < 0) {
@@ -174,12 +171,13 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     final DayCount dayCount = _convention.getDayCount();
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final LocalDate settlementDate = getSettlementDate(date, calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
+    double accruedInterest = 0;
     accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(), position);
     accrualTime = accruedInterest / coupon;
     final double timeBetweenCoupons = 1. / _couponsPerYear;
     final double[] paymentTimes = new double[n - position - 1];
     paymentTimes[0] = index == 0 ? 0 : timeBetweenCoupons - accrualTime;
-    if (CompareUtils.closeEquals(paymentTimes[0], 0, 1e-16)) {
+    if (CompareUtils.closeEquals(paymentTimes[0], 0, 1e-16) || paymentTimes[0] < 0) {
       paymentTimes[0] = 0;
     }
     for (int i = 1; i < paymentTimes.length; i++) {

@@ -61,7 +61,6 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     }
 
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jacFunc, data.getStartPosition());
-    // System.out.println(yieldCurveNodes + "\n");
     final DoubleMatrix2D jacobian = jacFunc.evaluate(yieldCurveNodes);
 
     final HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);
@@ -127,7 +126,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
     }
 
     final InstrumentSensitivityCalculator isc = InstrumentSensitivityCalculator.getInstance();
-    double[] couponSensitivity = new double[data.getNumInstruments()];
+    final double[] couponSensitivity = new double[data.getNumInstruments()];
     for (int i = 0; i < data.getNumInstruments(); i++) {
       couponSensitivity[i] = PresentValueCouponSensitivityCalculator.getInstance().visit(data.getDerivative(i), allCurves);
       // PresentValueCouponSensitivityCalculator is sensitivity to change in the coupon rate for that instrument - what we calculate here is the (hypothetical) change of PV of the

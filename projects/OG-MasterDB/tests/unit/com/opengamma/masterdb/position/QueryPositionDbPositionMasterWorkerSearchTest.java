@@ -369,18 +369,38 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_search_providerKey_noMatch() {
+  public void test_search_positionProviderKey_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setProviderKey(Identifier.of("A", "999"));
+    request.setPositionProviderKey(Identifier.of("A", "999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
-  public void test_search_providerKey_found() {
+  public void test_search_positionProviderKey_found() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setProviderKey(Identifier.of("A", "121"));
+    request.setPositionProviderKey(Identifier.of("A", "121"));
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert121(test.getDocuments().get(0));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_tradeProviderKey_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setTradeProviderKey(Identifier.of("B", "999"));
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_tradeProviderKey_found() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setTradeProviderKey(Identifier.of("B", "401"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());

@@ -62,6 +62,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
@@ -70,13 +71,30 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
     }
-    
+    URI uri = updateSecurity(doc);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(
+      @FormParam("name") String name,
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
+    SecurityDocument doc = data().getSecurity();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    URI uri = updateSecurity(doc);
+    return Response.seeOther(uri).build();
+  }
+
+  private URI updateSecurity(SecurityDocument doc) {
     IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
-    
     URI uri = WebSecurityResource.uri(data());
-    return Response.seeOther(uri).build();
-   
+    return uri;
   }
 
   @DELETE

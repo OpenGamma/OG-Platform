@@ -7,10 +7,8 @@ package com.opengamma.financial.instrument;
 
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
-import com.opengamma.financial.instrument.bond.BondFutureDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.instrument.irfuture.IRFutureDefinition;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
@@ -35,10 +33,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitBondForwardDefinition(BondForwardDefinition bondForward);
 
-  U visitBondFutureDefinition(BondFutureDefinition bondFuture, T data);
-
-  U visitBondFutureDefinition(BondFutureDefinition bondFuture);
-
   U visitCashDefinition(CashDefinition cash, T data);
 
   U visitCashDefinition(CashDefinition cash);
@@ -54,10 +48,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitFRADefintion(FRADefinition fra, T data);
 
   U visitFRADefinition(FRADefinition fra);
-
-  U visitIRFutureDefinition(IRFutureDefinition irFuture, T data);
-
-  U visitIRFutureDefinition(IRFutureDefinition irFuture);
 
   U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap, T data);
 

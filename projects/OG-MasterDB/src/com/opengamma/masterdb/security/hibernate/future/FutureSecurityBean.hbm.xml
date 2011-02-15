@@ -5,7 +5,6 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.future">
   <union-subclass name="FutureSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_future">
     <property name="futureType" column="future_type" type="com.opengamma.masterdb.security.hibernate.future.FutureTypeUserType" not-null="true" />
-    
     <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
 			<component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
 				<property name="date" column="expiry_date" type="timestamp" not-null="true" />
@@ -27,6 +26,14 @@
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>
     <property name="unitNumber" column="unitnumber" type="double" />
+    <component name="firstDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondFutureFirstDeliveryDate" type="timestamp" not-null="false" />
+      <property name="zone" column="bondFutureFirstDeliveryDate_zone" type="string" not-null="false" />
+    </component>
+    <component name="lastDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondFutureLastDeliveryDate" type="timestamp" not-null="false" />
+      <property name="zone" column="bondFutureLastDeliveryDate_zone" type="string" not-null="false" />
+    </component>
   </union-subclass>
 
   <query name="FutureSecurityBean.one.bySecurityId"><![CDATA[

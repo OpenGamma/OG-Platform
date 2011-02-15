@@ -13,10 +13,10 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -109,7 +109,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    *@return  The spread on the receive leg of a basis swap 
    */
   @Override
-  public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
+  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     final ForwardLiborAnnuity pay = (ForwardLiborAnnuity) swap.getPayLeg();
     final ForwardLiborAnnuity receive = (ForwardLiborAnnuity) swap.getReceiveLeg();
     final double pvPay = PVC.visit(pay.withZeroSpread(), curves);
@@ -165,10 +165,5 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
-  }
-
-  @Override
-  public Double visitLibor(final Libor libor, final YieldCurveBundle data) {
-    return visitCash(libor, data);
   }
 }

@@ -13,5 +13,5 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureDelivera
  */
 public abstract class BondFutureCalculator {
 
-  public abstract double[] calculate(BondFuture bondFuture, BondFutureDeliverableBasketDataBundle basketData, double futurePrice);
+  public abstract double[] calculate(BondFuture bondFuture, BondFutureDeliverableBasketDataBundle basketData);
 }

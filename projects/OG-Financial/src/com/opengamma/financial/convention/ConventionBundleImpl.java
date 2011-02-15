@@ -64,6 +64,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   private boolean _calculateScheduleFromMaturity;
   private int _exDividendDays;
   private YieldConvention _yieldConvention;
+  private boolean _rollToSettlement;
 
   // cash/general
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
@@ -149,7 +150,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   //Bonds
-  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays) {
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays,
+      final boolean rollToSettlement) {
     Validate.notNull(name, "name");
     Validate.isTrue(exDividendDays >= 0);
     Validate.isTrue(settlementDays >= 0);
@@ -158,6 +160,7 @@ public class ConventionBundleImpl implements ConventionBundle {
     _calculateScheduleFromMaturity = calculateScheduleFromMaturity;
     _exDividendDays = exDividendDays;
     _settlementDays = settlementDays;
+    _rollToSettlement = rollToSettlement;
   }
 
   //Bond future deliverables
@@ -176,6 +179,7 @@ public class ConventionBundleImpl implements ConventionBundle {
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _yieldConvention = yieldConvention;
+    _rollToSettlement = false;
   }
 
   @Override
@@ -425,5 +429,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   @Override
   public YieldConvention getYieldConvention() {
     return _yieldConvention;
+  }
+
+  public boolean rollToSettlement() {
+    return _rollToSettlement;
   }
 }

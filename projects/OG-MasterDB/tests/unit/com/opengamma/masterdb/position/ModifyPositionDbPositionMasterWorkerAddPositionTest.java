@@ -123,7 +123,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(BigDecimal.TEN, testTrade.getQuantity());
     assertEquals(tradeDate, testTrade.getTradeDate());
     assertEquals(tradeTime, testTrade.getTradeTime());
-    assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyId());
+    assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyKey());
     assertEquals(secKey, testTrade.getSecurityKey());
   }
 

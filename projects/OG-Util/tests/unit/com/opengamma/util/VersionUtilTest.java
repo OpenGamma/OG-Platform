@@ -17,17 +17,17 @@ public class VersionUtilTest {
   
   @Test
   public void validPropertyFile() {
-    assertEquals("FIN-507", VersionUtil.getVersion("VersionUtilTest-1"));
+    assertEquals("FIN-507", VersionUtils.getVersion("VersionUtilTest-1"));
   }
   
   @Test
   public void invalidPropertyFile() {
-    checkLocalVersionOk(VersionUtil.getVersion("VersionUtilTest-2"));
+    checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-2"));
   }
   
   @Test
   public void noPropertyFile() {
-    checkLocalVersionOk(VersionUtil.getVersion("VersionUtilTest-3"));
+    checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-3"));
   }
   
   private void checkLocalVersionOk(String version) {

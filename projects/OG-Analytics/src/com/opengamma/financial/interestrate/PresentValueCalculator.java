@@ -14,7 +14,6 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.libor.definition.Libor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
 import com.opengamma.financial.interestrate.payments.FixedPayment;
@@ -98,7 +97,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitTenorSwap(final TenorSwap swap, final YieldCurveBundle curves) {
+  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
     return visitSwap(swap, curves);
@@ -179,8 +178,4 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     return visitFixedCouponSwap(swap, curves);
   }
 
-  @Override
-  public Double visitLibor(final Libor libor, final YieldCurveBundle curves) {
-    return visitCash(libor, curves);
-  }
 }
