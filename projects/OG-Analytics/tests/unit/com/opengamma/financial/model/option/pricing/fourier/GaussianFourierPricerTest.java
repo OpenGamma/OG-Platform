@@ -23,12 +23,12 @@ public class GaussianFourierPricerTest {
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
 
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA);
+  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA, T);
 
   @Test
   public void test() {
     Boolean isCall;
-    FourierPricer pricer = new FourierPricer(-0.5);
+    FourierPricer pricer = new FourierPricer(1e-10, 20);
     for (int i = 0; i < 21; i++) {
       double k = 0.2 + 3 * i / 20.0;
       if (k > 1.0) {
@@ -36,14 +36,13 @@ public class GaussianFourierPricerTest {
       } else {
         isCall = false;
       }
-      double price = pricer.price(FORWARD, k * FORWARD, T, DF, isCall, CEF);
+      double price = pricer.price(FORWARD, k * FORWARD, DF, isCall, CEF, -1.3, 1e-11);
       double impVol = 0;
       try {
         impVol = BlackImpliedVolFormula.impliedVol(price, FORWARD, k * FORWARD, DF, T, isCall);
       } catch (Exception e) {
       }
       assertEquals(SIGMA, impVol, 1e-5);
-
     }
   }
 
@@ -51,15 +50,15 @@ public class GaussianFourierPricerTest {
   public void testExpectation() {
     double mu = 0.05;
     double sigma = 0.2;
-    CharacteristicExponent ce = new GaussianCharacteristicExponent(mu, sigma);
-    ComplexNumber res = ce.evaluate(new ComplexNumber(0, -1), 1.0);
+    CharacteristicExponent ce = new GaussianCharacteristicExponent(mu, sigma, 1.0);
+    ComplexNumber res = ce.evaluate(new ComplexNumber(0, -1));
     assertEquals(mu + 0.5 * sigma * sigma, res.getReal(), 1e-12);
     assertEquals(0.0, res.getImaginary(), 1e-12);
   }
 
   @Test
   public void testIntergrad() {
-    EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(CEF, 0.5, FORWARD, 1.1 * FORWARD, T, false, 0.15);
+    EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(CEF, 0.5, FORWARD, 1.1 * FORWARD, false, 0.15);
     // for (int i = 0; i < 100; i++) {
     // double x = -0. + i * 1000. / 100.0;
     // ComplexNumber res = intergrand.getIntegrand(x);
