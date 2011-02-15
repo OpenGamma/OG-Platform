@@ -38,8 +38,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ResultModelDefinition;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
@@ -48,12 +48,16 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.SingleNodeExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.financial.batch.AdHocBatchDbManager;
+import com.opengamma.financial.batch.AdHocBatchJobRun;
+import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
@@ -75,7 +79,7 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * Risk itself is written using direct JDBC, however.
  */
-public class BatchDbManagerImpl implements BatchDbManager {
+public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   
   private static final Logger s_logger = LoggerFactory
     .getLogger(BatchDbManagerImpl.class);
@@ -426,7 +430,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       riskRun.addProperty(parameter.getKey(), parameter.getValue());      
     }
     
-    for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
+    for (String calcConf : job.getCalculationConfigurations()) {
       riskRun.addCalculationConfiguration(calcConf);
     }
     
@@ -437,6 +441,10 @@ public class BatchDbManagerImpl implements BatchDbManager {
     job.setOriginalCreationTime(job.getCreationTime().toInstant());
     
     return riskRun;
+  }
+  
+  /*package*/ void deleteRun(RiskRun riskRun) {
+    getHibernateTemplate().delete(riskRun);
   }
   
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
@@ -486,7 +494,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJobRun job) {
     Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
     
-    Set<String> riskValueNames = job.getView().getViewEvaluationModel().getAllOutputValueNames();
+    Set<String> riskValueNames = job.getAllOutputValueNames();
     for (String name : riskValueNames) {
       RiskValueName riskValueName = getRiskValueName(name);
       returnValue.add(riskValueName);
@@ -498,10 +506,16 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
     Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
     
-    Set<com.opengamma.engine.ComputationTarget> computationTargets = job.getView().getViewEvaluationModel().getAllComputationTargets();
-    for (com.opengamma.engine.ComputationTarget ct : computationTargets) {
-      ComputationTarget computationTarget = getComputationTarget(ct);
-      returnValue.add(computationTarget);
+    Collection<ComputationTargetSpecification> computationTargetSpecs = job.getAllComputationTargets();
+    for (ComputationTargetSpecification spec : computationTargetSpecs) {
+      com.opengamma.engine.ComputationTarget inMemoryTarget = job.resolve(spec);
+      com.opengamma.masterdb.batch.ComputationTarget dbTarget;
+      if (inMemoryTarget != null) {
+        dbTarget = getComputationTarget(inMemoryTarget);
+      } else {
+        dbTarget = getComputationTarget(spec);
+      }
+      returnValue.add(dbTarget);
     }    
     
     return returnValue;
@@ -647,6 +661,25 @@ public class BatchDbManagerImpl implements BatchDbManager {
       throw e;
     }
   }
+  
+  @Override
+  public void deleteBatch(BatchJobRun batch) {
+    s_logger.info("Deleting batch {}", batch);
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      RiskRun run = getRiskRunFromDb(batch);
+      if (run == null) {
+        throw new IllegalStateException("Batch " + batch + " does not exist");
+      }
+      deleteRun(run);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+  }
 
   @Override
   public void startBatch(BatchJobRun batch) {
@@ -678,12 +711,21 @@ public class BatchDbManagerImpl implements BatchDbManager {
             restartRun(batch, run);
           }
           break;
-        
-        case ALWAYS:
+          
+        case CREATE_NEW_OVERWRITE:
+          run = getRiskRunFromDb(batch);
+          if (run != null) {
+            deleteRun(run);            
+          }
+          
+          run = createRiskRun(batch);
+          break;
+            
+        case CREATE_NEW:
           run = createRiskRun(batch);
           break;
         
-        case NEVER:
+        case REUSE_EXISTING:
           run = getRiskRunFromDb(batch);
           if (run == null) {
             throw new IllegalStateException("Cannot find run in database for " + batch);
@@ -728,7 +770,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
-  public BatchResultWriterImpl createTestResultWriter(BatchJobRun batch) {
+  public CommandLineBatchResultWriter createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();    
   }
@@ -747,7 +789,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriterImpl writer = new BatchResultWriterImpl(
+      CommandLineBatchResultWriter writer = new CommandLineBatchResultWriter(
           _dbSource,
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
@@ -777,8 +819,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
       return level1Executor;
     }
     
-    public BatchResultWriterImpl createTestWriter() {
-      BatchResultWriterImpl resultWriter = new BatchResultWriterImpl(
+    public CommandLineBatchResultWriter createTestWriter() {
+      CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
           _dbSource,
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
@@ -926,6 +968,33 @@ public class BatchDbManagerImpl implements BatchDbManager {
     result.setPaging(new Paging(request.getPagingRequest(), count));
     result.setItems(values);
     return result;
+  }
+  
+  public SnapshotId getAdHocBatchSnapshotId(BatchId batchId) {
+    return new SnapshotId(batchId.getObservationDate(), "AD_HOC_" + Instant.now().toString());
+  }
+
+  @Override
+  public void write(AdHocBatchResult result) {
+    SnapshotId snapshotId = getAdHocBatchSnapshotId(result.getBatchId());
+    
+    createLiveDataSnapshot(snapshotId);
+    
+    Set<LiveDataValue> values = new HashSet<LiveDataValue>();
+    for (ComputedValue liveData : result.getResult().getAllLiveData()) {
+      values.add(new LiveDataValue(liveData));      
+    }
+    
+    addValuesToSnapshot(snapshotId, values);
+    
+    AdHocBatchJobRun batch = new AdHocBatchJobRun(result);
+    startBatch(batch);
+    
+    for (ViewResultEntry entry : result.getResult().getAllResults()) {
+                                    
+    }
+    
+    endBatch(batch);
   }
   
 }

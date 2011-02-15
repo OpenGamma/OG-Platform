@@ -29,6 +29,7 @@ import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
@@ -77,14 +78,15 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().setViewName("test_view");
     
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
-    _batchJobRun.setView(ViewTestUtils.getMockView());
+    ViewImpl view = ViewTestUtils.getMockView();
+    _batchJobRun.setView(view);
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
-    doc.setValue(_batchJobRun.getView().getDefinition());
+    doc.setValue(view.getDefinition());
     _batchJobRun.setViewDefinitionConfig(doc);
     
     _batchJob.addRun(_batchJobRun);
