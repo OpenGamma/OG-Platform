@@ -7,7 +7,9 @@ package com.opengamma.engine.fudgemsg;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -42,27 +44,35 @@ public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalcu
   
   @Override
   public ViewCalculationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final Map<ComputationTargetSpecification, Map<String, ComputedValue>> map = new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
+    final Map<ComputationTargetSpecification, Map<String, ComputedValue>> mapNames = new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
+    final Map<ComputationTargetSpecification, Set<ComputedValue>> mapAll = new HashMap<ComputationTargetSpecification, Set<ComputedValue>>();
     for (FudgeField field : message) {
       final ComputedValue value = context.fieldValueToObject(ComputedValue.class, field);
       final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
-      if (!map.containsKey(target)) {
-        map.put(target, new HashMap<String, ComputedValue>());
+      if (!mapNames.containsKey(target)) {
+        mapNames.put(target, new HashMap<String, ComputedValue>());
+        mapAll.put(target, new HashSet<ComputedValue>());
       }
-      map.get(target).put(value.getSpecification().getValueName(), value);
+      mapNames.get(target).put(value.getSpecification().getValueName(), value);
+      mapAll.get(target).add(value);
     }
     return new ViewCalculationResultModel() {
       
       @Override
       public Collection<ComputationTargetSpecification> getAllTargets() {
-        return map.keySet();
+        return mapNames.keySet();
       }
 
       @Override
       public Map<String, ComputedValue> getValues(ComputationTargetSpecification target) {
-        return map.get(target);
+        return mapNames.get(target);
       }
       
+      @Override
+      public Set<ComputedValue> getAllValues(ComputationTargetSpecification target) {
+        return mapAll.get(target);
+      }
+
     };
   }
  

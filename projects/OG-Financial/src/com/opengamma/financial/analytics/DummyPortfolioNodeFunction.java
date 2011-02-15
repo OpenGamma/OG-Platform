@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -17,13 +16,21 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 
 /**
  * 
  */
 public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvoker {
+
+  protected static String[] getPreservedProperties() {
+    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE };
+  }
+
   private final String _valueRequirement;
   private final Double _value;
 
@@ -36,9 +43,9 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    final PortfolioNode node = target.getPortfolioNode();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(_valueRequirement, node),
-        getUniqueId()), _value));
+    for (ValueRequirement desiredValue : desiredValues) {
+      result.add(new ComputedValue(new ValueSpecification(desiredValue, getUniqueId()), _value));
+    }
     return result;
   }
 
@@ -54,13 +61,13 @@ public class DummyPortfolioNodeFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      final PortfolioNode node = target.getPortfolioNode();
-      results.add(new ValueSpecification(new ValueRequirement(_valueRequirement, node), getUniqueId()));
-      return results;
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ValueProperties.Builder props = createValueProperties ();
+    for (String prop : getPreservedProperties ()) {
+      props.withAny (prop);
     }
-    return null;
+    results.add(new ValueSpecification(_valueRequirement, target.toSpecification(), props.get()));
+    return results;
   }
 
   @Override

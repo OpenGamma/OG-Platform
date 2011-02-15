@@ -31,6 +31,17 @@ public final class ValuePropertyNames {
    * For example, an exchange rate should not make use of this property.
    */
   public static final String CURRENCY = "Currency";
+
+  /**
+   * The symbolic name of a curve used to produce a value, valid within the naming context of
+   * the function repository containing the function definition used.
+   * <p>
+   * This should only be used where it is meaningful to describe a value based on a single
+   * curve. If produced by functions requiring multiple curve inputs, a suitable prefix should
+   * be used to differentiate the input curves.
+   */
+  public static final String CURVE = "Curve";
+
   /**
    * The function identifier that produced a value.
    * <p>

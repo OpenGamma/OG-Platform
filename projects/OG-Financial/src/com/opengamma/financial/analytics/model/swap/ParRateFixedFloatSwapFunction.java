@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.analytics.model.swap;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.common.Currency;
@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -42,6 +43,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -49,51 +51,25 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
-  private final Currency _currency;
-  private final String _forwardCurveName;
-  private final String _forwardValueRequirementName;
-  private final String _fundingCurveName;
-  private final String _fundingValueRequirementName;
 
-  public ParRateFixedFloatSwapFunction(final String currency, final String curveName, final String valueRequirementName) {
-    this(Currency.getInstance(currency), curveName, valueRequirementName, curveName, valueRequirementName);
-  }
-
-  public ParRateFixedFloatSwapFunction(final String currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
-      final String fundingValueRequirementName) {
-    this(Currency.getInstance(currency), forwardCurveName, forwardValueRequirementName, fundingCurveName, fundingValueRequirementName);
-  }
-
-  public ParRateFixedFloatSwapFunction(final Currency currency, final String name, final String valueRequirementName) {
-    this(currency, name, valueRequirementName, name, valueRequirementName);
-  }
-
-  public ParRateFixedFloatSwapFunction(final Currency currency, final String forwardCurveName, final String forwardValueRequirementName, final String fundingCurveName,
-      final String fundingValueRequirementName) {
-    Validate.notNull(currency, "currency");
-    Validate.notNull(forwardCurveName, "forward curve name");
-    Validate.notNull(forwardValueRequirementName, "forward value requirement name");
-    Validate.notNull(fundingCurveName, "funding curve name");
-    Validate.notNull(fundingValueRequirementName, "funding value requirement name");
-    _currency = currency;
-    _forwardCurveName = forwardCurveName;
-    _forwardValueRequirementName = forwardValueRequirementName;
-    _fundingCurveName = fundingCurveName;
-    _fundingValueRequirementName = fundingValueRequirementName;
+  public ParRateFixedFloatSwapFunction() {
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final SwapSecurity security = (SwapSecurity) position.getSecurity();
-    final ValueRequirement forwardCurveRequirement = new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId());
+    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
+    final String forwardCurveName = curveNames.getFirst();
+    final String fundingCurveName = curveNames.getSecond();
+    final ValueRequirement forwardCurveRequirement = YieldCurveFunction.getCurveRequirement(getCurrency(target), forwardCurveName, null, null);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new NullPointerException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
-    if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId());
+    if (!forwardCurveName.equals(fundingCurveName)) {
+      final ValueRequirement fundingCurveRequirement = YieldCurveFunction.getCurveRequirement(getCurrency(target), fundingCurveName, null, null);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new NullPointerException("Could not get " + fundingCurveRequirement);
@@ -117,21 +93,22 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
     }
     Swap<FixedCouponPayment, Payment> swap;
     final YieldCurveBundle bundle;
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _forwardCurveName, _forwardCurveName, fixedRate,
+    if (forwardCurveName.equals(fundingCurveName)) {
+      swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, forwardCurveName, forwardCurveName, fixedRate,
           initialFloatingRate, now);
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) forwardCurveObject;
-      bundle = new YieldCurveBundle(new String[] {_forwardCurveName}, new YieldAndDiscountCurve[] {curve});
+      bundle = new YieldCurveBundle(new String[] {forwardCurveName }, new YieldAndDiscountCurve[] {curve });
     } else {
-      swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, _forwardCurveName, _fundingCurveName, fixedRate,
+      swap = new FixedFloatSwapSecurityToSwapConverter(holidaySource, regionSource, conventionSource).getSwap(security, forwardCurveName, fundingCurveName, fixedRate,
           initialFloatingRate, now);
       final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
       final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
-      bundle = new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName}, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
+      bundle = new YieldCurveBundle(new String[] {forwardCurveName, fundingCurveName }, new YieldAndDiscountCurve[] {forwardCurve, fundingCurve });
     }
     final Double parRate = CALCULATOR.visit(swap, bundle);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, position), getUniqueId());
-    return Sets.newHashSet(new ComputedValue(specification, parRate));
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PAR_RATE, target.toSpecification(), createValueProperties().with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
+    return Collections.singleton(new ComputedValue(specification, parRate));
   }
 
   @Override
@@ -146,7 +123,7 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
           if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg)
               || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
             final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
-            return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency()) && payLegCurrency.equals(_currency);
+            return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency());
           }
         }
       }
@@ -156,22 +133,26 @@ public class ParRateFixedFloatSwapFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      if (_forwardCurveName.equals(_fundingCurveName)) {
-        return Sets.newHashSet(new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()));
-      }
-      return Sets.newHashSet(new ValueRequirement(_forwardValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()),
-          new ValueRequirement(_fundingValueRequirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()));
+    final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
+    final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
+    if (forwardCurveName.equals(fundingCurveName)) {
+      return Collections.singleton(YieldCurveFunction.getCurveRequirement(getCurrency(target), forwardCurveName, null, null));
     }
-    return null;
+    return Sets.newHashSet(YieldCurveFunction.getCurveRequirement(getCurrency(target), forwardCurveName, forwardCurveName, fundingCurveName), YieldCurveFunction.getCurveRequirement(
+        getCurrency(target), fundingCurveName, forwardCurveName, fundingCurveName));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PAR_RATE, target.getPosition()), getUniqueId()));
-    }
-    return null;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PAR_RATE, target.toSpecification(), createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PAR_RATE, target.toSpecification(), createValueProperties().with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond()).get()));
   }
 
   @Override
