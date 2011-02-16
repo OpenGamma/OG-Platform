@@ -108,8 +108,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
       doc = data().getPositionMaster().update(doc);
       data().setPosition(doc);
     }
-    URI uri = WebPositionResource.uri(data());
-    return uri;
+    return WebPositionResource.uri(data());
   }
 
   @DELETE
@@ -127,17 +126,15 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
     PositionDocument doc = data().getPosition();
-    if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    if (doc.isLatest()) {
+      deletePosition(doc);
     }
-    deletePosition(doc);
     return Response.ok().build();
   }
 
   private URI deletePosition(PositionDocument doc) {
     data().getPositionMaster().remove(doc.getUniqueId());
-    URI uri = WebPositionResource.uri(data());
-    return uri;
+    return WebPositionResource.uri(data());
   }
 
   //-------------------------------------------------------------------------
