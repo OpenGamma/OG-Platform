@@ -34,7 +34,7 @@ CConnectionPipe *CConnectionPipe::Create (const TCHAR *pszSuffix) {
 		pszPipeName = szPipeName;
 	}
 	LOGDEBUG (TEXT ("Creating connection pipe ") << pszPipeName);
-	CNamedPipe *poPipe = CNamedPipe::ServerRead (pszPipeName);
+	CNamedPipe *poPipe = CNamedPipe::ServerRead (pszPipeName, false);
 	if (!poPipe) {
 		LOGWARN (TEXT ("Couldn't create pipe ") << pszPipeName << TEXT (", error ") << GetLastError ());
 		return NULL;

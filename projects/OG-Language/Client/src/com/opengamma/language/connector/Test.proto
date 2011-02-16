@@ -7,8 +7,7 @@
 namespace com.opengamma.language.connector {
 
   /**
-   * Test message for the unit tests. All implementations of the Java client stack must respond correctly 
-   * to these messages. 
+   * Test message for the unit tests.
    */
   message Test extends UserMessagePayload {
   

@@ -8,6 +8,7 @@ package com.opengamma.financial.currency;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
@@ -80,9 +81,9 @@ public class DefaultCurrencyFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     // Pass the inputs through unchanged - will cause suppression of this node from the graph
-    return inputs;
+    return inputs.keySet();
   }
 
   @Override

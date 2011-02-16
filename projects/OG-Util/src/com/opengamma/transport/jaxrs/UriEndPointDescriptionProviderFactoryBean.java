@@ -30,6 +30,9 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
 
   private static final Logger s_logger = LoggerFactory.getLogger(UriEndPointDescriptionProviderFactoryBean.class);
 
+  private static final boolean s_enableIPv4 = System.getProperty("com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean.disableIPv4") == null;
+  private static final boolean s_enableIPv6 = System.getProperty("com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean.enableIPv6") != null;
+
   private final List<String> _uris = new LinkedList<String>();
 
   /**
@@ -53,9 +56,13 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
         continue;
       }
       if (a instanceof Inet4Address) {
-        addresses.add(a.getHostAddress());
+        if (s_enableIPv4) {
+          addresses.add(a.getHostAddress());
+        }
       } else if (a instanceof Inet6Address) {
-        addresses.add("[" + a.getHostAddress() + "]");
+        if (s_enableIPv6) {
+          addresses.add("[" + a.getHostAddress() + "]");
+        }
       }
     }
   }

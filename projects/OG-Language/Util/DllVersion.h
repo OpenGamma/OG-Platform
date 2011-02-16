@@ -35,6 +35,7 @@ public:
 	CDllVersion (HMODULE hModule);
 	CDllVersion (PCTSTR pszModule);
 	~CDllVersion ();
+	static HMODULE GetCurrentModule ();
 #define ACCESSOR(attribute)	const TCHAR * Get##attribute () { return GetString (TEXT (#attribute)); }
 #else
 	// Non-Win32 version must defined the version constants before including this file

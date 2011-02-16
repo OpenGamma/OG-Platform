@@ -21,19 +21,20 @@ LOGGING (com.opengamma.language.service.SettingsTest);
 
 static void Defaults () {
 	CSettings settings;
-	PRINT_AND_ASSERT (JvmLibrary);
+	PRINT_AND_ASSERT (AnnotationCache);
+	PRINT_AND_ASSERT (BusyTimeout);
 	PRINT_AND_ASSERT (ConnectionPipe);
 	PRINT_AND_ASSERT (ConnectionTimeout);
-	PRINT_AND_ASSERT (JarPath);
-	PRINT_AND_ASSERT (AnnotationCache);
-	PRINT (LogConfiguration);
 	PRINT_AND_ASSERT (IdleTimeout);
+	PRINT_AND_ASSERT (JarPath);
+	PRINT_AND_ASSERT (JvmLibrary);
+	PRINT (LogConfiguration);
 	PRINT_AND_ASSERT (ServiceName);
 #ifdef _WIN32
 	PRINT (ServiceSDDL);
 #endif /* ifdef _WIN32 */
 }
 
-BEGIN_TESTS (SettingsTest)
+BEGIN_TESTS (ServiceSettingsTest)
 	TEST (Defaults);
 END_TESTS

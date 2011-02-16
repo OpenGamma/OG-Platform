@@ -26,4 +26,15 @@
 #endif /* ifdef _UNICODE */
 #define FUDGE_STRING_LENGTH _tcslen
 
+// Force library initialization (C++)
+#ifdef __cplusplus
+class CFudgeInitialiser {
+public:
+	CFudgeInitialiser () {
+		FudgeStatus status = Fudge_init ();
+		assert (status == FUDGE_OK);
+	}
+};
+#endif /* ifdef __cplusplus */
+
 #endif /* ifndef __inc_og_language_util_fudge_h */

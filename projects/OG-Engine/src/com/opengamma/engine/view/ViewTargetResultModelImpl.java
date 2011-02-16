@@ -22,7 +22,7 @@ public class ViewTargetResultModelImpl extends AbstractResultModel<String> imple
   
   @Override
   public Map<String, ComputedValue> getValues(final String target) {
-    return super.getValues(target);
+    return super.getValuesByName(target);
   }
 
 }

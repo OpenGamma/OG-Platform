@@ -12,10 +12,10 @@
 #ifndef _WIN32
 #include <semaphore.h>
 #include <time.h>
+#include "Mutex.h"
 #endif /* ifndef _WIN32 */
 
 #include "Error.h"
-#include "Mutex.h"
 
 #define MAX_SEMAPHORE_COUNT	0x7FFFFFFF
 
@@ -34,8 +34,10 @@ public:
 	CSemaphore (int nInitialValue = 0, int nMaxValue = MAX_SEMAPHORE_COUNT) {
 #ifdef _WIN32
 		m_hSemaphore = CreateSemaphore (NULL, nInitialValue, nMaxValue, NULL);
+		assert (m_hSemaphore);
 #else
 		if (sem_init (&m_semaphore, 0, nInitialValue)) {
+			assert (0);
 			memset (&m_semaphore, 0, sizeof (m_semaphore));
 			m_nMaxValue = 0;
 		} else {
@@ -70,7 +72,7 @@ public:
 		return true;
 #endif
 	}
-	bool Wait (unsigned long timeout) {
+	bool Wait (unsigned long timeout = 0xFFFFFFFF) {
 #ifdef _WIN32
 		switch (WaitForSingleObject (m_hSemaphore, timeout)) {
 		case WAIT_ABANDONED :

@@ -42,6 +42,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -95,39 +96,11 @@ import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
  */
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction {
 
-  /**
-   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_FORWARD_CURVE_VALUE_NAME = "FORWARD_VALUE";
-  /**
-   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_FUNDING_CURVE_VALUE_NAME = "FUNDING_VALUE";
-  /**
-   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_FORWARD_CURVE_DEFINITION_NAME = "FORWARD_NAME";
-  /**
-   * Resultant value specification property for the Jacobian result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_FUNDING_CURVE_DEFINITION_NAME = "FUNDING_NAME";
-  /**
-   * Resultant value specification property for the curve results. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_CURVE_DEFINITION_NAME = "NAME";
-
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
   private final Currency _currency;
   private final String _fundingCurveDefinitionName;
-  private final String _fundingCurveValueRequirementName;
   private final String _forwardCurveDefinitionName;
-  private final String _forwardCurveValueRequirementName;
   private YieldCurveDefinition _fundingCurveDefinition;
   private YieldCurveDefinition _forwardCurveDefinition;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
@@ -137,31 +110,25 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private Set<ValueSpecification> _results;
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
-  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String curveValueRequirementName) {
-    this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName) {
+    this(currency, curveDefinitionName, curveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String fundingCurveValueRequirementName,
-      final String forwardCurveDefinitionName, final String forwardCurveValueRequirementName) {
-    this(Currency.getInstance(currency), fundingCurveDefinitionName, fundingCurveValueRequirementName, forwardCurveDefinitionName, forwardCurveValueRequirementName);
+  public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
+    this(Currency.getInstance(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName, final String curveValueRequirementName) {
-    this(currency, curveDefinitionName, curveValueRequirementName, curveDefinitionName, curveValueRequirementName);
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName) {
+    this(currency, curveDefinitionName, curveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String fundingValueRequirementName, final String forwardCurveDefinitionName,
-      final String forwardValueRequirementName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(fundingCurveDefinitionName, "funding curve name");
-    Validate.notNull(fundingValueRequirementName, "funding value requirement name");
     Validate.notNull(forwardCurveDefinitionName, "forward curve name");
-    Validate.notNull(forwardValueRequirementName, "forward value requirement name");
     _currency = currency;
     _fundingCurveDefinitionName = fundingCurveDefinitionName;
-    _fundingCurveValueRequirementName = fundingValueRequirementName;
     _forwardCurveDefinitionName = forwardCurveDefinitionName;
-    _forwardCurveValueRequirementName = forwardValueRequirementName;
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context, final String name) {
@@ -185,11 +152,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _forwardCurveDefinition = getDefinition(context, _forwardCurveDefinitionName);
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
-    _fundingCurveResult = new ValueSpecification(_fundingCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName).get());
-    _forwardCurveResult = new ValueSpecification(_forwardCurveValueRequirementName, currencySpec, createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
-    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties()
-        .with(PROPERTY_FUNDING_CURVE_VALUE_NAME, _fundingCurveValueRequirementName).with(PROPERTY_FUNDING_CURVE_DEFINITION_NAME, _fundingCurveDefinitionName)
-        .with(PROPERTY_FORWARD_CURVE_VALUE_NAME, _forwardCurveValueRequirementName).with(PROPERTY_FORWARD_CURVE_DEFINITION_NAME, _forwardCurveDefinitionName).get());
+    _fundingCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, currencySpec, createValueProperties().with(ValuePropertyNames.CURVE, _fundingCurveDefinitionName).get());
+    _forwardCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, currencySpec, createValueProperties().with(ValuePropertyNames.CURVE, _forwardCurveDefinitionName).get());
+    _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties().with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+        _forwardCurveDefinitionName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveDefinitionName).get());
     _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
   }
 
@@ -209,10 +175,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public String getShortName() {
-    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
+    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + ", " + _currency + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
   }
 
-  // ENG-252 This logic doesn't seem to work
+  // ENG-252 This logic is wrong
   @SuppressWarnings("unused")
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final InterpolatedYieldCurveSpecification specification, Instant expiry) {
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
@@ -520,21 +486,15 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      if (canApplyTo(context, target)) {
-        final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-        result.addAll(_fundingCurveRequirements);
-        result.addAll(_forwardCurveRequirements);
-        return result;
-      }
-      return null;
+      final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+      result.addAll(_fundingCurveRequirements);
+      result.addAll(_forwardCurveRequirements);
+      return result;
     }
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      if (canApplyTo(context, target)) {
-        return _results;
-      }
-      return null;
+      return _results;
     }
 
     @Override
@@ -552,7 +512,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     final InterpolatedYieldCurveSpecification forwardCurveSpecification = _curveSpecificationBuilder.buildCurve(curveDate, _forwardCurveDefinition);
     final Set<ValueRequirement> fundingCurveRequirements = buildRequirements(fundingCurveSpecification, context);
     final Set<ValueRequirement> forwardCurveRequirements = buildRequirements(forwardCurveSpecification, context);
-    // ENG-252 expiry logic is flawed so make it valid for the current day only
+    // ENG-252 expiry logic is wrong so make it valid for the current day only
     final Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
     Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);

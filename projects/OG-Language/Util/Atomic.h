@@ -51,25 +51,25 @@ public:
 	}
 };
 
-class CAtomicPointer {
+template <typename PTYPE> class CAtomicPointer {
 private:
-	void * volatile m_pValue;
+	PTYPE volatile m_pValue;
 public:
-	CAtomicPointer (void *pValue = NULL) {
+	CAtomicPointer (PTYPE pValue = NULL) {
 		m_pValue = pValue;
 	}
-	void *GetAndSet (void *pNewValue) {
+	PTYPE GetAndSet (PTYPE pNewValue) {
 #ifdef _WIN32
-		return InterlockedExchangePointer (&m_pValue, pNewValue);
+		return InterlockedExchangePointer ((void * volatile *)&m_pValue, (void*)pNewValue);
 #else
 		// Is the signature for the method wrong; shouldn't it be void * volatile * or volatile PVOID *?
-		return apr_atomic_xchgptr ((volatile void**)&m_pValue, pNewValue);
+		return apr_atomic_xchgptr ((volatile void**)&m_pValue, (void*)pNewValue);
 #endif
 	}
-	void *Get () {
+	PTYPE Get () {
 		return m_pValue;
 	}
-	void Set (void *pValue) {
+	void Set (PTYPE pValue) {
 		m_pValue = pValue;
 	}
 };
