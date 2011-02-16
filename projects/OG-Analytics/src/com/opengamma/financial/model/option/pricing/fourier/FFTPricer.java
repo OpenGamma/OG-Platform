@@ -6,6 +6,8 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.fft.JTransformsWrapper;
@@ -21,6 +23,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class FFTPricer {
+  private static Logger s_logger = LoggerFactory.getLogger(FFTPricer.class);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   // private final double _alpha;
   // private final double _delta;
@@ -28,12 +31,12 @@ public class FFTPricer {
   // private final int _n;
   private static BracketRoot s_bracketRoot = new BracketRoot();
   private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final IntegralLimitCalculator s_limitCal = new IntegralLimitCalculator();
 
   /**
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
    * and x is a random variable with a known characteristic function.
    * @param forward The forward value of the underlying 
-   * @param maturity The option maturity 
    * @param discountFactor Discount factor
    * @param isCall true for call, false for put
    * @param ce The Characteristic Exponent (log of characteristic function) of the returns of the underlying
@@ -44,12 +47,44 @@ public class FFTPricer {
    * @param limitSigma Approximate Balck vol - used to calculate size of FFT
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double maturity, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes,
+  public double[][] price(final double forward, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes,
       final double maxDeltaMoneyness, final double alpha, final double tol, final double limitSigma) {
     Validate.isTrue(tol > 0.0, "need tol > 0");
     Validate.isTrue(limitSigma > 0.0, "need limitSigma");
     double kMax;
-    final double limitSigmaRootT = limitSigma * Math.sqrt(maturity);
+    final double limitSigmaRootT = limitSigma * Math.sqrt(ce.getTime());
+    double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
+
+    if (alpha > 0) {
+      kMax = -Math.log((2 * atm - 1) * tol) / alpha;
+    } else if (alpha < -1.0) {
+      kMax = Math.log((2 * atm - 1) * tol) / (1 + alpha);
+    } else {
+      kMax = -Math.log(2 * (1 - atm) * tol) * Math.max(-1.0 / alpha, 1 / (1 + alpha));
+    }
+
+    Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
+    double xMax = s_limitCal.solve(psi, alpha, tol);
+
+    double deltaK = Math.min(maxDeltaMoneyness, Math.PI / xMax);
+
+    double log2 = Math.log(2);
+    int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
+
+    int n = (int) Math.pow(2, twoPow);
+    double delta = 2 * Math.PI / n / deltaK;
+    int m = (int) (xMax * deltaK * n / 2 / Math.PI);
+
+    return price(forward, discountFactor, isCall, ce, nStrikes, alpha, delta, n, m);
+
+  }
+
+  public double[][] price2(final double forward, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes,
+      final double maxDeltaMoneyness, final double alpha, final double tol, final double limitSigma) {
+    Validate.isTrue(tol > 0.0, "need tol > 0");
+    Validate.isTrue(limitSigma > 0.0, "need limitSigma");
+    double kMax;
+    final double limitSigmaRootT = limitSigma * Math.sqrt(ce.getTime());
     double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
 
     if (alpha > 0) {
@@ -72,15 +107,15 @@ public class FFTPricer {
     double xMax = s_root.getRoot(func, range[0], range[1]);
 
     double deltaK = Math.min(maxDeltaMoneyness, Math.PI / xMax);
+    int m = (int) ((kMax / deltaK));
 
     double log2 = Math.log(2);
-    int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
+    int twoPow = (int) Math.ceil(Math.log(2 * Math.PI * kMax / deltaK / deltaK / xMax) / log2);
 
     int n = (int) Math.pow(2, twoPow);
     double delta = 2 * Math.PI / n / deltaK;
-    int m = (int) (xMax * deltaK * n / 2 / Math.PI);
 
-    return price(forward, maturity, discountFactor, isCall, ce, nStrikes, alpha, delta, n, m);
+    return price(forward, discountFactor, isCall, ce, nStrikes, alpha, delta, n, m);
 
   }
 
@@ -88,7 +123,6 @@ public class FFTPricer {
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
    * and x is a random variable with a known characteristic function. <b>Note: this method is for expert use only</b>
    * @param forward The forward value of the underlying 
-   * @param maturity The option maturity 
    * @param discountFactor Discount factor
    * @param isCall true for call, false for put
    * @param ce The Characteristic Exponent (log of characteristic function) of the returns of the underlying
@@ -99,10 +133,14 @@ public class FFTPricer {
    * @param m The actual number of samples. Need n >= 2m-1
    * @return array of arrays of strikes and prices 
    */
-  public double[][] price(final double forward, final double maturity, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes, final double alpha,
+  public double[][] price(final double forward, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes, final double alpha,
       final double delta, final int n, final int m) {
 
-    Validate.isTrue(maturity > 0.0, "need maturity > 0");
+    if (alpha >= ce.getLargestAlpha() || alpha <= ce.getSmallestAlpha()) {
+      s_logger.warn("The value of alpha is not valid for the Characteristic Exponent and will most likely lead to mispricing. Choose a value between "
+          + ce.getSmallestAlpha() + " and " + ce.getLargestAlpha());
+    }
+
     Validate.notNull(ce, "null Characteristic Exponent");
     Validate.isTrue(nStrikes > 0, "need at least one strike");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
@@ -111,7 +149,7 @@ public class FFTPricer {
     Validate.isTrue(m > 0, "need m > 0");
     Validate.isTrue(n >= 2 * m - 1, "need n > 2m-1");
 
-    Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFT(ce, maturity);
+    Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFT(ce);
 
     int halfN;
     if (n % 2 == 0) {

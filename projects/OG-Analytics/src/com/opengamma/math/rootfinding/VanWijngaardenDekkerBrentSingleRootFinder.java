@@ -24,6 +24,7 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
     _accuracy = accuracy;
   }
 
+  //TODO it is not clear that this is converging as fast as possible 
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
     checkInputs(function, x1, x2);

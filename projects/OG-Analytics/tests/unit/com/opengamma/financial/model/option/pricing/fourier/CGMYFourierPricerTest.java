@@ -24,14 +24,14 @@ public class CGMYFourierPricerTest {
   private static final double M = 1.001;
   private static final double Y = 1.5;
 
-  private static final CharacteristicExponent CGMY_CE = new CGMYCharacteristicExponent(C, G, M, Y);
+  private static final CharacteristicExponent CGMY_CE = new CGMYCharacteristicExponent(C, G, M, Y, T);
 
   @Test
   public void test_CGMY() {
-    FourierPricer pricer = new FourierPricer(-0.5);
+    FourierPricer pricer = new FourierPricer();
     for (int i = 0; i < 21; i++) {
       double k = 0.01 + 0.14 * i / 20.0;
-      double price = pricer.price(FORWARD, k * FORWARD, T, DF, true, CGMY_CE);
+      double price = pricer.price(FORWARD, k * FORWARD, DF, true, CGMY_CE, -0.5, 1e-6);
       double impVol = BlackImpliedVolFormula.impliedVol(price, FORWARD, k * FORWARD, DF, T, true);
       // System.out.println(k + "\t" + impVol);
     }
@@ -39,7 +39,7 @@ public class CGMYFourierPricerTest {
 
   @Test
   public void testIntergrad_CGMY() {
-    EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(CGMY_CE, -0.5, FORWARD, 0.25 * FORWARD, T, true, 0.5);
+    EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(CGMY_CE, -0.5, FORWARD, 0.25 * FORWARD, true, 0.5);
     for (int i = 0; i < 201; i++) {
       double x = -15. + i * 30. / 200.0;
       ComplexNumber res = intergrand.getIntegrand(x);

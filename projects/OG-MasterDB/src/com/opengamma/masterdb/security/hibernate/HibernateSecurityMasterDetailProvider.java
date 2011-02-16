@@ -105,6 +105,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
       if (type.contains("_")) {
         beanOperation = BEAN_OPERATIONS_BY_TYPE.get(type.substring(type.indexOf('_') + 1));
       }
+      if (type.equals("SWAPTION")) { // SWAPTION used to be SWAP_OPTION, in which case the above code handled it.
+        beanOperation = BEAN_OPERATIONS_BY_TYPE.get("OPTION");
+      }
       if (beanOperation == null) {
         throw new OpenGammaRuntimeException("can't find BeanOperation for " + type);
       }
