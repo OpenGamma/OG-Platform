@@ -17,6 +17,9 @@ import java.util.concurrent.Future;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
 
@@ -25,6 +28,8 @@ import com.opengamma.util.tuple.Pair;
  * that a minimal compilation is performed each time. 
  */
 public class CachingFunctionRepositoryCompiler implements FunctionRepositoryCompiler {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(CachingFunctionRepositoryCompiler.class);
 
   private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>();
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
@@ -97,7 +102,13 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       completionService.submit(new Callable<CompiledFunctionDefinition>() {
         @Override
         public CompiledFunctionDefinition call() throws Exception {
-          return function.compile(context, atInstant);
+          try {
+            s_logger.debug("Compiling {}", function);
+            return function.compile(context, atInstant);
+          } catch (Exception e) {
+            s_logger.error("Compiling {} threw {}", function.getShortName(), e);
+            throw e;
+          }
         }
       });
       numCompiles++;
@@ -114,7 +125,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
         CompiledFunctionDefinition compiledFunction = future.get();
         compiled.addFunction(compiledFunction);
       } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Exception thrown compiling function definitions.", e);
+        s_logger.debug("Error compiling function definition", e);
+        // Don't propagate the error outwards; it just won't be in the compiled repository
       }
     }
     return compiled;

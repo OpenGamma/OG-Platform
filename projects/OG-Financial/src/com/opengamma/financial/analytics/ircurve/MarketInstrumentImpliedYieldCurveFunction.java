@@ -175,7 +175,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public String getShortName() {
-    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
+    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + ", " + _currency + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
   }
 
   // ENG-252 This logic is wrong
