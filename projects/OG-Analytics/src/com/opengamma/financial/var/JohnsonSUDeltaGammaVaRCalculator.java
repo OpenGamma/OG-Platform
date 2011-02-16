@@ -112,7 +112,7 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements Function<T, Double> 
     final double sign = Math.signum(t);
     final double u = Math.sqrt(Math.log(w));
     final double v = Math.sqrt((w + 1) * (w - 1 - m) / (2 * w * m));
-    final double omega = -sign * TrigonometricFunctionUtils.asinh(v).doubleValue();
+    final double omega = -sign * TrigonometricFunctionUtils.asinh(v);
     final double delta = 1. / u;
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));

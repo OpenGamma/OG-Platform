@@ -22,17 +22,15 @@ public class EuropeanPriceIntegrand extends Function1D<Double, Double> {
 
   private final double _alpha;
   private final double _k;
-  private final double _t;
   private final CharacteristicExponent _gaussian;
 
-  public EuropeanPriceIntegrand(final CharacteristicExponent ce, final double alpha, final double forward, final double strike, final double maturity, boolean useVarianceReduction, double blackVol) {
+  public EuropeanPriceIntegrand(final CharacteristicExponent ce, final double alpha, final double forward, final double strike, boolean useVarianceReduction, double blackVol) {
 
     _ce = new MeanCorrectedCharacteristicExponent(ce);
     _alpha = alpha;
     _k = Math.log(strike / forward);
-    _t = maturity;
 
-    _gaussian = (useVarianceReduction ? new GaussianCharacteristicExponent(-0.5 * blackVol * blackVol, blackVol) : null);
+    _gaussian = (useVarianceReduction ? new GaussianCharacteristicExponent(-0.5 * blackVol * blackVol, blackVol, _ce.getTime()) : null);
 
   }
 
@@ -45,8 +43,8 @@ public class EuropeanPriceIntegrand extends Function1D<Double, Double> {
 
   public ComplexNumber getIntegrand(double x) {
     ComplexNumber z = new ComplexNumber(x, -1 - _alpha);
-    ComplexNumber num1 = exp(add(new ComplexNumber(0, -x * _k), _ce.evaluate(z, _t)));
-    ComplexNumber num2 = (_gaussian == null ? new ComplexNumber(0.0) : exp(add(new ComplexNumber(0, -x * _k), _gaussian.evaluate(z, _t))));
+    ComplexNumber num1 = exp(add(new ComplexNumber(0, -x * _k), _ce.evaluate(z)));
+    ComplexNumber num2 = (_gaussian == null ? new ComplexNumber(0.0) : exp(add(new ComplexNumber(0, -x * _k), _gaussian.evaluate(z))));
     ComplexNumber denom = new ComplexNumber(_alpha * (1 + _alpha) - x * x, (2 * _alpha + 1) * x);
     ComplexNumber res = divide(subtract(num1, num2), denom);
     return res;

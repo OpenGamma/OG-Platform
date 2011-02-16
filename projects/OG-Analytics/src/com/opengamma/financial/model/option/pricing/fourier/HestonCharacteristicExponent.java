@@ -24,6 +24,9 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
   private final double _vol0;
   private final double _omega;
   private final double _rho;
+  private final double _t;
+  private final double _alphaMin;
+  private final double _alphaMax;
 
   /**
    * 
@@ -33,36 +36,51 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
    * @param omega vol-of-vol
    * @param rho correlation
    */
-  public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho) {
+  public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho, final double t) {
     _kappa = kappa;
     _theta = theta;
     _vol0 = vol0;
     _omega = omega;
     _rho = rho;
+    _t = t;
+
+    double t1 = _omega - 2 * _kappa * _rho;
+    double rhoStar = 1 - _rho * _rho;
+    double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
+    _alphaMin = (t1 - root) / _omega / rhoStar;
+    _alphaMax = (t1 + root) / _omega / rhoStar;
+
   }
 
   @Override
-  public ComplexNumber evaluate(final ComplexNumber u, final double t) {
-    return add(getC(u, t), multiply(_vol0, getD(u, t)));
+  public ComplexNumber evaluate(final ComplexNumber u) {
+    //that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected 
+    if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
+      return new ComplexNumber(0.0);
+    }
+
+    ComplexNumber c = getC(u);
+    ComplexNumber dv0 = multiply(_vol0, getD(u));
+    return add(c, dv0);
   }
 
-  private ComplexNumber getC(final ComplexNumber u, final double t) {
+  private ComplexNumber getC(final ComplexNumber u) {
     ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
     ComplexNumber c = c(u);
     ComplexNumber d = d(u);
-    ComplexNumber c3 = multiply(t, add(_kappa, subtract(d, c1)));
-    ComplexNumber e = exp(multiply(d, t));
+    ComplexNumber c3 = multiply(_t, add(_kappa, subtract(d, c1)));
+    ComplexNumber e = exp(multiply(d, _t));
     ComplexNumber c4 = divide(subtract(multiply(c, e), 1), subtract(c, 1));
     c4 = log(c4);
     return multiply(_kappa * _theta / _omega / _omega, subtract(c3, multiply(2, c4)));
   }
 
-  private ComplexNumber getD(final ComplexNumber u, final double t) {
+  private ComplexNumber getD(final ComplexNumber u) {
     ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
     ComplexNumber c = c(u);
     ComplexNumber d = d(u);
     ComplexNumber c3 = add(_kappa, subtract(d, c1));
-    ComplexNumber e = exp(multiply(d, t));
+    ComplexNumber e = exp(multiply(d, _t));
     ComplexNumber c4 = divide(subtract(e, 1), subtract(multiply(c, e), 1));
     return divide(multiply(c3, c4), _omega * _omega);
   }
@@ -82,7 +100,22 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     ComplexNumber c3 = multiply(u, _omega);
     c3 = multiply(c3, c3);
     ComplexNumber c4 = add(add(c1, c2), c3);
-    return multiply(-1, sqrt(c4));
+    return multiply(1, sqrt(c4));
+  }
+
+  @Override
+  public double getLargestAlpha() {
+    return _alphaMax;
+  }
+
+  @Override
+  public double getSmallestAlpha() {
+    return _alphaMin;
+  }
+
+  @Override
+  public double getTime() {
+    return _t;
   }
 
 }

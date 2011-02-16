@@ -18,20 +18,35 @@ import com.opengamma.math.number.ComplexNumber;
 public class MeanCorrectedCharacteristicExponent extends CharacteristicExponent {
 
   private final CharacteristicExponent _base;
+  private final ComplexNumber _w;
 
   public MeanCorrectedCharacteristicExponent(CharacteristicExponent base) {
     Validate.notNull(base);
     _base = base;
+    ComplexNumber temp = _base.evaluate(MINUS_I);
+    Validate.isTrue(Math.abs(temp.getImaginary()) < 1e-12, "problem with CharacteristicExponentFunction");
+    _w = new ComplexNumber(0, -temp.getReal());
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber u, double t) {
+  public ComplexNumber evaluate(ComplexNumber u) {
 
-    ComplexNumber temp = _base.evaluate(MINUS_I, t);
-    Validate.isTrue(temp.getImaginary() == 0.0, "problem with CharacteristicExponentFunction");
-    ComplexNumber w = new ComplexNumber(0, -temp.getReal());
+    return add(_base.evaluate(u), multiply(_w, u));
+  }
 
-    return add(_base.evaluate(u, t), multiply(w, u));
+  @Override
+  public double getLargestAlpha() {
+    return _base.getLargestAlpha();
+  }
+
+  @Override
+  public double getSmallestAlpha() {
+    return _base.getSmallestAlpha();
+  }
+
+  @Override
+  public double getTime() {
+    return _base.getTime();
   }
 
 }

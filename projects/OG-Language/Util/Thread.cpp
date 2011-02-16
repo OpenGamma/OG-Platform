@@ -8,8 +8,8 @@
 
 // Threads using either Win32 or APR
 
-#include "Thread.h"
 #include "Logging.h"
+#include "Thread.h"
 
 LOGGING (com.opengamma.language.util.Thread);
 

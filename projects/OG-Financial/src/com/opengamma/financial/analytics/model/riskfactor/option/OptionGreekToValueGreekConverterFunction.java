@@ -154,12 +154,12 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     ValueProperties.Builder properties = createValueProperties();
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    for (ValueSpecification input : inputs) {
+    for (ValueSpecification input : inputs.keySet()) {
       if (underlyingGreekRequirementName.equals(input.getValueName())) {
         properties.with(ValuePropertyNames.CURRENCY, input.getProperty(ValuePropertyNames.CURRENCY));
         break;

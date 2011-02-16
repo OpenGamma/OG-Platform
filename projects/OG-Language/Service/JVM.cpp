@@ -12,7 +12,7 @@
 #include "Service.h"
 #include "Settings.h"
 
-LOGGING(com.opengamma.svc.JVM);
+LOGGING(com.opengamma.connector.service.JVM);
 
 //#define DESTROY_JVM /* If there are rogue threads, the JVM won't terminate gracefully so comment this line out */
 #define MAIN_CLASS		"com/opengamma/language/connector/Main"

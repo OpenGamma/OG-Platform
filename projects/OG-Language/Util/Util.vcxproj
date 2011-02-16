@@ -97,6 +97,7 @@
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="Mutex.h" />
     <ClInclude Include="NamedPipe.h" />
+    <ClInclude Include="Process.h" />
     <ClInclude Include="Semaphore.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="String.h" />
@@ -111,6 +112,7 @@
     <ClCompile Include="DllVersion.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="NamedPipe.cpp" />
+    <ClCompile Include="Process.cpp" />
     <ClCompile Include="Semaphore.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

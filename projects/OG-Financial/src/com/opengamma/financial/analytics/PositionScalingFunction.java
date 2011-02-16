@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
@@ -23,6 +24,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
@@ -31,7 +33,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
 
   @Override
   protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY};
+    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE };
   }
 
   private final String _requirementName;
@@ -61,8 +63,8 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
-    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.iterator().next()));
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet().iterator().next()));
     return Collections.singleton(specification);
   }
 

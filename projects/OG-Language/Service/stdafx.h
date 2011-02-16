@@ -24,7 +24,6 @@
 #include <pthread.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <dlfcn.h>
 #include <dirent.h>
 #endif
 #include <assert.h>
@@ -39,6 +38,7 @@
 #include <Util/Logging.h>
 #include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
+#include <Util/Process.h>
 #include <Util/String.h>
 #include <Util/Thread.h>
 
