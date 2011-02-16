@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -48,7 +48,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
   @Test(expected = IllegalArgumentException.class)
   public void test_correct_noHolidayId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
-    ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     doc.setUniqueId(null);
@@ -65,7 +65,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
   @Test(expected = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
-    ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _holMaster.correct(doc);
@@ -85,7 +85,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     HolidayDocument base = _holMaster.get(uid);
-    ManageableHoliday holiday = new ManageableHoliday(Currency.getInstance("USD"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     

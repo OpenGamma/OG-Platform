@@ -91,7 +91,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
         setName(holiday.getRegionKey().getValue());
         break;
       case CURRENCY:
-        setName(holiday.getCurrency().getISOCode());
+        setName(holiday.getCurrency().getCode());
         break;
       case SETTLEMENT:
       case TRADING:

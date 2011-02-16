@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,14 +43,14 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
 
   //-------------------------------------------------------------------------
   @Override
-  public YieldCurveDefinition getDefinition(final Currency ccy, final String name) {
-    return _configSource.getLatestByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode());
+  public YieldCurveDefinition getDefinition(final CurrencyUnit ccy, final String name) {
+    return _configSource.getLatestByName(YieldCurveDefinition.class, name + "_" + ccy.getCode());
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final InstantProvider version) {
+  public YieldCurveDefinition getDefinition(final CurrencyUnit ccy, final String name, final InstantProvider version) {
     final Instant versionInstant = (version != null) ? version.toInstant() : null;
-    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getISOCode(), versionInstant);
+    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getCode(), versionInstant);
   }
 
 }

@@ -34,7 +34,7 @@ public class FRASecurityToForwardRateAgreementConverter {
   }
 
   public ForwardRateAgreement getFRA(final FRASecurity security, final String fundingCurveName, final String indexCurveName, final double marketRate, final ZonedDateTime now) {
-    final String currency = security.getCurrency().getISOCode();
+    final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_FRA"));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency()); // TODO: check we've got the right holiday calendar.
 

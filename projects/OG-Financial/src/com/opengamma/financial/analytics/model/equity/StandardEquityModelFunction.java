@@ -42,7 +42,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
         new ComputedValue(
             new ValueSpecification(
                 new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), 
-                                     ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getISOCode()).get()),
+                                     ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getCode()).get()),
                 getUniqueId()),
                 price));
   }
@@ -75,7 +75,7 @@ public class StandardEquityModelFunction extends AbstractFunction.NonCompiledInv
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       return Collections.<ValueSpecification>singleton(
           new ValueSpecification(
-              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getISOCode()).get()),
+              new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY, equity.getCurrency().getCode()).get()),
           getUniqueId()));
     }
     return null;

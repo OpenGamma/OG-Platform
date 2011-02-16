@@ -45,7 +45,7 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
     if (!(pv01ForCurve.containsKey(forwardCurveName) && pv01ForCurve.containsKey(fundingCurveName))) {
       throw new NullPointerException("Could not get PV01 for " + forwardCurveName + " and " + fundingCurveName);
     }
-    final ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(security).getISOCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+    final ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(security).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
     for (final Map.Entry<String, Double> entry : pv01ForCurve.entrySet()) {
       result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PV01, security), props.copy().with(ValuePropertyNames.CURVE, entry.getKey()).get()), entry
@@ -67,13 +67,13 @@ public class PV01FixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY,
-        getCurrencyForTarget(target).getISOCode()).withAny(ValuePropertyNames.CURVE).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+        getCurrencyForTarget(target).getCode()).withAny(ValuePropertyNames.CURVE).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    final ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getISOCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
+    final ValueProperties props = createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond()).get();
     if (curveNames.getFirst().equals(curveNames.getSecond())) {
       return Collections.singleton(new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), props.copy().with(ValuePropertyNames.CURVE, curveNames.getFirst()).get()));

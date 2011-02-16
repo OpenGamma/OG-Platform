@@ -155,7 +155,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     Double initialRate = null; 
@@ -205,7 +205,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_TENOR_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     Double initialRate = null; 

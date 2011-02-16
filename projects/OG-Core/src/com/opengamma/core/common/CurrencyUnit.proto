@@ -5,10 +5,10 @@
  */
  
 /**
- * Introduce the Currency element as a Fudge-Proto identifier.
+ * Introduce the CurrencyUnit element as a Fudge-Proto identifier.
  */
 namespace com.opengamma.core.common {
 
-  extern typedef Currency = string;
+  extern typedef CurrencyUnit = string;
 
 }
