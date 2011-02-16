@@ -59,6 +59,10 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
 
   private VolatilitySurfaceSpecification _specification;
 
+  public SimpleInterpolatedVolatilitySurfaceFunction(final String currency, final String definitionName, final String specificationName) {
+    this(Currency.getInstance(currency), definitionName, specificationName);
+  }
+
   public SimpleInterpolatedVolatilitySurfaceFunction(final Currency currency, final String definitionName, final String specificationName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(definitionName, "Definition Name");
