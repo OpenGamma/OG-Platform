@@ -123,6 +123,10 @@ public class RiskValue {
               ":eval_instant, :compute_node_id)";
   }
   
+  public static String sqlDeleteRiskValues() {
+    return "DELETE FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_value WHERE run_id = :run_id";
+  }
+  
   public static String sqlCount() {
     return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_value";
   }
