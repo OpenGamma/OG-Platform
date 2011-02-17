@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -98,7 +98,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
-  private final Currency _currency;
+  private final CurrencyUnit _currency;
   private final String _fundingCurveDefinitionName;
   private final String _forwardCurveDefinitionName;
   private YieldCurveDefinition _fundingCurveDefinition;
@@ -115,14 +115,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
-    this(Currency.getInstance(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
+    this(CurrencyUnit.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String curveDefinitionName) {
     this(currency, curveDefinitionName, curveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(fundingCurveDefinitionName, "funding curve name");
     Validate.notNull(forwardCurveDefinitionName, "forward curve name");
@@ -165,7 +165,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity()));
     }
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode()
+    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode()
         + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
     final Identifier initialRefRateId = SecurityUtils.bloombergTickerSecurityId(referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
@@ -175,7 +175,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public String getShortName() {
-    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
+    return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + ", " + _currency + "]" + "_MarketInstrumentImpliedYieldCurveFunction";
   }
 
   // ENG-252 This logic is wrong

@@ -12,7 +12,7 @@ import javax.time.calendar.TimeZone;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
@@ -83,9 +83,9 @@ public class RegionUtils {
    * @param currency  the currency, not null
    * @return the region identifier, not null
    */
-  public static Identifier currencyRegionId(Currency currency) {
+  public static Identifier currencyRegionId(CurrencyUnit currency) {
     ArgumentChecker.notNull(currency, "currency");
-    return Identifier.of(ISO_CURRENCY_ALPHA3, currency.getISOCode());
+    return Identifier.of(ISO_CURRENCY_ALPHA3, currency.getCode());
   }
 
   /**

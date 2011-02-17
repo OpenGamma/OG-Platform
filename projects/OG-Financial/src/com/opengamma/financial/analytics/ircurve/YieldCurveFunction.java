@@ -11,7 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
@@ -141,7 +141,7 @@ public final class YieldCurveFunction {
     return getPropertyValue(PROPERTY_FUNDING_CURVE, context, requirement);
   }
 
-  public static ValueRequirement getCurveRequirement(final Currency currency, final String curveName, final String advisoryForward, final String advisoryFunding) {
+  public static ValueRequirement getCurveRequirement(final CurrencyUnit currency, final String curveName, final String advisoryForward, final String advisoryFunding) {
     final ValueProperties.Builder props = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
     if (advisoryForward != null) {
       props.with(PROPERTY_FORWARD_CURVE, advisoryForward).withOptional(PROPERTY_FORWARD_CURVE);
@@ -152,7 +152,7 @@ public final class YieldCurveFunction {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), props.get());
   }
 
-  public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
+  public static ValueRequirement getJacobianRequirement(final CurrencyUnit currency, final String forwardCurveName, final String fundingCurveName) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.with(
         YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
   }

@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.ManageableRegion;
@@ -82,9 +82,10 @@ public class WebRegionResource extends AbstractWebRegionResource {
     FlexiBean out = createRootData();
     return getFreemarker().build("regions/jsonregion.ftl", out);
   }
-
+  
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
@@ -115,22 +116,59 @@ public class WebRegionResource extends AbstractWebRegionResource {
     if (fullName == null) {
       fullName = name;
     }
+    URI uri = addRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    return Response.seeOther(uri).build();
+  }
+  
+
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(
+      @FormParam("name") String name,
+      @FormParam("fullname") String fullName,
+      @FormParam("classification") RegionClassification classification,
+      @FormParam("country") String countryISO,
+      @FormParam("currency") String currencyISO,
+      @FormParam("timezone") String timeZoneId) {
+    if (data().getRegion().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
+    name = StringUtils.trimToNull(name);
+    fullName = StringUtils.trimToNull(fullName);
+    countryISO = StringUtils.trimToNull(countryISO);
+    currencyISO = StringUtils.trimToNull(currencyISO);
+    timeZoneId = StringUtils.trimToNull(timeZoneId);
+    if (name == null || classification == null) {
+      Response.status(Status.BAD_REQUEST);
+    }
+    
+    if (fullName == null) {
+      fullName = name;
+    }
+    URI uri = addRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    return Response.created(uri).build();
+  }
+
+  private URI addRegion(String name, String fullName, RegionClassification classification, String countryISO, String currencyISO, String timeZoneId) {
     ManageableRegion region = new ManageableRegion();
     region.getParentRegionIds().add(data().getRegion().getUniqueId());
     region.setName(name);
     region.setFullName(fullName);
     region.setClassification(classification);
     region.setCountryISO(countryISO);
-    region.setCurrency(currencyISO != null ? Currency.getInstance(currencyISO) : null);
+    region.setCurrency(currencyISO != null ? CurrencyUnit.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
     URI uri = WebRegionResource.uri(data(), added.getUniqueId());
-    return Response.seeOther(uri).build();
+    return uri;
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
@@ -161,6 +199,40 @@ public class WebRegionResource extends AbstractWebRegionResource {
     if (fullName == null) {
       fullName = name;
     }
+    URI uri = updateRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(
+      @FormParam("name") String name,
+      @FormParam("fullname") String fullName,
+      @FormParam("classification") RegionClassification classification,
+      @FormParam("country") String countryISO,
+      @FormParam("currency") String currencyISO,
+      @FormParam("timezone") String timeZoneId) {
+    if (data().getRegion().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
+    name = StringUtils.trimToNull(name);
+    fullName = StringUtils.trimToNull(fullName);
+    countryISO = StringUtils.trimToNull(countryISO);
+    currencyISO = StringUtils.trimToNull(currencyISO);
+    timeZoneId = StringUtils.trimToNull(timeZoneId);
+    if (name == null || classification == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    if (fullName == null) {
+      fullName = name;
+    }
+    updateRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    return Response.ok().build();
+  }
+
+  private URI updateRegion(String name, String fullName, RegionClassification classification, String countryISO, String currencyISO, String timeZoneId) {
     ManageableRegion region = new ManageableRegion();
     region.setUniqueId(data().getRegion().getUniqueId());
     region.setParentRegionIds(data().getRegion().getRegion().getParentRegionIds());
@@ -168,16 +240,16 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setFullName(fullName);
     region.setClassification(classification);
     region.setCountryISO(countryISO);
-    region.setCurrency(currencyISO != null ? Currency.getInstance(currencyISO) : null);
+    region.setCurrency(currencyISO != null ? CurrencyUnit.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     doc = data().getRegionMaster().update(doc);
     data().setRegion(doc);
-    URI uri = WebRegionResource.uri(data());
-    return Response.seeOther(uri).build();
+    return WebRegionResource.uri(data());
   }
 
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     RegionDocument doc = data().getRegion();
     if (doc.isLatest() == false) {
@@ -188,6 +260,17 @@ public class WebRegionResource extends AbstractWebRegionResource {
     URI uri = WebRegionResource.uri(data());
     return Response.seeOther(uri).build();
   }
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    RegionDocument doc = data().getRegion();
+    if (doc.isLatest()) {
+      data().getRegionMaster().remove(doc.getUniqueId());
+    }
+    return Response.ok().build();
+  }
+  
 
   //-------------------------------------------------------------------------
   /**

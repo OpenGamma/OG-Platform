@@ -10,7 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -45,15 +45,15 @@ public class YieldCurveConfigPopulator {
   }
 
   public static void populateCurveDefinitionConfigMaster(ConfigTypeMaster<YieldCurveDefinition> configMaster) {
-    Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildStandardCurveDefintions();
-    for (Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
+    Map<String, Map<CurrencyUnit, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildStandardCurveDefintions();
+    for (Map.Entry<String, Map<CurrencyUnit, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
       String curveName = entry.getKey();
-      Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
-      for (Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
-        Currency ccy = currencyEntry.getKey();
+      Map<CurrencyUnit, YieldCurveDefinition> definitions = entry.getValue();
+      for (Map.Entry<CurrencyUnit, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
+        CurrencyUnit ccy = currencyEntry.getKey();
         YieldCurveDefinition definition = currencyEntry.getValue();
         ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>();
-        document.setName(curveName + "_" + ccy.getISOCode());
+        document.setName(curveName + "_" + ccy.getCode());
         document.setValue(definition);
         ConfigMasterUtils.storeByName(configMaster, document);
         dumpDefinition(definition);
@@ -86,10 +86,10 @@ public class YieldCurveConfigPopulator {
   }
 
   public static void populateCurveSpecificationBuilderConfigMaster(ConfigTypeMaster<CurveSpecificationBuilderConfiguration> configMaster) {
-    Map<Currency, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
-    for (Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
+    Map<CurrencyUnit, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
+    for (Map.Entry<CurrencyUnit, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
       ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
-      doc.setName("DEFAULT_" + entry.getKey().getISOCode());
+      doc.setName("DEFAULT_" + entry.getKey().getCode());
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }

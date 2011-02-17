@@ -71,6 +71,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(
       @FormParam("name") String name,
       @FormParam("configxml") String xml) {
@@ -93,7 +94,31 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
     }
     
     // System.out.println(xml);  // cannot parse to Fudge yet
+    URI uri = updateConfig(name);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(
+      @FormParam("name") String name,
+      @FormParam("configxml") String xml) {
+    if (data().getConfig().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
     
+    name = StringUtils.trimToNull(name);
+    xml = StringUtils.trimToNull(xml);
+    if (name == null || xml == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    
+    updateConfig(name);
+    return Response.ok().build();
+  }
+
+  private URI updateConfig(String name) {
     ConfigDocument<T> oldDoc = data().getConfig();
     ConfigDocument<T> doc = new ConfigDocument<T>();
     doc.setUniqueId(oldDoc.getUniqueId());
@@ -102,10 +127,12 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
     doc = data().getConfigTypeMaster().update(doc);
     data().setConfig(doc);
     URI uri = WebConfigTypeResource.uri(data());
-    return Response.seeOther(uri).build();
+    return uri;
   }
+  
 
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     ConfigDocument<?> doc = data().getConfig();
     if (doc.isLatest() == false) {
@@ -115,6 +142,16 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
     data().getConfigTypeMaster().remove(doc.getUniqueId());
     URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
+  }
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    ConfigDocument<?> doc = data().getConfig();
+    if (doc.isLatest()) {
+      data().getConfigTypeMaster().remove(doc.getUniqueId());
+    }
+    return Response.ok().build();
   }
 
   //-------------------------------------------------------------------------

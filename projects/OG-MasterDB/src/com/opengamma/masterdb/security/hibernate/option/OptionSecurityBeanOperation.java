@@ -364,7 +364,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
         bean.setStrike(security.getStrike());
         bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
-        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
+        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
         return bean;
       }
 
@@ -372,8 +372,8 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       public OptionSecurityBean visitFXOptionSecurity(FXOptionSecurity security) {
         final OptionSecurityBean bean = createSecurityBean(security);
         bean.setCounterparty(security.getCounterparty());
-        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getISOCode()));
-        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getISOCode()));
+        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
+        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getCode()));
         return bean;
       }
 

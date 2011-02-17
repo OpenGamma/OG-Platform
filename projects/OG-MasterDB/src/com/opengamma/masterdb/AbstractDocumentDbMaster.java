@@ -470,6 +470,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
           }
         });
         changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
+        return;
       } catch (DataIntegrityViolationException ex) {
         if (retry == getMaxRetries()) {
           throw ex;

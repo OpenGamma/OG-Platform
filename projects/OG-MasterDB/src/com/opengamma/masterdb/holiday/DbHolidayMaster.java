@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -108,7 +108,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     final HolidaySearchResult result = new HolidaySearchResult();
     IdentifierSearch regionKeys = request.getRegionKeys();
     IdentifierSearch exchangeKeys = request.getExchangeKeys();
-    String currencyISO = (request.getCurrency() != null ? request.getCurrency().getISOCode() : null);
+    String currencyISO = (request.getCurrency() != null ? request.getCurrency().getCode() : null);
     if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
         IdentifierSearch.canMatch(regionKeys) == false ||
         IdentifierSearch.canMatch(exchangeKeys) == false) {
@@ -260,7 +260,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       .addValue("region_value", (holiday.getRegionKey() != null ? holiday.getRegionKey().getValue() : null))
       .addValue("exchange_scheme", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getScheme().getName() : null))
       .addValue("exchange_value", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getValue() : null))
-      .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getISOCode() : null));
+      .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null));
     // the arguments for inserting into the date table
     final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
     for (LocalDate date : holiday.getHolidayDates()) {
@@ -367,7 +367,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         holiday.setExchangeKey(Identifier.of(exchangeScheme, exchangeValue));
       }
       if (currencyISO != null) {
-        holiday.setCurrency(Currency.getInstance(currencyISO));
+        holiday.setCurrency(CurrencyUnit.of(currencyISO));
       }
       HolidayDocument doc = new HolidayDocument(holiday);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));

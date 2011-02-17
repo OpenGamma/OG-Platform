@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -55,7 +55,7 @@ public class BondSecurityToBondDefinitionConverter {
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement) {
     Validate.notNull(security);
     Validate.notNull(rollToSettlement);
-    final Currency currency = security.getCurrency();
+    final CurrencyUnit currency = security.getCurrency();
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_BOND_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     return getBond(security, rollToSettlement, convention);
@@ -83,12 +83,12 @@ public class BondSecurityToBondDefinitionConverter {
     } else {
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
-    final Currency currency = security.getCurrency();
+    final CurrencyUnit currency = security.getCurrency();
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     //TODO remove this when the definitions for USD treasuries are correct
-    final DayCount daycount = currency.equals(Currency.getInstance("USD")) ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
+    final DayCount daycount = currency.equals(CurrencyUnit.USD) ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
     final boolean isEOMConvention = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);

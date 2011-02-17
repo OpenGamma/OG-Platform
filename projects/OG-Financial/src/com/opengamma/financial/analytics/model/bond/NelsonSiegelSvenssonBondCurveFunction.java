@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -77,23 +77,23 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
     FIXED_PARAMETERS.set(0);
   }
 
-  private final Currency _currency;
+  private final CurrencyUnit _currency;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
 
   public NelsonSiegelSvenssonBondCurveFunction(final String currencyName) {
     Validate.notNull(currencyName, "currency name");
-    _currency = Currency.getInstance(currencyName);
+    _currency = CurrencyUnit.of(currencyName);
   }
 
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _currency.getUniqueId()), createValueProperties().with(
-        PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + _currency.getISOCode()).get());
+        PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + _currency.getCode()).get());
     _results = Sets.newHashSet(_result);
   }
 
@@ -143,7 +143,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
             throw new IllegalArgumentException("YTM should be a double");
           }
           final BondDefinition definition = converter.getBond(bondSec, true);
-          final Bond bond = definition.toDerivative(now, PROPERTY_PREFIX + "_" + _currency.getISOCode());
+          final Bond bond = definition.toDerivative(now, PROPERTY_PREFIX + "_" + _currency.getCode());
           t[i] = LAST_DATE.visit(bond);
           ytm[i++] = ((Double) ytmObject / 100);
         }

@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.Instant;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -42,13 +42,13 @@ public class ConfigDBVolatilitySurfaceSpecificationSource implements VolatilityS
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilitySurfaceSpecification getSpecification(final Currency ccy, final String name) {
-    return _configSource.getLatestByName(VolatilitySurfaceSpecification.class, name + "_" + ccy.getISOCode());
+  public VolatilitySurfaceSpecification getSpecification(final CurrencyUnit ccy, final String name) {
+    return _configSource.getLatestByName(VolatilitySurfaceSpecification.class, name + "_" + ccy.getCode());
   }
 
   @Override
-  public VolatilitySurfaceSpecification getSpecification(final Currency ccy, final String name, final Instant version) {
-    return _configSource.getByName(VolatilitySurfaceSpecification.class, name + "_" + ccy.getISOCode(), version);
+  public VolatilitySurfaceSpecification getSpecification(final CurrencyUnit ccy, final String name, final Instant version) {
+    return _configSource.getByName(VolatilitySurfaceSpecification.class, name + "_" + ccy.getCode(), version);
   }
 
 }

@@ -15,7 +15,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
@@ -28,17 +28,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
   private UniqueIdentifier _uniqueIdentifier;
-  private final Currency _currency;
+  private final CurrencyUnit _currency;
   private final String _name;
   private final String _interpolatorName;
   private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
   private final Identifier _region;
   
-  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName) {
+  public YieldCurveDefinition(CurrencyUnit currency, Identifier region, String name, String interpolatorName) {
     this(currency, region, name, interpolatorName, null);
   }
   
-  public YieldCurveDefinition(Currency currency, Identifier region, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
+  public YieldCurveDefinition(CurrencyUnit currency, Identifier region, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "Currency");
 //    ArgumentChecker.notNull(region, "RegionID");
     ArgumentChecker.notNull(interpolatorName, "Interpolator name");
@@ -62,7 +62,7 @@ public class YieldCurveDefinition implements Serializable, UniqueIdentifiable, M
   /**
    * @return the currency
    */
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
   

@@ -39,7 +39,7 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
       final String fundingCurveName) {
     final Double presentValue = CALCULATOR.visit(swap, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, security), createValueProperties().with(ValuePropertyNames.CURRENCY,
-        getCurrencyForTarget(security).getISOCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
+        getCurrencyForTarget(security).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 
@@ -56,7 +56,7 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(
-        new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getISOCode())
+        new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, getCurrencyForTarget(target).getCode())
             .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
   }
 
@@ -65,7 +65,7 @@ public class PresentValueFixedFloatSwapFunction extends FixedFloatSwapFunction {
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
     return Collections
         .singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY,
-            getCurrencyForTarget(target).getISOCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
+            getCurrencyForTarget(target).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
             .get()));
   }
 

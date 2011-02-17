@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.ExchangeUtils;
@@ -90,7 +90,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
       Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
       //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
       final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-      final Currency currency = security.getCurrency();
+      final CurrencyUnit currency = security.getCurrency();
       final String conventionName = currency + "_BOND_FUTURE_DELIVERABLE_CONVENTION";
       final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName);
       final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);
@@ -121,7 +121,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
 
   @Override
   public FixedIncomeFutureInstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    final String currency = security.getCurrency().getISOCode();
+    final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_IRFUTURE"));
     final Exchange exchange = _exchangeSource.getSingleExchange(ExchangeUtils.isoMicExchangeId(security.getTradingExchange()));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, exchange, HolidayType.TRADING);

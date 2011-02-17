@@ -58,6 +58,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
@@ -91,6 +92,34 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       String html = getFreemarker().build("exchanges/exchange-update.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = updateExchange(name, idScheme, idValue, regionScheme, regionValue);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(
+      @FormParam("name") String name,
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue,
+      @FormParam("regionscheme") String regionScheme,
+      @FormParam("regionvalue") String regionValue) {
+    if (data().getExchange().isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    
+    name = StringUtils.trimToNull(name);
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (name == null || idScheme == null || idValue == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    updateExchange(name, idScheme, idValue, regionScheme, regionValue);
+    return Response.ok().build();
+  }
+
+  private URI updateExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
     ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
     exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
@@ -99,21 +128,31 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);
     URI uri = WebExchangeResource.uri(data());
-    return Response.seeOther(uri).build();
+    return uri;
   }
 
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     ExchangeDocument doc = data().getExchange();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
     }
-    
     data().getExchangeMaster().remove(doc.getUniqueId());
     URI uri = WebExchangeResource.uri(data());
     return Response.seeOther(uri).build();
   }
-
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    ExchangeDocument doc = data().getExchange();
+    if (doc.isLatest()) {
+      data().getExchangeMaster().remove(doc.getUniqueId());
+    }
+    return Response.ok().build();
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.

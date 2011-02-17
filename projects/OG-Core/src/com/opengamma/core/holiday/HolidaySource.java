@@ -7,7 +7,7 @@ package com.opengamma.core.holiday;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -38,7 +38,7 @@ public interface HolidaySource {
    * @param currency  the currency to check, not null
    * @return true if it is a holiday
    */
-  boolean isHoliday(LocalDate dateToCheck, Currency currency);
+  boolean isHoliday(LocalDate dateToCheck, CurrencyUnit currency);
 
   /**
    * Checks if a date is a holiday for a BANK, SETTLEMENT or TRADING type.
