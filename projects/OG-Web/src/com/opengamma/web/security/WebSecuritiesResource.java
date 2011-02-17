@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * RESTful resource for all securities.
@@ -117,6 +119,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
@@ -144,9 +147,40 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       uri = data().getUriInfo().getAbsolutePathBuilder().path(loadedSecurities.get(identifierBundle).toLatest().toString()).build();
     } else {
       uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
-//      uri = uri(data());
     }
     return Response.seeOther(uri).build();
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    if (idScheme == null || idValue == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
+    Collection<IdentifierBundle> requestBundles = buildSecurityRequest(scheme, idValue);
+    SecurityLoader securityLoader = data().getSecurityLoader();
+    Map<IdentifierBundle, UniqueIdentifier> loadedSecurities = securityLoader.loadSecurity(requestBundles);
+    FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
+    return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
+  }
+
+  private FlexiBean createPostJSONOutput(Map<IdentifierBundle, UniqueIdentifier> loadedSecurities, Collection<IdentifierBundle> requestBundles, IdentificationScheme scheme) {
+    Map<String, String> result = new HashMap<String, String>();
+    for (IdentifierBundle identifierBundle : requestBundles) {
+      UniqueIdentifier uniqueIdentifier = loadedSecurities.get(identifierBundle);
+      String objectIdentifier = uniqueIdentifier != null ? uniqueIdentifier.getObjectId().toString() : null;
+      result.put(identifierBundle.getIdentifier(scheme), objectIdentifier);
+    }
+    FlexiBean out = createRootData();
+    out.put("requestScheme", scheme);
+    out.put("addedSecurities", result);
+    return out;
   }
 
   private IdentifierBundle buildRequestAsIdentifierBundle(IdentificationScheme scheme, Collection<IdentifierBundle> bundles) {

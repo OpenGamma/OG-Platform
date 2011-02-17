@@ -5,7 +5,10 @@
  */
 package com.opengamma.financial.batch;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -22,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -29,8 +34,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewInternal;
 import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -42,6 +49,7 @@ import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
@@ -71,6 +79,11 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   private final CommandLineBatchJob _job;
   
   /**
+   * View associated with this batch
+   */
+  private ViewInternal _view;
+  
+  /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
    * _observationDate.
    */
@@ -94,6 +107,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
    * SecurityMaster, etc.
    */
   private final Instant _staticDataTime;
+  
+  private final Map<ComputationTargetSpecification, ComputationTarget> _spec2Target = new HashMap<ComputationTargetSpecification, ComputationTarget>();
   
   // --------------------------------------------------------------------------
   // Variables initialized during the batch run
@@ -340,6 +355,50 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.init(getValuationTime());
     setView(view);
+    
+    for (ComputationTarget target : getViewEvaluationModel().getAllComputationTargets()) {
+      _spec2Target.put(target.toSpecification(), target);
+    }
+  }
+  
+  public void setView(ViewInternal view) {
+    _view = view;
   }
 
+  public ViewInternal getView() {
+    return _view;
+  }
+  
+  @Override
+  public Collection<String> getCalculationConfigurations() {
+    Collection<String> calcConfNames = new HashSet<String>();
+    for (ViewCalculationConfiguration calcConf : getViewDefinition().getAllCalculationConfigurations()) {
+      calcConfNames.add(calcConf.getName());      
+    }
+    return calcConfNames;
+  }
+  
+  @Override
+  public Set<String> getAllOutputValueNames() {
+    return getViewEvaluationModel().getAllOutputValueNames();
+  }
+  
+  @Override
+  public Collection<ComputationTargetSpecification> getAllComputationTargets() {
+    return _spec2Target.keySet();
+  }
+  
+  @Override
+  public ComputationTarget resolve(ComputationTargetSpecification spec) {
+    return _spec2Target.get(spec);
+  }
+
+  public ViewDefinition getViewDefinition() {
+    return getView().getDefinition();
+  }
+
+  public ViewEvaluationModel getViewEvaluationModel() {
+    return getView().getViewEvaluationModel(); // current one OK in batch - the view's been init()'ed with the right valuation time above
+  }
+  
 }
