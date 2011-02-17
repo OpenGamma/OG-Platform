@@ -17,8 +17,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -213,11 +211,17 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
     
     ViewComputationCache cache = getCache(result);
     
-    openSession();
     try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      joinSession();
+      
       writeImpl(cache, result, depGraph);
-    } finally {
-      closeSession();
+    
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
   }
   
@@ -411,21 +415,17 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
       return;
     }
     
-    TransactionStatus transaction = getTransactionManager().getTransaction(new DefaultTransactionDefinition());
-    try {
+    // need to figure out why these 2 lines are needed for the insertRows() code not to block...
+    // this is bad - loss of transactionality...
+    getSessionFactory().getCurrentSession().getTransaction().commit();
+    getSessionFactory().getCurrentSession().beginTransaction();
+    
+    insertRows("risk", RiskValue.sqlInsertRisk(), successes);
+    insertRows("risk failure", RiskFailure.sqlInsertRiskFailure(), failures);
+    insertRows("risk failure reason", FailureReason.sqlInsertRiskFailureReason(), failureReasons);
       
-      insertRows("risk", RiskValue.sqlInsertRisk(), successes);
-      insertRows("risk failure", RiskFailure.sqlInsertRiskFailure(), failures);
-      insertRows("risk failure reason", FailureReason.sqlInsertRiskFailureReason(), failureReasons);
-      
-      upsertStatusEntries(result.getSpecification(), StatusEntry.Status.SUCCESS, successfulTargets);
-      upsertStatusEntries(result.getSpecification(), StatusEntry.Status.FAILURE, failedTargets);
-      
-      getTransactionManager().commit(transaction);
-    } catch (RuntimeException e) {
-      getTransactionManager().rollback(transaction);
-      throw e;
-    }
+    upsertStatusEntries(result.getSpecification(), StatusEntry.Status.SUCCESS, successfulTargets);
+    upsertStatusEntries(result.getSpecification(), StatusEntry.Status.FAILURE, failedTargets);
   }
   
   // --------------------------------------------------------------------------

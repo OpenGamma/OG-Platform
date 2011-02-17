@@ -32,11 +32,18 @@ public class AdHocBatchJobRun extends BatchJobRun {
    */
   private final AdHocBatchResult _result;
   
+  /**
+   * Snapshot ID
+   */
+  private final SnapshotId _snapshotId;
+  
   // --------------------------------------------------------------------------
   
-  public AdHocBatchJobRun(AdHocBatchResult result) {
+  public AdHocBatchJobRun(AdHocBatchResult result,
+      SnapshotId snapshotId) {
     super(result.getBatchId());
     _result = result;
+    _snapshotId = snapshotId;
   }
   
   // --------------------------------------------------------------------------
@@ -47,7 +54,7 @@ public class AdHocBatchJobRun extends BatchJobRun {
   
   @Override
   public SnapshotId getSnapshotId() {
-    throw new UnsupportedOperationException();
+    return _snapshotId;
   }
 
   @Override

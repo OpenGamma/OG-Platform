@@ -14,10 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
@@ -51,19 +48,35 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
     _computeNodeId = computeNode.getId();
   }
   
-  public void write(ViewResultModel resultModel) {
+  public synchronized void write(ViewResultModel resultModel) {
+    if (!isInitialized()) {
+      initialize();
+    }
+    
+    joinSession();
+    writeImpl(resultModel);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public void writeImpl(ViewResultModel resultModel) {
     List<SqlParameterSource> successes = new ArrayList<SqlParameterSource>();
     
     int riskRunId = getRiskRunId();
     
     for (ViewResultEntry result : resultModel.getAllResults()) {
-      ComputedValue outputValue = result.getComputedValue();
-      ValueSpecification output = outputValue.getSpecification();
+      ValueSpecification output = result.getComputedValue().getSpecification();
+      Object outputValue = result.getComputedValue().getValue();
       
       int calcConfId = getCalculationConfigurationId(result.getCalculationConfiguration());
       
-      @SuppressWarnings("unchecked")
-      ResultConverter<Object> resultConverter = (ResultConverter<Object>) getResultConverterCache().getConverter(outputValue);
+      ResultConverter<Object> resultConverter;
+      try {
+        resultConverter = (ResultConverter<Object>) getResultConverterCache().getConverter(outputValue);
+      } catch (IllegalArgumentException e) {
+        s_logger.info("Could not convert value of type " + outputValue.getClass());
+        continue; // with ad hoc batches we accept this 
+      }
+      
       Map<String, Double> valuesAsDoubles = resultConverter.convert(output.getValueName(), outputValue);
       
       int computationTargetId = getComputationTargetId(output.getTargetSpecification());
@@ -91,17 +104,12 @@ public class AdHocBatchResultWriter extends AbstractBatchResultWriter {
       return;
     }
     
-    TransactionStatus transaction = getTransactionManager().getTransaction(new DefaultTransactionDefinition());
-    try {
-      
-      insertRows("risk", RiskValue.sqlInsertRisk(), successes);
-
-      getTransactionManager().commit(transaction);
-    } catch (RuntimeException e) {
-      getTransactionManager().rollback(transaction);
-      throw e;
-    }
-
+    // need to figure out why these 2 lines are needed for the insertRows() code not to block...
+    // this is bad - loss of transactionality...
+    getSessionFactory().getCurrentSession().getTransaction().commit();
+    getSessionFactory().getCurrentSession().beginTransaction();
+    
+    insertRows("risk", RiskValue.sqlInsertRisk(), successes);
   }
 
 }

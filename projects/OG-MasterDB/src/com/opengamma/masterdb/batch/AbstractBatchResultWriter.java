@@ -16,9 +16,9 @@ import java.util.Set;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
-import org.hibernate.impl.StatelessSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -111,7 +111,7 @@ public abstract class AbstractBatchResultWriter {
   /**
    * We use Hibernate to generate unique IDs
    */
-  private StatelessSessionImpl _session;
+  private SessionImplementor _session;
   
   /**
    * Have DB connections been set up successfully?
@@ -183,11 +183,15 @@ public abstract class AbstractBatchResultWriter {
   // --------------------------------------------------------------------------
   
   public void openSession() {
-    _session = (StatelessSessionImpl) getSessionFactory().openStatelessSession();
+    _session = (SessionImplementor) getSessionFactory().openStatelessSession();
+  }
+  
+  public void joinSession() {
+    _session = (SessionImplementor) getSessionFactory().getCurrentSession();
   }
   
   public void closeSession() {
-    _session.close();
+    //_session.close();
     _session = null;
   }
   
@@ -252,13 +256,10 @@ public abstract class AbstractBatchResultWriter {
     RuntimeException lastException = null;
     for (int i = 0; i < 2; i++) {
       try {
-        getSessionFactory().getCurrentSession().beginTransaction();
         dbId = dbManager.getComputeNode(nodeId).getId();
-        getSessionFactory().getCurrentSession().getTransaction().commit();
         lastException = null;
         break;
       } catch (RuntimeException e) {
-        getSessionFactory().getCurrentSession().getTransaction().rollback();
         lastException = e;
       }
     }
@@ -284,13 +285,10 @@ public abstract class AbstractBatchResultWriter {
     RuntimeException lastException = null;
     for (int i = 0; i < 2; i++) {
       try {
-        getSessionFactory().getCurrentSession().beginTransaction();
         dbId = dbManager.getRiskValueName(name).getId();
-        getSessionFactory().getCurrentSession().getTransaction().commit();
         lastException = null;
         break;
       } catch (RuntimeException e) {
-        getSessionFactory().getCurrentSession().getTransaction().rollback();
         lastException = e;
       }
     }
@@ -316,13 +314,10 @@ public abstract class AbstractBatchResultWriter {
     RuntimeException lastException = null;
     for (int i = 0; i < 2; i++) {
       try {
-        getSessionFactory().getCurrentSession().beginTransaction();
         dbId = dbManager.getFunctionUniqueId(uniqueId).getId();
-        getSessionFactory().getCurrentSession().getTransaction().commit();
         lastException = null;
         break;
       } catch (RuntimeException e) {
-        getSessionFactory().getCurrentSession().getTransaction().rollback();
         lastException = e;
       }
     }

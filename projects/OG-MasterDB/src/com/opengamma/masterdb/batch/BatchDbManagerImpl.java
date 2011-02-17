@@ -66,6 +66,7 @@ import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
+import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
@@ -444,7 +445,12 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   }
   
   /*package*/ void deleteRun(RiskRun riskRun) {
+    deleteRiskValues(riskRun);
+    deleteRiskFailures(riskRun);
+    getHibernateTemplate().deleteAll(riskRun.getCalculationConfigurations());
+    getHibernateTemplate().deleteAll(riskRun.getProperties());
     getHibernateTemplate().delete(riskRun);
+    getHibernateTemplate().flush();
   }
   
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
@@ -458,13 +464,22 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     
     getHibernateTemplate().update(riskRun);
     
-    // clear risk failures
+    deleteRiskFailures(riskRun);
+    
+    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
+  }
+  
+  private void deleteRiskValues(RiskRun riskRun) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("run_id", riskRun.getId());
+    getJdbcTemplate().update(RiskValue.sqlDeleteRiskValues(), parameters);
+  }
+
+  private void deleteRiskFailures(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
     getJdbcTemplate().update(FailureReason.sqlDeleteRiskFailureReasons(), parameters);
     getJdbcTemplate().update(RiskFailure.sqlDeleteRiskFailures(), parameters);
-    
-    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
@@ -526,65 +541,54 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
 
   @Override
   public void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
       
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-      if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
-      }
-      
-      Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
-      for (LiveDataValue value : values) {
-        LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
-        if (entry != null) {
-          if (entry.getValue() != value.getValue()) {
-            entry.setValue(value.getValue());
-            changedEntries.add(entry);
-          }
-        } else {
-          entry = new LiveDataSnapshotEntry();
-          entry.setSnapshot(snapshot);
-          entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
-          entry.setField(getLiveDataField(value.getFieldName()));
-          entry.setValue(value.getValue());
-          snapshot.addEntry(entry);
-          changedEntries.add(entry);
-        }
-      }
-      
-      getHibernateTemplate().saveOrUpdateAll(changedEntries);
+      addValuesToSnapshotImpl(snapshotId, values);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  private void addValuesToSnapshotImpl(SnapshotId snapshotId, Set<LiveDataValue> values) {
+    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
+    
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+    if (snapshot == null) {
+      throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
+    }
+    
+    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
+    for (LiveDataValue value : values) {
+      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
+      if (entry != null) {
+        if (entry.getValue() != value.getValue()) {
+          entry.setValue(value.getValue());
+          changedEntries.add(entry);
+        }
+      } else {
+        entry = new LiveDataSnapshotEntry();
+        entry.setSnapshot(snapshot);
+        entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
+        entry.setField(getLiveDataField(value.getFieldName()));
+        entry.setValue(value.getValue());
+        snapshot.addEntry(entry);
+        changedEntries.add(entry);
+      }
+    }
+    
+    getHibernateTemplate().saveOrUpdateAll(changedEntries);
   }
 
   @Override
   public void createLiveDataSnapshot(SnapshotId snapshotId) {
-    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-      if (snapshot != null) {
-        s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
-        return;
-      }
-      
-      snapshot = new LiveDataSnapshot();
-      
-      ObservationDateTime snapshotTime = getObservationDateTime(
-          snapshotId.getObservationDate(), 
-          snapshotId.getObservationTime());
-      snapshot.setSnapshotTime(snapshotTime);
-      
-      getHibernateTemplate().save(snapshot);
+      createLiveDataSnapshotImpl(snapshotId);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
@@ -593,21 +597,44 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     }
   }
 
+  private void createLiveDataSnapshotImpl(SnapshotId snapshotId) {
+    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
+
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+    if (snapshot != null) {
+      s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
+      return;
+    }
+    
+    snapshot = new LiveDataSnapshot();
+    
+    ObservationDateTime snapshotTime = getObservationDateTime(
+        snapshotId.getObservationDate(), 
+        snapshotId.getObservationTime());
+    snapshot.setSnapshotTime(snapshotTime);
+    
+    getHibernateTemplate().save(snapshot);
+  }
+
   @Override
   public void endBatch(BatchJobRun batch) {
-    s_logger.info("Ending batch {}", batch);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      RiskRun run = getRiskRunFromHandle(batch);
-      endRun(run);
+      endBatchImpl(batch);
     
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  private void endBatchImpl(BatchJobRun batch) {
+    s_logger.info("Ending batch {}", batch);
+    
+    RiskRun run = getRiskRunFromHandle(batch);
+    endRun(run);
   }
 
   @Override
@@ -683,80 +710,84 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
 
   @Override
   public void startBatch(BatchJobRun batch) {
-    s_logger.info("Starting batch {}", batch);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      RiskRun run;
-      switch (batch.getRunCreationMode()) {
-        case AUTO:
-          run = getRiskRunFromDb(batch);
-          
-          if (run != null) {
-            // also check parameter equality
-            Map<String, String> existingProperties = run.getPropertiesMap();
-            Map<String, String> newProperties = batch.getParametersMap();
-            
-            if (!existingProperties.equals(newProperties)) {
-              Set<Map.Entry<String, String>> symmetricDiff = 
-                Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
-              throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
-            }
-          }
-          
-          if (run == null) {
-            run = createRiskRun(batch);
-          } else {
-            restartRun(batch, run);
-          }
-          break;
-          
-        case CREATE_NEW_OVERWRITE:
-          run = getRiskRunFromDb(batch);
-          if (run != null) {
-            deleteRun(run);            
-          }
-          
-          run = createRiskRun(batch);
-          break;
-            
-        case CREATE_NEW:
-          run = createRiskRun(batch);
-          break;
-        
-        case REUSE_EXISTING:
-          run = getRiskRunFromDb(batch);
-          if (run == null) {
-            throw new IllegalStateException("Cannot find run in database for " + batch);
-          }
-          restartRun(batch, run);
-          break;
-        
-        default:
-          throw new RuntimeException("Unexpected run creation mode " + batch.getRunCreationMode());
-      }
-
-      // make sure calc conf collection is inited
-      for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
-        assert cc != null;
-      }
-      
-      Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
-      Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
-      
-      DbHandle dbHandle = new DbHandle();
-      dbHandle._riskRun = run;
-      dbHandle._riskValueNames = riskValueNames;
-      dbHandle._computationTargets = computationTargets;
-      
-      batch.setDbHandle(dbHandle);
+      startBatchImpl(batch);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  private void startBatchImpl(BatchJobRun batch) {
+    s_logger.info("Starting batch {}", batch);
+    
+    RiskRun run;
+    switch (batch.getRunCreationMode()) {
+      case AUTO:
+        run = getRiskRunFromDb(batch);
+        
+        if (run != null) {
+          // also check parameter equality
+          Map<String, String> existingProperties = run.getPropertiesMap();
+          Map<String, String> newProperties = batch.getParametersMap();
+          
+          if (!existingProperties.equals(newProperties)) {
+            Set<Map.Entry<String, String>> symmetricDiff = 
+              Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
+            throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
+          }
+        }
+        
+        if (run == null) {
+          run = createRiskRun(batch);
+        } else {
+          restartRun(batch, run);
+        }
+        break;
+        
+      case CREATE_NEW_OVERWRITE:
+        run = getRiskRunFromDb(batch);
+        if (run != null) {
+          deleteRun(run);            
+        }
+        
+        run = createRiskRun(batch);
+        break;
+          
+      case CREATE_NEW:
+        run = createRiskRun(batch);
+        break;
+      
+      case REUSE_EXISTING:
+        run = getRiskRunFromDb(batch);
+        if (run == null) {
+          throw new IllegalStateException("Cannot find run in database for " + batch);
+        }
+        restartRun(batch, run);
+        break;
+      
+      default:
+        throw new RuntimeException("Unexpected run creation mode " + batch.getRunCreationMode());
+    }
+
+    // make sure calc conf collection is inited
+    for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
+      assert cc != null;
+    }
+    
+    Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
+    Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
+    
+    DbHandle dbHandle = new DbHandle();
+    dbHandle._riskRun = run;
+    dbHandle._riskValueNames = riskValueNames;
+    dbHandle._computationTargets = computationTargets;
+    
+    batch.setDbHandle(dbHandle);
   }
   
   private static class DbHandle {
@@ -976,25 +1007,40 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
 
   @Override
   public void write(AdHocBatchResult result) {
-    SnapshotId snapshotId = getAdHocBatchSnapshotId(result.getBatchId());
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
     
-    createLiveDataSnapshot(snapshotId);
+      SnapshotId snapshotId = getAdHocBatchSnapshotId(result.getBatchId());
     
-    Set<LiveDataValue> values = new HashSet<LiveDataValue>();
-    for (ComputedValue liveData : result.getResult().getAllLiveData()) {
-      values.add(new LiveDataValue(liveData));      
+      createLiveDataSnapshotImpl(snapshotId);
+      
+      Set<LiveDataValue> values = new HashSet<LiveDataValue>();
+      for (ComputedValue liveData : result.getResult().getAllLiveData()) {
+        values.add(new LiveDataValue(liveData));      
+      }
+      
+      addValuesToSnapshotImpl(snapshotId, values);
+      
+      AdHocBatchJobRun batch = new AdHocBatchJobRun(result, snapshotId);
+      startBatchImpl(batch);
+      
+      AdHocBatchResultWriter writer = new AdHocBatchResultWriter(
+          _dbSource,
+          getRiskRunFromHandle(batch),
+          getLocalComputeNode(),
+          new ResultConverterCache(),
+          getDbHandle(batch)._computationTargets,
+          getDbHandle(batch)._riskValueNames);
+      
+      writer.write(result.getResult());
+      
+      endBatchImpl(batch);
+     
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
     }
-    
-    addValuesToSnapshot(snapshotId, values);
-    
-    AdHocBatchJobRun batch = new AdHocBatchJobRun(result);
-    startBatch(batch);
-    
-    for (ViewResultEntry entry : result.getResult().getAllResults()) {
-                                    
-    }
-    
-    endBatch(batch);
   }
   
 }

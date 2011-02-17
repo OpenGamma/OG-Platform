@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.List;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -30,9 +28,13 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
     final MutableFudgeFieldContainer message = ViewResultModelBuilder.createResultModelMessage(context, resultModel);
+    
+    final MutableFudgeFieldContainer liveDataMsg = context.newMessage();
     for (ComputedValue value : resultModel.getAllLiveData()) {
-      message.add(FIELD_LIVEDATA, value);
+      context.objectToFudgeMsg(liveDataMsg, null, 1, value);
     }
+    message.add(FIELD_LIVEDATA, liveDataMsg);
+    
     return message;
   }
 
@@ -40,9 +42,9 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   public ViewComputationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(context, message);
     
-    List<FudgeField> liveData = message.getAllByName(FIELD_LIVEDATA);
-    for (FudgeField value : liveData) {
-      resultModel.addLiveData((ComputedValue) value.getValue());
+    for (FudgeField field : message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_LIVEDATA))) {
+      ComputedValue liveData = context.fieldValueToObject(ComputedValue.class, field);
+      resultModel.addLiveData(liveData);      
     }
     
     return resultModel;

@@ -47,7 +47,7 @@ public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
   public void write(AdHocBatchResult batch) {
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeFieldContainer defnMsg = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(defnMsg, "batch", null, batch, AdHocBatchResult.class);
+    sctx.objectToFudgeMsg(defnMsg, "batch", null, batch);
     final RestTarget target = getTargetBase();
     getRestClient().post(target, defnMsg);
   }
