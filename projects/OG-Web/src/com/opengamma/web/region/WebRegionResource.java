@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.ManageableRegion;
@@ -158,7 +158,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setFullName(fullName);
     region.setClassification(classification);
     region.setCountryISO(countryISO);
-    region.setCurrency(currencyISO != null ? Currency.getInstance(currencyISO) : null);
+    region.setCurrency(currencyISO != null ? CurrencyUnit.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
@@ -240,7 +240,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setFullName(fullName);
     region.setClassification(classification);
     region.setCountryISO(countryISO);
-    region.setCurrency(currencyISO != null ? Currency.getInstance(currencyISO) : null);
+    region.setCurrency(currencyISO != null ? CurrencyUnit.of(currencyISO) : null);
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     doc = data().getRegionMaster().update(doc);

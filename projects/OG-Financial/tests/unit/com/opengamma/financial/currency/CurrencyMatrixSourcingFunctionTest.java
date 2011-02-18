@@ -15,7 +15,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,9 +33,9 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class CurrencyMatrixSourcingFunctionTest {
 
-  private Currency _currencyUSD = Currency.getInstance("USD");
-  private Currency _currencyGBP = Currency.getInstance("GBP");
-  private Currency _currencyEUR = Currency.getInstance("EUR");
+  private CurrencyUnit _currencyUSD = CurrencyUnit.USD;
+  private CurrencyUnit _currencyGBP = CurrencyUnit.GBP;
+  private CurrencyUnit _currencyEUR = CurrencyUnit.EUR;
   private double _rateUSD_GBP = 1.6;
   private double _rateEUR_GBP = 1.1;
   private FunctionExecutionContext _functionExecutionContext;

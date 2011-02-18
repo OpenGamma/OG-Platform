@@ -47,8 +47,8 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     double t1 = _omega - 2 * _kappa * _rho;
     double rhoStar = 1 - _rho * _rho;
     double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
-    _alphaMin = (t1 - root) / _omega / rhoStar;
-    _alphaMax = (t1 + root) / _omega / rhoStar;
+    _alphaMin = (t1 - root) / _omega / rhoStar - 1;
+    _alphaMax = (t1 + root) / _omega / rhoStar + 1;
 
   }
 

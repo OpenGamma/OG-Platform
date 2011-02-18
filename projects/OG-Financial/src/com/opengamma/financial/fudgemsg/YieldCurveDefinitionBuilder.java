@@ -17,7 +17,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.Identifier;
@@ -47,7 +47,7 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
 
   @Override
   public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+    CurrencyUnit currency = context.fieldValueToObject(CurrencyUnit.class, message.getByName("currency"));
     Identifier region = null;
     if (message.hasField("region")) {
       region = context.fieldValueToObject(Identifier.class, message.getByName("region"));

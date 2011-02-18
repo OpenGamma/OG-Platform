@@ -17,7 +17,7 @@ namespace com.opengamma.financial.security.bond {
     required string issuerType;
     required string issuerDomicile;
     required string market;
-    required com.opengamma.core.common.Currency currency;
+    required com.opengamma.core.common.CurrencyUnit currency;
     required com.opengamma.financial.convention.yield.YieldConvention yieldConvention;
     string guaranteeType;
     required util.time.Expiry lastTradeDate;

@@ -48,7 +48,7 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     }
     final EquitySecurityBean bean = createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession
         .getOrCreateCurrencyBean(security
-        .getCurrency().getISOCode()), gicsCodeBean);
+        .getCurrency().getCode()), gicsCodeBean);
     bean.setShortName(security.getShortName());
     return bean;
   }

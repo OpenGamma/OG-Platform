@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.fixedincome;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 
 /**
@@ -17,10 +17,10 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 //TODO is this needed?
 public class YieldCurveNodeSensitivityDataBundle {
   private final DoubleLabelledMatrix1D _labelledMatrix;
-  private final Currency _currency;
+  private final CurrencyUnit _currency;
   private final String _yieldCurveName;
 
-  public YieldCurveNodeSensitivityDataBundle(final Currency currency, final DoubleLabelledMatrix1D labelledMatrix, final String yieldCurveName) {
+  public YieldCurveNodeSensitivityDataBundle(final CurrencyUnit currency, final DoubleLabelledMatrix1D labelledMatrix, final String yieldCurveName) {
     Validate.notNull(labelledMatrix, "labelled matrix array");
     Validate.notNull(currency, "currency");
     Validate.notNull(yieldCurveName, "yield curve name array");
@@ -29,7 +29,7 @@ public class YieldCurveNodeSensitivityDataBundle {
     _yieldCurveName = yieldCurveName;
   }
 
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
 
@@ -74,7 +74,7 @@ public class YieldCurveNodeSensitivityDataBundle {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("\t" + _currency.getISOCode() + ", " + _yieldCurveName + "\n");
+    final StringBuilder sb = new StringBuilder("\t" + _currency.getCode() + ", " + _yieldCurveName + "\n");
     final Object[] labels = _labelledMatrix.getLabels();
     final double[] values = _labelledMatrix.getValues();
     final int n = labels.length;

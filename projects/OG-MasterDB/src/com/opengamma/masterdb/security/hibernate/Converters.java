@@ -11,7 +11,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -30,11 +30,11 @@ public final class Converters {
   private Converters() {
   }
 
-  public static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
+  public static CurrencyUnit currencyBeanToCurrency(CurrencyBean currencyBean) {
     if (currencyBean == null) {
       return null;
     }
-    return Currency.getInstance(currencyBean.getName());
+    return CurrencyUnit.of(currencyBean.getName());
   }
 
   public static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {

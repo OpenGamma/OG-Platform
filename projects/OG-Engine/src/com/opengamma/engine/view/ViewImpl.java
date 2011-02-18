@@ -482,9 +482,11 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
 
   private SingleComputationCycle createCycleImpl(final long valuationTime, LiveDataSnapshotProvider snapshotProvider, boolean liveCycle) {
     // Caller MUST hold the semaphore
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel(); // by default, use the current view evaluation model
+
     boolean recompile = false;
     long functionInitId = getProcessingContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    if (functionInitId == getViewEvaluationModel().getFunctionInitId()) {
+    if (functionInitId == viewEvaluationModel.getFunctionInitId()) {
       if (getViewEvaluationModel().isValidFor(valuationTime)) {
         s_logger.debug("View {} still valid at {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
         recompile = false;
@@ -495,7 +497,6 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
       recompile = true;
     }
     
-    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel(); // by default, use the current view evaluation model 
     if (recompile) {
       final OperationTimer timer = new OperationTimer(s_logger, "Re-compiling view {} for {}", getDefinition().getName(), Instant.ofEpochMillis(valuationTime));
       
@@ -518,7 +519,7 @@ public class ViewImpl implements ViewInternal, Lifecycle, LiveDataSnapshotListen
     SingleComputationCycle cycle = new SingleComputationCycle(this, viewEvaluationModel, snapshotProvider, valuationTime);
     return cycle;
   }
-
+  
   @Override
   public SingleComputationCycle createCycle() {
     // Caller MUST NOT hold the semaphore

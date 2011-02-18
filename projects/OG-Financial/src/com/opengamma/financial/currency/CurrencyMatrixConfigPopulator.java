@@ -8,7 +8,7 @@ package com.opengamma.financial.currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
@@ -36,15 +36,15 @@ public class CurrencyMatrixConfigPopulator {
   public static CurrencyMatrix createBloombergConversionMatrix() {
     final String[] currencies = new String[] {"EUR", "GBP", "CHF", "AUD", "SEK", "NZD", "CAD", "DKK", "JPY"};
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
-    final Currency commonCross = Currency.getInstance("USD");
+    final CurrencyUnit commonCross = CurrencyUnit.USD;
     for (String currency : currencies) {
-      matrix.setLiveData(commonCross, Currency.getInstance(currency), UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+      matrix.setLiveData(commonCross, CurrencyUnit.of(currency), UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
     }
     for (String currency : currencies) {
-      final Currency target = Currency.getInstance(currency);
+      final CurrencyUnit target = CurrencyUnit.of(currency);
       for (String currency2 : currencies) {
         if (!currency.equals(currency2)) {
-          matrix.setCrossConversion(Currency.getInstance(currency2), target, commonCross);
+          matrix.setCrossConversion(CurrencyUnit.of(currency2), target, commonCross);
         }
       }
     }
@@ -62,12 +62,12 @@ public class CurrencyMatrixConfigPopulator {
   public static void dumpMatrix(final CurrencyMatrix matrix) {
     StringBuilder sb = new StringBuilder();
     sb.append('\n');
-    for (Currency x : matrix.getTargetCurrencies()) {
-      sb.append('\t').append(x.getISOCode());
+    for (CurrencyUnit x : matrix.getTargetCurrencies()) {
+      sb.append('\t').append(x.getCode());
     }
-    for (Currency y : matrix.getSourceCurrencies()) {
-      sb.append('\n').append(y.getISOCode());
-      for (Currency x : matrix.getTargetCurrencies()) {
+    for (CurrencyUnit y : matrix.getSourceCurrencies()) {
+      sb.append('\n').append(y.getCode());
+      for (CurrencyUnit x : matrix.getTargetCurrencies()) {
         sb.append('\t').append(matrix.getConversion(y, x));
       }
     }

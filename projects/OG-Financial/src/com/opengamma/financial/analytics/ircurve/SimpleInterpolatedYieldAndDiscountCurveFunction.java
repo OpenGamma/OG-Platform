@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -73,12 +73,12 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private final Currency _curveCurrency;
+  private final CurrencyUnit _curveCurrency;
   private final String _curveName;
   private final boolean _isYieldCurve;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
 
-  public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
+  public SimpleInterpolatedYieldAndDiscountCurveFunction(final CurrencyUnit currency, final String name, final boolean isYieldCurve) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(name, "Name");
     _definition = null;
@@ -90,7 +90,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _results = null;
   }
 
-  public Currency getCurveCurrency() {
+  public CurrencyUnit getCurveCurrency() {
     return _curveCurrency;
   }
 
@@ -133,7 +133,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     // get the swap convention so we can find out the initial rate
     final ConventionBundle conventionBundle = conventionBundleSource
-        .getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getISOCode() + "_SWAP"));
+        .getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle.of(conventionBundle.getSwapFloatingLegInitialRate()));
     final Identifier initialRefRateId = SecurityUtils.bloombergTickerSecurityId(referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER));
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));

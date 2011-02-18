@@ -56,7 +56,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     clearConfigCache();
     Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (FixedIncomeStrip strip : curveDefinition.getStrips()) {
-      CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getISOCode());
+      CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
       Identifier identifier;
       switch (strip.getInstrumentType()) {
         case CASH:

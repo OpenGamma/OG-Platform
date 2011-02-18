@@ -16,7 +16,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.UniqueIdentifier;
@@ -43,7 +43,7 @@ public class ViewDefinition implements Serializable {
 
   private Long _minFullCalculationPeriod;
   private Long _maxFullCalculationPeriod;
-  private Currency _defaultCurrency;
+  private CurrencyUnit _defaultCurrency;
 
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName = new TreeMap<String, ViewCalculationConfiguration>();
 
@@ -180,7 +180,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @return the currency
    */
-  public Currency getDefaultCurrency() {
+  public CurrencyUnit getDefaultCurrency() {
     return _defaultCurrency;
   }
 
@@ -189,7 +189,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @param currency The default currency
    */
-  public void setDefaultCurrency(Currency currency) {
+  public void setDefaultCurrency(CurrencyUnit currency) {
     _defaultCurrency = currency;
   }
 
@@ -242,7 +242,7 @@ public class ViewDefinition implements Serializable {
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
     if (getDefaultCurrency() != null) {
       if (calcConfig.getDefaultProperties().getValues(ValuePropertyNames.CURRENCY) == null) {
-        calcConfig.setDefaultProperties(calcConfig.getDefaultProperties().copy().with(ValuePropertyNames.CURRENCY, getDefaultCurrency().getISOCode()).get());
+        calcConfig.setDefaultProperties(calcConfig.getDefaultProperties().copy().with(ValuePropertyNames.CURRENCY, getDefaultCurrency().getCode()).get());
       }
     }
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);

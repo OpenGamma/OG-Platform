@@ -41,7 +41,7 @@ import javax.time.calendar.Period;
 import org.springframework.util.Assert;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
@@ -63,7 +63,7 @@ public class CurveDefinitionAndSpecifications {
     //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "SWAP_ONLY", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "SWAP_ONLY", interpolatorName, strips);
     return definition;
   }
   
@@ -77,7 +77,7 @@ public class CurveDefinitionAndSpecifications {
     //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "SWAP_ONLY_NO3YR", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "SWAP_ONLY_NO3YR", interpolatorName, strips);
     return definition;
   }
   
@@ -91,7 +91,7 @@ public class CurveDefinitionAndSpecifications {
     //final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     //final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     //TODO need to be able to add interpolator + extrapolator + extrapolator (or even more than one interpolator for use in different regions of the curve) [FIN-149]
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "SWAP_ONLY_3YR", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "SWAP_ONLY_3YR", interpolatorName, strips);
     return definition;
   }
   
@@ -110,7 +110,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "SINGLE", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "SINGLE", interpolatorName, strips);
     return definition;
   }
 
@@ -128,7 +128,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 5, 7, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
   }
 
@@ -148,12 +148,12 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 7, 10, 15, 20, 25, 30 }) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.getInstance("USD"), RegionUtils.countryRegionId("US"), "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
     return definition;
   }
   
 
-  public static YieldCurveDefinition buildFundingCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor[] tenorSwaps) {
+  public static YieldCurveDefinition buildFundingCurve(CurrencyUnit ccy, Identifier region, Tenor[] liborStrips, Tenor[] tenorSwaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor liborTenor : liborStrips) {
       if (liborTenor.getPeriod().equals(Period.ofDays(30))) {
@@ -168,7 +168,7 @@ public class CurveDefinitionAndSpecifications {
     return definition;
   }
   
-  public static YieldCurveDefinition buildForwardCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
+  public static YieldCurveDefinition buildForwardCurve(CurrencyUnit ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor liborTenor : liborStrips) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
@@ -185,7 +185,7 @@ public class CurveDefinitionAndSpecifications {
     return definition;
   }
   
-  public static YieldCurveDefinition buildSingleCurve(Currency ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
+  public static YieldCurveDefinition buildSingleCurve(CurrencyUnit ccy, Identifier region, Tenor[] liborStrips, Tenor futureStartTenor, int numQuarterlyFutures, Tenor[] swaps) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (Tenor liborTenor : liborStrips) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
@@ -232,102 +232,102 @@ public class CurveDefinitionAndSpecifications {
     return results.toArray(new Tenor[] {});
   }
   
-  public static Map<String, Map<Currency, YieldCurveDefinition>> buildStandardCurveDefintions() {
-    Map<Currency, YieldCurveDefinition> forwardDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    Map<Currency, YieldCurveDefinition> fundingDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    Currency usd = Currency.getInstance("USD");
+  public static Map<String, Map<CurrencyUnit, YieldCurveDefinition>> buildStandardCurveDefintions() {
+    Map<CurrencyUnit, YieldCurveDefinition> forwardDefinitions = new HashMap<CurrencyUnit, YieldCurveDefinition>();
+    Map<CurrencyUnit, YieldCurveDefinition> fundingDefinitions = new HashMap<CurrencyUnit, YieldCurveDefinition>();
+    Map<CurrencyUnit, YieldCurveDefinition> singleDefinitions = new HashMap<CurrencyUnit, YieldCurveDefinition>();
+    CurrencyUnit usd = CurrencyUnit.USD;
     Identifier usdRegion = RegionUtils.countryRegionId("US");
     forwardDefinitions.put(usd, buildForwardCurve(usd, usdRegion, makeShortEnd(true, false, true), 
         Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     fundingDefinitions.put(usd, buildFundingCurve(usd, usdRegion, makeShortEnd(true, false, true), makeLongEnd(1, 10, new int[] {12, 15, 20, 25, 30 })));
     singleDefinitions.put(usd, buildSingleCurve(usd, usdRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     
-    Currency eur = Currency.getInstance("EUR");
+    CurrencyUnit eur = CurrencyUnit.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
     forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
     singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     
-    Currency gbp = Currency.getInstance("GBP");
+    CurrencyUnit gbp = CurrencyUnit.GBP;
     Identifier gbpRegion = RegionUtils.countryRegionId("GB");
     forwardDefinitions.put(gbp, buildForwardCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     fundingDefinitions.put(gbp, buildFundingCurve(gbp, gbpRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
     singleDefinitions.put(gbp, buildSingleCurve(gbp, gbpRegion, makeShortEnd(true, false, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     
-    Currency chf = Currency.getInstance("CHF");
+    CurrencyUnit chf = CurrencyUnit.CHF;
     Identifier chfRegion = RegionUtils.countryRegionId("CH");
     forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(chf, buildFundingCurve(chf, chfRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
-    Currency aud = Currency.getInstance("AUD");
+    CurrencyUnit aud = CurrencyUnit.AUD;
     Identifier audRegion = RegionUtils.countryRegionId("AU");
     forwardDefinitions.put(aud, buildForwardCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
     fundingDefinitions.put(aud, buildFundingCurve(aud, audRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(aud, buildSingleCurve(aud, audRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 12, new int[] {15, 20, 25, 30, 40 })));
     
-    Currency sek = Currency.getInstance("SEK");
+    CurrencyUnit sek = CurrencyUnit.of("SEK");
     Identifier sekRegion = RegionUtils.countryRegionId("SE");
     forwardDefinitions.put(sek, buildForwardCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     fundingDefinitions.put(sek, buildFundingCurve(sek, sekRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(sek, buildSingleCurve(sek, sekRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30 })));
     
-    Currency nzd = Currency.getInstance("NZD");
+    CurrencyUnit nzd = CurrencyUnit.of("NZD");
     Identifier nzdRegion = RegionUtils.countryRegionId("NZ");
     forwardDefinitions.put(nzd, buildForwardCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     fundingDefinitions.put(nzd, buildFundingCurve(nzd, nzdRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20 })));
     singleDefinitions.put(nzd, buildSingleCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
     
-    Currency cad = Currency.getInstance("CAD");
+    CurrencyUnit cad = CurrencyUnit.CAD;
     Identifier cadRegion = RegionUtils.countryRegionId("CA");
     forwardDefinitions.put(cad, buildForwardCurve(cad, cadRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(cad, buildFundingCurve(cad, cadRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
-    Currency dkk = Currency.getInstance("DKK");
+    CurrencyUnit dkk = CurrencyUnit.of("DKK");
     Identifier dkkRegion = RegionUtils.countryRegionId("DK");
     forwardDefinitions.put(dkk, buildForwardCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     fundingDefinitions.put(dkk, buildFundingCurve(dkk, dkkRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
     singleDefinitions.put(dkk, buildSingleCurve(dkk, dkkRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
-    Currency jpy = Currency.getInstance("JPY");
+    CurrencyUnit jpy = CurrencyUnit.JPY;
     Identifier jpyRegion = RegionUtils.countryRegionId("JP");
     forwardDefinitions.put(jpy, buildForwardCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
     fundingDefinitions.put(jpy, buildFundingCurve(jpy, jpyRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     singleDefinitions.put(jpy, buildSingleCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50, 60 })));
     
-    Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
+    Map<String, Map<CurrencyUnit, YieldCurveDefinition>> results = new HashMap<String, Map<CurrencyUnit, YieldCurveDefinition>>();
     results.put("FORWARD", forwardDefinitions);
     results.put("FUNDING", fundingDefinitions);
     results.put("SINGLE", singleDefinitions);
     return results;
   }
   
-  public static Map<Currency, CurveSpecificationBuilderConfiguration> buildStandardCurveSpecificationBuilderConfigurations() {
-    Map<Currency, CurveSpecificationBuilderConfiguration> configurations = new HashMap<Currency, CurveSpecificationBuilderConfiguration>();
-    configurations.put(Currency.getInstance("USD"), buildStandardCurveSpecificationBuilderConfiguration("US", "ED", "", "BG", true, false, true, 5, 30, 
+  public static Map<CurrencyUnit, CurveSpecificationBuilderConfiguration> buildStandardCurveSpecificationBuilderConfigurations() {
+    Map<CurrencyUnit, CurveSpecificationBuilderConfiguration> configurations = new HashMap<CurrencyUnit, CurveSpecificationBuilderConfiguration>();
+    configurations.put(CurrencyUnit.USD, buildStandardCurveSpecificationBuilderConfiguration("US", "ED", "", "BG", true, false, true, 5, 30, 
                                                                                                         new int [] {35, 40, 45, 50, 60 }, new int[] {1, 3, 6, 9 }, 
                                                                                                         10, new int[] {12, 15, 20, 25, 30}));
-    configurations.put(Currency.getInstance("EUR"), buildStandardCurveSpecificationBuilderConfiguration("EU", "ER", "V3", "BS", false, false, false, 4, 50,  
+    configurations.put(CurrencyUnit.EUR, buildStandardCurveSpecificationBuilderConfiguration("EU", "ER", "V3", "BS", false, false, false, 4, 50,  
                                                                                                          new int[] {60 }, new int[] {1, 3, 6, 9},
                                                                                                          20, new int[] {25, 30, 25, 40}));
-    configurations.put(Currency.getInstance("GBP"), buildStandardCurveSpecificationBuilderConfiguration("BP", "L ", "", "BS", true, false, true, 5, 30, 
+    configurations.put(CurrencyUnit.GBP, buildStandardCurveSpecificationBuilderConfiguration("BP", "L ", "", "BS", true, false, true, 5, 30, 
                                                                                                         new int[] {35, 40, 50, 60}, new int[] {3, 6, 9}, 
                                                                                                         15, new int[] {20, 25, 30, 40, 50}));
-    configurations.put(Currency.getInstance("CHF"), buildStandardCurveSpecificationBuilderConfiguration("SF", "ES", "", "BS", false, true, true, 1, 30,
+    configurations.put(CurrencyUnit.CHF, buildStandardCurveSpecificationBuilderConfiguration("SF", "ES", "", "BS", false, true, true, 1, 30,
                                                                                                         new int[] {40, 50 }, new int[0], 15, new int[] {20, 25, 30}));
-    configurations.put(Currency.getInstance("AUD"), buildStandardCurveSpecificationBuilderConfiguration("AD", null, "", "BS", false, true, true, 1, 12, 
+    configurations.put(CurrencyUnit.AUD, buildStandardCurveSpecificationBuilderConfiguration("AD", null, "", "BS", false, true, true, 1, 12, 
                                                                                                         new int[] {15, 20, 25, 30, 40 }, new int[0], 15, new int[] {20, 25, 30}));
-    configurations.put(Currency.getInstance("SEK"), buildStandardCurveSpecificationBuilderConfiguration("SK", null, "", "BS", false, true, true, 1, 30,  
+    configurations.put(CurrencyUnit.of("SEK"), buildStandardCurveSpecificationBuilderConfiguration("SK", null, "", "BS", false, true, true, 1, 30,  
                                                                                                         new int[0], new int[0], 15, new int[] {20, 25, 30}));
-    configurations.put(Currency.getInstance("NZD"), buildStandardCurveSpecificationBuilderConfiguration("ND", null, "", "BS", false, true, true, 1, 15,  
+    configurations.put(CurrencyUnit.of("NZD"), buildStandardCurveSpecificationBuilderConfiguration("ND", null, "", "BS", false, true, true, 1, 15,  
                                                                                                         new int[] {20, 30 }, new int[0], 15, new int[] {20 }));
-    configurations.put(Currency.getInstance("CAD"), buildStandardCurveSpecificationBuilderConfiguration("CD", null, "", "BS", true, false, true, 1, 15,  
+    configurations.put(CurrencyUnit.CAD, buildStandardCurveSpecificationBuilderConfiguration("CD", null, "", "BS", true, false, true, 1, 15,  
                                                                                                         new int[] {20, 25, 30, 40, 50 }, new int[0], 15, new int[] {20, 25, 30 }));
-    configurations.put(Currency.getInstance("DKK"), buildStandardCurveSpecificationBuilderConfiguration("DK", null, "", "BS", false, true, true, 1, 15,  
+    configurations.put(CurrencyUnit.of("DKK"), buildStandardCurveSpecificationBuilderConfiguration("DK", null, "", "BS", false, true, true, 1, 15,  
                                                                                                         new int[] {20, 25, 30, 40, 50 }, new int[0], 15, new int[] {20, 25, 30 }));
-    configurations.put(Currency.getInstance("JPY"), buildStandardCurveSpecificationBuilderConfiguration("JY", "EF", "", "BS", false, true, true, 1, 30,  
+    configurations.put(CurrencyUnit.JPY, buildStandardCurveSpecificationBuilderConfiguration("JY", "EF", "", "BS", false, true, true, 1, 30,  
                                                                                                         new int[] {35, 40, 50, 60 }, new int[0], 15, new int[] {20, 25, 30, 35, 40, 50 }));
     return configurations;
   }

@@ -21,7 +21,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -80,7 +80,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * The currency to search for, null to not match on currency.
    */
   @PropertyDefinition
-  private Currency _currency;
+  private CurrencyUnit _currency;
   /**
    * The region keys to match, null to not match on region keys.
    * This will return holidays where the holiday region identifier matches one of the search identifiers.
@@ -119,7 +119,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * 
    * @param currency  the currency to search for, not null
    */
-  public HolidaySearchRequest(Currency currency) {
+  public HolidaySearchRequest(CurrencyUnit currency) {
     ArgumentChecker.notNull(currency, "currency");
     setCurrency(currency);
     setType(HolidayType.CURRENCY);
@@ -365,7 +365,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         setDateToCheck((LocalDate) newValue);
         return;
       case 575402001:  // currency
-        setCurrency((Currency) newValue);
+        setCurrency((CurrencyUnit) newValue);
         return;
       case -1990775032:  // regionKeys
         setRegionKeys((IdentifierSearch) newValue);
@@ -504,7 +504,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Gets the currency to search for, null to not match on currency.
    * @return the value of the property
    */
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
 
@@ -512,7 +512,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Sets the currency to search for, null to not match on currency.
    * @param currency  the new value of the property
    */
-  public void setCurrency(Currency currency) {
+  public void setCurrency(CurrencyUnit currency) {
     this._currency = currency;
   }
 
@@ -520,7 +520,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * Gets the the {@code currency} property.
    * @return the property, not null
    */
-  public final Property<Currency> currency() {
+  public final Property<CurrencyUnit> currency() {
     return metaBean().currency().createProperty(this);
   }
 
@@ -620,7 +620,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
+    private final MetaProperty<CurrencyUnit> _currency = DirectMetaProperty.ofReadWrite(this, "currency", CurrencyUnit.class);
     /**
      * The meta-property for the {@code regionKeys} property.
      */
@@ -708,7 +708,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public final MetaProperty<CurrencyUnit> currency() {
       return _currency;
     }
 

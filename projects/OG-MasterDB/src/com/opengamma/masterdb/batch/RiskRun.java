@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.view.ViewCalculationConfiguration;
-
 /**
  * 
  */
@@ -168,14 +166,14 @@ public class RiskRun {
   
   // --------------------------------------------------------------------------
   
-  public void addCalculationConfiguration(ViewCalculationConfiguration viewCalcConf) {
-    CalculationConfiguration calcConf = getCalculationConfiguration(viewCalcConf.getName());
+  public void addCalculationConfiguration(String viewCalcConf) {
+    CalculationConfiguration calcConf = getCalculationConfiguration(viewCalcConf);
     if (calcConf != null) {
-      throw new IllegalStateException("Already has calc conf " + viewCalcConf.getName());      
+      throw new IllegalStateException("Already has calc conf " + viewCalcConf);      
     }
 
     calcConf = new CalculationConfiguration();
-    calcConf.setName(viewCalcConf.getName());
+    calcConf.setName(viewCalcConf);
     calcConf.setRiskRun(this);
     _calculationConfigurations.add(calcConf);
   }

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -32,7 +32,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   private final HolidaySource _holidaySource;
   private Set<Region> _regions;
   private Exchange _exchange;
-  private Currency _currency;
+  private CurrencyUnit _currency;
   private final HolidayType _type;
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
@@ -57,7 +57,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     _type = type;
   }
 
-  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency currency) {
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final CurrencyUnit currency) {
     Validate.notNull(holidaySource);
     Validate.notNull(currency);
     _holidaySource = holidaySource;
@@ -75,7 +75,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
         }
         return name + "Bank";
       case CURRENCY:
-        return _currency.getISOCode() + " Currency";
+        return _currency.getCode() + " Currency";
       case SETTLEMENT:
         return _exchange.getName() + " Settlement";
       case TRADING:
