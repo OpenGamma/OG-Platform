@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.uiresource;
+package com.opengamma.web.bundle;
 
 
 import static org.junit.Assert.assertEquals;
@@ -14,8 +14,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.opengamma.web.model.BundleManager;
-import com.opengamma.web.model.Fragment;
+import com.opengamma.web.bundle.BundleManager;
+import com.opengamma.web.bundle.BundleParser;
+import com.opengamma.web.bundle.Fragment;
 
 /**
  * Test BundleParser
