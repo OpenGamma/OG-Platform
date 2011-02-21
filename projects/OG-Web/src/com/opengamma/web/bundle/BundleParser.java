@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.uiresource;
+package com.opengamma.web.bundle;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,10 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.web.model.Bundle;
-import com.opengamma.web.model.BundleManager;
-import com.opengamma.web.model.BundleNode;
-import com.opengamma.web.model.Fragment;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Parses a given bundle xml file
@@ -45,6 +42,11 @@ public class BundleParser {
    */
   private final File _xmlFile;
   /**
+   * The base directory for web resource
+   */
+  private final File _baseDir;
+  
+  /**
    * Empty bundleManager
    */
   private final BundleManager _bundleManager = new BundleManager();
@@ -56,10 +58,31 @@ public class BundleParser {
   /**
    * Creates a BundleParser with xml file
    * 
-   * @param xmlFile     the xml file to parse, not null
+   * @param xmlFile   the xml file to parse, not null
    */
   public BundleParser(File xmlFile) {
+    this(xmlFile, null);
+  }
+  
+  /**
+   * Creates a BundleParser with xml file and base dir
+   * 
+   * @param xmlFile   the xml file to parse, not null
+   * @param baseDir   the base directory for web resource, not null
+   */
+  public BundleParser(File xmlFile, File baseDir) {
+//    validate(xmlFile, baseDir);
     _xmlFile = xmlFile;
+    _baseDir = baseDir;
+  }
+ 
+  private void validate(File xmlFile, File baseDir) {
+    ArgumentChecker.notNull(xmlFile, "xmlFile");
+    ArgumentChecker.isTrue(xmlFile.exists(), xmlFile + "does not exists");
+    
+    if (baseDir != null) {
+      ArgumentChecker.isTrue(baseDir.exists(), baseDir + "does not exists");
+    }
   }
 
   public BundleManager getBundleManager() {
@@ -118,7 +141,7 @@ public class BundleParser {
   }
 
   private BundleNode createBundleFragment(String fragment) {
-    return new Fragment(new File(fragment));
+    return new Fragment(new File(_baseDir, fragment));
   }
   
   private void processRefBundle(Bundle bundle, Element element) {
