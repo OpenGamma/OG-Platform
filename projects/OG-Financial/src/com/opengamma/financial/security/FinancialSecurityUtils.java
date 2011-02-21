@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -27,25 +27,25 @@ public class FinancialSecurityUtils {
   /**
    * 
    * @param target the computation target being examined.
-   * @return ValueProperties containing a constraint of the currency or empty if not possible
+   * @return ValueProperties containing a constraint of the CurrencyUnit or empty if not possible
    */
-  public static ValueProperties getCurrencyConstraint(ComputationTarget target) {
+  public static ValueProperties getCurrencyUnitConstraint(ComputationTarget target) {
     switch (target.getType()) {
       case PORTFOLIO_NODE:
         break;
       case POSITION: 
       {
         Security security = target.getPosition().getSecurity();
-        Currency ccy = getCurrency(security);
+        CurrencyUnit ccy = getCurrencyUnit(security);
         if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getISOCode()).get();
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
         break;
       case PRIMITIVE:
       {
         UniqueIdentifier uid = target.getUniqueId();
-        if (uid.getScheme().equals(Currency.IDENTIFICATION_DOMAIN)) {
+        if (uid.getScheme().equals(CurrencyUnit.OBJECT_IDENTIFIER_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
@@ -53,18 +53,18 @@ public class FinancialSecurityUtils {
       case SECURITY: 
       {
         Security security = target.getSecurity();
-        Currency ccy = getCurrency(security);
+        CurrencyUnit ccy = getCurrencyUnit(security);
         if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getISOCode()).get();
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       } 
         break;
       case TRADE:
       {
         Security security = target.getTrade().getSecurity();
-        Currency ccy = getCurrency(security);
+        CurrencyUnit ccy = getCurrencyUnit(security);
         if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getISOCode()).get();
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       } 
         break;
@@ -74,44 +74,44 @@ public class FinancialSecurityUtils {
   
   /**
    * @param security the security to be examined.
-   * @return a currency, where it is possible to determine a single currency association, null otherwise.
+   * @return a CurrencyUnit, where it is possible to determine a single CurrencyUnit association, null otherwise.
    */
-  public static Currency getCurrency(Security security) {
+  public static CurrencyUnit getCurrencyUnit(Security security) {
     if (security instanceof FinancialSecurity) {
       FinancialSecurity finSec = (FinancialSecurity) security;
-      Currency ccy = finSec.accept(new FinancialSecurityVisitor<Currency>() {
+      CurrencyUnit ccy = finSec.accept(new FinancialSecurityVisitor<CurrencyUnit>() {
         @Override
-        public Currency visitBondSecurity(BondSecurity security) {
+        public CurrencyUnit visitBondSecurity(BondSecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitCashSecurity(CashSecurity security) {
+        public CurrencyUnit visitCashSecurity(CashSecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitEquitySecurity(EquitySecurity security) {
+        public CurrencyUnit visitEquitySecurity(EquitySecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitFRASecurity(FRASecurity security) {
+        public CurrencyUnit visitFRASecurity(FRASecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitFutureSecurity(FutureSecurity security) {
+        public CurrencyUnit visitFutureSecurity(FutureSecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitOptionSecurity(OptionSecurity security) {
+        public CurrencyUnit visitOptionSecurity(OptionSecurity security) {
           return security.getCurrency();
         }
   
         @Override
-        public Currency visitSwapSecurity(SwapSecurity security) {
+        public CurrencyUnit visitSwapSecurity(SwapSecurity security) {
           return null;
         }
       });
