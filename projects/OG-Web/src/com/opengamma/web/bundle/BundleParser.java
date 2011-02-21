@@ -71,7 +71,7 @@ public class BundleParser {
    * @param baseDir   the base directory for web resource, not null
    */
   public BundleParser(File xmlFile, File baseDir) {
-    validate(xmlFile, baseDir);
+//    validate(xmlFile, baseDir);
     _xmlFile = xmlFile;
     _baseDir = baseDir;
   }
