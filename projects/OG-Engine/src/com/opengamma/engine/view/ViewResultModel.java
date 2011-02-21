@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.time.Instant;
 
@@ -80,5 +81,13 @@ public interface ViewResultModel {
    * @return an iterator for iterating over all result entries
    */
   List<ViewResultEntry> getAllResults();
+  
+  /**
+   * Returns union of value names across all results.
+   * See {@link com.opengamma.engine.value.ValueSpecification#getValueName()}.
+   * 
+   * @return union of value names across all results
+   */
+  Set<String> getAllOutputValueNames();
 
 }

@@ -7,7 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -43,7 +43,7 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration (viewDefinition, "2");
     calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Foo")));
     calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Bar")));
-    viewDefinition.setDefaultCurrency(Currency.getInstance("USD"));
+    viewDefinition.setDefaultCurrency(CurrencyUnit.USD);
     viewDefinition.addViewCalculationConfiguration(calcConfig1);
     viewDefinition.addViewCalculationConfiguration(calcConfig2);
     return viewDefinition;

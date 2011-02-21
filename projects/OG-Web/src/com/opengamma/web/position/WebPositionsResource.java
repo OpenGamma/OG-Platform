@@ -20,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -109,6 +110,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
@@ -143,15 +145,46 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/positions-add.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = addPosition(quantity, secUid);
+    return Response.seeOther(uri).build();
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(
+      @FormParam("quantity") String quantityStr,
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue) {
+    
+    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    
+    if (quantity == null || idScheme == null || idValue == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    
+    IdentifierBundle id = IdentifierBundle.of(Identifier.of(idScheme, idValue));
+    Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
+    UniqueIdentifier secUid = loaded.get(id);
+    if (secUid == null) {
+      throw new DataNotFoundException("invalid " + idScheme + "::" + idValue);
+    }
+    URI uri = addPosition(quantity, secUid);
+    return Response.created(uri).build();
+  }
+
+  private URI addPosition(BigDecimal quantity, UniqueIdentifier secUid) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
     ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getIdentifiers());
     PositionDocument doc = new PositionDocument(position);
     doc = data().getPositionMaster().add(doc);
     data().setPosition(doc);
-    URI uri = WebPositionResource.uri(data());
-    return Response.seeOther(uri).build();
+    return WebPositionResource.uri(data());
   }
-
+  
   //-------------------------------------------------------------------------
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {

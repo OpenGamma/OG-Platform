@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -92,7 +92,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
     } else if (value instanceof YieldCurveNodeSensitivityDataBundle) {
       final YieldCurveNodeSensitivityDataBundle nodeSensitivities = (YieldCurveNodeSensitivityDataBundle) value;
       final double quantity = target.getPosition().getQuantity().doubleValue();
-      final Currency ccy = nodeSensitivities.getCurrency();
+      final CurrencyUnit ccy = nodeSensitivities.getCurrency();
       final String name = nodeSensitivities.getYieldCurveName();
       final DoubleLabelledMatrix1D m = nodeSensitivities.getLabelledMatrix();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);

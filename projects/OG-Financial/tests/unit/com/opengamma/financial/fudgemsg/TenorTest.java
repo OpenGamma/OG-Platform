@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import com.opengamma.util.time.Tenor;
 
+/**
+ * Test Tenor Fudge support.
+ */
 public class TenorTest extends FinancialTestBase {
 
   private static final Tenor s_ref = Tenor.EIGHT_MONTHS;
@@ -25,6 +28,7 @@ public class TenorTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Tenor.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getPeriod().toString(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getPeriod().toString())));
   }
+
 }

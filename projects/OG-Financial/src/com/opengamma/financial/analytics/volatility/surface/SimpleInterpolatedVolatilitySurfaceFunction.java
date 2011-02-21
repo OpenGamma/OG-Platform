@@ -18,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -53,17 +53,17 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private final Currency _surfaceCurrency;
+  private final CurrencyUnit _surfaceCurrency;
   private final String _definitionName;
   private final String _specificationName;
 
   private VolatilitySurfaceSpecification _specification;
 
   public SimpleInterpolatedVolatilitySurfaceFunction(final String currency, final String definitionName, final String specificationName) {
-    this(Currency.getInstance(currency), definitionName, specificationName);
+    this(CurrencyUnit.of(currency), definitionName, specificationName);
   }
 
-  public SimpleInterpolatedVolatilitySurfaceFunction(final Currency currency, final String definitionName, final String specificationName) {
+  public SimpleInterpolatedVolatilitySurfaceFunction(final CurrencyUnit currency, final String definitionName, final String specificationName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(specificationName, "Specification Name");
@@ -76,7 +76,7 @@ public class SimpleInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     _results = null;
   }
 
-  public Currency getCurveCurrency() {
+  public CurrencyUnit getCurveCurrency() {
     return _surfaceCurrency;
   }
 

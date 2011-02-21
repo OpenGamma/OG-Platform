@@ -38,8 +38,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ResultModelDefinition;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.BatchExecutor;
@@ -48,12 +48,16 @@ import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.SingleNodeExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
+import com.opengamma.financial.batch.AdHocBatchDbManager;
+import com.opengamma.financial.batch.AdHocBatchJobRun;
+import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
@@ -62,6 +66,7 @@ import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
+import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
@@ -75,7 +80,7 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * Risk itself is written using direct JDBC, however.
  */
-public class BatchDbManagerImpl implements BatchDbManager {
+public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   
   private static final Logger s_logger = LoggerFactory
     .getLogger(BatchDbManagerImpl.class);
@@ -426,7 +431,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       riskRun.addProperty(parameter.getKey(), parameter.getValue());      
     }
     
-    for (ViewCalculationConfiguration calcConf : job.getCalculationConfigurations()) {
+    for (String calcConf : job.getCalculationConfigurations()) {
       riskRun.addCalculationConfiguration(calcConf);
     }
     
@@ -437,6 +442,15 @@ public class BatchDbManagerImpl implements BatchDbManager {
     job.setOriginalCreationTime(job.getCreationTime().toInstant());
     
     return riskRun;
+  }
+  
+  /*package*/ void deleteRun(RiskRun riskRun) {
+    deleteRiskValues(riskRun);
+    deleteRiskFailures(riskRun);
+    getHibernateTemplate().deleteAll(riskRun.getCalculationConfigurations());
+    getHibernateTemplate().deleteAll(riskRun.getProperties());
+    getHibernateTemplate().delete(riskRun);
+    getHibernateTemplate().flush();
   }
   
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
@@ -450,13 +464,22 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     getHibernateTemplate().update(riskRun);
     
-    // clear risk failures
+    deleteRiskFailures(riskRun);
+    
+    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
+  }
+  
+  private void deleteRiskValues(RiskRun riskRun) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("run_id", riskRun.getId());
+    getJdbcTemplate().update(RiskValue.sqlDeleteRiskValues(), parameters);
+  }
+
+  private void deleteRiskFailures(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
     getJdbcTemplate().update(FailureReason.sqlDeleteRiskFailureReasons(), parameters);
     getJdbcTemplate().update(RiskFailure.sqlDeleteRiskFailures(), parameters);
-    
-    batch.setOriginalCreationTime(Instant.ofEpochMillis(riskRun.getCreateInstant().getTime()));
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
@@ -486,7 +509,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<RiskValueName> populateRiskValueNames(BatchJobRun job) {
     Set<RiskValueName> returnValue = new HashSet<RiskValueName>();
     
-    Set<String> riskValueNames = job.getView().getViewEvaluationModel().getAllOutputValueNames();
+    Set<String> riskValueNames = job.getAllOutputValueNames();
     for (String name : riskValueNames) {
       RiskValueName riskValueName = getRiskValueName(name);
       returnValue.add(riskValueName);
@@ -498,10 +521,16 @@ public class BatchDbManagerImpl implements BatchDbManager {
   /*package*/ Set<ComputationTarget> populateComputationTargets(BatchJobRun job) {
     Set<ComputationTarget> returnValue = new HashSet<ComputationTarget>();
     
-    Set<com.opengamma.engine.ComputationTarget> computationTargets = job.getView().getViewEvaluationModel().getAllComputationTargets();
-    for (com.opengamma.engine.ComputationTarget ct : computationTargets) {
-      ComputationTarget computationTarget = getComputationTarget(ct);
-      returnValue.add(computationTarget);
+    Collection<ComputationTargetSpecification> computationTargetSpecs = job.getAllComputationTargets();
+    for (ComputationTargetSpecification spec : computationTargetSpecs) {
+      com.opengamma.engine.ComputationTarget inMemoryTarget = job.resolve(spec);
+      com.opengamma.masterdb.batch.ComputationTarget dbTarget;
+      if (inMemoryTarget != null) {
+        dbTarget = getComputationTarget(inMemoryTarget);
+      } else {
+        dbTarget = getComputationTarget(spec);
+      }
+      returnValue.add(dbTarget);
     }    
     
     return returnValue;
@@ -512,65 +541,54 @@ public class BatchDbManagerImpl implements BatchDbManager {
 
   @Override
   public void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
       
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-      if (snapshot == null) {
-        throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
-      }
-      
-      Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
-      for (LiveDataValue value : values) {
-        LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
-        if (entry != null) {
-          if (entry.getValue() != value.getValue()) {
-            entry.setValue(value.getValue());
-            changedEntries.add(entry);
-          }
-        } else {
-          entry = new LiveDataSnapshotEntry();
-          entry.setSnapshot(snapshot);
-          entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
-          entry.setField(getLiveDataField(value.getFieldName()));
-          entry.setValue(value.getValue());
-          snapshot.addEntry(entry);
-          changedEntries.add(entry);
-        }
-      }
-      
-      getHibernateTemplate().saveOrUpdateAll(changedEntries);
+      addValuesToSnapshotImpl(snapshotId, values);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  private void addValuesToSnapshotImpl(SnapshotId snapshotId, Set<LiveDataValue> values) {
+    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), snapshotId);
+    
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+    if (snapshot == null) {
+      throw new IllegalArgumentException("Snapshot " + snapshotId + " cannot be found");
+    }
+    
+    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
+    for (LiveDataValue value : values) {
+      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
+      if (entry != null) {
+        if (entry.getValue() != value.getValue()) {
+          entry.setValue(value.getValue());
+          changedEntries.add(entry);
+        }
+      } else {
+        entry = new LiveDataSnapshotEntry();
+        entry.setSnapshot(snapshot);
+        entry.setComputationTarget(getComputationTarget(value.getComputationTargetSpecification()));
+        entry.setField(getLiveDataField(value.getFieldName()));
+        entry.setValue(value.getValue());
+        snapshot.addEntry(entry);
+        changedEntries.add(entry);
+      }
+    }
+    
+    getHibernateTemplate().saveOrUpdateAll(changedEntries);
   }
 
   @Override
   public void createLiveDataSnapshot(SnapshotId snapshotId) {
-    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
-      if (snapshot != null) {
-        s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
-        return;
-      }
-      
-      snapshot = new LiveDataSnapshot();
-      
-      ObservationDateTime snapshotTime = getObservationDateTime(
-          snapshotId.getObservationDate(), 
-          snapshotId.getObservationTime());
-      snapshot.setSnapshotTime(snapshotTime);
-      
-      getHibernateTemplate().save(snapshot);
+      createLiveDataSnapshotImpl(snapshotId);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
@@ -579,21 +597,44 @@ public class BatchDbManagerImpl implements BatchDbManager {
     }
   }
 
+  private void createLiveDataSnapshotImpl(SnapshotId snapshotId) {
+    s_logger.info("Creating LiveData snapshot {} ", snapshotId);
+
+    LiveDataSnapshot snapshot = getLiveDataSnapshot(snapshotId.getObservationDate(), snapshotId.getObservationTime());
+    if (snapshot != null) {
+      s_logger.info("Snapshot " + snapshotId + " already exists. No need to create.");
+      return;
+    }
+    
+    snapshot = new LiveDataSnapshot();
+    
+    ObservationDateTime snapshotTime = getObservationDateTime(
+        snapshotId.getObservationDate(), 
+        snapshotId.getObservationTime());
+    snapshot.setSnapshotTime(snapshotTime);
+    
+    getHibernateTemplate().save(snapshot);
+  }
+
   @Override
   public void endBatch(BatchJobRun batch) {
-    s_logger.info("Ending batch {}", batch);
-    
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
 
-      RiskRun run = getRiskRunFromHandle(batch);
-      endRun(run);
+      endBatchImpl(batch);
     
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  private void endBatchImpl(BatchJobRun batch) {
+    s_logger.info("Ending batch {}", batch);
+    
+    RiskRun run = getRiskRunFromHandle(batch);
+    endRun(run);
   }
 
   @Override
@@ -647,74 +688,106 @@ public class BatchDbManagerImpl implements BatchDbManager {
       throw e;
     }
   }
-
+  
   @Override
-  public void startBatch(BatchJobRun batch) {
-    s_logger.info("Starting batch {}", batch);
-    
+  public void deleteBatch(BatchJobRun batch) {
+    s_logger.info("Deleting batch {}", batch);
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-
-      RiskRun run;
-      switch (batch.getRunCreationMode()) {
-        case AUTO:
-          run = getRiskRunFromDb(batch);
-          
-          if (run != null) {
-            // also check parameter equality
-            Map<String, String> existingProperties = run.getPropertiesMap();
-            Map<String, String> newProperties = batch.getParametersMap();
-            
-            if (!existingProperties.equals(newProperties)) {
-              Set<Map.Entry<String, String>> symmetricDiff = 
-                Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
-              throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
-            }
-          }
-          
-          if (run == null) {
-            run = createRiskRun(batch);
-          } else {
-            restartRun(batch, run);
-          }
-          break;
-        
-        case ALWAYS:
-          run = createRiskRun(batch);
-          break;
-        
-        case NEVER:
-          run = getRiskRunFromDb(batch);
-          if (run == null) {
-            throw new IllegalStateException("Cannot find run in database for " + batch);
-          }
-          restartRun(batch, run);
-          break;
-        
-        default:
-          throw new RuntimeException("Unexpected run creation mode " + batch.getRunCreationMode());
+      
+      RiskRun run = getRiskRunFromDb(batch);
+      if (run == null) {
+        throw new IllegalStateException("Batch " + batch + " does not exist");
       }
-
-      // make sure calc conf collection is inited
-      for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
-        assert cc != null;
-      }
-      
-      Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
-      Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
-      
-      DbHandle dbHandle = new DbHandle();
-      dbHandle._riskRun = run;
-      dbHandle._riskValueNames = riskValueNames;
-      dbHandle._computationTargets = computationTargets;
-      
-      batch.setDbHandle(dbHandle);
+      deleteRun(run);
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
     } catch (RuntimeException e) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
+  }
+
+  @Override
+  public void startBatch(BatchJobRun batch) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+
+      startBatchImpl(batch);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
+  }
+
+  private void startBatchImpl(BatchJobRun batch) {
+    s_logger.info("Starting batch {}", batch);
+    
+    RiskRun run;
+    switch (batch.getRunCreationMode()) {
+      case AUTO:
+        run = getRiskRunFromDb(batch);
+        
+        if (run != null) {
+          // also check parameter equality
+          Map<String, String> existingProperties = run.getPropertiesMap();
+          Map<String, String> newProperties = batch.getParametersMap();
+          
+          if (!existingProperties.equals(newProperties)) {
+            Set<Map.Entry<String, String>> symmetricDiff = 
+              Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
+            throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
+          }
+        }
+        
+        if (run == null) {
+          run = createRiskRun(batch);
+        } else {
+          restartRun(batch, run);
+        }
+        break;
+        
+      case CREATE_NEW_OVERWRITE:
+        run = getRiskRunFromDb(batch);
+        if (run != null) {
+          deleteRun(run);            
+        }
+        
+        run = createRiskRun(batch);
+        break;
+          
+      case CREATE_NEW:
+        run = createRiskRun(batch);
+        break;
+      
+      case REUSE_EXISTING:
+        run = getRiskRunFromDb(batch);
+        if (run == null) {
+          throw new IllegalStateException("Cannot find run in database for " + batch);
+        }
+        restartRun(batch, run);
+        break;
+      
+      default:
+        throw new RuntimeException("Unexpected run creation mode " + batch.getRunCreationMode());
+    }
+
+    // make sure calc conf collection is inited
+    for (CalculationConfiguration cc : run.getCalculationConfigurations()) { 
+      assert cc != null;
+    }
+    
+    Set<RiskValueName> riskValueNames = populateRiskValueNames(batch);
+    Set<ComputationTarget> computationTargets = populateComputationTargets(batch);
+    
+    DbHandle dbHandle = new DbHandle();
+    dbHandle._riskRun = run;
+    dbHandle._riskValueNames = riskValueNames;
+    dbHandle._computationTargets = computationTargets;
+    
+    batch.setDbHandle(dbHandle);
   }
   
   private static class DbHandle {
@@ -728,7 +801,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     return new BatchResultWriterFactory(batch);
   }
   
-  public BatchResultWriterImpl createTestResultWriter(BatchJobRun batch) {
+  public CommandLineBatchResultWriter createTestResultWriter(BatchJobRun batch) {
     BatchResultWriterFactory factory = new BatchResultWriterFactory(batch);
     return factory.createTestWriter();    
   }
@@ -747,7 +820,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
       
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
-      BatchResultWriterImpl writer = new BatchResultWriterImpl(
+      CommandLineBatchResultWriter writer = new CommandLineBatchResultWriter(
           _dbSource,
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
@@ -777,8 +850,8 @@ public class BatchDbManagerImpl implements BatchDbManager {
       return level1Executor;
     }
     
-    public BatchResultWriterImpl createTestWriter() {
-      BatchResultWriterImpl resultWriter = new BatchResultWriterImpl(
+    public CommandLineBatchResultWriter createTestWriter() {
+      CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
           _dbSource,
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
@@ -809,8 +882,7 @@ public class BatchDbManagerImpl implements BatchDbManager {
     
     if (request.getObservationTime() != null) {
       observationTimeCriteria.add(
-          Restrictions.eq("label", request.getObservationTime()))
-          .addOrder(Order.asc("label"));
+          Restrictions.eq("label", request.getObservationTime()));
     }
     
     BatchSearchResult result = new BatchSearchResult();
@@ -926,6 +998,48 @@ public class BatchDbManagerImpl implements BatchDbManager {
     result.setPaging(new Paging(request.getPagingRequest(), count));
     result.setItems(values);
     return result;
+  }
+  
+  public SnapshotId getAdHocBatchSnapshotId(BatchId batchId) {
+    return new SnapshotId(batchId.getObservationDate(), "AD_HOC_" + Instant.now().toString());
+  }
+
+  @Override
+  public void write(AdHocBatchResult result) {
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+    
+      SnapshotId snapshotId = getAdHocBatchSnapshotId(result.getBatchId());
+    
+      createLiveDataSnapshotImpl(snapshotId);
+      
+      Set<LiveDataValue> values = new HashSet<LiveDataValue>();
+      for (ComputedValue liveData : result.getResult().getAllLiveData()) {
+        values.add(new LiveDataValue(liveData));      
+      }
+      
+      addValuesToSnapshotImpl(snapshotId, values);
+      
+      AdHocBatchJobRun batch = new AdHocBatchJobRun(result, snapshotId);
+      startBatchImpl(batch);
+      
+      AdHocBatchResultWriter writer = new AdHocBatchResultWriter(
+          _dbSource,
+          getRiskRunFromHandle(batch),
+          getLocalComputeNode(),
+          new ResultConverterCache(),
+          getDbHandle(batch)._computationTargets,
+          getDbHandle(batch)._riskValueNames);
+      
+      writer.write(result.getResult());
+      
+      endBatchImpl(batch);
+     
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException e) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw e;
+    }
   }
   
 }

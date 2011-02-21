@@ -22,7 +22,7 @@ namespace com.opengamma.financial.security.option {
     required double strike;
     required util.time.Expiry expiry;
     required id.Identifier underlyingIdentifier;
-    required com.opengamma.core.common.Currency currency;
+    required com.opengamma.core.common.CurrencyUnit currency;
     
     binding Java {
       body <<<JAVA

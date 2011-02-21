@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
@@ -32,7 +32,7 @@ public class InMemoryRegionMasterTest {
 
   private static String NAME = "France";
   private static Identifier ID_COUNTRY = RegionUtils.countryRegionId("FR");
-  private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(Currency.getInstance("EUR"));
+  private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(CurrencyUnit.EUR);
   private static Identifier ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
   private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "The French");
   private static Identifier ID_OTHER2 = Identifier.of("TEST_SCHEME", "France");
@@ -51,7 +51,7 @@ public class InMemoryRegionMasterTest {
     inputRegion.setFullName(NAME);
     inputRegion.setClassification(RegionClassification.INDEPENDENT_STATE);
     inputRegion.setCountryISO("FR");
-    inputRegion.setCurrency(Currency.getInstance("EUR"));
+    inputRegion.setCurrency(CurrencyUnit.EUR);
     inputRegion.setTimeZone(TimeZone.of("Europe/Paris"));
     RegionDocument inputDoc = new RegionDocument(inputRegion);
     addedDoc = master.add(inputDoc);

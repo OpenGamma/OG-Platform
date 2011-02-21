@@ -139,7 +139,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setIssuerType(secMasterSession.getOrCreateIssuerTypeBean(security.getIssuerType()));
     bond.setIssuerDomicile(security.getIssuerDomicile());
     bond.setMarket(secMasterSession.getOrCreateMarketBean(security.getMarket()));
-    bond.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
+    bond.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bond.setYieldConvention(secMasterSession.getOrCreateYieldConventionBean(security.getYieldConvention().getConventionName()));
     bond.setGuaranteeType(security.getGuaranteeType() != null ? secMasterSession.getOrCreateGuaranteeTypeBean(security.getGuaranteeType()) : null);
     bond.setLastTradeDate(expiryToExpiryBean(security.getLastTradeDate()));

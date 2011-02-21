@@ -16,7 +16,7 @@ public interface BatchResultWriter {
   /**
    * Writes results into batch DB.
    * 
-   * @param result the result
+   * @param result the result to save
    * @param depGraph context information, useful for determining
    * which results to write and which to skip
    */

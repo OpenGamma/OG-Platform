@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -110,7 +110,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     final InterestRateLeg payLeg = (InterestRateLeg) swap.getPayLeg();
     final InterestRateLeg receiveLeg = (InterestRateLeg) swap.getReceiveLeg();
     if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
-      final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+      final CurrencyUnit payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
       return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency());
     } else {
       return false;
@@ -124,13 +124,13 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
 
   protected abstract Set<ComputedValue> getComputedValues(FunctionInputs inputs, Security security, Swap<?, ?> swap, YieldCurveBundle bundle, String forwardCurveName, String fundingCurveName);
 
-  protected Currency getCurrencyForTarget(final Security targetSecurity) {
+  protected CurrencyUnit getCurrencyForTarget(final Security targetSecurity) {
     final SwapSecurity swap = (SwapSecurity) targetSecurity;
     final InterestRateLeg leg = (InterestRateLeg) swap.getPayLeg();
     return ((InterestRateNotional) leg.getNotional()).getCurrency();
   }
 
-  protected Currency getCurrencyForTarget(final ComputationTarget target) {
+  protected CurrencyUnit getCurrencyForTarget(final ComputationTarget target) {
     return getCurrencyForTarget(target.getSecurity());
   }
 

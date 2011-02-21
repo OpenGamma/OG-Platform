@@ -12,7 +12,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.springframework.util.ObjectUtils;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
@@ -153,9 +153,9 @@ public abstract class CurrencyMatrixValue {
    */
   public static final class CurrencyMatrixCross extends CurrencyMatrixValue {
 
-    private final Currency _crossCurrency;
+    private final CurrencyUnit _crossCurrency;
 
-    private CurrencyMatrixCross(final Currency crossCurrency) {
+    private CurrencyMatrixCross(final CurrencyUnit crossCurrency) {
       _crossCurrency = crossCurrency;
     }
 
@@ -164,7 +164,7 @@ public abstract class CurrencyMatrixValue {
       return visitor.visitCross(this);
     }
 
-    public Currency getCrossCurrency() {
+    public CurrencyUnit getCrossCurrency() {
       return _crossCurrency;
     }
 
@@ -235,7 +235,7 @@ public abstract class CurrencyMatrixValue {
    * @param currency the intermediate currency
    * @return the matrix value
    */
-  public static CurrencyMatrixCross of(final Currency currency) {
+  public static CurrencyMatrixCross of(final CurrencyUnit currency) {
     return new CurrencyMatrixCross(currency);
   }
 

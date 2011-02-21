@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
@@ -79,8 +79,8 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
 
   @Override
   public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security) {
-    final Currency currency = security.getCurrency();
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getISOCode() + "_TREASURY_BOND_CONVENTION"));
+    final CurrencyUnit currency = security.getCurrency();
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
@@ -117,9 +117,9 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
-    final Currency currency = security.getCurrency();
+    final CurrencyUnit currency = security.getCurrency();
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
-    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getISOCode()
+    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode()
         + "_CASH_CONVENTION");
     //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
     return new CashDefinition(maturityDate, 0, convention);
@@ -132,7 +132,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
 
   @Override
   public FixedIncomeInstrumentDefinition<?> visitFRASecurity(final FRASecurity security) {
-    final String currency = security.getCurrency().getISOCode();
+    final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_FRA"));
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
@@ -181,7 +181,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = getCalendar(regionId);
-    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
+    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
     final FixedSwapLegDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions);
     final FloatingSwapLegDefinition floatingLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, conventions);
@@ -196,7 +196,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
     final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
-    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
+    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
     final FloatingSwapLegDefinition payLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatPayLeg, calendar, currency, conventions);
     final FloatingSwapLegDefinition receiveLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatReceiveLeg, calendar, currency, conventions);

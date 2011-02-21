@@ -14,6 +14,9 @@ import org.junit.Test;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
+/**
+ * Test DayCount Fudge support.
+ */
 public class DayCountTest extends FinancialTestBase {
 
   private static final DayCount s_ref = DayCountFactory.INSTANCE.getDayCount("Act/360");
@@ -26,7 +29,7 @@ public class DayCountTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(DayCount.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getConventionName(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getConventionName())));
   }
 
 }

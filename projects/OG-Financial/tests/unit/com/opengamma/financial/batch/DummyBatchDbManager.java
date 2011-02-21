@@ -79,5 +79,9 @@ public class DummyBatchDbManager implements BatchDbManager {
   public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
     return new BatchErrorSearchResult();
   }
+
+  @Override
+  public void deleteBatch(BatchJobRun batch) {
+  }
   
 }

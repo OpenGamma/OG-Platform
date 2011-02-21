@@ -36,8 +36,10 @@ public class IntegralLimitCalculator {
         return Math.log(ComplexMathUtils.mod(psi.evaluate(z))) - k;
       }
     };
+    double[] range = null;
 
-    double[] range = s_bracketRoot.getBracketedPoints(f, 1.0, 200.0);
+    range = s_bracketRoot.getBracketedPoints(f, 1.0, 200.0);
+
     return s_root.getRoot(f, range[0], range[1]);
   }
 

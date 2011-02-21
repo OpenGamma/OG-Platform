@@ -141,7 +141,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
   protected ValueSpecification createResultSpecification(final ComputationTargetSpecification target, final OptionSecurity targetSecurity) {
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, createValueProperties().with(ValuePropertyNames.CURRENCY,
-        targetSecurity.getCurrency().getISOCode()).get());
+        targetSecurity.getCurrency().getCode()).get());
     return resultSpec;
   }
 

@@ -94,7 +94,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = getCalendar(regionId);
-    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
+    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
     return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar),
