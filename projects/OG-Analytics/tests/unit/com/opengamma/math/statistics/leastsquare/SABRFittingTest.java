@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.BitSet;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFitter;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
@@ -17,11 +19,16 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
 public class SABRFittingTest {
+
+  protected Logger _logger = LoggerFactory.getLogger(SABRFittingTest.class);
+  protected int _hotspotWarmupCycles = 200;
+  protected int _benchmarkCycles = 1000;
 
   private static final double F = 0.03;
   private static final double T = 7.0;
@@ -68,6 +75,47 @@ public class SABRFittingTest {
     assertEquals(NU, res[2], 1e-7);
     assertEquals(RHO, res[3], 1e-7);
     assertEquals(0.0, results.getChiSq(), 1e-7);
+  }
+
+  @Test
+  public void TimeingTest() {
+    SABRFormulaHagan hagan = new SABRFormulaHagan();
+
+    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+      hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+
+    }
+
+    if (_benchmarkCycles > 0) {
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles SABR", _benchmarkCycles);
+      for (int i = 0; i < _benchmarkCycles; i++) {
+        hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+      }
+      timer.finished();
+    }
+
+  }
+
+  @Test
+  public void FitTimeTest() {
+    final BitSet fixed = new BitSet();
+
+    final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
+
+    final SABRFitter fitter = new SABRFitter(SABR);
+
+    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+      fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
+    }
+
+    if (_benchmarkCycles > 0) {
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles fitting", _benchmarkCycles);
+      for (int i = 0; i < _benchmarkCycles; i++) {
+        fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
+      }
+      timer.finished();
+    }
+
   }
 
   @Test
