@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.model;
+package com.opengamma.web.bundle;
 
 import java.io.File;
 import java.util.Collections;

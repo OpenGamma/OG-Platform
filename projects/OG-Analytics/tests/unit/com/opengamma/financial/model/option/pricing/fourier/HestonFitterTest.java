@@ -18,10 +18,9 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFormul
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
-import com.sun.source.tree.AssertTree;
+
 
 /**
  * 

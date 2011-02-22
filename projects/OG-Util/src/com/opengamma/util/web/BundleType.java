@@ -8,9 +8,9 @@ package com.opengamma.util.web;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * ResourceType representation
+ * BundleType representation
  */
-public enum ResourceType {
+public enum BundleType {
   /**
    * Javascript Type
    */
@@ -22,7 +22,7 @@ public enum ResourceType {
 
   private final String _suffix;
 
-  ResourceType(String suffix) {
+  BundleType(String suffix) {
     _suffix = suffix;
   }
 
@@ -30,8 +30,8 @@ public enum ResourceType {
     return _suffix;
   }
 
-  public static ResourceType getType(String fileName) {
-    if (StringUtils.isBlank(fileName)) {
+  public static BundleType getType(String fileName) {
+    if (!StringUtils.isBlank(fileName)) {
       return (fileName.endsWith("." + JS.getSuffix())) ? JS : (fileName.endsWith("." + CSS.getSuffix())) ? CSS : null;
     }
     return null;

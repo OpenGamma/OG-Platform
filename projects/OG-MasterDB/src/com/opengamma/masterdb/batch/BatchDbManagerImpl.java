@@ -882,8 +882,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     
     if (request.getObservationTime() != null) {
       observationTimeCriteria.add(
-          Restrictions.eq("label", request.getObservationTime()))
-          .addOrder(Order.asc("label"));
+          Restrictions.eq("label", request.getObservationTime()));
     }
     
     BatchSearchResult result = new BatchSearchResult();
