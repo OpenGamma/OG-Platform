@@ -12,6 +12,7 @@ import static com.opengamma.math.ComplexMathUtils.log;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.sqrt;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.ComplexMathUtils.mod;
 
 import com.opengamma.math.number.ComplexNumber;
 
@@ -47,17 +48,29 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     double t1 = _omega - 2 * _kappa * _rho;
     double rhoStar = 1 - _rho * _rho;
     double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
-    _alphaMin = (t1 - root) / _omega / rhoStar;
-    _alphaMax = (t1 + root) / _omega / rhoStar;
+    _alphaMin = (t1 - root) / _omega / rhoStar - 1;
+    _alphaMax = (t1 + root) / _omega / rhoStar + 1;
 
   }
 
   @Override
   public ComplexNumber evaluate(final ComplexNumber u) {
-    //that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected 
+    // that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected
     if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
       return new ComplexNumber(0.0);
     }
+
+    //non-stochastic vol limit 
+    if (_omega == 0.0 || mod(multiply(multiply(_omega / _kappa, u), add(I, u))) < 1e-6) {
+      ComplexNumber z = multiply(u, add(I, u));
+      if (_kappa * _t < 1e-6) {
+        return multiply(-_vol0 / 2 * _t, z);
+      }
+      double var = _theta * _t + (_vol0 - _theta) * (1 - Math.exp(-_kappa * _t)) / _kappa;
+      return multiply(-var / 2, z);
+    }
+    
+    
 
     ComplexNumber c = getC(u);
     ComplexNumber dv0 = multiply(_vol0, getD(u));
@@ -68,9 +81,9 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
     ComplexNumber c = c(u);
     ComplexNumber d = d(u);
-    ComplexNumber c3 = multiply(_t, add(_kappa, subtract(d, c1)));
-    ComplexNumber e = exp(multiply(d, _t));
-    ComplexNumber c4 = divide(subtract(multiply(c, e), 1), subtract(c, 1));
+    ComplexNumber c3 = multiply(_t, subtract(_kappa, add(d, c1)));
+    ComplexNumber e = exp(multiply(d, -_t));
+    ComplexNumber c4 = divide(subtract(c, e), subtract(c, 1));
     c4 = log(c4);
     return multiply(_kappa * _theta / _omega / _omega, subtract(c3, multiply(2, c4)));
   }
@@ -80,8 +93,8 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     ComplexNumber c = c(u);
     ComplexNumber d = d(u);
     ComplexNumber c3 = add(_kappa, subtract(d, c1));
-    ComplexNumber e = exp(multiply(d, _t));
-    ComplexNumber c4 = divide(subtract(e, 1), subtract(multiply(c, e), 1));
+    ComplexNumber e = exp(multiply(d, -_t));
+    ComplexNumber c4 = divide(subtract(1, e), subtract(c, e));
     return divide(multiply(c3, c4), _omega * _omega);
   }
 

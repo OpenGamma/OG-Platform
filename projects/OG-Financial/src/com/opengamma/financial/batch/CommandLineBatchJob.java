@@ -341,7 +341,8 @@ public class CommandLineBatchJob {
     options.addOption("snapshotObservationTime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationTime.");
     options.addOption("snapshotObservationDate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationDate");
 
-    options.addOption("runCreationMode", true, "One of auto, always, never (case insensitive). Specifies whether to create a new run in the database." +
+    options.addOption("runCreationMode", true, "One of auto, create_new, create_new_overwrite, reuse_existing (case insensitive)." +
+        " Specifies whether to create a new run in the database." +
         " See documentation of RunCreationMode Java enum to find out more. Default - auto.");
 
     options.addOption("configDbTime", true, "Time at which documents should be loaded from the configuration database. HH:mm[:ss]. Default - system clock.");
@@ -433,10 +434,12 @@ public class CommandLineBatchJob {
       String creationMode = line.getOptionValue("runCreationMode");
       if (creationMode.equalsIgnoreCase("auto")) {
         setRunCreationMode(RunCreationMode.AUTO);
-      } else if (creationMode.equalsIgnoreCase("always")) {
-        setRunCreationMode(RunCreationMode.ALWAYS);
-      } else if (creationMode.equalsIgnoreCase("never")) {
-        setRunCreationMode(RunCreationMode.NEVER);
+      } else if (creationMode.equalsIgnoreCase("create_new")) {
+        setRunCreationMode(RunCreationMode.CREATE_NEW);
+      } else if (creationMode.equalsIgnoreCase("create_new_overwrite")) {
+        setRunCreationMode(RunCreationMode.CREATE_NEW_OVERWRITE);
+      } else if (creationMode.equalsIgnoreCase("reuse_existing")) {
+        setRunCreationMode(RunCreationMode.REUSE_EXISTING);
       } else {
         throw new OpenGammaRuntimeException("Unrecognized runCreationMode. " +
             "Should be one of AUTO, ALWAYS, NEVER. " +

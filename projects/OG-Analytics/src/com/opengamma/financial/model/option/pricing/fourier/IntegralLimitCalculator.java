@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.fourier;
@@ -28,6 +28,10 @@ public class IntegralLimitCalculator {
     Validate.isTrue(tol > 0.0, "need tol > 0");
 
     final double k = Math.log(tol) + Math.log(ComplexMathUtils.mod(psi.evaluate(new ComplexNumber(0.0, -(1 + alpha)))));
+    // debug;
+    if (Double.isNaN(k)) {
+      psi.evaluate(new ComplexNumber(0.0, -(1 + alpha)));
+    }
 
     Function1D<Double, Double> f = new Function1D<Double, Double>() {
       @Override
@@ -36,8 +40,15 @@ public class IntegralLimitCalculator {
         return Math.log(ComplexMathUtils.mod(psi.evaluate(z))) - k;
       }
     };
+    double[] range = null;
 
-    double[] range = s_bracketRoot.getBracketedPoints(f, 1.0, 200.0);
+    try {
+      range = s_bracketRoot.getBracketedPoints(f, 0.0, 200.0);
+    } catch (Exception e) {
+      double f0 = f.evaluate(0.0);
+      double f200 = f.evaluate(200.0);
+      double f1000 = f.evaluate(1000.0);
+    }
     return s_root.getRoot(f, range[0], range[1]);
   }
 

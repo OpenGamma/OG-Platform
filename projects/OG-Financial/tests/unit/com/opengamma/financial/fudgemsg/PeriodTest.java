@@ -14,6 +14,9 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
+/**
+ * Test Period Fudge support.
+ */
 public class PeriodTest extends FinancialTestBase {
 
   private static final Period s_ref = Period.of(2, ISOChronology.periodDays());
@@ -26,6 +29,7 @@ public class PeriodTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Period.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.toString(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.toString())));
   }
+
 }

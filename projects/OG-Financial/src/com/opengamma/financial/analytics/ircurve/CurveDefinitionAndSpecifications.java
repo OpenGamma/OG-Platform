@@ -246,7 +246,7 @@ public class CurveDefinitionAndSpecifications {
     CurrencyUnit eur = CurrencyUnit.EUR;
     Identifier eurRegion = RegionUtils.countryRegionId("EU");
     forwardDefinitions.put(eur, buildForwardCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
-    fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(eur, buildFundingCurve(eur, eurRegion, makeShortEnd(false, false, false), makeLongEnd(1, 15, new int[] {20, 25, 30, 40 })));
     singleDefinitions.put(eur, buildSingleCurve(eur, eurRegion, makeShortEnd(false, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50, 60 })));
     
     CurrencyUnit gbp = CurrencyUnit.GBP;
@@ -281,9 +281,9 @@ public class CurveDefinitionAndSpecifications {
     
     CurrencyUnit cad = CurrencyUnit.CAD;
     Identifier cadRegion = RegionUtils.countryRegionId("CA");
-    forwardDefinitions.put(cad, buildForwardCurve(cad, cadRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
-    fundingDefinitions.put(cad, buildFundingCurve(cad, cadRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    forwardDefinitions.put(cad, buildForwardCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
+    fundingDefinitions.put(cad, buildFundingCurve(cad, cadRegion, makeShortEnd(true, false, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
+    singleDefinitions.put(cad, buildSingleCurve(cad, cadRegion, makeShortEnd(true, false, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     
     CurrencyUnit dkk = CurrencyUnit.of("DKK");
     Identifier dkkRegion = RegionUtils.countryRegionId("DK");

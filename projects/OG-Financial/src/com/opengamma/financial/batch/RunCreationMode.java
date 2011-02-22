@@ -33,7 +33,7 @@ public enum RunCreationMode {
   AUTO,
   
   /**
-   * Always mode.
+   * Create new mode.
    * <p>  
    * When a batch run is started, the system will always create a new run
    * in the database. It will not try to find an existing run in the database.
@@ -41,17 +41,25 @@ public enum RunCreationMode {
    * An error is thrown if there is already a run with the same date and observation
    * time in the database.
    */
-  ALWAYS,
+  CREATE_NEW,
   
   /**
-   * Never mode.
+   * Create new (overwrite) mode.
+   * <p>  
+   * When a batch run is started, the system will always create a new run
+   * in the database. If there is an existing run in the database with the 
+   * same run date and observation time, that run is deleted.
+   */
+  CREATE_NEW_OVERWRITE,
+  
+  /**
+   * Reuse existing run mode.
    * <p>
    * When a batch run is started, the the system will try to find an existing
    * run in the database with the same run date and observation time
    * (for example, 20101105/LDN_CLOSE). If no such run is found,
-   * or if there is more than one such run,
-   * an error is reported and the process quits. If a unique matching run is found, 
-   * however, that run is used no
+   * an error is reported and the process quits. Conversely, if a matching run is found, 
+   * that run is used no
    * matter if the parameters used to start that run were the same
    * as the parameters used to start the current run.
    * The user takes responsibility for any inconsistencies or errors
@@ -60,5 +68,5 @@ public enum RunCreationMode {
    * This mode may be useful in rare error situations where the user needs to modify
    * the parameters to make the run complete. It should not normally be used.
    */
-  NEVER
+  REUSE_EXISTING
 }

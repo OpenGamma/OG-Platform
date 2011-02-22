@@ -78,10 +78,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response putJSON(
-      @FormParam("name") String name,
-      @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue) {
+  public Response putJSON() {
     SecurityDocument doc = data().getSecurity();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
