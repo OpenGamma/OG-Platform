@@ -22,14 +22,36 @@ private:
 	CClientService *m_poClient;
 	CMutex m_oControlMutex;
 	CAtomicPointer<CSemaphore*> m_oStartupSemaphorePtr;
-	struct _callbackEntry {
-		FudgeString strClass;
-		CCallback *poCallback;
-		struct _callbackEntry *pNext;
+	class CCallbackEntry {
+	private:
+		CAtomicInt m_oRefCount;
+		FudgeString m_strClass;
+		CCallback *m_poCallback;
+	public:
+		CCallbackEntry *m_poNext;
+		CCallbackEntry (FudgeString strClass, CCallback *poCallback, CCallbackEntry *poNext)
+			: m_oRefCount (1) {
+			m_strClass = strClass;
+			m_poCallback = poCallback;
+			m_poNext = poNext;
+		}
+		~CCallbackEntry () {
+			assert (m_oRefCount.Get () == 0);
+			if (m_strClass) FudgeString_release (m_strClass);
+		}
+		void Retain () { m_oRefCount.IncrementAndGet (); }
+		static void Release (CCallbackEntry *poEntry) { if (!poEntry->m_oRefCount.DecrementAndGet ()) delete poEntry; }
+		bool IsClass (FudgeString strClass) { return !FudgeString_compare (m_strClass, strClass); }
+		bool IsCallback (CCallback *poCallback) { return m_poCallback == poCallback; }
+		void FreeString () { FudgeString_release (m_strClass); m_strClass = NULL; }
+		void OnMessage (FudgeMsg msgPayload);
+		void OnThreadDisconnect ();
 	};
-	struct _callbackEntry *m_pCallbacks;
+	class CCallbackEntry *m_poCallbacks;
 	CSynchronousCalls m_oSynchronousCalls;
 	CConnector (CClientService *poClient);
+	friend class CConnectorMessageDispatch;
+	friend class CConnectorThreadDisconnectDispatch;
 protected:
 	void OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState);
 	void OnMessageReceived (FudgeMsg msg);
@@ -66,6 +88,7 @@ public:
 	bool Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned long lTimeout);
 	CCall *Call (FudgeMsg msgPayload);
 	bool Send (FudgeMsg msgPayload);
+	// TODO: change the callback to take a <Message>_isClass function instead of a string
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
 	bool RemoveCallback (CCallback *poCallback);
 };

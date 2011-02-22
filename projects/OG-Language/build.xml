@@ -125,6 +125,7 @@
 		<!-- C++ pre-requisites -->
 		<subant target="compile" buildpath="${basedir}/Util" />
 		<subant target="compile" buildpath="${basedir}/Service" />
+		<subant target="compile" buildpath="${basedir}/ServiceRunner" />
 		<subant target="compile" buildpath="${basedir}/Connector" />
 
 		<!-- C++ tests -->

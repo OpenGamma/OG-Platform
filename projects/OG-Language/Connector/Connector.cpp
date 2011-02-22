@@ -9,16 +9,60 @@
 // Main connector API
 
 #include "Public.h"
+#define FUDGE_NO_NAMESPACE
+#include "com_opengamma_language_connector_UserMessage.h"
 
 LOGGING (com.opengamma.language.connector.Connector);
 
-#define ASSERT_CORRECT_LOGIC	// Comment this out to ignore message delivery faults in DEBUG mode
+class CConnectorMessageDispatch : public IRunnable {
+private:
+	CConnector::CCallbackEntry *m_poCallback;
+	FudgeMsg m_msg;
+public:
+	CConnectorMessageDispatch (CConnector::CCallbackEntry *poCallback, FudgeMsg msg)
+	: IRunnable () {
+		poCallback->Retain ();
+		m_poCallback = poCallback;
+		FudgeMsg_retain (msg);
+		m_msg = msg;
+	}
+	~CConnectorMessageDispatch () {
+		CConnector::CCallbackEntry::Release (m_poCallback);
+		FudgeMsg_release (m_msg);
+	}
+	void Run () {
+		m_poCallback->OnMessage (m_msg);
+	}
+};
 
-#ifdef ASSERT_CORRECT_LOGIC
-#define LOGICAL_FAULT(_msg_) { LOGFATAL(_msg_); assert (0); }
-#else
-#define LOGICAL_FAULT(_msg_) LOGERROR(_msg_)
-#endif
+class CConnectorThreadDisconnectDispatch : public IRunnable {
+private:
+	CConnector::CCallbackEntry *m_poCallback;
+public:
+	CConnectorThreadDisconnectDispatch (CConnector::CCallbackEntry *poCallback)
+	: IRunnable () {
+		poCallback->Retain ();
+		m_poCallback = poCallback;
+	}
+	~CConnectorThreadDisconnectDispatch () {
+		CConnector::CCallbackEntry::Release (m_poCallback);
+	}
+	void Run () {
+		m_poCallback->OnThreadDisconnect ();
+	}
+};
+
+void CConnector::CCallbackEntry::OnMessage (FudgeMsg msgPayload) {
+	if (m_strClass) {
+		m_poCallback->OnMessage (msgPayload);
+	} else {
+		LOGDEBUG (TEXT ("Callback object unregistered, discarding message payload"));
+	}
+}
+
+void CConnector::CCallbackEntry::OnThreadDisconnect () {
+	m_poCallback->OnThreadDisconnect ();
+}
 
 void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState) {
 	LOGDEBUG (TEXT ("State changed from ") << ePreviousState << TEXT (" to ") << eNewState);
@@ -27,7 +71,7 @@ void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientService
 		// Make sure all of the semaphores for synchronous calls are "unsignalled" (all get signalled when the client stops)
 		m_oSynchronousCalls.ClearAllSemaphores ();
 		// If in "startup" mode then signal the startup semaphore to release any waiting threads
-		CSemaphore *poSemaphore = (CSemaphore*)m_oStartupSemaphorePtr.GetAndSet (NULL);
+		CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
 		if (poSemaphore) {
 			poSemaphore->Signal ();
 			m_oStartupSemaphorePtr.Set (poSemaphore);
@@ -39,7 +83,7 @@ void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientService
 	} else if ((eNewState == STOPPED ) || (eNewState == ERRORED)) {
 		LOGINFO (TEXT ("Entered stable non-running state"));
 		// If in "startup" mode then signal the startup semaphore to release any waiting threads
-		CSemaphore *poSemaphore = (CSemaphore*)m_oStartupSemaphorePtr.GetAndSet (NULL);
+		CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
 		if (poSemaphore) {
 			poSemaphore->Signal ();
 			m_oStartupSemaphorePtr.Set (poSemaphore);
@@ -48,21 +92,33 @@ void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientService
 }
 
 void CConnector::OnMessageReceived (FudgeMsg msg) {
-	FudgeField field;
-	if ((FudgeMsg_getFieldByOrdinal (&field, msg, 0) != FUDGE_OK)
-		|| (field.type != FUDGE_TYPE_STRING)) {
-		LOGWARN (TEXT ("Message didn't have class string at ordinal 0"));
+	fudge_i32 handle;
+	FudgeMsg msgPayload;
+	if (UserMessage_getFudgeMsgPayload (msg, &msgPayload) != FUDGE_OK) {
+		LOGWARN (TEXT ("Message didn't contain a payload"));
 		return;
 	}
-	m_oControlMutex.Enter ();
-	struct _callbackEntry *pCallback = m_pCallbacks;
-	while (pCallback) {
-		if (!FudgeString_compare (pCallback->strClass, field.data.string)) {
-			TODO (TEXT ("Dispatch message to user callback"));
+	if (UserMessage_getHandle (msg, &handle) == FUDGE_OK) {
+		m_oSynchronousCalls.PostAndRelease (handle, msgPayload);
+	} else {
+		FudgeField field;
+		if ((FudgeMsg_getFieldByOrdinal (&field, msgPayload, 0) == FUDGE_OK) && (field.type == FUDGE_TYPE_STRING)) {
+			m_oControlMutex.Enter ();
+			CCallbackEntry *poCallback = m_poCallbacks;
+			while (poCallback) {
+				if (poCallback->IsClass (field.data.string)) {
+					LOGDEBUG (TEXT ("Dispatching message to user callback"));
+					new CConnectorMessageDispatch (poCallback, msgPayload);
+					TODO (TEXT ("Dispatch the runnable asynchronously"));
+				}
+				poCallback = poCallback->m_poNext;
+			}
+			m_oControlMutex.Leave ();
+		} else {
+			LOGWARN (TEXT ("Message didn't have class string at ordinal 0"));
 		}
-		pCallback = pCallback->pNext;
+		FudgeMsg_release (msgPayload);
 	}
-	m_oControlMutex.Leave ();
 }
 
 CConnector::CCall::CCall (CSynchronousCallSlot *poSlot) {
@@ -75,16 +131,30 @@ CConnector::CCall::~CCall () {
 	}
 }
 
-// TODO: if the slot is released in Cancel or WaitForResult, set it to null!
-
 bool CConnector::CCall::Cancel () {
-	TODO (__FUNCTION__);
-	return false;
+	if (!m_poSlot) {
+		SetLastError (EALREADY);
+		return false;
+	}
+	m_poSlot->Release ();
+	m_poSlot = NULL;
+	return true;
 }
 
 bool CConnector::CCall::WaitForResult (FudgeMsg *pmsgResponse, unsigned long lTimeout) {
-	TODO (__FUNCTION__);
-	return false;
+	if (!m_poSlot) {
+		SetLastError (EALREADY);
+		return false;
+	}
+	FudgeMsg msg = m_poSlot->GetMessage (lTimeout);
+	m_poSlot->Release ();
+	m_poSlot = NULL;
+	if (msg) {
+		*pmsgResponse = msg;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 CConnector::CConnector (CClientService *poClient)
@@ -93,7 +163,7 @@ CConnector::CConnector (CClientService *poClient)
 	m_poClient = poClient;
 	poClient->SetMessageReceivedCallback (this);
 	poClient->SetStateChangeCallback (this);
-	m_pCallbacks = NULL;
+	m_poCallbacks = NULL;
 }
 
 CConnector::~CConnector () {
@@ -103,11 +173,10 @@ CConnector::~CConnector () {
 	m_poClient->SetMessageReceivedCallback (NULL);
 	m_poClient->SetStateChangeCallback (NULL);
 	assert (!m_oStartupSemaphorePtr.Get ());
-	while (m_pCallbacks) {
-		struct _callbackEntry *pCallback = m_pCallbacks;
-		m_pCallbacks = pCallback->pNext;
-		FudgeString_release (pCallback->strClass);
-		delete pCallback;
+	while (m_poCallbacks) {
+		CCallbackEntry *poCallback = m_poCallbacks;
+		m_poCallbacks = poCallback->m_poNext;
+		CCallbackEntry::Release (poCallback);
 	}
 	LOGDEBUG (TEXT ("Releasing client"));
 	CClientService::Release (m_poClient);
@@ -131,7 +200,6 @@ CConnector *CConnector::Start () {
 
 bool CConnector::Stop () {
 	m_oControlMutex.Enter ();
-	// TODO: Release any other resources
 	bool bResult = m_poClient->Stop ();
 	m_oControlMutex.Leave ();
 	return bResult;
@@ -147,7 +215,7 @@ bool CConnector::WaitForStartup (unsigned long lTimeout) {
 		oStartupSemaphore.Wait (lTimeout);
 	}
 retryLock:
-	CSemaphore *poStartupSemaphore = (CSemaphore*)m_oStartupSemaphorePtr.GetAndSet (NULL);
+	CSemaphore *poStartupSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
 	if (poStartupSemaphore) {
 		assert (poStartupSemaphore == &oStartupSemaphore);
 	} else {
@@ -194,8 +262,19 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 }
 
 static bool _SendMessage (CClientService *poClient, fudge_i32 handle, FudgeMsg msgPayload) {
-	TODO (TEXT ("Send message with handle ") << handle);
-	return false;
+	FudgeMsg msg;
+	if (FudgeMsg_create (&msg) != FUDGE_OK) {
+		SetLastError (ENOMEM);
+		return false;
+	}
+	if ((handle && (UserMessage_setHandle (msg, handle) != FUDGE_OK)) || (UserMessage_setFudgeMsgPayload (msg, msgPayload) != FUDGE_OK)) {
+		FudgeMsg_release (msg);
+		SetLastError (ENOMEM);
+		return false;
+	}
+	bool bResult = poClient->Send (msg);
+	FudgeMsg_release (msg);
+	return bResult;
 }
 
 CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) {
@@ -212,11 +291,6 @@ CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) {
 		return NULL;
 	}
 	fudge_i32 handle = poSlot->GetHandle ();
-	FudgeMsg msg = poSlot->GetMessage ();
-	if (msg) {
-		LOGICAL_FAULT (TEXT ("Stale message found in slot ") << poSlot->GetIdentifier ());
-		FudgeMsg_release (msg);
-	}
 	if (_SendMessage (m_poClient, handle, msgPayload)) {
 		LOGDEBUG (TEXT ("Message sent on slot ") << poSlot->GetIdentifier () << TEXT (" with handle ") << handle);
 		return new CCall (poSlot);
@@ -255,16 +329,14 @@ bool CConnector::AddCallback (const TCHAR *pszClass, CCallback *poCallback) {
 		LOGERROR (TEXT ("Couldn't create Fudge string from ") << pszClass);
 		return false;
 	}
-	struct _callbackEntry *pEntry = new struct _callbackEntry;
-	pEntry->poCallback = poCallback;
-	pEntry->strClass = strClass;
 	m_oControlMutex.Enter ();
-	pEntry->pNext = m_pCallbacks;
-	m_pCallbacks = pEntry;
+	m_poCallbacks = new CCallbackEntry (strClass, poCallback, m_poCallbacks);
 	m_oControlMutex.Leave ();
 	return true;
 }
 
+// After the callback is removed, there may still be entries in the queue for it. The reference to the callback
+// will only be discarded after a OnThreadDisconnect has been sent to it.
 bool CConnector::RemoveCallback (CCallback *poCallback) {
 	if (!poCallback) {
 		LOGWARN (TEXT ("Null callback object"));
@@ -272,18 +344,20 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 	}
 	bool bFound = false;
 	m_oControlMutex.Enter ();
-	struct _callbackEntry **ppPrevious = &m_pCallbacks;
-	struct _callbackEntry *pEntry = m_pCallbacks;
-	while (pEntry) {
-		if (pEntry->poCallback == poCallback) {
-			*ppPrevious = pEntry->pNext;
-			FudgeString_release (pEntry->strClass);
-			delete pEntry;
+	CCallbackEntry **ppoPrevious = &m_poCallbacks;
+	CCallbackEntry *poEntry = m_poCallbacks;
+	while (poEntry) {
+		if (poEntry->IsCallback (poCallback)) {
+			*ppoPrevious = poEntry->m_poNext;
+			poEntry->FreeString ();
+			new CConnectorThreadDisconnectDispatch (poEntry);
+			TODO (TEXT ("Shedule the runnable"));
+			CCallbackEntry::Release (poEntry);
 			bFound = true;
 			break;
 		}
-		ppPrevious = &pEntry->pNext;
-		pEntry = pEntry->pNext;
+		ppoPrevious = &poEntry->m_poNext;
+		poEntry = poEntry->m_poNext;
 	}
 	m_oControlMutex.Leave ();
 	return bFound;

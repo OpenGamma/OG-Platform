@@ -46,6 +46,8 @@ static int NativeGetLastError () {
 #define IS_EIO(ec)		((ec == ERROR_READ_FAULT) || (ec == ERROR_WRITE_FAULT))
 #undef ENOENT
 #define ENOENT			ERROR_FILE_NOT_FOUND
+#undef ENOMEM
+#define ENOMEM			ERROR_OUTOFMEMORY
 #undef ENOTCONN
 #define ENOTCONN		ERROR_NOT_CONNECTED
 #undef ETIMEDOUT
