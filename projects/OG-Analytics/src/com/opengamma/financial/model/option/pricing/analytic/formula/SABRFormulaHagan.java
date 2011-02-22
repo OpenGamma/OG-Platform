@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -16,6 +17,7 @@ public class SABRFormulaHagan implements SABRFormula {
   private static final double EPS = 1e-15;
 
   @Override
+  @ExternalFunction
   public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     Validate.isTrue(f > 0.0, "f must be > 0.0");
