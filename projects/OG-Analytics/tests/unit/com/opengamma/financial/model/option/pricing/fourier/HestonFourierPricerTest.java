@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
+import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
@@ -106,11 +107,11 @@ public class HestonFourierPricerTest {
     final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, t);
     EuropeanCallFT intergrand = new EuropeanCallFT(heston);
 
-    //    for (int i = 0; i < 201; i++) {
-    //      double x = -0. + i * 20. / 200.0;
-    //      ComplexNumber res = intergrand.evaluate(new ComplexNumber(x, -(1 - 0.6)));
-    //      System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
-    //    }
+//        for (int i = 0; i < 201; i++) {
+//          double x = -0. + i * 20. / 200.0;
+//          ComplexNumber res = intergrand.evaluate(new ComplexNumber(x, -(1 - 0.6)));
+//          System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
+//        }
 
   }
 
@@ -139,7 +140,7 @@ public class HestonFourierPricerTest {
 
       impVol = BlackImpliedVolFormula.impliedVol(price, 1, k, 1, t, true);
 
-      // System.out.println(k + "\t" + impVol);
+     //  System.out.println(k + "\t" + impVol);
     }
   }
 

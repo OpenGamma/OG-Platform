@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
@@ -22,7 +23,7 @@ public class BlackImpliedVolFormula {
   public static double impliedVol(final double optionPrice, final double f, final double k, final double discountFactor, final double t, final boolean isCall) {
 
     double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
-    Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than inteinsic value");
+    Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than intrinsic value");
 
     if (optionPrice == intrinsicPrice) {
       return 0.0;
@@ -40,4 +41,39 @@ public class BlackImpliedVolFormula {
     return s_root.getRoot(func, range[0], range[1]);
 
   }
+
+  public static double impliedVolNewton(final double optionPrice, final double f, final double k, final double discountFactor, final double t, final boolean isCall) {
+
+    double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
+    Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than intrinsic value");
+
+    double sigma = 0.3;
+    double maxChange = 0.5;
+    double p = BlackFormula.optionPrice(f, k, discountFactor, sigma, t, isCall);
+    double vega = BlackFormula.vega(f, k, discountFactor, sigma, t);
+    double change = (p - optionPrice) / vega;
+    double sign = Math.signum(change);
+    change = sign * Math.min(maxChange, Math.abs(change));
+    if (change > 0 && change > sigma) {
+      change = sigma;
+    }
+    int count = 0;
+    while (Math.abs(change) > 1e-8) {
+      sigma -= change;
+      p = BlackFormula.optionPrice(f, k, discountFactor, sigma, t, isCall);
+      vega = BlackFormula.vega(f, k, discountFactor, sigma, t);
+      change = (p - optionPrice) / vega;
+      sign = Math.signum(change);
+      change = sign * Math.min(maxChange, Math.abs(change));
+      if (change > 0 && change > sigma) {
+        change = sigma;
+      }
+
+      if (count++ > 50) {
+        throw new MathException("implied vol not found");
+      }
+    }
+    return sigma;
+  }
+
 }

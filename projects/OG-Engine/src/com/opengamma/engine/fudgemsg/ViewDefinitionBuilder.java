@@ -107,8 +107,11 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+    FudgeField identifierField = message.getByName(IDENTIFIER_FIELD);
+    UniqueIdentifier identifier = identifierField == null ? null : context.fieldValueToObject(UniqueIdentifier.class, identifierField);
+    
     ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
-        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(IDENTIFIER_FIELD)),
+        identifier,
         context.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD)),
         context.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)));
 
