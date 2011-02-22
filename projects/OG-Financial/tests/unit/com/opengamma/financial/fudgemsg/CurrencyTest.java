@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import com.opengamma.core.common.CurrencyUnit;
 
+/**
+ * Test CurrencyUnit Fudge support.
+ */
 public class CurrencyTest extends FinancialTestBase {
 
   private static final CurrencyUnit s_ref = CurrencyUnit.USD;
@@ -25,13 +28,13 @@ public class CurrencyTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(CurrencyUnit.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getCode(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getCode())));
   }
 
   @Test
   public void testFromUniqueIdentifier() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(CurrencyUnit.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getUniqueId().toString(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getUniqueId().toString())));
   }
 
 }

@@ -25,16 +25,28 @@ public class BlackFormula {
     return optionPriceImp(f, k, discountFactor, sigma, t, isCall);
   }
 
+  public static double vega(final double f, final double k, final double discountFactor, final double sigma, final double t) {
+
+    final double rootT = Math.sqrt(t);
+    final double d1 = getD1(f, k, sigma * rootT);
+    return f * rootT * discountFactor * NORMAL.getPDF(d1);
+
+  }
+
   private static double optionPriceImp(final double f, final double k, final double discountFactor, final double sigma, final double t, final boolean isCall) {
 
     final int sign = isCall ? 1 : -1;
-    final double simgaRootT = sigma * Math.sqrt(t);
-    if (simgaRootT < 1e-16) {
+    final double sigmaRootT = sigma * Math.sqrt(t);
+    if (f == k) {
+      return discountFactor * f * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
+    }
+
+    if (sigmaRootT < 1e-16) {
       final double x = sign * (f - k);
       return (x > 0 ? discountFactor * x : 0.0);
     }
-    final double d1 = getD1(f, k, simgaRootT);
-    final double d2 = d1 - simgaRootT;
+    final double d1 = getD1(f, k, sigmaRootT);
+    final double d2 = d1 - sigmaRootT;
 
     return sign * discountFactor * (f * NORMAL.getCDF(sign * d1) - k * NORMAL.getCDF(sign * d2));
   }

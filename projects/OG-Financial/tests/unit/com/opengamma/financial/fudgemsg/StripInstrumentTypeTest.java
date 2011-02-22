@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 
+/**
+ * Test StripInstrumentType Fudge support.
+ */
 public class StripInstrumentTypeTest extends FinancialTestBase {
 
   private static final StripInstrumentType s_ref = StripInstrumentType.FUTURE;
@@ -25,7 +28,7 @@ public class StripInstrumentTypeTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(StripInstrumentType.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.name(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.name())));
   }
 
 }

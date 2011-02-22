@@ -222,7 +222,7 @@ public class UiResourceConfigTask extends Task {
   }
 
   private boolean isCssFile(com.opengamma.util.web.File file) {
-    return file.getSuffix().equals(ResourceType.CSS.getSuffix());
+    return file.getSuffix().equals(BundleType.CSS.getSuffix());
   }
 
   private JavaScriptCompressor createJavaScriptCompressor(Reader in) throws IOException {
@@ -257,7 +257,7 @@ public class UiResourceConfigTask extends Task {
   }
 
   private boolean isJavaScript(com.opengamma.util.web.File file) {
-    return file.getSuffix().equals(ResourceType.JS.getSuffix());
+    return file.getSuffix().equals(BundleType.JS.getSuffix());
   }
 
   private FileList createAntFileList(List<String> fileList) {
