@@ -48,7 +48,7 @@ public:
 
 class CMessageCallback : public CClientService::CMessageReceived {
 private:
-	CAtomicPointer m_msg;
+	CAtomicPointer<FudgeMsg> m_msg;
 protected:
 	void OnMessageReceived (FudgeMsg msg) {
 		LOGINFO (TEXT ("Message received"));
@@ -58,13 +58,13 @@ protected:
 	}
 public:
 	~CMessageCallback () {
-		FudgeMsg msg = (FudgeMsg)m_msg.GetAndSet (NULL);
+		FudgeMsg msg = m_msg.GetAndSet (NULL);
 		if (msg) {
 			FudgeMsg_release (msg);
 		}
 	}
 	FudgeMsg GetMessage () {
-		return (FudgeMsg)m_msg.GetAndSet (NULL);
+		return m_msg.GetAndSet (NULL);
 	}
 };
 

@@ -91,7 +91,7 @@ public:
 			struct timespec ts;
 			time (&ts.tv_sec);
 			ts.tv_sec += timeout / 1000;
-			ts.tv_nsec = (timeout % 1000) * 1000000;
+			ts.tv_nsec = (500000000 + ((timeout % 1000) * 1000000)) % 1000000000;
 			return !sem_timedwait (&m_semaphore, &ts);
 		} else {
 			return !sem_wait (&m_semaphore);
