@@ -10,11 +10,11 @@ import java.util.Map;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.DeltaDefinition;
+import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 
 /**
@@ -57,34 +57,34 @@ public class ViewDeltaResultCalculator {
 
   private static void computeDeltaModel(DeltaDefinition deltaDefinition, InMemoryViewDeltaResultModel deltaModel, ComputationTargetSpecification targetSpec,
       String calcConfigName, ViewCalculationResultModel previousCalcModel, ViewCalculationResultModel resultCalcModel) {
-    if (previousCalcModel == null) {
-      // Everything is new/delta because this is a new calculation context.
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-        deltaModel.addValue(calcConfigName, resultEntry.getValue());
-      }
-    } else {
-      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
-      
-      if (previousValues == null) {
-        // Everything is new/delta because this is a new target.
+    final Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
+    if (resultValues != null) {
+      if (previousCalcModel == null) {
+        // Everything is new/delta because this is a new calculation context.
         for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
           deltaModel.addValue(calcConfigName, resultEntry.getValue());
         }
       } else {
-        // Have to individual delta.
-        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
-          ComputedValue resultValue = resultEntry.getValue();
-          ComputedValue previousValue = previousValues.get(resultEntry.getKey());
-          // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
-          // computation cycle, not the value that we last emitted as a delta. It is therefore important that the
-          // DeltaComparers take this into account in their implementation of isDelta. E.g. they should compare the
-          // values after truncation to the required decimal place, rather than testing whether the difference of the
-          // full values is greater than some threshold; this way, there will always be a point beyond which a change
-          // is detected, even in the event of gradual creep.
-          if (deltaDefinition.isDelta(previousValue, resultValue)) {
+        final Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
+        if (previousValues == null) {
+          // Everything is new/delta because this is a new target.
+          for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
             deltaModel.addValue(calcConfigName, resultEntry.getValue());
+          }
+        } else {
+          // Have to individual delta.
+          for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+            ComputedValue resultValue = resultEntry.getValue();
+            ComputedValue previousValue = previousValues.get(resultEntry.getKey());
+            // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
+            // computation cycle, not the value that we last emitted as a delta. It is therefore important that the
+            // DeltaComparers take this into account in their implementation of isDelta. E.g. they should compare the
+            // values after truncation to the required decimal place, rather than testing whether the difference of the
+            // full values is greater than some threshold; this way, there will always be a point beyond which a change
+            // is detected, even in the event of gradual creep.
+            if (deltaDefinition.isDelta(previousValue, resultValue)) {
+              deltaModel.addValue(calcConfigName, resultEntry.getValue());
+            }
           }
         }
       }
