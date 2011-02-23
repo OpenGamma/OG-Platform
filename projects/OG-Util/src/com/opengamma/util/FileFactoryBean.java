@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -37,13 +38,13 @@ public class FileFactoryBean implements FactoryBean<File> {
     setFile(new File(filename));
   }
 
-  public void setResource(final String path) {
+  public void setResource(final Resource resource) {
     try {
       // Because File objects can't point to things in JAR files, we extract any resources to
       // the local file system so we can return a proper "File".
-      final InputStream in = getClass().getResourceAsStream(path);
+      final InputStream in = resource.getInputStream();
       if (in == null) {
-        throw new OpenGammaRuntimeException("Resource " + path + " not found");
+        throw new OpenGammaRuntimeException("Resource " + resource.getDescription() + " not found");
       }
       _file = File.createTempFile("FileFactoryBean", null);
       final OutputStream out = new FileOutputStream(_file);
