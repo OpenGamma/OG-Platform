@@ -23,20 +23,24 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
   }
 
   public NewtonRaphsonSingleRootFinder(final double accuracy) {
-    _accuracy = accuracy;
+    _accuracy = Math.abs(accuracy);
   }
 
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+    Validate.notNull(function, "function");
+    Validate.notNull(x1, "x1");
+    Validate.notNull(x2, "x2");
     final DoubleFunction1D f = DoubleFunction1D.from(function);
     return getRoot(f, f.derivative(), x1, x2);
   }
 
   public Double getRoot(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final Double x1, final Double x2) {
-    Validate.isTrue(function instanceof DoubleFunction1D);
-    Validate.isTrue(derivative instanceof DoubleFunction1D);
-    final DoubleFunction1D f = (DoubleFunction1D) function;
-    return getRoot(f, f.derivative(), x1, x2);
+    Validate.notNull(function, "function");
+    Validate.notNull(derivative, "derivative");
+    Validate.notNull(x1, "x1");
+    Validate.notNull(x2, "x2");
+    return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x1, x2);
   }
 
   public Double getRoot(final DoubleFunction1D function, final DoubleFunction1D derivative, final Double x1, final Double x2) {
