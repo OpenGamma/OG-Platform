@@ -24,6 +24,7 @@ void *CThread::StartProc (apr_thread_t *handle, void *pObject) {
 	poThread->m_oTerminate.Signal ();
 #endif
 	CThread::Release (poThread);
+// TODO: need to support a FreeLibraryAndExitThread in Win32
 	return 0;
 }
 

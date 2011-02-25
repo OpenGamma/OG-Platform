@@ -101,6 +101,7 @@ public:
 		m_poCaller = NULL;
 #ifdef _WIN32
 		if (m_hDll) {
+// TODO: this will introduce a memory leak. Need to support FreeLibraryAndExitThread natively within CThread
 			FreeLibraryAndExitThread (m_hDll, 0);
 		} else {
 			LOGFATAL (TEXT ("No module handle to free library with"));
