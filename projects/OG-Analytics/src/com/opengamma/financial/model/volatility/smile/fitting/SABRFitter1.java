@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.option.pricing.analytic.formula;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
@@ -32,13 +35,9 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 /**
  * 
  */
-public class SABRFitter {
-
+public class SABRFitter1 {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
-
   private static final int N_PARAMETERS = 4;
-  private final SABRFormula _formula;
-
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
   static {
@@ -49,7 +48,9 @@ public class SABRFitter {
     TRANSFORMS[3] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
   }
 
-  public SABRFitter(final SABRFormula formula) {
+  private final VolatilityFunctionProvider<SABRFormulaData> _formula;
+
+  public SABRFitter1(final VolatilityFunctionProvider<SABRFormulaData> formula) {
     _formula = formula;
   }
 
@@ -59,7 +60,7 @@ public class SABRFitter {
 
     final SABRATMVolSolver atmSolver = new SABRATMVolSolver(_formula);
     if (recoverATMVol) {
-      Validate.isTrue(atmVol > 0.0, "ATM  must be > 0");
+      Validate.isTrue(atmVol > 0.0, "ATM volatility must be > 0");
       fixed.set(0, true);
     }
 
@@ -77,10 +78,15 @@ public class SABRFitter {
         final double beta = mp.getEntry(1);
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
+        final SABRFormulaData data;
         if (recoverATMVol) {
-          alpha = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
+          alpha = atmSolver.solve(new SABRFormulaData(forward, alpha, beta, nu, rho), new EuropeanVanillaOption(forward, maturity, true), atmVol);
+          data = new SABRFormulaData(forward, alpha, beta, nu, rho);
+        } else {
+          data = new SABRFormulaData(forward, alpha, beta, nu, rho);
         }
-        return _formula.impliedVolatility(forward, alpha, beta, nu, rho, strike, maturity);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
+        return _formula.getVolatilityFunction(option).evaluate(data);
       }
     };
 
@@ -91,7 +97,9 @@ public class SABRFitter {
       final double beta = mp[1];
       final double nu = mp[2];
       final double rho = mp[3];
-      final double value = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(forward, maturity, true);
+      final SABRFormulaData data = new SABRFormulaData(forward, mp[0], beta, nu, rho);
+      final double value = atmSolver.solve(data, option, atmVol);
       mp[0] = value;
     }
 
@@ -118,7 +126,9 @@ public class SABRFitter {
         final double rho = mp.getEntry(3);
         double chiSqr = 0;
         for (int i = 0; i < n; i++) {
-          chiSqr += FunctionUtils.square((blackVols[i] - _formula.impliedVolatility(forward, alpha, beta, nu, rho, strikes[i], maturity)) / errors[i]);
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], maturity, true);
+          final SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
+          chiSqr += FunctionUtils.square((blackVols[i] - _formula.getVolatilityFunction(option).evaluate(data)) / errors[i]);
         }
 
         return chiSqr;
@@ -135,25 +145,24 @@ public class SABRFitter {
   }
 
   private final class SABRATMVolSolver {
-    private final SABRFormula _sabrFormula;
+    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFormula;
     private final BracketRoot _bracketer = new BracketRoot();
     private final RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
 
-    private SABRATMVolSolver(final SABRFormula formula) {
+    private SABRATMVolSolver(final VolatilityFunctionProvider<SABRFormulaData> formula) {
       _sabrFormula = formula;
     }
 
-    double solve(final double forward, final double maturity, final double atmVol, final double beta, final double nu, final double rho) {
-
+    double solve(final SABRFormulaData data, final EuropeanVanillaOption option, final double atmVol) {
       final Function1D<Double, Double> f = new Function1D<Double, Double>() {
         @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double alpha) {
-          return _sabrFormula.impliedVolatility(forward, alpha, beta, nu, rho, forward, maturity) - atmVol;
+          data.setAlpha(alpha);
+          return _sabrFormula.getVolatilityFunction(option).evaluate(data) - atmVol;
         }
       };
-
-      final double alphaTry = atmVol * Math.pow(forward, 1 - beta);
+      final double alphaTry = atmVol * Math.pow(data.getF(), 1 - data.getBeta());
       final double[] range = _bracketer.getBracketedPoints(f, alphaTry / 2.0, 2 * alphaTry);
       return _rootFinder.getRoot(f, range[0], range[1]);
     }

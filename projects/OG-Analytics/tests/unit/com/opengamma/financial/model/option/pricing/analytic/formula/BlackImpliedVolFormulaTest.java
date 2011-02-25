@@ -5,14 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static org.junit.Assert.*;
-
-
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -22,8 +19,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class BlackImpliedVolFormulaTest {
 
   protected Logger _logger = LoggerFactory.getLogger(BlackImpliedVolFormulaTest.class);
-  protected int _hotspotWarmupCycles = 200;
-  protected int _benchmarkCycles = 1000;
+  protected int _hotspotWarmupCycles = 2000;
+  protected int _benchmarkCycles = 10000;
 
   private static final double FORWARD = 134.5;
   private static final double DF = 0.87;
@@ -47,7 +44,7 @@ public class BlackImpliedVolFormulaTest {
 
     for (int j = 0; j < _hotspotWarmupCycles; j++) {
       for (int i = 0; i < N; i++) {
-        double vol = BlackImpliedVolFormula.impliedVol(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
+        final double vol = BlackImpliedVolFormula.impliedVol(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
         assertEquals(SIGMA, vol, 1e-6);
       }
     }
@@ -56,9 +53,9 @@ public class BlackImpliedVolFormulaTest {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on Brent", _benchmarkCycles);
       for (int j = 0; j < _benchmarkCycles; j++) {
         for (int i = 0; i < N; i++) {
-          double vol = BlackImpliedVolFormula.impliedVol(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
+          final double vol = BlackImpliedVolFormula.impliedVol(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
           assertEquals(SIGMA, vol, 1e-6);
-        }     
+        }
       }
       timer.finished();
     }
@@ -68,7 +65,7 @@ public class BlackImpliedVolFormulaTest {
   public void testNR() {
     for (int j = 0; j < _hotspotWarmupCycles; j++) {
       for (int i = 0; i < N; i++) {
-        double vol = BlackImpliedVolFormula.impliedVolNewton(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
+        final double vol = BlackImpliedVolFormula.impliedVolNewton(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
         assertEquals(SIGMA, vol, 1e-6);
       }
     }
@@ -77,9 +74,9 @@ public class BlackImpliedVolFormulaTest {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on Newton", _benchmarkCycles);
       for (int j = 0; j < _benchmarkCycles; j++) {
         for (int i = 0; i < N; i++) {
-          double vol = BlackImpliedVolFormula.impliedVolNewton(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
+          final double vol = BlackImpliedVolFormula.impliedVolNewton(PRICES[i], FORWARD, STRIKES[i], DF, T, true);
           assertEquals(SIGMA, vol, 1e-6);
-        }     
+        }
       }
       timer.finished();
     }

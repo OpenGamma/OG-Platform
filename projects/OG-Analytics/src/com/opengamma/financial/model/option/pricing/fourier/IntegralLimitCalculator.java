@@ -33,22 +33,16 @@ public class IntegralLimitCalculator {
       psi.evaluate(new ComplexNumber(0.0, -(1 + alpha)));
     }
 
-    Function1D<Double, Double> f = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> f = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double x) {
-        ComplexNumber z = new ComplexNumber(x, -(1 + alpha));
+      public Double evaluate(final Double x) {
+        final ComplexNumber z = new ComplexNumber(x, -(1 + alpha));
         return Math.log(ComplexMathUtils.mod(psi.evaluate(z))) - k;
       }
     };
     double[] range = null;
 
-    try {
-      range = s_bracketRoot.getBracketedPoints(f, 0.0, 200.0);
-    } catch (Exception e) {
-      double f0 = f.evaluate(0.0);
-      double f200 = f.evaluate(200.0);
-      double f1000 = f.evaluate(1000.0);
-    }
+    range = s_bracketRoot.getBracketedPoints(f, 0.0, 200.0);
     return s_root.getRoot(f, range[0], range[1]);
   }
 

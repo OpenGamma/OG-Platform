@@ -5,6 +5,8 @@
  */
 package com.opengamma.math;
 
+import static com.opengamma.math.number.ComplexNumber.I;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.number.ComplexNumber;
@@ -14,7 +16,6 @@ import com.opengamma.math.number.ComplexNumber;
  */
 
 public class TrigonometricFunctionUtils {
-  private static final ComplexNumber I = new ComplexNumber(0, 1);
   private static final ComplexNumber NEGATIVE_I = new ComplexNumber(0, -1);
 
   public static double acos(final double x) {
@@ -23,8 +24,8 @@ public class TrigonometricFunctionUtils {
 
   /**
    * arccos - the inverse of cos
-   * @param z
-   * @return
+   * @param z A complex number
+   * @return acos(z)
    */
   public static ComplexNumber acos(final ComplexNumber z) {
     Validate.notNull(z, "z");
@@ -49,8 +50,8 @@ public class TrigonometricFunctionUtils {
 
   public static ComplexNumber asin(final ComplexNumber z) {
     Validate.notNull(z, "z");
-    return ComplexMathUtils.multiply(NEGATIVE_I, ComplexMathUtils.log(ComplexMathUtils.add(ComplexMathUtils.multiply(I, z), ComplexMathUtils.sqrt(ComplexMathUtils.subtract(1, ComplexMathUtils
-          .multiply(z, z))))));
+    return ComplexMathUtils.multiply(NEGATIVE_I,
+        ComplexMathUtils.log(ComplexMathUtils.add(ComplexMathUtils.multiply(I, z), ComplexMathUtils.sqrt(ComplexMathUtils.subtract(1, ComplexMathUtils.multiply(z, z))))));
   }
 
   public static double asinh(final double x) {

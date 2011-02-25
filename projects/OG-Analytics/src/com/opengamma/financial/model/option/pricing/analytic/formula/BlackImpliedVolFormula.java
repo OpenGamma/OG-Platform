@@ -22,7 +22,7 @@ public class BlackImpliedVolFormula {
 
   public static double impliedVol(final double optionPrice, final double f, final double k, final double discountFactor, final double t, final boolean isCall) {
 
-    double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
+    final double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
     Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than intrinsic value");
 
     if (optionPrice == intrinsicPrice) {
@@ -32,7 +32,7 @@ public class BlackImpliedVolFormula {
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double sigma) {
+      public Double evaluate(final Double sigma) {
         return BlackFormula.optionPrice(f, k, discountFactor, sigma, t, isCall) - optionPrice;
       }
     };
@@ -44,11 +44,11 @@ public class BlackImpliedVolFormula {
 
   public static double impliedVolNewton(final double optionPrice, final double f, final double k, final double discountFactor, final double t, final boolean isCall) {
 
-    double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
+    final double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
     Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than intrinsic value");
 
     double sigma = 0.3;
-    double maxChange = 0.5;
+    final double maxChange = 0.5;
     double p = BlackFormula.optionPrice(f, k, discountFactor, sigma, t, isCall);
     double vega = BlackFormula.vega(f, k, discountFactor, sigma, t);
     double change = (p - optionPrice) / vega;
@@ -65,6 +65,7 @@ public class BlackImpliedVolFormula {
       change = (p - optionPrice) / vega;
       sign = Math.signum(change);
       change = sign * Math.min(maxChange, Math.abs(change));
+      change = sign * Math.abs(change);
       if (change > 0 && change > sigma) {
         change = sigma;
       }

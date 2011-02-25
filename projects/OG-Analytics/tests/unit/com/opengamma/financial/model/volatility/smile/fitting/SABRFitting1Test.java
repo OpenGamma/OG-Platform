@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.statistics.leastsquare;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.BitSet;
 
@@ -13,20 +14,22 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFitter;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.financial.model.volatility.smile.fitting.SABRFitter1;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
-public class SABRFittingTest {
+public class SABRFitting1Test {
 
-  protected Logger _logger = LoggerFactory.getLogger(SABRFittingTest.class);
+  protected Logger _logger = LoggerFactory.getLogger(SABRFitting1Test.class);
   protected int _hotspotWarmupCycles = 200;
   protected int _benchmarkCycles = 1000;
 
@@ -41,7 +44,7 @@ public class SABRFittingTest {
   private static double[] VOLS;
   private static double[] NOISY_VOLS;
   private static double[] ERRORS;
-  private static SABRFormula SABR = new SABRFormulaHagan();
+  private static SABRHaganVolatilityFunction SABR = new SABRHaganVolatilityFunction();
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1, new cern.jet.random.engine.MersenneTwister(12));
 
   static {
@@ -52,8 +55,8 @@ public class SABRFittingTest {
     ERRORS = new double[n];
 
     for (int i = 0; i < n; i++) {
-
-      VOLS[i] = SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, STRIKES[i], T);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
+      VOLS[i] = SABR.getVolatilityFunction(option).evaluate(new SABRFormulaData(F, ALPHA, BETA, NU, RHO));
       ERRORS[i] = 0.01;
       NOISY_VOLS[i] = VOLS[i] + ERRORS[i] * RANDOM.nextRandom();
     }
@@ -65,11 +68,9 @@ public class SABRFittingTest {
 
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
-    final SABRFitter fitter = new SABRFitter(SABR);
+    final SABRFitter1 fitter = new SABRFitter1(SABR);
     final LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
     final double[] res = results.getParameters().getData();
-    final DoubleMatrix2D covar = results.getCovariance();
-
     assertEquals(ALPHA, res[0], 1e-7);
     assertEquals(BETA, res[1], 1e-7);
     assertEquals(NU, res[2], 1e-7);
@@ -78,8 +79,8 @@ public class SABRFittingTest {
   }
 
   @Test
-  public void TimeingTest() {
-    SABRFormulaHagan hagan = new SABRFormulaHagan();
+  public void testTiming() {
+    final SABRFormulaHagan hagan = new SABRFormulaHagan();
 
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
       hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
@@ -97,12 +98,12 @@ public class SABRFittingTest {
   }
 
   @Test
-  public void FitTimeTest() {
+  public void testFitTime() {
     final BitSet fixed = new BitSet();
 
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
-    final SABRFitter fitter = new SABRFitter(SABR);
+    final SABRFitter1 fitter = new SABRFitter1(SABR);
 
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
       fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
@@ -120,72 +121,16 @@ public class SABRFittingTest {
 
   @Test
   public void testNoisyFit() {
-
     final BitSet fixed = new BitSet();
-    // fixed.set(1, true);
+    fixed.set(1, true);
     final double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
-    final SABRFitter fitter = new SABRFitter(SABR);
+    final SABRFitter1 fitter = new SABRFitter1(SABR);
     final LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed, 0, false);
-    // assertTrue(results.getChiSq() < 3.0);
-    final DoubleMatrix2D covar = results.getCovariance();
-    final double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
-
-    // for (int i = 0; i < STRIKES.length; i++) {
-    // System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
-    // }
-
+    assertTrue(results.getChiSq() < 10.0);
     final double[] res = results.getParameters().getData();
-
-    double k, m;
-    for (int i = 0; i < 100; i++) {
-      m = -3 + i * 4.5 / 100;
-      k = F * Math.exp(m * sigmaLNRootT);
-      // System.out.print(k + "\t" + SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolatility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
-    }
-
-    // System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
-    // System.out.println(results.getChiSq());
-
-    // assertEquals(ALPHA, res[0], 1e-7);
-    // assertEquals(BETA, res[1], 1e-7);
-    // assertEquals(NU, res[2], 1e-7);
-    // assertEquals(RHO, res[3], 1e-7);
-  }
-
-  @Test
-  public void sanityCheck() {
-
-    final double alpha = 0.022218760837654682;
-    final double beta = 0.2;// 0.991886529;
-    final double nu = 0.20960993229450917;// 1.353913643;
-    final double rho = 0.999999;
-    final double t = 1.0;
-
-    final double f = 0.039757;
-
-    final double sigmaLNRootT = alpha * Math.pow(f, beta - 1) * Math.sqrt(t);
-    double k, m;
-    for (int i = 0; i < 100; i++) {
-      m = -3 + i * 4.5 / 100;
-      k = f * Math.exp(m * sigmaLNRootT);
-      // System.out.print(k + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, k, t) + "\n");
-    }
-  }
-
-  @Test
-  public void sanityCheck2() {
-    final double volATM = 1.5;
-    final double f = 0.046744;
-    final double beta = 0.5;// 0.991886529;
-    final double alpha = volATM * Math.pow(f, 1 - beta);
-    final double nu = 2.0;// 1.353913643;
-    // double rho = -0.9;
-    final double t = 2.0;
-
-    final double rho0 = SABR.impliedVolatility(f, alpha, beta, nu, 0.0, f, t);
-    for (int i = 0; i < 100; i++) {
-      final double rho = -1 + i / 49.5;
-      // System.out.print(rho + "\t" + SABR.impliedVolatility(f, alpha, beta, nu, rho, f, t) / rho0 + "\n");
-    }
+    assertEquals(ALPHA, res[0], 1e-3);
+    assertEquals(BETA, res[1], 1e-7);
+    assertEquals(RHO, res[3], 1e-1);
+    assertEquals(NU, res[2], 1e-2);
   }
 }

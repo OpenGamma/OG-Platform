@@ -26,7 +26,6 @@ import com.opengamma.math.matrix.OGMatrixAlgebra;
  * 
  */
 public class NonLinearLeastSquare {
-
   private final double _eps;
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
