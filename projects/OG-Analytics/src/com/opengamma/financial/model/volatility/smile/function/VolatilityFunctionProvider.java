@@ -14,5 +14,10 @@ import com.opengamma.math.function.Function1D;
  */
 public interface VolatilityFunctionProvider<T> {
 
+  /**
+   * Returns a function that, given data of type T, calculates the volatility.
+   * @param option The option, not null
+   * @return Returns a function that, given data of type T, calculates the volatility
+   */
   Function1D<T, Double> getVolatilityFunction(EuropeanVanillaOption option);
 }

@@ -7,8 +7,10 @@ package com.opengamma.financial.model.volatility.smile.function;
 
 import static com.opengamma.math.FunctionUtils.square;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
@@ -23,6 +25,7 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
     final double k = option.getK();
     final double t = option.getT();
     return new Function1D<SABRFormulaData, Double>() {
@@ -30,6 +33,7 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
       @SuppressWarnings("synthetic-access")
       @Override
       public final Double evaluate(final SABRFormulaData data) {
+        Validate.notNull(data, "data");
         final double alpha = data.getAlpha();
         final double beta = data.getBeta();
         final double rho = data.getRho();
@@ -41,6 +45,13 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         final double beta1 = 1 - beta;
 
         final double x = Math.log(k / f);
+        if (CompareUtils.closeEquals(nu, 0, EPS)) {
+          if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
+            return alpha; // this is just log-normal
+          } else {
+            throw new NotImplementedException("Have not implemented the case where nu = 0, beta != 0");
+          }
+        }
 
         // the formula behaves very badly close to ATM
         if (CompareUtils.closeEquals(x, 0.0, 1e-3)) {
@@ -59,7 +70,7 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
           return a2 * x * x + a1 * x + a0;
         }
         final double tScale = nu * nu * t;
-        final double alphaScale = alpha / nu; // TODO treat the nu = 0 limit
+        final double alphaScale = alpha / nu;
 
         double q;
         if (CompareUtils.closeEquals(beta, 1.0, EPS)) {

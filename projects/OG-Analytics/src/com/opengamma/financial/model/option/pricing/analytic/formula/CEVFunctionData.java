@@ -7,12 +7,11 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
-
 /**
  * 
  */
 public class CEVFunctionData extends BlackFunctionData {
-  private double _beta;
+  private final double _beta;
 
   public CEVFunctionData(final double f, final double df, final double sigma, final double beta) {
     super(f, df, sigma);
@@ -22,9 +21,5 @@ public class CEVFunctionData extends BlackFunctionData {
 
   public double getBeta() {
     return _beta;
-  }
-
-  public void setBeta(final double beta) {
-    _beta = beta;
   }
 }

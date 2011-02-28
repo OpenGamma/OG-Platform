@@ -9,9 +9,9 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
  * 
  */
 public class BlackFunctionData {
-  private double _f;
-  private double _df;
-  private double _sigma;
+  private final double _f;
+  private final double _df;
+  private final double _sigma;
 
   public BlackFunctionData(final double f, final double df, final double sigma) {
     _f = f;
@@ -29,18 +29,6 @@ public class BlackFunctionData {
 
   public double getSigma() {
     return _sigma;
-  }
-
-  public void setF(final double f) {
-    _f = f;
-  }
-
-  public void setDf(final double df) {
-    _df = df;
-  }
-
-  public void setSigma(final double sigma) {
-    _sigma = sigma;
   }
 
 }

@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 
@@ -18,7 +19,7 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
  */
 public class CEVPriceFunctionTest {
   private static final SABRHaganVolatilityFunction SABR = new SABRHaganVolatilityFunction();
-  private static final CEVVolatilityFunction CEV = new CEVVolatilityFunction();
+  private static final CEVPriceFunction CEV = new CEVPriceFunction();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
 
   /**

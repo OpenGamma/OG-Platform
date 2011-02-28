@@ -10,7 +10,7 @@ import java.util.BitSet;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
@@ -154,12 +154,14 @@ public class SABRFitter1 {
     }
 
     double solve(final SABRFormulaData data, final EuropeanVanillaOption option, final double atmVol) {
+      Validate.notNull(data, "data");
       final Function1D<Double, Double> f = new Function1D<Double, Double>() {
+
         @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double alpha) {
-          data.setAlpha(alpha);
-          return _sabrFormula.getVolatilityFunction(option).evaluate(data) - atmVol;
+          final SABRFormulaData newData = new SABRFormulaData(data.getF(), alpha, data.getBeta(), data.getNu(), data.getRho());
+          return _sabrFormula.getVolatilityFunction(option).evaluate(newData) - atmVol;
         }
       };
       final double alphaTry = atmVol * Math.pow(data.getF(), 1 - data.getBeta());

@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRFitter1;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
